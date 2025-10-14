@@ -1,0 +1,50 @@
+name: rj_smtr__brt_gps_teste
+prefect-version: 3.4.3
+
+build:
+  - prefect.deployments.steps.run_shell_script:
+      id: get-commit-hash
+      script: git rev-parse --short HEAD
+      stream_output: false
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      requires: prefect-docker>=0.6.5
+      image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
+      tag: "rj_smtr__brt_gps_teste-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/rj_smtr__brt_gps_teste/Dockerfile
+
+push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      requires: prefect-docker>=0.6.5
+      image_name: "{{ build-image.image_name }}"
+      tag: "{{ build-image.tag }}"
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /opt/prefect/pipelines_v3
+
+deployments:
+  - name: rj-smtr--brt_gps_teste--staging
+    version: "{{ build-image.tag }}"
+    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        secretName: prefect-jobs-secrets-staging
+        image_pull_policy: Always
+  - name: rj-smtr--brt_gps_teste--prod
+    version: "{{ get-commit-hash.stdout }}"
+    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    schedules:
+      - cron: "0 0 * * *"
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        secretName: prefect-jobs-secrets
+        image_pull_policy: Always
