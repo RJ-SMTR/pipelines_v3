@@ -4,10 +4,10 @@ from typing import Optional
 
 import pytz
 
-from pipelines import constants as smtr_constants
-from pipelines.default.capture.generic_capture import constants
-from pipelines.utils.fs import get_data_folder_path
-from pipelines.utils.gcp.bigquery import SourceTable
+from pipelines.common import constants as smtr_constants
+from pipelines.common.capture.default_capture import constants
+from pipelines.common.utils.fs import get_data_folder_path
+from pipelines.common.utils.gcp.bigquery import SourceTable
 
 
 class SourceCaptureContext:

@@ -15,10 +15,14 @@ from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery.external_config import HivePartitioningOptions
 
-from pipelines import constants
-from pipelines.utils.gcp.base import GCPBase
-from pipelines.utils.gcp.storage import Storage
-from pipelines.utils.utils import convert_timezone, cron_date_range, cron_get_last_date
+from pipelines.common import constants
+from pipelines.common.utils.gcp.base import GCPBase
+from pipelines.common.utils.gcp.storage import Storage
+from pipelines.common.utils.utils import (
+    convert_timezone,
+    cron_date_range,
+    cron_get_last_date,
+)
 
 
 class Dataset(GCPBase):

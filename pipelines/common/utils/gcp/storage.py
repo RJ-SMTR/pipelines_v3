@@ -10,7 +10,7 @@ from typing import Optional, Union
 from google.cloud import storage
 from google.cloud.storage.blob import Blob
 
-from pipelines.utils.gcp.base import GCPBase
+from pipelines.common.utils.gcp.base import GCPBase
 
 
 class Storage(GCPBase):

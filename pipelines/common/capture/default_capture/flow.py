@@ -4,15 +4,15 @@ from typing import Optional
 from prefect import unmapped
 from prefect.tasks import Task
 
-from pipelines.default.capture.generic_capture.tasks import (
+from pipelines.common.capture.default_capture.tasks import (
     create_capture_contexts,
     get_raw_data,
     transform_raw_to_nested_structure,
     upload_raw_file_to_gcs,
     upload_source_data_to_gcs,
 )
-from pipelines.tasks import get_run_env, get_scheduled_timestamp
-from pipelines.utils.gcp.bigquery import SourceTable
+from pipelines.common.tasks import get_run_env, get_scheduled_timestamp
+from pipelines.common.utils.gcp.bigquery import SourceTable
 
 
 def create_capture_flows_default_tasks(  # noqa: PLR0913

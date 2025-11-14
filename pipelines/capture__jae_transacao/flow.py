@@ -3,7 +3,7 @@ from prefect import flow, get_run_logger
 
 from pipelines.capture__jae_transacao import constants
 from pipelines.capture__jae_transacao.tasks import create_jae_general_extractor
-from pipelines.default.capture.generic_capture.flow import (
+from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 

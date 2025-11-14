@@ -10,8 +10,6 @@ COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
 COPY ./pipelines/constants.py ./pipelines/constants.py
 
-COPY ./pipelines/utils/ ./pipelines/utils/
-
-COPY ./pipelines/default/capture/ ./pipelines/default/capture/
+COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages

@@ -6,7 +6,7 @@ from typing import Union
 
 from google.cloud import bigquery, storage
 
-from pipelines import constants
+from pipelines.common import constants
 
 
 @dataclass
