@@ -22,7 +22,10 @@ def normalize_text(text):
     return text
 
 
-def transform_to_nested_structure(data: pd.DataFrame, primary_keys: list) -> pd.DataFrame:
+def transform_to_nested_structure(
+    data: pd.DataFrame,
+    primary_keys: list,
+) -> pd.DataFrame:
     """
     Transforma colunas do DataFrame na coluna content no formato Json
     agrupando pelas primary keys
