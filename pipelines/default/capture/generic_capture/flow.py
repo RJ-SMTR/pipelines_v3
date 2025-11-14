@@ -4,7 +4,7 @@ from typing import Optional
 from prefect import unmapped
 from prefect.tasks import Task
 
-from pipelines.default.generic_capture.tasks import (
+from pipelines.default.capture.generic_capture.utils import (
     create_capture_contexts,
     get_raw_data,
     transform_raw_to_nested_structure,
