@@ -29,10 +29,7 @@ def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
 
 
 @task
-def get_run_env(env: Optional[str]) -> str:
-    deployment_name: str = runtime.deployment.name
-    print(deployment_name)
-    print(dict(runtime.deployment))
+def get_run_env(env: Optional[str], deployment_name: str) -> str:
     if deployment_name is not None:
         env = "prod" if deployment_name.endswith("--prod") else "dev"
 

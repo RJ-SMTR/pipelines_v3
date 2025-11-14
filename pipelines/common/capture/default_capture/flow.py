@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from prefect import unmapped
+from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.default_capture.tasks import (
@@ -27,8 +27,12 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 ):
     tasks = {}
     tasks_wait_for = tasks_wait_for or {}
+
+    deployment_name = runtime.deployment.name
+
     tasks["env"] = get_run_env(
         env=env,
+        deployment_name=deployment_name,
         wait_for=tasks_wait_for.get("env"),
     )
     tasks["timestamp"] = get_scheduled_timestamp(

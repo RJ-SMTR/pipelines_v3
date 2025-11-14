@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from prefect import context, flow, runtime
+from prefect import flow
 
 from pipelines.capture__jae_transacao import constants
 from pipelines.capture__jae_transacao.tasks import create_jae_general_extractor
@@ -18,10 +18,6 @@ def capture__jae_transacao(
     recapture_days=2,
     recapture_timestamps=None,
 ):
-    ctx = context.get_run_context()
-    print("deployment_id:", ctx.flow_run.deployment_id)
-    print("deployment_name:", runtime.deployment.name)
-
     create_capture_flows_default_tasks(
         env=env,
         sources=[constants.TRANSACAO_SOURCE],
