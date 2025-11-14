@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""General purpose functions"""
+"""Funções gerais"""
 
 import io
 import uuid
@@ -8,11 +8,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import pandas_gbq
 import pendulum
-import pytz
 from croniter import croniter
-from pandas_gbq.exceptions import GenericGBQException
 from pytz import timezone
 
 import pipelines
@@ -60,108 +57,6 @@ def data_info_str(data: pd.DataFrame):
     buffer = io.StringIO()
     data.info(buf=buffer)
     return buffer.getvalue()
-
-
-def isostr_to_datetime(datetime_str: str) -> datetime:
-    """
-    Converte uma string de data no formato iso em um datetime em UTC
-
-    Args:
-        datetime_str (str): String a ser convertida
-
-    Returns:
-        datetime: String convertida em datetime
-    """
-    converted = datetime.fromisoformat(datetime_str)
-    if converted.tzinfo is None:
-        converted = converted.replace(tzinfo=pytz.UTC)
-    else:
-        converted = converted.astimezone(tz=pytz.timezone("UTC"))
-
-    return converted
-
-
-def create_sql_update_filter(
-    env: str,
-    dataset_id: str,
-    table_id: str,
-    primary_keys: list[str],
-    content_columns_to_search: list[str],
-) -> str:
-    """
-    Cria condição para ser usada no WHERE de queries SQL
-    de modo a buscar por mudanças em um conjunto de colunas
-    com base na tabela do BQ.
-
-    Args:
-        env (str): Dev ou prod.
-        dataset_id (str): Dataset_id no BigQuery.
-        table_id (str): Table_id no BigQuery.
-        primary_keys (list[str]): Lista de primary keys da tabela.
-        content_columns_to_search (list[str]): Lista de nomes das colunas
-            dentro da coluna content para buscar por alterações.
-
-    Returns:
-        str: Condição para ser adicionada na query. Se a tabela não existir no BQ, retorna 1=1
-    """
-    project = constants.PROJECT_NAME[env]
-    print(f"project = {project}")
-    pks_to_concat_bq = [c.split(".")[-1] for c in primary_keys]
-    content_to_concat_bq = [
-        f"SAFE_CAST(JSON_VALUE(content, '$.{c.split('.')[-1]}') AS STRING)"
-        for c in content_columns_to_search
-    ]
-    concat_arg = ",'_',"
-
-    columns_to_concat_bq = pks_to_concat_bq + content_to_concat_bq
-
-    columns_to_search_db = primary_keys + content_columns_to_search
-
-    try:
-        query = f"""
-        SELECT DISTINCT
-            CONCAT("'", {concat_arg.join(columns_to_concat_bq)}, "'")
-        FROM
-            `{project}.{dataset_id}.{table_id}`
-        """
-        print(query)
-        last_values = pandas_gbq.read_gbq(query, project_id=project)
-
-        last_values = last_values.iloc[:, 0].to_list()
-        last_values = ", ".join(last_values)
-        update_condition = f"""CONCAT(
-                {concat_arg.join(columns_to_search_db)}
-            ) NOT IN ({last_values})
-        """
-
-    except GenericGBQException as err:
-        if "404 Not found" in str(err):
-            print("table not found, setting updates to 1=1")
-            update_condition = "1=1"
-        else:
-            raise err
-
-    return update_condition
-
-
-def get_last_materialization_redis_key(env: str, dataset_id: str, table_id: str) -> str:
-    """
-    Gera o nome para ser usado na key onde serão salvos no Redis os dados
-    de controle para materialização de uma tabela
-
-    Args:
-        env (str): dev ou prod
-        dataset_id (str): nome do dataset no dbt
-        table_id (str): nome da tabela no dbt
-
-    Returns:
-        str: nome da key
-    """
-    key = dataset_id + "." + table_id
-    if env == "dev":
-        key = f"{env}.{key}"
-
-    return key
 
 
 def cron_date_range(cron_expr: str, start_time: datetime, end_time: datetime) -> list[datetime]:
