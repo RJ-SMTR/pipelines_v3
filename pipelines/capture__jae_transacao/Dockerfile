@@ -8,4 +8,10 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
+COPY ./pipelines/constants.py ./pipelines/constants.py
+
+COPY ./pipelines/utils/ ./pipelines/utils/
+
+COPY ./pipelines/default/capture/ ./pipelines/default/capture/
+
 RUN uv sync --all-packages
