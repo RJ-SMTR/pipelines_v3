@@ -6,6 +6,6 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/rj_smtr__default_capture ./pipelines/rj_smtr__default_capture/
+COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
 RUN uv sync --all-packages

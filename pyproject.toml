@@ -6,9 +6,14 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "idna>=3.10",
+    "infisicalsdk>=1.0.12",
     "iplanrio",
     "pandas>=2.2.3",
+    "pendulum>=3.1.0",
+    "pre-commit>=4.4.0",
     "prefect==3.4.9",
+    "pydantic>=2.0,<3.0",
+    "python-dotenv>=1.0.1",
     "unidecode>=1.3.8",
 ]
 
@@ -17,13 +22,14 @@ iplanrio = { git = "https://github.com/prefeitura-rio/iplanrio.git" }
 
 [tool.uv.workspace]
 members = ["pipelines/*"]
+exclude = ["pipelines/__pycache__"]
 
 [dependency-groups]
 dev = ["prefect-docker>=0.6.5"]
 
 [tool.ruff]
 target-version = "py313"
-line-length = 120
+line-length = 100
 indent-width = 4
 
 [tool.ruff.lint]

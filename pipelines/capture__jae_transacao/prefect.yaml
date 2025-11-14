@@ -1,4 +1,4 @@
-name: rj_smtr__default_capture
+name: capture__jae_transacao
 prefect-version: 3.4.3
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "rj_smtr__default_capture-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/rj_smtr__default_capture/Dockerfile
+      tag: "capture__jae_transacao-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/capture__jae_transacao/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,20 +24,20 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-smtr--default_capture--staging
+  - name: rj-capture--jae_transacao--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/rj_smtr__default_capture/flow.py:rj_smtr__default_capture
+    entrypoint: pipelines/capture__jae_transacao/flow.py:capture__jae_transacao
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__default_capture -- prefect flow-run execute
+        command: uv run --package capture__jae_transacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-smtr--default_capture--prod
+  - name: rj-capture--jae_transacao--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/rj_smtr__default_capture/flow.py:rj_smtr__default_capture
+    entrypoint: pipelines/capture__jae_transacao/flow.py:capture__jae_transacao
     schedules:
       - cron: "0 0 * * *"
     work_pool:
@@ -45,6 +45,6 @@ deployments:
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__default_capture -- prefect flow-run execute
+        command: uv run --package capture__jae_transacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always

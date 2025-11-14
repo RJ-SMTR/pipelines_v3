@@ -10,3 +10,10 @@ README.md
 docs/
 flake.lock
 flake.nix
+**/data/
+test_local.py
+pylint.txt
+test.py
+test/*
+test/*.ipynb
+test/*.csv
