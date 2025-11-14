@@ -7,8 +7,8 @@ import pandas as pd
 from prefect import task
 
 from pipelines import constants as smtr_constants
-from pipelines.default.capture import constants
-from pipelines.default.capture.utils import SourceCaptureContext
+from pipelines.default.capture.generic_capture.utils import SourceCaptureContext
+from pipelines.default.generic_capture import constants
 from pipelines.utils.fs import read_raw_data, save_local_file
 from pipelines.utils.gcp.bigquery import SourceTable
 from pipelines.utils.pretreatment import (

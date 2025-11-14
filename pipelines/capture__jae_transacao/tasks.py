@@ -8,7 +8,7 @@ from pytz import timezone
 
 from pipelines import constants as smtr_constants
 from pipelines.capture__jae_transacao import constants
-from pipelines.default.capture.utils import SourceCaptureContext
+from pipelines.default.capture.generic_capture.utils import SourceCaptureContext
 from pipelines.utils.extractors.db import get_raw_db, get_raw_db_paginated
 from pipelines.utils.secret import get_secret
 from pipelines.utils.utils import convert_timezone

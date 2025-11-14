@@ -5,7 +5,7 @@ from typing import Optional
 import pytz
 
 from pipelines import constants as smtr_constants
-from pipelines.default.capture import constants
+from pipelines.default.generic_capture import constants
 from pipelines.utils.fs import get_data_folder_path
 from pipelines.utils.gcp.bigquery import SourceTable
 
