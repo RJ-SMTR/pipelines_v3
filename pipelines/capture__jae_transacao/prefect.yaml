@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__jae_transacao/flow.py:capture__jae_transacao
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "*/1 * * * *"
     work_pool:
       name: smtr-pool
       work_queue_name: default
