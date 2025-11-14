@@ -5,7 +5,7 @@ from typing import Optional
 from infisical_sdk import InfisicalSDKClient
 from iplanrio.pipelines_utils.env import getenv_or_action
 
-from pipelines.utils.utils import is_running_locally
+from pipelines.common.utils.utils import is_running_locally
 
 
 def get_infisical_client() -> InfisicalSDKClient:

@@ -9,7 +9,7 @@ import pandas as pd
 import pytz
 from unidecode import unidecode
 
-from pipelines import constants
+from pipelines.common import constants
 
 
 def normalize_text(text):

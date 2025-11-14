@@ -6,15 +6,18 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 from prefect import task
 
-from pipelines import constants as smtr_constants
-from pipelines.default.capture.generic_capture.utils import SourceCaptureContext, constants
-from pipelines.utils.fs import read_raw_data, save_local_file
-from pipelines.utils.gcp.bigquery import SourceTable
-from pipelines.utils.pretreatment import (
+from pipelines.common import constants as smtr_constants
+from pipelines.common.capture.default_capture.utils import (
+    SourceCaptureContext,
+    constants,
+)
+from pipelines.common.utils.fs import read_raw_data, save_local_file
+from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
 )
-from pipelines.utils.utils import convert_timezone, data_info_str
+from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
 @task

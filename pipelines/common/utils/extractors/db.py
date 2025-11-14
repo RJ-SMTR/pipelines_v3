@@ -4,8 +4,8 @@
 import pandas as pd
 from sqlalchemy import create_engine
 
-from pipelines.utils.database import create_database_url
-from pipelines.utils.fs import save_local_file
+from pipelines.common.utils.database import create_database_url
+from pipelines.common.utils.fs import save_local_file
 
 
 def get_raw_db(  # noqa: PLR0913

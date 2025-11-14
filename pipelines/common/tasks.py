@@ -6,7 +6,7 @@ from typing import Optional
 
 from prefect import runtime, task
 
-from pipelines.utils.utils import convert_timezone
+from pipelines.common.utils.utils import convert_timezone
 
 
 @task

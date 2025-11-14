@@ -13,7 +13,7 @@ from croniter import croniter
 from pytz import timezone
 
 import pipelines
-from pipelines import constants
+from pipelines.common import constants
 
 
 def is_running_locally() -> bool:

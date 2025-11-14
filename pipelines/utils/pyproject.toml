@@ -1,4 +1,0 @@
-[project]
-name = "utils"
-version = "0.1.0"
-description = "Funções gerais para Pipelines da SMTR"

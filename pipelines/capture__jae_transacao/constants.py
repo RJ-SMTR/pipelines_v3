@@ -6,9 +6,9 @@ Valores constantes para captura de dados da Jaé
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines import constants as smtr_constants
-from pipelines.utils.gcp.bigquery import SourceTable
-from pipelines.utils.pretreatment import raise_if_column_isna
+from pipelines.common import constants as smtr_constants
+from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.pretreatment import raise_if_column_isna
 
 JAE_SOURCE_NAME = "jae"
 

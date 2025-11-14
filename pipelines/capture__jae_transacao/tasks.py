@@ -6,12 +6,12 @@ from zoneinfo import ZoneInfo
 from prefect import task
 from pytz import timezone
 
-from pipelines import constants as smtr_constants
 from pipelines.capture__jae_transacao import constants
-from pipelines.default.capture.generic_capture.utils import SourceCaptureContext
-from pipelines.utils.extractors.db import get_raw_db, get_raw_db_paginated
-from pipelines.utils.secret import get_secret
-from pipelines.utils.utils import convert_timezone
+from pipelines.common import constants as smtr_constants
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
+from pipelines.common.utils.extractors.db import get_raw_db, get_raw_db_paginated
+from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.utils import convert_timezone
 
 
 def get_capture_delay_minutes(capture_delay_minutes: dict[str, int], timestamp: datetime) -> int:

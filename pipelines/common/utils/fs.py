@@ -9,7 +9,7 @@ from typing import Optional, Union
 import pandas as pd
 
 import pipelines
-from pipelines.utils.utils import custom_serialization
+from pipelines.common.utils.utils import custom_serialization
 
 
 def get_root_path() -> Path:
