@@ -41,7 +41,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["contexts"] = create_capture_contexts(
-        env=env,
+        env=tasks["env"],
         sources=sources,
         timestamp=tasks["timestamp"],
         recapture=recapture,
