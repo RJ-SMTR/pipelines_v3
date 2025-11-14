@@ -4,13 +4,11 @@ requires-python = ">=3.13"
 
 [manifest]
 members = [
-    "capture-default-capture",
     "capture-jae-transacao",
-    "default",
+    "common",
     "pipelines-v3",
     "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
-    "utils",
 ]
 
 [[package]]
@@ -225,11 +223,6 @@ wheels = [
 ]
 
 [[package]]
-name = "capture-default-capture"
-version = "0.1.0"
-source = { virtual = "pipelines/capture__default_capture" }
-
-[[package]]
 name = "capture-jae-transacao"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao" }
@@ -357,6 +350,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
 ]
+
+[[package]]
+name = "common"
+version = "0.1.0"
+source = { virtual = "pipelines/common" }
 
 [[package]]
 name = "coolname"
@@ -643,11 +641,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/19/76/36c9aab3d5c19a940
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f7/e6/efe534ef0952b531b630780e19cabd416e2032697019d5295defc6ef9bd9/deepdiff-8.6.1-py3-none-any.whl", hash = "sha256:ee8708a7f7d37fb273a541fa24ad010ed484192cd0c4ffc0fa0ed5e2d4b9e78b", size = 91378, upload-time = "2025-09-03T19:40:39.679Z" },
 ]
-
-[[package]]
-name = "default"
-version = "0.1.0"
-source = { virtual = "pipelines/default" }
 
 [[package]]
 name = "distlib"
@@ -3038,11 +3031,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/15/22/9ee70a2574a4f4599
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a7/c2/fe1e52489ae3122415c51f387e221dd0773709bad6c6cdaa599e8a2c5185/urllib3-2.5.0-py3-none-any.whl", hash = "sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc", size = 129795, upload-time = "2025-06-18T14:07:40.39Z" },
 ]
-
-[[package]]
-name = "utils"
-version = "0.1.0"
-source = { virtual = "pipelines/utils" }
 
 [[package]]
 name = "uv"
