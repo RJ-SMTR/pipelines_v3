@@ -35,3 +35,5 @@ def get_run_env(env: Optional[str], deployment_name: str) -> str:
 
     if env not in ("prod", "dev"):
         raise ValueError("O ambiente deve ser prod ou dev")
+
+    return env
