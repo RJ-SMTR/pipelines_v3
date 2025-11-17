@@ -10,4 +10,6 @@ COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
+ENV RUNNING_IN_DOCKER=1
+
 RUN uv sync --all-packages
