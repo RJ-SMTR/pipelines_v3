@@ -3,6 +3,7 @@
 
 import json
 import os
+from importlib.resources import files
 from pathlib import Path
 from typing import Optional, Union
 
@@ -16,7 +17,9 @@ def get_root_path() -> Path:
     """
     Retorna o caminho da raiz do projeto.
     """
-    root_path = Path(pipelines.__file__).parent.parent
+    pkg_root = Path(files(pipelines))
+    root_path = pkg_root.parent
+    print(f"pkg_root = {pkg_root}")
 
     if str(root_path).endswith("site-packages"):
         root_path = Path("/app")
