@@ -17,13 +17,11 @@ def get_root_path() -> Path:
     """
     Retorna o caminho da raiz do projeto.
     """
-    pkg_root = Path(files(pipelines))
-    root_path = pkg_root.parent
-    print(f"pkg_root = {pkg_root}")
+    if Path("/.dockerenv").exists():
+        print("Rodando no docker")
+        return Path("/app")
 
-    if str(root_path).endswith("site-packages"):
-        root_path = Path("/app")
-    return root_path
+    return Path(files(pipelines)).parent
 
 
 def get_data_folder_path() -> str:
