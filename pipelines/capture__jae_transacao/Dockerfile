@@ -4,10 +4,12 @@ LABEL org.opencontainers.image.source=https://github.com/rj-smtr/pipelines_v3
 
 WORKDIR /opt/prefect/pipelines_v3
 
-COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
+COPY ./pyproject.toml /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
+
+RUN uv lock
 
 RUN uv sync --all-packages
