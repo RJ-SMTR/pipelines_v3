@@ -3,11 +3,13 @@ from datetime import datetime
 from typing import Optional
 
 import pytz
+from prefect import runtime
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture import constants
 from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.utils import convert_timezone
 
 
 class SourceCaptureContext:
@@ -63,3 +65,13 @@ class SourceCaptureContext:
                 filetype=self.source.raw_filetype,
             ),
         )
+
+
+def rename_capture_flow_run() -> str:
+    scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
+        "%Y-%m-%d %H-%M-%S"
+    )
+
+    flow_name = runtime.flow_run.flow_name
+    recapture = runtime.flow_run.parameters["recapture"]
+    return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"

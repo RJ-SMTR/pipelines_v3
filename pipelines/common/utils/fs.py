@@ -3,20 +3,24 @@
 
 import json
 import os
+from importlib.resources import files
 from pathlib import Path
 from typing import Optional, Union
 
 import pandas as pd
-from iplanrio.pipelines_utils.io import get_root_path
 
-from pipelines.common.utils.utils import custom_serialization
+from pipelines import common
+from pipelines.common.utils.utils import custom_serialization, is_running_locally
 
-# def get_root_path() -> Path:
-#     """
-#     Retorna o caminho da raiz do projeto.
-#     """
 
-#     return Path(files(common)).parent
+def get_root_path() -> Path:
+    """
+    Retorna o caminho da raiz do projeto.
+    """
+    if is_running_locally():
+        return Path(files(common)).parent.parent
+    else:
+        return Path("/app")
 
 
 def get_data_folder_path() -> str:
@@ -26,8 +30,6 @@ def get_data_folder_path() -> str:
     Returns:
         str: Caminho para a pasta data
     """
-
-    print(get_root_path())
     root = get_root_path()
     return str(root / os.getenv("DATA_FOLDER", "data"))
 
