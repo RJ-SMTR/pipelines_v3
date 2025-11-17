@@ -31,6 +31,7 @@ dev = ["prefect-docker>=0.6.5"]
 target-version = "py313"
 line-length = 100
 indent-width = 4
+exclude = ["templates"]
 
 [tool.ruff.lint]
 fixable = ["ALL"]
