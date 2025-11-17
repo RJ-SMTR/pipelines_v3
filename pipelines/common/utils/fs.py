@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-import pipelines
+from pipelines import common
 from pipelines.common.utils.utils import custom_serialization
 
 
@@ -17,11 +17,12 @@ def get_root_path() -> Path:
     """
     Retorna o caminho da raiz do projeto.
     """
+    print(Path(files(common)).parent)
     if Path("/.dockerenv").exists():
         print("Rodando no docker")
         return Path("/app")
 
-    return Path(files(pipelines)).parent
+    return Path(files(common)).parent
 
 
 def get_data_folder_path() -> str:
@@ -31,7 +32,9 @@ def get_data_folder_path() -> str:
     Returns:
         str: Caminho para a pasta data
     """
-    return str(get_root_path() / os.getenv("DATA_FOLDER", "data"))
+    root = get_root_path()
+    print(root)
+    return str(root / os.getenv("DATA_FOLDER", "data"))
 
 
 def get_filetype(filepath: str):
