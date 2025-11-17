@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pathlib import Path
+import os
 
 from prefect import flow, task
 
@@ -11,9 +11,11 @@ from pipelines.common.capture.default_capture.flow import (
 
 
 @task
-def is_docker():
-    cgroup = Path("/proc/self/cgroup")
-    return Path("/.dockerenv").is_file() or (cgroup.is_file() and "docker" in cgroup.read_text())
+def running_in_docker():
+    secret_key = bool(os.environ.get("RUNNING_IN_DOCKER", ""))
+
+    # if secret_key:
+    print(secret_key)
 
 
 @flow(log_prints=True)
@@ -24,7 +26,7 @@ def capture__jae_transacao(
     recapture_days=2,
     recapture_timestamps=None,
 ):
-    print(is_docker())
+    running_in_docker()
     create_capture_flows_default_tasks(
         env=env,
         sources=[constants.TRANSACAO_SOURCE],
