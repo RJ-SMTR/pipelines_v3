@@ -2,9 +2,9 @@
 """Funções gerais"""
 
 import io
+import os
 import uuid
 from datetime import date, datetime
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -12,14 +12,11 @@ import pendulum
 from croniter import croniter
 from pytz import timezone
 
-import pipelines
 from pipelines.common import constants
 
 
 def is_running_locally() -> bool:
-    root_path = Path(pipelines.__file__).parent.parent
-
-    return not str(root_path).endswith("site-packages")
+    return not bool(os.environ.get("RUNNING_IN_DOCKER", ""))
 
 
 def custom_serialization(obj: Any) -> Any:
