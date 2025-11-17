@@ -1,4 +1,29 @@
 # -*- coding: utf-8 -*-
+{% if cookiecutter.flow_type == "capture" -%}
+from prefect import flow
+
+from pipelines.common.capture.default_capture.flow import (
+    create_capture_flows_default_tasks,
+)
+
+@flow(log_prints=True)
+def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
+    env=None,
+    timestamp=None,
+    recapture=False,
+    recapture_days=2,
+    recapture_timestamps=None,
+) -> list[str]:
+    create_capture_flows_default_tasks(
+        env=env,
+        sources=[],
+        timestamp=timestamp,
+        create_extractor_task=,
+        recapture=recapture,
+        recapture_days=recapture_days,
+        recapture_timestamps=recapture_timestamps,
+    )
+{% else -%}
 import random
 
 import pandas as pd
@@ -27,3 +52,5 @@ def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}() -> list[str]:
     customer_ids = get_customer_ids()
     results = process_customer.map(customer_ids)
     return results
+
+{%- endif -%}
