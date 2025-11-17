@@ -12,7 +12,6 @@ from pipelines.common.capture.default_capture.tasks import (
     upload_source_data_to_gcs,
 )
 from pipelines.common.tasks import get_run_env, get_scheduled_timestamp
-from pipelines.common.utils.fs import get_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 
@@ -30,8 +29,6 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for = tasks_wait_for or {}
 
     deployment_name = runtime.deployment.name
-
-    print(get_root_path())
 
     tasks["env"] = get_run_env(
         env=env,
