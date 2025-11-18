@@ -13,6 +13,15 @@ from pipelines.common import constants
 
 
 def normalize_text(text):
+    """
+    Normaliza um texto removendo acentos e caracteres especiais.
+
+    Args:
+        text (str): Texto a ser normalizado.
+
+    Returns:
+        str: Texto normalizado.
+    """
     text = unidecode(text)
     text = re.sub(r"[^a-zA-Z0-9]+", "_", text)
     text = re.sub(r"_+", "_", text)

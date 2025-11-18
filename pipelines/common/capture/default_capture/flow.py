@@ -30,6 +30,24 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     recapture_timestamps: list[str],
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
 ):
+    """
+    Cria o conjunto padrão de tasks para um fluxo de captura.
+
+    Args:
+        env (Optional[str]): prod ou dev.
+        sources (list[SourceTable]): Lista de objetos SourceTable para captura.
+        source_table_ids (tuple[str]): Tupla com os table_ids dos sources a serem capturados.
+        timestamp (str): Timestamp de captura.
+        create_extractor_task (Task): Task utilizada para criar as tasks de extração.
+        recapture (bool): Se a run é recaptura ou não.
+        recapture_days (int): Quantidade de dias retroativos usados na recaptura.
+        recapture_timestamps (list[str]): Lista de timestamps para serem recapturados.
+        tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
+            argumento wait_for das tasks retornadas por esta função.
+
+    Returns:
+        dict: Dicionário com o retorno das tasks.
+    """
     tasks = {}
     tasks_wait_for = tasks_wait_for or {}
 

@@ -70,6 +70,17 @@ def get_env_secret(
     secret_path: str,
     secret_name: Optional[str] = None,
 ) -> dict:
+    """
+    Obtém segredos a partir de variáveis de ambiente usando um prefixo padrão.
+
+    Args:
+        secret_path (str): Caminho base usado como prefixo das variáveis de ambiente.
+        secret_name (Optional[str]): Nome específico do segredo a ser retornado.
+            Se não fornecido, retorna todos os segredos com o prefixo.
+
+    Returns:
+        dict: Dicionário com o(s) segredo(s) encontrado(s).
+    """
     prefix = f"{secret_path}_"
     if secret_name:
         key = f"{prefix}{secret_name}"
@@ -89,6 +100,17 @@ def get_secret(
     secret_path: str,
     secret_name: Optional[str] = None,
 ) -> dict:
+    """
+    Obtém segredos do ambiente atual, usando Infisical quando local
+        ou variáveis de ambiente quando remoto.
+
+    Args:
+        secret_path (str): Caminho base usado para identificar o segredo.
+        secret_name (Optional[str]): Nome específico do segredo.
+
+    Returns:
+        dict: Dicionário com o(s) segredo(s) obtido(s).
+    """
     if is_running_locally():
         return get_infisical_secret(secret_path=secret_path, secret_name=secret_name)
     return get_env_secret(secret_path=secret_path, secret_name=secret_name)

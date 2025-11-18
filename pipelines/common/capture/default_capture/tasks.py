@@ -30,6 +30,21 @@ def create_capture_contexts(  # noqa: PLR0913
     recapture_days: int,
     recapture_timestamps: list[str],
 ):
+    """
+    Cria os contextos de captura para cada fonte
+
+    Args:
+        env (str): prod ou dev.
+        sources (list[SourceTable]): Lista de SourceTable para captura.
+        source_table_ids (list[str]): Lista com os table_ids dos sources a serem capturados.
+        timestamp (datetime): Timestamp de captura.
+        recapture (bool): Indica se a execução é uma recaptura.
+        recapture_days (int): Número de dias retroativos considerados na recaptura.
+        recapture_timestamps (list[str]): Lista de timestamps a recapturar.
+
+    Returns:
+        list[SourceCaptureContext]: Lista de contextos de captura.
+    """
     contexts = []
     sources = [s for s in sources if s.table_id in source_table_ids]
     for source in sources:
@@ -56,7 +71,11 @@ def create_capture_contexts(  # noqa: PLR0913
 @task
 def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
     """
-    Faz a extração dos dados raw e salva localmente
+    Extrai os dados brutos e salva os caminhos dos arquivos no contexto.
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura.
+        data_extractor (Callable): Função responsável por extrair e salvar os dados brutos.
     """
 
     captured_raw_filepaths = data_extractor()
@@ -67,7 +86,11 @@ def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
 @task
 def upload_raw_file_to_gcs(context: SourceCaptureContext):
     """
-    Sobe os arquivos raw para o GCS
+    Envia os arquivos brutos para o GCS.
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura após a definição
+            do atributo captured_raw_filepaths.
     """
     for path in context.captured_raw_filepaths:
         context.source.upload_raw_file(
@@ -79,7 +102,11 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext):
 @task
 def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
-    Task para aplicar pre-tratamentos e transformar os dados para o formato aninhado
+    Aplica pré-tratamentos e transforma os dados brutos em estrutura aninhada.
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura após a definição
+            do atributo captured_raw_filepaths.
     """
     csv_mode = "w"
     source = context.source
@@ -129,8 +156,12 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 @task
 def upload_source_data_to_gcs(context: SourceCaptureContext):
     """
-    Sobe os dados aninhados para a pasta source do GCS
+    Envia os dados aninhados para a pasta source do GCS.
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura.
     """
+
     source = context.source
     source_filepath = context.source_filepath
     partition = context.partition

@@ -16,6 +16,12 @@ from pipelines.common import constants
 
 
 def is_running_locally() -> bool:
+    """
+    Verifica se a execução está ocorrendo localmente.
+
+    Returns:
+        bool: True se estiver rodando localmente, False caso contrário.
+    """
     return not bool(os.environ.get("RUNNING_IN_DOCKER", ""))
 
 

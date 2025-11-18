@@ -19,6 +19,14 @@ class SourceCaptureContext:
         timestamp: datetime,
         extra_parameters: Optional[dict] = None,
     ):
+        """
+        Objeto contendo as informações básicas para captura de dados.
+
+        Args:
+            source (SourceTable): SourceTable da captura.
+            timestamp (datetime): Timestamp da captura.
+            extra_parameters (Optional[dict]): Parâmetros adicionais opcionais.
+        """
         self.source = source
         self.timestamp = timestamp.astimezone(tz=pytz.timezone(smtr_constants.TIMEZONE))
         self.extra_parameters = extra_parameters
@@ -29,6 +37,12 @@ class SourceCaptureContext:
         self.captured_raw_filepaths = []
 
     def get_partition(self) -> str:
+        """
+        Gera a partição no formato Hive correspondente ao timestamp da captura.
+
+        Returns:
+            str: Partição formatada.
+        """
         print("Criando partição...")
         print(f"Timestamp recebida: {self.timestamp}")
 
@@ -41,6 +55,12 @@ class SourceCaptureContext:
         return partition
 
     def get_filepaths(self) -> tuple[str, str]:
+        """
+        Gera os caminhos de arquivo para raw e source.
+
+        Returns:
+            tuple[str, str]: Caminhos dos arquivos raw e source.
+        """
         print("Criando filepaths...")
         data_folder = get_data_folder_path()
         print(f"Data folder: {data_folder}")
@@ -68,6 +88,12 @@ class SourceCaptureContext:
 
 
 def rename_capture_flow_run() -> str:
+    """
+    Gera o nome para execução de flows de captura.
+
+    Returns:
+        str: Nome para execução do flow.
+    """
     scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
         "%Y-%m-%d %H-%M-%S"
     )
