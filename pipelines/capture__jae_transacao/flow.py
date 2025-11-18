@@ -12,9 +12,13 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 # a
 
 
+transacao_sources = [constants.TRANSACAO_SOURCE]
+
+
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__jae_transacao(
+def capture__jae_transacao(  # noqa: PLR0913
     env=None,
+    source_table_ids=tuple(s.table_id for s in transacao_sources),
     timestamp=None,
     recapture=False,
     recapture_days=2,
@@ -22,7 +26,8 @@ def capture__jae_transacao(
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=[constants.TRANSACAO_SOURCE],
+        sources=transacao_sources,
+        source_table_ids=source_table_ids,
         timestamp=timestamp,
         create_extractor_task=create_jae_general_extractor,
         recapture=recapture,

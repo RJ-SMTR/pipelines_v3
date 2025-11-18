@@ -24,12 +24,14 @@ from pipelines.common.utils.utils import convert_timezone, data_info_str
 def create_capture_contexts(  # noqa: PLR0913
     env: str,
     sources: list[SourceTable],
+    source_table_ids: list[str],
     timestamp: datetime,
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
 ):
     contexts = []
+    sources = [s for s in sources if s.table_id in source_table_ids]
     for source in sources:
         if recapture:
             if recapture_timestamps:

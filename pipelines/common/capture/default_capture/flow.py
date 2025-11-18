@@ -11,13 +11,18 @@ from pipelines.common.capture.default_capture.tasks import (
     upload_raw_file_to_gcs,
     upload_source_data_to_gcs,
 )
-from pipelines.common.tasks import get_run_env, get_scheduled_timestamp
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    setup_environment,
+)
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
+    source_table_ids: list[str],
     timestamp: str,
     create_extractor_task: Task,
     recapture: bool,
@@ -35,6 +40,9 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         deployment_name=deployment_name,
         wait_for=tasks_wait_for.get("env"),
     )
+
+    tasks["setup_enviroment"] = setup_environment(env=env)
+
     tasks["timestamp"] = get_scheduled_timestamp(
         timestamp=timestamp,
         wait_for=tasks_wait_for.get("timestamp"),
@@ -43,6 +51,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks["contexts"] = create_capture_contexts(
         env=tasks["env"],
         sources=sources,
+        source_table_ids=source_table_ids,
         timestamp=tasks["timestamp"],
         recapture=recapture,
         recapture_days=recapture_days,
@@ -68,7 +77,13 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,
-        wait_for=unmapped([tasks["get_raw"], *tasks_wait_for.get("upload_raw", [])]),
+        wait_for=unmapped(
+            [
+                tasks["get_raw"],
+                tasks["setup_enviroment"],
+                *tasks_wait_for.get("upload_raw", []),
+            ]
+        ),
     )
 
     tasks["upload_raw"] = upload_raw_future.result()
@@ -82,7 +97,13 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     upload_source_future = upload_source_data_to_gcs.map(
         context=contexts,
-        wait_for=unmapped([tasks["pretreat"], *tasks_wait_for.get("upload_source", [])]),
+        wait_for=unmapped(
+            [
+                tasks["pretreat"],
+                tasks["setup_enviroment"],
+                *tasks_wait_for.get("upload_source", []),
+            ]
+        ),
     )
 
     tasks["upload_source"] = upload_source_future.result()

@@ -4,6 +4,7 @@
 from datetime import datetime
 from typing import Optional
 
+from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
 from pipelines.common.utils.utils import convert_timezone
@@ -37,3 +38,9 @@ def get_run_env(env: Optional[str], deployment_name: str) -> str:
         raise ValueError("O ambiente deve ser prod ou dev")
 
     return env
+
+
+@task
+def setup_environment(env: Optional[str]):
+    environment = env if env == "prod" else "staging"
+    inject_bd_credentials(environment=environment)
