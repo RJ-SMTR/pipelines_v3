@@ -31,4 +31,5 @@ def capture__jae_transacao(  # noqa: PLR0913
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
+        extra_parameters=None,
     )

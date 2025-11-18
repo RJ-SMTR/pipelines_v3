@@ -29,7 +29,8 @@ def create_capture_contexts(  # noqa: PLR0913
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
-):
+    extra_parameters: dict[str, dict],
+) -> list[SourceCaptureContext]:
     """
     Cria os contextos de captura para cada fonte
 
@@ -41,6 +42,8 @@ def create_capture_contexts(  # noqa: PLR0913
         recapture (bool): Indica se a execução é uma recaptura.
         recapture_days (int): Número de dias retroativos considerados na recaptura.
         recapture_timestamps (list[str]): Lista de timestamps a recapturar.
+        extra_parameters (Optional[dict[str, dict]]): Parametros extras mapeados no padrão
+            {"table_id": {"key": "value", ...}, ...}.
 
     Returns:
         list[SourceCaptureContext]: Lista de contextos de captura.
@@ -62,7 +65,12 @@ def create_capture_contexts(  # noqa: PLR0913
             timestamps = [timestamp]
 
         contexts += [
-            SourceCaptureContext(source=source.set_env(env=env), timestamp=t) for t in timestamps
+            SourceCaptureContext(
+                source=source.set_env(env=env),
+                timestamp=t,
+                extra_parameters=extra_parameters.get(source.table_id),
+            )
+            for t in timestamps
         ]
 
     return contexts

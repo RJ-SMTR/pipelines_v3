@@ -28,6 +28,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
+    extra_parameters: Optional[dict[str, dict]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
 ):
     """
@@ -44,6 +45,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         recapture_timestamps (list[str]): Lista de timestamps para serem recapturados.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
             argumento wait_for das tasks retornadas por esta função.
+        extra_parameters (Optional[dict[str, dict]]): Parametros extras mapeados no padrão
+            {"table_id": {"key": "value", ...}, ...}.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -74,6 +77,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
+        extra_parameters=extra_parameters,
         wait_for=tasks_wait_for.get("contexts"),
     )
     contexts = tasks["contexts"]
