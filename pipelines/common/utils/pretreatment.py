@@ -42,7 +42,7 @@ def transform_to_nested_structure(
         lambda row: row[content_columns].to_json(),
         axis=1,
     )
-    return data[*primary_keys, "content"]
+    return data[[*primary_keys, "content"]]
 
 
 def strip_string_columns(data: pd.DataFrame) -> pd.DataFrame:

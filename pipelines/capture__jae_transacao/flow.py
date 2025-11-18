@@ -9,9 +9,6 @@ from pipelines.common.capture.default_capture.flow import (
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 
-# a
-
-
 transacao_sources = [constants.TRANSACAO_SOURCE]
 
 

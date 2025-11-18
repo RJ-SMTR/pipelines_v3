@@ -22,7 +22,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
-    source_table_ids: list[str],
+    source_table_ids: tuple[str],
     timestamp: str,
     create_extractor_task: Task,
     recapture: bool,
