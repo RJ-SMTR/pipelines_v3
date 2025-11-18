@@ -76,6 +76,10 @@ runs:
       with:
         python-version-file: pyproject.toml
 
+    - name: Install project dependencies
+      shell: bash
+      run: uv sync --all-packages
+
     - name: Deploy Prefect flows
       shell: bash
       env:
