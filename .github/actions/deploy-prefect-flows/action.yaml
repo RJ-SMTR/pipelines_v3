@@ -79,8 +79,8 @@ runs:
     - name: Install project dependencies
       shell: bash
       run: |
-        apt-get update
-        apt-get install -y libpq-dev gcc build-essential
+        sudo apt-get update
+        sudo apt-get install -y libpq-dev gcc build-essential
         uv sync --all-packages
 
     - name: Deploy Prefect flows
