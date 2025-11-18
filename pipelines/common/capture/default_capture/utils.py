@@ -63,7 +63,7 @@ class SourceCaptureContext:
                 partition=self.partition,
                 filename=filename,
                 filetype=self.source.raw_filetype,
-            ),
+            )
         )
 
 
