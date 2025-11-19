@@ -155,7 +155,7 @@ class SourceTable(BQTable):
         source_name (str): Nome da fonte de dados
         table_id (str): table_id no BigQuery
         first_timestamp (datetime): Primeira timestamp com dados
-        schedule_cron (str): Expressão cron contendo a frequência de atualização dos dados
+        flow_folder_name (Optional[str]): Nome da pasta do flow de captura do source
         primary_keys (list[str]): Lista com o nome das primary keys da tabela
         pretreatment_reader_args (dict): Argumentos para leitura dos dados. São utilizados
             nas funções pd.read_csv ou pd.read_json dependendo do tipo de dado
@@ -178,6 +178,7 @@ class SourceTable(BQTable):
         source_name: str,
         table_id: str,
         first_timestamp: datetime,
+        flow_folder_name: Optional[str] = None,
         primary_keys: Optional[list[str]] = None,
         pretreatment_reader_args: Optional[dict] = None,
         pretreat_funcs: Optional[
@@ -196,6 +197,7 @@ class SourceTable(BQTable):
             env="dev",
             bucket_names=bucket_names,
         )
+        self.flow_folder_name = flow_folder_name
         self.bucket_name = bucket_names
         self.raw_filetype = raw_filetype
         self.primary_keys = primary_keys
@@ -208,10 +210,17 @@ class SourceTable(BQTable):
         self.file_chunk_size = file_chunk_size
 
     def _get_schedule_cron(self) -> str:
-        caller_dir = Path(inspect.stack()[2].filename).parent
+        if self.flow_folder_name is None:
+            flow_folder_path = Path(inspect.stack()[2].filename).parent
 
-        flow_name = caller_dir.name
-        with (caller_dir / "prefect.yaml").open("r") as f:
+            flow_name = flow_folder_path.name
+
+        else:
+            flow_name = self.flow_folder_name
+
+            flow_folder_path = Path(constants.__file__).resolve().parent.parent / flow_name
+
+        with (flow_folder_path / "prefect.yaml").open("r") as f:
             prefect_file = yaml.safe_load(f)
 
         schedules = next(
