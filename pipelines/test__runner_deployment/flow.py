@@ -24,9 +24,7 @@ def process_customer(customer_id: str) -> str:
 
 @flow(log_prints=True)
 def test__runner_deployment() -> list[str]:
-    use_pandas()
-    customer_ids = get_customer_ids()
-    results = process_customer.map(customer_ids)
     print("I'm deploying! Now it'll work!")
+    print("I'll sleep")
     sleep(36000)
-    return results
+    # return results
