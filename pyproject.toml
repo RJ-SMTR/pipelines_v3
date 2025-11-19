@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "idna>=3.10",
+    "impyla>=0.22.0",
     "iplanrio",
     "pandas>=2.2.3",
     "prefect==3.4.9",

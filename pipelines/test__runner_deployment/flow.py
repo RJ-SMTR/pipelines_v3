@@ -3,6 +3,7 @@ import random
 
 import pandas as pd
 from prefect import flow, task
+from time import sleep
 
 
 @task
@@ -27,4 +28,5 @@ def test__runner_deployment() -> list[str]:
     customer_ids = get_customer_ids()
     results = process_customer.map(customer_ids)
     print("I'm deploying! Now it'll work!")
+    sleep(36000)
     return results
