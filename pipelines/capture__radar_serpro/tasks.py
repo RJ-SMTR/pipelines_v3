@@ -8,8 +8,8 @@ from time import sleep
 
 from prefect import task
 
-from pipelines.capture__radar_serpro.utils import extract_serpro_data
-from utils.gcp.bigquery import SourceTable
+# from pipelines.capture__radar_serpro.utils import extract_serpro_data
+# from utils.gcp.bigquery import SourceTable
 from impala.dbapi import connect
 
 
