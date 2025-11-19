@@ -5,8 +5,9 @@ from prefect import flow
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
+from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 
-@flow(log_prints=True)
+@flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
     env=None,
     timestamp=None,
