@@ -4,13 +4,13 @@ from functools import partial
 from typing import Union
 import os
 import requests
-from time import sleep
 
 from prefect import task
 
 # from pipelines.capture__radar_serpro.utils import extract_serpro_data
 # from utils.gcp.bigquery import SourceTable
 from impala.dbapi import connect
+import pandas as pd
 
 
 # @task
@@ -59,7 +59,6 @@ def test_serpro_connection(cursor):
     print(cursor.fetchall())
     cursor.execute("SHOW TABLES")
     print(cursor.fetchall())
-
-@task
-def sleep_task():
-    sleep(3600)
+    cursor.execute(os.environ['radar_serpro_v2_test_query'])
+    df = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+    print(df)
