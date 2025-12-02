@@ -11,6 +11,8 @@ COPY --from=get-instant-client-step /tmp/instantclient_21_18 /opt/oracle/instant
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY ./openssl.cnf /etc/ssl/openssl.cnf
 
+ENV RUNNING_IN_DOCKER=1
+
 RUN apt-get update \
     && apt-get install --no-install-recommends -y git curl gnupg2 libaio1 ca-certificates build-essential \
     && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \

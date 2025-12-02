@@ -32,3 +32,4 @@ venv.bak/
 
 # Ruff stuff:
 .ruff_cache/
+data/

@@ -8,4 +8,6 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}/
 
+COPY ./pipelines/common/ ./pipelines/common/
+
 RUN uv sync --all-packages

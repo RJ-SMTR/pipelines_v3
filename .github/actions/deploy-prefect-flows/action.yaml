@@ -74,7 +74,14 @@ runs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version-file: pyproject.toml
+        python-version: '3.13'
+
+    - name: Install project dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+        uv sync --all-packages
 
     - name: Deploy Prefect flows
       shell: bash
