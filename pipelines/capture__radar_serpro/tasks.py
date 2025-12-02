@@ -2,6 +2,7 @@
 from datetime import datetime
 from functools import partial
 from typing import Union
+from pathlib import Path
 import os
 import requests
 
@@ -38,6 +39,7 @@ def setup_serpro_cert():
     crt_res = requests.get(crt_url)
     with open(crt_local_path, "wb") as f:
         f.write(crt_res.content)
+    print( f"Certificado baixado em {crt_local_path}: {Path(crt_local_path).is_file()}" )
     
 
 @task()
