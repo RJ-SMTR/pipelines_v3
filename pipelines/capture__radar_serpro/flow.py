@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+from time import sleep
 
 import pandas as pd
 from prefect import flow, task
@@ -16,4 +17,5 @@ def capture__radar_serpro() -> list[str]:
     setup_serpro_cert()
     conn, cur = connect_to_serpro_db()
     test_serpro_connection(cur)
+    sleep(360000)
 
