@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """Modulo com tasks para uso geral"""
 
+import time
 from datetime import datetime
 from typing import Optional
 
+import requests
 from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
+from pipelines.common import constants
 from pipelines.common.utils.utils import convert_timezone, is_running_locally
 
 
@@ -63,3 +66,38 @@ def setup_environment(env: str):
     """
     environment = env if env == "prod" else "staging"
     inject_bd_credentials(environment=environment)
+
+
+@task
+def make_post_request(url: str, headers: dict = None, params: dict = None, data: dict = None):
+    """
+    Faz uma requisição POST.
+
+    Args:
+        url (str): Endpoint da API.
+        headers (dict, optional): Headers HTTP.
+        params (dict, optional): Parâmetros da URL.
+        data (dict, optional): Payload do POST.
+
+    Returns:
+        dict: JSON da resposta.
+    """
+    for retry in range(constants.MAX_RETRIES):
+        response = requests.post(
+            url,
+            headers=headers,
+            params=params,
+            data=data,
+            timeout=constants.MAX_TIMEOUT_SECONDS,
+        )
+
+        if response.ok:
+            return response.json()
+
+        if response.status_code >= 500:
+            print(f"Server error {response.status_code}")
+            if retry == constants.MAX_RETRIES - 1:
+                response.raise_for_status()
+            time.sleep(constants.RETRY_DELAY)
+        else:
+            response.raise_for_status()
