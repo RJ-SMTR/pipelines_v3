@@ -69,7 +69,7 @@ def setup_environment(env: str):
 
 
 @task
-def make_post_request(url: str, headers: dict = None, params: dict = None, data: dict = None):
+def api_post_request(url: str, headers: dict = None, params: dict = None, data: dict = None):
     """
     Faz uma requisição POST.
 
