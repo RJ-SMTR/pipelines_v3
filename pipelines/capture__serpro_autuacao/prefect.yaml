@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__serpro_autuacao/flow.py:capture__serpro_autuacao
     schedules:
-      - cron: "0 7 * * *"
+      - cron: "0 10 * * *"
     work_pool:
       name: smtr-pool
       work_queue_name: default
