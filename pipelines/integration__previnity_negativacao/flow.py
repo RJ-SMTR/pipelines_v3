@@ -1,29 +1,49 @@
-# -*- coding: utf-8 -*-
-import random
+from datetime import datetime
 
-import pandas as pd
-from prefect import flow, task
+from prefect import flow, runtime, unmapped
 
-
-@task
-def use_pandas():
-    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
-    print(df)
-
-
-@task
-def get_customer_ids() -> list[str]:
-    return [f"customer{n}" for n in random.choices(range(100), k=10)]
-
-
-@task
-def process_customer(customer_id: str) -> str:
-    return f"Processed {customer_id}"
+from pipelines.common import constants as common_constants
+from pipelines.common.tasks import (
+    api_post_request,
+    get_run_env,
+    get_scheduled_timestamp,
+    query_bq,
+    setup_environment,
+)
+from pipelines.common.utils.secret import get_secret
+from pipelines.integration__previnity_negativacao import constants
+from pipelines.integration__previnity_negativacao.tasks import prepare_previnity_payloads
 
 
-@flow(log_prints=True)
-def integration__previnity_negativacao() -> list[str]:
-    use_pandas()
-    customer_ids = get_customer_ids()
-    results = process_customer.map(customer_ids)
-    return results
+@flow
+def integration__previnity_negativacao():
+    env = get_run_env(env=None, deployment_name=runtime.deployment.name)
+    setup_environment(env=env)
+
+    secrets = get_secret(secret_path=constants.SECRET_PATH)
+    prev_key = secrets.get("prev_key")
+    prev_token = secrets.get("prev_token")
+
+    if not prev_key or not prev_token:
+        raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")
+
+    headers = {
+        constants.HEADER_PREV_KEY: prev_key,
+        constants.HEADER_PREV_TOKEN: prev_token,
+        constants.HEADER_CONTENT_TYPE: "application/json",
+    }
+
+    project_id = common_constants.PROJECT_NAME[env]
+    data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
+
+    ts = get_scheduled_timestamp()
+    execution_date = ts.date()
+
+    payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
+
+    if payloads:
+        api_post_request.map(
+            url=unmapped(constants.API_URL_PF),
+            headers=unmapped(headers),
+            data=payloads,
+        )

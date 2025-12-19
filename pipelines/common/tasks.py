@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 from typing import Optional
 
+import pandas_gbq
 import requests
 from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
@@ -69,7 +70,12 @@ def setup_environment(env: str):
 
 
 @task
-def api_post_request(url: str, headers: dict = None, params: dict = None, data: dict = None):
+def api_post_request(
+    url: str,
+    headers: Optional[dict] = None,
+    params: Optional[dict] = None,
+    data: Optional[dict] = None,
+):
     """
     Faz uma requisição POST.
 
@@ -82,18 +88,28 @@ def api_post_request(url: str, headers: dict = None, params: dict = None, data: 
     Returns:
         dict: JSON da resposta.
     """
+    is_json = False
+    if headers:
+        content_type = headers.get("Content-Type", "") or headers.get("content-type", "")
+        is_json = "application/json" in content_type.lower()
+
+    request_kwargs = {
+        "url": url,
+        "headers": headers,
+        "params": params,
+        "timeout": constants.MAX_TIMEOUT_SECONDS,
+    }
+
+    if is_json:
+        request_kwargs["json"] = data
+    else:
+        request_kwargs["data"] = data
+
     for retry in range(constants.MAX_RETRIES):
-        response = requests.post(
-            url,
-            headers=headers,
-            params=params,
-            data=data,
-            timeout=constants.MAX_TIMEOUT_SECONDS,
-        )
+        response = requests.post(**request_kwargs)
 
         if response.ok:
             return response.json()
-
         if response.status_code >= 500:
             print(f"Server error {response.status_code}")
             if retry == constants.MAX_RETRIES - 1:
@@ -101,3 +117,25 @@ def api_post_request(url: str, headers: dict = None, params: dict = None, data: 
             time.sleep(constants.RETRY_DELAY)
         else:
             response.raise_for_status()
+
+
+@task
+def query_bq(query: str, project_id: str) -> list[dict]:
+    """
+    Executa uma query no BigQuery.
+
+    Args:
+        query (str): Query SQL.
+        project_id (str): ID do projeto no GCP.
+
+    Returns:
+        list[dict]: Resultado da query como lista de dicionários.
+    """
+    print(f"Query: {query}")
+
+    df = pandas_gbq.read_gbq(
+        query,
+        project_id=project_id,
+    )
+
+    return df.to_dict(orient="records")
