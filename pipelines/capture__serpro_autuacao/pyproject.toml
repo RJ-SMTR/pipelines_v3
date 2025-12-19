@@ -1,0 +1,8 @@
+[project]
+name = "capture__serpro_autuacao"
+version = "0.1.0"
+description = "Pipeline de captura de dados do SERPRO"
+dependencies = [
+    "impyla>=0.22.0",
+    "jaydebeapi>=1.2.3",
+]

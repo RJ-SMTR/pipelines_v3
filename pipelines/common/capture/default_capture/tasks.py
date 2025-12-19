@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 from prefect import task
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.capture.default_capture.utils import (
-    SourceCaptureContext,
-    constants,
-)
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext, constants
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.pretreatment import (
@@ -29,7 +26,7 @@ def create_capture_contexts(  # noqa: PLR0913
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
-    extra_parameters: dict[str, dict],
+    extra_parameters: Optional[dict[str, dict]] = None,
 ) -> list[SourceCaptureContext]:
     """
     Cria os contextos de captura para cada fonte
@@ -68,7 +65,9 @@ def create_capture_contexts(  # noqa: PLR0913
             SourceCaptureContext(
                 source=source.set_env(env=env),
                 timestamp=t,
-                extra_parameters=extra_parameters.get(source.table_id),
+                extra_parameters=(
+                    extra_parameters.get(source.table_id) if extra_parameters else None
+                ),
             )
             for t in timestamps
         ]
