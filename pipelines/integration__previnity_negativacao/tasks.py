@@ -29,7 +29,11 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[d
         dt_inclusao = row.get("data_inclusao")
         dt_baixa = row.get("data_baixa")
 
-        common_body = {
+        if dt_inclusao != execution_date and dt_baixa != execution_date:
+            continue
+
+        body = {
+            "controle": "1" if dt_inclusao == execution_date else "2",
             "nome": normalize_text(row.get("nome")),
             "cpf": normalize_text(row.get("cpf")),
             "endereco": normalize_text(row.get("endereco")),
@@ -44,14 +48,6 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[d
             "webservice": row.get("webservice", "S"),
         }
 
-        if dt_inclusao == execution_date:
-            payload = common_body.copy()
-            payload["controle"] = "1"
-            payloads.append(payload)
-
-        if dt_baixa == execution_date:
-            payload = common_body.copy()
-            payload["controle"] = "2"
-            payloads.append(payload)
+        payloads.append(body)
 
     return payloads
