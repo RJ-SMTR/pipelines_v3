@@ -2,3 +2,6 @@
 name = "integration__previnity_negativacao"
 version = "0.1.0"
 description = "Pipeline previnity_negativacao da secretaria rj-smtr"
+dependencies = [
+    "pandas-gbq>=0.19.0",
+]
