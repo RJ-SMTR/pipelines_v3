@@ -1,0 +1,61 @@
+queries:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: rj-smtr-dev
+      dataset: dbt
+      location: US
+      threads: 1
+      priority: interactive
+      job_retries: 1
+
+      # for dbt Python models to be run on Dataproc Serverless
+      gcs_bucket: rj-smtr
+      dataproc_region: us-central1
+      submission_method: serverless
+      dataproc_batch:
+        runtime_config:
+          properties:
+            spark.executor.instances: "2"
+            spark.driver.memory: 4g
+            spark.driver.memoryOverhead: 1g
+    hmg:
+      type: bigquery
+      method: oauth
+      project: rj-smtr-dev
+      dataset: dbt
+      location: US
+      threads: 1
+      priority: interactive
+      job_retries: 1
+
+      # for dbt Python models to be run on Dataproc Serverless
+      gcs_bucket: rj-smtr
+      dataproc_region: us-central1
+      submission_method: serverless
+      dataproc_batch:
+        runtime_config:
+          properties:
+            spark.executor.instances: "2"
+            spark.driver.memory: 4g
+            spark.driver.memoryOverhead: 1g
+    prod:
+      type: bigquery
+      method: oauth
+      project: rj-smtr
+      dataset: dbt
+      location: US
+      threads: 1
+
+      # for dbt Python models to be run on Dataproc Serverless
+      gcs_bucket: rj-smtr
+      dataproc_region: us-central1
+      submission_method: serverless
+      dataproc_batch:
+        runtime_config:
+          properties:
+            spark.executor.instances: "2"
+            spark.driver.memory: 4g
+            spark.driver.memoryOverhead: 1g

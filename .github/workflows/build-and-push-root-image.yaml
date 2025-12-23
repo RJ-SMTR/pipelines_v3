@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - devops/*
+      - staging/*
     paths:
       - Dockerfile
       - uv.lock

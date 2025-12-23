@@ -1,0 +1,508 @@
+selectors:
+  - name: apuracao_subsidio_v8
+    description: Apuração sem faixa horária
+    definition:
+      union:
+        - method: path
+          value: models/dashboard_subsidio_sppo_staging
+        - method: fqn
+          value: viagem_transacao
+        - method: path
+          value: models/dashboard_subsidio_sppo
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_historico
+        - method: fqn
+          value: percentual_operacao_faixa_horaria
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_tipo_viagem_historico
+
+  - name: apuracao_subsidio_v9
+    description: Apuração com faixa horária
+    definition:
+      union:
+        - method: path
+          value: models/dashboard_subsidio_sppo_staging
+        - method: fqn
+          value: valor_tipo_penalidade
+        - method: fqn
+          value: staging_tecnologia_servico
+        - method: fqn
+          value: tecnologia_servico
+        - method: path
+          value: models/subsidio
+        - exclude:
+          - method: fqn
+            value: aux_viagem_temperatura
+        - method: fqn
+          value: viagens_remuneradas
+        - method: fqn
+          value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: subsidio_penalidade_servico_faixa
+        - method: fqn
+          value: subsidio_sumario_servico_dia_pagamento
+        - method: path
+          value: models/dashboard_subsidio_sppo_v2
+        - method: fqn
+          value: dicionario_dashboard_subsidio_sppo
+
+
+  - name: viagem_informada
+    description: Materialização da tabela de viagens informadas
+    definition:
+      method: file
+      value: viagem_informada_monitoramento
+      parents: true
+      exclude:
+        - method: fqn
+          value: gtfs
+        - method: fqn
+          value: planejamento
+
+  - name: viagem_validacao
+    description: Materialização da tabela de validação das viagens informadas
+    definition:
+      union:
+        - method: fqn
+          value: gps_viagem
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        - method: fqn
+          value: dicionario_monitoramento
+
+  - name: planejamento_diario
+    description: Materialização das tabelas de planejamento que devem rodar diariamente
+    definition:
+      union:
+        - method: fqn
+          value: aux_calendario_manual
+        - method: fqn
+          value: calendario
+        - method: fqn
+          value: servico_planejado_faixa_horaria
+        - method: fqn
+          value: viagem_planejada_planejamento
+
+  - name: transacao_ordem
+    description: Materialização da tabela auxiliar de relacionamento entre as ordens de pagamento e as transações
+    definition:
+      union:
+        - method: fqn
+          value: staging_transacao_ordem
+        - method: fqn
+          value: aux_transacao_id_ordem_pagamento
+        - method: fqn
+          value: data_ordem_transacao
+        - method: fqn
+          value: transacao_cct
+
+  - name: transacao_valor_ordem
+    description: Materialização da tabela contendo os valores das transações em cada ordem de pagamento
+    definition:
+      method: fqn
+      value: transacao_valor_ordem
+
+  - name: datario
+    description: Materialização das views para o datario
+    definition:
+      method: fqn
+      value: datario
+
+  - name: matriz_integracao_smtr
+    description: Materialização da matriz de integração da SMTR
+    definition:
+      union:
+        - method: fqn
+          value: matriz_reparticao_tarifaria
+        - method: fqn
+          value: matriz_integracao
+
+  - name: validacao_dados_jae
+    description: Materialização das tabelas de validação dos dados da Jaé
+    definition:
+      union:
+        - method: fqn
+          value: aux_particao_calculo_integracao
+        - method: fqn
+          value: aux_transacao_filtro_integracao_calculada
+        - method: fqn
+          value: aux_calculo_integracao
+        - method: fqn
+          value: aux_integracao_calculada
+        - method: fqn
+          value: integracao_nao_realizada
+
+  - name: monitoramento_subsidio
+    description: Materialização das tabelas utilizadas nos dashboards do subsidio
+    definition:
+      union:
+        - method: fqn
+          value: monitoramento_viagem_transacao
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_historico
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_tipo_viagem_historico
+
+  - name: cadastro
+    description: Materialização das tabelas de cadastro
+    definition:
+      union:
+        - method: fqn
+          value: staging_linha
+        - method: fqn
+          value: staging_linha_sem_ressarcimento
+        - method: fqn
+          value: staging_linha_consorcio
+        - method: fqn
+          value: staging_operadora_transporte
+        - method: fqn
+          value: staging_linha_consorcio_operadora_transporte
+        - method: fqn
+          value: staging_operadora_empresa
+        - method: fqn
+          value: staging_cliente
+        - method: fqn
+          value: staging_endereco
+        - method: fqn
+          value: staging_operadora_pessoa_fisica
+        - method: fqn
+          value: aux_servicos_gtfs
+        - method: fqn
+          value: aux_servico_jae
+        - method: fqn
+          value: consorcios
+        - method: fqn
+          value: cliente_jae
+        - method: fqn
+          value: operadoras_contato
+        - method: fqn
+          value: operadoras
+        - method: fqn
+          value: servicos
+        - method: fqn
+          value: servico_operadora
+        - method: fqn
+          value: endereco_cliente_jae
+        - method: fqn
+          value: cliente_cpf_jae
+        - method: fqn
+          value: endereco_cliente_cpf_jae
+        - method: fqn
+          value: aux_consorcio_modo
+        - method: fqn
+          value: modos
+
+  - name: transacao
+    description: Materialização das tabelas de transação da bilhetagem
+    definition:
+      union:
+        - method: fqn
+          value: dicionario_bilhetagem
+        - method: fqn
+          value: staging_gratuidade
+        - method: fqn
+          value: staging_estudante
+        - method: fqn
+          value: staging_laudo_pcd
+        - method: fqn
+          value: staging_escola
+        - method: fqn
+          value: staging_produto
+        - method: fqn
+          value: aux_estudante
+        - method: fqn
+          value: aux_laudo_pcd
+        - method: fqn
+          value: aux_escola_rede_ensino_atualizado
+        - method: fqn
+          value: aux_gratuidade
+        - method: fqn
+          value: aux_gratuidade_info
+        - method: fqn
+          value: staging_transacao
+        - method: fqn
+          value: staging_transacao_riocard
+        - method: fqn
+          value: aux_transacao_particao
+        - method: fqn
+          value: staging_transacao_retificada
+        - method: fqn
+          value: transacao_retificada
+        - method: fqn
+          value: transacao
+        - method: fqn
+          value: transacao_riocard
+        - method: fqn
+          value: view_transacao
+        - method: fqn
+          value: transacao_gratuidade_estudante_municipal
+
+  - name: extrato_cliente_cartao
+    description: Materialização da tabela de extrato do cliente
+    definition:
+      union:
+        - method: fqn
+          value: extrato_cliente_cartao
+        - method: fqn
+          value: staging_lancamento
+
+  - name: integracao
+    description: Materialização das tabelas de integracao da bilhetagem
+    definition:
+      union:
+        - method: fqn
+          value: staging_integracao_transacao
+        - method: fqn
+          value: integracao
+        - method: fqn
+          value: view_integracao
+
+  - name: gps_validador
+    description: Materialização das tabelas de gps do validados da Jaé
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_validador
+        - method: fqn
+          value: gps_validador_aux
+        - method: fqn
+          value: gps_validador
+        - method: fqn
+          value: gps_validador_van
+        - method: fqn
+          value: dashboard_bilhetagem_implantacao_jae
+
+  - name: financeiro_bilhetagem
+    description: Materialização das tabelas financeiras da bilhetagem
+    definition:
+      union:
+        - method: fqn
+          value: staging_ordem_pagamento_consorcio_operadora
+        - method: fqn
+          value: staging_ordem_pagamento_consorcio
+        - method: fqn
+          value: staging_ordem_pagamento
+        - method: fqn
+          value: staging_ordem_ressarcimento
+        - method: fqn
+          value: staging_ordem_rateio
+        - method: fqn
+          value: staging_arquivo_retorno
+        - method: fqn
+          value: aux_retorno_ordem_pagamento
+        - method: fqn
+          value: bilhetagem_servico_operador_dia
+        - method: fqn
+          value: bilhetagem_consorcio_operador_dia
+        - method: fqn
+          value: bilhetagem_consorcio_dia
+        - method: fqn
+          value: bilhetagem_dia
+        - method: fqn
+          value: ordem_pagamento_consorcio_operador_dia
+
+  - name: passageiro_hora
+    description: Materialização das tabelas agregadas de transação
+    definition:
+      union:
+        - method: fqn
+          value: aux_h3_res9
+        - method: fqn
+          value: aux_passageiro_hora
+        - method: fqn
+          value: passageiro_hora
+        - method: fqn
+          value: passageiro_tile_hora
+        - method: fqn
+          value: view_passageiro_hora
+        - method: fqn
+          value: view_passageiro_tile_hora
+
+  - name: infraestrutura
+    description: Materialização das tabelas com informações sobre a infraestrutura de nuvem
+    definition:
+      union:
+        - method: fqn
+          value: custo_cloud
+        - method: fqn
+          value: aux_preco_bigquery
+        - method: fqn
+          value: log_bigquery
+
+  - name: transito_autuacao
+    description: Materialização das tabelas de autuação de trânsito
+    definition:
+      union:
+        - method: fqn
+          value: autuacao_citran
+        - method: fqn
+          value: autuacao_serpro
+        - method: fqn
+          value: aux_autuacao_id
+        - method: fqn
+          value: autuacao
+
+  - name: snapshot_transito
+    definition:
+      method: fqn
+      value: snapshot_transito_autuacao
+
+  - name: gps
+    description: Materialização das tabelas de gps
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps
+        - method: fqn
+          value: staging_realocacao
+        - method: fqn
+          value: staging_garagens
+        - method: fqn
+          value: gps
+
+  - name: gps_15_minutos
+    description: Materialização das tabelas de gps 15 minutos
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps
+        - method: fqn
+          value: staging_realocacao
+        - method: fqn
+          value: staging_garagens
+        - method: fqn
+          value: gps_15_minutos
+
+  - name: snapshot_viagem
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_viagem_completa
+        - method: fqn
+          value: snapshot_viagem_planejada
+
+  - name: snapshot_subsidio
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_viagens_remuneradas
+        - method: fqn
+          value: snapshot_viagem_transacao
+        - method: fqn
+          value: snapshot_subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: snapshot_percentual_operacao_faixa_horaria
+        - method: fqn
+          value: snapshot_subsidio_penalidade_servico_faixa
+        - method: fqn
+          value: snapshot_subsidio_sumario_servico_dia_pagamento
+        - method: fqn
+          value: snapshot_sumario_faixa_servico_dia_pagamento
+
+  - name: snapshot_veiculo
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_sppo_veiculo_dia
+        - method: fqn
+          value: snapshot_autuacao_disciplinar_historico
+        - method: fqn
+          value: snapshot_veiculo_fiscalizacao_lacre
+
+  - name: monitoramento_veiculo
+    definition:
+      union:
+        - method: fqn
+          value: staging_veiculo_fiscalizacao_lacre
+        - method: fqn
+          value: staging_infracao
+        - method: fqn
+          value: veiculo_fiscalizacao_lacre
+        - method: fqn
+          value: autuacao_disciplinar_historico
+        - method: fqn
+          value: aux_veiculo_gps_dia
+        - method: fqn
+          value: veiculo_dia
+
+  - name: cadastro_veiculo
+    definition:
+      union:
+        - method: fqn
+          value: staging_licenciamento_stu
+        - method: fqn
+          value: veiculo_licenciamento_dia
+
+  - name: snapshot_cadastro_veiculo
+    definition:
+      method: fqn
+      value: snapshot_veiculo_licenciamento_dia
+
+  - name: snapshot_veiculo_dia
+    definition:
+      method: fqn
+      value: snapshot_veiculo_dia
+
+  - name: veiculo_dia
+    definition:
+      union:
+        - method: fqn
+          value: aux_veiculo_gps_dia
+        - method: fqn
+          value: sppo_registro_agente_verao
+        - method: fqn
+          value: veiculo_dia
+
+  - name: monitoramento_temperatura
+    definition:
+      union:
+        - method: fqn
+          value: staging_temperatura_inmet
+        - method: fqn
+          value: temperatura_inmet
+        - method: fqn
+          value: viagem_classificada
+        - method: fqn
+          value: aux_viagem_temperatura
+        - method: fqn
+          value: aux_veiculo_falha_ar_condicionado
+        - method: fqn
+          value: veiculo_regularidade_temperatura_dia
+        - method: fqn
+          value: dicionario_subsidio
+
+  - name: snapshot_temperatura
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_veiculo_regularidade_temperatura_dia
+        - method: fqn
+          value: snapshot_viagem_regularidade_temperatura
+        - method: fqn
+          value: snapshot_temperatura_inmet
+
+  - name: pagamento_cct
+    description: Materialização dos dados de pagamento da CCT
+    definition:
+      union:
+        - method: fqn
+          value: staging_detalhe_a_cct
+        - method: fqn
+          value: staging_ordem_pagamento_agrupado_cct
+        - method: fqn
+          value: staging_ordem_pagamento_agrupado_historico_cct
+        - method: fqn
+          value: staging_ordem_pagamento_cct
+        - method: fqn
+          value: staging_user_cct
+        - method: fqn
+          value: dicionario_financeiro
+
+  - name: alerta_transacao
+    definition:
+      method: fqn
+      value: alerta_transacao

@@ -1,0 +1,4 @@
+[project]
+name = "materialization__test_dbt"
+version = "0.1.0"
+description = "Pipeline test_dbt da secretaria rj-smtr"

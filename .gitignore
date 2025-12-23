@@ -3,6 +3,12 @@ prefect_rj_iplanrio.egg-info/
 # Cursor files
 .cursor/
 
+#dbt
+queries/logs/*
+queries/target/*
+queries/target-base/*
+queries/profiles/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

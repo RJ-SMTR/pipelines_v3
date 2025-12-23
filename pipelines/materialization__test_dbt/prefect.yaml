@@ -1,0 +1,50 @@
+name: materialization__test_dbt
+prefect-version: 3.4.3
+
+build:
+  - prefect.deployments.steps.run_shell_script:
+      id: get-commit-hash
+      script: git rev-parse --short HEAD
+      stream_output: false
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      requires: prefect-docker>=0.6.5
+      image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
+      tag: "materialization__test_dbt-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/materialization__test_dbt/Dockerfile
+
+push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      requires: prefect-docker>=0.6.5
+      image_name: "{{ build-image.image_name }}"
+      tag: "{{ build-image.tag }}"
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /opt/prefect/pipelines_v3
+
+deployments:
+  - name: rj-materialization--test_dbt--staging
+    version: "{{ build-image.tag }}"
+    entrypoint: pipelines/materialization__test_dbt/flow.py:materialization__test_dbt
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package materialization__test_dbt -- prefect flow-run execute
+        secretName: prefect-jobs-secrets-staging
+        image_pull_policy: Always
+  - name: rj-materialization--test_dbt--prod
+    version: "{{ get-commit-hash.stdout }}"
+    entrypoint: pipelines/materialization__test_dbt/flow.py:materialization__test_dbt
+    schedules:
+      - cron: "0 0 * * *"
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package materialization__test_dbt -- prefect flow-run execute
+        secretName: prefect-jobs-secrets
+        image_pull_policy: Always

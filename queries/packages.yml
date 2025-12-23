@@ -1,0 +1,9 @@
+packages:
+  - package: dbt-labs/audit_helper
+    version: 0.12.0
+  - package: data-mie/dbt_profiler
+    version: 0.8.2
+  - package: dbt-labs/dbt_utils
+    version: 1.3.0
+  - package: calogica/dbt_expectations
+    version: [">=0.10.0", "<0.11.0"]
