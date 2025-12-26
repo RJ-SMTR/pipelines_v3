@@ -4,8 +4,9 @@ requires-python = ">=3.13"
 
 [manifest]
 members = [
-    "capture-serpro",
+    "capture-serpro-autuacao",
     "common",
+    "integration-previnity-negativacao",
     "pipelines-v3",
     "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
@@ -270,7 +271,7 @@ wheels = [
 ]
 
 [[package]]
-name = "capture-serpro"
+name = "capture-serpro-autuacao"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__serpro_autuacao" }
 dependencies = [
@@ -1393,6 +1394,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/0c/65/e2636b2503f34f472
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/d0/fb401cb69cc6d20405c94c7f754ba44a5d1ec5dfb97abc8a8b304b90d9b3/infisicalsdk-1.0.12-py3-none-any.whl", hash = "sha256:348af8f665fd81beac643db5a81f858eaf473e5809bdb7dfdcca923fe3ab49ea", size = 16720, upload-time = "2025-10-31T12:26:07.051Z" },
 ]
+
+[[package]]
+name = "integration-previnity-negativacao"
+version = "0.1.0"
+source = { virtual = "pipelines/integration__previnity_negativacao" }
+dependencies = [
+    { name = "pandas-gbq" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pandas-gbq", specifier = ">=0.19.0" }]
 
 [[package]]
 name = "iplanrio"
