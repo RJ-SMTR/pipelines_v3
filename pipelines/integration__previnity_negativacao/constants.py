@@ -12,5 +12,5 @@ HEADER_CONTENT_TYPE = "Content-Type"
 
 SECRET_PATH = "previnity_api"
 
-QUERY_PF = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_fisica_negativacao`"
+QUERY_PF = "SELECT * FROM `rj-smtr-dev.botelho__transito.view_pessoa_fisica_negativacao`"
 QUERY_PJ = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_juridica_negativacao`"

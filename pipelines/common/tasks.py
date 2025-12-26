@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """Modulo com tasks para uso geral"""
 
+import asyncio
 import time
 from datetime import datetime
 from typing import Optional
 
+import httpx
 import pandas_gbq
 import requests
 from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
 from pipelines.common import constants
-from pipelines.common.utils.utils import convert_timezone, is_running_locally
+from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
 @task
@@ -120,6 +122,40 @@ def api_post_request(
 
 
 @task
+async def async_api_post_request(
+    url: str,
+    payloads: list[dict],
+    headers: dict | None = None,
+    max_concurrent: int = 300,
+    timeout: int = 60,
+) -> list[dict]:
+    """
+    Envia múltiplos POSTs assíncronos com controle de concorrência.
+
+    Args:
+        url: Endpoint da API.
+        payloads: Lista de payloads para enviar.
+        headers: Headers HTTP.
+        max_concurrent: Número máximo de requisições simultâneas.
+        timeout: Timeout em segundos.
+
+    Returns:
+        list[dict]: Lista com resultados de cada requisição.
+    """
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def controlled_post(client: httpx.AsyncClient, payload: dict) -> dict:
+        async with semaphore:
+            return await async_post_request(client, url, payload, headers, timeout)
+
+    async with httpx.AsyncClient() as client:
+        tasks = [controlled_post(client, payload) for payload in payloads]
+        results = await asyncio.gather(*tasks)
+
+    return list(results)
+
+
+@task
 def query_bq(query: str, project_id: str) -> list[dict]:
     """
     Executa uma query no BigQuery.
@@ -133,9 +169,6 @@ def query_bq(query: str, project_id: str) -> list[dict]:
     """
     print(f"Query: {query}")
 
-    df = pandas_gbq.read_gbq(
-        query,
-        project_id=project_id,
-    )
+    df = pandas_gbq.read_gbq(query, project_id=project_id, use_bqstorage_api=True)
 
     return df.to_dict(orient="records")

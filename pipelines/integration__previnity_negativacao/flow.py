@@ -4,7 +4,7 @@ from prefect import flow, runtime, unmapped
 
 from pipelines.common import constants as common_constants
 from pipelines.common.tasks import (
-    api_post_request,
+    async_api_post_request,
     get_run_env,
     get_scheduled_timestamp,
     query_bq,
@@ -16,7 +16,7 @@ from pipelines.integration__previnity_negativacao.tasks import prepare_previnity
 
 
 @flow
-def integration__previnity_negativacao():
+async def integration__previnity_negativacao():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
     setup_environment(env=env)
 
@@ -41,9 +41,9 @@ def integration__previnity_negativacao():
 
     payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
 
-    if payloads:
-        api_post_request.map(
-            url=unmapped(constants.API_URL_PF),
-            headers=unmapped(headers),
-            data=payloads,
-        )
+    results = await async_api_post_request(
+        url=constants.API_URL_PF,
+        payloads=payloads,
+        headers=headers,
+        max_concurrent=300,
+    )
