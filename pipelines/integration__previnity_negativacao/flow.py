@@ -18,9 +18,9 @@ from pipelines.integration__previnity_negativacao.tasks import prepare_previnity
 @flow
 async def integration__previnity_negativacao():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
-    setup_environment(env=env)
+    setup_env = setup_environment(env=env)
 
-    secrets = get_secret(secret_path=constants.SECRET_PATH)
+    secrets = get_secret(secret_path=constants.SECRET_PATH, wait_for=[setup_env])
     prev_key = secrets.get("previnity_api_key")
     prev_token = secrets.get("previnity_api_token")
 
