@@ -13,6 +13,7 @@ from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
 from pipelines.common import constants
+from pipelines.common.utils.secret import get_secret
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
@@ -70,6 +71,20 @@ def setup_environment(env: str):
     if not is_running_locally():
         environment = env if env == "prod" else "staging"
         inject_bd_credentials(environment=environment)
+
+
+@task
+def get_secret_task(secret_path):
+    """
+    Retorna o valor de um segredo.
+
+    Args:
+        secret_path (str): Caminho do segredo.
+
+    Returns:
+        str: Valor do segredo.
+    """
+    return get_secret(secret_path)
 
 
 @task

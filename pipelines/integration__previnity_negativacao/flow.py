@@ -7,10 +7,10 @@ from pipelines.common.tasks import (
     async_api_post_request,
     get_run_env,
     get_scheduled_timestamp,
+    get_secret_task,
     query_bq,
     setup_environment,
 )
-from pipelines.common.utils.secret import get_secret
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import prepare_previnity_payloads
 
@@ -20,7 +20,7 @@ async def integration__previnity_negativacao():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
-    secrets = get_secret(secret_path=constants.SECRET_PATH, wait_for=[setup_env])
+    secrets = get_secret_task(secret_path=constants.SECRET_PATH, wait_for=[setup_env])
     prev_key = secrets.get("previnity_api_key")
     prev_token = secrets.get("previnity_api_token")
 
