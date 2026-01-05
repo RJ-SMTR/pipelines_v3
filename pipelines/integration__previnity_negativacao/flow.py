@@ -28,21 +28,19 @@ async def integration__previnity_negativacao():
         "Content-Type": "application/json",
     }
 
-    print(headers)
+    project_id = common_constants.PROJECT_NAME[env]
+    data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
 
-    # project_id = common_constants.PROJECT_NAME[env]
-    # data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
+    ts = get_scheduled_timestamp()
+    execution_date = ts.date()
 
-    # ts = get_scheduled_timestamp()
-    # execution_date = ts.date()
+    payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
 
-    # payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
+    results = await async_api_post_request(
+        url=constants.API_URL_PF,
+        payloads=payloads,
+        headers=headers,
+        max_concurrent=10,
+    )
 
-    # results = await async_api_post_request(
-    #     url=constants.API_URL_PF,
-    #     payloads=payloads,
-    #     headers=headers,
-    #     max_concurrent=10,
-    # )
-
-    # print(results)
+    print(results)

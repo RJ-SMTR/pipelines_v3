@@ -127,8 +127,8 @@ def api_post_request(
 async def async_api_post_request(
     url: str,
     payloads: list[dict],
-    headers: dict | None = None,
-    max_concurrent: int = 300,
+    max_concurrent: int,
+    headers: Optional[dict] = None,
     timeout: int = 60,
 ) -> list[dict]:
     """
