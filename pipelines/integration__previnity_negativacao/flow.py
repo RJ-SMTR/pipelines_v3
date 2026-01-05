@@ -40,7 +40,7 @@ async def integration__previnity_negativacao():
         url=constants.API_URL_PF,
         payloads=payloads,
         headers=headers,
-        max_concurrent=10,
+        max_concurrent=300,
     )
 
     print(results)
