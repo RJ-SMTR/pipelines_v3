@@ -74,20 +74,6 @@ def setup_environment(env: str):
 
 
 @task
-def get_secret_task(secret_path):
-    """
-    Retorna o valor de um segredo.
-
-    Args:
-        secret_path (str): Caminho do segredo.
-
-    Returns:
-        str: Valor do segredo.
-    """
-    return get_secret(secret_path)
-
-
-@task
 def api_post_request(
     url: str,
     headers: Optional[dict] = None,

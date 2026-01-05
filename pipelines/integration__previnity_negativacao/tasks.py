@@ -8,6 +8,21 @@ from datetime import date
 from prefect import task
 
 from pipelines.common.utils.pretreatment import normalize_text
+from pipelines.common.utils.secret import get_secret
+
+
+@task
+def get_previnity_credentials() -> tuple[str, str]:
+    """
+    Retorna as credenciais para autenticação na API da Previnity.
+    """
+    prev_key = get_secret(secret_path="previnity_api", secret_name="key")
+    prev_token = get_secret(secret_path="previnity_api", secret_name="token")
+
+    if not prev_key or not prev_token:
+        raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")
+
+    return prev_key, prev_token
 
 
 @task
