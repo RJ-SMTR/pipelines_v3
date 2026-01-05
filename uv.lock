@@ -1400,11 +1400,15 @@ name = "integration-previnity-negativacao"
 version = "0.1.0"
 source = { virtual = "pipelines/integration__previnity_negativacao" }
 dependencies = [
+    { name = "httpx" },
     { name = "pandas-gbq" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pandas-gbq", specifier = ">=0.19.0" }]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pandas-gbq", specifier = ">=0.19.0" },
+]
 
 [[package]]
 name = "iplanrio"

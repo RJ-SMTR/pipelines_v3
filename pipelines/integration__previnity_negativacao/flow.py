@@ -21,16 +21,16 @@ async def integration__previnity_negativacao():
     setup_environment(env=env)
 
     secrets = get_secret(secret_path=constants.SECRET_PATH)
-    prev_key = secrets.get("prev_key")
-    prev_token = secrets.get("prev_token")
+    prev_key = secrets.get("previnity_api_key")
+    prev_token = secrets.get("previnity_api_token")
 
     if not prev_key or not prev_token:
         raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")
 
     headers = {
-        constants.HEADER_PREV_KEY: prev_key,
-        constants.HEADER_PREV_TOKEN: prev_token,
-        constants.HEADER_CONTENT_TYPE: "application/json",
+        "PREVKEY": prev_key,
+        "PREVTOKEN": prev_token,
+        "Content-Type": "application/json",
     }
 
     project_id = common_constants.PROJECT_NAME[env]
@@ -45,5 +45,7 @@ async def integration__previnity_negativacao():
         url=constants.API_URL_PF,
         payloads=payloads,
         headers=headers,
-        max_concurrent=300,
+        max_concurrent=10,
     )
+
+    print(results)
