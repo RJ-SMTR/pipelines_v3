@@ -67,8 +67,9 @@ def setup_environment(env: str):
     Args:
         env (str): prod ou dev.
     """
-    environment = env if env == "prod" else "staging"
-    inject_bd_credentials(environment=environment)
+    if not is_running_locally():
+        environment = env if env == "prod" else "staging"
+        inject_bd_credentials(environment=environment)
 
 
 @task

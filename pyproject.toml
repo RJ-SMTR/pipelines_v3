@@ -5,6 +5,7 @@ description = "Prefect pipelines for the Rio de Janeiro Department of Transporta
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "dbt-bigquery==1.10.1",
     "idna>=3.10",
     "infisicalsdk>=1.0.12",
     "iplanrio",
