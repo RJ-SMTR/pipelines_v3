@@ -30,7 +30,7 @@ def normalize_text(
     Returns:
         str: Texto normalizado.
     """
-    if text == "":
+    if not text:
         return ""
 
     text = unicodedata.normalize("NFD", text)

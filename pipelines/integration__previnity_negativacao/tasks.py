@@ -16,8 +16,8 @@ def get_previnity_credentials() -> tuple[str, str]:
     """
     Retorna as credenciais para autenticação na API da Previnity.
     """
-    prev_key = get_secret(secret_path="previnity_api", secret_name="key")
-    prev_token = get_secret(secret_path="previnity_api", secret_name="token")
+    prev_key = get_secret(secret_path="previnity_api", secret_name="key").get("key")
+    prev_token = get_secret(secret_path="previnity_api", secret_name="token").get("token")
 
     if not prev_key or not prev_token:
         raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")
