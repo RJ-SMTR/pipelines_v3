@@ -15,7 +15,7 @@ from pipelines.integration__previnity_negativacao.tasks import (
 )
 
 
-@flow
+@flow(log_prints=True)
 async def integration__previnity_negativacao():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
