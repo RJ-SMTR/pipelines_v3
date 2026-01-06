@@ -41,6 +41,7 @@ deployments:
     schedules:
       - cron: "0 0 * * *"
         timezone: "America/Sao_Paulo"
+        active: false
     work_pool:
       name: smtr-pool
       work_queue_name: default
