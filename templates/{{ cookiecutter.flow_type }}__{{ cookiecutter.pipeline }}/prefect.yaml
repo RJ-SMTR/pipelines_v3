@@ -40,7 +40,7 @@ deployments:
     entrypoint: pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}/flow.py:{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}
     schedules:
       - cron: "0 0 * * *"
-      - timezone: "America/Sao_Paulo"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
