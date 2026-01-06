@@ -40,7 +40,7 @@ deployments:
     entrypoint: pipelines/capture__serpro_autuacao/flow.py:capture__serpro_autuacao
     schedules:
       - cron: "0 7 * * *"
-      - timezone: "America/Sao_Paulo"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default

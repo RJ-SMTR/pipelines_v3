@@ -9,6 +9,10 @@ queries/target/*
 queries/target-base/*
 queries/profiles/*
 queries/dev/*
+queries/dbt_packages/*
+queries/.user.yml
+queries/package-lock.yml
+queries/dbt_internal_packages/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -40,3 +44,6 @@ venv.bak/
 # Ruff stuff:
 .ruff_cache/
 data/
+
+# Redis
+dump.rdb

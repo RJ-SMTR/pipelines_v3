@@ -13,12 +13,19 @@ from pipelines import common
 from pipelines.common.utils.utils import custom_serialization, is_running_locally
 
 
-def get_root_path() -> Path:
+def get_project_root_path() -> Path:
     """
     Retorna o caminho da raiz do projeto.
     """
+    return Path(files(common)).parent.parent
+
+
+def get_root_path() -> Path:
+    """
+    Retorna o caminho raiz.
+    """
     if is_running_locally():
-        return Path(files(common)).parent.parent
+        get_project_root_path()
     else:
         return Path("/app")
 

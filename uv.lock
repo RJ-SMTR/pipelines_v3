@@ -701,6 +701,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dill"
+version = "0.3.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/70/43/86fe3f9e130c4137b0f1b50784dd70a5087b911fe07fa81e53e0c4c47fea/dill-0.3.9.tar.gz", hash = "sha256:81aa267dddf68cbfe8029c42ca9ec6a4ab3b22371d1c450abc54422577b4512c", size = 187000, upload-time = "2024-09-29T00:03:20.958Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/46/d1/e73b6ad76f0b1fb7f23c35c6d95dbc506a9c8804f43dda8cb5b0fa6331fd/dill-0.3.9-py3-none-any.whl", hash = "sha256:468dff3b89520b474c0397703366b7b95eebe6303f108adf9b19da1f702be87a", size = 119418, upload-time = "2024-09-29T00:03:19.344Z" },
+]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2016,6 +2025,7 @@ dependencies = [
     { name = "pre-commit" },
     { name = "prefect" },
     { name = "pydantic" },
+    { name = "redis-pal" },
     { name = "unidecode" },
 ]
 
@@ -2035,6 +2045,7 @@ requires-dist = [
     { name = "pre-commit", specifier = ">=4.4.0" },
     { name = "prefect", specifier = "==3.4.9" },
     { name = "pydantic", specifier = ">=2.0,<3.0" },
+    { name = "redis-pal", specifier = ">=1.0.0" },
     { name = "unidecode", specifier = ">=1.3.8" },
 ]
 
@@ -2612,6 +2623,28 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/dd/f8/8657b8cbb4ebeabfbdf991ac40eca8a1d1bd012011bd44ad1ed10f5cb494/readchar-4.2.1.tar.gz", hash = "sha256:91ce3faf07688de14d800592951e5575e9c7a3213738ed01d394dcc949b79adb", size = 9685, upload-time = "2024-11-04T18:28:07.757Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a9/10/e4b1e0e5b6b6745c8098c275b69bc9d73e9542d5c7da4f137542b499ed44/readchar-4.2.1-py3-none-any.whl", hash = "sha256:a769305cd3994bb5fa2764aa4073452dc105a4ec39068ffe6efd3c20c60acc77", size = 9350, upload-time = "2024-11-04T18:28:02.859Z" },
+]
+
+[[package]]
+name = "redis"
+version = "4.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/88/63d802c2b18dd9eaa5b846cbf18917c6b2882f20efda398cc16a7500b02c/redis-4.6.0.tar.gz", hash = "sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d", size = 4561721, upload-time = "2023-06-25T13:13:57.139Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/2e/409703d645363352a20c944f5d119bdae3eb3034051a53724a7c5fee12b8/redis-4.6.0-py3-none-any.whl", hash = "sha256:e2b03db868160ee4591de3cb90d40ebb50a90dd302138775937f6a42b7ed183c", size = 241149, upload-time = "2023-06-25T13:13:54.563Z" },
+]
+
+[[package]]
+name = "redis-pal"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dill" },
+    { name = "redis" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bf/01/82e5947eecd8b099be2432b9aa5a1a1bcb1807dd3a0cd13255ddec469ae6/redis-pal-1.0.0.tar.gz", hash = "sha256:8e20caf8127056a2d1208d6dd0873643efb8357602193e26c1ada8ed6737fa88", size = 14292, upload-time = "2022-06-03T18:04:05.315Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/24/71362e2dc84d495c015bbcf0cb2c1a086b0aa437ac1de760f92314083faa/redis_pal-1.0.0-py3-none-any.whl", hash = "sha256:8cbf55c926c761ce9d60803ed66ef2575f351b43c9554fd66f6458d323430bf0", size = 14867, upload-time = "2022-06-03T18:04:06.6Z" },
 ]
 
 [[package]]

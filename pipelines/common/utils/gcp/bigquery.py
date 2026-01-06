@@ -210,6 +210,9 @@ class SourceTable(BQTable):
         self.file_chunk_size = file_chunk_size
 
     def _get_schedule_cron(self) -> str:
+        """
+        Retorna o cron do schedule do deployment do flow associado ao Source
+        """
         if self.flow_folder_name is None:
             flow_folder_path = Path(inspect.stack()[2].filename).parent
 

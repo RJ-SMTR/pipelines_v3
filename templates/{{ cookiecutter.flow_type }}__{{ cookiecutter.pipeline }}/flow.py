@@ -14,7 +14,7 @@ def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
     recapture=False,
     recapture_days=2,
     recapture_timestamps=None,
-) -> list[str]:
+):
     create_capture_flows_default_tasks(
         env=env,
         sources=[],
@@ -23,6 +23,32 @@ def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
+    )
+{% elif cookiecutter.flow_type == "treatment" -%}
+from prefect import flow
+
+from pipelines.common.treatment.default_treatment.flow import (
+    create_materialization_flows_default_tasks,
+)
+
+@flow
+def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
+    env,
+    datetime_start=None,
+    datetime_end=None,
+    flags=None,
+    additional_vars=None,
+    force_test_run=False,
+):
+    create_materialization_flows_default_tasks(
+        env=env,
+        selectors=[],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        flags=flags,
+        additional_vars=additional_vars,
+        test_scheduled_time=None,
+        force_test_run=force_test_run,
     )
 {% else -%}
 import random
