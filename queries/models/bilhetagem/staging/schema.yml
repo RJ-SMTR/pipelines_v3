@@ -1,0 +1,62 @@
+models:
+  - name: aux_gratuidade
+    columns:
+      - name: id_cliente
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_cliente_gratuidade
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+  - name: aux_estudante
+    columns:
+      - name: id_cliente
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: numero_matricula
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_unico
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+  - name: aux_laudo_pcd
+    columns:
+      - name: id_cliente
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_laudo_pcd
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_unico
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+  - name: aux_gratuidade_info
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          name: dbt_expectations.expect_table_row_count_to_be_between__aux_gratuidade_info
+          min_value: 0
+          max_value: 1
+          group_by: [id_cliente]
+          row_condition: "datetime_fim_validade is null"
+          strictly: false
+          where: "1=1"
+    columns:
+      - name: id_cliente
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_cliente_gratuidade
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: id_unico
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string

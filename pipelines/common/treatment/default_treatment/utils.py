@@ -600,3 +600,18 @@ class DBTTestFailedError(Exception): ...
 
 
 class IncompleteDataError(Exception): ...
+
+
+def rename_treatment_flow_run() -> str:
+    """
+    Gera o nome para execução de flows de tratamento.
+
+    Returns:
+        str: Nome para execução do flow.
+    """
+    scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
+        "%Y-%m-%d %H-%M-%S"
+    )
+
+    flow_name = runtime.flow_run.flow_name
+    return f"[{scheduled_start_time}] {flow_name}"
