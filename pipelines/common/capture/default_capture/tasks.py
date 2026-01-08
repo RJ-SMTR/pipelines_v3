@@ -46,7 +46,7 @@ def create_capture_contexts(  # noqa: PLR0913
         list[SourceCaptureContext]: Lista de contextos de captura.
     """
     contexts = []
-    sources = [s for s in sources if s.table_id in source_table_ids]
+    sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
     for source in sources:
         if recapture:
             if recapture_timestamps:
@@ -63,7 +63,7 @@ def create_capture_contexts(  # noqa: PLR0913
 
         contexts += [
             SourceCaptureContext(
-                source=source.set_env(env=env),
+                source=source,
                 timestamp=t,
                 extra_parameters=(
                     extra_parameters.get(source.table_id) if extra_parameters else None
