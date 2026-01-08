@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__cadastro`
+- Cria flow `treatment__cadastro` (https://github.com/RJ-SMTR/pipelines_v3/pull/17)
