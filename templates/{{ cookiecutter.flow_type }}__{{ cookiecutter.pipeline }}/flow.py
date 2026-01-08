@@ -30,10 +30,11 @@ from prefect import flow
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
+from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 
-@flow
+@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
-    env,
+    env=None,
     datetime_start=None,
     datetime_end=None,
     flags=None,

@@ -1,0 +1,4 @@
+[project]
+name = "treatment__cadastro"
+version = "0.1.0"
+description = "Pipeline cadastro da secretaria rj-smtr"

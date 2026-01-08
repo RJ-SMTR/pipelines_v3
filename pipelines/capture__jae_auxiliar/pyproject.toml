@@ -1,0 +1,4 @@
+[project]
+name = "capture__jae_auxiliar"
+version = "0.1.0"
+description = "Pipeline jae_auxiliar da secretaria rj-smtr"

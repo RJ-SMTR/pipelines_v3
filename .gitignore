@@ -47,3 +47,6 @@ data/
 
 # Redis
 dump.rdb
+
+# VSCode
+.vscode/

@@ -25,7 +25,7 @@ def get_root_path() -> Path:
     Retorna o caminho raiz.
     """
     if is_running_locally():
-        get_project_root_path()
+        return get_project_root_path()
     else:
         return Path("/app")
 
