@@ -5,6 +5,7 @@ DBT: 2026-01-08
 
 from prefect import flow
 
+from pipelines.common.treatment.cadastro import constants
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -22,7 +23,7 @@ def treatment__cadastro(  # noqa: PLR0913
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[],
+        selectors=[constants.CADASTRO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
