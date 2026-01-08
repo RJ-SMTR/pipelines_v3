@@ -213,7 +213,6 @@ selectors:
           value: aux_gratuidade
         - method: fqn
           value: aux_gratuidade_info
-        - method: fqn
 
   - name: transacao
     description: Materialização das tabelas de transação da bilhetagem
@@ -223,6 +222,7 @@ selectors:
           value: dicionario_bilhetagem
         - method: fqn
           value: staging_produto
+        - method: fqn
           value: staging_transacao
         - method: fqn
           value: staging_transacao_riocard
