@@ -195,13 +195,6 @@ selectors:
           value: aux_consorcio_modo
         - method: fqn
           value: modos
-
-  - name: transacao
-    description: Materialização das tabelas de transação da bilhetagem
-    definition:
-      union:
-        - method: fqn
-          value: dicionario_bilhetagem
         - method: fqn
           value: staging_gratuidade
         - method: fqn
@@ -210,8 +203,6 @@ selectors:
           value: staging_laudo_pcd
         - method: fqn
           value: staging_escola
-        - method: fqn
-          value: staging_produto
         - method: fqn
           value: aux_estudante
         - method: fqn
@@ -222,6 +213,15 @@ selectors:
           value: aux_gratuidade
         - method: fqn
           value: aux_gratuidade_info
+
+  - name: transacao
+    description: Materialização das tabelas de transação da bilhetagem
+    definition:
+      union:
+        - method: fqn
+          value: dicionario_bilhetagem
+        - method: fqn
+          value: staging_produto
         - method: fqn
           value: staging_transacao
         - method: fqn
