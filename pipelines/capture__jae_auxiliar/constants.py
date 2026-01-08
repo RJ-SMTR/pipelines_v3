@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Valores constantes para captura de dados da Jaé
+Valores constantes para captura de dados auxiliares da Jaé
 """
 
 from datetime import datetime
