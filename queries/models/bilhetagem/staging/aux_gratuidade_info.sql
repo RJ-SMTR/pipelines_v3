@@ -1,7 +1,6 @@
 {{
     config(
-        materialized="incremental",
-        incremental_strategy="merge",
+        materialized="table",
         unique_key="id_unico",
         partition_by={
             "field": "id_cliente",
