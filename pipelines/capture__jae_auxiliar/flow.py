@@ -2,11 +2,11 @@
 # common: 2025-01-07a
 from prefect import flow
 
+from pipelines.capture__jae_auxiliar import constants
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
-from pipelines.common.capture.jae import constants
 from pipelines.common.capture.jae.tasks import create_jae_general_extractor
 
 sources = constants.JAE_AUXILIAR_SOURCES

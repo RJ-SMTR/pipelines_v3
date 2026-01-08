@@ -6,8 +6,8 @@ Valores constantes para materialização do selector cadastro
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__jae_auxiliar import constants as jae_auxiliar_constants
 from pipelines.common import constants as smtr_constants
-from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
 CADASTRO_SELECTOR = DBTSelector(
@@ -16,7 +16,7 @@ CADASTRO_SELECTOR = DBTSelector(
     flow_folder_name="treatment__cadastro",
     data_sources=[
         s
-        for s in jae_constants.JAE_AUXILIAR_SOURCES
+        for s in jae_auxiliar_constants.JAE_AUXILIAR_SOURCES
         if s.table_id
         in [
             "linha",
