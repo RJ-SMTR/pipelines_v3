@@ -187,8 +187,9 @@ class DBTSelector:
 
         else:
             flow_name = self.flow_folder_name
-
-            flow_folder_path = Path(constants.__file__).resolve().parent.parent / flow_name
+            flow_folder_path = (
+                Path(constants.__file__).resolve().parent.parent.parent.parent / flow_name
+            )
 
         with (flow_folder_path / "prefect.yaml").open("r") as f:
             prefect_file = yaml.safe_load(f)
