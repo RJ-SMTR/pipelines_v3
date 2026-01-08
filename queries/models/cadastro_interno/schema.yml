@@ -1,0 +1,305 @@
+models:
+  - name: cliente_jae
+    description: Tabela contendo os dados de cadastro dos clientes na Jaé
+    columns:
+      - name: id_cliente_particao
+        description: "{{ doc('id_cliente_particao') }} [particao] [protegido]"
+        data_type: int64
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: nome_social
+        description: "{{ doc('nome_social_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: tipo_pessoa
+        description: Pessoa física ou jurídica
+        data_type: string
+        quote: true
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_cliente') }}"
+        data_type: string
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: documento_alternativo
+        description: Número do documento alternativo do cliente [protegido]
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: email
+        description: Email do cliente [protegido]
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: datetime_cadastro
+        description: "{{ doc('datetime_cadastro_cliente') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: cliente_cpf_jae
+    description: Tabela contendo os dados de cadastro dos clientes na Jaé particionados por CPF
+    columns:
+      - name: cpf_particao
+        description: "{{ doc('cpf_particao') }} [particao] [protegido]"
+        data_type: int64
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: cpf
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: datetime_cadastro
+        description: "{{ doc('datetime_cadastro_cliente') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: endereco_cliente_jae
+    description: Tabela contendo os dados de endereço dos clientes cadastrados na Jaé
+    columns:
+      - name: id_cliente_particao
+        description: "{{ doc('id_cliente_particao') }} [particao] [protegido]"
+        data_type: int64
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: id_cliente_sequencia
+        description: "{{ doc('id_cliente_sequencia') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: numero_sequencia_endereco
+        description: "{{ doc('numero_sequencia_endereco_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: tipo_endereco
+        description: "{{ doc('tipo_endereco_cliente') }}"
+        data_type: string
+        quote: true
+      - name: cep
+        description: "{{ doc('cep') }}"
+        data_type: string
+        quote: true
+      - name: logradouro
+        description: "{{ doc('logradouro') }}"
+        data_type: string
+        quote: true
+      - name: numero
+        description: "{{ doc('numero_endereco') }}"
+        data_type: string
+        quote: true
+      - name: complemento
+        description: "{{ doc('complemento_endereco') }}"
+        data_type: string
+        quote: true
+      - name: bairro
+        description: "{{ doc('bairro') }}"
+        data_type: string
+        quote: true
+      - name: cidade
+        description: "{{ doc('cidade') }}"
+        data_type: string
+        quote: true
+      - name: uf
+        description: "{{ doc('uf') }}"
+        data_type: string
+        quote: true
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_endereco_jae') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_inativacao
+        description: "{{ doc('datetime_inativacao_endereco_jae') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: endereco_cliente_cpf_jae
+    description: Tabela contendo os dados de endereço dos clientes cadastrados na Jaé particionados por CPF
+    columns:
+      - name: cpf_particao
+        description: "{{ doc('cpf_particao') }} [particao] [protegido]"
+        data_type: int64
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: cpf
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: id_cliente_sequencia
+        description: "{{ doc('id_cliente_sequencia') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: numero_sequencia_endereco
+        description: "{{ doc('numero_sequencia_endereco_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+      - name: tipo_endereco
+        description: "{{ doc('tipo_endereco_cliente') }}"
+        data_type: string
+        quote: true
+      - name: cep
+        description: "{{ doc('cep') }}"
+        data_type: string
+        quote: true
+      - name: logradouro
+        description: "{{ doc('logradouro') }}"
+        data_type: string
+        quote: true
+      - name: numero
+        description: "{{ doc('numero_endereco') }}"
+        data_type: string
+        quote: true
+      - name: complemento
+        description: "{{ doc('complemento_endereco') }}"
+        data_type: string
+        quote: true
+      - name: bairro
+        description: "{{ doc('bairro') }}"
+        data_type: string
+        quote: true
+      - name: cidade
+        description: "{{ doc('cidade') }}"
+        data_type: string
+        quote: true
+      - name: uf
+        description: "{{ doc('uf') }}"
+        data_type: string
+        quote: true
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_endereco_jae') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_inativacao
+        description: "{{ doc('datetime_inativacao_endereco_jae') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
