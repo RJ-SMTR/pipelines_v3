@@ -5,11 +5,11 @@ DBT: 2026-01-08
 
 from prefect import flow
 
-from pipelines.common.treatment.cadastro import constants
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.treatment__cadastro import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
