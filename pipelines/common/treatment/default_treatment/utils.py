@@ -521,6 +521,8 @@ def run_dbt(
         invoke = [*invoke, "--vars", vars_yaml]
 
     invoke = invoke + flags
+    print(f"Running DBT Command:\n{' '.join(invoke)}")
+
     PrefectDbtRunner(
         settings=PrefectDbtSettings(
             project_dir=project_dir,
