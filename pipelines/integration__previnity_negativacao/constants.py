@@ -3,6 +3,11 @@
 Valores constantes para pipeline integration__previnity_negativacao
 """
 
+NEGATIVACAO_PRIVATE_BUCKET_NAMES = {
+    "prod": "rj-smtr-serpro-private",
+    "dev": "rj-smtr-dev-serpro-private",
+}
+
 API_URL_PF = "https://api.previnity.com.br/pnn035"
 API_URL_PJ = "https://api.previnity.com.br/pnn034"
 
