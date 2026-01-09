@@ -4,15 +4,22 @@
 import asyncio
 import time
 from datetime import datetime
-from typing import Optional
+from functools import partial
+from pathlib import Path
+from typing import Optional, Union
 
 import httpx
+import pandas as pd
 import pandas_gbq
 import requests
 from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
 from pipelines.common import constants
+from pipelines.common.capture.default_capture.constants import FILEPATH_PATTERN
+from pipelines.common.utils.fs import get_data_folder_path, save_local_file
+from pipelines.common.utils.gcp.bigquery import BQTable
+from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.secret import get_secret
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
@@ -174,3 +181,122 @@ def query_bq(query: str, project_id: str) -> list[dict]:
     df = pandas_gbq.read_gbq(query, project_id=project_id, use_bqstorage_api=True)
 
     return df.to_dict(orient="records")
+
+
+@task
+def upload_to_gcs(
+    env: str,
+    path: Union[str, Path],
+    dataset_id: str,
+    table_id: str,
+    mode: str = "upload",
+    partition: Optional[str] = None,
+    create_table: bool = False,
+    bucket_names: Optional[dict] = None,
+):
+    """
+    Sobe um arquivo para o GCS e opcionalmente cria uma tabela externa no BigQuery.
+
+    Args:
+        env (str): prod ou dev.
+        path (Union[str, Path]): Caminho do arquivo local.
+        dataset_id (str): ID do dataset.
+        table_id (str): ID da tabela.
+        mode (str): Pasta raiz no bucket (ex: raw, source).
+        partition (Optional[str]): Partição Hive (ex: data=2023-01-01).
+        create_table (bool): Se True, cria tabela externa no BigQuery.
+        bucket_names (Optional[dict]): Dicionário com nomes dos buckets por ambiente.
+    """
+    storage = Storage(
+        env=env,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_names=bucket_names,
+    )
+
+    storage.upload_file(
+        mode=mode,
+        filepath=path,
+        partition=partition,
+    )
+
+    if create_table:
+        bucket_name = storage.bucket_name
+        blob_uri = f"{mode}/{dataset_id}/{table_id}"
+        # if partition:
+        #     blob_prefix += f"/{partition.strip('/')}"
+
+        uri = f"gs://{bucket_name}/{blob_uri}/*"
+
+        bq_table = BQTable(
+            env=env,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_names=bucket_names,
+        )
+        bq_table.create_external_table(
+            uri=uri,
+            sample_filepath=str(path),
+        )
+
+
+@task
+def save_data_to_file(
+    data: Union[str, dict, list[dict], pd.DataFrame],
+    path: Union[str, Path],
+    filetype: str,
+    csv_mode: str,
+):
+    """
+    Salva dados em um arquivo local.
+
+    Args:
+        data (Union[str, dict, list[dict], pd.DataFrame]): Dados para salvar.
+        path (Union[str, Path]): Caminho do arquivo.
+        filetype (str): Tipo do arquivo.
+        csv_mode (str): Modo do arquivo CSV.
+    """
+    save_local_file(
+        filepath=str(path),
+        filetype=filetype,
+        data=data,
+        csv_mode=csv_mode,
+    )
+    print(f"Dados salvos em {path}")
+
+
+@task
+def create_local_filepath(
+    partition: str,
+    dataset_id: str,
+    table_id: str,
+    filename: str,
+    filetype: str,
+    mode: str = "upload",
+) -> str:
+    """
+    Cria o caminho do arquivo local padrão.
+
+    Args:
+        partition (str): Partição Hive.
+        dataset_id (str): ID do dataset.
+        table_id (str): ID da tabela.
+        filename (str): Nome do arquivo.
+        filetype (str): Tipo do arquivo.
+        mode (str): Modo (upload, raw, source).
+
+    Returns:
+        str: Caminho completo do arquivo.
+    """
+    data_folder = get_data_folder_path()
+    return (
+        f"{data_folder}/"
+        + f"{mode}/"
+        + FILEPATH_PATTERN.format(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            partition=partition,
+            filename=filename,
+        )
+        + f".{filetype}"
+    )
