@@ -18,11 +18,7 @@ from google.cloud.bigquery.external_config import HivePartitioningOptions
 from pipelines.common import constants
 from pipelines.common.utils.gcp.base import GCPBase
 from pipelines.common.utils.gcp.storage import Storage
-from pipelines.common.utils.utils import (
-    convert_timezone,
-    cron_date_range,
-    cron_get_last_date,
-)
+from pipelines.common.utils.utils import convert_timezone, cron_date_range, cron_get_last_date
 
 
 class Dataset(GCPBase):
@@ -146,6 +142,65 @@ class BQTable(GCPBase):
 
         return result.iloc[0][0]
 
+    def _create_table_schema(self, sample_filepath: str) -> list[bigquery.SchemaField]:
+        """
+        Cria schema para os argumentos da criação de tabela externa no BQ
+        """
+        print("Creating table schema...")
+        columns = next(csv.reader(Path(sample_filepath).open(encoding="utf-8")))
+
+        print(f"Columns: {columns}")
+        schema = [
+            bigquery.SchemaField(name=col, field_type="STRING", description=None) for col in columns
+        ]
+        print("Schema created!")
+        return schema
+
+    def _create_table_config(self, sample_filepath: str, uri: str) -> bigquery.ExternalConfig:
+        """
+        Cria as configurações da tabela externa no BQ
+        """
+        external_config = bigquery.ExternalConfig("CSV")
+        external_config.options.skip_leading_rows = 1
+        external_config.options.allow_quoted_newlines = True
+        external_config.autodetect = False
+        external_config.schema = self._create_table_schema(sample_filepath=sample_filepath)
+        external_config.options.field_delimiter = ","
+        external_config.options.allow_jagged_rows = False
+
+        external_config.source_uris = uri
+        hive_partitioning = HivePartitioningOptions()
+        hive_partitioning.mode = "AUTO"
+        hive_partitioning.source_uri_prefix = uri.replace("*", "")
+        external_config.hive_partitioning = hive_partitioning
+
+        return external_config
+
+    def create_external_table(self, uri: str, sample_filepath: str, location: str = "US"):
+        """
+        Cria tabela externa do BQ
+
+        Args:
+            uri (str): URI do GCS
+            sample_filepath (str): Caminho com dados da tabela (usados para criar o schema)
+            location (str): Localização do dataset
+        """
+        print(f"Creating External Table: {self.table_full_name}")
+        dataset_obj = Dataset(dataset_id=self.dataset_id, env=self.env, location=location)
+        dataset_obj.create()
+
+        client = self.client("bigquery")
+
+        bq_table = bigquery.Table(self.table_full_name)
+        bq_table.description = f"staging table for `{self.table_full_name}`"
+        bq_table.external_data_configuration = self._create_table_config(
+            sample_filepath=sample_filepath,
+            uri=uri,
+        )
+
+        client.create_table(bq_table, exists_ok=True)
+        print("Table created!")
+
 
 class SourceTable(BQTable):
     """
@@ -234,41 +289,6 @@ class SourceTable(BQTable):
 
         return schedules[0].get("cron")
 
-    def _create_table_schema(self, sample_filepath: str) -> list[bigquery.SchemaField]:
-        """
-        Cria schema para os argumentos da criação de tabela externa no BQ
-        """
-        print("Creating table schema...")
-        columns = next(csv.reader(Path(sample_filepath).open(encoding="utf-8")))
-
-        print(f"Columns: {columns}")
-        schema = [
-            bigquery.SchemaField(name=col, field_type="STRING", description=None) for col in columns
-        ]
-        print("Schema created!")
-        return schema
-
-    def _create_table_config(self, sample_filepath: str) -> bigquery.ExternalConfig:
-        """
-        Cria as configurações da tabela externa no BQ
-        """
-        external_config = bigquery.ExternalConfig("CSV")
-        external_config.options.skip_leading_rows = 1
-        external_config.options.allow_quoted_newlines = True
-        external_config.autodetect = False
-        external_config.schema = self._create_table_schema(sample_filepath=sample_filepath)
-        external_config.options.field_delimiter = ","
-        external_config.options.allow_jagged_rows = False
-
-        uri = f"gs://{self.bucket_name}/source/{self.dataset_id}/{self.table_id}/*"
-        external_config.source_uris = uri
-        hive_partitioning = HivePartitioningOptions()
-        hive_partitioning.mode = "AUTO"
-        hive_partitioning.source_uri_prefix = uri.replace("*", "")
-        external_config.hive_partitioning = hive_partitioning
-
-        return external_config
-
     def get_last_scheduled_timestamp(self, timestamp: datetime) -> datetime:
         """
         Retorna o último timestamp programado antes do timestamp fornecido
@@ -351,20 +371,8 @@ class SourceTable(BQTable):
             location (str): Localização do dataset
             sample_filepath (str): Caminho com dados da tabela (usados para criar o schema)
         """
-        print(f"Creating External Table: {self.table_full_name}")
-        dataset_obj = Dataset(dataset_id=self.dataset_id, env=self.env, location=location)
-        dataset_obj.create()
-
-        client = self.client("bigquery")
-
-        bq_table = bigquery.Table(self.table_full_name)
-        bq_table.description = f"staging table for `{self.table_full_name}`"
-        bq_table.external_data_configuration = self._create_table_config(
-            sample_filepath=sample_filepath
-        )
-
-        client.create_table(bq_table)
-        print("Table created!")
+        uri = f"gs://{self.bucket_name}/source/{self.dataset_id}/{self.table_id}/*"
+        self.create_external_table(uri=uri, sample_filepath=sample_filepath, location=location)
 
     def append(self, source_filepath: str, partition: str):
         """
