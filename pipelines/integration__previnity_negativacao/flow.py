@@ -1,18 +1,14 @@
 from prefect import flow, runtime
 
 from pipelines.common import constants as common_constants
-from pipelines.common.tasks import (
-    async_api_post_request,
-    get_run_env,
-    get_scheduled_timestamp,
-    query_bq,
-    setup_environment,
-)
+from pipelines.common.tasks import (async_api_post_request,
+                                    create_local_filepath, get_run_env,
+                                    get_scheduled_timestamp, query_bq,
+                                    save_data_to_file, setup_environment,
+                                    upload_to_gcs)
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
-    get_previnity_credentials,
-    prepare_previnity_payloads,
-)
+    get_previnity_credentials, prepare_previnity_payloads)
 
 
 @flow(log_prints=True)
@@ -33,6 +29,16 @@ async def integration__previnity_negativacao():
 
     ts = get_scheduled_timestamp()
     execution_date = ts.date()
+    partition = f"data={execution_date}"
+    filename = ts.strftime("%Y-%m-%d-%H-%M-%S")
+    filepath = create_local_filepath(
+        partition=partition,
+        dataset_id="previnity",
+        table_id="retorno_negativacao",
+        filename=filename,
+        filetype="csv",
+        mode="upload",
+    )
 
     payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
 
@@ -44,3 +50,20 @@ async def integration__previnity_negativacao():
     )
 
     print(results)
+
+    save_data_to_file(
+        data=results,
+        path=filepath,
+        filetype="csv",
+        csv_mode="w",
+    )
+
+    upload_to_gcs(
+        env=env,
+        path=filepath,
+        dataset_id="previnity",
+        table_id="retorno_negativacao",
+        partition=partition,
+        create_table=True,
+        bucket_names=constants.NEGATIVACAO_PRIVATE_BUCKET_NAMES,
+    )
