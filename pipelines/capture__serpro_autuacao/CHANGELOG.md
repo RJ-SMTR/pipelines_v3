@@ -2,7 +2,7 @@
 
 ## [1.0.1] - 2026-01-09
 
-### Adicionado
+### Alterado
 
 - Ativa recaptura no flow (https://github.com/RJ-SMTR/pipelines_v3/pull/21)
 
