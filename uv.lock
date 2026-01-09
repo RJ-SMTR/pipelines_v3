@@ -4,12 +4,14 @@ requires-python = ">=3.13"
 
 [manifest]
 members = [
+    "capture-jae-auxiliar",
     "capture-serpro-autuacao",
     "common",
     "integration-previnity-negativacao",
     "pipelines-v3",
     "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
+    "treatment-cadastro",
 ]
 
 [[package]]
@@ -269,6 +271,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/6c/81/3747dad6b14fa2cf5
 wheels = [
     { url = "https://files.pythonhosted.org/packages/72/76/20fa66124dbe6be5cafeb312ece67de6b61dd91a0247d1ea13db4ebb33c2/cachetools-5.5.2-py3-none-any.whl", hash = "sha256:d26a22bcc62eb95c3beabd9f1ee5e820d3d2704fe2967cbe350e20c8ffcd3f0a", size = 10080, upload-time = "2025-02-20T21:01:16.647Z" },
 ]
+
+[[package]]
+name = "capture-jae-auxiliar"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_auxiliar" }
 
 [[package]]
 name = "capture-serpro-autuacao"
@@ -3128,6 +3135,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/eb/79/72064e6a701c21830
 wheels = [
     { url = "https://files.pythonhosted.org/packages/00/c0/8f5d070730d7836adc9c9b6408dec68c6ced86b304a9b26a14df072a6e8c/traitlets-5.14.3-py3-none-any.whl", hash = "sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f", size = 85359, upload-time = "2024-04-19T11:11:46.763Z" },
 ]
+
+[[package]]
+name = "treatment-cadastro"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__cadastro" }
 
 [[package]]
 name = "typer"
