@@ -71,6 +71,9 @@ def save_local_file(
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
     print("Parent folder created!")
 
+    if isinstance(data, list) and filetype == "csv":
+        data = pd.DataFrame(data)
+
     if isinstance(data, pd.DataFrame):
         print("Received a DataFrame, saving file as CSV")
         if csv_mode == "a":
