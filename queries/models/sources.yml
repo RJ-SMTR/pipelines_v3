@@ -1,0 +1,490 @@
+version: 2
+
+sources:
+
+  - name: br_rj_riodejaneiro_bilhetagem_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: transacao
+      - name: transacao_riocard
+      - name: linha
+      - name: dicionario
+      - name: consorcio
+      - name: operadora_transporte
+      - name: ordem_pagamento
+      - name: ordem_ressarcimento
+      - name: conta_bancaria
+      - name: contato_pessoa_juridica
+      - name: cliente
+      - name: percentual_rateio_integracao
+      - name: integracao_transacao
+      - name: tipo_modal
+      - name: gps_validador
+      - name: gratuidade
+      - name: ordem_rateio
+      - name: servico_motorista
+      - name: linha_sem_ressarcimento
+      - name: ordem_pagamento_consorcio_operadora
+      - name: ordem_pagamento_consorcio
+      - name: linha_consorcio
+      - name: linha_consorcio_operadora_transporte
+      - name: endereco
+      - name: linha_tarifa
+
+
+  - name: br_rj_riodejaneiro_gtfs_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: agency
+      - name: calendar
+      - name: calendar_dates
+      - name: fare_attributes
+      - name: fare_rules
+      - name: feed_info
+      - name: frequencies
+      - name: routes
+      - name: shapes
+      - name: stops
+      - name: stop_times
+      - name: trips
+      - name: ordem_servico
+      - name: ordem_servico_trajeto_alternativo
+      - name: ordem_servico_faixa_horaria
+      - name: ordem_servico_faixa_horaria_sentido
+      - name: ordem_servico_trajeto_alternativo_sentido
+
+  - name: br_rj_riodejaneiro_stu_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: operadora_empresa
+      - name: operadora_pessoa_fisica
+
+  - name: br_rj_riodejaneiro_recursos_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: recursos_sppo_viagens_individuais
+      - name: recursos_sppo_bloqueio_via
+      - name: recursos_sppo_reprocessamento
+      - name: recursos_sppo_servico_dia_avaliacao
+      - name: recursos_sppo_servico_dia_pago
+
+  - name: cadastro_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: consorcio_modo
+      - name: modos
+      - name: operador_van_v2
+
+  - name: br_rj_riodejaneiro_rdo_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: rho_registros_sppo
+      - name: rho_registros_stpl
+      - name: rdo_registros_stpl
+      - name: dicionario
+      - name: rdo5_registros_stpl
+      - name: rdo5_registros_sppo
+      - name: rdo5_registros
+
+  - name: br_rj_riodejaneiro_rdo
+    database: rj-smtr
+
+    tables:
+      - name: rdo40_tratado
+      - name: rdo40_registros_sppo
+
+  - name: projeto_subsidio_sppo_encontro_contas
+    database: rj-smtr
+    tables:
+      - name: parametros_km
+
+  - name: projeto_subsidio_sppo_encontro_contas_staging
+    database: rj-smtr
+
+    tables:
+      - name: parametros_km
+      - name: rdo_rioonibus_correcao_servico_2024_2025
+      - name: subtt_cmo_recurso_encontro_contas
+
+  - name: veiculo_staging_rj-smtr
+    database: rj-smtr
+    schema: veiculo_staging
+
+    tables:
+      - name: sppo_licenciamento
+
+  - name: veiculo_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: sppo_vistoria_tr_subtt_cglf_2023
+      - name: sppo_vistoria_tr_subtt_cglf_2024
+      - name: sppo_vistoria_tr_subtt_cglf_pendentes_2024
+      - name: sppo_registro_agente_verao
+      - name: sppo_licenciamento_solicitacao
+      - name: sppo_licenciamento
+      - name: sppo_vistoria_tr_subtt_cmo_recurso_SMTR202404004977
+      - name: infracao
+      - name: licenciamento_stu
+
+  - name: dashboard_subsidio_sppo_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: subsidio_valor_km_tipo_viagem
+
+  - name: dashboard_controle_vinculo_jae_riocard_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: relatorio_instalacao_jae
+
+  - name: br_rj_riodejaneiro_onibus_gps_zirix_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: controle_financeiro_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: cb
+      - name: cett
+      - name: arquivo_retorno
+
+  - name: projeto_subsidio_sppo_encontro_contas
+    database: rj-smtr-staging
+
+    tables:
+      - name: rdo_correcao_rioonibus_servico_quinzena
+
+  - name: br_rj_riodejaneiro_geo
+    database: rj-smtr-staging
+
+    tables:
+      - name: h3_res9
+      - name: h3_res8
+      - name: limites_geograficos_caixa
+      - name: garagens_polygon
+      - name: area_planejamento
+      - name: bairros
+
+  - name: br_rj_riodejaneiro_brt_gps_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros_historico
+
+  - name: br_rj_riodejaneiro_viagem_zirix_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: viagem_informada
+
+  - name: dados_mestres
+    database: datario
+
+    tables:
+      - name: logradouro
+
+  - name: source_rioonibus
+    database: rj-smtr-staging
+
+    tables:
+      - name: viagem_informada
+
+  - name: source_jae
+    database: rj-smtr-staging
+
+    tables:
+      - name: transacao_ordem
+      - name: transacao
+        freshness:
+          warn_after:
+            count: 1
+            period: hour
+          filter: |
+            {% set end = modules.datetime.datetime.now(
+                modules.pytz.timezone("America/Sao_Paulo")
+            ) %}
+            {% set start = end - modules.datetime.timedelta(hours=1) %}
+
+            {% set days = (end.date() - start.date()).days %}
+
+            {% if days == 0 %}
+                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+
+            {% elif days == 1 %}
+                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+            {% endif %}
+        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
+      - name: transacao_riocard
+        freshness:
+          warn_after:
+            count: 1
+            period: hour
+          filter: |
+            {% set end = modules.datetime.datetime.now(
+                modules.pytz.timezone("America/Sao_Paulo")
+            ) %}
+            {% set start = end - modules.datetime.timedelta(hours=1) %}
+
+            {% set days = (end.date() - start.date()).days %}
+
+            {% if days == 0 %}
+                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+
+            {% elif days == 1 %}
+                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+            {% endif %}
+        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
+      - name: linha
+      - name: dicionario
+      - name: consorcio
+      - name: operadora_transporte
+      - name: ordem_pagamento
+      - name: ordem_ressarcimento
+      - name: conta_bancaria
+      - name: contato_pessoa_juridica
+      - name: cliente
+      - name: percentual_rateio_integracao
+      - name: integracao_transacao
+      - name: tipo_modal
+      - name: gps_validador
+        freshness:
+          warn_after:
+            count: 1
+            period: hour
+          filter: |
+            {% set end = modules.datetime.datetime.now(
+                modules.pytz.timezone("America/Sao_Paulo")
+            ) %}
+            {% set start = end - modules.datetime.timedelta(hours=1) %}
+
+            {% set days = (end.date() - start.date()).days %}
+
+            {% if days == 0 %}
+                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+
+            {% elif days == 1 %}
+                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+            {% endif %}
+        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E*S%Ez', safe_cast(json_value(content, '$.data_tracking') as string))"
+      - name: gratuidade
+      - name: ordem_rateio
+      - name: servico_motorista
+      - name: linha_sem_ressarcimento
+      - name: ordem_pagamento_consorcio_operadora
+      - name: ordem_pagamento_consorcio
+      - name: linha_consorcio
+      - name: linha_consorcio_operadora_transporte
+      - name: endereco
+      - name: produto
+      - name: linha_tarifa
+      - name: transacao_retificada
+      - name: lancamento
+      - name: estudante
+      - name: escola
+      - name: laudo_pcd
+      - name: resultado_verificacao_captura_jae
+
+  - name: source_sonda
+    database: rj-smtr-staging
+
+    tables:
+      - name: viagem_informada
+
+  - name: source_smtr
+    database: rj-smtr-staging
+
+    tables:
+      - name: matriz_reparticao_tarifaria
+      - name: matriz_transferencia
+      - name: matriz_integracao_excecao
+      - name: dicionario_subsidio
+
+  - name: planejamento_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: tecnologia_servico
+      - name: tuneis
+
+  - name: infraestrutura_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: gcp_billing_export_resource_v1_010693_B1EC8D_C0D4DF
+      - name: cloud_pricing_export
+
+  - name: bq_logs_prod
+    database: rj-smtr
+    schema: bq_logs
+
+    tables:
+      - name: cloudaudit_googleapis_com_data_access_*
+
+  - name: bq_logs_dev
+    database: rj-smtr-dev
+    schema: bq_logs
+
+    tables:
+      - name: cloudaudit_googleapis_com_data_access
+
+  - name: bq_logs_staging
+    database: rj-smtr-staging
+    schema: bq_logs
+
+    tables:
+      - name: cloudaudit_googleapis_com_data_access
+
+  - name: transito_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: autuacao_citran
+      - name: receita_autuacao_fonte
+      - name: infracoes_renainf
+
+  - name: source_serpro
+    database: rj-smtr-staging
+
+    tables:
+      - name: autuacao
+
+  - name: gtfs
+    database: rj-smtr
+
+    tables:
+      - name: ordem_servico
+
+  - name: monitoramento
+    database: rj-smtr
+
+    tables:
+      - name: gps_onibus_conecta
+      - name: gps_onibus_cittati
+      - name: gps_onibus_zirix
+      - name: gps_15_minutos_onibus_conecta
+      - name: gps_15_minutos_onibus_cittati
+      - name: gps_15_minutos_onibus_zirix
+
+  - name: source_veiculo_fiscalizacao
+    database: rj-smtr-staging
+
+    tables:
+      - name: veiculo_fiscalizacao_lacre
+
+  - name: cadastro_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: garagem
+
+  - name: source_cittati
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: source_conecta
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: source_zirix
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: clima_estacao_meteorologica
+    database: rj-cor
+
+    tables:
+      - name: meteorologia_inmet
+        freshness:
+          warn_after:
+            count: 2
+            period: hour
+          filter: |
+            {% set now = modules.datetime.datetime.now(
+              modules.pytz.timezone("America/Sao_Paulo")
+            ) %}
+
+            data_particao = date("{{ now.date() }}")
+        loaded_at_field: timestamp(datetime(data_particao, horario), 'America/Sao_Paulo')
+      - name: meteorologia_alertario
+
+  - name: source_inmet
+    database: rj-smtr-staging
+
+    tables:
+      - name: meteorologia
+
+  - name: br_inep_censo_educacao_superior
+    database: basedosdados
+
+    tables:
+      - name: curso
+      - name: ies
+      - name: dicionario
+
+  - name: source_cct
+    database: rj-smtr-staging
+
+    tables:
+      - name: ordem_pagamento
+      - name: ordem_pagamento_agrupado
+      - name: ordem_pagamento_agrupado_historico
+      - name: user
+      - name: detalhe_a
+      - name: dicionario
+      - name: teste_sincronizacao_transacao_cct
+
+  - name: source_stu
+    database: rj-smtr-staging
+
+    tables:
+      - name: pessoa_fisica
+      - name: permissao
+      - name: vistoria
+      - name: veiculo
+      - name: mod_chassi
+      - name: mod_carroceria
+      - name: planta
+
+  - name: projeto_subsidio_sppo_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: ordem_servico
+
+  - name: br_rj_riodejaneiro_transporte_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: estacoes_e_terminais_brt
+      - name: terminais_onibus_coordenadas
+
+  - name: subsidio_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: servico_contrato_abreviado
+      - name: valor_km_tipo_viagem
