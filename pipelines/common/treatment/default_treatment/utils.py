@@ -523,14 +523,17 @@ def run_dbt(
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
 
-    PrefectDbtRunner(
+    runner = PrefectDbtRunner(
         settings=PrefectDbtSettings(
             project_dir=project_dir,
             profiles_dir=profiles_dir,
             target_path=project_dir / "target",
         ),
         raise_on_failure=raise_on_failure,
-    ).invoke(invoke)
+    )
+
+    print(f"teste runner: {runner.profiles_dir}")
+    runner.invoke(invoke)
 
     with (Path(log_dir) / "dbt.log").open("r") as logs:
         return logs.read()
