@@ -522,8 +522,9 @@ def run_dbt(
 
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
-    os.environ["DBT_PROJECT_DIR"] = project_dir
-    os.environ["DBT_PROFILES_DIR"] = profiles_dir
+    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
+    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
+    os.environ["DBT_TARGET_PATH"] = str(project_dir / "target")
 
     runner = PrefectDbtRunner(
         settings=PrefectDbtSettings(
