@@ -509,6 +509,8 @@ def run_dbt(
     else:
         profiles_dir = project_dir
 
+    target_path = project_dir / "target"
+
     invoke = []
     if dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
@@ -522,12 +524,15 @@ def run_dbt(
 
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
+    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
+    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
+    os.environ["DBT_TARGET_PATH"] = str(target_path)
 
     PrefectDbtRunner(
         settings=PrefectDbtSettings(
             project_dir=project_dir,
             profiles_dir=profiles_dir,
-            target_path=project_dir / "target",
+            target_path=target_path,
         ),
         raise_on_failure=raise_on_failure,
     ).invoke(invoke)
