@@ -1,14 +1,23 @@
 from prefect import flow, runtime
 
 from pipelines.common import constants as common_constants
-from pipelines.common.tasks import (async_api_post_request,
-                                    create_local_filepath, get_run_env,
-                                    get_scheduled_timestamp, query_bq,
-                                    save_data_to_file, setup_environment,
-                                    upload_to_gcs)
+from pipelines.common.capture.default_capture.tasks import (
+    create_capture_contexts,
+    upload_source_data_to_gcs,
+)
+from pipelines.common.tasks import (
+    async_api_post_request,
+    get_run_env,
+    get_scheduled_timestamp,
+    query_bq,
+    save_data_to_file,
+    setup_environment,
+)
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
-    get_previnity_credentials, prepare_previnity_payloads)
+    get_previnity_credentials,
+    prepare_previnity_payloads,
+)
 
 
 @flow(log_prints=True)
@@ -28,42 +37,36 @@ async def integration__previnity_negativacao():
     data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
 
     ts = get_scheduled_timestamp()
-    execution_date = ts.date()
-    partition = f"data={execution_date}"
-    filename = ts.strftime("%Y-%m-%d-%H-%M-%S")
-    filepath = create_local_filepath(
-        partition=partition,
-        dataset_id="previnity",
-        table_id="retorno_negativacao",
-        filename=filename,
-        filetype="csv",
-        mode="upload",
+
+    contexts = create_capture_contexts(
+        env=env,
+        sources=constants.PREVINITY_SOURCES,
+        source_table_ids=["retorno_negativacao"],
+        timestamp=ts,
+        recapture=False,
+        recapture_days=2,
+        recapture_timestamps=None,
     )
+
+    context = contexts[0]
+    execution_date = context.timestamp.date()
 
     payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
 
-    results = await async_api_post_request(
+    response = await async_api_post_request(
         url=constants.API_URL_PF,
         payloads=payloads,
         headers=headers,
         max_concurrent=300,
     )
 
-    print(results)
+    print(response)
 
     save_data_to_file(
-        data=results,
-        path=filepath,
+        data=response,
+        path=context.source_filepath,
         filetype="csv",
         csv_mode="w",
     )
 
-    upload_to_gcs(
-        env=env,
-        path=filepath,
-        dataset_id="previnity",
-        table_id="retorno_negativacao",
-        partition=partition,
-        create_table=True,
-        bucket_names=constants.NEGATIVACAO_PRIVATE_BUCKET_NAMES,
-    )
+    upload_source_future = upload_source_data_to_gcs(context=context)
