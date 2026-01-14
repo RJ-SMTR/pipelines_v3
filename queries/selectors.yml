@@ -506,3 +506,14 @@ selectors:
     definition:
       method: fqn
       value: alerta_transacao
+
+  - name: autuacao_negativacao
+    description: Materialização dos dados de negativacao de multas de trânsito
+    definition:
+      union:
+        - method: fqn
+          value: view_pessoa_fisica_negativacao
+        - method: fqn
+          value: aux_retorno_negativacao
+        - method: fqn
+          value: autuacao_negativacao
