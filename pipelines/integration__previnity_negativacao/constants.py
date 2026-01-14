@@ -7,6 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as common_constants
+from pipelines.common.treatment.default_treatment.utils import DBTSelector
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 NEGATIVACAO_PRIVATE_BUCKET_NAMES = {
@@ -36,3 +37,8 @@ PREVINITY_SOURCES = [
         bucket_names=NEGATIVACAO_PRIVATE_BUCKET_NAMES,
     )
 ]
+
+NEGATIVACAO_SELECTOR = DBTSelector(
+    name="autuacao_negativacao",
+    initial_datetime=datetime(2025, 1, 1, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
+)
