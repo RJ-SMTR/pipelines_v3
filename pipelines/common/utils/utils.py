@@ -172,13 +172,13 @@ async def async_post_request(
         return {
             "success": response.is_success,
             "status_code": response.status_code,
-            "response": response.json() if response.is_success else response.text,
+            "response": response.text,
             "payload": payload,
         }
     except Exception as e:
         return {
             "success": False,
             "status_code": None,
-            "error": str(e),
+            "response": str(e),
             "payload": payload,
         }

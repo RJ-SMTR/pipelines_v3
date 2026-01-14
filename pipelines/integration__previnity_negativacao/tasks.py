@@ -26,7 +26,7 @@ def get_previnity_credentials() -> tuple[str, str]:
 
 
 @task
-def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[dict]:
+def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[tuple[dict, dict]]:
     """
     Prepara os payloads para envio à API da Previnity, separando inclusão (controle=1)
     e baixa (controle=2) com base na data de execução.
@@ -36,7 +36,7 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[d
         execution_date (date): Data de referência para inclusão/baixa.
 
     Returns:
-        list[dict]: Lista de payloads formatados.
+        list[tuple[dict, dict]]: Lista de (payload, metadata).
     """
     payloads = []
 
@@ -63,6 +63,10 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[d
             "webservice": row.get("webservice", "S"),
         }
 
-        payloads.append(body)
+        metadata = {
+            "data_autuacao": row.get("data"),
+        }
+
+        payloads.append((body, metadata))
 
     return payloads
