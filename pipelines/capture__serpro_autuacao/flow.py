@@ -16,7 +16,7 @@ def capture__serpro_autuacao(
     env=None,
     source_table_ids=(AUTUACAO_TABLE_ID,),
     timestamp=None,
-    recapture=False,
+    recapture=True,
     recapture_days=2,
     recapture_timestamps=None,
 ) -> list[str]:

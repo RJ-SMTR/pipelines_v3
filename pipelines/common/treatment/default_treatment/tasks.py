@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -128,7 +129,7 @@ def wait_data_sources(
             if not complete:
                 if count < wait_limit:
                     print("Dados incompletos, tentando novamente")
-                    time.sleep(60)
+                    sleep(60)
                     count += 1
                 else:
                     print("Tempo de espera esgotado")

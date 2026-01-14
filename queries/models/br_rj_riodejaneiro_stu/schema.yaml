@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: staging_operadora_empresa
+    description: "View para os dados capturados em staging com tratamento básico das empresas operadoras"
+    columns:
+      - name: data
+        description: "Data de captura"
+      - name: perm_autor
+        description: "Permissão"
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+      - name: cnpj
+        description: "CNPJ da empresa"
+      - name: data_registro
+        description: "Data de registro da empresa"
+      - name: processo
+        description: "Processo de registro da empresa"
+      - name: razao_social
+        description: "Razão social da empresa"
+      - name: id_modo
+        description: "Identificador do modo de transporte"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: tipo_permissao
+        description: "Tipo de permissão da empresa"
+  - name: staging_operadora_pessoa_fisica
+    description: "View para os dados capturados em staging com tratamento básico dos operadores pessoa física"
+    columns:
+      - name: data
+        description: "Data de captura"
+      - name: perm_autor
+        description: "Permissão"
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+      - name: cpf
+        description: "CPF do operador"
+      - name: data_registro
+        description: "Data de registro do operador"
+      - name: ratr
+        description: "Registro de auxiliar de transporte"
+      - name: processo
+        description: "Processo de registro do operador"
+      - name: nome
+        description: "Nome do operador"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: id_modo
+        description: "Identificador do modo de transporte"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: tipo_permissao
+        description: "Tipo de permissão do operador"
