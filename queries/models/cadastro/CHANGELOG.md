@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Cria modelos `staging_device_operadora.sql` e `validador_operadora.sql`
+- Cria modelos `staging_device_operadora.sql` e `validador_operadora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/26)
 
 ## [1.7.5] - 2025-12-19
 

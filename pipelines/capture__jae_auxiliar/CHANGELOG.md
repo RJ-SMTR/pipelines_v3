@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona captura da tabela `device_operadora`
+- Adiciona captura da tabela `device_operadora` (https://github.com/RJ-SMTR/pipelines_v3/pull/26)
 
 ## [1.0.0] - 2026-01-07
 
