@@ -1,5 +1,11 @@
 # Changelog - cadastro
 
+## [1.7.6] - 2026-01-15
+
+### Adicionado
+
+- Cria modelos `staging_device_operadora.sql` e `validador_operadora.sql`
+
 ## [1.7.5] - 2025-12-19
 
 ### Alterado

@@ -7,15 +7,15 @@ models:
       - name: id_operadora
         description: "Identificador único do operador, podendo ser o código de permissionário ou código da Jaé"
       - name: operadora
-        description: "Nome do operador (mascarado quando o operador é pessoa física)"
+        description: "{{ doc('nome_operadora') }} (mascarado quando o operador é pessoa física)"
       - name: operadora_completo
-        description: "Nome do operador [protegido]"
+        description: "{{ doc('nome_operadora') }} [protegido]"
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
       - name: tipo_operadora
         description: "Tipo de permissionário (Exemplos: autônomo, empresa, cooperativa)"
       - name: modo
-        description: "Modo de transporte do operador, podendo ser o modo na Jaé ou no STU"
+        description: "{{ doc('modo_operadora') }}"
       - name: modo_stu
         description: "Modo de transporte no STU (ônibus, van, BRT)"
       - name: modo_jae
@@ -33,7 +33,7 @@ models:
       - name: id_operadora_stu
         description: "Código de permissionário vindo do STU"
       - name: id_operadora_jae
-        description: "Código do operador no sistema da Jaé"
+        description: "{{ doc('id_operadora_jae') }}"
       - name: indicador_operador_ativo_jae
         description: "Indicador de atividade do operador no sistema da Jaé"
       - name: agencia
@@ -400,3 +400,36 @@ models:
         description: "Geometria da garagem em formato WKT"
       - name: geometry
         description: "Geometria da garagem em formato geográfico"
+  - name: validador_operadora
+    description: "Tabela de relacionamento entre validador da Jaé e operadora de transporte"
+    columns:
+      - name: id_device_operadora
+        description: "Identificador do relacionamento entre o validador da Jaé e a operadora de transporte"
+      - name: modo
+        description: "{{ doc('modo_operadora') }}"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+      - name: operadora
+        description: "{{ doc('nome_operadora') }} (mascarado quando o operador é pessoa física)"
+      - name: operadora_completo
+        description: "{{ doc('nome_operadora') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_operadora') }}"
+      - name: documento
+        description: "{{ doc('documento_operadora') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: datetime_inicio_validade
+        description: "Data e hora do início da vinculação entre a operadora de transporte e o validador da Jaé"
+      - name: datetime_fim_validade
+        description: "Data e hora do fim da vinculação entre a operadora de transporte e o validador da Jaé"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
