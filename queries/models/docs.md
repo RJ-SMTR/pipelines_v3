@@ -1520,3 +1520,59 @@ Horário do registro
 {% docs datetime_gps %}
 Data e hora de geração da transmissão do GPS [GMT-3]
 {% enddocs %}
+
+{% docs data_inclusao %}
+Data de inclusão da negativação
+{% enddocs %}
+
+{% docs data_baixa %}
+Data de baixa da negativação
+{% enddocs %}
+
+{% docs data_confirmacao_inclusao %}
+Data de confirmação da inclusão
+{% enddocs %}
+
+{% docs data_confirmacao_baixa %}
+Data de confirmação da baixa
+{% enddocs %}
+
+{% docs indicador_nao_inclusao %}
+Indicador de não inclusão
+{% enddocs %}
+
+{% docs motivo_nao_inclusao %}
+Motivo da não inclusão
+{% enddocs %}
+
+{% docs nome_proprietario %}
+Nome do proprietário do veículo
+{% enddocs %}
+
+{% docs cnpj_proprietario %}
+CNPJ do proprietário do veículo
+{% enddocs %}
+
+{% docs endereco_proprietario %}
+Endereço do proprietário do veículo
+{% enddocs %}
+
+{% docs bairro_proprietario %}
+Bairro do proprietário do veículo
+{% enddocs %}
+
+{% docs cidade_proprietario %}
+Cidade do proprietário do veículo
+{% enddocs %}
+
+{% docs estado_proprietario %}
+Estado do proprietário do veículo
+{% enddocs %}
+
+{% docs fonte %}
+Origem dos dados
+{% enddocs %}
+
+{% docs id_autuacao %}
+Identificador único da autuação
+{% enddocs %}

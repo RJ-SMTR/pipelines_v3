@@ -73,7 +73,7 @@ models:
       - name: data_limite_defesa_previa
         description: "{{ doc('data_limite_defesa_previa') }}"
       - name: data_limite_recurso
-        description: "Data limite para recurso em primeira instância"
+        description: '{{ doc("data_limite_recurso") }}'
       - name: descricao_situacao_autuacao
         description: "{{ doc('descricao_situacao_autuacao') }}"
       - name: status_infracao
@@ -115,9 +115,9 @@ models:
       - name: uf_veiculo
         description: "Sigla do estado do veículo"
       - name: nome_proprietario
-        description: "Nome do proprietário"
+        description: '{{ doc("nome_proprietario") }}'
       - name: cpf_proprietario
-        description: "CPF do proprietario do veículo"
+        description: '{{ doc("cpf_proprietario") }}'
       - name: cnh_proprietario
         description: "Número da CNH do proprietario do veículo"
       - name: uf_cnh_proprietario
@@ -203,13 +203,13 @@ models:
       - name: data
         description: "Data da autuação [Coluna de particionamento]"
       - name: id_autuacao
-        description: "Identificador único da autuação"
+        description: '{{ doc("id_autuacao") }}'
       - name: id_auto_infracao
         description: "Código do auto de infração [protegido]"
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
       - name: fonte
-        description: "Origem dos dados"
+        description: '{{ doc("fonte") }}'
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
@@ -219,7 +219,7 @@ models:
       - name: data
         description: "{{ doc('data_autuacao') }} [partição]"
       - name: id_autuacao
-        description: "Identificador único da autuação"
+        description: '{{ doc("id_autuacao") }}'
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }} [protegido]"
         policy_tags:
@@ -301,7 +301,7 @@ models:
       - name: status_sne
         description: "Indicador de adesão do veículo ao Sistema de Notificação Eletrônica - SNE"
       - name: fonte
-        description: "Origem dos dados"
+        description: '{{ doc("fonte") }}'
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
@@ -327,4 +327,4 @@ models:
       - name: valor_arrecadacao
         description: "Valor arrecadado para o mes"
       - name: fonte
-        description: "Origem dos dados"
+        description: '{{ doc("fonte") }}'

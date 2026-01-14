@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: aux_retorno_negativacao
+    description: Tabela auxiliar com o retorno da negativação
+    columns:
+      - name: data
+        description: Data do lote de negativação [partição]
+      - name: data_autuacao
+        description: '{{ doc("data_autuacao") }}'
+      - name: datetime_retorno
+        description: Data e hora do retorno da API
+      - name: produtonome
+        description: Nome do produto
+      - name: produtoreferencia
+        description: Referência do produto
+      - name: protocolo
+        description: Protocolo do retorno
+      - name: id_autuacao
+        description: '{{ doc("id_autuacao") }}'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+      - name: resultado
+        description: Resultado do processamento
+      - name: fonte
+        description: '{{ doc("fonte") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: autuacao_negativacao
+    description: Tabela com os dados de autuação para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: id_autuacao
+        description: '{{ doc("id_autuacao") }} [protegido]'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: data_confirmacao_inclusao
+        description: '{{ doc("data_confirmacao_inclusao") }}'
+      - name: data_confirmacao_baixa
+        description: '{{ doc("data_confirmacao_baixa") }}'
+      - name: indicador_nao_inclusao
+        description: '{{ doc("indicador_nao_inclusao") }}'
+      - name: motivo
+        description: '{{ doc("motivo_nao_inclusao") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+      - name: cnpj
+        description: '{{ doc("cnpj_proprietario") }} [protegido]'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: data_vencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: valor
+        description: Valor monetário da autuação [100%] (R$)
+      - name: valor_pagamento
+        description: '{{ doc("valor_pago") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: view_pessoa_fisica_negativacao
+    description: View de pessoa física para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: id_auto_infracao
+        description: '{{ doc("id_auto_infracao") }} [protegido]'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: contrato
+        description: '{{ doc("id_autuacao") }} [protegido]'
+      - name: datavencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: datavenda
+        description: '{{ doc("data_autuacao") }}'
+      - name: valor
+        description: Valor monetário da autuação [100%] (R$)
