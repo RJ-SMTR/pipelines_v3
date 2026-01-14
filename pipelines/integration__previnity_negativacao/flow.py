@@ -13,6 +13,11 @@ from pipelines.common.tasks import (
     save_data_to_file,
     setup_environment,
 )
+from pipelines.common.treatment.default_treatment.tasks import (
+    create_materialization_contexts,
+    run_dbt_selectors,
+    save_materialization_datetime_redis,
+)
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
     get_previnity_credentials,
@@ -21,7 +26,10 @@ from pipelines.integration__previnity_negativacao.tasks import (
 
 
 @flow(log_prints=True)
-async def integration__previnity_negativacao():
+async def integration__previnity_negativacao(  # noqa: PLR0913
+    timestamp=None,
+    flags=None,
+):
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
@@ -36,7 +44,7 @@ async def integration__previnity_negativacao():
     project_id = common_constants.PROJECT_NAME[env]
     data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
 
-    ts = get_scheduled_timestamp()
+    ts = get_scheduled_timestamp(timestamp=timestamp)
 
     contexts = create_capture_contexts(
         env=env,
@@ -51,14 +59,25 @@ async def integration__previnity_negativacao():
     context = contexts[0]
     execution_date = context.timestamp.date()
 
-    payloads = prepare_previnity_payloads(data=data_list, execution_date=execution_date)
-
-    response = await async_api_post_request(
-        url=constants.API_URL_PF,
-        payloads=payloads,
-        headers=headers,
-        max_concurrent=300,
+    payloads_with_metadata = prepare_previnity_payloads(
+        data=data_list,
+        execution_date=execution_date,
     )
+
+    if not payloads_with_metadata:
+        payloads = []
+        metadata_list = []
+    else:
+        payloads, metadata_list = zip(*payloads_with_metadata, strict=True)
+
+    api_results = await async_api_post_request(
+        url=constants.API_URL_PF, payloads=payloads, headers=headers, max_concurrent=300
+    )
+
+    response = []
+    for result, metadata in zip(api_results, metadata_list, strict=True):
+        result.update(metadata)
+        response.append(result)
 
     print(response)
 
@@ -70,3 +89,22 @@ async def integration__previnity_negativacao():
     )
 
     upload_source_future = upload_source_data_to_gcs(context=context)
+
+    materialization_contexts = create_materialization_contexts(
+        env=env,
+        selectors=[constants.NEGATIVACAO_SELECTOR],
+        timestamp=ts,
+        datetime_start=execution_date,
+        datetime_end=execution_date,
+        additional_vars=None,
+        test_scheduled_time=None,
+        force_test_run=False,
+        wait_for=[upload_source_future],
+    )
+
+    run_dbt_future = run_dbt_selectors(
+        contexts=materialization_contexts,
+        flags=flags,
+    )
+
+    save_materialization_datetime_redis(context=materialization_contexts, wait_for=[run_dbt_future])
