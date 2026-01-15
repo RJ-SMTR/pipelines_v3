@@ -1529,14 +1529,6 @@ Tipo de transporte [Ônibus, Van, BRT]
 Nome do operador de transporte
 {% enddocs %}
 
-{% docs modo_operadora %}
-Tipo de transporte [Ônibus, Van, BRT]
-{% enddocs %}
-
-{% docs nome_operadora %}
-Nome do operador de transporte
-{% enddocs %}
-
 {% docs data_inclusao %}
 Data de inclusão da negativação
 {% enddocs %}
