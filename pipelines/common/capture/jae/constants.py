@@ -368,6 +368,6 @@ JAE_TABLE_CAPTURE_PARAMS = {
         ],
         "save_bucket_names": JAE_PRIVATE_BUCKET_NAMES,
         "capture_flow": "auxiliar",
-        "first_timestamp": datetime(2026, 1, 13, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        "first_timestamp": datetime(2026, 1, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
 }
