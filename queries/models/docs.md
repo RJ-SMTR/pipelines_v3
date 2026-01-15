@@ -1549,6 +1549,10 @@ Motivo da não inclusão
 Nome do proprietário do veículo
 {% enddocs %}
 
+{% docs cpf_proprietario %}
+CPF do proprietário do veículo
+{% enddocs %}
+
 {% docs cnpj_proprietario %}
 CNPJ do proprietário do veículo
 {% enddocs %}
