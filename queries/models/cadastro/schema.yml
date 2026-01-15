@@ -7,7 +7,7 @@ models:
       - name: id_operadora
         description: "Identificador único do operador, podendo ser o código de permissionário ou código da Jaé"
       - name: operadora
-        description: "{{ doc('nome_operadora') }} (mascarado quando o operador é pessoa física)"
+        description: "{{ doc('nome_operadora') }} [mascarado quando o operador é pessoa física]"
       - name: operadora_completo
         description: "{{ doc('nome_operadora') }} [protegido]"
         policy_tags:
@@ -17,9 +17,9 @@ models:
       - name: modo
         description: "{{ doc('modo_operadora') }}"
       - name: modo_stu
-        description: "Modo de transporte no STU (ônibus, van, BRT)"
+        description: "Modo de transporte no STU [ônibus, van, BRT]"
       - name: modo_jae
-        description: "Modo de transporte na Jaé (ônibus, van, BRT)"
+        description: "Modo de transporte na Jaé [ônibus, van, BRT]"
       - name: id_processo
         description: "Número do processo no STU"
       - name: data_processo
@@ -99,16 +99,16 @@ models:
       - name: id_consorcio_jae
         description: "Código do consórcio no sistema da Jaé"
   - name: servicos
-    description: "Tabela com dados unificados de serviços (linhas e estações)"
+    description: "Tabela com dados unificados de serviços [linhas e estações]"
     columns:
       - name: id_servico_gtfs
-        description: "Identificador único do serviço no GTFS, podendo ser o stop_id (no caso de estações) ou o route_id (no caso de linhas)"
+        description: "Identificador único do serviço no GTFS, podendo ser o stop_id [no caso de estações] ou o route_id [no caso de linhas]"
       - name: id_servico_jae
         description: "{{ doc('id_servico_jae') }}"
       - name: servico
         description: "{{ doc('servico_cadastro') }}"
       - name: servico_gtfs
-        description: "Nome do serviço consolidado. Para linhas, é a coluna route_short_name da tabela routes do GTFS, que contém o nome curto da linha (ex: 010, 011SN). Para estações, é a coluna stop_code da tabela stops do GTFS"
+        description: "Nome do serviço consolidado. Para linhas, é a coluna route_short_name da tabela routes do GTFS, que contém o nome curto da linha [ex: 010, 011SN]. Para estações, é a coluna stop_code da tabela stops do GTFS"
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
       - name: descricao_servico
@@ -122,11 +122,11 @@ models:
       - name: longitude
         description: "Longitude da estação na tabela stops do GTFS"
       - name: tabela_origem_gtfs
-        description: "Tabela do GTFS de onde foram coletadas as informações (stops ou routes)"
+        description: "Tabela do GTFS de onde foram coletadas as informações [stops ou routes]"
       - name: feed_start_date_gtfs
         description: "Último feed_start_date do GTFS em que as informações do serviço estavam disponíveis"
       - name: data_inicio_vigencia
-        description: "Data de inicio da vigência do serviço segundo o GTFS ou o cadastro do serviço no sistema da Jaé (caso não exista no GTFS)"
+        description: "Data de inicio da vigência do serviço segundo o GTFS ou o cadastro do serviço no sistema da Jaé [caso não exista no GTFS]"
       - name: data_fim_vigencia
         description: "Data de fim da vigência do serviço segundo o GTFS"
       - name: versao
@@ -144,15 +144,15 @@ models:
         description: "Identificador único do operador, podendo ser o código de permissionário ou código da Jaé"
         data_type: string
       - name: operadora
-        description: "Nome do operador (mascarado quando o operador é pessoa física)"
+        description: "Nome do operador [mascarado quando o operador é pessoa física]"
         data_type: string
       - name: servico
-        description: "Nome do serviço consolidado. Para linhas, é o nome curto da linha (ex: 010, 011SN). E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé. (Caso o registro não exista no GTFS, busca o serviço na base de dados da Jaé)"
+        description: "Nome do serviço consolidado. Para linhas, é o nome curto da linha [ex: 010, 011SN]. E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé. [Caso o registro não exista no GTFS, busca o serviço na base de dados da Jaé]"
       - name: id_servico_jae
         description: "Identificador único do serviço no banco de dados da Jaé"
         data_type: string
       - name: descricao_servico
-        description: "Nome completo do serviço consolidado. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. (Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé)"
+        description: "Nome completo do serviço consolidado. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. [Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé]"
       - name: data_inicio_validade
         description: "Data de inicio da validade do registro"
         data_type: datetime
@@ -171,11 +171,11 @@ models:
         data_type: string
         quote: true
       - name: descricao_servico_jae
-        description: "Nome longo da linha operada pelo veículo com variação de serviço (ex: 010, 011SN, ...) ou nome da estação de BRT na Jaé"
+        description: "Nome longo da linha operada pelo veículo com variação de serviço [ex: 010, 011SN, ...] ou nome da estação de BRT na Jaé"
         data_type: string
         quote: true
       - name: id_servico_gtfs
-        description: Identificador único do serviço no GTFS, podendo ser o stop_id (no caso de estações) ou o route_id (no caso de linhas)
+        description: Identificador único do serviço no GTFS, podendo ser o stop_id [no caso de estações] ou o route_id [no caso de linhas]
         data_type: string
         quote: true
       - name: tabela_origem_gtfs
@@ -410,7 +410,7 @@ models:
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
       - name: operadora
-        description: "{{ doc('nome_operadora') }} (mascarado quando o operador é pessoa física)"
+        description: "{{ doc('nome_operadora') }} [mascarado quando o operador é pessoa física]"
       - name: operadora_completo
         description: "{{ doc('nome_operadora') }} [protegido]"
         policy_tags:
