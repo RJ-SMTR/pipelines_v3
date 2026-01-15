@@ -1,0 +1,94 @@
+version: 2
+
+snapshots:
+  - name: snapshot_transito_autuacao
+    description: "Snapshot com dados de autuações"
+    columns:
+      - name: data
+        description: "{{ doc('data_autuacao') }} [partição]"
+      - name: id_autuacao
+        description: "Identificador único da autuação"
+      - name: id_auto_infracao
+        description: "{{ doc('id_auto_infracao') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datetime_autuacao
+        description: "Data e hora da autuação"
+      - name: data_limite_defesa_previa
+        description: "{{ doc('data_limite_defesa_previa') }}"
+      - name: data_limite_recurso
+        description: "{{ doc('data_limite_recurso') }}"
+      - name: descricao_situacao_autuacao
+        description: "{{ doc('descricao_situacao_autuacao') }}"
+      - name: status_infracao
+        description: "{{ doc('status_infracao') }}"
+      - name: codigo_enquadramento
+        description: "Código da autuação"
+      - name: tipificacao_resumida
+        description: "{{ doc('tipificacao_resumida') }}"
+      - name: pontuacao
+        description: "Quantidade de pontos da autuação"
+      - name: gravidade
+        description: "Descrição da gravidade da autuação"
+      - name: amparo_legal
+        description: "Amparo legal da autuação"
+      - name: tipo_veiculo
+        description: "{{ doc('tipo_veiculo') }}"
+      - name: descricao_veiculo
+        description: "Marca/modelo do veículo"
+      - name: placa_veiculo
+        description: "{{ doc('placa') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: ano_fabricacao_veiculo
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: ano_modelo_veiculo
+        description: "Ano do modelo do veículo"
+      - name: cor_veiculo
+        description: "Cor do veículo"
+      - name: especie_veiculo
+        description: "{{ doc('especie_veiculo') }}"
+      - name: uf_infrator
+        description: "Estado do condutor infrator [em caso de indicação de real condutor infrator]"
+      - name: uf_principal_condutor
+        description: "Estado do condutor principal do veículo"
+      - name: uf_proprietario
+        description: "{{ doc('uf_proprietario') }}"
+      - name: cep_proprietario
+        description: "{{ doc('cep_proprietario') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: valor_infracao
+        description: "{{ doc('valor_infracao') }}"
+      - name: valor_pago
+        description: "{{ doc('valor_pago') }}"
+      - name: data_pagamento
+        description: "{{ doc('data_pagamento') }} da autuação"
+      - name: id_autuador
+        description: "Código do órgão autuador"
+      - name: descricao_autuador
+        description: "{{ doc('descricao_autuador') }}"
+      - name: id_municipio_autuacao
+        description: "Código TOM do município da autuação"
+      - name: descricao_municipio
+        description: "Nome do município da autuação"
+      - name: uf_autuacao
+        description: "Sigla do estado da autuação"
+      - name: endereco_autuacao
+        description: "Endereço da autuação [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: tile_autuacao
+        description: "Hexágono da autuação"
+      - name: processo_defesa_autuacao
+        description: "{{ doc('processo_defesa_autuacao') }}"
+      - name: recurso_penalidade_multa
+        description: "{{ doc('recurso_penalidade_multa') }}"
+      - name: processo_troca_real_infrator
+        description: "Número do processo de troca de real condutor infrator"
+      - name: status_sne
+        description: "Indicador de adesão do veículo ao Sistema de Notificação Eletrônica - SNE"
+      - name: fonte
+        description: "Origem dos dados"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
