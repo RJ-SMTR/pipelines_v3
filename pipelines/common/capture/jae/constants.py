@@ -343,4 +343,31 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "save_bucket_names": JAE_PRIVATE_BUCKET_NAMES,
         "first_timestamp": datetime(2025, 9, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
+    "device_operadora": {
+        "query": """
+            SELECT
+                dop.*,
+                d.nr_serial,
+                d.id_tipo_device
+            FROM
+                device_operadora dop
+            JOIN
+                device d
+            ON
+                dop.id_device = d.id
+            WHERE
+                dop.data_inclusao BETWEEN '{start}'
+                AND '{end}'
+                OR
+                dop.data_desassociacao BETWEEN '{start}'
+                AND '{end}'
+        """,
+        "database": "device_db",
+        "primary_keys": [
+            "id",
+        ],
+        "save_bucket_names": JAE_PRIVATE_BUCKET_NAMES,
+        "capture_flow": "auxiliar",
+        "first_timestamp": datetime(2026, 1, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    },
 }

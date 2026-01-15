@@ -1521,6 +1521,22 @@ Horário do registro
 Data e hora de geração da transmissão do GPS [GMT-3]
 {% enddocs %}
 
+{% docs modo_operadora %}
+Tipo de transporte [Ônibus, Van, BRT]
+{% enddocs %}
+
+{% docs nome_operadora %}
+Nome do operador de transporte
+{% enddocs %}
+
+{% docs modo_operadora %}
+Tipo de transporte [Ônibus, Van, BRT]
+{% enddocs %}
+
+{% docs nome_operadora %}
+Nome do operador de transporte
+{% enddocs %}
+
 {% docs data_inclusao %}
 Data de inclusão da negativação
 {% enddocs %}

@@ -298,6 +298,7 @@ sources:
       - name: escola
       - name: laudo_pcd
       - name: resultado_verificacao_captura_jae
+      - name: device_operadora
 
   - name: source_sonda
     database: rj-smtr-staging
