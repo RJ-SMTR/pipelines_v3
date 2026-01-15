@@ -355,12 +355,12 @@ JAE_TABLE_CAPTURE_PARAMS = {
                 device d
             ON
                 dop.id_device = d.id
-            /*WHERE
+            WHERE
                 dop.data_inclusao BETWEEN '{start}'
                 AND '{end}'
                 OR
                 dop.data_desassociacao BETWEEN '{start}'
-                AND '{end}'*/
+                AND '{end}'
         """,
         "database": "device_db",
         "primary_keys": [
