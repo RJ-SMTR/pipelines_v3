@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 # import os
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from queries.dev.utils import run_dbt_model
 
