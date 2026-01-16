@@ -6,42 +6,43 @@
             "field": "data",
             "data_type": "date",
         },
-        cluster_by=["contrato"]
+        cluster_by=["contrato"],
     )
 }}
 
 {% set autuacao_controle_negativacao = ref("autuacao_controle_negativacao") %}
 
-{% if execute and is_incremental() %}
-    {% set columns = (
-        list_columns()
-        | reject(
-            "in",
-            ["versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
-        )
-        | list
-    ) %}
-    {% set sha_column %}
-        sha256(
-            concat(
-                {% for c in columns %}
-                    ifnull(cast({{ c }} as string), 'n/a')
-                    {% if not loop.last %}, {% endif %}
-                {% endfor %}
+{% if execute %}
+    {% if is_incremental() %}
+        {% set columns = (
+            list_columns()
+            | reject(
+                "in",
+                ["versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
             )
-        )
-    {% endset %}
+            | list
+        ) %}
+        {% set sha_column %}
+            sha256(
+                concat(
+                    {% for c in columns %}
+                        ifnull(cast({{ c }} as string), 'n/a')
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                )
+            )
+        {% endset %}
+    {% else %}
+        {% set sha_column %}
+        cast(null as bytes)
+        {% endset %}
+    {% endif %}
     {% set partitions_query %}
         select distinct concat("'", date(data_autuacao), "'") as partition_date
         from {{ autuacao_controle_negativacao }}
         where data = date('{{ var("date_range_end") }}')
     {% endset %}
     {% set partitions = run_query(partitions_query).columns[0].values() %}
-{% else %}
-    {% set sha_column %}
-        cast(null as bytes)
-    {% endset %}
-    {% set partitions = [] %}
 {% endif %}
 
 with
@@ -55,7 +56,14 @@ with
         select
             data,
             coalesce(nome_proprietario, nome_possuidor_veiculo) as nome,
-            coalesce(documento_proprietario, documento_possuidor_veiculo) as cpf,
+            case
+            when length(coalesce(documento_proprietario, documento_possuidor_veiculo)) = 11
+                then coalesce(documento_proprietario, documento_possuidor_veiculo)
+            end as cpf,
+            case
+                when length(coalesce(documento_proprietario, documento_possuidor_veiculo)) = 14
+                then coalesce(documento_proprietario, documento_possuidor_veiculo)
+            end as cnpj,
             endereco_possuidor_veiculo as endereco,
             bairro_possuidor_veiculo as bairro,
             municipio_possuidor_veiculo as cidade,
@@ -148,25 +156,27 @@ with
                 format_date('%d%m%Y', data_limite_recurso) as string
             ) as datavenda,
             replace(safe_cast(valor_infracao as string), '.', '') as valor,
-            valor_pagamento,
+            valor_pago,
             data_pagamento
-        from {{ ref("autuacao") }}
+        {# from {{ ref("autuacao") }} #}
+        from `rj-smtr.transito.autuacao`
         where
             {% if partitions | length > 0 %}
                 data in ({{ partitions | join(", ") }})
                 and status_infracao = "NP Gerada"
                 and descricao_situacao_autuacao in ("Ativo", "Desvinculado")
                 and (
-                    (
-                        data_pagamento is null
-                        and id_auto_infracao
-                        in (select id_auto_infracao from autuacoes_inclusao)
-                    )
+                    id_auto_infracao in (select id_auto_infracao from autuacoes_inclusao)
                     or (
                         data_pagamento is not null
                         {% if is_incremental() %}
-                            and id_auto_infracao in (select contrato from {{ this }})
-                        {% else %} and false
+                            and id_auto_infracao in (
+                                select contrato 
+                                from {{ this }}
+                                where data in ({{ partitions | join(", ") }})
+                            )
+                        {% else %}
+                            and false
                         {% endif %}
                     )
                 )
@@ -182,11 +192,15 @@ with
                 )
                 and recurso_penalidade_multa is null
                 and processo_defesa_autuacao is null
-            {% else %} false
+            {% else %}
+                false
             {% endif %}
     ),
 
-    sha_dados_novos as (select *, {{ sha_column }} as sha_dado_novo from dados_novos),
+    sha_dados_novos as (
+        select *, {{ sha_column }} as sha_dado_novo 
+        from dados_novos
+    ),
 
     sha_dados_atuais as (
         {% if is_incremental() and partitions | length > 0 %}
@@ -194,6 +208,8 @@ with
                 contrato,
                 data_inclusao as data_inclusao_atual,
                 data_baixa as data_baixa_atual,
+                indicador_nao_inclusao as indicador_nao_inclusao_atual,
+                motivo as motivo_atual,
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
@@ -204,6 +220,8 @@ with
                 cast(null as string) as contrato,
                 cast(null as date) as data_inclusao_atual,
                 cast(null as date) as data_baixa_atual,
+                cast(null as bool) as indicador_nao_inclusao_atual,
+                cast(null as string) as motivo_atual,
                 cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
                 cast(null as string) as id_execucao_dbt_atual
@@ -211,7 +229,18 @@ with
     ),
 
     sha_dados_completos as (
-        select n.*, a.* except (contrato)
+        select 
+            n.*, 
+            a.* except (contrato),
+            case
+                when a.contrato is not null 
+                    and a.indicador_nao_inclusao_atual is false 
+                    and a.data_baixa_atual is null 
+                then 'Contrato em duplicidade'
+                when n.data_pagamento is not null 
+                    and a.contrato is null 
+                then 'Autuação paga'
+            end as motivo_calculado
         from sha_dados_novos n
         left join sha_dados_atuais a using (contrato)
     ),
@@ -224,10 +253,18 @@ with
             ) as data_inclusao,
             case
                 when data_pagamento is not null
+                    and data_inclusao_atual is not null
                 then coalesce(data_baixa_atual, current_date("America/Sao_Paulo"))
             end as data_baixa,
+            case
+                when indicador_nao_inclusao_atual is true then true
+                when motivo_calculado is not null then true
+                else false
+            end as indicador_nao_inclusao,
+            coalesce(motivo_atual, motivo_calculado) as motivo,
             nome,
             cpf,
+            cnpj,
             endereco,
             bairro,
             cidade,
@@ -237,7 +274,7 @@ with
             datavencimento,
             datavenda,
             valor,
-            valor_pagamento,
+            valor_pago,
             '{{ var("version") }}' as versao,
             case
                 when sha_dado_atual is null or sha_dado_novo != sha_dado_atual

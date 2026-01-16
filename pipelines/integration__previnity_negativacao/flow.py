@@ -79,8 +79,6 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         result.update(metadata)
         response.append(result)
 
-    print(response)
-
     save_data_to_file(
         data=response,
         path=context.source_filepath,
@@ -94,18 +92,19 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         env=env,
         selectors=[constants.NEGATIVACAO_SELECTOR],
         timestamp=ts,
-        datetime_start=execution_date,
-        datetime_end=execution_date,
+        datetime_start=execution_date.isoformat(),
+        datetime_end=execution_date.isoformat(),
         additional_vars=None,
         test_scheduled_time=None,
         force_test_run=False,
         wait_for=[upload_source_future],
     )
 
-    materialization_context = materialization_contexts[0]
     run_dbt_future = run_dbt_selectors(
-        contexts=materialization_context,
+        contexts=materialization_contexts,
         flags=flags,
     )
 
-    save_materialization_datetime_redis(context=materialization_context, wait_for=[run_dbt_future])
+    save_materialization_datetime_redis.map(
+        context=materialization_contexts, wait_for=[run_dbt_future]
+    )

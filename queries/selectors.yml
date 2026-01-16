@@ -516,8 +516,6 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: view_pessoa_fisica_negativacao
-        - method: fqn
           value: aux_retorno_negativacao
         - method: fqn
           value: autuacao_negativacao

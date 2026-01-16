@@ -33,7 +33,7 @@ select
     json_value(r, '$.produtonome') as produtonome,
     json_value(r, '$.produtoreferencia') as produtoreferencia,
     json_value(r, '$.protocolo') as protocolo,
-    json_value(payload_json, '$.contrato') as id_auto_infracao,
+    json_value(payload_json, '$.contrato') as contrato,
     json_value(payload_json, '$.cpf') as cpf,
     json_value(r, '$.resultado') as resultado,
     fonte,
