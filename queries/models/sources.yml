@@ -495,3 +495,4 @@ sources:
 
     tables:
       - name: retorno_negativacao
+      - name: autuacao_controle_negativacao

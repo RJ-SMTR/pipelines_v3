@@ -16,4 +16,5 @@ select
     datavenda,
     valor
 from {{ ref("aux_autuacao_negativacao") }}
+where indicador_nao_inclusao is false
 order by data, id_auto_infracao
