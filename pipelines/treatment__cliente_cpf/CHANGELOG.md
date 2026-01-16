@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__cliente_cpf.sql`
+- Cria flow `treatment__cliente_cpf.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/28)
