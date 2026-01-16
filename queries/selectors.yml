@@ -188,10 +188,6 @@ selectors:
         - method: fqn
           value: endereco_cliente_jae
         - method: fqn
-          value: cliente_cpf_jae
-        - method: fqn
-          value: endereco_cliente_cpf_jae
-        - method: fqn
           value: aux_consorcio_modo
         - method: fqn
           value: modos
@@ -217,6 +213,15 @@ selectors:
           value: staging_device_operadora
         - method: fqn
           value: validador_operadora
+
+  - name: cliente_cpf
+    description: Materialização das tabelas de cliente particionadas por cpf
+    definition:
+      union:
+        - method: fqn
+          value: cliente_cpf_jae
+        - method: fqn
+          value: endereco_cliente_cpf_jae
 
   - name: transacao
     description: Materialização das tabelas de transação da bilhetagem

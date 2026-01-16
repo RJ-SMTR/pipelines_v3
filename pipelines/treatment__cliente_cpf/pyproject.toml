@@ -1,0 +1,4 @@
+[project]
+name = "treatment__cliente_cpf"
+version = "0.1.0"
+description = "Pipeline cliente_cpf da secretaria rj-smtr"
