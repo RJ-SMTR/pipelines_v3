@@ -2,14 +2,13 @@
     config(
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
-        unique_key=["id_autuacao"],
         incremental_strategy="insert_overwrite",
     )
 }}
 
 select
     data,
-    data_autacao,
+    data_autuacao,
     id_auto_infracao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     "{{ var('version') }}" as versao,

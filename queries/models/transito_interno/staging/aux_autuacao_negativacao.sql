@@ -41,6 +41,7 @@
     {% set sha_column %}
         cast(null as bytes)
     {% endset %}
+    {% set partitions = [] %}
 {% endif %}
 
 with

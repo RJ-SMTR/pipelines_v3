@@ -93,6 +93,9 @@ async def async_api_post_request(
     Returns:
         list[dict]: Lista com resultados de cada requisição.
     """
+    if max_concurrent < 1:
+        raise ValueError("max_concurrent must be >= 1")
+
     semaphore = asyncio.Semaphore(max_concurrent)
 
     async def controlled_post(client: httpx.AsyncClient, payload: dict) -> dict:
