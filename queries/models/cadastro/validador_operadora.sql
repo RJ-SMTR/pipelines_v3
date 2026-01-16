@@ -22,6 +22,7 @@ with
                     "{{var('date_range_end')}}"
                 )
             {% endif %}
+        qualify row_number() over (partition by id order by timestamp_captura desc) = 1
     )
 select
     s.id_device_operadora,
