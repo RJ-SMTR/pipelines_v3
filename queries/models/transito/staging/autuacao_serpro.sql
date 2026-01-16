@@ -90,7 +90,7 @@ select distinct
     ) as nome_proprietario,
     safe_cast(
         json_value(content, '$.numero_identificacao_proprietario') as string
-    ) as cpf_proprietario,
+    ) as documento_proprietario,
     safe_cast(
         json_value(content, '$.numero_cnh_proprietario') as string
     ) as cnh_proprietario,
@@ -189,5 +189,46 @@ select distinct
     ) as processo_troca_real_infrator,
     safe_cast(
         json_value(content, '$.auinf_veiculo_adesao_sne_indicador') as string
-    ) as status_sne
+    ) as status_sne,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_renavam') as string
+    ) as renavam_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_nome') as string
+    ) as nome_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_numero_identificacao') as string
+    ) as documento_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_numero_cnh') as string
+    ) as cnh_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_adesao_sne_indicador_desc') as string
+    ) as descricao_status_sne,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_ende_completo') as string
+    ) as endereco_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_ende_bairro') as string
+    ) as bairro_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.mun_veiculo_possuidor') as string
+    ) as municipio_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.auinf_veiculo_possuidor_ende_cep') as string
+    ) as cep_possuidor_veiculo,
+    safe_cast(
+        json_value(content, '$.uf_veiculo_possuidor') as string
+    ) as uf_possuidor_veiculo,
+    safe_cast(json_value(content, '$.migrada') as string) as migrada,
+    parse_date(
+        '%Y-%m-%d', safe_cast(json_value(content, '$.data_atualizacao_dl') as string)
+    ) as data_atualizacao_dl,
+    datetime(
+        parse_timestamp(
+            '%Y-%m-%d %H:%M:%S%Ez',
+            safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
+        ),
+        "America/Sao_Paulo"
+    ) datetime_execucao_flow,
 from {{ source("source_serpro", "autuacao") }}

@@ -73,7 +73,7 @@ models:
       - name: data_limite_defesa_previa
         description: "{{ doc('data_limite_defesa_previa') }}"
       - name: data_limite_recurso
-        description: '{{ doc("data_limite_recurso") }}'
+        description: "Data limite para recurso em primeira instância"
       - name: descricao_situacao_autuacao
         description: "{{ doc('descricao_situacao_autuacao') }}"
       - name: status_infracao
@@ -115,11 +115,11 @@ models:
       - name: uf_veiculo
         description: "Sigla do estado do veículo"
       - name: nome_proprietario
-        description: '{{ doc("nome_proprietario") }}'
-      - name: cpf_proprietario
-        description: '{{ doc("cpf_proprietario") }}'
+        description: "Nome do proprietário"
+      - name: documento_proprietario
+        description: "Documento do proprietário do veículo"
       - name: cnh_proprietario
-        description: "Número da CNH do proprietario do veículo"
+        description: "Número da CNH do proprietrio do veículo"
       - name: uf_cnh_proprietario
         description: "Sigla do estado da CNH do proprietário"
       - name: uf_proprietario
@@ -142,6 +142,22 @@ models:
         description: "CNH do infrator"
       - name: uf_infrator
         description: "Estado do condutor infrator [em caso de indicação de real condutor infrator]"
+      - name: nome_possuidor_veiculo
+        description: "Nome do possuidor do veículo"
+      - name: documento_possuidor_veiculo
+        description: "Documento do possuidor do veículo"
+      - name: cnh_possuidor_veiculo
+        description: "CNH do possuidor do veículo"
+      - name: endereco_possuidor_veiculo
+        description: "Endereço do possuidor do veículo"
+      - name: bairro_possuidor_veiculo
+        description: "Bairro do possuidor do veículo"
+      - name: municipio_possuidor_veiculo
+        description: "Município do possuidor do veículo"
+      - name: cep_possuidor_veiculo
+        description: "CEP do possuidor do veículo"
+      - name: uf_possuidor_veiculo
+        description: "UF do possuidor do veículo"
       - name: valor_infracao
         description: "{{ doc('valor_infracao') }}"
       - name: valor_pago
@@ -203,13 +219,13 @@ models:
       - name: data
         description: "Data da autuação [Coluna de particionamento]"
       - name: id_autuacao
-        description: '{{ doc("id_autuacao") }}'
+        description: "Identificador único da autuação"
       - name: id_auto_infracao
         description: "Código do auto de infração [protegido]"
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
       - name: fonte
-        description: '{{ doc("fonte") }}'
+        description: "Origem dos dados"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
@@ -219,7 +235,7 @@ models:
       - name: data
         description: "{{ doc('data_autuacao') }} [partição]"
       - name: id_autuacao
-        description: '{{ doc("id_autuacao") }}'
+        description: "Identificador único da autuação"
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }} [protegido]"
         policy_tags:
@@ -264,12 +280,48 @@ models:
         description: "Estado do condutor infrator [em caso de indicação de real condutor infrator]"
       - name: uf_principal_condutor
         description: "Estado do condutor principal do veículo"
+      - name: nome_proprietario
+        description: "Nome do proprietário"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_proprietario
+        description: "Documento do proprietário do veículo"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_proprietario
+        description: "Número da CNH do proprietário do veículo"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
       - name: uf_proprietario
         description: "{{ doc('uf_proprietario') }}"
       - name: cep_proprietario
         description: "{{ doc('cep_proprietario') }} [protegido]"
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: nome_possuidor_veiculo
+        description: "Nome do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_possuidor_veiculo
+        description: "Documento do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_possuidor_veiculo
+        description: "CNH do possuidor do veículo"
+      - name: endereco_possuidor_veiculo
+        description: "Endereço do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro_possuidor_veiculo
+        description: "Bairro do possuidor do veículo"
+      - name: municipio_possuidor_veiculo
+        description: "Município do possuidor do veículo"
+      - name: cep_possuidor_veiculo
+        description: "CEP do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: uf_possuidor_veiculo
+        description: "UF do possuidor do veículo"
       - name: valor_infracao
         description: "{{ doc('valor_infracao') }}"
       - name: valor_pago
@@ -301,9 +353,13 @@ models:
       - name: status_sne
         description: "Indicador de adesão do veículo ao Sistema de Notificação Eletrônica - SNE"
       - name: fonte
-        description: '{{ doc("fonte") }}'
+        description: "Origem dos dados"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
 
   - name: receita_autuacao
     columns:
@@ -327,4 +383,4 @@ models:
       - name: valor_arrecadacao
         description: "Valor arrecadado para o mes"
       - name: fonte
-        description: '{{ doc("fonte") }}'
+        description: "Origem dos dados"
