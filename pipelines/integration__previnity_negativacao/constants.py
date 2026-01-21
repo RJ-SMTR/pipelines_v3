@@ -41,4 +41,5 @@ PREVINITY_SOURCES = [
 NEGATIVACAO_SELECTOR = DBTSelector(
     name="autuacao_negativacao",
     initial_datetime=datetime(2025, 1, 1, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
+    flow_folder_name="integration__previnity_negativacao",
 )

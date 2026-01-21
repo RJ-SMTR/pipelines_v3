@@ -28,9 +28,13 @@ from pipelines.integration__previnity_negativacao.tasks import (
 @flow(log_prints=True)
 async def integration__previnity_negativacao(  # noqa: PLR0913
     timestamp=None,
+    env=None,
+    datetime_start=None,
+    datetime_end=None,
     flags=None,
+    additional_vars=None,
 ):
-    env = get_run_env(env=None, deployment_name=runtime.deployment.name)
+    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
@@ -92,9 +96,9 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         env=env,
         selectors=[constants.NEGATIVACAO_SELECTOR],
         timestamp=ts,
-        datetime_start=execution_date.isoformat(),
-        datetime_end=execution_date.isoformat(),
-        additional_vars=None,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        additional_vars=additional_vars,
         test_scheduled_time=None,
         force_test_run=False,
         wait_for=[upload_source_future],
