@@ -14,4 +14,9 @@ select
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from {{ source("source_previnity", "autuacao_controle_negativacao") }}
-{% if is_incremental() %} where data = date('{{ var("date_range_end") }}') {% endif %}
+{% if is_incremental() %}
+    where
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+{% endif %}

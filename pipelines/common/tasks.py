@@ -133,7 +133,7 @@ def save_data_to_file(
     data: Union[str, dict, list[dict], pd.DataFrame],
     path: Union[str, Path],
     filetype: str,
-    csv_mode: str,
+    csv_mode: Optional[str] = "w",
 ):
     """
     Salva dados em um arquivo local.

@@ -6,11 +6,13 @@
             "field": "data",
             "data_type": "date",
         },
-        cluster_by=["contrato"],
     )
 }}
 
 {% set autuacao_controle_negativacao = ref("autuacao_controle_negativacao") %}
+{% set incremental_filter %}
+    data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+{% endset %}
 
 {% if execute %}
     {% if is_incremental() %}
@@ -40,36 +42,37 @@
     {% set partitions_query %}
         select distinct concat("'", date(data_autuacao), "'") as partition_date
         from {{ autuacao_controle_negativacao }}
-        where data = date('{{ var("date_range_end") }}')
+        where {{ incremental_filter }}
     {% endset %}
     {% set partitions = run_query(partitions_query).columns[0].values() %}
 {% endif %}
 
 with
     autuacoes_inclusao as (
-        select id_auto_infracao
+        select data as data_lote, data_autuacao, id_auto_infracao
         from {{ autuacao_controle_negativacao }}
-        where data = date('{{ var("date_range_end") }}')
+        where {{ incremental_filter }}
     ),
 
     dados_novos as (
         select
-            data,
-            coalesce(nome_proprietario, nome_possuidor_veiculo) as nome,
+            a.data,
+            ai.data_lote,
+            coalesce(a.nome_proprietario, a.nome_possuidor_veiculo) as nome,
             case
-            when length(coalesce(documento_proprietario, documento_possuidor_veiculo)) = 11
-                then coalesce(documento_proprietario, documento_possuidor_veiculo)
+            when length(coalesce(a.documento_proprietario, a.documento_possuidor_veiculo)) = 11
+                then coalesce(a.documento_proprietario, a.documento_possuidor_veiculo)
             end as cpf,
             case
-                when length(coalesce(documento_proprietario, documento_possuidor_veiculo)) = 14
-                then coalesce(documento_proprietario, documento_possuidor_veiculo)
+                when length(coalesce(a.documento_proprietario, a.documento_possuidor_veiculo)) = 14
+                then coalesce(a.documento_proprietario, a.documento_possuidor_veiculo)
             end as cnpj,
-            endereco_possuidor_veiculo as endereco,
-            bairro_possuidor_veiculo as bairro,
-            municipio_possuidor_veiculo as cidade,
-            cep_possuidor_veiculo as cep,
+            a.endereco_possuidor_veiculo as endereco,
+            a.bairro_possuidor_veiculo as bairro,
+            a.municipio_possuidor_veiculo as cidade,
+            a.cep_possuidor_veiculo as cep,
             case
-                upper(uf_possuidor_veiculo)
+                upper(a.uf_possuidor_veiculo)
                 when 'ACRE'
                 then 'AC'
                 when 'ALAGOAS'
@@ -146,34 +149,34 @@ with
                 then 'SE'
                 when 'TOCANTINS'
                 then 'TO'
-                else ''
+                else null
             end as estado,
-            id_auto_infracao as contrato,
+            a.id_auto_infracao as contrato,
             safe_cast(
-                format_date('%d%m%Y', data_limite_recurso) as string
+                format_date('%d%m%Y', a.data_limite_recurso) as string
             ) as datavencimento,
             safe_cast(
-                format_date('%d%m%Y', data_limite_recurso) as string
+                format_date('%d%m%Y', a.data_limite_recurso) as string
             ) as datavenda,
-            replace(safe_cast(valor_infracao as string), '.', '') as valor,
-            valor_pago,
-            data_pagamento
-        {# from {{ ref("autuacao") }} #}
-        from `rj-smtr.transito.autuacao`
+            replace(safe_cast(a.valor_infracao as string), '.', '') as valor,
+            a.valor_pago,
+            a.data_pagamento
+        {# from {{ ref("autuacao") }} as a #}
+        from `rj-smtr.transito.autuacao` as a
         where
             {% if partitions | length > 0 %}
-                data in ({{ partitions | join(", ") }})
-                and status_infracao = "NP Gerada"
-                and descricao_situacao_autuacao in ("Ativo", "Desvinculado")
+                a.data in ({{ partitions | join(", ") }})
+                and a.status_infracao = "NP Gerada"
+                and a.descricao_situacao_autuacao in ("Ativo", "Desvinculado")
                 and (
-                    id_auto_infracao in (select id_auto_infracao from autuacoes_inclusao)
+                    a.id_auto_infracao in (select id_auto_infracao from autuacoes_inclusao)
                     or (
-                        data_pagamento is not null
+                        a.data_pagamento is not null
                         {% if is_incremental() %}
-                            and id_auto_infracao in (
+                            and a.id_auto_infracao in (
                                 select contrato 
                                 from {{ this }}
-                                where data in ({{ partitions | join(", ") }})
+                                where a.data in ({{ partitions | join(", ") }})
                             )
                         {% else %}
                             and false
@@ -182,19 +185,20 @@ with
                 )
                 and (
                     (
-                        documento_proprietario is not null
-                        and documento_proprietario = documento_possuidor_veiculo
+                        a.documento_proprietario is not null
+                        and a.documento_proprietario = a.documento_possuidor_veiculo
                     )
                     or (
-                        documento_proprietario is null
-                        and documento_possuidor_veiculo is not null
+                        a.documento_proprietario is null
+                        and a.documento_possuidor_veiculo is not null
                     )
                 )
-                and recurso_penalidade_multa is null
-                and processo_defesa_autuacao is null
+                and a.recurso_penalidade_multa is null
+                and a.processo_defesa_autuacao is null
             {% else %}
                 false
             {% endif %}
+        left join autuacoes_inclusao as ai on ai.id_auto_infracao = a.id_auto_infracao and ai.data_autuacao = a.data
     ),
 
     sha_dados_novos as (
@@ -236,10 +240,10 @@ with
                 when a.contrato is not null 
                     and a.indicador_nao_inclusao_atual is false 
                     and a.data_baixa_atual is null 
-                then 'Contrato em duplicidade'
+                then 'SMTR -AUTUAÇÃO JÁ NEGATIVADA'
                 when n.data_pagamento is not null 
                     and a.contrato is null 
-                then 'Autuação paga'
+                then 'SMTR - AUTUAÇÃO PAGA'
             end as motivo_calculado
         from sha_dados_novos n
         left join sha_dados_atuais a using (contrato)
@@ -249,7 +253,7 @@ with
         select
             data,
             coalesce(
-                data_inclusao_atual, current_date("America/Sao_Paulo")
+                data_inclusao_atual, 
             ) as data_inclusao,
             case
                 when data_pagamento is not null

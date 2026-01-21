@@ -19,7 +19,7 @@ with
             "previnity" as fonte
         from {{ source("source_previnity", "retorno_negativacao") }}
         {% if is_incremental() %}
-            where data = date('{{ var("date_range_end") }}')
+            where data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
         {% endif %}
     ),
     parsed as (
@@ -38,11 +38,12 @@ with
             parse_datetime(
                 '%d/%m/%Y %H:%M:%S', json_value(r, '$.data')
             ) as datetime_retorno,
-            json_value(r, '$.produtonome') as produtonome,
-            json_value(r, '$.produtoreferencia') as produtoreferencia,
+            json_value(r, '$.produtonome') as nome_produto,
+            json_value(r, '$.produtoreferencia') as referencia_produto,
             json_value(r, '$.protocolo') as protocolo,
             json_value(payload_json, '$.contrato') as contrato,
             json_value(payload_json, '$.cpf') as cpf,
+            json_value(payload_json, '$.cnpj') as cnpj,
             json_value(r, '$.resultado') as resultado,
             fonte
         from parsed, unnest(response_array) as r
@@ -51,11 +52,12 @@ select
     data,
     data_autuacao,
     datetime_retorno,
-    produtonome,
-    produtoreferencia,
+    nome_produto,
+    referencia_produto,
     protocolo,
     contrato,
     cpf,
+    cnpj,
     resultado,
     fonte,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
@@ -63,4 +65,4 @@ select
     '{{ invocation_id }}' as id_execucao_dbt
 from unnested
 qualify
-    row_number() over (partition by data, contrato order by datetime_retorno desc) = 1
+    row_number() over (partition by data, contrato order by datetime_retorno asc) = 1

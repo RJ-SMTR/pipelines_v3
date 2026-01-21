@@ -7,6 +7,9 @@
 }}
 
 {% set aux_retorno_negativacao = ref("aux_retorno_negativacao") %}
+{% set incremental_filter %}
+    data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+{% endset %}
 
 {% if execute %}
     {% if is_incremental() %}
@@ -36,7 +39,7 @@
     {% set partitions_query %}
         select distinct concat("'", date(data_autuacao), "'") as partition_date
         from {{ aux_retorno_negativacao }}
-        where data = date('{{ var("date_range_end") }}')
+        where {{ incremental_filter }}
     {% endset %}
     {% set partitions = run_query(partitions_query).columns[0].values() %}
 {% endif %}
@@ -47,14 +50,12 @@ with
             data,
             data_autuacao,
             datetime_retorno,
-            produtonome,
-            produtoreferencia,
-            protocolo,
             contrato,
             cpf,
-            resultado
+            resultado,
+            fonte
         from {{ aux_retorno_negativacao }}
-        where data = date('{{ var("date_range_end") }}')
+        where {{ incremental_filter }}
     ),
 
     aux_autuacao_negativacao as (
@@ -107,7 +108,7 @@ with
                 when a.motivo is not null
                 then a.motivo
                 when r.resultado not in ('00 - INCLUSAO', '01 - BAIXA')
-                then r.resultado
+                then concat(upper(r.fonte), ' - ', upper(r.resultado))
             end as motivo,
             a.nome,
             a.cpf,
