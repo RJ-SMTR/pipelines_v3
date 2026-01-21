@@ -91,7 +91,7 @@ with
                 then 'Passageiro'
                 when
                     initcap(regexp_replace(especie_veiculo, r'\d+', ''))
-                    in ('Tracao', '0Tracao', 'Tracao')
+                    in ('Tracao', '0Tracao')
                 then 'Tração'
                 when
                     initcap(regexp_replace(especie_veiculo, r'\d+', ''))

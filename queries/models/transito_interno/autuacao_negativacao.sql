@@ -14,7 +14,7 @@
             list_columns()
             | reject(
                 "in",
-                ["versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
+                ["data_confirmacao_inclusao", "data_confirmacao_baixa", "versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
             )
             | list
         ) %}
