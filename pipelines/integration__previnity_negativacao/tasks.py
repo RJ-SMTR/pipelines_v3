@@ -3,12 +3,16 @@
 Tasks para integração com a API da Previnity
 """
 
-from datetime import date
+from datetime import date, datetime
+from typing import Optional
 
 from prefect import task
 
 from pipelines.common.utils.pretreatment import normalize_text
 from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.utils import convert_timezone
+from pipelines.integration__previnity_negativacao import constants
+from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
 
 @task
@@ -26,14 +30,17 @@ def get_previnity_credentials() -> tuple[str, str]:
 
 
 @task
-def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[tuple[dict, dict]]:
+def prepare_previnity_payloads(
+    data: list[dict], datetime_start: date, datetime_end: date
+) -> list[tuple[dict, dict]]:
     """
     Prepara os payloads para envio à API da Previnity, separando inclusão (controle=1)
     e baixa (controle=2) com base na data de execução.
 
     Args:
         data (list[dict]): Dados retornados da query.
-        execution_date (date): Data de referência para inclusão/baixa.
+        datetime_start (date): Data de início do intervalo.
+        datetime_end (date): Data de fim do intervalo.
 
     Returns:
         list[tuple[dict, dict]]: Lista de (payload, metadata).
@@ -44,11 +51,16 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[t
         dt_inclusao = row.get("data_inclusao")
         dt_baixa = row.get("data_baixa")
 
-        if dt_inclusao != execution_date and dt_baixa != execution_date:
+        is_inclusao_in_range = (
+            dt_inclusao is not None and datetime_start <= dt_inclusao <= datetime_end
+        )
+        is_baixa_in_range = dt_baixa is not None and datetime_start <= dt_baixa <= datetime_end
+
+        if not is_inclusao_in_range and not is_baixa_in_range:
             continue
 
         body = {
-            "controle": "1" if dt_inclusao == execution_date else "2",
+            "controle": "2" if is_baixa_in_range else "1",
             "nome": normalize_text(row.get("nome")),
             "cpf": normalize_text(row.get("cpf")),
             "endereco": normalize_text(row.get("endereco")),
@@ -57,10 +69,10 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[t
             "cep": normalize_text(row.get("cep")),
             "estado": normalize_text(row.get("estado")),
             "contrato": normalize_text(row.get("contrato")),
-            "datavencimento": row.get("datavencimento", ""),
-            "datavenda": row.get("datavenda", ""),
-            "valor": row.get("valor", ""),
-            "webservice": row.get("webservice", "S"),
+            "datavencimento": row.get("datavencimento"),
+            "datavenda": row.get("datavenda"),
+            "valor": row.get("valor"),
+            "webservice": "S",
         }
 
         metadata = {
@@ -70,3 +82,18 @@ def prepare_previnity_payloads(data: list[dict], execution_date: date) -> list[t
         payloads.append((body, metadata))
 
     return payloads
+
+
+@task
+def get_previnity_datetime_start(env: str) -> datetime:
+    """
+    Retorna o datetime de início para a materialização da negativacao.
+    """
+    autuacao_last_materialization = TRANSITO_AUTUACAO_SELECTOR.get_last_materialized_datetime(
+        env=env
+    )
+    negativacao_last_materialization = (
+        constants.NEGATIVACAO_SELECTOR.get_last_materialized_datetime(env=env)
+    )
+
+    return min(autuacao_last_materialization, negativacao_last_materialization)

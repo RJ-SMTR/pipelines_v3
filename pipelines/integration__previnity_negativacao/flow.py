@@ -21,6 +21,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
     get_previnity_credentials,
+    get_previnity_datetime_start,
     prepare_previnity_payloads,
 )
 
@@ -45,6 +46,9 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         "Content-Type": "application/json",
     }
 
+    if datetime_start is None:
+        datetime_start = get_previnity_datetime_start(env=env)
+
     project_id = common_constants.PROJECT_NAME[env]
     data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
 
@@ -61,11 +65,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     context = contexts[0]
-    execution_date = context.timestamp.date()
 
     payloads_with_metadata = prepare_previnity_payloads(
         data=data_list,
-        execution_date=execution_date,
+        datetime_start=datetime_start.date(),
+        datetime_end=context.timestamp.date(),
     )
 
     if not payloads_with_metadata:
@@ -75,7 +79,10 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         payloads, metadata_list = zip(*payloads_with_metadata, strict=True)
 
     api_results = await async_api_post_request(
-        url=constants.API_URL_PF, payloads=payloads, headers=headers, max_concurrent=300
+        url=constants.API_URL_PF,
+        payloads=payloads,
+        headers=headers,
+        max_concurrent=constants.PREVINITY_RATE_LIMIT,
     )
 
     response = []
@@ -86,8 +93,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     save_data_to_file(
         data=response,
         path=context.source_filepath,
-        filetype="csv",
-        csv_mode="w",
+        filetype="json",
     )
 
     upload_source_future = upload_source_data_to_gcs(context=context)

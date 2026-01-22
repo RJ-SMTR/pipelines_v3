@@ -230,5 +230,5 @@ select distinct
             safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
         ),
         "America/Sao_Paulo"
-    ) datetime_execucao_flow,
+    ) as datetime_execucao_flow,
 from {{ source("source_serpro", "autuacao") }}

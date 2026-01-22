@@ -95,19 +95,19 @@ with
                 when r.resultado = '00 - INCLUSAO' then date(r.datetime_retorno)
             end as data_confirmacao_inclusao_nova,
             case
-                when r.resultado = '01 - BAIXA' then date(r.datetime_retorno)
+                when r.resultado = '00 - EXCLUSAO' then date(r.datetime_retorno)
             end as data_confirmacao_baixa_nova,
             case
                 when a.indicador_nao_inclusao is true
                 then true
-                when r.resultado not in ('00 - INCLUSAO', '01 - BAIXA')
+                when r.resultado not in ('00 - INCLUSAO', '00 - EXCLUSAO')
                 then true
                 else false
             end as indicador_nao_inclusao,
             case
                 when a.motivo is not null
                 then a.motivo
-                when r.resultado not in ('00 - INCLUSAO', '01 - BAIXA')
+                when r.resultado not in ('00 - INCLUSAO', '00 - EXCLUSAO')
                 then concat(upper(r.fonte), ' - ', upper(r.resultado))
             end as motivo,
             a.nome,

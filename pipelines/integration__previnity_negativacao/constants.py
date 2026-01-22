@@ -17,15 +17,15 @@ NEGATIVACAO_PRIVATE_BUCKET_NAMES = {
 
 PREVINITY_SOURCE_NAME = "previnity"
 
+PREVINITY_RATE_LIMIT = 300
+
 API_URL_PF = "https://api.previnity.com.br/pnn035"
 API_URL_PJ = "https://api.previnity.com.br/pnn034"
 
 SECRET_PATH = "previnity_api"
 
-QUERY_PF = (
-    "SELECT * FROM `rj-smtr-dev.botelho__transito_interno.view_pessoa_fisica_negativacao` "
-    "WHERE data = '2024-12-31' LIMIT 1000"
-)
+QUERY_PF = "SELECT * FROM `rj-smtr-dev.botelho__transito_interno.view_pessoa_fisica_negativacao`"
+
 QUERY_PJ = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_juridica_negativacao`"
 
 PREVINITY_SOURCES = [

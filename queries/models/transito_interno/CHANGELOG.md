@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria modelos `aux_retorno_negativacao`, `autuacao_negativacao` e `view_pessoa_fisica_negativacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/8)
+- Cria modelos `aux_retorno_negativacao`, `aux_autuacao_negativacao`, `autuacao_negativacao`, `autuacao_controle_negativacao`, `view_pessoa_fisica_negativacao` e `view_autuacao_historico` (https://github.com/RJ-SMTR/pipelines_v3/pull/8)
