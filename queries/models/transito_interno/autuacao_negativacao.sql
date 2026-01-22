@@ -74,8 +74,8 @@ with
             cidade,
             cep,
             estado,
-            datavencimento,
-            datavenda,
+            datavencimento as data_vencimento,
+            datavenda as data_venda,
             valor,
             valor_pago
         from {{ ref("aux_autuacao_negativacao") }}
@@ -118,8 +118,8 @@ with
             a.cidade,
             a.cep,
             a.estado,
-            a.datavencimento,
-            a.datavenda,
+            a.data_vencimento,
+            a.data_venda,
             a.valor,
             a.valor_pago
         from aux_autuacao_negativacao a
@@ -181,8 +181,8 @@ with
             cidade,
             cep,
             estado,
-            datavencimento,
-            datavenda,
+            data_vencimento,
+            data_venda,
             valor,
             valor_pago,
             case

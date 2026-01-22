@@ -1588,3 +1588,19 @@ Origem dos dados
 {% docs id_autuacao %}
 Identificador único da autuação
 {% enddocs %}
+
+{% docs id_alteracao %}
+Identificador único da alteração no histórico
+{% enddocs %}
+
+{% docs datetime_ultima_alteracao %}
+Data e hora da última alteração do registro
+{% enddocs %}
+
+{% docs datetime_inicio_vigencia %}
+Data e hora de início da vigência do registro
+{% enddocs %}
+
+{% docs datetime_fim_vigencia %}
+Data e hora de fim da vigência do registro
+{% enddocs %}
