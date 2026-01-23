@@ -1,6 +1,6 @@
 ---
 name: migration-agent
-description: "only when explicity invoked via a slash command"
+description: "Assists with pipeline migration from Prefect 1.4 to Prefect 3.0. Run only when a migration is requested."
 model: haiku
 ---
 
