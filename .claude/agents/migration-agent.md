@@ -172,14 +172,17 @@ git checkout main && git pull origin main
 # 2. Copiar modelos
 cp -r queries/models/cadastro/ /caminho/para/pipelines_v3/queries/models/
 
-# 3. Copiar sources relacionados
-cp queries/models/_sources/cadastro*.yml /caminho/para/pipelines_v3/queries/models/_sources/
+# 3. Identificar sources usados
+grep -roh "source('[^']*', '[^']*')" /caminho/para/pipelines_v3/queries/models/cadastro/ | sort -u
 
-# 4. Verificar e copiar dependências
-grep -rh "ref(" /caminho/para/pipelines_v3/queries/models/cadastro/ | sort -u
+# 4. Copiar definições dos sources identificados do sources.yml de origem
+# para o sources.yml de destino (manualmente ou com script)
+
+# 5. Verificar e copiar dependências (refs)
+grep -roh "ref('[^']*')" /caminho/para/pipelines_v3/queries/models/cadastro/ | sort -u
 # Se houver refs para outros modelos, copie-os também
 
-# 5. Atualizar selectors.yml
+# 6. Atualizar selectors.yml
 echo "  - name: cadastro
     definition:
       method: fqn
