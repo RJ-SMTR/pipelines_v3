@@ -84,7 +84,7 @@ with
             g.datetime_inicio_validade_gratuidade,
             datetime_fim_validade_gratuidade
         from gratuidade g
-        join menor_cadastro_estudante m using (id_cliente)
+        left join menor_cadastro_estudante m using (id_cliente)
         where
             g.tipo_gratuidade = 'Estudante'
             and (
