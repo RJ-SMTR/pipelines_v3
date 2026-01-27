@@ -19,11 +19,11 @@
             from
                 (
                     select distinct data_autuacao
-                    from {{ ref("autuacao_citran") }}
+                    from {{ ref("view_autuacao_citran") }}
                     where {{ incremental_filter }}
                     union all
                     select distinct data_autuacao
-                    from {{ ref("autuacao_serpro") }}
+                    from {{ ref("view_autuacao_serpro") }}
                     where {{ incremental_filter }}
                 )
         {% endset %}
@@ -34,11 +34,11 @@
 with
     source as (
         select distinct data_autuacao as data, id_auto_infracao, "CITRAN" as fonte
-        from {{ ref("autuacao_citran") }}
+        from {{ ref("view_autuacao_citran") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         union all
         select distinct data_autuacao as data, id_auto_infracao, "SERPRO" as fonte
-        from {{ ref("autuacao_serpro") }}
+        from {{ ref("view_autuacao_serpro") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     new_data as (

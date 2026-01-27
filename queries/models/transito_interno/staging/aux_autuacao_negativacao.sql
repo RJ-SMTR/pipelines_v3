@@ -56,7 +56,7 @@
     {% set partitions_inclusao = (
         run_query(partitions_inclusao_query).columns[0].values()
     ) %}
-    {% set partitions = (partitions_inclusao + partitions_baixa) | unique | list %}
+    {% set partitions = (partitions_inclusao | list + partitions_baixa | list) | unique | list %}
 {% endif %}
 
 with
@@ -217,11 +217,15 @@ with
                     )
                     or (
                         a.data_pagamento is not null
-                        and a.id_auto_infracao in (
-                            select contrato
-                            from {{ this }}
-                            where data in ({{ partitions | join(", ") }})
-                        )
+                        {% if is_incremental() %}
+                            and a.id_auto_infracao in (
+                                select contrato
+                                from {{ this }}
+                                where data in ({{ partitions | join(", ") }})
+                            )
+                        {% else %}
+                            and false
+                        {% endif %}
                     )
                 )
             {% else %} false

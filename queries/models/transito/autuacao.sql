@@ -19,11 +19,11 @@
             from
                 (
                     select distinct data_autuacao
-                    from {{ ref("autuacao_citran") }}
+                    from {{ ref("view_autuacao_citran") }}
                     where {{ incremental_filter }}
                     union all
                     select distinct data_autuacao
-                    from {{ ref("autuacao_serpro") }}
+                    from {{ ref("view_autuacao_serpro") }}
                     where {{ incremental_filter }}
                 )
         {% endset %}
@@ -151,7 +151,7 @@ with
             false as status_sne,
             "CITRAN" as fonte,
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
-        from {{ ref("autuacao_citran") }}
+        from {{ ref("view_autuacao_citran") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     serpro as (
@@ -225,7 +225,7 @@ with
             if(status_sne = "1.0", true, false) as status_sne,
             "SERPRO" as fonte,
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
-        from {{ ref("autuacao_serpro") }}
+        from {{ ref("view_autuacao_serpro") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         qualify
             row_number() over (

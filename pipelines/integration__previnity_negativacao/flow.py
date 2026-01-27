@@ -1,3 +1,4 @@
+import pandas as pd
 from prefect import flow, runtime
 
 from pipelines.common import constants as common_constants
@@ -90,10 +91,12 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         result.update(metadata)
         response.append(result)
 
+    df_response = pd.DataFrame(response)
+
     save_data_to_file(
-        data=response,
+        data=df_response,
         path=context.source_filepath,
-        filetype="json",
+        filetype="csv",
     )
 
     upload_source_future = upload_source_data_to_gcs(context=context)
@@ -102,7 +105,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         env=env,
         selectors=[constants.NEGATIVACAO_SELECTOR],
         timestamp=ts,
-        datetime_start=datetime_start,
+        datetime_start=datetime_start.isoformat(),
         datetime_end=datetime_end,
         additional_vars=additional_vars,
         test_scheduled_time=None,

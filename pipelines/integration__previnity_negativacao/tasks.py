@@ -6,6 +6,7 @@ Tasks para integração com a API da Previnity
 from datetime import date, datetime
 from typing import Optional
 
+import pandas as pd
 from prefect import task
 
 from pipelines.common.utils.pretreatment import normalize_text
@@ -52,9 +53,9 @@ def prepare_previnity_payloads(
         dt_baixa = row.get("data_baixa")
 
         is_inclusao_in_range = (
-            dt_inclusao is not None and datetime_start <= dt_inclusao <= datetime_end
+            pd.notna(dt_inclusao) and datetime_start <= dt_inclusao <= datetime_end
         )
-        is_baixa_in_range = dt_baixa is not None and datetime_start <= dt_baixa <= datetime_end
+        is_baixa_in_range = pd.notna(dt_baixa) and datetime_start <= dt_baixa <= datetime_end
 
         if not is_inclusao_in_range and not is_baixa_in_range:
             continue
@@ -96,4 +97,9 @@ def get_previnity_datetime_start(env: str) -> datetime:
         constants.NEGATIVACAO_SELECTOR.get_last_materialized_datetime(env=env)
     )
 
-    return min(autuacao_last_materialization, negativacao_last_materialization)
+    min_last_materialization = min(autuacao_last_materialization, negativacao_last_materialization)
+
+    return max(
+        min_last_materialization,
+        constants.NEGATIVACAO_SELECTOR.initial_datetime,
+    )
