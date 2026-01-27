@@ -311,6 +311,7 @@ class DBTSelectorMaterializationContext:
         additional_vars: Optional[dict],
         test_scheduled_time: time,
         force_test_run: bool,
+        snapshot_selector: Optional[DBTSelector] = None,
     ):
         """
         Armazena o contexto completo necessário para materializar um selector do DBT.
@@ -324,9 +325,11 @@ class DBTSelectorMaterializationContext:
             additional_vars (Optional[dict]): Variáveis adicionais do dbt.
             test_scheduled_time (time): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
+            snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
         """
         self.env = env
         self.selector = selector
+        self.snapshot_selector = snapshot_selector
         self.timestamp = timestamp.astimezone(tz=pytz.timezone(smtr_constants.TIMEZONE))
         self.datetime_start = self.get_datetime_start(datetime_start=datetime_start)
         self.datetime_end = self.get_datetime_end(datetime_end=datetime_end)
@@ -485,6 +488,7 @@ def run_dbt(
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
+    is_snapshot: bool = False,
 ):
     """
     Executa comandos do DBT e retorna os logs gerados.
@@ -494,6 +498,7 @@ def run_dbt(
         dbt_vars (Optional[dict]): Variáveis para execução do DBT.
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
+        is_snapshot (bool): Se True, executa 'dbt snapshot' ao invés de 'dbt run'.
 
     Returns:
         str: Conteúdo do arquivo de log do DBT.
@@ -514,7 +519,10 @@ def run_dbt(
     invoke = []
     if dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
-            invoke = ["run", "--selector", dbt_obj.name]
+            if is_snapshot:
+                invoke = ["snapshot", "--selector", dbt_obj.name]
+            else:
+                invoke = ["run", "--selector", dbt_obj.name]
         elif isinstance(dbt_obj, DBTTest):
             invoke = ["test", "--select", dbt_obj.test_select]
 

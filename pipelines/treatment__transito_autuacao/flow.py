@@ -26,10 +26,8 @@ def treatment__transito_autuacao(  # noqa: PLR0913
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[
-            constants.TRANSITO_AUTUACAO_SELECTOR,
-            constants.SNAPSHOT_TRANSITO_SELECTOR,
-        ],
+        selectors=[constants.TRANSITO_AUTUACAO_SELECTOR],
+        snapshot_selector=constants.SNAPSHOT_TRANSITO_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,

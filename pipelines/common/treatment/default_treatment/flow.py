@@ -14,16 +14,17 @@ from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
     dbt_test_notify_discord,
     run_dbt_selectors,
+    run_dbt_snapshots,
     run_dbt_tests,
     save_materialization_datetime_redis,
     wait_data_sources,
 )
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
 
 def create_materialization_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
-    selectors: list[SourceTable],
+    selectors: list[DBTSelector],
     datetime_start: Optional[str],
     datetime_end: Optional[str],
     skip_source_check: bool = False,
@@ -34,13 +35,14 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     test_webhook_key: str = "dataplex",
     test_additional_mentions: Optional[list[str]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
+    snapshot_selector: Optional[DBTSelector] = None,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
 
     Args:
         env (Optional[str]): prod ou dev.
-        selectors (list[SourceTable]): Lista de selectors a serem materializadas.
+        selectors (list[DBTSelector]): Lista de selectors a serem materializadas.
         datetime_start (Optional[str]): Data/hora inicial para recorte dos dados.
         datetime_end (Optional[str]): Data/hora final para recorte dos dados.
         skip_source_check (bool): Indica se a checagem das fontes de dados deve ser ignorada.
@@ -53,6 +55,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             nas notificações dos testes no Discord.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
             argumento wait_for das tasks retornadas por esta função.
+        snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -87,6 +90,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         additional_vars=additional_vars,
         test_scheduled_time=test_scheduled_time,
         force_test_run=force_test_run,
+        snapshot_selector=snapshot_selector,
         wait_for=[
             tasks["setup_enviroment"],
             *tasks_wait_for.get("contexts", []),
@@ -152,9 +156,18 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ),
     )
 
+    tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+        contexts=tasks["contexts"],
+        flags=flags,
+        wait_for=[
+            tasks["post_tests_notify_discord"],
+            *tasks_wait_for.get("run_dbt_snapshots", []),
+        ],
+    )
+
     tasks["save_redis"] = save_materialization_datetime_redis.map(
         context=tasks["contexts"],
-        wait_for=[tasks["run_dbt"], *tasks_wait_for.get("save_redis", [])],
+        wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
     )
 
     return tasks
