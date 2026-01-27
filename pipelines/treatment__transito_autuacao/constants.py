@@ -19,6 +19,7 @@ TRANSITO_AUTUACAO_SELECTOR = DBTSelector(
 
 SNAPSHOT_TRANSITO_SELECTOR = DBTSelector(
     name="snapshot_transito",
+    initial_datetime=datetime(2023, 5, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__transito_autuacao",
     data_sources=[TRANSITO_AUTUACAO_SELECTOR],
 )

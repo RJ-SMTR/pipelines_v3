@@ -54,7 +54,7 @@ models:
         description: "{{ doc('processo_defesa_autuacao') }}"
       - name: recurso_penalidade_multa
         description: "{{ doc('recurso_penalidade_multa') }}"
-      - name: processo_troca_real_condutor_infrator
+      - name: processo_troca_real_infrator
         description: "Número do processo de troca de real condutor infrator"
       - name: status_sne
         description: "Indicador de adesão do veículo ao SNE"
