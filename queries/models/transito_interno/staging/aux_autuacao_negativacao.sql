@@ -20,7 +20,15 @@
             list_columns()
             | reject(
                 "in",
-                ["versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
+                [
+                    "data_inclusao",
+                    "data_baixa",
+                    "indicador_nao_inclusao",
+                    "motivo",
+                    "versao",
+                    "datetime_ultima_atualizacao",
+                    "id_execucao_dbt",
+                ],
             )
             | list
         ) %}
@@ -56,7 +64,9 @@
     {% set partitions_inclusao = (
         run_query(partitions_inclusao_query).columns[0].values()
     ) %}
-    {% set partitions = (partitions_inclusao | list + partitions_baixa | list) | unique | list %}
+    {% set partitions = (
+        (partitions_inclusao | list + partitions_baixa | list) | unique | list
+    ) %}
 {% endif %}
 
 with
@@ -217,15 +227,17 @@ with
                     )
                     or (
                         a.data_pagamento is not null
-                        {% if is_incremental() %}
-                            and a.id_auto_infracao in (
-                                select contrato
-                                from {{ this }}
-                                where data in ({{ partitions | join(", ") }})
-                            )
-                        {% else %}
-                            and false
-                        {% endif %}
+                        and (
+                            a.id_auto_infracao
+                            in (select id_auto_infracao from autuacoes_inclusao)
+                            {% if is_incremental() %}
+                                or a.id_auto_infracao in (
+                                    select contrato
+                                    from {{ this }}
+                                    where data in ({{ partitions | join(", ") }})
+                                )
+                            {% endif %}
+                        )
                     )
                 )
             {% else %} false
@@ -267,9 +279,10 @@ with
             case
                 when
                     a.contrato is not null
+                    and a.data_inclusao_atual != n.data_lote
                     and a.indicador_nao_inclusao_atual is false
                     and a.data_baixa_atual is null
-                then 'SMTR -AUTUAÇÃO JÁ NEGATIVADA'
+                then 'SMTR - AUTUAÇÃO JÁ NEGATIVADA'
                 when n.data_pagamento is not null and a.contrato is null
                 then 'SMTR - AUTUAÇÃO PAGA'
             end as motivo_calculado
@@ -282,7 +295,10 @@ with
             data,
             coalesce(data_inclusao_atual, data_lote) as data_inclusao,
             case
-                when data_pagamento is not null and data_inclusao_atual is not null
+                when
+                    data_pagamento is not null
+                    and data_inclusao_atual is not null
+                    and indicador_nao_inclusao_atual is false
                 then coalesce(data_baixa_atual, current_date("America/Sao_Paulo"))
             end as data_baixa,
             case
