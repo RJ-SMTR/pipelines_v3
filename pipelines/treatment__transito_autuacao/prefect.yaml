@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__transito_autuacao/flow.py:treatment__transito_autuacao
     schedules:
-      - cron: "0 13 * * *"
+      - cron: "30 13 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
