@@ -56,6 +56,8 @@ with
             fonte
         from {{ aux_retorno_negativacao }}
         where {{ incremental_filter }}
+        qualify
+            row_number() over (partition by contrato order by datetime_retorno asc) = 1
     ),
 
     aux_autuacao_negativacao as (

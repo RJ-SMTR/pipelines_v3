@@ -22,7 +22,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
     get_previnity_credentials,
-    get_previnity_datetime_start,
+    get_previnity_date_range,
     prepare_previnity_payloads,
 )
 
@@ -47,13 +47,17 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         "Content-Type": "application/json",
     }
 
-    if datetime_start is None:
-        datetime_start = get_previnity_datetime_start(env=env)
+    ts = get_scheduled_timestamp(timestamp=timestamp)
+
+    datetime_start, datetime_end = get_previnity_date_range(
+        env=env,
+        ts=ts,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
 
     project_id = common_constants.PROJECT_NAME[env]
     data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
-
-    ts = get_scheduled_timestamp(timestamp=timestamp)
 
     contexts = create_capture_contexts(
         env=env,
@@ -69,8 +73,8 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
 
     payloads_with_metadata = prepare_previnity_payloads(
         data=data_list,
-        datetime_start=datetime_start.date(),
-        datetime_end=context.timestamp.date(),
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
     )
 
     if not payloads_with_metadata:
@@ -105,7 +109,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         env=env,
         selectors=[constants.NEGATIVACAO_SELECTOR],
         timestamp=ts,
-        datetime_start=datetime_start.isoformat(),
+        datetime_start=datetime_start,
         datetime_end=datetime_end,
         additional_vars=additional_vars,
         test_scheduled_time=None,

@@ -3,7 +3,7 @@
 Tasks para integração com a API da Previnity
 """
 
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional
 
 import pandas as pd
@@ -11,7 +11,6 @@ from prefect import task
 
 from pipelines.common.utils.pretreatment import normalize_text
 from pipelines.common.utils.secret import get_secret
-from pipelines.common.utils.utils import convert_timezone
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
@@ -32,7 +31,7 @@ def get_previnity_credentials() -> tuple[str, str]:
 
 @task
 def prepare_previnity_payloads(
-    data: list[dict], datetime_start: date, datetime_end: date
+    data: list[dict], datetime_start: str, datetime_end: str
 ) -> list[tuple[dict, dict]]:
     """
     Prepara os payloads para envio à API da Previnity, separando inclusão (controle=1)
@@ -40,13 +39,18 @@ def prepare_previnity_payloads(
 
     Args:
         data (list[dict]): Dados retornados da query.
-        datetime_start (date): Data de início do intervalo.
-        datetime_end (date): Data de fim do intervalo.
+        datetime_start (str): Data de início do intervalo.
+        datetime_end (str): Data de fim do intervalo.
 
     Returns:
         list[tuple[dict, dict]]: Lista de (payload, metadata).
     """
     payloads = []
+    qtd_negativacao = 0
+    qtd_baixa = 0
+
+    datetime_start = pd.to_datetime(datetime_start).date()
+    datetime_end = pd.to_datetime(datetime_end).date()
 
     for row in data:
         dt_inclusao = row.get("data_inclusao")
@@ -59,6 +63,11 @@ def prepare_previnity_payloads(
 
         if not is_inclusao_in_range and not is_baixa_in_range:
             continue
+
+        if is_baixa_in_range:
+            qtd_baixa += 1
+        else:
+            qtd_negativacao += 1
 
         body = {
             "controle": "2" if is_baixa_in_range else "1",
@@ -82,24 +91,44 @@ def prepare_previnity_payloads(
 
         payloads.append((body, metadata))
 
+    print(f"Total de autuações para negativação: {qtd_negativacao}")
+    print(f"Total de autuações para baixa: {qtd_baixa}")
+
     return payloads
 
 
 @task
-def get_previnity_datetime_start(env: str) -> datetime:
+def get_previnity_date_range(
+    env: str,
+    ts: datetime,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+) -> tuple[str, str]:
     """
-    Retorna o datetime de início para a materialização da negativacao.
+    Retorna o intervalo de datas para a materialização da negativacao.
     """
-    autuacao_last_materialization = TRANSITO_AUTUACAO_SELECTOR.get_last_materialized_datetime(
-        env=env
-    )
-    negativacao_last_materialization = (
-        constants.NEGATIVACAO_SELECTOR.get_last_materialized_datetime(env=env)
-    )
+    if datetime_start is None:
+        autuacao_last_materialization = TRANSITO_AUTUACAO_SELECTOR.get_last_materialized_datetime(
+            env=env
+        )
+        negativacao_last_materialization = (
+            constants.NEGATIVACAO_SELECTOR.get_last_materialized_datetime(env=env)
+        )
 
-    min_last_materialization = min(autuacao_last_materialization, negativacao_last_materialization)
+        min_last_materialization = min(
+            autuacao_last_materialization, negativacao_last_materialization
+        )
 
-    return max(
-        min_last_materialization,
-        constants.NEGATIVACAO_SELECTOR.initial_datetime,
-    )
+        datetime_start_obj = max(
+            min_last_materialization,
+            constants.NEGATIVACAO_SELECTOR.initial_datetime,
+        )
+        datetime_start = datetime_start_obj.isoformat()
+
+    if datetime_end is None:
+        datetime_end = ts.isoformat()
+
+    print(f"Start: {datetime_start}")
+    print(f"End: {datetime_end}")
+
+    return datetime_start, datetime_end
