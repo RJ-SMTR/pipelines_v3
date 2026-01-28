@@ -494,3 +494,10 @@ models:
       staging:
         +materialized: view
         +schema: cadastro_interno_staging
+    transito_interno:
+      +materialized: incremental
+      +incremental_strategy: insert_overwrite
+      +schema: transito_interno
+      staging:
+        +materialized: view
+        +schema: transito_interno_staging
