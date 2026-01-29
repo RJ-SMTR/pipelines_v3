@@ -12,6 +12,8 @@ members = [
     "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
     "treatment-cadastro",
+    "treatment-cliente-cpf",
+    "treatment-transito-autuacao",
 ]
 
 [[package]]
@@ -3208,6 +3210,16 @@ wheels = [
 name = "treatment-cadastro"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__cadastro" }
+
+[[package]]
+name = "treatment-cliente-cpf"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__cliente_cpf" }
+
+[[package]]
+name = "treatment-transito-autuacao"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__transito_autuacao" }
 
 [[package]]
 name = "typer"

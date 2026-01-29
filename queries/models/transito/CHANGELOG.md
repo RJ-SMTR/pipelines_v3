@@ -2,24 +2,24 @@
 
 ## [1.0.4] - 2025-04-14
 
-## Adicionado
+### Adicionado
 
 - Adicionada a view `autuacao_historico` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/547)
 
 ## [1.0.3] - 2025-04-09
 
-## Adicionado
+### Adicionado
 
 - Adicionada a view `autuacao_serpro` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/526)
 - Adicionada a tabela `aux_autuacao_id` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/526)
 
-## Alterado
+### Alterado
 
 - Alterado a tabela `autuacao` incluindo join da view `autuacao_serpro` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/526)
 
 ## [1.0.2] - 2024-09-06
 
-## Adicionado
+### Adicionado
 
 - Adicionada a tabela `receita_autuacao` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/194)
 

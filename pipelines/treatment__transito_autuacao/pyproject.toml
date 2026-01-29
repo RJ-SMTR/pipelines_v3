@@ -1,4 +1,4 @@
 [project]
 name = "treatment__transito_autuacao"
 version = "0.1.0"
-description = "Pipeline transito_autuacao da secretaria rj-smtr"
+description = "Pipeline de materialização de autuação de trânsito da secretaria rj-smtr"
