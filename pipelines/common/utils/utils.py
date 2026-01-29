@@ -175,7 +175,7 @@ async def async_post_request(
             "response": response.text,
             "payload": payload,
         }
-    except httpx.HTTPError as e:
+    except Exception as e:
         return {
             "success": False,
             "status_code": None,
