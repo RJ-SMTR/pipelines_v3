@@ -47,6 +47,10 @@ inputs:
     description: Maximum number of retries for failed deployments
     required: false
     default: "2"
+  deployment_timeout:
+    description: Deployment timeout in seconds
+    required: false
+    default: "1200"
   pipeline:
     description: Deploy only specific pipeline (manual runs only)
     required: false
@@ -95,5 +99,6 @@ runs:
         BATCH_SIZE: ${{ inputs.batch_size }}
         CLEANUP_DOCKER: ${{ inputs.cleanup_docker == 'true' && '1' || '0' }}
         MAX_RETRIES: ${{ inputs.max_retries }}
+        DEPLOYMENT_TIMEOUT: ${{ inputs.deployment_timeout }}
         PIPELINE: ${{ inputs.pipeline }}
       run: uv run .github/scripts/deploy_prefect_flows.py
