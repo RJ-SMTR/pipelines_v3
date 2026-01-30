@@ -2,31 +2,50 @@
 """Functions to pretreat data"""
 
 import re
+import unicodedata
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Optional
 
 import pandas as pd
 import pytz
-from unidecode import unidecode
 
 from pipelines.common import constants
 
 
-def normalize_text(text):
+def normalize_text(
+    text: str,
+    snake_case: bool = False,
+    case: Optional[str] = None,
+    remove_multiple_spaces: bool = True,
+) -> str:
     """
     Normaliza um texto removendo acentos e caracteres especiais.
 
     Args:
         text (str): Texto a ser normalizado.
+        snake_case (bool): Se deve substituir espaços por underscores.
+        case (str): "lower", "upper" ou None.
+        remove_multiple_spaces (bool): Se deve remover espaços múltiplos.
 
     Returns:
         str: Texto normalizado.
     """
-    text = unidecode(text)
-    text = re.sub(r"[^a-zA-Z0-9]+", "_", text)
-    text = re.sub(r"_+", "_", text)
-    text = text.strip("_")
-    text = text.lower()
+    if not text:
+        return ""
+
+    text = unicodedata.normalize("NFD", text)
+    text = re.sub(r"[^A-Za-z0-9 ]", "", text)
+
+    if remove_multiple_spaces:
+        text = re.sub(r"\s+", " ", text).strip()
+
+    if snake_case:
+        text = text.replace(" ", "_")
+
+    if case == "lower":
+        text = text.lower()
+    elif case == "upper":
+        text = text.upper()
 
     return text
 

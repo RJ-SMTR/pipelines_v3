@@ -7,6 +7,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any
 
+import httpx
 import pandas as pd
 import pendulum
 from croniter import croniter
@@ -139,3 +140,45 @@ def convert_timezone(timestamp: datetime) -> datetime:
         timestamp = timestamp.astimezone(tz=tz)
 
     return timestamp
+
+
+async def async_post_request(
+    client: httpx.AsyncClient,
+    url: str,
+    payload: dict,
+    headers: dict | None = None,
+    timeout: int = 60,
+) -> dict:
+    """
+    Executa uma requisição POST assíncrona.
+
+    Args:
+        client: Cliente HTTP assíncrono.
+        url: Endpoint da API.
+        payload: Dados para enviar.
+        headers: Headers HTTP.
+        timeout: Timeout em segundos.
+
+    Returns:
+        dict: Resultado com status e resposta.
+    """
+    try:
+        response = await client.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=timeout,
+        )
+        return {
+            "success": response.is_success,
+            "status_code": response.status_code,
+            "response": response.text,
+            "payload": payload,
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "status_code": None,
+            "response": str(e),
+            "payload": payload,
+        }

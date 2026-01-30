@@ -2,6 +2,7 @@
 """
 Valores constantes para pipeline capture__serpro_autuacao
 """
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
