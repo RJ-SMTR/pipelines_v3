@@ -1,9 +1,11 @@
 name: Build and push runner image
 
 on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Mondays at midnight
   push:
     branches: 
-      - main
+      - master
       - devops/*
     paths:
       - 'runner.Dockerfile'
