@@ -1,34 +1,34 @@
+# -*- coding: utf-8 -*-
 import io
 import json
 import os
 import traceback
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Union
+from typing import Dict, Union
 
-import basedosdados as bd
 import pandas as pd
 import pendulum
-import prefect
 import requests
-from basedosdados import Storage, Table
-from pandas_gbq.exceptions import GenericGBQException
-from prefect import task
-from utils import get_root_path, build_headers, map_dict_keys
-from pytz import timezone
-
+from basedosdados import Storage
 from constants import constants
+from prefect import task
+from pytz import timezone
 from utils import (
+    build_headers,
     create_or_append_table,
+    get_root_path,
+    map_dict_keys,
 )
+
 # from pipelines.utils.pretreatment import transform_to_nested_structure
 # from pipelines.utils.secret import get_secret
-#trigger cd
+# trigger cd
 
 
 def test():
     print("test")
-    return
+
 
 @task
 def pre_treatment_br_rj_riodejaneiro_brt_gps(status: dict, timestamp):
@@ -47,9 +47,9 @@ def pre_treatment_br_rj_riodejaneiro_brt_gps(status: dict, timestamp):
     if status["error"] is not None:
         print("Skipped due to previous error.")
         return {"data": pd.DataFrame(), "error": status["error"]}
-    
-    print(f"{len(status['data']['veiculos'])} vehicles received from API")   
-    print(status['data']['veiculos'][:10])
+
+    print(f"{len(status['data']['veiculos'])} vehicles received from API")
+    print(status["data"]["veiculos"][:10])
 
     error = None
     data = status["data"]["veiculos"]
@@ -96,6 +96,7 @@ def pre_treatment_br_rj_riodejaneiro_brt_gps(status: dict, timestamp):
         # log_critical(f"@here\nFailed to filter BRT data: \n{err}")
 
     return {"data": df, "error": error}
+
 
 @task
 def bq_upload(
@@ -165,6 +166,7 @@ def bq_upload(
 
     return error
 
+
 @task
 def create_date_hour_partition(
     timestamp: datetime,
@@ -186,6 +188,7 @@ def create_date_hour_partition(
     if not partition_date_only:
         partition += f"/hora={timestamp.strftime('%H')}"
     return partition
+
 
 @task
 def create_local_partition_path(
@@ -210,6 +213,7 @@ def create_local_partition_path(
     file_path += f"/{partitions}/{filename}.{{filetype}}"
     print(f"Creating file path: {file_path}")
     return file_path
+
 
 @task
 def get_current_timestamp(
@@ -238,6 +242,7 @@ def get_current_timestamp(
 
     return timestamp
 
+
 @task
 def get_now_time():
     """
@@ -245,7 +250,8 @@ def get_now_time():
     """
     now = pendulum.now(pendulum.timezone("America/Sao_Paulo"))
 
-    return f"{now.hour}:{f'0{now.minute}' if len(str(now.minute))==1 else now.minute}"
+    return f"{now.hour}:{f'0{now.minute}' if len(str(now.minute)) == 1 else now.minute}"
+
 
 @task
 def get_raw(  # pylint: disable=R0912
@@ -254,7 +260,7 @@ def get_raw(  # pylint: disable=R0912
     filetype: str = "json",
     csv_args: dict = None,
     params: dict = None,
-    headers_prefix: str = "brt_api_v2_"
+    headers_prefix: str = "brt_api_v2_",
 ) -> Dict:
     """
     Request data from URL API
@@ -273,7 +279,7 @@ def get_raw(  # pylint: disable=R0912
     """
     data = None
     error = None
-    print('Requesting data')
+    print("Requesting data")
     try:
         if headers is not None:
             headers = build_headers(headers_prefix=headers_prefix)
@@ -318,12 +324,14 @@ def get_raw(  # pylint: disable=R0912
 
     return {"data": data, "error": error}
 
+
 @task
 def parse_timestamp_to_string(timestamp: datetime, pattern="%Y-%m-%d-%H-%M-%S") -> str:
     """
     Parse timestamp to string pattern.
     """
     return timestamp.strftime(pattern)
+
 
 @task
 def save_raw_local(file_path: str, status: dict, mode: str = "raw") -> str:
@@ -344,6 +352,7 @@ def save_raw_local(file_path: str, status: dict, mode: str = "raw") -> str:
         json.dump(status["data"], Path(_file_path).open("w", encoding="utf-8"))
         print(f"Raw data saved to: {_file_path}")
     return _file_path
+
 
 @task
 def save_treated_local(file_path: str, status: dict, mode: str = "staging") -> str:
@@ -371,6 +380,7 @@ def save_treated_local(file_path: str, status: dict, mode: str = "staging") -> s
         print(f"Treated data saved to: {_file_path}")
 
     return _file_path
+
 
 @task
 def upload_logs_to_bq(  # pylint: disable=R0913
