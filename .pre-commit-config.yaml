@@ -31,7 +31,7 @@ repos:
 
   - repo: local
     hooks:
-      - id: run-check-model-has-description-all
+      - id: arun-check-model-has-description-all
         name: check-model-has-description (all files, verbose)
         entry: bash -lc 'pre-commit run check-model-has-description --all-files -v --hook-stage manual'
         language: system
