@@ -1,0 +1,3 @@
+version: 1
+dbt-project-dir: queries
+disable-tracking: true
