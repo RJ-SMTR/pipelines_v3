@@ -34,5 +34,6 @@ def get_transacao_erro_timestamps(source: SourceTable) -> list[str]:
         for b in st.bucket.list_blobs(prefix=prefix)
         if ".csv" in b.name and len(b.name.split("/")[-1]) == file_length
     ]
-
-    return [d.strftime("%Y-%m-%d %H:%M:%S") for d in full_range if d not in files].sort()[::-1][:24]
+    ts = [d.strftime("%Y-%m-%d %H:%M:%S") for d in full_range if d not in files]
+    ts.sort()
+    return ts[::-1][:24]
