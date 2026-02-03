@@ -29,22 +29,22 @@ jobs:
           python-version: '3.13'
           activate-environment: true
 
-      - name: Install project dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
-          uv sync --all-packages
+      # - name: Install project dependencies
+      #   shell: bash
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+      #     uv sync --all-packages
       
-      - name: Activate python venv
-        run: |
-          echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
+      # - name: Activate python venv
+      #   run: |
+      #     echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
 
 # echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV 
 
 
       - name: Install sqlfmt
-        run: pip install 'shandy-sqlfmt[jinjafmt]'
+        run: pip install 'shandy-sqlfmt[jinjafmt]' dbt-core dbt-bigquery
 
       # Setup gcloud CLI
       # - name: Authenticate to Google Cloud
