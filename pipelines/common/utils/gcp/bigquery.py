@@ -329,7 +329,16 @@ class SourceTable(BQTable):
 
         return [d for d in full_range if d not in files][: self.max_recaptures]
 
-    def upload_raw_file(self, raw_filepath: str, partition: str):
+    def upload_raw_file(self, raw_filepath: str, partition: str, if_exists: str = "replace"):
+        """
+        Faz upload dos dados raw para GCS
+
+        Args:
+            raw_filepath (str): Caminho dos dados locais
+            partition (str): Partição Hive
+            if_exists (str): Ação a ser tomada caso o arquivo exista
+                no storage (raise, pass, replace)
+        """
         st_obj = Storage(
             env=self.env,
             dataset_id=self.dataset_id,
@@ -341,6 +350,7 @@ class SourceTable(BQTable):
             mode="raw",
             filepath=raw_filepath,
             partition=partition,
+            if_exists=if_exists,
         )
 
     def create(self, sample_filepath: str, location: str = "US"):
@@ -366,13 +376,15 @@ class SourceTable(BQTable):
         client.create_table(bq_table)
         print("Table created!")
 
-    def append(self, source_filepath: str, partition: str):
+    def append(self, source_filepath: str, partition: str, if_exists: str = "replace"):
         """
         Insere novos dados na tabela externa
 
         Args:
             source_filepath (str): Caminho dos dados locais
             partition (str): Partição Hive
+            if_exists (str): Ação a ser tomada caso o arquivo exista
+                no storage (raise, pass, replace)
         """
         st_obj = Storage(
             env=self.env,
@@ -385,4 +397,5 @@ class SourceTable(BQTable):
             mode="source",
             filepath=source_filepath,
             partition=partition,
+            if_exists=if_exists,
         )

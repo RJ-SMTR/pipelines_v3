@@ -85,12 +85,29 @@ JAE_SECRET_PATH = "smtr_jae_access_data"
 JAE_PRIVATE_BUCKET_NAMES = {"prod": "rj-smtr-jae-private", "dev": "rj-smtr-dev-private"}
 ALERT_WEBHOOK = "alertas_bilhetagem"
 
+
+TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
 
+
 JAE_TABLE_CAPTURE_PARAMS = {
+    TRANSACAO_ERRO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    transacao_erro
+                WHERE
+                    dt_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND dt_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                ORDER BY dt_inclusao
+            """,
+        "database": "processador_transacao_db",
+        "capture_delay_minutes": {"0": 5},
+    },
     "linha": {
         "query": """
             SELECT
