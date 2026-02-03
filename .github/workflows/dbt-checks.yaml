@@ -39,7 +39,8 @@ jobs:
       - name: Activate python venv
         run: |
           echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
-          echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV 
+
+# echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV 
 
 
       - name: Install sqlfmt
