@@ -1,0 +1,65 @@
+name: DBT Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging/*
+      - actions/*
+    paths:
+      - "queries/**/*.sql"
+
+env:
+  DBT_USER: ${{ github.actor }}
+
+jobs:
+  check-files:
+    name: Compile DBT models and format SQL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install project dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          uv sync --all-packages
+
+      - name: Install sqlfmt
+        run: pip install 'shandy-sqlfmt[jinjafmt]'
+
+      # Setup gcloud CLI
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT_ID}}
+          export_default_credentials: true
+
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v34
+
+      - name: Setup DBT profile
+        working-directory: queries
+        run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+
+      - name: Run sqlfmt
+        continue-on-error: true
+        if: steps.files.outputs.all_changed_files != ''
+        run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
+
+      - name: Run DBT compile
+        working-directory: queries
+        run: |-
+          dbt compile --profiles-dir profiles
