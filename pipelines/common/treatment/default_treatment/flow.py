@@ -97,13 +97,15 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["wait_data_sources"] = wait_data_sources.map(
+    wait_data_sources_future = wait_data_sources.map(
         context=tasks["contexts"],
         skip=unmapped(skip_source_check),
         wait_for=unmapped(tasks_wait_for.get("wait_data_sources")),
     )
 
-    tasks["pre_tests"] = run_dbt_tests(
+    tasks["wait_data_sources"] = wait_data_sources_future.result()
+
+    pre_tests_future = run_dbt_tests(
         contexts=tasks["contexts"],
         mode="pre",
         wait_for=[
@@ -112,7 +114,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["pre_tests_notify_discord"] = dbt_test_notify_discord.map(
+    tasks["pre_tests"] = pre_tests_future.result()
+
+    pre_tests_notify_discord_future = dbt_test_notify_discord.map(
         context=tasks["contexts"],
         mode=unmapped("pre"),
         webhook_key=unmapped(test_webhook_key),
@@ -125,7 +129,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ),
     )
 
-    tasks["run_dbt"] = run_dbt_selectors(
+    tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
+
+    run_dbt_future = run_dbt_selectors(
         contexts=tasks["contexts"],
         flags=flags,
         wait_for=[
@@ -134,7 +140,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["post_tests"] = run_dbt_tests(
+    tasks["run_dbt"] = run_dbt_future.result()
+
+    post_tests_future = run_dbt_tests(
         contexts=tasks["contexts"],
         mode="post",
         wait_for=[
@@ -143,7 +151,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["post_tests_notify_discord"] = dbt_test_notify_discord.map(
+    tasks["post_tests"] = post_tests_future.result()
+
+    post_tests_notify_discord_future = dbt_test_notify_discord.map(
         context=tasks["contexts"],
         mode=unmapped("post"),
         webhook_key=unmapped(test_webhook_key),
@@ -156,7 +166,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ),
     )
 
-    tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+    tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
+
+    run_dbt_snapshots_future = run_dbt_snapshots(
         contexts=tasks["contexts"],
         flags=flags,
         wait_for=[
@@ -164,6 +176,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             *tasks_wait_for.get("run_dbt_snapshots", []),
         ],
     )
+
+    tasks["run_dbt_snapshots"] = run_dbt_snapshots_future.result()
 
     tasks["save_redis"] = save_materialization_datetime_redis.map(
         context=tasks["contexts"],
