@@ -93,7 +93,6 @@ def propagate_labels(manifest, client):
             return
 
         for dep in nodes[node].get("depends_on", {}).get("nodes", []):
-
             if dep not in tags_by_node:
                 continue
             before = tags_by_node[dep].copy()
