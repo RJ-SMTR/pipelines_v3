@@ -5,7 +5,7 @@ models:
     description: Tabela auxiliar com o retorno da negativação
     columns:
       - name: data
-        description: Data do lote de negativação [partição]
+        description: '{{ doc("data_lote") }} [partição]'
       - name: data_autuacao
         description: '{{ doc("data_autuacao") }}'
       - name: datetime_retorno
@@ -91,7 +91,7 @@ models:
       - name: data_venda
         description: '{{ doc("data_limite_recurso") }}'
       - name: valor
-        description: Valor monetário da autuação [100%] (R$)
+        description: '{{ doc("valor_infracao") }}'
       - name: valor_pago
         description: '{{ doc("valor_pago") }}'
       - name: datetime_ultima_atualizacao
@@ -105,7 +105,7 @@ models:
     description: Tabela com dados de controle de autuação para negativação
     columns:
       - name: data
-        description: '{{ doc("data_autuacao") }} [partição]'
+        description: '{{ doc("data_lote") }} [partição]'
       - name: data_autuacao
         description: '{{ doc("data_autuacao") }}'
       - name: id_auto_infracao
@@ -116,6 +116,64 @@ models:
         description: '{{ doc("datetime_ultima_atualizacao") }}'
       - name: versao
         description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: aux_autuacao_negativacao
+    description: Tabela auxiliar com os dados de autuação para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: indicador_nao_inclusao
+        description: '{{ doc("indicador_nao_inclusao") }}'
+      - name: motivo
+        description: '{{ doc("motivo_nao_inclusao") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnpj
+        description: '{{ doc("cnpj_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: contrato
+        description: '{{ doc("id_autuacao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datavencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: datavenda
+        description: '{{ doc("data_autuacao") }}'
+      - name: valor
+        description: '{{ doc("valor_infracao") }}'
+      - name: valor_pago
+        description: '{{ doc("valor_pago") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
       - name: id_execucao_dbt
         description: '{{ doc("id_execucao_dbt") }}'
 
@@ -303,4 +361,4 @@ models:
       - name: datavenda
         description: '{{ doc("data_autuacao") }}'
       - name: valor
-        description: Valor monetário da autuação [100%] (R$)
+        description: '{{ doc("valor_infracao") }}'

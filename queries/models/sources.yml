@@ -491,15 +491,13 @@ sources:
       - name: valor_km_tipo_viagem
 
   - name: source_previnity
-    database: rj-smtr-dev
-#   database: rj-smtr-staging
+    database: rj-smtr-staging
 
     tables:
       - name: retorno_negativacao
+
+  - name: source_crv
+    database: rj-smtr-staging
+
+    tables:
       - name: autuacao_controle_negativacao
-
-  # - name: source_crv
-  #   database: rj-smtr-staging
-
-  #   tables:
-  #     - name: autuacao_controle_negativacao

@@ -77,51 +77,48 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         datetime_end=datetime_end,
     )
 
-    if not payloads_with_metadata:
-        payloads = []
-        metadata_list = []
-    else:
+    if payloads_with_metadata:
         payloads, metadata_list = zip(*payloads_with_metadata, strict=True)
 
-    api_results = await async_api_post_request(
-        url=constants.API_URL_PF,
-        payloads=payloads,
-        headers=headers,
-        max_concurrent=constants.PREVINITY_RATE_LIMIT,
-    )
+        api_results = await async_api_post_request(
+            url=constants.API_URL_PF,
+            payloads=payloads,
+            headers=headers,
+            max_concurrent=constants.PREVINITY_RATE_LIMIT,
+        )
 
-    response = []
-    for result, metadata in zip(api_results, metadata_list, strict=True):
-        result.update(metadata)
-        response.append(result)
+        response = []
+        for result, metadata in zip(api_results, metadata_list, strict=True):
+            result.update(metadata)
+            response.append(result)
 
-    df_response = pd.DataFrame(response)
+        df_response = pd.DataFrame(response)
 
-    save_data_to_file(
-        data=df_response,
-        path=context.source_filepath,
-        filetype="csv",
-    )
+        save_data_to_file(
+            data=df_response,
+            path=context.source_filepath,
+            filetype="csv",
+        )
 
-    upload_source_future = upload_source_data_to_gcs(context=context)
+        upload_source_future = upload_source_data_to_gcs(context=context)
 
-    materialization_contexts = create_materialization_contexts(
-        env=env,
-        selectors=[constants.NEGATIVACAO_SELECTOR],
-        timestamp=ts,
-        datetime_start=datetime_start,
-        datetime_end=datetime_end,
-        additional_vars=additional_vars,
-        test_scheduled_time=None,
-        force_test_run=False,
-        wait_for=[upload_source_future],
-    )
+        materialization_contexts = create_materialization_contexts(
+            env=env,
+            selectors=[constants.NEGATIVACAO_SELECTOR],
+            timestamp=ts,
+            datetime_start=datetime_start,
+            datetime_end=datetime_end,
+            additional_vars=additional_vars,
+            test_scheduled_time=None,
+            force_test_run=False,
+            wait_for=[upload_source_future],
+        )
 
-    run_dbt_future = run_dbt_selectors(
-        contexts=materialization_contexts,
-        flags=flags,
-    )
+        run_dbt_future = run_dbt_selectors(
+            contexts=materialization_contexts,
+            flags=flags,
+        )
 
-    save_materialization_datetime_redis.map(
-        context=materialization_contexts, wait_for=[run_dbt_future]
-    )
+        save_materialization_datetime_redis.map(
+            context=materialization_contexts, wait_for=[run_dbt_future]
+        )

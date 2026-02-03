@@ -195,8 +195,7 @@ with
             replace(safe_cast(a.valor_infracao as string), '.', '') as valor,
             a.valor_pago,
             a.data_pagamento
-        {# from {{ ref("autuacao") }} as a #}
-        from `rj-smtr.transito.autuacao` as a
+        from {{ ref("autuacao") }} as a
         left join
             autuacoes_inclusao as ai
             on ai.id_auto_infracao = a.id_auto_infracao

@@ -24,7 +24,7 @@ API_URL_PJ = "https://api.previnity.com.br/pnn034"
 
 SECRET_PATH = "previnity_api"
 
-QUERY_PF = "SELECT * FROM `rj-smtr-dev.botelho__transito_interno.view_pessoa_fisica_negativacao`"
+QUERY_PF = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_fisica_negativacao`"
 
 QUERY_PJ = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_juridica_negativacao`"
 
@@ -32,7 +32,7 @@ PREVINITY_SOURCES = [
     SourceTable(
         source_name=PREVINITY_SOURCE_NAME,
         table_id="retorno_negativacao",
-        first_timestamp=datetime(2025, 1, 1, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
+        first_timestamp=datetime(2025, 12, 23, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
         partition_date_only=True,
         bucket_names=NEGATIVACAO_PRIVATE_BUCKET_NAMES,
     )
@@ -40,6 +40,6 @@ PREVINITY_SOURCES = [
 
 NEGATIVACAO_SELECTOR = DBTSelector(
     name="autuacao_negativacao",
-    initial_datetime=datetime(2025, 1, 1, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
+    initial_datetime=datetime(2025, 12, 23, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
     flow_folder_name="integration__previnity_negativacao",
 )

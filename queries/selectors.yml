@@ -354,6 +354,8 @@ selectors:
           value: aux_autuacao_id
         - method: fqn
           value: autuacao
+        - method: fqn
+          value: view_pessoa_fisica_negativacao
 
   - name: snapshot_transito
     definition:
