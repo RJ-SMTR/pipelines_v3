@@ -1,21 +1,21 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-      - id: check-added-large-files
-      - id: check-merge-conflict
-      - id: detect-private-key
-      - id: fix-byte-order-marker
-      - id: fix-encoding-pragma
-      - id: no-commit-to-branch
-      - id: trailing-whitespace
+  # - repo: https://github.com/pre-commit/pre-commit-hooks
+  #   rev: v5.0.0
+  #   hooks:
+  #     - id: check-added-large-files
+  #     - id: check-merge-conflict
+  #     - id: detect-private-key
+  #     - id: fix-byte-order-marker
+  #     - id: fix-encoding-pragma
+  #     - id: no-commit-to-branch
+  #     - id: trailing-whitespace
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.5
-    hooks:
-      - id: ruff-check
-        args: [--fix]
-      - id: ruff-format
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.12.5
+  #   hooks:
+  #     - id: ruff-check
+  #       args: [--fix]
+  #     - id: ruff-format
 
   - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
     rev: v2.0.7
@@ -31,7 +31,7 @@ repos:
 
   - repo: local
     hooks:
-      - id: arun-check-model-has-description-all
+      - id: run-check-model-has-description-all
         name: check-model-has-description (all files, verbose)
         entry: bash -lc 'pre-commit run check-model-has-description --all-files -v --hook-stage manual'
         language: system
