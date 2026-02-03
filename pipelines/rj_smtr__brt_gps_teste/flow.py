@@ -2,21 +2,17 @@
 import random
 
 import pandas as pd
-from prefect import flow, task
-from iplanrio.pipelines_utils.env import inject_bd_credentials_task
-
 from constants import constants
-from tasks import (
-    pre_treatment_br_rj_riodejaneiro_brt_gps,
-)
+from iplanrio.pipelines_utils.env import inject_bd_credentials_task
+from prefect import flow, task
 from tasks import (  # get_local_dbt_client,; setup_task,
     bq_upload,
     create_date_hour_partition,
     create_local_partition_path,
     get_current_timestamp,
-    get_now_time,
     get_raw,
     parse_timestamp_to_string,
+    pre_treatment_br_rj_riodejaneiro_brt_gps,
     # rename_current_flow_run_now_time,
     save_raw_local,
     save_treated_local,

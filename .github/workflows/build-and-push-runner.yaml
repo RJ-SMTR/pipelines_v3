@@ -2,7 +2,7 @@ name: Build and push runner image
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - devops/*
     paths:

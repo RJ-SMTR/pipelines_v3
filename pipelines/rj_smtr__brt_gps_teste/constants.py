@@ -14,7 +14,6 @@ class constants(Enum):  # pylint: disable=c0103
     MAX_TIMEOUT_SECONDS = 60
     TIMEZONE = "America/Sao_Paulo"
 
-
     GPS_BRT_RAW_DATASET_ID = "br_rj_riodejaneiro_brt_gps"
     GPS_BRT_RAW_TABLE_ID = "registros"
     GPS_BRT_DATASET_ID = "br_rj_riodejaneiro_veiculos"
