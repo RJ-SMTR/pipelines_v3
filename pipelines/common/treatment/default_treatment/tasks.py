@@ -161,7 +161,8 @@ def run_dbt_snapshots(
     contexts: list[DBTSelectorMaterializationContext], flags: Optional[list[str]]
 ):
     """
-    Executa os snapshots do dbt para cada contexto de materialização que possua um snapshot_selector.
+    Executa os snapshots do dbt para cada contexto de materialização que possua
+    um snapshot_selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.

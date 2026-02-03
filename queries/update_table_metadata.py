@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 import json
 import os
+from pathlib import Path
 
 import yaml
 from google.cloud import bigquery
+
+# Magic number constants
+MAX_TABLE_DESCRIPTION_LENGTH = 16384
+MAX_COLUMN_DESCRIPTION_LENGTH = 1024
 
 
 def extrair_descricoes_de_modelos(manifest):
     tabelas = []
 
-    for node_id, node in manifest.get("nodes", {}).items():
+    for _node_id, node in manifest.get("nodes", {}).items():
         if node.get("resource_type") == "model":
             schema = node.get("schema")
             table_name = node.get("alias") or node.get("name")
@@ -33,16 +38,16 @@ def extrair_descricoes_de_modelos(manifest):
     return tabelas
 
 
-def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, descricoes_colunas):
+def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, descricoes_colunas):  # noqa: PLR0913
     table_id = f"{projeto}.{schema}.{nome}"
     table_def = client.get_table(table_id)
     tabela = table_def.to_api_repr()
 
     if descricao_tabela and tabela["description"] != descricao_tabela:
-        if len(descricao_tabela) > 16384:
+        if len(descricao_tabela) > MAX_TABLE_DESCRIPTION_LENGTH:
             print(
-                f"A descrição da da tabela '{table_id}' tem mais de 16384 caracteres, \
-                    não é possível atualizar."
+                f"A descrição da da tabela '{table_id}' tem mais de "
+                f"{MAX_TABLE_DESCRIPTION_LENGTH} caracteres, não é possível atualizar."
             )
         else:
             print(f"Atualizando a descrição da tabela '{table_id}'")
@@ -54,10 +59,11 @@ def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, 
             if (
                 "description" in field and field["description"] != descricoes_colunas[field["name"]]
             ) or "description" not in field:
-                if len(descricoes_colunas[field["name"]]) > 1024:
+                if len(descricoes_colunas[field["name"]]) > MAX_COLUMN_DESCRIPTION_LENGTH:
                     print(
-                        f"A descrição da coluna '{field['name']}' da tabela '{table_id}' \
-                            tem mais de 1024 caracteres, não é possível atualizar."
+                        f"A descrição da coluna '{field['name']}' da tabela '{table_id}' "
+                        f"tem mais de {MAX_COLUMN_DESCRIPTION_LENGTH} caracteres, "
+                        f"não é possível atualizar."
                     )
                     continue
                 print(f"Atualizando a descrição da coluna '{field['name']}' da tabela '{table_id}'")
@@ -67,10 +73,10 @@ def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, 
     client.update_table(tabela, ["description", "schema"])
 
 
-def propagate_labels(manifest, client):
-    ALLOWED_RESOURCE_TYPES = {"model", "source"}
+def propagate_labels(manifest, client):  # noqa: PLR0912, PLR0915
+    allowed_resource_types = {"model", "source"}
 
-    with open("queries/tag_propagation_allowlist.yml", "r", encoding="utf-8") as f:
+    with Path("queries/tag_propagation_allowlist.yml").open("r", encoding="utf-8") as f:
         allowlist_yaml = yaml.safe_load(f)
 
     allowlist = set(allowlist_yaml.get("tags-allowlist", []))
@@ -80,7 +86,7 @@ def propagate_labels(manifest, client):
     tags_by_node = {}
     for dct in [nodes, sources]:
         for node, data in dct.items():
-            if data["resource_type"] not in ALLOWED_RESOURCE_TYPES:
+            if data["resource_type"] not in allowed_resource_types:
                 continue
             if "tags" in data:
                 filtered_tags = {t for t in data["tags"] if t in allowlist}
@@ -96,12 +102,12 @@ def propagate_labels(manifest, client):
             if dep not in tags_by_node:
                 continue
             before = tags_by_node[dep].copy()
-            tags_by_node[dep].update(set(t for t in inherited_tags if t in allowlist))
+            tags_by_node[dep].update({t for t in inherited_tags if t in allowlist})
 
             if tags_by_node[dep] != before:
                 dfs(dep, tags_by_node[dep])
 
-    for node in tags_by_node:
+    for node, _ in tags_by_node.items():
         dfs(node, tags_by_node[node])
 
     for node, tags in tags_by_node.items():
@@ -151,7 +157,7 @@ def propagate_labels(manifest, client):
 def main():
     credentials = json.loads(os.getenv("BQ_AUTH_SA"))
     client = bigquery.Client.from_service_account_info(credentials, project="rj-smtr")
-    with open("queries/target/manifest.json", "r") as f:
+    with Path("queries/target/manifest.json").open("r") as f:
         manifest = json.load(f)
     modelos = extrair_descricoes_de_modelos(manifest)
 

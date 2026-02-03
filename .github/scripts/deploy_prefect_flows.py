@@ -156,7 +156,10 @@ async def get_deployments(prefect_yaml: Path) -> list[str]:
 def get_prefect_yaml_files(
     package_dir: Iterable[Path], pipeline_filter: str | None = None
 ) -> list[Path]:
-    """Get all `prefect.yaml` files in the specified package directory, optionally filtered by pipeline name."""
+    """Get all `prefect.yaml` files in the specified package directory.
+
+    Optionally filtered by pipeline name.
+    """
     yaml_files = [
         d / "prefect.yaml" for d in package_dir if d.is_dir() and (d / "prefect.yaml").exists()
     ]
