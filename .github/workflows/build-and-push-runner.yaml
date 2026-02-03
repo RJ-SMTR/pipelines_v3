@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 0 * * 1'  # Weekly on Mondays at midnight
   push:
-    branches: 
+    branches:
       - master
       - devops/*
     paths:

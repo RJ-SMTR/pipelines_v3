@@ -1,10 +1,13 @@
-from basedosdados import Storage, Table
-from basedosdados.upload.datatypes import Datatype
+# -*- coding: utf-8 -*-
 from functools import partial
-from google.cloud import bigquery
+from os import environ
 from pathlib import Path
 from typing import Union
-from os import environ
+
+from basedosdados import Storage, Table
+from basedosdados.upload.datatypes import Datatype
+from google.cloud import bigquery
+
 
 def map_dict_keys(data: dict, mapping: dict) -> None:
     """
@@ -13,6 +16,7 @@ def map_dict_keys(data: dict, mapping: dict) -> None:
     for old_key, new_key in mapping.items():
         data[new_key] = data.pop(old_key)
     return data
+
 
 # def log_critical(message: str, secret_path: str = constants.CRITICAL_SECRET_PATH.value):
 #     """Logs message to critical discord channel specified
@@ -25,6 +29,7 @@ def map_dict_keys(data: dict, mapping: dict) -> None:
 #     """
 #     url = get_secret(secret_path)["url"]
 #     return send_discord_message(message=message, webhook_url=url)
+
 
 def create_bq_table_schema(
     data_sample_path: Union[str, Path],
@@ -52,6 +57,7 @@ def create_bq_table_schema(
     for col in columns:
         schema.append(bigquery.SchemaField(name=col, field_type="STRING", description=None))
     return schema
+
 
 def create_bq_external_table(table_obj: Table, path: str, bucket_name: str):
     """Creates an BigQuery External table based on sample data
@@ -158,6 +164,7 @@ def create_or_append_table(
         append_func()
         print("Appended to table on STAGING successfully.")
 
+
 def get_root_path() -> Path:
     """
     Returns the root path of the project.
@@ -167,13 +174,14 @@ def get_root_path() -> Path:
     # except ImportError as exc:
     #     raise ImportError("pipelines package not found") from exc
     # root_path = Path(pipelines.__file__).parent.parent
-    root_path = Path.cwd().as_posix().split('/')[0]
+    root_path = Path.cwd().as_posix().split("/")[0]
     print(f"Root path: {root_path}")
     # If the root path is site-packages, we're running in a Docker container. Thus, we
     # need to change the root path to /app
     if str(root_path).endswith("site-packages"):
         root_path = Path("/app")
     return root_path
+
 
 def build_headers(headers_prefix: str) -> dict:
     """
