@@ -44,8 +44,7 @@ jobs:
 
 
       - name: Install sqlfmt
-        run: pip install 'shandy-sqlfmt[jinjafmt]' dbt-core dbt-bigquery
-
+        run: pip install 'shandy-sqlfmt[jinjafmt]'
       # Setup gcloud CLI
       # - name: Authenticate to Google Cloud
       #   uses: google-github-actions/auth@v2
