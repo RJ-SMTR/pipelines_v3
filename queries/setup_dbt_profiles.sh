@@ -8,8 +8,6 @@ echo "Mounting files from env..."
 echo "$1" | base64 --decode > ./credentials-dev/dev.json
 echo "$1" | base64 --decode > ./credentials-prod/prod.json
 
-mkdir -p ./profiles
-
 echo """
 queries:
   target: prod

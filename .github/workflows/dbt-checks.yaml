@@ -1,9 +1,9 @@
 name: DBT Checks
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - master
       - staging/*
       - actions/*
     paths:
@@ -39,12 +39,13 @@ jobs:
         run: pip install 'shandy-sqlfmt[jinjafmt]'
 
       # Setup gcloud CLI
-      - name: Setup Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: ${{ secrets.GKE_PROJECT_ID}}
-          export_default_credentials: true
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GKE_SA_KEY }}
+      
+      # - name: Setup Google Cloud CLI
+      #   uses: google-github-actions/setup-gcloud@v3
 
       - name: Get changed files
         id: files
@@ -55,7 +56,7 @@ jobs:
         run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
 
       - name: Run sqlfmt
-        continue-on-error: true
+        # continue-on-error: true
         if: steps.files.outputs.all_changed_files != ''
         run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
 
