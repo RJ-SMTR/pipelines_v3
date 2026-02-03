@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+          activate-environment: true
 
       - name: Install project dependencies
         shell: bash
@@ -53,7 +54,8 @@ jobs:
 
       - name: Setup DBT profile
         working-directory: queries
-        run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+        run: |-
+          sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
 
       - name: Run sqlfmt
         # continue-on-error: true
