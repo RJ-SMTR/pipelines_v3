@@ -31,4 +31,4 @@ queries:
 
 cat profiles/profiles.yml
 
-dbt deps --profiles-dir profiles
+uv run dbt deps --profiles-dir profiles
