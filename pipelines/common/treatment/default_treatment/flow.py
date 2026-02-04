@@ -105,7 +105,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     tasks["wait_data_sources"] = wait_data_sources_future.result()
 
-    pre_tests_future = run_dbt_tests(
+    tasks["pre_tests"] = run_dbt_tests(
         contexts=tasks["contexts"],
         mode="pre",
         wait_for=[
@@ -113,8 +113,6 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             *tasks_wait_for.get("pre_tests", []),
         ],
     )
-
-    tasks["pre_tests"] = pre_tests_future.result()
 
     pre_tests_notify_discord_future = dbt_test_notify_discord.map(
         context=tasks["contexts"],
@@ -131,7 +129,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
 
-    run_dbt_future = run_dbt_selectors(
+    tasks["run_dbt"] = run_dbt_selectors(
         contexts=tasks["contexts"],
         flags=flags,
         wait_for=[
@@ -140,9 +138,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["run_dbt"] = run_dbt_future.result()
-
-    post_tests_future = run_dbt_tests(
+    tasks["post_tests"] = run_dbt_tests(
         contexts=tasks["contexts"],
         mode="post",
         wait_for=[
@@ -150,8 +146,6 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             *tasks_wait_for.get("post_tests", []),
         ],
     )
-
-    tasks["post_tests"] = post_tests_future.result()
 
     post_tests_notify_discord_future = dbt_test_notify_discord.map(
         context=tasks["contexts"],
@@ -168,7 +162,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
 
-    run_dbt_snapshots_future = run_dbt_snapshots(
+    tasks["run_dbt_snapshots"] = run_dbt_snapshots(
         contexts=tasks["contexts"],
         flags=flags,
         wait_for=[
@@ -176,8 +170,6 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             *tasks_wait_for.get("run_dbt_snapshots", []),
         ],
     )
-
-    tasks["run_dbt_snapshots"] = run_dbt_snapshots_future.result()
 
     tasks["save_redis"] = save_materialization_datetime_redis.map(
         context=tasks["contexts"],
