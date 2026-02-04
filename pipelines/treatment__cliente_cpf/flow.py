@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+DBT: 2026-02-04
+"""
+
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (

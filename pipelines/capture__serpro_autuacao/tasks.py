@@ -33,8 +33,7 @@ def _setup_serpro_certificate() -> str:
     response = requests.get(crt_url, timeout=30)
     response.raise_for_status()
 
-    with open(crt_local_path, "wb") as f:
-        f.write(response.content)
+    Path(crt_local_path).write_bytes(response.content)
 
     print(f"Certificado baixado em {crt_local_path}")
     return crt_local_path

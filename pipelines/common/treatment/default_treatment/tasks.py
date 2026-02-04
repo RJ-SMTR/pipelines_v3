@@ -155,13 +155,16 @@ def run_dbt_selectors(
     for context in contexts:
         run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags)
 
+    return contexts
+
 
 @task
 def run_dbt_snapshots(
     contexts: list[DBTSelectorMaterializationContext], flags: Optional[list[str]]
 ):
     """
-    Executa os snapshots do dbt para cada contexto de materialização que possua um snapshot_selector.
+    Executa os snapshots do dbt para cada contexto de materialização que possua
+    um snapshot_selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
@@ -176,6 +179,8 @@ def run_dbt_snapshots(
             flags=flags,
             is_snapshot=True,
         )
+
+    return contexts
 
 
 @task
@@ -205,6 +210,8 @@ def run_dbt_tests(
             log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, raise_on_failure=False)
 
         context[f"{mode}_test_log"] = log
+
+    return contexts
 
 
 @task
