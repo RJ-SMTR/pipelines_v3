@@ -46,7 +46,7 @@ def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, 
     if descricao_tabela and tabela["description"] != descricao_tabela:
         if len(descricao_tabela) > MAX_TABLE_DESCRIPTION_LENGTH:
             print(
-                f"A descrição da da tabela '{table_id}' tem mais de "
+                f"A descrição da tabela '{table_id}' tem mais de "
                 f"{MAX_TABLE_DESCRIPTION_LENGTH} caracteres, não é possível atualizar."
             )
         else:
