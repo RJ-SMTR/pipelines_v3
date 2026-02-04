@@ -8,7 +8,6 @@ members = [
     "capture-serpro-autuacao",
     "common",
     "pipelines-v3",
-    "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
     "treatment-cadastro",
     "treatment-cliente-cpf",
@@ -2801,17 +2800,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/fe/75/af448d8e52bf1d8fa
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl", hash = "sha256:536f5f1785986d6dbdea3c75205c473f970777b4a0d6c6dd1b696aa05a3fa04f", size = 243368, upload-time = "2025-07-25T07:32:56.73Z" },
 ]
-
-[[package]]
-name = "rj-smtr-brt-gps-teste"
-version = "0.1.0"
-source = { virtual = "pipelines/rj_smtr__brt_gps_teste" }
-dependencies = [
-    { name = "pendulum" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pendulum", specifier = ">=3.1.0" }]
 
 [[package]]
 name = "rpds-py"
