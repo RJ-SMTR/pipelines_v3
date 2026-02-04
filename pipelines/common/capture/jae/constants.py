@@ -85,12 +85,26 @@ JAE_SECRET_PATH = "smtr_jae_access_data"
 JAE_PRIVATE_BUCKET_NAMES = {"prod": "rj-smtr-jae-private", "dev": "rj-smtr-dev-private"}
 ALERT_WEBHOOK = "alertas_bilhetagem"
 
+GPS_VALIDADOR_TABLE_ID = "gps_validador"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
 
 JAE_TABLE_CAPTURE_PARAMS = {
+    GPS_VALIDADOR_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    tracking_detalhe
+                WHERE
+                    data_tracking >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_tracking < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "tracking_db",
+        "capture_delay_minutes": {"0": 0, "2025-03-26 15:31:00": 10},
+    },
     "linha": {
         "query": """
             SELECT
