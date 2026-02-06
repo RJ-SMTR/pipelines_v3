@@ -1,5 +1,5 @@
 name: integration__previnity_negativacao
-prefect-version: 3.4.3
+prefect-version: 3.4.8
 
 build:
   - prefect.deployments.steps.run_shell_script:
