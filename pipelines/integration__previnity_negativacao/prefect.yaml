@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/integration__previnity_negativacao/flow.py:integration__previnity_negativacao
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "0 14 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
