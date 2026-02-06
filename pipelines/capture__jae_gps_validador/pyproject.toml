@@ -1,0 +1,4 @@
+[project]
+name = "capture__jae_gps_validador"
+version = "0.1.0"
+description = "Pipeline jae_gps_validador da secretaria rj-smtr"

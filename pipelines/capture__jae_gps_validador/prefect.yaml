@@ -1,4 +1,4 @@
-name: rj_smtr__brt_gps_teste
+name: capture__jae_gps_validador
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "rj_smtr__brt_gps_teste-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/rj_smtr__brt_gps_teste/Dockerfile
+      tag: "capture__jae_gps_validador-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/capture__jae_gps_validador/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,27 +24,32 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-smtr--brt_gps_teste--staging
+  - name: rj-capture--jae_gps_validador--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    entrypoint: pipelines/capture__jae_gps_validador/flow.py:capture__jae_gps_validador
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        command: uv run --package capture__jae_gps_validador -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-smtr--brt_gps_teste--prod
+  - name: rj-capture--jae_gps_validador--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    entrypoint: pipelines/capture__jae_gps_validador/flow.py:capture__jae_gps_validador
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "* * * * *"
+        timezone: "America/Sao_Paulo"
+      - cron: "0 * * * *"
+        timezone: "America/Sao_Paulo"
+        parameters:
+          recapture: true
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        command: uv run --package capture__jae_gps_validador -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
