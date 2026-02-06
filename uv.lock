@@ -5,6 +5,7 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "capture-jae-auxiliar",
+    "capture-jae-gps-validador",
     "capture-serpro-autuacao",
     "common",
     "integration-previnity-negativacao",
@@ -305,6 +306,11 @@ wheels = [
 name = "capture-jae-auxiliar"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_auxiliar" }
+
+[[package]]
+name = "capture-jae-gps-validador"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_gps_validador" }
 
 [[package]]
 name = "capture-serpro-autuacao"
