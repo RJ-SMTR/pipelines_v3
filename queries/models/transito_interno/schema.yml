@@ -44,7 +44,7 @@ models:
     columns:
       - name: data
         description: '{{ doc("data_autuacao") }} [partição]'
-      - name: id_autuacao
+      - name: contrato
         description: '{{ doc("id_autuacao") }} [protegido]'
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'

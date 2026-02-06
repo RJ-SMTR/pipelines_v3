@@ -119,7 +119,7 @@ models:
       - name: documento_proprietario
         description: "Documento do proprietário do veículo"
       - name: cnh_proprietario
-        description: "Número da CNH do proprietrio do veículo"
+        description: "Número da CNH do proprietário do veículo"
       - name: uf_cnh_proprietario
         description: "Sigla do estado da CNH do proprietário"
       - name: uf_proprietario
