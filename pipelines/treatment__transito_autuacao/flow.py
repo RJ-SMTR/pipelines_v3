@@ -2,7 +2,7 @@
 """
 Materialização das tabelas de autuação de trânsito
 
-DBT: 2026-02-04
+DBT: 2026-02-06
 """
 
 from prefect import flow

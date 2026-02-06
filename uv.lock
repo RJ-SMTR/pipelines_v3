@@ -5,8 +5,10 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "capture-jae-auxiliar",
+    "capture-jae-gps-validador",
     "capture-serpro-autuacao",
     "common",
+    "integration-previnity-negativacao",
     "pipelines-v3",
     "test-runner-deployment",
     "treatment-cadastro",
@@ -304,6 +306,11 @@ wheels = [
 name = "capture-jae-auxiliar"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_auxiliar" }
+
+[[package]]
+name = "capture-jae-gps-validador"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_gps_validador" }
 
 [[package]]
 name = "capture-serpro-autuacao"
@@ -1437,6 +1444,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/0c/65/e2636b2503f34f472848f0761689679b73a5769c7f3fdf9f0ad92a45c9f1/infisicalsdk-1.0.12.tar.gz", hash = "sha256:d376e3a649ff4733d1586488d58bf9305c2a60e9360a7d6c315a4639799aedd4", size = 13608, upload-time = "2025-10-31T12:26:08.129Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/d0/fb401cb69cc6d20405c94c7f754ba44a5d1ec5dfb97abc8a8b304b90d9b3/infisicalsdk-1.0.12-py3-none-any.whl", hash = "sha256:348af8f665fd81beac643db5a81f858eaf473e5809bdb7dfdcca923fe3ab49ea", size = 16720, upload-time = "2025-10-31T12:26:07.051Z" },
+]
+
+[[package]]
+name = "integration-previnity-negativacao"
+version = "0.1.0"
+source = { virtual = "pipelines/integration__previnity_negativacao" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pandas-gbq" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pandas-gbq", specifier = ">=0.19.0" },
 ]
 
 [[package]]

@@ -1,0 +1,364 @@
+version: 2
+
+models:
+  - name: aux_retorno_negativacao
+    description: Tabela auxiliar com o retorno da negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_lote") }} [partição]'
+      - name: data_autuacao
+        description: '{{ doc("data_autuacao") }}'
+      - name: datetime_retorno
+        description: Data e hora do retorno da API
+      - name: nome_produto
+        description: Nome do produto
+      - name: referencia_produto
+        description: Referência do produto
+      - name: protocolo
+        description: Protocolo do retorno
+      - name: contrato
+        description: '{{ doc("id_autuacao") }}'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnpj
+        description: '{{ doc("cnpj_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: resultado
+        description: Resultado do processamento
+      - name: fonte
+        description: '{{ doc("fonte") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: autuacao_negativacao
+    description: Tabela com os dados de autuação para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: contrato
+        description: '{{ doc("id_autuacao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: data_confirmacao_inclusao
+        description: '{{ doc("data_confirmacao_inclusao") }}'
+      - name: data_confirmacao_baixa
+        description: '{{ doc("data_confirmacao_baixa") }}'
+      - name: indicador_nao_inclusao
+        description: '{{ doc("indicador_nao_inclusao") }}'
+      - name: motivo
+        description: '{{ doc("motivo_nao_inclusao") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnpj
+        description: '{{ doc("cnpj_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: data_vencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: data_venda
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: valor
+        description: '{{ doc("valor_infracao") }}'
+      - name: valor_pago
+        description: '{{ doc("valor_pago") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: autuacao_controle_negativacao
+    description: Tabela com dados de controle de autuação para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_lote") }} [partição]'
+      - name: data_autuacao
+        description: '{{ doc("data_autuacao") }}'
+      - name: id_auto_infracao
+        description: '{{ doc("id_auto_infracao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: aux_autuacao_negativacao
+    description: Tabela auxiliar com os dados de autuação para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: indicador_nao_inclusao
+        description: '{{ doc("indicador_nao_inclusao") }}'
+      - name: motivo
+        description: '{{ doc("motivo_nao_inclusao") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnpj
+        description: '{{ doc("cnpj_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: contrato
+        description: '{{ doc("id_autuacao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datavencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: datavenda
+        description: '{{ doc("data_autuacao") }}'
+      - name: valor
+        description: '{{ doc("valor_infracao") }}'
+      - name: valor_pago
+        description: '{{ doc("valor_pago") }}'
+      - name: versao
+        description: '{{ doc("versao") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: id_execucao_dbt
+        description: '{{ doc("id_execucao_dbt") }}'
+
+  - name: view_autuacao_historico
+    description: View com histórico de alterações de autuações
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: id_autuacao
+        description: '{{ doc("id_autuacao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: id_auto_infracao
+        description: '{{ doc("id_auto_infracao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datetime_autuacao
+        description: Data e hora da autuação
+      - name: data_limite_defesa_previa
+        description: '{{ doc("data_limite_defesa_previa") }}'
+      - name: data_limite_recurso
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: descricao_situacao_autuacao
+        description: '{{ doc("descricao_situacao_autuacao") }}'
+      - name: status_infracao
+        description: '{{ doc("status_infracao") }}'
+      - name: codigo_enquadramento
+        description: '{{ doc("codigo_enquadramento") }}'
+      - name: tipificacao_resumida
+        description: '{{ doc("tipificacao_resumida") }}'
+      - name: pontuacao
+        description: '{{ doc("pontuacao") }}'
+      - name: gravidade
+        description: Descrição da gravidade da autuação
+      - name: amparo_legal
+        description: Amparo legal da autuação
+      - name: tipo_veiculo
+        description: '{{ doc("tipo_veiculo") }}'
+      - name: descricao_veiculo
+        description: '{{ doc("descricao_veiculo") }}'
+      - name: placa_veiculo
+        description: '{{ doc("placa") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: ano_fabricacao_veiculo
+        description: '{{ doc("ano_fabricacao") }}'
+      - name: ano_modelo_veiculo
+        description: Ano do modelo do veículo
+      - name: cor_veiculo
+        description: Cor do veículo
+      - name: especie_veiculo
+        description: '{{ doc("especie_veiculo") }}'
+      - name: uf_infrator
+        description: Estado do condutor infrator [em caso de indicação de real condutor infrator]
+      - name: uf_principal_condutor
+        description: Estado do condutor principal do veículo
+      - name: nome_proprietario
+        description: Nome do proprietário [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_proprietario
+        description: Documento do proprietário do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_proprietario
+        description: Número da CNH do proprietário do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: uf_proprietario
+        description: '{{ doc("uf_proprietario") }}'
+      - name: cep_proprietario
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: nome_possuidor_veiculo
+        description: Nome do possuidor do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_possuidor_veiculo
+        description: Documento do possuidor do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_possuidor_veiculo
+        description: CNH do possuidor do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco_possuidor_veiculo
+        description: Endereço do possuidor do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro_possuidor_veiculo
+        description: Bairro do possuidor do veículo
+      - name: municipio_possuidor_veiculo
+        description: Município do possuidor do veículo
+      - name: cep_possuidor_veiculo
+        description: CEP do possuidor do veículo [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: uf_possuidor_veiculo
+        description: UF do possuidor do veículo
+      - name: valor_infracao
+        description: '{{ doc("valor_infracao") }}'
+      - name: valor_pago
+        description: '{{ doc("valor_pago") }}'
+      - name: data_pagamento
+        description: '{{ doc("data_pagamento") }}'
+      - name: id_autuador
+        description: Código do órgão autuador
+      - name: descricao_autuador
+        description: '{{ doc("descricao_autuador") }}'
+      - name: id_municipio_autuacao
+        description: Código TOM do município da autuação
+      - name: descricao_municipio
+        description: Nome do município da autuação
+      - name: uf_autuacao
+        description: Sigla do estado da autuação
+      - name: endereco_autuacao
+        description: Endereço da autuação [protegido]
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: tile_autuacao
+        description: Hexágono da autuação
+      - name: processo_defesa_autuacao
+        description: '{{ doc("processo_defesa_autuacao") }}'
+      - name: recurso_penalidade_multa
+        description: '{{ doc("recurso_penalidade_multa") }}'
+      - name: processo_troca_real_infrator
+        description: Número do processo de troca de real condutor infrator
+      - name: status_sne
+        description: Indicador de adesão do veículo ao Sistema de Notificação Eletrônica - SNE
+      - name: fonte
+        description: '{{ doc("fonte") }}'
+      - name: datetime_ultima_atualizacao
+        description: '{{ doc("datetime_ultima_atualizacao") }}'
+      - name: id_alteracao
+        description: '{{ doc("id_alteracao") }}'
+      - name: datetime_ultima_alteracao
+        description: '{{ doc("datetime_ultima_alteracao") }}'
+      - name: datetime_inicio_vigencia
+        description: '{{ doc("datetime_inicio_vigencia") }}'
+      - name: datetime_fim_vigencia
+        description: '{{ doc("datetime_fim_vigencia") }}'
+
+  - name: view_pessoa_fisica_negativacao
+    description: View de pessoa física para negativação
+    columns:
+      - name: data
+        description: '{{ doc("data_autuacao") }} [partição]'
+      - name: id_auto_infracao
+        description: '{{ doc("id_auto_infracao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: data_inclusao
+        description: '{{ doc("data_inclusao") }}'
+      - name: data_baixa
+        description: '{{ doc("data_baixa") }}'
+      - name: nome
+        description: '{{ doc("nome_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cpf
+        description: '{{ doc("cpf_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco
+        description: '{{ doc("endereco_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro
+        description: '{{ doc("bairro_proprietario") }}'
+      - name: cidade
+        description: '{{ doc("cidade_proprietario") }}'
+      - name: cep
+        description: '{{ doc("cep_proprietario") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: estado
+        description: '{{ doc("estado_proprietario") }}'
+      - name: contrato
+        description: '{{ doc("id_autuacao") }} [protegido]'
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datavencimento
+        description: '{{ doc("data_limite_recurso") }}'
+      - name: datavenda
+        description: '{{ doc("data_autuacao") }}'
+      - name: valor
+        description: '{{ doc("valor_infracao") }}'
