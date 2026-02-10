@@ -1528,3 +1528,83 @@ Tipo de transporte [Ônibus, Van, BRT]
 {% docs nome_operadora %}
 Nome do operador de transporte
 {% enddocs %}
+
+{% docs data_lote %}
+Data do lote de negativação
+{% enddocs %}
+
+{% docs data_inclusao %}
+Data de inclusão da negativação
+{% enddocs %}
+
+{% docs data_baixa %}
+Data de baixa da negativação
+{% enddocs %}
+
+{% docs data_confirmacao_inclusao %}
+Data de confirmação da inclusão
+{% enddocs %}
+
+{% docs data_confirmacao_baixa %}
+Data de confirmação da baixa
+{% enddocs %}
+
+{% docs indicador_nao_inclusao %}
+Indicador de não inclusão
+{% enddocs %}
+
+{% docs motivo_nao_inclusao %}
+Motivo da não inclusão
+{% enddocs %}
+
+{% docs nome_proprietario %}
+Nome do proprietário do veículo
+{% enddocs %}
+
+{% docs cpf_proprietario %}
+CPF do proprietário do veículo
+{% enddocs %}
+
+{% docs cnpj_proprietario %}
+CNPJ do proprietário do veículo
+{% enddocs %}
+
+{% docs endereco_proprietario %}
+Endereço do proprietário do veículo
+{% enddocs %}
+
+{% docs bairro_proprietario %}
+Bairro do proprietário do veículo
+{% enddocs %}
+
+{% docs cidade_proprietario %}
+Cidade do proprietário do veículo
+{% enddocs %}
+
+{% docs estado_proprietario %}
+Estado do proprietário do veículo
+{% enddocs %}
+
+{% docs fonte %}
+Origem dos dados
+{% enddocs %}
+
+{% docs id_autuacao %}
+Identificador único da autuação
+{% enddocs %}
+
+{% docs id_alteracao %}
+Identificador único da alteração no histórico
+{% enddocs %}
+
+{% docs datetime_ultima_alteracao %}
+Data e hora da última alteração do registro
+{% enddocs %}
+
+{% docs datetime_inicio_vigencia %}
+Data e hora de início da vigência do registro
+{% enddocs %}
+
+{% docs datetime_fim_vigencia %}
+Data e hora de fim da vigência do registro
+{% enddocs %}
