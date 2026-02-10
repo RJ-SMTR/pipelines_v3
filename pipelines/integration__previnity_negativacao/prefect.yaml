@@ -1,4 +1,4 @@
-name: rj_smtr__brt_gps_teste
+name: integration__previnity_negativacao
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "rj_smtr__brt_gps_teste-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/rj_smtr__brt_gps_teste/Dockerfile
+      tag: "integration__previnity_negativacao-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/integration__previnity_negativacao/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,27 +24,28 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-smtr--brt_gps_teste--staging
+  - name: rj-integration--previnity_negativacao--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    entrypoint: pipelines/integration__previnity_negativacao/flow.py:integration__previnity_negativacao
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        command: uv run --package integration__previnity_negativacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-smtr--brt_gps_teste--prod
+  - name: rj-integration--previnity_negativacao--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/rj_smtr__brt_gps_teste/flow.py:rj_smtr__gps_brt
+    entrypoint: pipelines/integration__previnity_negativacao/flow.py:integration__previnity_negativacao
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "0 14 * * *"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package rj_smtr__brt_gps_teste -- prefect flow-run execute
+        command: uv run --package integration__previnity_negativacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always

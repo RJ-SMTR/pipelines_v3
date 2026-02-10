@@ -5,10 +5,11 @@ requires-python = ">=3.13"
 [manifest]
 members = [
     "capture-jae-auxiliar",
+    "capture-jae-gps-validador",
     "capture-serpro-autuacao",
     "common",
+    "integration-previnity-negativacao",
     "pipelines-v3",
-    "rj-smtr-brt-gps-teste",
     "test-runner-deployment",
     "treatment-cadastro",
     "treatment-cliente-cpf",
@@ -305,6 +306,11 @@ wheels = [
 name = "capture-jae-auxiliar"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_auxiliar" }
+
+[[package]]
+name = "capture-jae-gps-validador"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_gps_validador" }
 
 [[package]]
 name = "capture-serpro-autuacao"
@@ -1438,6 +1444,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/0c/65/e2636b2503f34f472848f0761689679b73a5769c7f3fdf9f0ad92a45c9f1/infisicalsdk-1.0.12.tar.gz", hash = "sha256:d376e3a649ff4733d1586488d58bf9305c2a60e9360a7d6c315a4639799aedd4", size = 13608, upload-time = "2025-10-31T12:26:08.129Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/d0/fb401cb69cc6d20405c94c7f754ba44a5d1ec5dfb97abc8a8b304b90d9b3/infisicalsdk-1.0.12-py3-none-any.whl", hash = "sha256:348af8f665fd81beac643db5a81f858eaf473e5809bdb7dfdcca923fe3ab49ea", size = 16720, upload-time = "2025-10-31T12:26:07.051Z" },
+]
+
+[[package]]
+name = "integration-previnity-negativacao"
+version = "0.1.0"
+source = { virtual = "pipelines/integration__previnity_negativacao" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pandas-gbq" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27.0" },
+    { name = "pandas-gbq", specifier = ">=0.19.0" },
 ]
 
 [[package]]
@@ -2801,17 +2822,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/fe/75/af448d8e52bf1d8fa
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl", hash = "sha256:536f5f1785986d6dbdea3c75205c473f970777b4a0d6c6dd1b696aa05a3fa04f", size = 243368, upload-time = "2025-07-25T07:32:56.73Z" },
 ]
-
-[[package]]
-name = "rj-smtr-brt-gps-teste"
-version = "0.1.0"
-source = { virtual = "pipelines/rj_smtr__brt_gps_teste" }
-dependencies = [
-    { name = "pendulum" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pendulum", specifier = ">=3.1.0" }]
 
 [[package]]
 name = "rpds-py"
