@@ -12,6 +12,8 @@ COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/capture__jae_gps_validador ./pipelines/capture__jae_gps_validador/
 
+COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages
