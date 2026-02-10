@@ -8,6 +8,7 @@ on:
       - actions/*
     paths:
       - "queries/**/*.sql"
+      - "queries/**/*.yml"
       - .github/workflows/dbt-checks.yaml
 
 env:
