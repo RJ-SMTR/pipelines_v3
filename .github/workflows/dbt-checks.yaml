@@ -64,7 +64,7 @@ jobs:
         working-directory: queries
         run: |-
           sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
-      
+
       - name: Run dbt deps
         working-directory: queries
         run: |-
