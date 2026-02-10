@@ -33,8 +33,6 @@ jobs:
 
       - name: Check for model descriptions
         run: source .venv/bin/activate && pre-commit run check-model-has-description --all-files -v --hook-stage manual
-        continue-on-error: true
 
       - name: Check for model descriptions
         run: source .venv/bin/activate && pre-commit run check-model-columns-have-desc --all-files -v --hook-stage manual
-        continue-on-error: true
