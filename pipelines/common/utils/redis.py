@@ -3,6 +3,8 @@ from typing import Optional
 
 from redis_pal import RedisPal
 
+from pipelines.common.utils.utils import is_running_locally
+
 
 def get_redis_client(
     host: str = "redis.redis.svc.cluster.local",
@@ -13,6 +15,8 @@ def get_redis_client(
     """
     Returns a Redis client.
     """
+    if is_running_locally():
+        host = "localhost"
     return RedisPal(
         host=host,
         port=port,
