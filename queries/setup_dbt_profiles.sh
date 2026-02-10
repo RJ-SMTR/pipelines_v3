@@ -30,5 +30,3 @@ queries:
       keyfile: $PWD/credentials-prod/prod.json""" > profiles/profiles.yml
 
 cat profiles/profiles.yml
-
-uv run dbt deps --profiles-dir profiles
