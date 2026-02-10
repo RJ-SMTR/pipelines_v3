@@ -90,7 +90,6 @@ def get_raw_db(  # noqa: PLR0913
         user=user,
         password=password,
         database=database,
-        raw_filepath=raw_filepath,
         max_retries=max_retries,
     )
 
