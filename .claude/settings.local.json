@@ -21,5 +21,8 @@
       "Bash(ls:*)"
     ]
   },
-  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden."
+  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",
+  "enabledPlugins": {
+    "dbt@dbt-agent-marketplace": true
+  }
 }
