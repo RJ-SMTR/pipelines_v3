@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__gps_validador/flow.py:treatment__gps_validador
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "15 * * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
