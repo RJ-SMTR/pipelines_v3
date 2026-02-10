@@ -35,8 +35,7 @@ deployments:
         command: uv run --package treatment__gps_validador -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-    concurrency_limit:
-      limit: 1
+    concurrency_limit: 1
 
   - name: rj-treatment--gps_validador--prod
     version: "{{ get-commit-hash.stdout }}"
@@ -52,5 +51,4 @@ deployments:
         command: uv run --package treatment__gps_validador -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-    concurrency_limit:
-      limit: 1
+    concurrency_limit: 1
