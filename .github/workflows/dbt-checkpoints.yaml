@@ -1,0 +1,40 @@
+name: DBT Checkpoints
+
+on:
+  push:
+    branches:
+      - master
+      - staging/*
+      - actions/*
+      - devops/*
+
+jobs:
+  check-files:
+    name: Parse and run dbt-checkpoints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Create venv
+        run: uv venv
+
+      - name: Install pre-commit only
+        run: uv pip install dbt-core==1.10.11 dbt-bigquery==1.10.1 pre-commit
+
+      - name: Install dbt dependencies and generate manifest
+        run: source .venv/bin/activate && cd queries && dbt deps && dbt parse
+
+      - name: Check for model descriptions
+        run: source .venv/bin/activate && pre-commit run check-model-has-description --all-files -v --hook-stage manual
+        continue-on-error: true
+
+      - name: Check for model descriptions
+        run: source .venv/bin/activate && pre-commit run check-model-columns-have-desc --all-files -v --hook-stage manual
+        continue-on-error: true
