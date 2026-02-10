@@ -8,7 +8,7 @@
 Runtime Error
   No dbt_project.yml found at expected path /home/caio/projects/pipelines_v3/dbt_project.yml
   Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
-  
+
 [0m11:00:03.821472 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": false, "command_wall_clock_time": 0.07933554, "process_in_blocks": "568", "process_kernel_time": 0.119938, "process_mem_max_rss": "95532", "process_out_blocks": "8", "process_user_time": 1.323316}
 [0m11:00:03.821863 [debug] [MainThread]: Command `dbt deps` failed at 11:00:03.821780 after 0.08 seconds
 [0m11:00:03.822187 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fb3c76a96e0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fb3c76fc4d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7fb3c77087c0>]}
