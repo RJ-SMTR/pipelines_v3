@@ -34,6 +34,7 @@ def create_materialization_contexts(  # noqa: PLR0913
     additional_vars: Optional[dict],
     test_scheduled_time: time,
     force_test_run: bool,
+    snapshot_selector: Optional[DBTSelector] = None,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -47,6 +48,7 @@ def create_materialization_contexts(  # noqa: PLR0913
         additional_vars (Optional[dict]): Variáveis adicionais para o dbt.
         test_scheduled_time (time): Horário agendado para execução dos testes.
         force_test_run (bool): Força a execução dos testes.
+        snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
@@ -62,6 +64,7 @@ def create_materialization_contexts(  # noqa: PLR0913
             additional_vars=additional_vars,
             test_scheduled_time=test_scheduled_time,
             force_test_run=force_test_run,
+            snapshot_selector=snapshot_selector,
         )
         if ctx.should_run:
             contexts.append(ctx)
@@ -152,6 +155,33 @@ def run_dbt_selectors(
     for context in contexts:
         run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags)
 
+    return contexts
+
+
+@task
+def run_dbt_snapshots(
+    contexts: list[DBTSelectorMaterializationContext], flags: Optional[list[str]]
+):
+    """
+    Executa os snapshots do dbt para cada contexto de materialização que possua
+    um snapshot_selector.
+
+    Args:
+        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        flags (Optional[list[str]]): Flags adicionais para execução do dbt.
+    """
+    for context in contexts:
+        if context.snapshot_selector is None:
+            continue
+        run_dbt(
+            dbt_obj=context.snapshot_selector,
+            dbt_vars=context.dbt_vars,
+            flags=flags,
+            is_snapshot=True,
+        )
+
+    return contexts
+
 
 @task
 def run_dbt_tests(
@@ -180,6 +210,8 @@ def run_dbt_tests(
             log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, raise_on_failure=False)
 
         context[f"{mode}_test_log"] = log
+
+    return contexts
 
 
 @task

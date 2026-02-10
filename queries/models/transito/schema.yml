@@ -1,0 +1,388 @@
+version: 2
+
+models:
+  - name: autuacao_citran
+    description: "Tabela com dados de autuações fornecidos pelo sistema CITRAN/IplanRio"
+    columns:
+      - name: data
+        description: "{{ doc('data_autuacao') }} [partição]"
+      - name: hora
+        description: "Hora da autuação"
+      - name: id_auto_infracao
+        description: "{{ doc('id_auto_infracao') }}"
+      - name: data_limite_defesa_previa
+        description: "{{ doc('data_limite_defesa_previa') }}"
+      - name: data_limite_recurso
+        description: "{{ doc('data_limite_recurso') }}"
+      - name: situacao_atual
+        description: "{{ doc('descricao_situacao_autuacao') }}"
+      - name: status_infracao
+        description: "{{ doc('status_infracao') }}"
+      - name: codigo_enquadramento
+        description: "{{ doc('codigo_enquadramento') }}"
+      - name: tipificacao_resumida
+        description: "{{ doc('tipificacao_resumida') }}"
+      - name: pontuacao
+        description: "Quantidade de pontos da autuação"
+      - name: tipo_veiculo
+        description: "{{ doc('tipo_veiculo') }}"
+      - name: descricao_veiculo
+        description: "{{ doc('descricao_veiculo') }}"
+      - name: especie_veiculo
+        description: "{{ doc('especie_veiculo') }}"
+      - name: uf_proprietario
+        description: "{{ doc('uf_proprietario') }}"
+      - name: cep_proprietario
+        description: "{{ doc('cep_proprietario') }} [protegido]"
+      - name: valor_infracao
+        description: "{{ doc('valor_infracao') }}"
+      - name: valor_pago
+        description: "{{ doc('valor_pago') }}"
+      - name: data_pagamento
+        description: "{{ doc('data_pagamento') }} da autuação"
+      - name: id_autuador
+        description: "Código do órgão autuador"
+      - name: descricao_autuador
+        description: "{{ doc('descricao_autuador') }}"
+      - name: id_municipio_autuacao
+        description: "Código TOM do município da autuação"
+      - name: descricao_municipio
+        description: "Nome do município da autuação"
+      - name: endereco_autuacao
+        description: "Endereço onde ocorreu a autuação"
+      - name: processo_defesa_autuacao
+        description: "{{ doc('processo_defesa_autuacao') }}"
+      - name: recurso_penalidade_multa
+        description: "{{ doc('recurso_penalidade_multa') }}"
+      - name: processo_troca_real_condutor_infrator
+        description: "Número do processo de troca de real condutor infrator"
+      - name: status_sne
+        description: "Indicador de adesão do veículo ao SNE"
+
+  - name: autuacao_serpro
+    description: "Tabela com dados de autuações fornecidos pelo sistema SERPRO"
+    columns:
+      - name: data
+        description: "Data da autuação [Coluna de particionamento]"
+      - name: id_auto_infracao
+        description: "Código do auto de infração"
+      - name: origem_auto_infracao
+        description: "Origem do AIT"
+      - name: datetime_autuacao
+        description: "Data e hora da autuação"
+      - name: data_limite_defesa_previa
+        description: "{{ doc('data_limite_defesa_previa') }}"
+      - name: data_limite_recurso
+        description: "Data limite para recurso em primeira instância"
+      - name: descricao_situacao_autuacao
+        description: "{{ doc('descricao_situacao_autuacao') }}"
+      - name: status_infracao
+        description: "Descrição do status da infração"
+      - name: codigo_enquadramento
+        description: "Código da autuação"
+      - name: codigo_desdobramento
+        description: "Desdobramento do tipo de infração que junto com o código identifica exclusivamente o tipo de infração"
+      - name: tipificacao_resumida
+        description: "Descrição da autuação"
+      - name: pontuacao
+        description: "{{ doc('pontuacao') }}"
+      - name: gravidade
+        description: "Descrição da gravidade da autuação"
+      - name: amparo_legal
+        description: "Amparo legal da autuação"
+      - name: velocidade_aferida
+        description: "Valor aferido para aplicação da infração"
+      - name: velocidade_considerada
+        description: "Valor considerado para aplicação da infração"
+      - name: velocidade_regulamentada
+        description: "Limite regulamento para aplicação da infração"
+      - name: tipo_veiculo
+        description: "Tipo de veículo autuado"
+      - name: descricao_veiculo
+        description: "Marca/modelo do veículo"
+      - name: placa_veiculo
+        description: "{{ doc('placa') }}"
+      - name: chassi_veiculo
+        description: "Chassi do veículo"
+      - name: ano_fabricacao_veiculo
+        description: "Ano de fabricação do veículo"
+      - name: ano_modelo_veiculo
+        description: "Ano do modelo do veículo"
+      - name: cor_veiculo
+        description: "Cor do veículo"
+      - name: especie_veiculo
+        description: "{{ doc('especie_veiculo') }}"
+      - name: uf_veiculo
+        description: "Sigla do estado do veículo"
+      - name: nome_proprietario
+        description: "Nome do proprietário"
+      - name: documento_proprietario
+        description: "Documento do proprietário do veículo"
+      - name: cnh_proprietario
+        description: "Número da CNH do proprietário do veículo"
+      - name: uf_cnh_proprietario
+        description: "Sigla do estado da CNH do proprietário"
+      - name: uf_proprietario
+        description: "{{ doc('uf_proprietario') }}"
+      - name: numero_condutor_nao_habilitado
+        description: "Número de identificação do documento do condutor não habilitado"
+      - name: nome_condutor
+        description: "Nome do condutor"
+      - name: numero_identificacao_condutor
+        description: "Número do documento de identificação do condutor do veículo"
+      - name: cnh_condutor
+        description: "Número da CNH do condutor do veículo"
+      - name: uf_principal_condutor
+        description: "Estado do condutor principal do veículo"
+      - name: nome_infrator
+        description: "Nome do infrator"
+      - name: cpf_infrator
+        description: "CPF do infrator"
+      - name: cnh_infrator
+        description: "CNH do infrator"
+      - name: uf_infrator
+        description: "Estado do condutor infrator [em caso de indicação de real condutor infrator]"
+      - name: nome_possuidor_veiculo
+        description: "Nome do possuidor do veículo"
+      - name: documento_possuidor_veiculo
+        description: "Documento do possuidor do veículo"
+      - name: cnh_possuidor_veiculo
+        description: "CNH do possuidor do veículo"
+      - name: endereco_possuidor_veiculo
+        description: "Endereço do possuidor do veículo"
+      - name: bairro_possuidor_veiculo
+        description: "Bairro do possuidor do veículo"
+      - name: municipio_possuidor_veiculo
+        description: "Município do possuidor do veículo"
+      - name: cep_possuidor_veiculo
+        description: "CEP do possuidor do veículo"
+      - name: uf_possuidor_veiculo
+        description: "UF do possuidor do veículo"
+      - name: valor_infracao
+        description: "{{ doc('valor_infracao') }}"
+      - name: valor_pago
+        description: "Valor pago da autuação (R$)"
+      - name: data_pagamento
+        description: "Data do pagamento"
+      - name: codigo_banco
+        description: "Código do banco"
+      - name: nome_banco
+        description: "Nome do banco"
+      - name: status_pagamento
+        description: "Status do pagamento. [pago, pago a mais, pago a menos, pago em duplicidade, nao identificado, desvinculado, em aberto]"
+      - name: codigo_auto_infracao_renainf
+        description: "Código do auto de infração no sistema renainf"
+      - name: id_autuador
+        description: "Código do órgão autuador"
+      - name: descricao_autuador
+        description: "Descrição da unidade de autuação"
+      - name: matricula_autuador
+        description: "Matrícula do usuário no órgão cadastrado"
+      - name: id_municipio_autuacao
+        description: "Código TOM do município da autuação"
+      - name: descricao_municipio
+        description: "Nome do município da autuação"
+      - name: uf_autuacao
+        description: "Sigla do estado da autuação"
+      - name: bairro_autuacao
+        description: "Endereço da autuação - Bairro"
+      - name: cep_autuacao
+        description: "Endereço da autuação - CEP"
+      - name: logradouro_autuacao
+        description: "Endereço da autuação - Logradouro"
+      - name: ende_numero_autuacao
+        description: "Endereço da autuação - Número"
+      - name: complemento
+        description: "Endereço da autuação - Complemento"
+      - name: logradouro_rodovia_autuacao
+        description: "Endereço da autuação - Logradouro"
+      - name: observacao_autuacao
+        description: "Observação geral do auto"
+      - name: processo_defesa_autuacao
+        description: "{{ doc('processo_defesa_autuacao') }}"
+      - name: rrso_num_processo
+        description: "Número de processo"
+      - name: cpa_num_processo
+        description: "Número de processo"
+      - name: susp_num_processo
+        description: "Número de processo"
+      - name: recurso_penalidade_multa
+        description: "Número do processo de recurso contra aplicação de penalidade de multa em primeira instância"
+      - name: processo_troca_real_infrator
+        description: "Número do processo de troca de real condutor infrator"
+      - name: status_sne
+        description: "Indicador de adesão do veículo ao SNE"
+
+  - name: aux_autuacao_id
+    description: "Tabela auxiliar para gerar identificador único da autuação"
+    columns:
+      - name: data
+        description: "Data da autuação [Coluna de particionamento]"
+      - name: id_autuacao
+        description: "Identificador único da autuação"
+      - name: id_auto_infracao
+        description: "Código do auto de infração [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: fonte
+        description: "Origem dos dados"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: autuacao
+    description: "Tabela com dados de autuações"
+    columns:
+      - name: data
+        description: "{{ doc('data_autuacao') }} [partição]"
+      - name: id_autuacao
+        description: "Identificador único da autuação"
+      - name: id_auto_infracao
+        description: "{{ doc('id_auto_infracao') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: datetime_autuacao
+        description: "Data e hora da autuação"
+      - name: data_limite_defesa_previa
+        description: "{{ doc('data_limite_defesa_previa') }}"
+      - name: data_limite_recurso
+        description: "{{ doc('data_limite_recurso') }}"
+      - name: descricao_situacao_autuacao
+        description: "{{ doc('descricao_situacao_autuacao') }}"
+      - name: status_infracao
+        description: "{{ doc('status_infracao') }}"
+      - name: codigo_enquadramento
+        description: "{{ doc('codigo_enquadramento') }}"
+      - name: tipificacao_resumida
+        description: "{{ doc('tipificacao_resumida') }}"
+      - name: pontuacao
+        description: "{{ doc('pontuacao') }}"
+      - name: gravidade
+        description: "Descrição da gravidade da autuação"
+      - name: amparo_legal
+        description: "Amparo legal da autuação"
+      - name: tipo_veiculo
+        description: "{{ doc('tipo_veiculo') }}"
+      - name: descricao_veiculo
+        description: "{{ doc('descricao_veiculo') }}"
+      - name: placa_veiculo
+        description: "{{ doc('placa') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: ano_fabricacao_veiculo
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: ano_modelo_veiculo
+        description: "Ano do modelo do veículo"
+      - name: cor_veiculo
+        description: "Cor do veículo"
+      - name: especie_veiculo
+        description: "{{ doc('especie_veiculo') }}"
+      - name: uf_infrator
+        description: "Estado do condutor infrator [em caso de indicação de real condutor infrator]"
+      - name: uf_principal_condutor
+        description: "Estado do condutor principal do veículo"
+      - name: nome_proprietario
+        description: "Nome do proprietário"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_proprietario
+        description: "Documento do proprietário do veículo"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_proprietario
+        description: "Número da CNH do proprietário do veículo"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: uf_proprietario
+        description: "{{ doc('uf_proprietario') }}"
+      - name: cep_proprietario
+        description: "{{ doc('cep_proprietario') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: nome_possuidor_veiculo
+        description: "Nome do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: documento_possuidor_veiculo
+        description: "Documento do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: cnh_possuidor_veiculo
+        description: "CNH do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: endereco_possuidor_veiculo
+        description: "Endereço do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: bairro_possuidor_veiculo
+        description: "Bairro do possuidor do veículo"
+      - name: municipio_possuidor_veiculo
+        description: "Município do possuidor do veículo"
+      - name: cep_possuidor_veiculo
+        description: "CEP do possuidor do veículo [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: uf_possuidor_veiculo
+        description: "UF do possuidor do veículo"
+      - name: valor_infracao
+        description: "{{ doc('valor_infracao') }}"
+      - name: valor_pago
+        description: "{{ doc('valor_pago') }}"
+      - name: data_pagamento
+        description: "{{ doc('data_pagamento') }} da autuação"
+      - name: id_autuador
+        description: "Código do órgão autuador"
+      - name: descricao_autuador
+        description: "{{ doc('descricao_autuador') }}"
+      - name: id_municipio_autuacao
+        description: "Código TOM do município da autuação"
+      - name: descricao_municipio
+        description: "Nome do município da autuação"
+      - name: uf_autuacao
+        description: "Sigla do estado da autuação"
+      - name: endereco_autuacao
+        description: "Endereço da autuação [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+      - name: tile_autuacao
+        description: "Hexágono da autuação"
+      - name: processo_defesa_autuacao
+        description: "{{ doc('processo_defesa_autuacao') }}"
+      - name: recurso_penalidade_multa
+        description: "{{ doc('recurso_penalidade_multa') }}"
+      - name: processo_troca_real_infrator
+        description: "Número do processo de troca de real condutor infrator"
+      - name: status_sne
+        description: "Indicador de adesão do veículo ao Sistema de Notificação Eletrônica - SNE"
+      - name: fonte
+        description: "Origem dos dados"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: receita_autuacao
+    columns:
+      - name: data
+        description: "coluna de partição"
+      - name: ano
+        description: "Ano da arrecadação"
+      - name: mes
+        description: "Mes da arrecadação"
+      - name: valor_arrecadacao
+        description: "Valor arrecadado para o mes"
+
+  - name: receita_autuacao_fonte
+    columns:
+      - name: data
+        description: "coluna de partição"
+      - name: ano
+        description: "Ano da arrecadação"
+      - name: mes
+        description: "Mes da arrecadação"
+      - name: valor_arrecadacao
+        description: "Valor arrecadado para o mes"
+      - name: fonte
+        description: "Origem dos dados"

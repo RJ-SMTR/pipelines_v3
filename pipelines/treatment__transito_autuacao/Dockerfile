@@ -6,6 +6,10 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/rj_smtr__brt_gps_teste ./pipelines/rj_smtr__brt_gps_teste
+COPY ./pipelines/treatment__transito_autuacao ./pipelines/treatment__transito_autuacao/
+
+COPY ./pipelines/common/ ./pipelines/common/
+COPY ./pipelines/capture__serpro_autuacao/ ./pipelines/capture__serpro_autuacao/
+COPY ./queries ./queries
 
 RUN uv sync --all-packages

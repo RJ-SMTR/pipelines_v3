@@ -1,5 +1,5 @@
 name: {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}
-prefect-version: 3.4.3
+prefect-version: 3.4.8
 
 build:
   - prefect.deployments.steps.run_shell_script:
@@ -49,3 +49,7 @@ deployments:
         command: uv run --package {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+    {% if cookiecutter.flow_type == "treatment" -%}
+    concurrency_limit:
+      limit: 1
+    {%- endif -%}

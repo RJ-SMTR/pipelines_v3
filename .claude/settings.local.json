@@ -13,11 +13,16 @@
     "ANTHROPIC_MODEL": "claude-haiku-4-5@20251001",
     "ANTHROPIC_SMALL_FAST_MODEL": "claude-haiku-4-5@20251001"
   },
-  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",
   "permissions": {
     "allow": [
       "Bash(dbt parse:*)",
-      "Bash(sqlfmt:*)"
+      "Bash(sqlfmt:*)",
+      "Bash(git pull:*)",
+      "Bash(ls:*)"
     ]
+  },
+  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",
+  "enabledPlugins": {
+    "dbt@dbt-agent-marketplace": true
   }
 }

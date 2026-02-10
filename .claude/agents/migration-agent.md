@@ -94,15 +94,30 @@ pipelines/common/
 
 ### 3. Copiar Modelos DBT para Flows de Treatment
 
-**Para flows de treatment**, além de migrar o código Python, é necessário copiar os modelos DBT correspondentes ao selector utilizado.
+**Para flows de treatment**, além de migrar o código Python, é necessário copiar os modelos DBT correspondentes ao selector utilizado, incluindo modelos de staging, snapshots e documentação.
 
 **Estrutura de pastas DBT:**
 ```
 # Repositório origem (1.4)
-pipelines_rj_smtr/queries/models/
+pipelines_rj_smtr/queries/
+├── models/
+│   └── {dominio}/              # Ex: cadastro, transito, bilhetagem
+│       ├── staging/            # Modelos de staging (transformações intermediárias)
+│       │   ├── stg_*.sql       # Modelos prefixados com stg_
+│       │   └── aux_*.sql       # Modelos auxiliares
+│       ├── *.sql               # Modelos finais
+│       ├── schema.yml          # Documentação e testes dos modelos
+│       └── CHANGELOG.md        # Histórico de mudanças
+└── snapshots/
+    └── {dominio}/
+        └── snapshot_*.sql      # Snapshots para rastreamento histórico
 
 # Repositório destino (3.0)
-pipelines_v3/queries/models/
+pipelines_v3/queries/
+├── models/
+│   └── {dominio}/              # Mesma estrutura
+└── snapshots/
+    └── {dominio}/              # Mesma estrutura
 ```
 
 **Passo a passo:**
@@ -114,14 +129,20 @@ pipelines_v3/queries/models/
        name="cadastro",  # <-- Este é o nome do selector
        ...
    )
+
+   # Se houver snapshot, também estará aqui:
+   SNAPSHOT_CADASTRO_SELECTOR = DBTSelector(
+       name="snapshot_cadastro",
+       ...
+   )
 ```
 
 2. **Localize o selector no arquivo de selectors do DBT:**
 ```bash
    # Repositório origem
-   cat pipelines_rj_smtr/queries/selectors.yml
+   cat pipelines_rj_smtr/queries/selectors.yml | grep -A 10 "name: cadastro"
 ```
-   
+
    Exemplo de selector:
 ```yaml
    selectors:
@@ -129,64 +150,162 @@ pipelines_v3/queries/models/
        definition:
          method: fqn
          value: "cadastro"  # Pasta/modelo a ser copiado
+
+     - name: snapshot_cadastro
+       definition:
+         method: fqn
+         value: "snapshot_cadastro"  # Snapshot também pode ter selector
 ```
 
-3. **Copie os modelos correspondentes:**
+3. **Copie a pasta completa de modelos:**
 ```bash
-   # Copiar pasta de modelos
+   # Copiar pasta inteira de modelos (inclui staging/, schema.yml, CHANGELOG.md, etc)
    cp -r pipelines_rj_smtr/queries/models/cadastro/ pipelines_v3/queries/models/
-   
-   # Copiar schemas (se existirem separadamente)
-   cp pipelines_rj_smtr/queries/models/cadastro/schema.yml pipelines_v3/queries/models/cadastro/
 ```
 
-4. **Copie também os sources relacionados (se necessário):**
+   Isso inclui automaticamente:
+   - Modelos finais (*.sql)
+   - Modelos de staging (staging/*.sql)
+   - Modelos auxiliares (aux_*.sql)
+   - Documentação (schema.yml) com testes e descrições
+   - Histórico (CHANGELOG.md)
+
+4. **Copie os snapshots relacionados (se existirem):**
 ```bash
-   # Verificar sources usados nos modelos
-   grep -r "source(" pipelines_rj_smtr/queries/models/cadastro/
-   
-   # Copiar definições de sources
-   cp pipelines_rj_smtr/queries/models/_sources/cadastro_sources.yml pipelines_v3/queries/models/_sources/
+   # Verificar se há snapshots para este domínio
+   ls -la pipelines_rj_smtr/queries/snapshots/{dominio}/
+
+   # Copiar snapshots (crie o diretório se não existir)
+   mkdir -p pipelines_v3/queries/snapshots/{dominio}/
+   cp pipelines_rj_smtr/queries/snapshots/{dominio}/*.sql pipelines_v3/queries/snapshots/{dominio}/
+
+   # Exemplo com transito:
+   mkdir -p pipelines_v3/queries/snapshots/transito/
+   cp pipelines_rj_smtr/queries/snapshots/transito/*.sql pipelines_v3/queries/snapshots/transito/
 ```
 
-5. **Atualize o arquivo `selectors.yml` do repositório destino:**
+5. **Verifique se os sources estão definidos:**
 ```bash
-   # Adicionar o selector ao arquivo
-   vi pipelines_v3/queries/selectors.yml
+   # Identificar sources usados nos modelos
+   grep -roh "source('[^']*', '[^']*')" pipelines_v3/queries/models/cadastro/ | sort -u
+
+   # Verificar se estão em pipelines_v3/queries/models/sources.yml
+   grep "name: {source_name}" pipelines_v3/queries/models/sources.yml
+
+   # Se faltar, copiar do repositório origem
+   # Isso geralmente já está no destino para os domínios principais
 ```
 
-6. **Verifique dependências entre modelos:**
+6. **Verifique o arquivo `selectors.yml` do repositório destino:**
+```bash
+   # Verificar se o selector já existe
+   grep "name: cadastro" pipelines_v3/queries/selectors.yml
+
+   # Se não existir, copiar a definição completa do selector
+   # do arquivo de origem para o de destino
+```
+
+7. **Verifique dependências entre modelos:**
 ```bash
    # Listar refs usadas nos modelos copiados
-   grep -r "ref(" pipelines_v3/queries/models/cadastro/
-   
-   # Copiar modelos dependentes se necessário
+   grep -roh "ref('[^']*')" pipelines_v3/queries/models/cadastro/ | sort -u
+
+   # Se houver refs para modelos em outros domínios, verificar se já existem
+   # Se não existirem, copiar também esses modelos dependentes
 ```
 
-**Exemplo completo para migrar `treatment__cadastro`:**
+**Exemplo completo para migrar `treatment__transito_autuacao`:**
 ```bash
 # 1. Atualizar repo origem
 cd /caminho/para/pipelines_rj_smtr
 git checkout main && git pull origin main
 
-# 2. Copiar modelos
-cp -r queries/models/cadastro/ /caminho/para/pipelines_v3/queries/models/
+# 2. Copiar modelos (inclui staging/, schema.yml, CHANGELOG.md)
+cp -r queries/models/transito/ /caminho/para/pipelines_v3/queries/models/
 
-# 3. Identificar sources usados
-grep -roh "source('[^']*', '[^']*')" /caminho/para/pipelines_v3/queries/models/cadastro/ | sort -u
+# 3. Copiar snapshots (se existirem)
+mkdir -p /caminho/para/pipelines_v3/queries/snapshots/transito/
+cp queries/snapshots/transito/*.sql /caminho/para/pipelines_v3/queries/snapshots/transito/
 
-# 4. Copiar definições dos sources identificados do sources.yml de origem
-# para o sources.yml de destino (manualmente ou com script)
+# 4. Verificar sources usados
+grep -roh "source('[^']*', '[^']*')" /caminho/para/pipelines_v3/queries/models/transito/ | sort -u
+# Resultado: source('transito_staging', 'infracoes_renainf'), etc
 
-# 5. Verificar e copiar dependências (refs)
-grep -roh "ref('[^']*')" /caminho/para/pipelines_v3/queries/models/cadastro/ | sort -u
-# Se houver refs para outros modelos, copie-os também
+# 5. Verificar se sources existem no destino
+grep -A 5 "name: transito_staging" /caminho/para/pipelines_v3/queries/models/sources.yml
 
-# 6. Atualizar selectors.yml
-echo "  - name: cadastro
-    definition:
-      method: fqn
-      value: cadastro" >> /caminho/para/pipelines_v3/queries/selectors.yml
+# 6. Verificar selectors no destino
+grep -A 5 "name: transito_autuacao" /caminho/para/pipelines_v3/queries/selectors.yml
+grep -A 5 "name: snapshot_transito" /caminho/para/pipelines_v3/queries/selectors.yml
+
+# 7. Verificar refs entre modelos
+grep -roh "ref('[^']*')" /caminho/para/pipelines_v3/queries/models/transito/ | sort -u
+# Se houver refs para modelos em outros domínios, copiar também
+
+# 8. Testar compilação dos modelos
+cd /caminho/para/pipelines_v3/queries
+dbt parse --select transito  # Verifica se os modelos estão corretos
+```
+
+---
+
+## 🎯 Observações Importantes da Prática
+
+### DBT Models - O que Copiar
+
+Ao copiar modelos DBT, **sempre copie a pasta inteira** do domínio, não apenas arquivos individuais:
+
+```bash
+# ✓ CORRETO: Copia tudo de uma vez
+cp -r pipelines_rj_smtr/queries/models/transito/ pipelines_v3/queries/models/
+
+# ✗ ERRADO: Copia apenas alguns arquivos
+cp pipelines_rj_smtr/queries/models/transito/*.sql pipelines_v3/queries/models/transito/
+```
+
+**Por quê?** Porque a pasta inclui:
+- Subdiretórios (staging/, etc)
+- schema.yml (testes e documentação)
+- CHANGELOG.md (histórico)
+- Todos os arquivos SQL na estrutura correta
+
+### Snapshots
+
+Snapshots são **frequentemente esquecidos** mas essenciais para rastreamento histórico:
+
+```bash
+# Sempre verificar e copiar snapshots
+ls pipelines_rj_smtr/queries/snapshots/
+# Se existir um diretório com o domínio, copiar
+mkdir -p pipelines_v3/queries/snapshots/transito/
+cp pipelines_rj_smtr/queries/snapshots/transito/*.sql pipelines_v3/queries/snapshots/transito/
+```
+
+### Sources, Selectors e Testes
+
+**Antes de criar um novo código Python**, sempre verifique:
+
+1. **Sources.yml:** Geralmente os sources já existem no destino para domínios principais
+   ```bash
+   grep -A 5 "name: transito_staging" pipelines_v3/queries/models/sources.yml
+   ```
+
+2. **Selectors.yml:** Pode ser que o selector já exista
+   ```bash
+   grep "name: transito_autuacao" pipelines_v3/queries/selectors.yml
+   ```
+
+3. **Schema.yml:** Contém testes importantes que já vêm com a cópia dos modelos
+   ```bash
+   grep -A 10 "tests:" pipelines_v3/queries/models/transito/schema.yml
+   ```
+
+### Validação Final
+
+Sempre teste a compilação após copiar:
+```bash
+cd pipelines_v3/queries
+dbt parse --select transito  # Valida se tudo está correto
 ```
 
 ---
@@ -271,10 +390,12 @@ Se precisar de uma task específica (como `create_jae_general_extractor`):
 
 **Apenas para flows de treatment:**
 1. Identificar selector no flow
-2. Copiar modelos de `queries/models/{selector}/`
-3. Copiar sources relacionados
-4. Verificar e copiar dependências (refs)
-5. Atualizar `selectors.yml`
+2. Copiar modelos de `queries/models/{dominio}/` **com toda a estrutura** (staging/, schema.yml, CHANGELOG.md)
+3. Copiar snapshots de `queries/snapshots/{dominio}/` (se existirem)
+4. Verificar se sources estão definidos em `sources.yml`
+5. Verificar se selectors já existem em `selectors.yml`
+6. Verificar e copiar dependências (refs) entre modelos
+7. Testar compilação com `dbt parse --select {dominio}`
 
 ### Passo 7: Atualizar prefect.yaml
 
@@ -298,7 +419,7 @@ with Flow("jae: auxiliares - captura") as CAPTURA_AUXILIAR:
     table_id = Parameter(name="table_id", default="linha")
     timestamp = Parameter(name="timestamp", default=None)
     recapture = Parameter(name="recapture", default=False)
-    
+
     # tasks...
 ```
 
@@ -355,7 +476,7 @@ from enum import Enum
 class constants(Enum):
     JAE_SOURCE_NAME = "jae"
     JAE_SECRET_PATH = "smtr_jae_access_data"
-    
+
 # Uso: constants.JAE_SOURCE_NAME.value
 ```
 
@@ -526,10 +647,12 @@ Para cada flow:
 - [ ] Atualizar imports para `pipelines.common.*`
 - [ ] Adicionar `tzinfo` em todos os `datetime()`
 - [ ] Remover `.value` das constants
-- [ ] **[TREATMENT]** Copiar modelos DBT para `queries/models/`
-- [ ] **[TREATMENT]** Copiar sources para `queries/models/_sources/`
-- [ ] **[TREATMENT]** Atualizar `queries/selectors.yml`
-- [ ] **[TREATMENT]** Verificar dependências (refs) entre modelos
+- [ ] **[TREATMENT]** Copiar modelos DBT para `queries/models/` (inclui staging/, schema.yml, CHANGELOG.md)
+- [ ] **[TREATMENT]** Copiar snapshots para `queries/snapshots/{dominio}/` (se existirem)
+- [ ] **[TREATMENT]** Verificar se sources estão definidos em `queries/models/sources.yml`
+- [ ] **[TREATMENT]** Verificar se selectors existem em `queries/selectors.yml`
+- [ ] **[TREATMENT]** Verificar dependências (refs) entre modelos e copiar modelos dependentes se necessário
+- [ ] **[TREATMENT]** Testar compilação com `dbt parse --select {dominio}`
 - [ ] Configurar `prefect.yaml` com schedules
 - [ ] Atualizar `CHANGELOG.md`
 - [ ] Testar localmente

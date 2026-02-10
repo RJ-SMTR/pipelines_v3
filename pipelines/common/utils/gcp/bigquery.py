@@ -18,11 +18,7 @@ from google.cloud.bigquery.external_config import HivePartitioningOptions
 from pipelines.common import constants
 from pipelines.common.utils.gcp.base import GCPBase
 from pipelines.common.utils.gcp.storage import Storage
-from pipelines.common.utils.utils import (
-    convert_timezone,
-    cron_date_range,
-    cron_get_last_date,
-)
+from pipelines.common.utils.utils import convert_timezone, cron_date_range, cron_get_last_date
 
 
 class Dataset(GCPBase):
