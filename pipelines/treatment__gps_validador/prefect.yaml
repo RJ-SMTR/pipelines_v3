@@ -35,6 +35,9 @@ deployments:
         command: uv run --package treatment__gps_validador -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
+    concurrency_limit:
+      limit: 1
+
   - name: rj-treatment--gps_validador--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__gps_validador/flow.py:treatment__gps_validador
