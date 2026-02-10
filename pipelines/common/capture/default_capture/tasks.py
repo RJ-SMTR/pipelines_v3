@@ -75,7 +75,7 @@ def create_capture_contexts(  # noqa: PLR0913
     return contexts
 
 
-@task
+@task(tags=["data-processing"])
 def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
     """
     Extrai os dados brutos e salva os caminhos dos arquivos no contexto.
@@ -109,7 +109,7 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "repl
         )
 
 
-@task
+@task(tags=["data-processing"])
 def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
     Aplica pré-tratamentos e transforma os dados brutos em estrutura aninhada.
