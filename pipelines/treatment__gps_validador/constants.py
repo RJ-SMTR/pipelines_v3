@@ -6,6 +6,7 @@ Valores constantes para materialização do selector gps_validador
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__jae_gps_validador import constants as gps_validador_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.treatment__cadastro import constants as cadastro_constants
@@ -31,7 +32,7 @@ GPS_VALIDADOR_SELECTOR = DBTSelector(
     flow_folder_name="treatment__gps_validador",
     incremental_delay_hours=1,
     data_sources=[
-        # gps_validador_constants.GPS_VALIDADOR_SOURCE,
+        gps_validador_constants.GPS_VALIDADOR_SOURCE,
         cadastro_constants.CADASTRO_SELECTOR,
     ],
     post_test=GPS_VALIDADOR_POST_TEST,

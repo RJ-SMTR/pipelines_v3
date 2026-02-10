@@ -4,9 +4,9 @@
 from datetime import datetime
 from typing import Optional
 
-from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
+from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.utils import convert_timezone, is_running_locally
 
 
