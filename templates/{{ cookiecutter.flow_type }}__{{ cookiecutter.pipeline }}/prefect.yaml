@@ -50,6 +50,5 @@ deployments:
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
     {% if cookiecutter.flow_type == "treatment" -%}
-    concurrency_limit:
-      limit: 1
+    concurrency_limit: 1
     {%- endif -%}
