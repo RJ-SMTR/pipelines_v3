@@ -9,9 +9,9 @@ from typing import Optional, Union
 import httpx
 import pandas as pd
 import pandas_gbq
-from iplanrio.pipelines_utils.env import inject_bd_credentials
 from prefect import runtime, task
 
+from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 

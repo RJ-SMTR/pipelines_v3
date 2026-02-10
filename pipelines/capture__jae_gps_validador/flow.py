@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Flow para captura dos dados do GPS do validador da Jaé
+
+Common 2026-02-09
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_gps_validador import constants
