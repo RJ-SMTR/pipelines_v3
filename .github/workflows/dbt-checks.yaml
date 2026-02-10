@@ -8,6 +8,7 @@ on:
       - actions/*
     paths:
       - "queries/**/*.sql"
+      - .github/workflows/dbt-checks.yaml
 
 env:
   DBT_USER: ${{ github.actor }}
