@@ -8,6 +8,10 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__gps_validador ./pipelines/treatment__gps_validador/
 
+COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
+
+COPY ./pipelines/capture__jae_gps_validador ./pipelines/capture__jae_gps_validador/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages
