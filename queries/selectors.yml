@@ -277,7 +277,7 @@ selectors:
         - method: fqn
           value: staging_gps_validador
         - method: fqn
-          value: gps_validador_aux
+          value: aux_gps_validador
         - method: fqn
           value: gps_validador
         - method: fqn
