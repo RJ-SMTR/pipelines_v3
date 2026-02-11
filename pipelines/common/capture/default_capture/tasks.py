@@ -91,18 +91,21 @@ def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
 
 
 @task
-def upload_raw_file_to_gcs(context: SourceCaptureContext):
+def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
     """
     Envia os arquivos brutos para o GCS.
 
     Args:
         context (SourceCaptureContext): Contexto da captura após a definição
             do atributo captured_raw_filepaths.
+        if_exists (str): Ação a ser tomada caso o arquivo exista
+                no storage (raise, pass, replace)
     """
     for path in context.captured_raw_filepaths:
         context.source.upload_raw_file(
             raw_filepath=path,
             partition=context.partition,
+            if_exists=if_exists,
         )
 
 
@@ -161,12 +164,14 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 
 
 @task
-def upload_source_data_to_gcs(context: SourceCaptureContext):
+def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
     """
     Envia os dados aninhados para a pasta source do GCS.
 
     Args:
         context (SourceCaptureContext): Contexto da captura.
+        if_exists (str): Ação a ser tomada caso o arquivo exista
+                no storage (raise, pass, replace)
     """
 
     source = context.source
@@ -178,10 +183,10 @@ def upload_source_data_to_gcs(context: SourceCaptureContext):
 
     if not source.exists():
         print("Tabela de staging não existe, criando tabela...")
-        source.append(source_filepath=source_filepath, partition=partition)
+        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         source.create(sample_filepath=source_filepath)
         print("Tabela de staging criada")
     else:
         print("Tabela de staging já existe, adicionando dados...")
-        source.append(source_filepath=source_filepath, partition=partition)
+        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")

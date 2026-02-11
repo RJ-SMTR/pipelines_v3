@@ -86,10 +86,12 @@ JAE_PRIVATE_BUCKET_NAMES = {"prod": "rj-smtr-jae-private", "dev": "rj-smtr-dev-p
 ALERT_WEBHOOK = "alertas_bilhetagem"
 
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
+TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
+
 
 JAE_TABLE_CAPTURE_PARAMS = {
     GPS_VALIDADOR_TABLE_ID: {
@@ -104,6 +106,20 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "tracking_db",
         "capture_delay_minutes": {"0": 0, "2025-03-26 15:31:00": 10},
+    },
+    TRANSACAO_ERRO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    transacao_erro
+                WHERE
+                    dt_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND dt_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                ORDER BY dt_inclusao
+            """,
+        "database": "processador_transacao_db",
+        "capture_delay_minutes": {"0": 5},
     },
     "linha": {
         "query": """

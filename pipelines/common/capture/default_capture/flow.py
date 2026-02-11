@@ -30,6 +30,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     recapture_timestamps: list[str],
     extra_parameters: Optional[dict[str, dict]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
+    if_exists_upload: str = "replace",
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
@@ -99,6 +100,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,
+        if_exists=unmapped(if_exists_upload),
         wait_for=unmapped(
             [
                 tasks["get_raw"],
@@ -119,6 +121,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     upload_source_future = upload_source_data_to_gcs.map(
         context=contexts,
+        if_exists=unmapped(if_exists_upload),
         wait_for=unmapped(
             [
                 tasks["pretreat"],
