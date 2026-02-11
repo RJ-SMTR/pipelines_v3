@@ -8,16 +8,15 @@ from pipelines.common.utils.database import create_database_url
 from pipelines.common.utils.fs import save_local_file
 
 
-def get_raw_db(  # noqa: PLR0913
+def get_db_data(  # noqa: PLR0913
     query: str,
     engine: str,
     host: str,
     user: str,
     password: str,
     database: str,
-    raw_filepath: str,
     max_retries: int = 10,
-) -> list[str]:
+) -> list[dict]:
     """
     Captura dados de um Banco de Dados SQL
 
@@ -32,9 +31,8 @@ def get_raw_db(  # noqa: PLR0913
         max_retries (int): Quantidades de retries para efetuar a query
 
     Returns:
-        list[str]: Lista com o caminho onde os dados foram salvos
+        list[dict]: Dados retornados pela consulta
     """
-
     url = create_database_url(
         engine=engine,
         host=host,
@@ -52,10 +50,48 @@ def get_raw_db(  # noqa: PLR0913
                 for k, v in d.items():
                     if pd.isna(v):
                         d[k] = None
-            break
+            return data
+
         except Exception as err:
             if retry == max_retries:
                 raise err
+
+
+def get_raw_db(  # noqa: PLR0913
+    query: str,
+    engine: str,
+    host: str,
+    user: str,
+    password: str,
+    database: str,
+    raw_filepath: str,
+    max_retries: int = 10,
+) -> list[str]:
+    """
+    Captura e salva dados de um Banco de Dados SQL
+
+    Args:
+        query (str): o SELECT para ser executado
+        engine (str): O banco de dados (postgresql ou mysql)
+        host (str): O host do banco de dados
+        user (str): O usuário para se conectar
+        password (str): A senha do usuário
+        database (str): O nome da base (schema)
+        raw_filepath (str): Caminho para salvar os arquivos
+        max_retries (int): Quantidades de retries para efetuar a query
+
+    Returns:
+        list[str]: Lista com o caminho onde os dados foram salvos
+    """
+    data = get_db_data(
+        query=query,
+        engine=engine,
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        max_retries=max_retries,
+    )
 
     filepath = raw_filepath.format(page=0)
     save_local_file(filepath=filepath, filetype="json", data=data)
@@ -75,7 +111,7 @@ def get_raw_db_paginated(  # noqa: PLR0913
     max_retries: int = 10,
 ) -> list[str]:
     """
-    Captura dados de um Banco de Dados SQL fazendo paginação
+    Captura e salva dados de um Banco de Dados SQL fazendo paginação
 
     Args:
         query (str): o SELECT para ser executado
@@ -97,7 +133,7 @@ def get_raw_db_paginated(  # noqa: PLR0913
     current_page = 0
     filepaths = []
     while page_data_len == page_size:
-        page_data = get_raw_db(
+        page_data = get_db_data(
             query=query,
             engine=engine,
             host=host,
