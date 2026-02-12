@@ -3,7 +3,7 @@
     alias='operadora_empresa',
   )
 }}
-
+{# trigger testing #}
 WITH
     operadora_empresa AS (
         SELECT

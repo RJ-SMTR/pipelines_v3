@@ -1,0 +1,82 @@
+name: DBT Checks
+
+on:
+  push:
+    branches:
+      - master
+      - staging/*
+      - actions/*
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - .github/workflows/dbt-checks.yaml
+
+env:
+  DBT_USER: ${{ github.actor }}
+
+jobs:
+  check-files:
+    name: Compile DBT models and format SQL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          activate-environment: true
+
+      - name: Install project dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          uv sync --all-packages
+
+      # - name: Activate python venv
+      #   run: |
+      #     echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
+
+# echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV
+
+
+      - name: Install sqlfmt
+        run: pip install 'shandy-sqlfmt[jinjafmt]'
+      # Setup gcloud CLI
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      # - name: Setup Google Cloud CLI
+      #   uses: google-github-actions/setup-gcloud@v3
+
+      - name: Get changed files
+        id: files
+        uses: tj-actions/changed-files@v34
+
+      - name: Setup DBT profile
+        working-directory: queries
+        run: |-
+          sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+
+      - name: Run dbt deps
+        working-directory: queries
+        run: |-
+          uv run dbt deps --profiles-dir profiles
+
+      - name: Run sqlfmt
+        # continue-on-error: true
+        if: steps.files.outputs.all_changed_files != ''
+        run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
+
+      - name: Run DBT compile
+        working-directory: queries
+        run: |-
+          uv run dbt compile --profiles-dir profiles
+#trigger
