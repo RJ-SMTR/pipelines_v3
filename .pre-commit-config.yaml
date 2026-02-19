@@ -16,3 +16,19 @@ repos:
       - id: ruff-check
         args: [--fix, --ignore=E501]
       - id: ruff-format
+
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v2.0.7
+    hooks:
+      - id: dbt-deps
+        stages: [manual]
+      - id: dbt-parse
+        args: ["--cmd-flags", "++profiles-dir", "./queries"]
+        stages: [manual]
+      - id: check-model-has-description
+        name: Check model description
+        files: ^queries/models/[^/]+/[^/]+\.(yml|yaml)$
+        stages: [manual]
+      - id: check-model-columns-have-desc
+        files: ^queries/models/[^/]+/[^/]+\.(yml|yaml|sql)$
+        stages: [manual]
