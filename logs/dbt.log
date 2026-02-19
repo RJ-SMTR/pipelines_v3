@@ -8,7 +8,7 @@
 Runtime Error
   No dbt_project.yml found at expected path /home/boris/Desktop/smtr/pipelines_v3/dbt_project.yml
   Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
-  
+
 [0m14:29:23.201167 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": false, "command_wall_clock_time": 0.08207847, "process_in_blocks": "368", "process_kernel_time": 0.135971, "process_mem_max_rss": "120916", "process_out_blocks": "32296", "process_user_time": 2.089556}
 [0m14:29:23.201587 [debug] [MainThread]: Command `dbt deps` failed at 14:29:23.201511 after 0.08 seconds
 [0m14:29:23.201921 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x71dc4a501810>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x71dc4a5f6c30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x71dc4a35c270>]}
