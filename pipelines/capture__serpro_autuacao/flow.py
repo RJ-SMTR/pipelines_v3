@@ -12,7 +12,7 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__serpro_autuacao(
+def capture__serpro_autuacao(  # noqa: PLR0913
     env=None,
     source_table_ids=(AUTUACAO_TABLE_ID,),
     timestamp=None,

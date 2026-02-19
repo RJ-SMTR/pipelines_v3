@@ -489,3 +489,15 @@ sources:
     tables:
       - name: servico_contrato_abreviado
       - name: valor_km_tipo_viagem
+
+  - name: source_previnity
+    database: rj-smtr-staging
+
+    tables:
+      - name: retorno_negativacao
+
+  - name: source_crv
+    database: rj-smtr-staging
+
+    tables:
+      - name: autuacao_controle_negativacao

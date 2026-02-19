@@ -67,10 +67,14 @@ def safe_float_from_env(key: str, default: float, min_value: float = 0.0) -> flo
 class DeploymentConfig:
     """Configuration for deployment script."""
 
-    backoff_multiplier: float = field(default_factory=lambda: safe_float_from_env("BACKOFF_MULTIPLIER", 2.0, 1.0))
+    backoff_multiplier: float = field(
+        default_factory=lambda: safe_float_from_env("BACKOFF_MULTIPLIER", 2.0, 1.0)
+    )
     batch_size: int = field(default_factory=lambda: safe_int_from_env("BATCH_SIZE", 3, 1))
     cleanup_docker: bool = field(default_factory=lambda: environ.get("CLEANUP_DOCKER", "1") == "1")
-    deployment_timeout: int = field(default_factory=lambda: safe_int_from_env("DEPLOYMENT_TIMEOUT", 600, 30))
+    deployment_timeout: int = field(
+        default_factory=lambda: safe_int_from_env("DEPLOYMENT_TIMEOUT", 600, 30)
+    )
     environment: str = field(default_factory=lambda: environ.get("ENVIRONMENT", "staging"))
     force_deploy: bool = field(default_factory=lambda: environ.get("FORCE_DEPLOY", "0") == "1")
     max_retries: int = field(default_factory=lambda: safe_int_from_env("MAX_RETRIES", 2, 0))
@@ -149,9 +153,16 @@ async def get_deployments(prefect_yaml: Path) -> list[str]:
     return [d.get("name", "") for d in deployments_section if d.get("name")]
 
 
-def get_prefect_yaml_files(package_dir: Iterable[Path], pipeline_filter: str | None = None) -> list[Path]:
-    """Get all `prefect.yaml` files in the specified package directory, optionally filtered by pipeline name."""
-    yaml_files = [d / "prefect.yaml" for d in package_dir if d.is_dir() and (d / "prefect.yaml").exists()]
+def get_prefect_yaml_files(
+    package_dir: Iterable[Path], pipeline_filter: str | None = None
+) -> list[Path]:
+    """Get all `prefect.yaml` files in the specified package directory.
+
+    Optionally filtered by pipeline name.
+    """
+    yaml_files = [
+        d / "prefect.yaml" for d in package_dir if d.is_dir() and (d / "prefect.yaml").exists()
+    ]
 
     if pipeline_filter:
         return [f for f in yaml_files if f.parent.name == pipeline_filter]
@@ -204,7 +215,9 @@ async def get_docker_image_ids() -> list[str]:
     if not images_output:
         return []
 
-    filtered_lines = filter(lambda line: line.strip() and not line.startswith(BASE_IMAGE), images_output.splitlines())
+    filtered_lines = filter(
+        lambda line: line.strip() and not line.startswith(BASE_IMAGE), images_output.splitlines()
+    )
 
     parsed_ids = map(parse_image_line, filtered_lines)
 
@@ -261,7 +274,10 @@ def build_deployment_command(package: str, deployment: str, file_path: str) -> l
 
 def is_retryable_error(stderr_text: str) -> bool:
     """Check if error is retryable based on stderr content."""
-    return any(error in stderr_text.lower() for error in ["timeout", "connection", "network", "read timed out"])
+    return any(
+        error in stderr_text.lower()
+        for error in ["timeout", "connection", "network", "read timed out"]
+    )
 
 
 async def run_subprocess(command: list[str]) -> asyncio.subprocess.Process:
@@ -277,7 +293,9 @@ def validate_configuration() -> None:
     """Validate configuration for conflicting options."""
     if CONFIG.pipeline and CONFIG.force_deploy:
         logging.error("Cannot use both PIPELINE and FORCE_DEPLOY options simultaneously")
-        logging.error("Use PIPELINE for single pipeline deployment OR FORCE_DEPLOY for all pipelines")
+        logging.error(
+            "Use PIPELINE for single pipeline deployment OR FORCE_DEPLOY for all pipelines"
+        )
         sys.exit(1)
 
 
@@ -375,7 +393,10 @@ async def cleanup_docker_images() -> None:
 @retry(
     stop=stop_after_attempt(CONFIG.max_retries + 1),
     wait=wait_exponential(
-        multiplier=CONFIG.retry_delay, exp_base=CONFIG.backoff_multiplier, min=CONFIG.retry_delay, max=300
+        multiplier=CONFIG.retry_delay,
+        exp_base=CONFIG.backoff_multiplier,
+        min=CONFIG.retry_delay,
+        max=300,
     ),
 )
 async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
@@ -393,7 +414,9 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
     try:
         deployment = next(d for d in deployments if d.endswith(environment))
     except StopIteration:
-        logging.warning(f"No deployment found for `{package}` in `{environment}` environment. Skipping.")
+        logging.warning(
+            f"No deployment found for `{package}` in `{environment}` environment. Skipping."
+        )
         return file, 0
 
     command = build_deployment_command(package, deployment, str(file))
@@ -401,7 +424,9 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
     process = await run_subprocess(command)
 
     try:
-        stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=CONFIG.deployment_timeout)
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(), timeout=CONFIG.deployment_timeout
+        )
     except asyncio.TimeoutError:
         process.kill()
         _ = await process.wait()
@@ -440,12 +465,23 @@ def create_summary_panel() -> Panel:
     table.add_column("Count", justify="right", ratio=1)
     table.add_column("Packages", ratio=4, overflow="ellipsis")
 
-    table.add_row("✅ Successful", str(len(successful)), ", ".join(successful) if successful else "None", style="green")
-    table.add_row("❌ Failed", str(len(failed)), ", ".join(failed) if failed else "None", style="red")
+    table.add_row(
+        "✅ Successful",
+        str(len(successful)),
+        ", ".join(successful) if successful else "None",
+        style="green",
+    )
+    table.add_row(
+        "❌ Failed", str(len(failed)), ", ".join(failed) if failed else "None", style="red"
+    )
 
     total = len(successful) + len(failed)
     success_rate = (len(successful) / total * 100) if total > 0 else 0
-    summary_text = f"Total: {total} | Success Rate: {success_rate:.1f}%" if total > 0 else "No deployments processed"
+    summary_text = (
+        f"Total: {total} | Success Rate: {success_rate:.1f}%"
+        if total > 0
+        else "No deployments processed"
+    )
 
     return Panel(table, title="🚀 Prefect Deployment Results", subtitle=summary_text)
 
@@ -495,7 +531,9 @@ async def main() -> None:
 
     if failed_deployments:
         errors = [str(e) for e in set(failed_deployments)]
-        logging.error(f"Deployment completed with errors in {len(failed_deployments)} flow(s): {errors}")
+        logging.error(
+            f"Deployment completed with errors in {len(failed_deployments)} flow(s): {errors}"
+        )
         sys.exit(1)
 
 

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
+import os  # noqa: I001
 from typing import Optional
 
 from infisical_sdk import InfisicalSDKClient
-from iplanrio.pipelines_utils.env import getenv_or_action
+from pipelines.common.utils.env import getenv_or_action
 
 from pipelines.common.utils.utils import is_running_locally
 

@@ -6,6 +6,8 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/rj_smtr__brt_gps_teste ./pipelines/rj_smtr__brt_gps_teste
+COPY ./pipelines/capture__jae_gps_validador ./pipelines/capture__jae_gps_validador/
+
+COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages

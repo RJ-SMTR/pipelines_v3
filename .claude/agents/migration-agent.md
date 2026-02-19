@@ -419,7 +419,7 @@ with Flow("jae: auxiliares - captura") as CAPTURA_AUXILIAR:
     table_id = Parameter(name="table_id", default="linha")
     timestamp = Parameter(name="timestamp", default=None)
     recapture = Parameter(name="recapture", default=False)
-    
+
     # tasks...
 ```
 
@@ -476,7 +476,7 @@ from enum import Enum
 class constants(Enum):
     JAE_SOURCE_NAME = "jae"
     JAE_SECRET_PATH = "smtr_jae_access_data"
-    
+
 # Uso: constants.JAE_SOURCE_NAME.value
 ```
 

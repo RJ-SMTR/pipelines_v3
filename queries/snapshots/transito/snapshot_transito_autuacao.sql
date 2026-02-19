@@ -17,5 +17,6 @@
             datetime_ultima_atualizacao, "America/Sao_Paulo"
         ) as timestamp_ultima_atualizacao
     from {{ ref("autuacao") }}
+    where data >= '2023-05-01' and fonte = 'SERPRO'
 
 {% endsnapshot %}

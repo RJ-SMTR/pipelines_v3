@@ -31,9 +31,9 @@ models:
       - name: service_id
         description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
         tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs
-              regex: "^([USD]_|EXCEP)"
+          - dbt_utils.expression_is_true:
+              name: dbt_utils.expression_is_true__service_id__calendar_gtfs
+              expression: "REGEXP_CONTAINS(service_id, '^([USD]_|EXCEP)')"
               where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: monday
         description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
