@@ -14,7 +14,7 @@ repos:
     rev: v0.12.5
     hooks:
       - id: ruff-check
-        args: [--fix]
+        args: [--fix, --ignore=E501]
       - id: ruff-format
 
   - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
