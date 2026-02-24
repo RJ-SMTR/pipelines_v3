@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__jae_lancamento`
+- Cria flow `capture__jae_lancamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)

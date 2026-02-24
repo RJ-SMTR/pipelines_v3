@@ -4,7 +4,7 @@
 
 ### Removido
 
-- Remove parâmetro source_table_ids
+- Remove parâmetro source_table_ids (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
 
 ## [1.0.0] - 2026-02-11
 

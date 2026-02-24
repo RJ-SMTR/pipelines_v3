@@ -4,8 +4,8 @@
 
 ### Alterado
 
-- Remove map da task `save_materialization_datetime_redis`
-- Altera função para retornar secrets para `get_env_secrets`
+- Remove map da task `save_materialization_datetime_redis` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
+- Altera função para retornar secrets para `get_env_secrets` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
 
 ## [1.0.1] - 2026-02-03
 

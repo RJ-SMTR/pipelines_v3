@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Torna parâmetro source_table_ids opcional
+- Torna parâmetro source_table_ids opcional (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
 
 ## [1.0.0] - 2025-11-24
 
