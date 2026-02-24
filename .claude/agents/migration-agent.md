@@ -612,8 +612,8 @@ credentials = get_secret(constants.JAE_SECRET_PATH.value)
 
 **DEPOIS (3.0):**
 ```python
-from pipelines.common.utils.secret import get_secret
-credentials = get_secret(jae_constants.JAE_SECRET_PATH)  # sem .value
+from pipelines.common.utils.secret import get_env_secret
+credentials = get_env_secret(jae_constants.JAE_SECRET_PATH)  # sem .value
 ```
 
 ---
