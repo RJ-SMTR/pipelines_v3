@@ -21,7 +21,6 @@ def capture__jae_transacao_erro(
     create_capture_flows_default_tasks(
         env=env,
         sources=[constants.JAE_TRANSACAO_ERRO_SOURCE],
-        source_table_ids=[constants.JAE_TRANSACAO_ERRO_SOURCE.table_id],
         timestamp=timestamp,
         create_extractor_task=create_jae_general_extractor,
         recapture=recapture,

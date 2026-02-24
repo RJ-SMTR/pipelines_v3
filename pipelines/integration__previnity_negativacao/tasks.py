@@ -10,7 +10,7 @@ import pandas as pd
 from prefect import task
 
 from pipelines.common.utils.pretreatment import normalize_text
-from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.secret import get_env_secret
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
@@ -20,8 +20,8 @@ def get_previnity_credentials() -> tuple[str, str]:
     """
     Retorna as credenciais para autenticação na API da Previnity.
     """
-    prev_key = get_secret(secret_path="previnity_api", secret_name="key").get("key")
-    prev_token = get_secret(secret_path="previnity_api", secret_name="token").get("token")
+    prev_key = get_env_secret(secret_path="previnity_api", secret_name="key").get("key")
+    prev_token = get_env_secret(secret_path="previnity_api", secret_name="token").get("token")
 
     if not prev_key or not prev_token:
         raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")

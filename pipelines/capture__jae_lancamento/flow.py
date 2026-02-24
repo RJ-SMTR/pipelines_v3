@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Flow para captura dos dados do GPS do validador da Jaé
-
-Common 2026-02-09
-"""
-
 from prefect import flow
 
-from pipelines.capture__jae_gps_validador import constants
+from pipelines.capture__jae_lancamento import constants
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
@@ -16,7 +10,7 @@ from pipelines.common.capture.jae.tasks import create_jae_general_extractor
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__jae_gps_validador(
+def capture__jae_lancamento(
     env=None,
     timestamp=None,
     recapture=False,
@@ -25,7 +19,7 @@ def capture__jae_gps_validador(
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=[constants.GPS_VALIDADOR_SOURCE],
+        sources=[constants.LANCAMENTO_SOURCE],
         timestamp=timestamp,
         create_extractor_task=create_jae_general_extractor,
         recapture=recapture,

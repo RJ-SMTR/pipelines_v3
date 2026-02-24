@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pipelines.common import constants
 from pipelines.common.utils.discord import format_send_discord_message
-from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.secret import get_env_secret
 
 
 def handler_notify_failure(webhook: str):
@@ -15,7 +15,7 @@ def handler_notify_failure(webhook: str):
     """
 
     def handler(flow, flow_run, state):  # noqa: ARG001
-        webhook_url = get_secret(secret_path=constants.WEBHOOKS_SECRET_PATH)[webhook]
+        webhook_url = get_env_secret(secret_path=constants.WEBHOOKS_SECRET_PATH)[webhook]
         mentions_tag = f" - <@&{constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
         header = f":red_circle: **Erro no flow {flow.name}**"
         header = f"{header} {mentions_tag}\n\n"
