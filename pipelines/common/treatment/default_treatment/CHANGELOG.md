@@ -1,6 +1,6 @@
 # Changelog - default_treatment
 
-## [1.0.1] - 2026-02-24
+## [1.0.2] - 2026-02-24
 
 ### Alterado
 
