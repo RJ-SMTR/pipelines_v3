@@ -1,5 +1,12 @@
 # Changelog - default_treatment
 
+## [1.0.1] - 2026-02-24
+
+### Alterado
+
+- Remove map da task `save_materialization_datetime_redis`
+- Altera função para retornar secrets para `get_env_secrets`
+
 ## [1.0.1] - 2026-02-03
 
 ### Alterado

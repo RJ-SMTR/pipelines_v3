@@ -1,5 +1,11 @@
 # Changelog - capture__jae_transacao_erro
 
+## [1.0.1] - 2026-02-24
+
+### Removido
+
+- Remove parâmetro source_table_ids
+
 ## [1.0.0] - 2026-02-11
 
 ### Adicionado

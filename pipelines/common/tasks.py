@@ -13,6 +13,7 @@ from prefect import runtime, task
 
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
+from pipelines.common.utils.secret import set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
@@ -67,7 +68,9 @@ def setup_environment(env: str):
     Args:
         env (str): prod ou dev.
     """
-    if not is_running_locally():
+    if is_running_locally():
+        set_local_secrets()
+    else:
         environment = env if env == "prod" else "staging"
         inject_bd_credentials(environment=environment)
 

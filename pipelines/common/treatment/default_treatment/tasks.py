@@ -20,7 +20,7 @@ from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
 
 
@@ -242,7 +242,7 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
 
     checks_results = parse_dbt_test_output(dbt_logs)
 
-    webhook_url = get_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
+    webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
     additional_mentions = additional_mentions or []
     mentions = [*additional_mentions, "dados_smtr"]
     mention_tags = "".join(
@@ -353,13 +353,14 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
 
 
 @task
-def save_materialization_datetime_redis(context: DBTSelectorMaterializationContext):
+def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializationContext]):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
-        context (DBTSelectorMaterializationContext): Contexto de materialização.
+        contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
     """
-    context.selector.set_redis_materialized_datetime(
-        env=context.env, timestamp=context.datetime_end
-    )
+    for context in contexts:
+        context.selector.set_redis_materialized_datetime(
+            env=context.env, timestamp=context.datetime_end
+        )
