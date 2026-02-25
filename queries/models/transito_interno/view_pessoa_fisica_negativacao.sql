@@ -8,7 +8,7 @@
         where
             table_name = "{{ aux_autuacao_negativacao.identifier }}"
             and partition_id != "__NULL__"
-            and datetime(last_modified_time, "America/Sao_Paulo") 
+            and datetime(last_modified_time, "America/Sao_Paulo")
                 between datetime("{{ var('date_range_start') }}")
                 and (datetime("{{ var('date_range_end') }}"))
     {% endset %}
