@@ -184,8 +184,12 @@ models:
           - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
       - name: nome_cliente
         description: "{{ doc('nome_cliente') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
       - name: documento_cliente
         description: "{{ doc('documento_cliente') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
       - name: tipo_documento_cliente
         description: "{{ doc('tipo_documento_cliente') }}"
       - name: tipo_movimento

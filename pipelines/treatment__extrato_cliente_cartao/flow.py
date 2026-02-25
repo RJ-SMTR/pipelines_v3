@@ -16,6 +16,7 @@ def treatment__extrato_cliente_cartao(  # noqa: PLR0913
     flags=None,
     additional_vars=None,
     force_test_run=False,
+    skip_source_check=False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -26,4 +27,5 @@ def treatment__extrato_cliente_cartao(  # noqa: PLR0913
         additional_vars=additional_vars,
         test_scheduled_time=None,
         force_test_run=force_test_run,
+        skip_source_check=skip_source_check,
     )
