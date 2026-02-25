@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Migra flow de materialização do selector `extrato_cliente_cartao`
+- Migra flow de materialização do selector `extrato_cliente_cartao` (https://github.com/RJ-SMTR/pipelines_v3/pull/53)

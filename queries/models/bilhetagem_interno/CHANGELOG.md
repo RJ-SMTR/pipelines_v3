@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Migra modelos `staging_lancamento.sql` e `extrato_cliente_cartao.sql` para o repositório v3
+- Migra modelos `staging_lancamento.sql` e `extrato_cliente_cartao.sql` para o repositório v3 (https://github.com/RJ-SMTR/pipelines_v3/pull/53)
 
 ## [1.2.0] - 2026-01-26
 
