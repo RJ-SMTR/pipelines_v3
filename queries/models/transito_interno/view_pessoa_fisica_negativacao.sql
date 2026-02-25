@@ -1,16 +1,16 @@
 {{ config(materialized="view") }}
--- depends_on: {{ ref('autuacao_controle_negativacao') }}
--- depends_on: {{ ref('aux_autuacao_negativacao') }}
 
+{% set aux_autuacao_negativacao = ref("aux_autuacao_negativacao") %}
 {% if execute %}
     {% set partitions_query %}
-        select distinct concat("'", date(data_autuacao), "'") as partition_date
-        from {{ ref("autuacao_controle_negativacao") }}
-        where data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
-        union distinct
-        select distinct concat("'", date(data), "'") as partition_date
-        from {{ ref("aux_autuacao_negativacao") }}
-        where data_baixa between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+        select distinct concat("'", partition_id, "'") as partition_date
+        from `{{ aux_autuacao_negativacao.database }}.{{ aux_autuacao_negativacao.schema }}.INFORMATION_SCHEMA.PARTITIONS`
+        where
+            table_name = "{{ aux_autuacao_negativacao.identifier }}"
+            and partition_id != "__NULL__"
+            and datetime(last_modified_time, "America/Sao_Paulo") 
+                between datetime("{{ var('date_range_start') }}")
+                and (datetime("{{ var('date_range_end') }}"))
     {% endset %}
     {% set partitions = run_query(partitions_query).columns[0].values() %}
 {% endif %}
