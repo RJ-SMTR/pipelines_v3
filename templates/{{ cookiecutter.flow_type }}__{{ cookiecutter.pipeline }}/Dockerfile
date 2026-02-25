@@ -10,4 +10,8 @@ COPY ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} ./pip
 
 COPY ./pipelines/common/ ./pipelines/common/
 
+{% if cookiecutter.flow_type == "treatment" -%}
+COPY ./queries ./queries
+{%- endif -%}
+
 RUN uv sync --all-packages

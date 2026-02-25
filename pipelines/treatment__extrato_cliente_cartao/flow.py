@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-DBT: 2026-02-25
-"""
-
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.treatment__cadastro import constants
+from pipelines.treatment__extrato_cliente_cartao import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__cadastro(  # noqa: PLR0913
+def treatment__extrato_cliente_cartao(  # noqa: PLR0913
     env=None,
     datetime_start=None,
     datetime_end=None,
@@ -24,7 +20,7 @@ def treatment__cadastro(  # noqa: PLR0913
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.CADASTRO_SELECTOR],
+        selectors=[constants.EXTRATO_CLIENTE_CARTAO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
