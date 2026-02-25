@@ -74,6 +74,11 @@ with
         select data as data_lote, data_autuacao, id_auto_infracao
         from {{ autuacao_controle_negativacao }}
         where {{ incremental_filter }}
+        qualify
+            row_number() over (
+                partition by id_auto_infracao, data_autuacao order by data asc
+            )
+            = 1
     ),
 
     dados_novos as (
