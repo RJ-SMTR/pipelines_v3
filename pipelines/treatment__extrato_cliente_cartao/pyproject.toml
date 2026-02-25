@@ -1,0 +1,4 @@
+[project]
+name = "treatment__extrato_cliente_cartao"
+version = "0.1.0"
+description = "Pipeline extrato_cliente_cartao da secretaria rj-smtr"

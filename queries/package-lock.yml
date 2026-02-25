@@ -1,12 +1,17 @@
 packages:
-- package: dbt-labs/audit_helper
-  version: 0.12.0
-- package: data-mie/dbt_profiler
-  version: 0.8.2
-- package: dbt-labs/dbt_utils
-  version: 1.3.0
-- package: calogica/dbt_expectations
-  version: 0.10.4
-- package: calogica/dbt_date
-  version: 0.10.1
-sha1_hash: 5c2907338e1231024e9689210cbb001256eb2974
+  - name: audit_helper
+    package: dbt-labs/audit_helper
+    version: 0.12.0
+  - name: dbt_profiler
+    package: data-mie/dbt_profiler
+    version: 0.8.2
+  - name: dbt_utils
+    package: dbt-labs/dbt_utils
+    version: 1.3.0
+  - name: dbt_expectations
+    package: metaplane/dbt_expectations
+    version: 0.10.10
+  - name: dbt_date
+    package: godatadriven/dbt_date
+    version: 0.17.1
+sha1_hash: cde1cd18310f21e61ea381349a50333ac8ea6de2
