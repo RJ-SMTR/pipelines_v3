@@ -206,10 +206,14 @@ with
         {% if is_incremental() and partitions | length > 0 %}
             union all
             select *
-            from {{ this }}
+            from {{ this }} as atual
             where
                 data in ({{ partitions | join(", ") }})
-                and contrato not in (select contrato from dados_novos_com_controle)
+                and not exists (
+                    select 1
+                    from dados_novos_com_controle as novo
+                    where novo.contrato = atual.contrato
+                )
         {% endif %}
     )
 
