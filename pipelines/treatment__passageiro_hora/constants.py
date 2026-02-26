@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Valores constantes para materialização do selector gps_validador
+Valores constantes para materialização do selector passageiro_hora
 """
 
 from datetime import datetime
