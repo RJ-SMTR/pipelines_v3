@@ -6,13 +6,10 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}/
+COPY ./pipelines/treatment__passageiro_hora ./pipelines/treatment__passageiro_hora/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-{% if cookiecutter.flow_type == "treatment" -%}
 COPY ./queries ./queries
-
-{%- endif -%}
 
 RUN uv sync --all-packages
