@@ -7,7 +7,7 @@ from pipelines.common.utils.state_handlers import handler_post_sentry
 @task
 def task_raises_exception():
     print("Iniciando o flow test__raise_for_sentry")
-    sleep(5)
+    sleep(6)
     err = 1/0
 
 @flow(
