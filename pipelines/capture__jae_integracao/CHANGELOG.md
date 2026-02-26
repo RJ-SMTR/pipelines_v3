@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__jae_integracao`
+- Cria flow `capture__jae_integracao` (https://github.com/RJ-SMTR/pipelines_v3/pull/58)
