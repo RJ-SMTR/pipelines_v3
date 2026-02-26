@@ -7,33 +7,48 @@ model: haiku
 # Contexto de Migração: Prefect 1.4 → Prefect 3.0
 
 ## Repositórios
+
 - **Origem (1.4):** /caminho/para/pipelines_rj_smtr (Prefect 1.4)
 - **Destino (3.0):** /caminho/para/pipelines_v3 (Prefect 3.0)
 
 ---
 
-## ⚠️ REGRAS IMPORTANTES
+## REGRAS OBRIGATÓRIAS
 
-### 0. Atualizar Repositório de Origem Antes de Migrar
+### 0. CRIAR PLANO ANTES DE MIGRAR
 
-**SEMPRE** atualize a branch main do repositório de origem antes de iniciar qualquer migração:
-```bash
-cd /caminho/para/pipelines_rj_smtr
-git checkout main
-git pull origin main
-```
+**ANTES de qualquer alteração**, você DEVE criar um plano de migração e apresentar ao usuário para validação. Use o EnterPlanMode para isso.
 
-Isso garante que você está migrando a versão mais recente do código.
+**O plano deve conter:**
 
-### 1. Usar Cookiecutter para Criar Novos Pipelines
+1. Nome do flow a ser migrado e tipo (capture/treatment/integration)
+2. Arquivos de origem identificados (flow.py, constants.py, tasks.py, utils.py)
+3. O que será reutilizado de `pipelines/common/`
+4. O que precisará ser criado/adaptado
+5. [TREATMENT] Modelos DBT a serem copiados, snapshots, selectors
+6. [TREATMENT] Se `schema.yml` já existe no destino e se há diferenças
+7. Dependências ou pontos de atenção
 
-**SEMPRE** use o cookiecutter para criar a estrutura de um novo pipeline:
+**Só prossiga com a implementação após aprovação do usuário.**
+
+### 1. Trabalhar Diretamente no Repositório Destino
+
+**NUNCA** crie arquivos em pasta temporária (`/tmp`, `tmp/`, etc) para depois mover.
+**SEMPRE** faça todas as alterações diretamente no repositório destino (`pipelines_v3/`).
+
+### 2. Usar Cookiecutter PRIMEIRO
+
+**SEMPRE** use o cookiecutter como primeiro passo para criar a estrutura do pipeline:
+
 ```bash
 cd /caminho/para/pipelines_v3
 uvx cookiecutter templates --output-dir=pipelines
 ```
 
-Isso garante que todos os arquivos necessários sejam criados de forma padronizada:
+Depois ajuste os arquivos gerados conforme necessário. **Nunca crie a estrutura manualmente.**
+
+Arquivos gerados pelo cookiecutter:
+
 - `pyproject.toml`
 - `Dockerfile`
 - `prefect.yaml`
@@ -43,12 +58,58 @@ Isso garante que todos os arquivos necessários sejam criados de forma padroniza
 - `.dockerignore`
 
 **Templates disponíveis:**
+
 - `capture` - Para pipelines de captura de dados
 - `treatment` - Para pipelines de materialização/tratamento
 
-### 2. Verificar `pipelines/common/` Antes de Criar Código Novo
+### 3. Imports Sempre no Topo do Arquivo
+
+**NUNCA** faça imports dentro de definições de funções (flows, tasks, etc.). Todos os imports necessários devem estar no **topo do arquivo**, após o header e a docstring.
+
+```python
+# -*- coding: utf-8 -*-
+"""
+DBT: 2026-02-04
+"""
+# CORRETO: imports no topo
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from prefect import flow
+from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
+
+@flow(log_prints=True)
+def capture__exemplo(env=None, timestamp=None):
+    create_capture_flows_default_tasks(...)
+```
+
+```python
+# ERRADO: imports dentro da função
+@flow(log_prints=True)
+def capture__exemplo(env=None, timestamp=None):
+    from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks  # NÃO FAÇA ISSO
+    create_capture_flows_default_tasks(...)
+```
+
+### 4. NÃO Criar `__init__.py` nos Flows Migrados
+
+Os pipelines individuais (ex: `capture__jae_auxiliar/`, `treatment__cadastro/`) **NÃO têm** `__init__.py`. Apenas `pipelines/common/` e seus subdiretórios usam `__init__.py`.
+
+**NUNCA** crie `__init__.py` dentro de um pipeline migrado.
+
+### 5. Atualizar Repositório de Origem Antes de Migrar
+
+**SEMPRE** atualize a branch main do repositório de origem antes de iniciar qualquer migração:
+
+```bash
+cd /caminho/para/pipelines_rj_smtr
+git checkout main
+git pull origin main
+```
+
+### 6. Verificar `pipelines/common/` Antes de Criar Código Novo
 
 **ANTES** de criar qualquer task ou função nova, **SEMPRE** verifique se já existe algo similar em:
+
 ```
 pipelines/common/
 ├── capture/
@@ -83,6 +144,7 @@ pipelines/common/
 ```
 
 **Ordem de verificação:**
+
 1. `pipelines/common/tasks.py` - Tasks genéricas
 2. `pipelines/common/capture/default_capture/` - Para flows de captura
 3. `pipelines/common/treatment/default_treatment/` - Para flows de tratamento
@@ -92,231 +154,138 @@ pipelines/common/
 **Se encontrar algo similar:** Reutilize ou estenda
 **Se não encontrar:** Crie em `common/` se for reutilizável, ou no pipeline específico se for único
 
-### 3. Copiar Modelos DBT para Flows de Treatment
+### 7. [TREATMENT] Copiar Modelos DBT - Verificar Antes de Sobrescrever
 
-**Para flows de treatment**, além de migrar o código Python, é necessário copiar os modelos DBT correspondentes ao selector utilizado, incluindo modelos de staging, snapshots e documentação.
+**Para flows de treatment**, além de migrar o código Python, copie os modelos DBT correspondentes.
+
+**IMPORTANTE - Verificação de `schema.yml`:**
+Antes de copiar, verifique se `schema.yml` já existe no repositório destino:
+
+```bash
+# Verificar se já existe
+ls pipelines_v3/queries/models/{dominio}/schema.yml
+```
+
+- **Se NÃO existe**: copie normalmente
+- **Se existe**: compare os arquivos. Se forem iguais, não é necessário copiar. Se forem diferentes, **PARE e informe ao usuário** as diferenças para que ele decida o que fazer. **Nunca sobrescreva automaticamente.**
 
 **Estrutura de pastas DBT:**
+
 ```
 # Repositório origem (1.4)
 pipelines_rj_smtr/queries/
 ├── models/
-│   └── {dominio}/              # Ex: cadastro, transito, bilhetagem
-│       ├── staging/            # Modelos de staging (transformações intermediárias)
-│       │   ├── stg_*.sql       # Modelos prefixados com stg_
-│       │   └── aux_*.sql       # Modelos auxiliares
-│       ├── *.sql               # Modelos finais
-│       ├── schema.yml          # Documentação e testes dos modelos
-│       └── CHANGELOG.md        # Histórico de mudanças
+│   └── {dominio}/
+│       ├── staging/
+│       │   ├── stg_*.sql
+│       │   └── aux_*.sql
+│       ├── *.sql
+│       ├── schema.yml
+│       └── CHANGELOG.md
 └── snapshots/
     └── {dominio}/
-        └── snapshot_*.sql      # Snapshots para rastreamento histórico
+        └── snapshot_*.sql
 
-# Repositório destino (3.0)
+# Repositório destino (3.0) - mesma estrutura
 pipelines_v3/queries/
 ├── models/
-│   └── {dominio}/              # Mesma estrutura
+│   └── {dominio}/
 └── snapshots/
-    └── {dominio}/              # Mesma estrutura
+    └── {dominio}/
 ```
 
 **Passo a passo:**
 
-1. **Identifique o selector** usado no flow de treatment:
-```python
-   # No arquivo constants.py do flow antigo
-   CADASTRO_SELECTOR = DBTSelector(
-       name="cadastro",  # <-- Este é o nome do selector
-       ...
-   )
-
-   # Se houver snapshot, também estará aqui:
-   SNAPSHOT_CADASTRO_SELECTOR = DBTSelector(
-       name="snapshot_cadastro",
-       ...
-   )
-```
-
-2. **Localize o selector no arquivo de selectors do DBT:**
-```bash
-   # Repositório origem
-   cat pipelines_rj_smtr/queries/selectors.yml | grep -A 10 "name: cadastro"
-```
-
-   Exemplo de selector:
-```yaml
-   selectors:
-     - name: cadastro
-       definition:
-         method: fqn
-         value: "cadastro"  # Pasta/modelo a ser copiado
-
-     - name: snapshot_cadastro
-       definition:
-         method: fqn
-         value: "snapshot_cadastro"  # Snapshot também pode ter selector
-```
-
-3. **Copie a pasta completa de modelos:**
-```bash
-   # Copiar pasta inteira de modelos (inclui staging/, schema.yml, CHANGELOG.md, etc)
-   cp -r pipelines_rj_smtr/queries/models/cadastro/ pipelines_v3/queries/models/
-```
-
-   Isso inclui automaticamente:
-   - Modelos finais (*.sql)
-   - Modelos de staging (staging/*.sql)
-   - Modelos auxiliares (aux_*.sql)
-   - Documentação (schema.yml) com testes e descrições
-   - Histórico (CHANGELOG.md)
-
-4. **Copie os snapshots relacionados (se existirem):**
-```bash
-   # Verificar se há snapshots para este domínio
-   ls -la pipelines_rj_smtr/queries/snapshots/{dominio}/
-
-   # Copiar snapshots (crie o diretório se não existir)
+1. **Identifique o selector** usado no flow de treatment (em `constants.py`)
+2. **Localize o selector** no arquivo `selectors.yml` da origem
+3. **Verifique se já existem arquivos no destino** antes de copiar:
+   ```bash
+   ls -la pipelines_v3/queries/models/{dominio}/ 2>/dev/null
+   ls -la pipelines_v3/queries/snapshots/{dominio}/ 2>/dev/null
+   ```
+4. **Copie a pasta completa de modelos** (se não existir no destino):
+   ```bash
+   cp -r pipelines_rj_smtr/queries/models/{dominio}/ pipelines_v3/queries/models/
+   ```
+5. **Copie os snapshots** (se existirem e não estiverem no destino):
+   ```bash
    mkdir -p pipelines_v3/queries/snapshots/{dominio}/
    cp pipelines_rj_smtr/queries/snapshots/{dominio}/*.sql pipelines_v3/queries/snapshots/{dominio}/
-
-   # Exemplo com transito:
-   mkdir -p pipelines_v3/queries/snapshots/transito/
-   cp pipelines_rj_smtr/queries/snapshots/transito/*.sql pipelines_v3/queries/snapshots/transito/
-```
-
-5. **Verifique se os sources estão definidos:**
-```bash
-   # Identificar sources usados nos modelos
-   grep -roh "source('[^']*', '[^']*')" pipelines_v3/queries/models/cadastro/ | sort -u
-
-   # Verificar se estão em pipelines_v3/queries/models/sources.yml
-   grep "name: {source_name}" pipelines_v3/queries/models/sources.yml
-
-   # Se faltar, copiar do repositório origem
-   # Isso geralmente já está no destino para os domínios principais
-```
-
-6. **Verifique o arquivo `selectors.yml` do repositório destino:**
-```bash
-   # Verificar se o selector já existe
-   grep "name: cadastro" pipelines_v3/queries/selectors.yml
-
-   # Se não existir, copiar a definição completa do selector
-   # do arquivo de origem para o de destino
-```
-
-7. **Verifique dependências entre modelos:**
-```bash
-   # Listar refs usadas nos modelos copiados
-   grep -roh "ref('[^']*')" pipelines_v3/queries/models/cadastro/ | sort -u
-
-   # Se houver refs para modelos em outros domínios, verificar se já existem
-   # Se não existirem, copiar também esses modelos dependentes
-```
-
-**Exemplo completo para migrar `treatment__transito_autuacao`:**
-```bash
-# 1. Atualizar repo origem
-cd /caminho/para/pipelines_rj_smtr
-git checkout main && git pull origin main
-
-# 2. Copiar modelos (inclui staging/, schema.yml, CHANGELOG.md)
-cp -r queries/models/transito/ /caminho/para/pipelines_v3/queries/models/
-
-# 3. Copiar snapshots (se existirem)
-mkdir -p /caminho/para/pipelines_v3/queries/snapshots/transito/
-cp queries/snapshots/transito/*.sql /caminho/para/pipelines_v3/queries/snapshots/transito/
-
-# 4. Verificar sources usados
-grep -roh "source('[^']*', '[^']*')" /caminho/para/pipelines_v3/queries/models/transito/ | sort -u
-# Resultado: source('transito_staging', 'infracoes_renainf'), etc
-
-# 5. Verificar se sources existem no destino
-grep -A 5 "name: transito_staging" /caminho/para/pipelines_v3/queries/models/sources.yml
-
-# 6. Verificar selectors no destino
-grep -A 5 "name: transito_autuacao" /caminho/para/pipelines_v3/queries/selectors.yml
-grep -A 5 "name: snapshot_transito" /caminho/para/pipelines_v3/queries/selectors.yml
-
-# 7. Verificar refs entre modelos
-grep -roh "ref('[^']*')" /caminho/para/pipelines_v3/queries/models/transito/ | sort -u
-# Se houver refs para modelos em outros domínios, copiar também
-
-# 8. Testar compilação dos modelos
-cd /caminho/para/pipelines_v3/queries
-dbt parse --select transito  # Verifica se os modelos estão corretos
-```
-
----
-
-## 🎯 Observações Importantes da Prática
-
-### DBT Models - O que Copiar
-
-Ao copiar modelos DBT, **sempre copie a pasta inteira** do domínio, não apenas arquivos individuais:
-
-```bash
-# ✓ CORRETO: Copia tudo de uma vez
-cp -r pipelines_rj_smtr/queries/models/transito/ pipelines_v3/queries/models/
-
-# ✗ ERRADO: Copia apenas alguns arquivos
-cp pipelines_rj_smtr/queries/models/transito/*.sql pipelines_v3/queries/models/transito/
-```
-
-**Por quê?** Porque a pasta inclui:
-- Subdiretórios (staging/, etc)
-- schema.yml (testes e documentação)
-- CHANGELOG.md (histórico)
-- Todos os arquivos SQL na estrutura correta
-
-### Snapshots
-
-Snapshots são **frequentemente esquecidos** mas essenciais para rastreamento histórico:
-
-```bash
-# Sempre verificar e copiar snapshots
-ls pipelines_rj_smtr/queries/snapshots/
-# Se existir um diretório com o domínio, copiar
-mkdir -p pipelines_v3/queries/snapshots/transito/
-cp pipelines_rj_smtr/queries/snapshots/transito/*.sql pipelines_v3/queries/snapshots/transito/
-```
-
-### Sources, Selectors e Testes
-
-**Antes de criar um novo código Python**, sempre verifique:
-
-1. **Sources.yml:** Geralmente os sources já existem no destino para domínios principais
+   ```
+6. **Verifique sources, selectors e dependências**:
    ```bash
-   grep -A 5 "name: transito_staging" pipelines_v3/queries/models/sources.yml
+   # Sources usados
+   grep -roh "source('[^']*', '[^']*')" pipelines_v3/queries/models/{dominio}/ | sort -u
+   # Selectors no destino
+   grep "name: {selector}" pipelines_v3/queries/selectors.yml
+   # Refs entre modelos
+   grep -roh "ref('[^']*')" pipelines_v3/queries/models/{dominio}/ | sort -u
+   ```
+7. **Teste a compilação:**
+   ```bash
+   cd pipelines_v3/queries
+   dbt parse --select {dominio}
    ```
 
-2. **Selectors.yml:** Pode ser que o selector já exista
-   ```bash
-   grep "name: transito_autuacao" pipelines_v3/queries/selectors.yml
-   ```
+### 8. Docstrings: Apenas no Início do Arquivo flow.py
 
-3. **Schema.yml:** Contém testes importantes que já vêm com a cópia dos modelos
-   ```bash
-   grep -A 10 "tests:" pipelines_v3/queries/models/transito/schema.yml
-   ```
+**NÃO** adicione docstring na definição da função do flow (no `@flow` ou `def`).
+Adicione docstring **apenas no início do arquivo** `flow.py`, após o header:
 
-### Validação Final
+```python
+# -*- coding: utf-8 -*-
+"""
+DBT: 2026-02-04
+"""
+from prefect import flow
+...
 
-Sempre teste a compilação após copiar:
-```bash
-cd pipelines_v3/queries
-dbt parse --select transito  # Valida se tudo está correto
+@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+def treatment__exemplo(env=None, ...):  # SEM docstring aqui
+    create_materialization_flows_default_tasks(...)
 ```
+
+### 9. CHANGELOG Simples
+
+Mantenha o CHANGELOG simples, seguindo o padrão dos outros CHANGELOGs do repositório. Use um placeholder para o link do PR:
+
+```markdown
+# Changelog - {flow_type}\_\_{pipeline_name}
+
+## [1.0.0] - YYYY-MM-DD
+
+### Adicionado
+
+- Migração do flow `{nome_flow_antigo}` do Prefect 1.4 para Prefect 3.0 (https://github.com/RJ-SMTR/pipelines_v3/pull/XXX)
+```
+
+**Não invente versões além da 1.0.0 para migrações iniciais. Use a data atual.**
+
+### 10. NÃO Criar Arquivos de Documentação Extras
+
+**NUNCA** crie múltiplos arquivos de documentação, guias de migração, READMEs, ou arquivos de suporte durante a migração. Exemplos do que **NÃO** fazer:
+
+- `MIGRATION_GUIDE.md`
+- `MIGRATION_NOTES.md`
+- `README.md` dentro do pipeline
+- `SUMMARY.md`
+- Qualquer outro `.md` além do `CHANGELOG.md`
+
+Ao final da migração, apresente **apenas um resumo direto na conversa** com as informações principais:
+
+- Arquivos criados/modificados
+- Decisões tomadas
+- Pontos de atenção ou ações pendentes
 
 ---
 
 ## Estrutura do Projeto Novo
 
 Cada pipeline é um pacote independente com sua própria estrutura:
+
 ```
 pipelines/
 ├── capture__jae_auxiliar/          # Nome: tipo__fonte
-│   ├── __init__.py
 │   ├── CHANGELOG.md
 │   ├── Dockerfile
 │   ├── constants.py
@@ -333,26 +302,38 @@ pipelines/
 
 queries/                             # Modelos DBT
 ├── models/
-│   ├── cadastro/                   # Modelos do selector cadastro
+│   ├── cadastro/
 │   ├── bilhetagem/
-│   └── _sources/                   # Definições de sources
-├── selectors.yml                   # Definição dos selectors
+│   └── _sources/
+├── selectors.yml
 ├── dbt_project.yml
 └── profiles.yml
 ```
+
+**Nota:** Pipelines individuais NÃO têm `__init__.py`. Apenas `common/` e seus subdiretórios.
 
 ---
 
 ## Workflow de Migração
 
-### Passo 0: Atualizar repositório de origem
+### Passo 0: Criar plano e validar com o usuário
+
+1. Ler o flow de origem (flow.py, constants.py, tasks.py, utils.py)
+2. Verificar o que existe em `common/` que pode ser reutilizado
+3. [TREATMENT] Verificar modelos DBT, snapshots, schema.yml no destino
+4. Apresentar plano detalhado ao usuário via EnterPlanMode
+5. **Aguardar aprovação antes de prosseguir**
+
+### Passo 1: Atualizar repositório de origem
+
 ```bash
 cd /caminho/para/pipelines_rj_smtr
 git checkout main
 git pull origin main
 ```
 
-### Passo 1: Criar estrutura com cookiecutter
+### Passo 2: Criar estrutura com cookiecutter
+
 ```bash
 cd /caminho/para/pipelines_v3
 uvx cookiecutter templates --output-dir=pipelines
@@ -360,49 +341,49 @@ uvx cookiecutter templates --output-dir=pipelines
 
 Responda as perguntas do template (nome, tipo, etc).
 
-### Passo 2: Verificar o que já existe em common/
+### Passo 3: Ajustar os arquivos gerados
 
-Antes de escrever código, cheque:
-- Existe task similar em `common/tasks.py`?
-- Existe extractor similar em `common/capture/`?
-- Existe util similar em `common/utils/`?
-
-### Passo 3: Migrar constants.py
+#### constants.py
 
 - Remover `Enum`
 - Adicionar `tzinfo` nos `datetime()`
-- Atualizar imports
+- Atualizar imports para `pipelines.common.*`
+- Remover `.value` das constants
 
-### Passo 4: Migrar flow.py
+#### flow.py
 
-- Usar `@flow` decorator
+- Usar `@flow` decorator (gerado pelo cookiecutter)
 - Parâmetros viram argumentos da função
 - Chamar função genérica (`create_capture_flows_default_tasks` ou `create_materialization_flows_default_tasks`)
+- Docstring apenas no início do arquivo, NÃO na função do flow
 
-### Passo 5: Criar task específica (se necessário)
+### Passo 4: Criar tasks específicas (se necessário)
 
-Se precisar de uma task específica (como `create_jae_general_extractor`):
 1. Verificar se pode reutilizar algo de `common/`
 2. Se for reutilizável, criar em `common/capture/{fonte}/tasks.py`
 3. Se for único, criar no próprio pipeline
 
-### Passo 6: [TREATMENT] Copiar modelos DBT
+### Passo 5: [TREATMENT] Copiar modelos DBT
 
-**Apenas para flows de treatment:**
-1. Identificar selector no flow
-2. Copiar modelos de `queries/models/{dominio}/` **com toda a estrutura** (staging/, schema.yml, CHANGELOG.md)
-3. Copiar snapshots de `queries/snapshots/{dominio}/` (se existirem)
-4. Verificar se sources estão definidos em `sources.yml`
-5. Verificar se selectors já existem em `selectors.yml`
-6. Verificar e copiar dependências (refs) entre modelos
-7. Testar compilação com `dbt parse --select {dominio}`
+1. Verificar se modelos/schema.yml já existem no destino
+2. Se schema.yml existir e for diferente, **perguntar ao usuário**
+3. Copiar modelos, snapshots, verificar sources e selectors
+4. Testar com `dbt parse --select {dominio}`
 
-### Passo 7: Atualizar prefect.yaml
+### Passo 6: Atualizar prefect.yaml
 
 - Definir schedules (cron)
 - Configurar deployments staging e prod
 
-### Passo 8: Atualizar CHANGELOG.md
+### Passo 7: Atualizar CHANGELOG.md
+
+- Formato simples, versão 1.0.0, placeholder para PR
+
+### Passo 8: Resumo final
+
+- Apresentar resumo na conversa (NÃO criar arquivo)
+- Listar arquivos criados/modificados
+- Indicar ações pendentes
 
 ---
 
@@ -411,6 +392,7 @@ Se precisar de uma task específica (como `create_jae_general_extractor`):
 ### 1. Definição de Flow
 
 **ANTES (1.4):**
+
 ```python
 from prefect import Parameter, case, unmapped
 from prefeitura_rio.pipelines_utils.custom import Flow
@@ -424,7 +406,12 @@ with Flow("jae: auxiliares - captura") as CAPTURA_AUXILIAR:
 ```
 
 **DEPOIS (3.0):**
+
 ```python
+# -*- coding: utf-8 -*-
+"""
+Common 2026-02-11
+"""
 from prefect import flow
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 
@@ -437,13 +424,13 @@ def capture__jae_auxiliar(
     recapture_days=2,
     recapture_timestamps=None,
 ):
-    # chamada direta de função
     create_capture_flows_default_tasks(...)
 ```
 
 ### 2. Tasks
 
 **ANTES (1.4):**
+
 ```python
 from prefect import task
 from pipelines.constants import constants
@@ -458,6 +445,7 @@ def minha_task(param):
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from prefect import task
 
@@ -470,6 +458,7 @@ def minha_task(param):
 ### 3. Constants
 
 **ANTES (1.4):**
+
 ```python
 from enum import Enum
 
@@ -481,6 +470,7 @@ class constants(Enum):
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 # Variáveis diretas (sem Enum)
 JAE_SOURCE_NAME = "jae"
@@ -492,6 +482,7 @@ JAE_SECRET_PATH = "smtr_jae_access_data"
 ### 4. SourceTable
 
 **ANTES (1.4):**
+
 ```python
 from pipelines.utils.gcp.bigquery import SourceTable
 from pipelines.schedules import create_hourly_cron
@@ -501,14 +492,14 @@ JAE_AUXILIAR_SOURCES = [
         source_name=JAE_SOURCE_NAME,
         table_id=k,
         first_timestamp=datetime(2024, 1, 7, 0, 0, 0),
-        schedule_cron=create_hourly_cron(),  # cron explícito
+        schedule_cron=create_hourly_cron(),
         primary_keys=v["primary_keys"],
-        # ...
     )
 ]
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
@@ -520,9 +511,8 @@ JAE_AUXILIAR_SOURCES = [
             "first_timestamp",
             datetime(2024, 1, 7, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         ),
-        flow_folder_name="capture__jae_auxiliar",  # infere cron do prefect.yaml
+        flow_folder_name="capture__jae_auxiliar",
         primary_keys=v["primary_keys"],
-        # ...
     )
 ]
 ```
@@ -530,6 +520,7 @@ JAE_AUXILIAR_SOURCES = [
 ### 5. DBTSelector
 
 **ANTES (1.4):**
+
 ```python
 from pipelines.treatment.templates.utils import DBTSelector
 from pipelines.schedules import create_hourly_cron
@@ -542,19 +533,21 @@ CADASTRO_SELECTOR = DBTSelector(
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
 CADASTRO_SELECTOR = DBTSelector(
     name="cadastro",
     initial_datetime=datetime(2025, 3, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="treatment__cadastro",  # infere cron do prefect.yaml
+    flow_folder_name="treatment__cadastro",
 )
 ```
 
 ### 6. Runtime e Context
 
 **ANTES (1.4):**
+
 ```python
 import prefect
 
@@ -563,6 +556,7 @@ flow_run_id = prefect.context.flow_run_id
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from prefect import runtime
 
@@ -575,11 +569,13 @@ task_run_id = runtime.task_run.id
 ### 7. Ambiente (dev/prod)
 
 **ANTES (1.4):**
+
 ```python
 # Inferido pelo agent label ou variável de ambiente
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from prefect import runtime
 
@@ -592,12 +588,14 @@ def get_run_env(env, deployment_name):
 ### 8. Logging
 
 **ANTES (1.4):**
+
 ```python
 from prefeitura_rio.pipelines_utils.logging import log
 log("mensagem", level="info")
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 print("mensagem")  # com log_prints=True no decorator @flow
 ```
@@ -605,12 +603,14 @@ print("mensagem")  # com log_prints=True no decorator @flow
 ### 9. Secrets
 
 **ANTES (1.4):**
+
 ```python
 from pipelines.utils.secret import get_secret
 credentials = get_secret(constants.JAE_SECRET_PATH.value)
 ```
 
 **DEPOIS (3.0):**
+
 ```python
 from pipelines.common.utils.secret import get_env_secret
 credentials = get_env_secret(jae_constants.JAE_SECRET_PATH)  # sem .value
@@ -620,13 +620,13 @@ credentials = get_env_secret(jae_constants.JAE_SECRET_PATH)  # sem .value
 
 ## Padrões de Nomenclatura
 
-| Tipo | Padrão Antigo | Padrão Novo |
-|------|---------------|-------------|
-| Pasta do flow | `capture/jae/` | `capture__jae_auxiliar/` |
-| Nome do flow | `jae: auxiliares - captura` | `capture__jae_auxiliar` |
-| Função do flow | `CAPTURA_AUXILIAR` (variável) | `capture__jae_auxiliar` (função) |
-| Deployment staging | N/A | `rj-capture--jae_auxiliar--staging` |
-| Deployment prod | N/A | `rj-capture--jae_auxiliar--prod` |
+| Tipo               | Padrão Antigo                 | Padrão Novo                         |
+| ------------------ | ----------------------------- | ----------------------------------- |
+| Pasta do flow      | `capture/jae/`                | `capture__jae_auxiliar/`            |
+| Nome do flow       | `jae: auxiliares - captura`   | `capture__jae_auxiliar`             |
+| Função do flow     | `CAPTURA_AUXILIAR` (variável) | `capture__jae_auxiliar` (função)    |
+| Deployment staging | N/A                           | `rj-capture--jae_auxiliar--staging` |
+| Deployment prod    | N/A                           | `rj-capture--jae_auxiliar--prod`    |
 
 ---
 
@@ -634,32 +634,38 @@ credentials = get_env_secret(jae_constants.JAE_SECRET_PATH)  # sem .value
 
 Para cada flow:
 
+- [ ] **Plano criado e aprovado pelo usuário**
 - [ ] **Atualizar repo origem:** `git checkout main && git pull origin main`
 - [ ] Criar estrutura com `uvx cookiecutter templates --output-dir=pipelines`
 - [ ] Verificar `common/` para reutilização de código
-- [ ] Migrar `constants.py` (remover Enum, usar variáveis diretas)
-- [ ] Migrar `flow.py`:
+- [ ] Ajustar `constants.py` (remover Enum, usar variáveis diretas, adicionar tzinfo)
+- [ ] Ajustar `flow.py`:
+  - [ ] Docstring apenas no início do arquivo (não na função)
   - [ ] Substituir `with Flow()` por `@flow`
   - [ ] Substituir `Parameter()` por argumentos de função
   - [ ] Usar `runtime` ao invés de `prefect.context`
   - [ ] Substituir `log()` por `print()`
 - [ ] Criar tasks específicas em `common/` se reutilizáveis
 - [ ] Atualizar imports para `pipelines.common.*`
-- [ ] Adicionar `tzinfo` em todos os `datetime()`
 - [ ] Remover `.value` das constants
-- [ ] **[TREATMENT]** Copiar modelos DBT para `queries/models/` (inclui staging/, schema.yml, CHANGELOG.md)
-- [ ] **[TREATMENT]** Copiar snapshots para `queries/snapshots/{dominio}/` (se existirem)
-- [ ] **[TREATMENT]** Verificar se sources estão definidos em `queries/models/sources.yml`
-- [ ] **[TREATMENT]** Verificar se selectors existem em `queries/selectors.yml`
-- [ ] **[TREATMENT]** Verificar dependências (refs) entre modelos e copiar modelos dependentes se necessário
+- [ ] **NÃO** criar `__init__.py` no pipeline
+- [ ] **[TREATMENT]** Verificar se modelos/schema.yml já existem no destino
+- [ ] **[TREATMENT]** Se schema.yml diferente, perguntar ao usuário
+- [ ] **[TREATMENT]** Copiar modelos DBT (staging/, schema.yml, CHANGELOG.md)
+- [ ] **[TREATMENT]** Copiar snapshots (se existirem)
+- [ ] **[TREATMENT]** Verificar sources em `sources.yml`
+- [ ] **[TREATMENT]** Verificar selectors em `selectors.yml`
+- [ ] **[TREATMENT]** Verificar dependências (refs) entre modelos
 - [ ] **[TREATMENT]** Testar compilação com `dbt parse --select {dominio}`
 - [ ] Configurar `prefect.yaml` com schedules
-- [ ] Atualizar `CHANGELOG.md`
-- [ ] Testar localmente
+- [ ] Atualizar `CHANGELOG.md` (formato simples, placeholder para PR)
+- [ ] **NÃO** criar arquivos de documentação extras
+- [ ] Apresentar resumo final na conversa
 
 ---
 
 ## Imports Comuns
+
 ```python
 # Flow e runtime
 from prefect import flow, runtime, unmapped
