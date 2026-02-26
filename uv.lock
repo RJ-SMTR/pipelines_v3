@@ -10,6 +10,9 @@ resolution-markers = [
 members = [
     "capture-jae-auxiliar",
     "capture-jae-gps-validador",
+    "capture-jae-integracao",
+    "capture-jae-lancamento",
+    "capture-jae-transacao-erro",
     "capture-serpro-autuacao",
     "common",
     "integration-previnity-negativacao",
@@ -17,6 +20,7 @@ members = [
     "test-runner-deployment",
     "treatment-cadastro",
     "treatment-cliente-cpf",
+    "treatment-extrato-cliente-cartao",
     "treatment-gps-validador",
     "treatment-transito-autuacao",
 ]
@@ -279,6 +283,21 @@ source = { virtual = "pipelines/capture__jae_auxiliar" }
 name = "capture-jae-gps-validador"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_gps_validador" }
+
+[[package]]
+name = "capture-jae-integracao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_integracao" }
+
+[[package]]
+name = "capture-jae-lancamento"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_lancamento" }
+
+[[package]]
+name = "capture-jae-transacao-erro"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao_erro" }
 
 [[package]]
 name = "capture-serpro-autuacao"
@@ -2882,6 +2901,11 @@ source = { virtual = "pipelines/treatment__cadastro" }
 name = "treatment-cliente-cpf"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__cliente_cpf" }
+
+[[package]]
+name = "treatment-extrato-cliente-cartao"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__extrato_cliente_cartao" }
 
 [[package]]
 name = "treatment-gps-validador"
