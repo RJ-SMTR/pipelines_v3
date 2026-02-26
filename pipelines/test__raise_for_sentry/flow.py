@@ -12,5 +12,5 @@ from pipelines.common.utils.state_handlers import handler_post_sentry
 )
 def test__raise_for_sentry() -> list[str]:
     print("Iniciando o flow test__raise_for_sentry")
-    sleep(10)
+    sleep(5)
     raise(ValueError("Erro proposital para testar integração com Sentry"))
