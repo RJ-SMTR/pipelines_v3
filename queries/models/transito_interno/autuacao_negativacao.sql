@@ -17,7 +17,13 @@
             list_columns()
             | reject(
                 "in",
-                ["data_confirmacao_inclusao", "data_confirmacao_baixa", "versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
+                [
+                    "data_confirmacao_inclusao",
+                    "data_confirmacao_baixa",
+                    "versao",
+                    "datetime_ultima_atualizacao",
+                    "id_execucao_dbt",
+                ],
             )
             | list
         ) %}
@@ -46,14 +52,7 @@
 
 with
     aux_retorno_negativacao as (
-        select
-            data,
-            data_autuacao,
-            datetime_retorno,
-            contrato,
-            cpf,
-            resultado,
-            fonte
+        select data, data_autuacao, datetime_retorno, contrato, cpf, resultado, fonte
         from {{ aux_retorno_negativacao }}
         where {{ incremental_filter }}
         qualify
@@ -207,11 +206,14 @@ with
         {% if is_incremental() and partitions | length > 0 %}
             union all
             select *
-            from {{ this }}
+            from {{ this }} as atual
             where
                 data in ({{ partitions | join(", ") }})
-                and contrato
-                not in (select contrato from dados_novos_com_controle)
+                and not exists (
+                    select 1
+                    from dados_novos_com_controle as novo
+                    where novo.contrato = atual.contrato
+                )
         {% endif %}
     )
 

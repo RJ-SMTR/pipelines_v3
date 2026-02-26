@@ -74,6 +74,11 @@ with
         select data as data_lote, data_autuacao, id_auto_infracao
         from {{ autuacao_controle_negativacao }}
         where {{ incremental_filter }}
+        qualify
+            row_number() over (
+                partition by id_auto_infracao, data_autuacao order by data asc
+            )
+            = 1
     ),
 
     dados_novos as (
@@ -341,10 +346,14 @@ with
         {% if is_incremental() and partitions | length > 0 %}
             union all
             select *
-            from {{ this }}
+            from {{ this }} as atual
             where
                 data in ({{ partitions | join(", ") }})
-                and contrato not in (select contrato from dados_novos_com_controle)
+                and not exists (
+                    select 1
+                    from dados_novos_com_controle as novo
+                    where novo.contrato = atual.contrato
+                )
         {% endif %}
     )
 
