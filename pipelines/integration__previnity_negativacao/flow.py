@@ -129,6 +129,6 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             flags=flags,
         )
 
-        save_materialization_datetime_redis.map(
-            context=materialization_contexts, wait_for=[run_dbt_future]
+        save_materialization_datetime_redis(
+            contexts=materialization_contexts, wait_for=[run_dbt_future]
         )
