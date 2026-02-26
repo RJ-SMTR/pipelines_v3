@@ -1,5 +1,11 @@
 # Changelog - treatment__gps_validador
 
+## [1.0.1] - 2026-02-26
+
+### Alterado
+
+- Ajusta webhook de alerta do flow `treatment__gps_validador` (https://github.com/RJ-SMTR/pipelines_v3/pull/43)
+
 ## [1.0.0] - 2026-02-01
 
 ### Adicionado
