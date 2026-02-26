@@ -113,17 +113,21 @@ async def async_api_post_request(
 
 
 @task
-def query_bq(query: str, project_id: str) -> list[dict]:
+def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list[dict]:
     """
     Executa uma query no BigQuery.
 
     Args:
         query (str): Query SQL.
         project_id (str): ID do projeto no GCP.
+        params (dict, optional): Parâmetros para formatar a query.
 
     Returns:
         list[dict]: Resultado da query como lista de dicionários.
     """
+    if params:
+        query = query.format(**params)
+
     print(f"Query: {query}")
 
     df = pandas_gbq.read_gbq(query, project_id=project_id, use_bqstorage_api=True)
