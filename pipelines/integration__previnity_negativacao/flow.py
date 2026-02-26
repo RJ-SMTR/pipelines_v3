@@ -63,7 +63,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     project_id = common_constants.PROJECT_NAME[env]
-    data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
+    data_list = query_bq(
+        query=constants.QUERY_PF,
+        project_id=project_id,
+        params={"datetime_start": datetime_start, "datetime_end": datetime_end},
+    )
 
     contexts = create_capture_contexts(
         env=env,
@@ -125,6 +129,6 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             flags=flags,
         )
 
-        save_materialization_datetime_redis.map(
-            context=materialization_contexts, wait_for=[run_dbt_future]
+        save_materialization_datetime_redis(
+            contexts=materialization_contexts, wait_for=[run_dbt_future]
         )
