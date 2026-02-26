@@ -63,7 +63,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     project_id = common_constants.PROJECT_NAME[env]
-    data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
+    data_list = query_bq(
+        query=constants.QUERY_PF,
+        project_id=project_id,
+        params={"datetime_start": datetime_start, "datetime_end": datetime_end},
+    )
 
     contexts = create_capture_contexts(
         env=env,
