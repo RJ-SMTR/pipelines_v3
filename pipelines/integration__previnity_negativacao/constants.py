@@ -26,8 +26,8 @@ SECRET_PATH = "previnity_api"
 
 QUERY_PF = """
     SELECT * FROM `rj-smtr.transito_interno.view_pessoa_fisica_negativacao`
-    WHERE (data_inclusao BETWEEN '{datetime_start}' AND '{datetime_end}')
-    OR (data_baixa BETWEEN '{datetime_start}' AND '{datetime_end}')
+    WHERE (data_inclusao BETWEEN DATE('{datetime_start}') AND DATE('{datetime_end}'))
+    OR (data_baixa BETWEEN DATE('{datetime_start}') AND DATE('{datetime_end}'))
 """
 
 QUERY_PJ = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_juridica_negativacao`"
