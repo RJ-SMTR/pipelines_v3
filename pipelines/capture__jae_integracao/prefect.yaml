@@ -35,6 +35,10 @@ deployments:
         command: uv run --package capture__jae_integracao -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
+        cpu_limit: "1000m"
+        memory_limit: "4600Mi"
+        cpu_request: "500m"
+        memory_request: "1000Mi"
   - name: rj-capture--jae_integracao--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__jae_integracao/flow.py:capture__jae_integracao
@@ -51,3 +55,7 @@ deployments:
         command: uv run --package capture__jae_integracao -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+        cpu_limit: "1000m"
+        memory_limit: "4600Mi"
+        cpu_request: "500m"
+        memory_request: "1000Mi"
