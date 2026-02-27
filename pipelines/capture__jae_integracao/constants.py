@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Valores constantes para captura de dados do GPS do validador da Jaé
+Valores constantes para captura de dados de integração da Jaé
 """
 
 from datetime import datetime
