@@ -10,11 +10,22 @@ import httpx
 import pandas as pd
 import pandas_gbq
 from prefect import runtime, task
+import sentry_sdk
 
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
+from pipelines.common.utils.secret import get_secret
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
+@task
+def initialize_sentry():
+    print("Inicializando Sentry SDK")
+    sentry_dsn = get_secret("sentry", "dsn")['dsn']
+    environment = 'staging'
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        environment=environment,
+    )
 
 @task
 def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
