@@ -1,0 +1,4 @@
+[project]
+name = "capture__jae_transacao"
+version = "0.1.0"
+description = "Pipeline jae_transacao da secretaria rj-smtr"
