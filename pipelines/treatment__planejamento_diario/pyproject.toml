@@ -1,0 +1,4 @@
+[project]
+name = "treatment__planejamento_diario"
+version = "0.1.0"
+description = "Pipeline de materialização do planejamento diário da secretaria rj-smtr"
