@@ -88,6 +88,7 @@ ALERT_WEBHOOK = "alertas_bilhetagem"
 TRANSACAO_TABLE_ID = "transacao"
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
 TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
+INTEGRACAO_TABLE_ID = "integracao_transacao"
 LANCAMENTO_TABLE_ID = "lancamento"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
@@ -135,6 +136,19 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "processador_transacao_db",
         "capture_delay_minutes": {"0": 5},
+    },
+    INTEGRACAO_TABLE_ID: {
+        "database": "ressarcimento_db",
+        "query": """
+                SELECT
+                    *
+                FROM
+                    integracao_transacao
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+                ORDER BY data_inclusao
+            """,
     },
     LANCAMENTO_TABLE_ID: {
         "query": """

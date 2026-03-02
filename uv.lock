@@ -6,6 +6,7 @@ requires-python = "==3.13.*"
 members = [
     "capture-jae-auxiliar",
     "capture-jae-gps-validador",
+    "capture-jae-integracao",
     "capture-jae-lancamento",
     "capture-jae-transacao-erro",
     "capture-serpro-autuacao",
@@ -248,6 +249,11 @@ source = { virtual = "pipelines/capture__jae_auxiliar" }
 name = "capture-jae-gps-validador"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_gps_validador" }
+
+[[package]]
+name = "capture-jae-integracao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_integracao" }
 
 [[package]]
 name = "capture-jae-lancamento"
