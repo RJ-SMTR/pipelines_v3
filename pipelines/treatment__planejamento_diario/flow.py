@@ -15,7 +15,7 @@ from pipelines.treatment__planejamento_diario import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__planejamento_diario(  # noqa: PLR0913
+def treatment__planejamento_diario(
     env=None,
     datetime_start=None,
     datetime_end=None,
