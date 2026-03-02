@@ -6,7 +6,9 @@ requires-python = "==3.13.*"
 members = [
     "capture-jae-auxiliar",
     "capture-jae-gps-validador",
+    "capture-jae-integracao",
     "capture-jae-lancamento",
+    "capture-jae-transacao",
     "capture-jae-transacao-erro",
     "capture-serpro-autuacao",
     "common",
@@ -250,9 +252,19 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_gps_validador" }
 
 [[package]]
+name = "capture-jae-integracao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_integracao" }
+
+[[package]]
 name = "capture-jae-lancamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_lancamento" }
+
+[[package]]
+name = "capture-jae-transacao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao" }
 
 [[package]]
 name = "capture-jae-transacao-erro"
