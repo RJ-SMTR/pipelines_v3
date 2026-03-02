@@ -8,6 +8,7 @@ members = [
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
+    "capture-jae-transacao",
     "capture-jae-transacao-erro",
     "capture-serpro-autuacao",
     "common",
@@ -259,6 +260,11 @@ source = { virtual = "pipelines/capture__jae_integracao" }
 name = "capture-jae-lancamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_lancamento" }
+
+[[package]]
+name = "capture-jae-transacao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao" }
 
 [[package]]
 name = "capture-jae-transacao-erro"
