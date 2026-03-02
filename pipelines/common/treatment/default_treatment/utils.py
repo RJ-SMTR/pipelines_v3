@@ -526,9 +526,12 @@ def run_dbt(
         elif isinstance(dbt_obj, DBTTest):
             invoke = ["test", "--select", dbt_obj.test_select]
 
-    if dbt_vars is not None:
-        vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
-        invoke = [*invoke, "--vars", vars_yaml]
+    dbt_vars = dbt_vars or {}
+
+    dbt_vars["flow_name"] = runtime.flow_run.flow_name
+
+    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
+    invoke = [*invoke, "--vars", vars_yaml]
 
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
