@@ -87,6 +87,7 @@ ALERT_WEBHOOK = "alertas_bilhetagem"
 
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
 TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
+LANCAMENTO_TABLE_ID = "lancamento"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
@@ -120,6 +121,43 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "processador_transacao_db",
         "capture_delay_minutes": {"0": 5},
+    },
+    LANCAMENTO_TABLE_ID: {
+        "query": """
+                SELECT
+                    l.*,
+                    m.cd_tipo_movimento,
+                    tm.ds_tipo_movimento,
+                    tc.ds_tipo_conta,
+                    tc.id_tipo_moeda,
+                    tmo.descricao as tipo_moeda,
+                    c.cd_cliente,
+                    c.nr_logico_midia
+                FROM
+                    lancamento l
+                LEFT JOIN
+                    movimento m
+                USING(id_movimento)
+                LEFT JOIN
+                    tipo_movimento tm
+                USING(cd_tipo_movimento)
+                LEFT JOIN
+                    conta c
+                USING(id_conta)
+                LEFT JOIN
+                    tipo_conta tc
+                USING(cd_tipo_conta)
+                LEFT JOIN
+                    tipo_moeda tmo
+                ON tc.id_tipo_moeda = tmo.id
+                WHERE
+                    l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
+                ORDER BY l.dt_lancamento DESC
+
+            """,
+        "database": "financeiro_db",
+        "capture_delay_minutes": {"0": 5, "2025-12-12 22:53:00": 1440},
     },
     "linha": {
         "query": """

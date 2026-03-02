@@ -22,12 +22,12 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
-    source_table_ids: tuple[str],
     timestamp: str,
     create_extractor_task: Task,
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
+    source_table_ids: Optional[tuple[str]] = None,
     extra_parameters: Optional[dict[str, dict]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",

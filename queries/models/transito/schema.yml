@@ -364,6 +364,7 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
 
   - name: receita_autuacao
+    description: "Tabela com o valor total de arrecadação mensal de autuações"
     columns:
       - name: data
         description: "coluna de partição"
@@ -375,6 +376,7 @@ models:
         description: "Valor arrecadado para o mes"
 
   - name: receita_autuacao_fonte
+    description: "Tabela com o valor de arrecadação mensal de autuações discriminado por fonte de dados"
     columns:
       - name: data
         description: "coluna de partição"

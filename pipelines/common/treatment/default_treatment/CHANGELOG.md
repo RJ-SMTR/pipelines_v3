@@ -1,5 +1,12 @@
 # Changelog - default_treatment
 
+## [1.0.2] - 2026-02-24
+
+### Alterado
+
+- Remove map da task `save_materialization_datetime_redis` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
+- Altera função para retornar secrets para `get_env_secrets` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
+
 ## [1.0.1] - 2026-02-03
 
 ### Alterado

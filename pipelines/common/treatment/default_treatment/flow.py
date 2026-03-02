@@ -171,8 +171,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["save_redis"] = save_materialization_datetime_redis.map(
-        context=tasks["contexts"],
+    tasks["save_redis"] = save_materialization_datetime_redis(
+        contexts=tasks["contexts"],
         wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
     )
 

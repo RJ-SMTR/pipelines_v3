@@ -1,0 +1,133 @@
+version: 2
+
+models:
+  - name: view_passageiro_hora
+    description: "View criada para uso no painel de bilhetagem. Junta os dados da tabela br_rj_riodejaneiro_bilhetagem.passageiros_hora [exceto os do tipo RioCard] com a tabela cadastro.servicos"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }}"
+      - name: hora
+        description: "Hora da transação"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+      - name: servico
+        description: "{{ doc('servico_cadastro') }}"
+      - name: descricao_servico
+        description: "{{ doc('descricao_servico_cadastro') }}"
+      - name: nome_completo_servico
+        description: "Concatenação das colunas servico e descricao_servico, separadas por ' - '"
+      - name: latitude_servico
+        description: "Latitude do stop no GTFS (apenas para modo BRT)"
+      - name: longitude_servico
+        description: "Longitude do stop no GTFS (apenas para modo BRT)"
+      - name: sentido
+        description: "{{ doc('sentido_bilhetagem') }}"
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+      - name: produto
+        description: "{{ doc('produto') }}"
+        data_type: string
+        quote: true
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: quantidade_passageiros
+        description: "Quantidade de transações que aconteceram em determinada data e hora"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: view_passageiro_tile_hora
+    description: "View criada para uso no painel de bilhetagem. Junta os dados da tabela br_rj_riodejaneiro_bilhetagem.passageiros_tile_hora com a tabela cadastro.servicos"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }}"
+      - name: hora
+        description: "Hora da transação"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+      - name: servico
+        description: "{{ doc('servico_cadastro') }}"
+      - name: descricao_servico
+        description: "{{ doc('descricao_servico_cadastro') }}"
+      - name: nome_completo_servico
+        description: "Concatenação das colunas servico e descricao_servico, separadas por ' - '"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+      - name: produto
+        description: "{{ doc('produto') }}"
+        data_type: string
+        quote: true
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: tile_id
+        description: "Identificador do hexágono da geolocalização da transação na tabela rj-smtr.br_rj_riodejaneiro_geo.h3_res9"
+      - name: quantidade_passageiros
+        description: "Quantidade de transações que aconteceram em determinada data e hora"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: view_integracao
+    description: "Tabela de integrações realizadas entre modos do sistema de transporte municipal, contendo os valores da repartição tarifária [quando houver - dados em fase de teste]"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "Hora da transação"
+      - name: id_integracao
+        description: "Identificador único da integração"
+      - name: perna_origem
+        description: "Número da sequência da transação atual dentro da integração"
+      - name: modo_origem
+        description: "Tipo de transporte (Ônibus, Van, BRT) da transação atual da integração"
+      - name: modo_origem_perna
+        description: "Concatenação da colunas modo_origem e perna_origem"
+      - name: consorcio_origem
+        description: "Nome do consórcio da transação atual da integração"
+      - name: descricao_servico_origem
+        description: "Descrição do serviço da transação atual da integração (vindo da tabela cadastro.servicos)"
+      - name: descricao_servico_origem_perna
+        description: "Concatenação da colunas descricao_servico_origem e perna_origem"
+      - name: perna_destino
+        description: "Número da sequência da próxima transação dentro da integração"
+      - name: modo_destino
+        description: "Tipo de transporte (Ônibus, Van, BRT) da próxima transação da integração"
+      - name: modo_destino_perna
+        description: "Concatenação da colunas modo_destino e perna_destino"
+      - name: consorcio_destino
+        description: "Nome do consórcio da próxima transação da integração"
+      - name: descricao_servico_destino
+        description: "Descrição do serviço da próxima transação da integração (vindo da tabela cadastro.servicos)"
+      - name: descricao_servico_destino_perna
+        description: "Concatenação da colunas descricao_servico_destino e perna_destino"
+      - name: tempo_integracao_minutos
+        description: "Tempo em minutos entre a trasação atual e a próxima transação da integração"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: ultimo_datetime_captura_confiavel
+    description: Tabela do horário de última atualização de captura válida
+    columns:
+      - name: datetime_confiavel
+        description: Datetime da última captura validada

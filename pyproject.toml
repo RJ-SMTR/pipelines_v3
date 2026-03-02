@@ -3,7 +3,7 @@ name = "pipelines_v3"
 version = "0.1.0"
 description = "Prefect pipelines for the Rio de Janeiro Department of Transportation."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "croniter>=6.0.0",
     "dbt-bigquery==1.10.1",

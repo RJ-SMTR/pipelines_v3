@@ -1,4 +1,16 @@
-# Changelog - integration__previnity_negativacao
+# Changelog - integration\_\_previnity_negativacao
+
+## [1.0.2] - 2026-02-26
+
+### Alterado
+
+- Adiciona filtro de datas na query `QUERY_PF` para buscar apenas registros no intervalo de execução, melhorando a performance do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/56)
+
+## [1.0.1] - 2026-02-24
+
+### Alterado
+
+- Altera função para retornar secrets para `get_env_secrets` (https://github.com/RJ-SMTR/pipelines_v3/pull/52)
 
 ## [1.0.0] - 2026-02-02
 

@@ -21,7 +21,7 @@ from pipelines.common.utils.utils import convert_timezone, data_info_str
 def create_capture_contexts(  # noqa: PLR0913
     env: str,
     sources: list[SourceTable],
-    source_table_ids: list[str],
+    source_table_ids: Optional[list[str]],
     timestamp: datetime,
     recapture: bool,
     recapture_days: int,
@@ -34,7 +34,7 @@ def create_capture_contexts(  # noqa: PLR0913
     Args:
         env (str): prod ou dev.
         sources (list[SourceTable]): Lista de SourceTable para captura.
-        source_table_ids (list[str]): Lista com os table_ids dos sources a serem capturados.
+        source_table_ids (Optional[list[str]]): Lista com os table_ids dos sources a serem capturados.
         timestamp (datetime): Timestamp de captura.
         recapture (bool): Indica se a execução é uma recaptura.
         recapture_days (int): Número de dias retroativos considerados na recaptura.
@@ -46,7 +46,12 @@ def create_capture_contexts(  # noqa: PLR0913
         list[SourceCaptureContext]: Lista de contextos de captura.
     """
     contexts = []
-    sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
+
+    if source_table_ids is None:
+        sources = [s.set_env(env=env) for s in sources]
+    else:
+        sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
+
     for source in sources:
         if recapture:
             if recapture_timestamps:

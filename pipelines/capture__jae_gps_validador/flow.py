@@ -26,7 +26,6 @@ def capture__jae_gps_validador(
     create_capture_flows_default_tasks(
         env=env,
         sources=[constants.GPS_VALIDADOR_SOURCE],
-        source_table_ids=[constants.GPS_VALIDADOR_SOURCE.table_id],
         timestamp=timestamp,
         create_extractor_task=create_jae_general_extractor,
         recapture=recapture,
