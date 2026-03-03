@@ -15,7 +15,7 @@ sources = [constants.VIAGEM_INFORMADA_SOURCE]
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__rioonibus_viagem_informada(  # noqa: PLR0913
+def capture__rioonibus_viagem_informada(
     env=None,
     timestamp=None,
     recapture=True,

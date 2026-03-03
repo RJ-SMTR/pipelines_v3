@@ -1,5 +1,5 @@
 name: capture__rioonibus_viagem_informada
-prefect-version: 3.4.8
+prefect-version: 3.4.9
 
 build:
   - prefect.deployments.steps.run_shell_script:
@@ -24,7 +24,7 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-capture--rioonibus-viagem-informada--staging
+  - name: rj-capture--rioonibus_viagem_informada--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/capture__rioonibus_viagem_informada/flow.py:capture__rioonibus_viagem_informada
     work_pool:
@@ -35,7 +35,7 @@ deployments:
         command: uv run --package capture__rioonibus_viagem_informada -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-capture--rioonibus-viagem-informada--prod
+  - name: rj-capture--rioonibus_viagem_informada--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__rioonibus_viagem_informada/flow.py:capture__rioonibus_viagem_informada
     schedules:

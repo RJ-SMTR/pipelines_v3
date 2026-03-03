@@ -34,7 +34,7 @@ def create_capture_contexts(  # noqa: PLR0913
     Args:
         env (str): prod ou dev.
         sources (list[SourceTable]): Lista de SourceTable para captura.
-        source_table_ids (Optional[list[str]]): Lista com os table_ids dos sources a serem capturados.
+        source_table_ids (Optional[list[str]]): Lista de table_ids dos sources a serem capturados.
         timestamp (datetime): Timestamp de captura.
         recapture (bool): Indica se a execução é uma recaptura.
         recapture_days (int): Número de dias retroativos considerados na recaptura.

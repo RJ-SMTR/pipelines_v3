@@ -38,7 +38,7 @@ def get_raw_api(
 
         if response.ok:
             break
-        if response.status_code >= 500:
+        if response.status_code >= constants.HTTP_SERVER_ERROR_STATUS:
             print(f"Server error {response.status_code}")
             if retry == constants.MAX_RETRIES - 1:
                 response.raise_for_status()
