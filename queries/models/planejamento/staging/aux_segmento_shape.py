@@ -9,7 +9,7 @@ from shapely import wkt
 from shapely.ops import substring, transform
 
 
-def model(dbt, session):
+def model(dbt, session):  # noqa: ARG001
     dbt.config(
         materialized="table",
     )
