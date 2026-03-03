@@ -397,6 +397,11 @@ selectors:
         - method: fqn
           value: snapshot_viagem_planejada
 
+  - name: snapshot_planejamento
+    definition:
+      method: fqn
+      value: snapshot_viagem_planejada
+
   - name: snapshot_subsidio
     definition:
       union:

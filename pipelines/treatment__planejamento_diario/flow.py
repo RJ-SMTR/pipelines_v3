@@ -25,6 +25,7 @@ def treatment__planejamento_diario(
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.PLANEJAMENTO_DIARIO_SELECTOR],
+        snapshot_selector=constants.SNAPSHOT_PLANEJAMENTO_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,

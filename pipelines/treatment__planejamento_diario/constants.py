@@ -14,3 +14,9 @@ PLANEJAMENTO_DIARIO_SELECTOR = DBTSelector(
     initial_datetime=datetime(2024, 9, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__planejamento_diario",
 )
+
+SNAPSHOT_PLANEJAMENTO_SELECTOR = DBTSelector(
+    name="snapshot_planejamento",
+    initial_datetime=datetime(2024, 9, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__planejamento_diario",
+)
