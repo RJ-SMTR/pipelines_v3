@@ -400,7 +400,7 @@ selectors:
   - name: snapshot_planejamento
     definition:
       method: fqn
-      value: snapshot_viagem_planejada
+      value: snapshot_viagem_planejada_planejamento
 
   - name: snapshot_subsidio
     definition:
