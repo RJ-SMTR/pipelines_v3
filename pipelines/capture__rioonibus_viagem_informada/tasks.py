@@ -44,4 +44,5 @@ def create_viagem_informada_extractor(context: SourceCaptureContext):
         get_raw_api_list,
         url=constants.VIAGEM_INFORMADA_BASE_URL,
         params_list=params,
+        raw_filepath=context.raw_filepath,
     )

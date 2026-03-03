@@ -7,9 +7,10 @@ from typing import Union
 import requests
 
 from pipelines.common import constants
+from pipelines.common.utils.fs import save_local_file
 
 
-def get_raw_api(
+def get_api_data(
     url: str,
     headers: Union[None, dict] = None,
     params: Union[None, dict] = None,
@@ -54,26 +55,54 @@ def get_raw_api(
     return data
 
 
+def get_raw_api(
+    url: str,
+    raw_filepath: str,
+    headers: Union[None, dict] = None,
+    params: Union[None, dict] = None,
+    raw_filetype: str = "json",
+) -> list[str]:
+    """
+    Get data from a single API endpoint and save to a local file.
+
+    Args:
+        url (str): API endpoint URL
+        raw_filepath (str): File path template with {page} placeholder
+        headers (Union[None, dict]): Request headers
+        params (Union[None, dict]): Request parameters
+        raw_filetype (str): File type for response (json, csv, etc.)
+
+    Returns:
+        list[str]: List with the path where data was saved
+    """
+    data = get_api_data(url=url, headers=headers, params=params, raw_filetype=raw_filetype)
+    filepath = raw_filepath.format(page=0)
+    save_local_file(filepath=filepath, filetype=raw_filetype, data=data)
+    return [filepath]
+
+
 def get_raw_api_list(
     url: Union[str, list[str]],
+    raw_filepath: str,
     params_list: Union[None, list[dict]] = None,
     headers: Union[None, dict] = None,
-) -> list[dict]:
+) -> list[str]:
     """
-    Get data from API by aggregating multiple calls with different parameters.
+    Get data from API by aggregating multiple calls and save to a local file.
 
     Args:
         url (str or list[str]): API endpoint URL(s)
+        raw_filepath (str): File path template with {page} placeholder
         params_list (list[dict]): List of parameter dicts for multiple requests
         headers (Union[None, dict]): Request headers
 
     Returns:
-        list[dict]: Aggregated API response data
+        list[str]: List with the path where data was saved
     """
     data = []
     if isinstance(url, list):
         for single_url in url:
-            page_data = get_raw_api(url=single_url, headers=headers, raw_filetype="json")
+            page_data = get_api_data(url=single_url, headers=headers, raw_filetype="json")
             data += page_data
     else:
         if params_list is None:
@@ -83,6 +112,9 @@ def get_raw_api_list(
             )
 
         for params in params_list:
-            page_data = get_raw_api(url=url, headers=headers, params=params, raw_filetype="json")
+            page_data = get_api_data(url=url, headers=headers, params=params, raw_filetype="json")
             data += page_data
-    return data
+
+    filepath = raw_filepath.format(page=0)
+    save_local_file(filepath=filepath, filetype="json", data=data)
+    return [filepath]
