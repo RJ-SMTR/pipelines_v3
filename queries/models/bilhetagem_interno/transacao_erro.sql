@@ -7,6 +7,7 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
+        require_partition_filter=true,
     )
 }}
 
@@ -77,7 +78,7 @@
 
 with
     transacao_erro_completa as (
-        select *
+        select * except (versao, datetime_ultima_atualizacao, id_execucao_dbt)
         from {{ aux_transacao_erro_completa }}
         where
             {% if is_incremental() %}
@@ -141,8 +142,7 @@ with
         from dados_novos
         qualify
             row_number() over (
-                partition by id_transacao_recebida
-                order by priority, datetime_captura desc
+                partition by id_transacao_recebida order by datetime_captura desc
             )
             = 1
     ),
@@ -175,8 +175,7 @@ with
                 sha_dado_novo,
                 sha_dado_atual,
                 datetime_ultima_atualizacao_atual,
-                id_execucao_dbt_atual,
-                priority
+                id_execucao_dbt_atual
             ),
             '{{ var("version") }}' as versao,
             case

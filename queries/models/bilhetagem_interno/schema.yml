@@ -211,6 +211,10 @@ models:
         data_type: date
       - name: id_transacao_recebida
         description: "Identificador único da transação que gerou erro"
+        data_type: string
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        data_type: datetime
       - name: datetime_inclusao
         description: "Data e hora de inclusão do erro na tabela"
         data_type: datetime

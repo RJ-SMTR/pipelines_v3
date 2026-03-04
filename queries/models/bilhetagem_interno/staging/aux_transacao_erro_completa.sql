@@ -7,6 +7,7 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
+        require_partition_filter=true,
     )
 }}
 
@@ -91,6 +92,42 @@ with
             )
             = 1
     ),
+    json_tratado as (
+        select
+            * except (tx_transacao),
+            case
+                when
+                    starts_with(trim(tx_transacao), '"')
+                    and regexp_contains(tx_transacao, r'\"\"[a-zA-Z]')
+                then
+                    replace(
+                        replace(
+                            substr(
+                                trim(tx_transacao), 2, length(trim(tx_transacao)) - 2
+                            ),
+                            '""',
+                            '"'
+                        ),
+                        '\\n',
+                        ''
+                    )
+                when starts_with(trim(tx_transacao), '"')
+                then
+                    replace(
+                        replace(
+                            substr(
+                                trim(tx_transacao), 2, length(trim(tx_transacao)) - 2
+                            ),
+                            '\\"',
+                            '"'
+                        ),
+                        '\\n',
+                        ''
+                    )
+                else tx_transacao
+            end as tx_transacao
+        from staging
+    ),
     transacao_erro_json_desaninhado as (
         select
             id_transacao_recebida,
@@ -127,12 +164,13 @@ with
                 json_value(tx_transacao, '$.valorTransacao') as numeric
             ) as valor_transacao,
             tx_transacao as json_transacao
-        from staging
+        from json_tratado
     ),
     dados_novos as (
         select
             date(ifnull(t.datetime_transacao, t.datetime_inclusao)) as data,
             t.id_transacao_recebida,
+            t.datetime_transacao,
             t.datetime_inclusao,
             t.datetime_captura,
             t.erro,
