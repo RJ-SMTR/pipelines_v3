@@ -527,3 +527,14 @@ selectors:
           value: aux_retorno_negativacao
         - method: fqn
           value: autuacao_negativacao
+
+  - name: transacao_erro
+    description: Materialização das tabelas de erros das transações da Jaé
+    definition:
+      union:
+        - method: fqn
+          value: staging_transacao_erro
+        - method: fqn
+          value: aux_transacao_erro_completa
+        - method: fqn
+          value: transacao_erro
