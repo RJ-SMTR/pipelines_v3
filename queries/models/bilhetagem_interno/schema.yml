@@ -158,7 +158,6 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
-
   - name: extrato_cliente_cartao
     description: Tabela de extrato do cliente
     columns:
@@ -204,9 +203,8 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
-
   - name: transacao_erro
-    description: "Tabela com os erros de processamento de transações da Jaé [filtrando erros diferentes da mesma transação e transações que já foram reprocessadas]"                                                                                                                                                                                      "
+    description: "Tabela com os erros de processamento de transações da Jaé [filtrando erros diferentes da mesma transação e transações que já foram reprocessadas]"
     columns:
       - name: data
         description: "{{ doc('data_transacao') }}. Se não houver, a data de inclusão do erro na tabela é utilizada [partição]"
