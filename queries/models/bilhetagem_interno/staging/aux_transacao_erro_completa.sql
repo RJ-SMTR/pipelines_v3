@@ -84,12 +84,12 @@ with
     staging as (
         select *
         from {{ ref("staging_transacao_erro") }}
+        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         qualify
             row_number() over (
                 partition by id_transacao_recebida order by timestamp_captura desc
             )
             = 1
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     transacao_erro_json_desaninhado as (
         select
