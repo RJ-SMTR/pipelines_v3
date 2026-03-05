@@ -49,4 +49,3 @@ deployments:
         command: uv run --package test__raise_for_sentry -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-    

@@ -14,8 +14,8 @@ from pipelines.common.capture.default_capture.tasks import (
 from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     setup_environment,
-    initialize_sentry
 )
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
