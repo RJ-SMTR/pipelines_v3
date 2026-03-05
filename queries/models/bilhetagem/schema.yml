@@ -215,7 +215,7 @@ models:
         data_type: string
         quote: true
       - name: saldo_cartao
-        description: "Saldo restante no cartão do cliente no momento da transação (R$)"
+        description: "{{ doc('saldo_cartao') }}"
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
       - name: cadastro_cliente
