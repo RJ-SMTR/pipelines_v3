@@ -259,11 +259,6 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_integracao" }
 
 [[package]]
-name = "capture-jae-integracao"
-version = "0.1.0"
-source = { virtual = "pipelines/capture__jae_integracao" }
-
-[[package]]
 name = "capture-jae-lancamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_lancamento" }
