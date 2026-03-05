@@ -21,7 +21,7 @@ from pipelines.common.utils.utils import async_post_request, convert_timezone, i
 @task
 def initialize_sentry(env):
     print("Inicializando Sentry SDK")
-    sentry_dsn = get_secret("sentry", "dsn")['dsn']
+    sentry_dsn = get_secret("sentry", "dsn")["dsn"]
     environment = env
     sentry_sdk.init(
         dsn=sentry_dsn,
