@@ -16,10 +16,10 @@ from pipelines.common.tasks import (
     async_api_post_request,
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     query_bq,
     save_data_to_file,
     setup_environment,
-    initialize_sentry
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,

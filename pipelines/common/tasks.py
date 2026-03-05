@@ -9,14 +9,14 @@ from typing import Optional, Union
 import httpx
 import pandas as pd
 import pandas_gbq
-from prefect import runtime, task
 import sentry_sdk
+from prefect import runtime, task
 
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
-from pipelines.common.utils.secret import get_secret
-from pipelines.common.utils.secret import set_local_secrets
+from pipelines.common.utils.secret import get_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
+
 
 @task
 def initialize_sentry(env):
@@ -27,6 +27,7 @@ def initialize_sentry(env):
         dsn=sentry_dsn,
         environment=environment,
     )
+
 
 @task
 def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:

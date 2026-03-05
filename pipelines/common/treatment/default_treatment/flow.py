@@ -8,8 +8,8 @@ from prefect.tasks import Task
 from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     setup_environment,
-    initialize_sentry
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
