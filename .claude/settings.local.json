@@ -15,10 +15,33 @@
   },
   "permissions": {
     "allow": [
-      "Bash(dbt parse:*)",
+      "Bash(ruff:*)",
       "Bash(sqlfmt:*)",
+      "Bash(dbt parse:*)",
+      "Bash(dbt compile:*)",
+      "Bash(dbt deps:*)",
+      "Bash(dbt ls:*)",
+      "Bash(dbt build:*)",
+      "Bash(dbt test:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run:*)",
+      "Bash(pre-commit:*)",
       "Bash(git pull:*)",
-      "Bash(ls:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(git stash:*)",
+      "Bash(ls:*)",
+      "Bash(cookiecutter:*)",
+      "Bash(uvx cookiecutter:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(rm -rf:*)"
     ]
   },
   "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",

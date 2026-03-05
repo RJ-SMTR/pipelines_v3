@@ -2,6 +2,16 @@
 name: migration-agent
 description: "Assists with pipeline migration from Prefect 1.4 to Prefect 3.0. Run only when a migration is requested."
 model: haiku
+tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash
+  - Agent
+permissionMode: default
+maxTurns: 50
 ---
 
 # Contexto de Migração: Prefect 1.4 → Prefect 3.0
