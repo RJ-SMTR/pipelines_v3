@@ -58,9 +58,6 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     deployment_name = runtime.deployment.name
 
-    # initialize sentry for error capturing
-    tasks["initialize_sentry"] = initialize_sentry()
-
     tasks["env"] = get_run_env(
         env=env,
         deployment_name=deployment_name,
@@ -68,6 +65,9 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["setup_enviroment"] = setup_environment(env=env)
+
+    # initialize sentry for error capturing
+    tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
         timestamp=timestamp,

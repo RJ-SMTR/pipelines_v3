@@ -19,10 +19,10 @@ from pipelines.common.utils.secret import set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 @task
-def initialize_sentry():
+def initialize_sentry(env):
     print("Inicializando Sentry SDK")
     sentry_dsn = get_secret("sentry", "dsn")['dsn']
-    environment = 'staging'
+    environment = env
     sentry_sdk.init(
         dsn=sentry_dsn,
         environment=environment,

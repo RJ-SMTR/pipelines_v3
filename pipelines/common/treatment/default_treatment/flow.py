@@ -67,9 +67,6 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     deployment_name = runtime.deployment.name
 
-    # initialize sentry for error capturing 
-    tasks["initialize_sentry"] = initialize_sentry()
-
     tasks["env"] = get_run_env(
         env=env,
         deployment_name=deployment_name,
@@ -80,6 +77,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         env=env,
         wait_for=tasks_wait_for.get("setup_enviroment"),
     )
+
+    # initialize sentry for error capturing 
+    tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
         wait_for=tasks_wait_for.get("timestamp"),
