@@ -15,6 +15,7 @@ from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
     setup_environment,
+    initialize_sentry
 )
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
@@ -56,6 +57,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for = tasks_wait_for or {}
 
     deployment_name = runtime.deployment.name
+
+    tasks["initialize_sentry"] = initialize_sentry()
 
     tasks["env"] = get_run_env(
         env=env,

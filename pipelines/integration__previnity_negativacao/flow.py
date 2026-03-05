@@ -19,6 +19,7 @@ from pipelines.common.tasks import (
     query_bq,
     save_data_to_file,
     setup_environment,
+    initialize_sentry
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
@@ -42,6 +43,9 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     flags=None,
     additional_vars=None,
 ):
+    # initialize sentry for error capturing
+    initialize_sentry()
+
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
