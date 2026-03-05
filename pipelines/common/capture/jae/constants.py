@@ -85,8 +85,10 @@ JAE_SECRET_PATH = "smtr_jae_access_data"
 JAE_PRIVATE_BUCKET_NAMES = {"prod": "rj-smtr-jae-private", "dev": "rj-smtr-dev-private"}
 ALERT_WEBHOOK = "alertas_bilhetagem"
 
+TRANSACAO_TABLE_ID = "transacao"
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
 TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
+INTEGRACAO_TABLE_ID = "integracao_transacao"
 LANCAMENTO_TABLE_ID = "lancamento"
 CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
@@ -95,6 +97,19 @@ LAUDO_PCD_TABLE_ID = "laudo_pcd"
 
 
 JAE_TABLE_CAPTURE_PARAMS = {
+    TRANSACAO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    transacao
+                WHERE
+                    data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "transacao_db",
+        "capture_delay_minutes": {"0": 0, "2025-03-26 15:36:00": 5},
+    },
     GPS_VALIDADOR_TABLE_ID: {
         "query": """
                 SELECT
@@ -121,6 +136,19 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "processador_transacao_db",
         "capture_delay_minutes": {"0": 5},
+    },
+    INTEGRACAO_TABLE_ID: {
+        "database": "ressarcimento_db",
+        "query": """
+                SELECT
+                    *
+                FROM
+                    integracao_transacao
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+                ORDER BY data_inclusao
+            """,
     },
     LANCAMENTO_TABLE_ID: {
         "query": """

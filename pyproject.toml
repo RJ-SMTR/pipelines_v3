@@ -29,7 +29,10 @@ members = ["pipelines/*"]
 exclude = ["pipelines/__pycache__"]
 
 [dependency-groups]
-dev = ["prefect-docker>=0.6.5"]
+dev = [
+    "prefect-docker>=0.6.5",
+    "ruff>=0.15.4",
+]
 
 [tool.ruff]
 target-version = "py313"
