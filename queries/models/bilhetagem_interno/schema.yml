@@ -158,7 +158,6 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
-
   - name: extrato_cliente_cartao
     description: Tabela de extrato do cliente
     columns:
@@ -204,4 +203,141 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
-
+  - name: transacao_erro
+    description: "Tabela com os erros de processamento de transações da Jaé [filtrando erros diferentes da mesma transação e transações que já foram reprocessadas]"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }}. Se não houver, a data de inclusão do erro na tabela é utilizada [partição]"
+        data_type: date
+      - name: id_transacao_recebida
+        description: "Identificador único da transação que gerou erro"
+        data_type: string
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        data_type: datetime
+      - name: datetime_inclusao
+        description: "Data e hora de inclusão do erro na tabela"
+        data_type: datetime
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: erro
+        description: "Erro retornado"
+        data_type: string
+      - name: complemento_erro
+        description: "Complemento do erro retornado"
+        data_type: string
+      - name: id_modo
+        description: "Identificador do modo de transporte"
+        data_type: string
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+        data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+        data_type: string
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+        data_type: string
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+        data_type: string
+      - name: documento_operadora
+        description: "{{ doc('documento_operadora') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: tipo_documento_operadora
+        description: "{{ doc('tipo_documento_operadora') }}"
+        data_type: string
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        data_type: string
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        data_type: string
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        data_type: string
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+        data_type: string
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: hash_cartao
+        description: "{{ doc('hash_cartao') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: saldo_cartao
+        description: "{{ doc('saldo_cartao') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: id_tipo_pagamento
+        description: "Identificador do tipo pagamento na tabela bilhetagem.dicionario"
+        data_type: string
+      - name: meio_pagamento_jae
+        description: "{{ doc('meio_pagamento_jae') }}"
+        data_type: string
+      - name: id_produto
+        description: "Identificador do tipo do produto"
+        data_type: string
+      - name: produto_jae
+        description: "{{ doc('produto_jae') }}"
+        data_type: string
+      - name: id_aplicacao
+        description: "Identificador do tipo da aplicação"
+        data_type: string
+      - name: aplicacao
+        description: "Tipo da aplicação"
+        data_type: string
+      - name: token_transacao_emv
+        description: "Token da transação EMV"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: indicador_emv
+        description: "Indica se a transação é EMV"
+        data_type: bool
+      - name: id_tipo_transacao
+        description: "Identificador do tipo da transação na tabela bilhetagem.dicionario"
+        data_type: string
+      - name: tipo_transacao_jae
+        description: "{{ doc('tipo_transacao_jae') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_transacao') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_transacao') }}"
+        data_type: float64
+      - name: valor_transacao
+        description: "{{ doc('valor_transacao') }}"
+        data_type: float64
+      - name: json_transacao
+        description: "JSON completo enviado pelo validador com as informações da transação"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
