@@ -67,6 +67,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     deployment_name = runtime.deployment.name
 
+    # initialize sentry for error capturing and posting to glitchtip
     tasks["initialize_sentry"] = initialize_sentry()
 
     tasks["env"] = get_run_env(

@@ -43,7 +43,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     flags=None,
     additional_vars=None,
 ):
-    # initialize sentry for error capturing
+    # initialize sentry for error capturing and posting to glitchtip
     initialize_sentry()
 
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)

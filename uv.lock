@@ -6,10 +6,7 @@ requires-python = "==3.13.*"
 members = [
     "capture-jae-auxiliar",
     "capture-jae-gps-validador",
-<<<<<<< HEAD
-=======
     "capture-jae-lancamento",
->>>>>>> efaed124fdabb33aea09bfd436ba631d56996915
     "capture-jae-transacao-erro",
     "capture-serpro-autuacao",
     "common",
