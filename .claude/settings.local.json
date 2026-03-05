@@ -36,7 +36,8 @@
       "Bash(git stash:*)",
       "Bash(ls:*)",
       "Bash(cookiecutter:*)",
-      "Bash(uvx cookiecutter:*)"
+      "Bash(uvx cookiecutter:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
@@ -44,12 +45,43 @@
       "Bash(rm -rf:*)"
     ]
   },
-  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",
   "enabledPlugins": {
     "dbt@dbt-agent-marketplace": true
   },
   "statusLine": {
     "type": "command",
     "command": "bash .claude/statusline.sh"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.py ]] && [[ \"$FILE\" == *pipelines/* ]] && cd \"$CLAUDE_PROJECT_DIR\" && ruff check --fix \"$FILE\" && ruff format \"$FILE\" || true"
+          },
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.sql ]] && [[ \"$FILE\" == *queries/* ]] && cd \"$CLAUDE_PROJECT_DIR\" && sqlfmt \"$FILE\" || true"
+          },
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.sql ]] && [[ \"$FILE\" == *queries/models/* ]] && cd \"$CLAUDE_PROJECT_DIR/queries\" && dbt parse --quiet || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && if [[ \"$FILE\" == *.env* ]] || [[ \"$(basename \"$FILE\")\" == .env* ]]; then echo '{\"decision\": \"block\", \"reason\": \"Cannot edit .env files directly. Secrets are managed by Infisical SDK.\"}'; fi"
+          }
+        ]
+      }
+    ]
   }
 }
