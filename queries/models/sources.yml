@@ -299,6 +299,7 @@ sources:
       - name: laudo_pcd
       - name: resultado_verificacao_captura_jae
       - name: device_operadora
+      - name: transacao_erro
 
   - name: source_sonda
     database: rj-smtr-staging
