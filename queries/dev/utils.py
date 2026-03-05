@@ -9,13 +9,13 @@ from typing import Dict, List, Union
 
 # import basedosdados as bd
 import requests
-from prefect import context
+# from prefect import context
 
 # from datetime import datetime as dt
 # from datetime import timedelta
-from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.discord import format_send_discord_message
-from pipelines.common.utils.secret import get_secret
+# from pipelines.common import constants as smtr_constants
+# from pipelines.common.utils.discord import format_send_discord_message
+# from pipelines.common.utils.secret import get_secret
 
 # import pandas as pd
 # bd.config.from_file = True
@@ -336,46 +336,46 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
     return results
 
 
-def dbt_data_quality_checks(
-    checks_list: dict, checks_results: dict, params: dict, webhook_url: str = None
-) -> bool:
-    if webhook_url is None:
-        webhook_url = get_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH.value)["dataplex"]
+# def dbt_data_quality_checks(
+#     checks_list: dict, checks_results: dict, params: dict, webhook_url: str = None
+# ) -> bool:
+#     if webhook_url is None:
+#         webhook_url = get_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH.value)["dataplex"]
 
-    dados_tag = f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS.value['dados_smtr']['user_id']}>\n"
+#     dados_tag = f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS.value['dados_smtr']['user_id']}>\n"
 
-    test_check = all(test["result"] == "PASS" for test in checks_results.values())
+#     test_check = all(test["result"] == "PASS" for test in checks_results.values())
 
-    date_range = (
-        params["date_range_start"]
-        if params["date_range_start"] == params["date_range_end"]
-        else f"{params['date_range_start']} a {params['date_range_end']}"
-    )
+#     date_range = (
+#         params["date_range_start"]
+#         if params["date_range_start"] == params["date_range_end"]
+#         else f"{params['date_range_start']} a {params['date_range_end']}"
+#     )
 
-    formatted_messages = [
-        ":green_circle: " if test_check else ":red_circle: ",
-        f"**[DEV]Data Quality Checks - {context.get('flow_name')} - {date_range}**\n\n",
-    ]
+#     formatted_messages = [
+#         ":green_circle: " if test_check else ":red_circle: ",
+#         f"**[DEV]Data Quality Checks - {context.get('flow_name')} - {date_range}**\n\n",
+#     ]
 
-    for table_id, tests in checks_list.items():
-        formatted_messages.append(
-            f"*{table_id}:*\n"
-            + "\n".join(
-                f"{':white_check_mark:' if checks_results[test_id]['result'] == 'PASS' else ':x:'} "
-                f"{test['description']}"
-                for test_id, test in tests.items()
-            )
-        )
+#     for table_id, tests in checks_list.items():
+#         formatted_messages.append(
+#             f"*{table_id}:*\n"
+#             + "\n".join(
+#                 f"{':white_check_mark:' if checks_results[test_id]['result'] == 'PASS' else ':x:'} "
+#                 f"{test['description']}"
+#                 for test_id, test in tests.items()
+#             )
+#         )
 
-    formatted_messages.append("\n\n")
-    formatted_messages.append(
-        ":tada: **Status:** Sucesso"
-        if test_check
-        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-    )
+#     formatted_messages.append("\n\n")
+#     formatted_messages.append(
+#         ":tada: **Status:** Sucesso"
+#         if test_check
+#         else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+#     )
 
-    formatted_messages.append(dados_tag)
-    format_send_discord_message(formatted_messages, webhook_url)
+#     formatted_messages.append(dados_tag)
+#     format_send_discord_message(formatted_messages, webhook_url)
 
 
 def get_model_table_info(model_name):
