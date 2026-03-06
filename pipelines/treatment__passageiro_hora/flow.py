@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de materialização de passageiros por hora
+
+Executa o selector DBT 'passageiro_hora' para materializar dados no BigQuery.
+
+Schedule:
+- Diariamente às 0h35 (horário de São Paulo)
+
+DBT: 2026-03-06
+"""
 
 from datetime import time
 

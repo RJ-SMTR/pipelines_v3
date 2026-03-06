@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Flow de materialização do select planejamento_diario
+Flow de materialização do planejamento diário
 
-DBT: 2026-03-02
+Executa o selector DBT 'planejamento_diario' para materializar dados no BigQuery.
+
+Schedule:
+- Diariamente às 1h00 (horário de São Paulo)
+- Depende de dados capturados pela Rio Ônibus
+
+DBT: 2026-03-06
 """
 
 from prefect import flow

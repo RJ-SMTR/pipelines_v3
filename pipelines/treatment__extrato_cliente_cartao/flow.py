@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-DBT: 2026-02-26
+Flow de materialização de extrato de cliente por cartão
+
+Executa o selector DBT 'extrato_cliente_cartao' para materializar dados no BigQuery.
+
+DBT: 2026-03-06
 """
 
 from prefect import flow
