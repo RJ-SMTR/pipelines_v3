@@ -1,0 +1,4 @@
+[project]
+name = "test__raise_for_sentry"
+version = "0.1.0"
+description = "Pipeline raise_for_sentry da secretaria rj-smtr"

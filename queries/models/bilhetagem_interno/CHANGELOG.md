@@ -1,5 +1,11 @@
 # Changelog - bilhetagem_interno
 
+## [1.3.0] - 2026-03-04
+
+### Adicionado
+
+- Cria modelos `staging_transacao_erro.sql`, `aux_transacao_erro_completa.sql` e `transacao_erro.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/65)
+
 ## [1.2.1] - 2026-02-25
 
 ### Adicionado

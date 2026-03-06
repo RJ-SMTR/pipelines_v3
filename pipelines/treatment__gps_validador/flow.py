@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Common 2026-02-11
+DBT: 2026-02-26
 """
 
 from datetime import time
@@ -32,6 +32,7 @@ def treatment__gps_validador(  # noqa: PLR0913
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.GPS_VALIDADOR_SELECTOR],
+        test_webhook_key="alertas_bilhetagem",
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,

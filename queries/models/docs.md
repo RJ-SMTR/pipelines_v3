@@ -1608,3 +1608,7 @@ Data e hora de início da vigência do registro
 {% docs datetime_fim_vigencia %}
 Data e hora de fim da vigência do registro
 {% enddocs %}
+
+{% docs saldo_cartao %}
+Saldo restante no cartão do cliente no momento da transação (R$)
+{% enddocs %}

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-COMMON: 2026-02-12
+DBT: 2026-02-26
 """
 
 import pandas as pd
@@ -16,6 +16,7 @@ from pipelines.common.tasks import (
     async_api_post_request,
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     query_bq,
     save_data_to_file,
     setup_environment,
@@ -45,6 +46,9 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
+    # initialize sentry for error capturing
+    initialize_sentry()
+
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 
     headers = {
@@ -63,7 +67,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     project_id = common_constants.PROJECT_NAME[env]
-    data_list = query_bq(query=constants.QUERY_PF, project_id=project_id)
+    data_list = query_bq(
+        query=constants.QUERY_PF,
+        project_id=project_id,
+        params={"datetime_start": datetime_start, "datetime_end": datetime_end},
+    )
 
     contexts = create_capture_contexts(
         env=env,
@@ -125,6 +133,6 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             flags=flags,
         )
 
-        save_materialization_datetime_redis.map(
-            context=materialization_contexts, wait_for=[run_dbt_future]
+        save_materialization_datetime_redis(
+            contexts=materialization_contexts, wait_for=[run_dbt_future]
         )

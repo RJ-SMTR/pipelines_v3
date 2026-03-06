@@ -9,12 +9,24 @@ from typing import Optional, Union
 import httpx
 import pandas as pd
 import pandas_gbq
+import sentry_sdk
 from prefect import runtime, task
 
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
-from pipelines.common.utils.secret import set_local_secrets
+from pipelines.common.utils.secret import get_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
+
+
+@task
+def initialize_sentry(env):
+    print("Inicializando Sentry SDK")
+    sentry_dsn = get_secret("sentry", "dsn")["dsn"]
+    environment = env
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        environment=environment,
+    )
 
 
 @task
@@ -113,17 +125,21 @@ async def async_api_post_request(
 
 
 @task
-def query_bq(query: str, project_id: str) -> list[dict]:
+def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list[dict]:
     """
     Executa uma query no BigQuery.
 
     Args:
         query (str): Query SQL.
         project_id (str): ID do projeto no GCP.
+        params (dict, optional): Parâmetros para formatar a query.
 
     Returns:
         list[dict]: Resultado da query como lista de dicionários.
     """
+    if params:
+        query = query.format(**params)
+
     print(f"Query: {query}")
 
     df = pandas_gbq.read_gbq(query, project_id=project_id, use_bqstorage_api=True)

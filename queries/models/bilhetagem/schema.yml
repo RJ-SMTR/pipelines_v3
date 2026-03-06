@@ -1,0 +1,791 @@
+models:
+  - name: transacao
+    description: "Tabela com informações da Jaé sobre as transações realizadas no sistema de transporte municipal"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+        data_type: int64
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_transacao__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento_transacao') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_processamento__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__modo__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_consorcio__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        tests:
+          - not_null:
+              name: not_null__consorcio__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_operadora__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__operadora__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: documento_operadora
+        description: "{{ doc('documento_operadora') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: tipo_documento_operadora
+        description: "{{ doc('tipo_documento_operadora') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__transacao
+              where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__servico_jae__transacao
+              where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__descricao_servico_jae__transacao
+              where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__transacao
+              where: modo != 'BRT' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+        tests:
+          - not_null:
+              name: not_null__id_validador__transacao
+              where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: hash_cliente
+        description: "Hash identificador do cliente [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691'
+        data_type: bytes
+      - name: documento_cliente
+        description: "{{ doc('documento_cliente') }} que efetuou a transação [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: tipo_documento_cliente
+        description: "{{ doc('tipo_documento_cliente') }} que efetuou a transação"
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        tests:
+          - unique:
+              name: unique__id_transacao__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+          - not_null:
+              name: not_null__id_transacao__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+      - name: tipo_transacao_jae
+        description: "{{ doc('tipo_transacao_jae') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao_jae__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: tipo_transacao
+        description: "{{ doc('tipo_transacao') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: latitude
+        description: "{{ doc('latitude_transacao') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_transacao') }}"
+        data_type: float64
+      - name: geo_point_transacao
+        description: "{{ doc('geo_point_transacao') }}"
+        data_type: geography
+      - name: valor_transacao
+        description: "{{ doc('valor_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_transacao__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: float64
+      - name: valor_pagamento
+        description: "{{ doc('valor_pagamento') }}"
+        data_type: float64
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }}"
+        data_type: date
+        tests:
+          - not_null:
+              name: not_null__data_ordem__transacao
+              where: |
+                id_servico_jae not in (select id_linha from `rj-smtr.cadastro_staging.linha_sem_ressarcimento`)
+                and date(case when datetime_processamento < datetime_transacao then datetime_transacao else datetime_processamento end) < current_date("America/Sao_Paulo")
+                and tipo_transacao_jae not in ('Transferência', 'Transferência EMV', 'Botoeira')
+                and tipo_transacao != "Gratuidade"
+                and data in ({partitions})
+                and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_ordem_pagamento_servico_operador_dia
+        description: "{{ doc('id_ordem_pagamento_servico_operador_dia') }}"
+        data_type: string
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_ordem_pagamento_consorcio_operador_dia__transacao
+              where: data_ordem is not null and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_ordem_pagamento_consorcio_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_dia') }}"
+        data_type: string
+      - name: id_ordem_pagamento
+        description: "{{ doc('id_ordem_pagamento') }}"
+        data_type: string
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_operadora_jae__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        quote: true
+      - name: hash_cartao
+        description: "{{ doc('hash_cartao') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+        quote: true
+      - name: saldo_cartao
+        description: "{{ doc('saldo_cartao') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+      - name: produto
+        description: "{{ doc('produto') }}"
+        tests:
+          - not_null:
+              name: not_null__produto__transacao
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+        quote: true
+      - name: produto_jae
+        description: "{{ doc('produto_jae') }}"
+        data_type: string
+        quote: true
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: subtipo_usuario
+        description: "{{ doc('subtipo_usuario') }}"
+      - name: subtipo_usuario_protegido
+        description: "Subtipo do usuário que efetuou a transação com dados relacionados à saúde [ex.: Ensino Básico Municipal, DC] [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        tests:
+          - not_null:
+              name: not_null__meio_pagamento__transacao
+              where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+        quote: true
+      - name: meio_pagamento_jae
+        description: "{{ doc('meio_pagamento_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__meio_pagamento_jae__transacao
+              where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+        data_type: string
+        quote: true
+      - name: id_cre_escola
+        description: "{{ doc('id_cre_escola') }} do cliente [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: integracao
+    description: "Tabela de integrações realizadas entre modos do sistema de transporte municipal, contendo os valores da repartição tarifária (quando houver). [Dados em fase de teste]"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__integracao
+          combination_of_columns:
+            - id_integracao
+            - id_transacao
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+      - name: datetime_processamento_integracao
+        description: "Data e hora de processamento da integração em GMT-3"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_transacao__integracao
+      - name: intervalo_integracao
+        description: "Tempo entre a perna atual da integração e a anterior em minutos"
+      - name: id_integracao
+        description: "Identificador único da integração"
+        tests:
+          - not_null:
+              name: not_null__id_integracao__integracao
+      - name: sequencia_integracao
+        description: "{{ doc('sequencia_integracao') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+        tests:
+          - not_null:
+              name: not_null__modo__integracao
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_operadora_jae__integracao
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+        tests:
+          - not_null:
+              name: not_null__operadora__integracao
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__integracao
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__servico_jae__integracao
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__descricao_servico_jae__integracao
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__id_transacao__integracao
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__integracao
+      - name: percentual_rateio
+        description: "{{ doc('percentual_rateio') }}"
+      - name: valor_rateio_compensacao
+        description: "Valor a ser compensado pela ou à operadora (R$)"
+      - name: valor_rateio
+        description: "Valor real ganho pela operadora pela transação (R$)"
+      - name: valor_transacao
+        description: "{{ doc('valor_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_transacao__integracao
+      - name: valor_transacao_total
+        description: "Valor total das transações da integração (R$)"
+      - name: texto_adicional
+        description: "Observação adicional"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: transacao_riocard
+    description: "Tabela com as transações feitas com RioCard que foram registradas pelo validador da Jaé"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_transacao__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_processamento__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+        tests:
+          - not_null:
+              name: not_null__modo__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+        tests:
+          - not_null:
+              name: not_null__id_consorcio__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_operadora_jae__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__servico_jae__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__descricao_servico_jae__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+        tests:
+          - not_null:
+              name: not_null__id_validador__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        tests:
+          - unique:
+              name: unique__id_transacao__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+          - not_null:
+              name: not_null__id_transacao__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: latitude
+        description: "{{ doc('latitude_transacao') }}"
+      - name: longitude
+        description: "{{ doc('longitude_transacao') }}"
+      - name: geo_point_transacao
+        description: "{{ doc('geo_point_transacao') }}"
+      - name: valor_transacao
+        description: "{{ doc('valor_transacao') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_transacao__transacao_riocard
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+      - name: versao
+        description: "{{ doc('versao') }}"
+
+  - name: transacao_valor_ordem
+    description: Tabela contendo o valor de cada transação em uma ordem de pagamento
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__transacao_valor_ordem
+          combination_of_columns:
+            - data_ordem
+            - id_transacao
+          where: data_ordem in ({partitions})
+      - transacao_valor_ordem_completa:
+          name: transacao_valor_ordem_completa__transacao_valor_ordem
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_transacao') }} [partição]"
+        data_type: date
+        quote: true
+      - name: data_transacao
+        description: "{{ doc('data_transacao') }}"
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_transacao__transacao_valor_ordem
+              where: data_ordem in ({partitions})
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_transacao__transacao_valor_ordem
+              where: data_ordem in ({partitions})
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__modo__transacao_valor_ordem
+              where: data_ordem in ({partitions})
+      - name: consorcio
+        description: "{{  doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_operadora__transacao_valor_ordem
+              where: data_ordem in ({partitions})
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__transacao_valor_ordem
+              where: data_ordem in ({partitions}) and extract(year from data_transacao) > 2023
+      - name: valor_transacao_rateio
+        description: Valor da transação com o rateio [se houver] (R$)
+        data_type: float64
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__valor_transacao_rateio__transacao_valor_ordem
+              where: data_ordem in ({partitions})
+      - name: id_ordem_pagamento
+        description: "{{ doc('id_ordem_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: id_ordem_pagamento_consorcio_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_dia') }}"
+        data_type: string
+        quote: true
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+
+  - name: passageiro_hora
+    description: "Tabela de contagem do número de passageiros por hora."
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+        tests:
+          - not_null:
+              name: not_null__modo__passageiro_hora
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__passageiro_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__servico_jae__passageiro_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__descricao_servico_jae__passageiro_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__passageiro_hora
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__cadastro_cliente__passageiro_hora
+      - name: produto
+        description: "{{ doc('produto') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__produto__passageiro_hora
+      - name: tipo_transacao
+        description: "{{ doc('tipo_transacao') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao__passageiro_hora
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: valor_total_transacao
+        description: "Valor total das transações (R$)"
+        data_type: float64
+        quote: true
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: quantidade_passageiros
+        description: "{{ doc('quantidade_passageiros') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: passageiro_tile_hora
+    description: "Tabela de contagem do número de passageiros por hora dentro de um grid de geolocalização."
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+        tests:
+          - not_null:
+              name: not_null__modo__passageiro_tile_hora
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__id_servico_jae__passageiro_tile_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__servico_jae__passageiro_tile_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        tests:
+          - not_null:
+              name: not_null__descricao_servico_jae__passageiro_tile_hora
+              where: data in ({partitions}) and extract(year from data) > 2023
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__passageiro_tile_hora
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+      - name: produto
+        description: "{{ doc('produto') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__produto__passageiro_tile_hora
+      - name: tipo_transacao
+        description: "{{ doc('tipo_transacao') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao__passageiro_tile_hora
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: tile_id
+        description: "Identificador do hexágono da geolocalização da transação na tabela rj-smtr.br_rj_riodejaneiro_geo.h3_res9"
+      - name: quantidade_passageiros
+        description: "{{ doc('quantidade_passageiros') }}"
+      - name: versao
+        description: "Código de controle de versão do dado (SHA Github)"
+  - name: dicionario_bilhetagem
+    description: "Dicionário dos dados de bilhetagem"
+    columns:
+      - name: chave
+        description: "Chave"
+      - name: cobertura_temporal
+        description: "{{ doc('cobertura_temporal') }}"
+      - name: id_tabela
+        description: "Nome da tabela"
+      - name: coluna
+        description: "{{ doc('column_name') }}"
+      - name: valor
+        description: "Valor"
+
+  - name: transacao_retificada
+    description: Tabela de retificação das informações das transações da Jaé
+    columns:
+      - name: id_retificacao
+        description: Identificador único da retificação
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_retificacao__transacao_retificada
+      - name: data
+        description: "{{ doc('data_transacao') }}"
+        data_type: date
+        quote: true
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_transacao__transacao_retificada
+      - name: tipo_transacao_jae_original
+        description: Tipo da transação que estava originalmente na transação
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao_jae_original__transacao_retificada
+      - name: valor_transacao_original
+        description: Valor da transação que estava originalmente na transação (R$)
+        data_type: float64
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__valor_transacao_original__transacao_retificada
+      - name: tipo_transacao_jae_retificada
+        description: Novo tipo da transação
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__tipo_transacao_jae_retificada__transacao_retificada
+      - name: valor_transacao_retificada
+        description: Novo valor da transação (R$)
+        data_type: float64
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__valor_transacao_retificada__transacao_retificada
+      - name: datetime_retificacao
+        description: Data e hora da retificação da transacao
+        data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true

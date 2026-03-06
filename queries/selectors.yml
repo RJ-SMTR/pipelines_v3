@@ -31,8 +31,8 @@ selectors:
         - method: path
           value: models/subsidio
         - exclude:
-          - method: fqn
-            value: aux_viagem_temperatura
+            - method: fqn
+              value: aux_viagem_temperatura
         - method: fqn
           value: viagens_remuneradas
         - method: fqn
@@ -45,7 +45,6 @@ selectors:
           value: models/dashboard_subsidio_sppo_v2
         - method: fqn
           value: dicionario_dashboard_subsidio_sppo
-
 
   - name: viagem_informada
     description: Materialização da tabela de viagens informadas
@@ -355,6 +354,8 @@ selectors:
         - method: fqn
           value: autuacao
         - method: fqn
+          value: aux_autuacao_negativacao
+        - method: fqn
           value: view_pessoa_fisica_negativacao
 
   - name: snapshot_transito
@@ -395,6 +396,11 @@ selectors:
           value: snapshot_viagem_completa
         - method: fqn
           value: snapshot_viagem_planejada
+
+  - name: snapshot_planejamento
+    definition:
+      method: fqn
+      value: snapshot_viagem_planejada_planejamento
 
   - name: snapshot_subsidio
     definition:
@@ -526,3 +532,14 @@ selectors:
           value: aux_retorno_negativacao
         - method: fqn
           value: autuacao_negativacao
+
+  - name: transacao_erro
+    description: Materialização das tabelas de erros das transações da Jaé
+    definition:
+      union:
+        - method: fqn
+          value: staging_transacao_erro
+        - method: fqn
+          value: aux_transacao_erro_completa
+        - method: fqn
+          value: transacao_erro
