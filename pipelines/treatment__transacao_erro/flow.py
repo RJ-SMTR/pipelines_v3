@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de materialização de transações com erro
+
+Executa o selector DBT 'transacao_erro' para materializar dados no BigQuery.
+
+DBT: 2026-03-06
+"""
+
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
