@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
-# common: 2025-01-07a
+"""
+Flow de captura de dados auxiliares da Jaé
+
+Executa a captura de dados da tabela auxiliar do sistema Jaé.
+
+Common: 2026-03-06
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_auxiliar import constants

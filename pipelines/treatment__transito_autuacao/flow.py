@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Materialização das tabelas de autuação de trânsito
+Flow de materialização de autuações de trânsito
 
-DBT: 2026-02-26
+Executa o selector DBT 'transito_autuacao' para materializar dados no BigQuery.
+
+DBT: 2026-03-06
 """
 
 from prefect import flow

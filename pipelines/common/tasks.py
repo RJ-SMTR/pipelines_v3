@@ -14,14 +14,14 @@ from prefect import runtime, task
 
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
-from pipelines.common.utils.secret import get_secret, set_local_secrets
+from pipelines.common.utils.secret import get_env_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
 @task
 def initialize_sentry(env):
     print("Inicializando Sentry SDK")
-    sentry_dsn = get_secret("sentry", "dsn")["dsn"]
+    sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
     sentry_sdk.init(
         dsn=sentry_dsn,

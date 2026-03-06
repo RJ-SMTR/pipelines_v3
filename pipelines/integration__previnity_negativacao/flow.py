@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-
 """
-DBT: 2026-02-26
+Flow de integração com API Previnity para negativação
+
+Schedule:
+- Diário (horário configurável)
+- Depende de dados do Planejamento Diário
+
+DBT: 2026-03-06
 """
 
 import pandas as pd
