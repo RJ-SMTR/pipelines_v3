@@ -78,7 +78,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         wait_for=tasks_wait_for.get("setup_enviroment"),
     )
 
-    # initialize sentry for error capturing and posting to glitchtip
+    # initialize sentry for error capturing
     tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
