@@ -66,7 +66,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     tasks["setup_enviroment"] = setup_environment(env=env)
 
-    # initialize sentry for error capturing
+    # initialize sentry for error capturing and posting to glitchtip
     tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
