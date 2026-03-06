@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+Flow de captura de dados de integração da Jaé
+
+Executa a captura de dados de integração do sistema Jaé.
+
 Common: 2026-03-06
 """
 

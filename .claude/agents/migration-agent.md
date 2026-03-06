@@ -137,7 +137,7 @@ pipelines/common/
 │   ├── fs.py               # save_local_file, read_raw_data
 │   ├── pretreatment.py     # transform_to_nested_structure
 │   ├── redis.py            # get_redis_client
-│   ├── secret.py           # get_secret
+│   ├── secret.py           # get_env_secret
 │   └── utils.py            # convert_timezone, cron helpers
 ├── constants.py            # Constantes globais (TIMEZONE, PROJECT_NAME, etc)
 └── tasks.py                # Tasks genéricas (get_run_env, get_scheduled_timestamp)
@@ -605,8 +605,8 @@ print("mensagem")  # com log_prints=True no decorator @flow
 **ANTES (1.4):**
 
 ```python
-from pipelines.utils.secret import get_secret
-credentials = get_secret(constants.JAE_SECRET_PATH.value)
+from pipelines.utils.secret import get_env_secret
+credentials = get_env_secret(constants.JAE_SECRET_PATH.value)
 ```
 
 **DEPOIS (3.0):**
@@ -688,6 +688,6 @@ from pipelines.common.treatment.default_treatment.utils import rename_treatment_
 
 # Utils (VERIFICAR ANTES DE CRIAR NOVAS)
 from pipelines.common.utils.gcp.bigquery import SourceTable
-from pipelines.common.utils.secret import get_secret
+from pipelines.common.utils.secret import get_env_secret
 from pipelines.common import constants as smtr_constants
 ```

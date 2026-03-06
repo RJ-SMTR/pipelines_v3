@@ -23,6 +23,7 @@ members = [
     "treatment-gps-validador",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
+    "treatment-transacao-erro",
     "treatment-transito-autuacao",
 ]
 
@@ -2752,6 +2753,11 @@ source = { virtual = "pipelines/treatment__passageiro_hora" }
 name = "treatment-planejamento-diario"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__planejamento_diario" }
+
+[[package]]
+name = "treatment-transacao-erro"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__transacao_erro" }
 
 [[package]]
 name = "treatment-transito-autuacao"
