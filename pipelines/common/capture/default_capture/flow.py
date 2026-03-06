@@ -14,6 +14,7 @@ from pipelines.common.capture.default_capture.tasks import (
 from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     setup_environment,
 )
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -64,6 +65,9 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["setup_enviroment"] = setup_environment(env=env)
+
+    # initialize sentry for error capturing
+    tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
         timestamp=timestamp,
