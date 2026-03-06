@@ -1,0 +1,694 @@
+version: 2
+
+models:
+  - name: ordem_servico_faixa_horaria
+    description: "Quantidade de viagens planejadas por faixa horária"
+    tests:
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
+          expression: count(distinct tipo_os)
+          compare_model: ref("ordem_servico_gtfs")
+          compare_expression: count(distinct tipo_os)
+          group_by: [feed_start_date, tipo_os]
+          compare_group_by: [feed_start_date, tipo_os]
+          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
+    columns:
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+      - name: feed_end_date
+        description: "{{ doc('feed_end_date') }}"
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: vista
+        description: "{{ doc('vista') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: extensao_ida
+        description: "Distância percorrida na ida"
+      - name: extensao_volta
+        description: "Distância percorrida na volta"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: horario_inicio
+        description: "{{ doc('horario_inicio') }}"
+      - name: horario_fim
+        description: "Horário da última viagem"
+      - name: partidas_ida_dia
+        description: "Quantidade de partidas no sentido ida"
+      - name: partidas_volta_dia
+        description: "Quantidade de partidas no sentido volta"
+      - name: viagens_dia
+        description: "Quantidade de viagens planejadas no dia"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: partidas
+        description: "{{ doc('partidas') }}"
+        # tests:
+        #   - dbt_expectations.expect_column_sum_to_be_between:
+        #       name: dbt_expectations.expect_column_sum_to_be_between__partidas__ordem_servico_faixa_horaria
+        #       min_value: 0
+        #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
+        #       strictly: true
+        #       where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+      - name: quilometragem
+        description: "{{ doc('quilometragem') }}"
+        # tests:
+        #   - dbt_expectations.expect_column_sum_to_be_between:
+        #       name: dbt_expectations.expect_column_sum_to_be_between__quilometragem__ordem_servico_faixa_horaria
+        #       min_value: 0
+        #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
+        #       strictly: true
+        #       where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: segmento_shape
+    description: Tabela contendo os shapes segmentados usados na validação de viagens.
+    columns:
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
+        quote: true
+      - name: feed_end_date
+        description: "{{ doc('feed_end_date') }}"
+        data_type: date
+        quote: true
+      - name: shape_id
+        description: Identificador de shape.
+        data_type: string
+        quote: true
+      - name: id_segmento
+        description: Identificador do segmento.
+        data_type: string
+        quote: true
+      - name: segmento
+        description: Segmento em formato geográfico.
+        data_type: geography
+        quote: true
+      - name: wkt_segmento
+        description: Segmento em formato string WKT
+        data_type: string
+        quote: true
+      - name: comprimento_segmento
+        description: Comprimento do segmento emm metros.
+        data_type: float64
+        quote: true
+      - name: buffer_completo
+        description: Área de 20m ao redor do segmento.
+        data_type: geography
+        quote: true
+      - name: buffer
+        description: Área de 20m ao redor do segmento com tratamento para não haver interseções entre ele e os segmentos posteriores.
+        data_type: geography
+        quote: true
+      - name: inicio_vigencia_tunel
+        description: "{{ doc('inicio_vigencia_tunel') }}"
+        data_type: date
+        quote: true
+      - name: fim_vigencia_tunel
+        description: "{{ doc('fim_vigencia_tunel') }}"
+        data_type: date
+        quote: true
+      - name: indicador_tunel
+        description: Indica se o segmento passa por um túnel.
+        data_type: boolean
+        quote: true
+      - name: indicador_area_prejudicada
+        description: Indica se o buffer teve a área reduzida em mais de 50% após o tratamento.
+        data_type: boolean
+        quote: true
+      - name: indicador_segmento_pequeno
+        description: Indica se o segmento é menor que 990 metros.
+        data_type: boolean
+        quote: true
+      - name: indicador_segmento_desconsiderado
+        description: Indica se o segmento deve ser desconsiderado na validação de viagens
+        data_type: boolean
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+  - name: shapes_geom_planejamento
+    description: Tabela contendo shapes em formatos geográficos
+    columns:
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
+        quote: true
+      - name: feed_end_date
+        description: "{{ doc('feed_end_date') }}"
+        data_type: date
+        quote: true
+      - name: shape_id
+        description: Identificador de shape.
+        data_type: string
+        quote: true
+      - name: shape
+        description: "{{ doc('shape') }}"
+        data_type: geography
+        quote: true
+      - name: wkt_shape
+        description: Shape em formato string WKT
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: start_pt
+        description: Primeiro ponto do shape
+        data_type: geography
+        quote: true
+      - name: end_pt
+        description: Último ponto do shape
+        data_type: geography
+        quote: true
+  - name: viagem_planejada_planejamento
+    description: Tabela contendo as viagens planejadas para o dia com base no GTFS
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        data_type: date
+        quote: true
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        data_type: string
+        quote: true
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        data_type: datetime
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: service_id
+        description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        quote: true
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        quote: true
+      - name: shape_id
+        description: Identificador de um shape da tabela shapes do GTFS
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: evento
+        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
+        data_type: string
+        quote: true
+      - name: extensao
+        description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
+        data_type: float64
+        quote: true
+      - name: trajetos_alternativos
+        description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
+        data_type: record
+        quote: true
+      - name: data_referencia
+        description: Data de referência que foi utilizada de base para gerar a viagem
+        data_type: date
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: subtipo_dia
+        description: "Subtipo de dia (ex: 'Verão')"
+        data_type: string
+        quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: Data inicial do feed do GTFS (versão).
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: calendario
+    description: Tabela calendário
+    columns:
+      - name: data
+        description: "{{ doc('data') }}"
+        data_type: date
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: subtipo_dia
+        description: "Subtipo de dia (ex: 'Verão')"
+        data_type: string
+        quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
+      - name: service_ids
+        description: Lista de service_ids válidos para o dia
+        data_type: string
+        quote: true
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+  - name: matriz_integracao
+    description: "Matriz de integração no sistema de transporte municipal"
+    columns:
+      - name: tempo_integracao_minutos
+        description: "{{ doc('tempo_integracao_minutos_matriz') }}"
+        data_type: float64
+        quote: true
+      - name: data_inicio
+        description: Data de início da validade da integração [partição]
+        data_type: date
+        quote: true
+      - name: data_fim
+        description: Data de fim da validade da integração
+        data_type: date
+        quote: true
+      - name: integracao
+        description: String representando a integração (sequência modos da integração separados por "-"). Pode ser usada como chave para relacionar com a tabela rj-smtr.planejamento.matriz_reparticao_tarifaria
+        data_type: string
+        quote: true
+      - name: modo_origem
+        description: Modo da perna de origem
+        data_type: string
+        quote: true
+      - name: id_servico_jae_origem
+        description: Identificador único do serviço da perna de origem no banco de dados da Jaé
+        data_type: string
+        quote: true
+      - name: id_servico_gtfs_origem
+        description: Identificador único do serviço da perna de origem no GTFS
+        data_type: string
+        quote: true
+      - name: tabela_gtfs_origem
+        description: Tabela do GTFS de onde foram coletadas as informações do serviço da perna de origem (stops ou routes)
+        data_type: string
+        quote: true
+      - name: servico_origem
+        description: "Nome consolidado do serviço da perna de origem. Para linhas, é o nome curto da linha (ex: 010, 011SN). E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé"
+        data_type: string
+        quote: true
+      - name: descricao_servico_origem
+        description: Nome completo consolidado do serviço da perna de origem. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. (Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé)
+        data_type: string
+        quote: true
+      - name: integracao_origem
+        description: Sequência de modos separados por "-" (caso a integração tenha mais de 2 pernas)
+        data_type: string
+        quote: true
+      - name: modo_destino
+        description: Modo da perna de destino
+        data_type: string
+        quote: true
+      - name: id_servico_jae_destino
+        description: Identificador único do serviço da perna de destino no banco de dados da Jaé
+        data_type: string
+        quote: true
+      - name: id_servico_gtfs_destino
+        description: Identificador único do serviço da perna de destino no GTFS
+        data_type: string
+        quote: true
+      - name: tabela_gtfs_destino
+        description: Tabela do GTFS de onde foram coletadas as informações do serviço da perna de destino (stops ou routes)
+        data_type: string
+        quote: true
+      - name: servico_destino
+        description: "Nome consolidado do serviço da perna de destino. Para linhas, é o nome curto da linha (ex: 010, 011SN). E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé"
+        data_type: string
+        quote: true
+      - name: descricao_servico_destino
+        description: Nome completo consolidado do serviço da perna de origem. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. (Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé)
+        data_type: string
+        quote: true
+      - name: valor_integracao
+        description: Valor total da integração (R$)
+        data_type: numeric
+        quote: true
+      - name: tipo_integracao
+        description: Integração ou Transferência
+        data_type: string
+        quote: true
+      - name: indicador_integracao
+        description: Se deve ocorrer a integração ou não para a combinação de origem e destino
+        data_type: boolean
+        quote: true
+  - name: tecnologia_servico
+    description: "Tabela auxiliar de tecnologias permitidas por serviço"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - inicio_vigencia
+            - servico
+          name: dbt_utils.unique_combination_of_columns__tecnologia_servico
+          where: "1=1"
+    columns:
+      - name: inicio_vigencia
+        description: "Data de inicio da vigência"
+        data_type: date
+        tests:
+          - not_null:
+              name: not_null__inicio_vigencia__tecnologia_servico
+              where: "1=1"
+      - name: fim_vigencia
+        description: "Data de fim da vigência"
+        data_type: date
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+      - name: codigo_tecnologia
+        description: "Código binário onde cada caractere representa uma tecnologia"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__codigo_tecnologia__tecnologia_servico
+              where: "1=1"
+      - name: maior_tecnologia_permitida
+        description: "Maior tipo de tecnologia permitida para o veículo"
+        data_type: string
+        tests:
+          - not_null_for_planned_services:
+              name: not_null__maior_tecnologia_permitida__tecnologia_servico
+              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+      - name: menor_tecnologia_permitida
+        description: "Menor tipo de tecnologia permitida para o veículo"
+        data_type: string
+        tests:
+          - not_null_for_planned_services:
+              name: not_null__menor_tecnologia_permitida__tecnologia_servico
+              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+  - name: servico_planejado_faixa_horaria
+    description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
+    columns:
+      - name: data
+        description: "Data [partição]"
+        data_type: date
+        quote: true
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: float64
+        quote: true
+      - name: partidas
+        description: "{{ doc('partidas') }}"
+        data_type: int64
+        quote: true
+      - name: quilometragem
+        description: "{{ doc('quilometragem') }}"
+        data_type: float64
+        quote: true
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+        data_type: datetime
+        quote: true
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+        data_type: datetime
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: trip_info
+        description: "Informações detalhadas das viagens programadas na faixa horária"
+        data_type: record
+        quote: true
+      - name: trajetos_alternativos
+        description: "Outros trajetos que podem, alternativamente, serem utilizados na viagem"
+        data_type: record
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+  - name: matriz_reparticao_tarifaria
+    description: Matriz de repartição tarifária de integrações válidas no sistema de transporte municipal
+    columns:
+      - name: data_inicio_matriz
+        description: Data de início da versão da matriz de integração [partição]
+        data_type: date
+        quote: true
+      - name: data_fim_matriz
+        description: Data de fim da versão da matriz de integração
+        data_type: date
+        quote: true
+      - name: integracao
+        description: String representando a integração (sequência modos da integração separados por "-")
+        data_type: string
+        quote: true
+      - name: sequencia_modo
+        description: Array contendo a sequência de modos da integração
+        data_type: string
+        quote: true
+      - name: sequencia_rateio
+        description: "{{ doc('sequencia_rateio_matriz') }}"
+        data_type: numeric
+        quote: true
+      - name: tempo_integracao_minutos
+        description: "{{ doc('tempo_integracao_minutos_matriz') }}"
+        data_type: float64
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+  - name: tuneis
+    description: "Tabela contendo os túneis do município do Rio de Janeiro"
+    columns:
+      - name: inicio_vigencia
+        description: "Data de inicio da vigência das informações do túnel"
+      - name: fim_vigencia
+        description: "Data de fim da vigência das informações do túnel"
+      - name: id_logradouro
+        description: "Código oficial do logradouro dado pela Prefeitura do Rio de Janeiro"
+      - name: bairro
+        description: "Nome do bairro onde está localizado o trecho do túnel. Um trecho pode passar por vários bairros. Este atributo indica um dos bairros contendo o trecho"
+      - name: nome_parcial
+        description: "Nome parcial do túnel"
+      - name: nome_completo
+        description: "Nome completo do túnel"
+      - name: id_trecho
+        description: "Identificador único do trecho no banco de dados"
+      - name: id_tipo
+        description: "Código do tipo do logradouro dado pela prefeitura do Rio de Janeiro"
+      - name: tipo_logradouro
+        description: "Tipo do logradouro por extenso"
+      - name: tipo_logradouro_abreviado
+        description: "Tipo do logradouro abreviado"
+      - name: id_nobreza
+        description: "Código do tipo de nobreza do nome do logradouro dado pela prefeitura do Rio de Janeiro"
+      - name: nobreza
+        description: "Tipo de nobreza do nome do logradouro"
+      - name: preposicao
+        description: "Preposicao do nome do logradouro"
+      - name: nome_mapa
+        description: "Nome completo do logradouro abreviado para rótulo em mapas"
+      - name: id_bairro
+        description: "Código do bairro, dado pela prefeitura do Rio de Janeiro, do trecho de logradouro"
+      - name: inicio_numero_porta_par
+        description: "Numeração inicial do lado par do trecho de logradouro"
+      - name: final_numero_porta_par
+        description: "Numeração final do lado par do trecho de logradouro"
+      - name: inicio_numero_porta_impar
+        description: "Numeração inicial do lado ímpar do trecho de logradouro"
+      - name: final_numero_porta_impar
+        description: "Numeração final do lado ímpar do trecho de logradouro"
+      - name: hierarquia
+        description: "Hierarquia viária do trecho de logradouro"
+      - name: oneway
+        description: "Sentido do logradouro"
+      - name: tipo_trecho
+        description: "Tipologia do trecho de logradouro"
+      - name: objectid
+        description: "objectid"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: geometry_wkt
+        description: "Geometria do túnel em formato WKT"
+      - name: geometry
+        description: "Geometria do túnel em formato geográfico"
+  - name: ordem_servico_trajeto_alternativo_sentido
+    description: "Anexo da Ordem de Serviço [OS] com trajetos alternativos de serviços"
+    tests:
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
+          expression: count(distinct tipo_os)
+          compare_model: ref("ordem_servico_faixa_horaria_sentido")
+          compare_expression: count(distinct tipo_os)
+          group_by: [feed_start_date, tipo_os]
+          compare_group_by: [feed_start_date, tipo_os]
+          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+    columns:
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+      - name: feed_end_date
+        description: "{{ doc('feed_end_date') }}"
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+      - name: servico
+        description: "{{ doc('servico_variacao') }}"
+      - name: consorcio
+        description: "Nome do consórcio responsável pelo serviço"
+      - name: vista
+        description: "{{ doc('vista') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: ativacao
+        description: "Modo de ativação do trajeto alternativo"
+      - name: descricao
+        description: "Descrição sobre o trajeto alternativo"
+      - name: evento
+        description: "Evento relacionado ao trajeto alternativo"
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+  - name: ordem_servico_faixa_horaria_sentido
+    description: "Quantidade de viagens planejadas por faixa horária e sentido"
+    columns:
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: vista
+        description: "{{ doc('vista') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: partidas
+        description: "{{ doc('partidas') }}"
+      - name: quilometragem
+        description: "{{ doc('quilometragem') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+  - name: tarifa_publica
+    description: Tabela contendo o histórico da tarifa dos transportes municipais a partir de 2023-01-07
+    columns:
+      - name: data_inicio
+        description: Data de início de vigência do valor da tarifa
+        data_type: date
+        quote: true
+      - name: data_fim
+        description: Data de fim de vigência do valor da tarifa
+        data_type: date
+        quote: true
+      - name: valor_tarifa
+        description: "{{ doc('tarifa_valor') }}"
+        data_type: float64
+        quote: true
+      - name: legislacao
+        description: Decreto que alterou o valor da tarifa
+        data_type: string
+        quote: true
