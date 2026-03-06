@@ -6,10 +6,10 @@ Valores constantes para materialização dos dados de viagem informada
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__rioonibus import constants as rioonibus_constants
+from pipelines.capture__rioonibus_viagem_informada import constants as rioonibus_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
-from pipelines.treatment__planejamento import constants as planejamento_constants
+from pipelines.treatment__planejamento_diario import constants as planejamento_constants
 
 VIAGEM_INFORMADA_SELECTOR = DBTSelector(
     name="viagem_informada",

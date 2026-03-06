@@ -8,9 +8,9 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__viagem_informada ./pipelines/treatment__viagem_informada/
 
-COPY ./pipelines/treatment__planejamento ./pipelines/treatment__planejamento/
+COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
 
-COPY ./pipelines/capture__rioonibus ./pipelines/capture__rioonibus/
+COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__rioonibus_viagem_informada/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

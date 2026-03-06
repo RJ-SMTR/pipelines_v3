@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__viagem_informada` (https://github.com/RJ-SMTR/pipelines_v3/pull/REPLACE)
+- Cria flow `treatment__viagem_informada` (https://github.com/RJ-SMTR/pipelines_v3/pull/68)
