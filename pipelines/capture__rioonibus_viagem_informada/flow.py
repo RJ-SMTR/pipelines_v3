@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Flow de captura de viagem_informada da Rio Ônibus.
-Captura dados de informação de viagens da API da Rio Ônibus.
+Flow de captura de viagens informadas da Rio Ônibus
+
+Executa a captura de dados de informação de viagens da API da Rio Ônibus.
+
+Common: 2026-03-06
 """
 
 from prefect import flow
