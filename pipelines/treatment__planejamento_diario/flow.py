@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Flow de materialização de dados cadastrais
+Flow de materialização do planejamento diário
 
-Executa o selector DBT 'cadastro' para materializar dados no BigQuery.
+Executa o selector DBT 'planejamento_diario' para materializar dados no BigQuery.
+
+Schedule:
+- Diariamente às 1h00 (horário de São Paulo)
+- Depende de dados capturados pela Rio Ônibus
 
 DBT: 2026-03-06
 """
@@ -13,27 +17,23 @@ from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.treatment__cadastro import constants
+from pipelines.treatment__planejamento_diario import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__cadastro(  # noqa: PLR0913
+def treatment__planejamento_diario(
     env=None,
     datetime_start=None,
     datetime_end=None,
     flags=None,
     additional_vars=None,
-    force_test_run=False,
-    skip_source_check=False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.CADASTRO_SELECTOR],
+        selectors=[constants.PLANEJAMENTO_DIARIO_SELECTOR],
+        snapshot_selector=constants.SNAPSHOT_PLANEJAMENTO_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        test_scheduled_time=None,
-        force_test_run=force_test_run,
-        skip_source_check=skip_source_check,
     )

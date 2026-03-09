@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de captura de dados de integração da Jaé
+
+Executa a captura de dados de integração do sistema Jaé.
+
+Common: 2026-03-06
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_integracao import constants
-from pipelines.common.capture.default_capture.flow import (
-    create_capture_flows_default_tasks,
-)
+from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 from pipelines.common.capture.jae.tasks import create_jae_general_extractor
 
