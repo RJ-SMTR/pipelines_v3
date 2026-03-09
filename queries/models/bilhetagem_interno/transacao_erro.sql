@@ -38,37 +38,66 @@
     {% endset %}
 
     {% set partitions_query %}
-        select concat("'", parse_date("%Y%m%d", partition_id), "'") as data
-        from
-            `{{ aux_transacao_erro_completa.database }}.{{ aux_transacao_erro_completa.schema }}.INFORMATION_SCHEMA.PARTITIONS`
-        where
-            table_name = "{{ aux_transacao_erro_completa.identifier }}"
-            and partition_id != "__NULL__"
-            and datetime(
-                last_modified_time,
-                "America/Sao_Paulo"
-            ) between datetime_add(datetime("{{var('date_range_start')}}"), interval 1 hour) and (
-                datetime_add(datetime("{{var('date_range_end')}}"), interval 1 hour)
+        with
+            particoes as (
+                select
+                    if(
+                        partition_id != "__UNPARTITIONED__",
+                        concat("'", parse_date("%Y%m%d", partition_id), "'"),
+                        partition_id
+                    ) as data
+                from `rj-smtr.bilhetagem_interno_staging.INFORMATION_SCHEMA.PARTITIONS`
+                where
+                    table_name = "aux_transacao_erro_completa"
+                    and partition_id != "__NULL__"
+                    and datetime(last_modified_time, "America/Sao_Paulo")
+                    between datetime_add(datetime("{{var('date_range_start')}}"), interval 1 hour) and (
+                        datetime_add(datetime("{{var('date_range_end')}}"), interval 1 hour)
+                    )
+                union distinct
+                select
+                    if(
+                        partition_id != "__UNPARTITIONED__",
+                        concat("'", parse_date("%Y%m%d", partition_id), "'"),
+                        partition_id
+                    ) as data
+                from `rj-smtr.bilhetagem.INFORMATION_SCHEMA.PARTITIONS`
+                where
+                    table_name = "transacao"
+                    and partition_id != "__NULL__"
+                    and datetime(last_modified_time, "America/Sao_Paulo")
+                    between datetime_add(datetime("{{var('date_range_start')}}"), interval 1 hour) and (
+                        datetime_add(datetime("{{var('date_range_end')}}"), interval 1 hour)
+                    )
+            ),
+            particoes_agg as (
+                select
+                    "__UNPARTITIONED__" in unnest(array_agg(data)) as indicador_unpartitioned,
+                    ifnull(
+                        array_length(array_agg(data)) > 0, false
+                    ) as indicador_particao_modificada,
+                    concat(
+                        "data in (",
+                        array_to_string(
+                            array_agg(nullif(data, "__UNPARTITIONED__") ignore nulls), ", "
+                        ),
+                        ")"
+                    ) as filtro_data
+                from particoes
             )
-
-        union distinct
-
-        select concat("'", parse_date("%Y%m%d", partition_id), "'") as data
-        from
-            `{{ transacao.database }}.{{ transacao.schema }}.INFORMATION_SCHEMA.PARTITIONS`
-        where
-            table_name = "{{ transacao.identifier }}"
-            and partition_id != "__NULL__"
-            and datetime(
-                last_modified_time,
-                "America/Sao_Paulo"
-            ) between datetime_add(datetime("{{var('date_range_start')}}"), interval 1 hour) and (
-                datetime_add(datetime("{{var('date_range_end')}}"), interval 1 hour)
-            )
+        select
+            case
+                when not indicador_particao_modificada
+                then 'data = "0001-01-01"'
+                when indicador_unpartitioned
+                then concat("(", filtro_data, " or data >= '2159-01-01')")
+                else filtro_data
+            end as filtro_particao
+        from particoes_agg
 
     {% endset %}
 
-    {% set partitions = run_query(partitions_query).columns[0].values() %}
+    {% set partitions = run_query(partitions_query).columns[0].values()[0] %}
 
 {% else %}
     {% set sha_column %}
@@ -80,13 +109,7 @@ with
     transacao_erro_completa as (
         select * except (versao, datetime_ultima_atualizacao, id_execucao_dbt)
         from {{ aux_transacao_erro_completa }}
-        where
-            {% if is_incremental() %}
-                {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-                {% else %} data = "0001-01-01"
-                {% endif %}
-            {% else %} data >= "0001-01-01"
-            {% endif %}
+        where {% if is_incremental() %} {{ partitions }} {% endif %}
     ),
     transacao_erro_deduplicada as (
         select *
@@ -101,13 +124,7 @@ with
     transacao as (
         select hash_cartao, datetime_transacao, id_validador
         from {{ ref("transacao") }}
-        where
-            {% if is_incremental() %}
-                {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-                {% else %} data = "0001-01-01"
-                {% endif %}
-            {% else %} data >= "0001-01-01"
-            {% endif %}
+        where {{ partitions }}
     ),
     transacao_erro_reprocessadas as (
         select distinct tr.id_transacao_recebida
@@ -127,15 +144,7 @@ with
     ),
     {% if is_incremental() %}
 
-        dados_atuais as (
-            select *
-            from {{ this }}
-            where
-                {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-                {% else %} data = "0001-01-01"
-                {% endif %}
-
-        ),
+        dados_atuais as (select * from {{ this }} where {{ partitions }}),
     {% endif %}
     sha_dados_novos as (
         select *, {{ sha_column }} as sha_dado_novo
