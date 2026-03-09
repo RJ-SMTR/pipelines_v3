@@ -52,7 +52,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     setup_env = setup_environment(env=env)
 
     # initialize sentry for error capturing
-    initialize_sentry()
+    initialize_sentry(env)
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 
