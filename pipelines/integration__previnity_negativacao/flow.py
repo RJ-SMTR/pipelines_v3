@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-
 """
-DBT: 2026-02-26
+Flow de integração com API Previnity para negativação
+
+Schedule:
+- Diário (horário configurável)
+- Depende de dados do Planejamento Diário
+
+DBT: 2026-03-06
 """
 
 import pandas as pd
@@ -16,6 +21,7 @@ from pipelines.common.tasks import (
     async_api_post_request,
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     query_bq,
     save_data_to_file,
     setup_environment,
@@ -44,6 +50,9 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
+
+    # initialize sentry for error capturing
+    initialize_sentry(env)
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 

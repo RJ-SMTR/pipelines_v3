@@ -1,0 +1,169 @@
+version: 2
+
+models:
+  - name: staging_gps
+    description: "Tabela com todos os registros de GPS da API {{ var('fonte_gps') }}"
+    tests:
+      - check_gps_capture:
+          table_id: registros
+          interval: 1
+          name: check_gps_capture__staging_gps
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+  - name: staging_realocacao
+    description: "Tabela com todas as realocações de linha informadas pela API {{ var('fonte_gps') }}"
+    tests:
+      - check_gps_capture:
+          table_id: realocacao
+          interval: 10
+          name: check_gps_capture__staging_realocacao
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_operacao
+        description: "{{ doc('datetime_operacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico_realocacao') }}"
+      - name: datetime_entrada
+        description: "{{ doc('datetime_entrada') }}"
+      - name: datetime_saida
+        description: "{{ doc('datetime_saida') }}"
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+  - name: aux_veiculo_falha_ar_condicionado
+    description: "Tabela auxiliar para controle de falhas consecutivas de ar condicionado por veículo"
+    columns:
+      - name: data
+        description: "{{ doc('data') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__aux_veiculo_falha_ar_condicionado
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__aux_veiculo_falha_ar_condicionado
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: indicador_ar_condicionado
+        description: "{{ doc('indicador_ar_condicionado') }}"
+      - name: data_processamento_licenciamento
+        description: "Data de processamento do licenciamento do veículo"
+      - name: data_verificacao_regularidade
+        description: "{{ doc('data_verificacao_regularidade') }}"
+      - name: indicador_temperatura_variacao_veiculo
+        description: "{{ doc('indicador_temperatura_variacao_veiculo') }}"
+      - name: indicador_temperatura_transmitida_veiculo
+        description: "{{ doc('indicador_temperatura_transmitida_veiculo') }}"
+      - name: percentual_viagem_temperatura_pos_tratamento_descartada
+        description: "{{ doc('percentual_viagem_temperatura_pos_tratamento_descartada') }}"
+      - name: percentual_temperatura_pos_tratamento_descartada
+        description: "{{ doc('percentual_temperatura_pos_tratamento_descartada') }}"
+      - name: indicador_temperatura_descartada_veiculo
+        description: "{{ doc('indicador_temperatura_descartada_veiculo') }}"
+      - name: indicador_viagem_temperatura_descartada_veiculo
+        description: "{{ doc('indicador_viagem_temperatura_descartada_veiculo') }}"
+      - name: indicio_falha
+        description: "Indicador de indício de falha no sistema de ar condicionado"
+      - name: quantidade_dia_falha_operacional
+        description: "{{ doc('quantidade_dia_falha_operacional') }}"
+        tests:
+          - not_null:
+              name: not_null__quantidade_dia_falha_operacional__aux_veiculo_falha_ar_condicionado
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+  - name: temperatura_inmet
+    description: "Tabela com dados de temperatura das estações meteorológicas do INMET"
+    columns:
+      - name: data
+        description: "{{ doc('data') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__temperatura_inmet
+      - name: hora
+        description: "Hora da medição meteorológica"
+        tests:
+          - not_null:
+              name: not_null__hora__temperatura_inmet
+      - name: id_estacao
+        description: "Identificador da estação meteorológica do INMET"
+        tests:
+          - not_null:
+              name: not_null__id_estacao__temperatura_inmet
+      - name: temperatura
+        description: "Temperatura medida pela estação meteorológica (°C)"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+  - name: temperatura_alertario
+    description: "Tabela com dados de temperatura das estações meteorológicas do Sistema de Alerta Rio"
+    columns:
+      - name: data
+        description: "{{ doc('data') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__temperatura_alertario
+      - name: hora
+        description: "Hora da medição meteorológica"
+        tests:
+          - not_null:
+              name: not_null__hora__temperatura_alertario
+      - name: id_estacao
+        description: "Identificador da estação meteorológica do Sistema de Alerta Rio"
+        tests:
+          - not_null:
+              name: not_null__id_estacao__temperatura_alertario
+      - name: temperatura
+        description: "Temperatura medida pela estação meteorológica (°C)"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"

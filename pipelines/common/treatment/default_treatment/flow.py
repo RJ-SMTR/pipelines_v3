@@ -8,6 +8,7 @@ from prefect.tasks import Task
 from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
+    initialize_sentry,
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
@@ -76,6 +77,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         env=env,
         wait_for=tasks_wait_for.get("setup_enviroment"),
     )
+
+    # initialize sentry for error capturing
+    tasks["initialize_sentry"] = initialize_sentry(env=env)
 
     tasks["timestamp"] = get_scheduled_timestamp(
         wait_for=tasks_wait_for.get("timestamp"),

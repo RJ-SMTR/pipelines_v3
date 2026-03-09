@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de captura de lançamentos da Jaé
+
+Executa a captura de dados de lançamentos financeiros do sistema Jaé.
+
+Common: 2026-03-06
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_lancamento import constants
