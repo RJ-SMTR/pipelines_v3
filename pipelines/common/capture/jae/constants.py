@@ -86,6 +86,7 @@ JAE_PRIVATE_BUCKET_NAMES = {"prod": "rj-smtr-jae-private", "dev": "rj-smtr-dev-p
 ALERT_WEBHOOK = "alertas_bilhetagem"
 
 TRANSACAO_TABLE_ID = "transacao"
+TRANSACAO_RIOCARD_TABLE_ID = "transacao_riocard"
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
 TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
 INTEGRACAO_TABLE_ID = "integracao_transacao"
@@ -103,6 +104,19 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     *
                 FROM
                     transacao
+                WHERE
+                    data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "transacao_db",
+        "capture_delay_minutes": {"0": 0, "2025-03-26 15:36:00": 5},
+    },
+    TRANSACAO_RIOCARD_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    transacao_riocard
                 WHERE
                     data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
                     AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'

@@ -4,7 +4,7 @@ Flow de materialização de transações com erro
 
 Executa o selector DBT 'transacao_erro' para materializar dados no BigQuery.
 
-DBT: 2026-03-06
+DBT: 2026-03-09
 """
 
 from prefect import flow
