@@ -13,7 +13,7 @@ from pipelines.treatment__cadastro import constants as cadastro_constants
 
 TRANSACAO_ERRO_SELECTOR = DBTSelector(
     name="transacao_erro",
-    initial_datetime=datetime(2025, 3, 4, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 3, 4, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__transacao_erro",
     incremental_delay_hours=1,
     data_sources=[
