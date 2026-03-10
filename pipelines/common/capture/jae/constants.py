@@ -7,6 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
+from pipelines.common.utils.pretreatment import raise_if_column_isna
 
 JAE_SOURCE_NAME = "jae"
 
@@ -479,5 +480,91 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "save_bucket_names": JAE_PRIVATE_BUCKET_NAMES,
         "capture_flow": "auxiliar",
         "first_timestamp": datetime(2026, 1, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    },
+    "ordem_ressarcimento": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    ordem_ressarcimento
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "ordem_pagamento",
+        "pretreat_funcs": [raise_if_column_isna(column_name="id_ordem_pagamento")],
+    },
+    "ordem_pagamento": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    ordem_pagamento
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "ordem_pagamento",
+    },
+    "ordem_pagamento_consorcio_operadora": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    ordem_pagamento_consorcio_operadora
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "ordem_pagamento",
+    },
+    "ordem_pagamento_consorcio": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    ordem_pagamento_consorcio
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "ordem_pagamento",
+    },
+    "ordem_rateio": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    ordem_rateio
+                WHERE
+                    data_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "ordem_pagamento",
+        "pretreat_funcs": [raise_if_column_isna(column_name="id_ordem_pagamento")],
+    },
+    "linha_sem_ressarcimento": {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    linha_sem_ressarcimento
+                WHERE
+                    dt_inclusao BETWEEN '{start}'
+                    AND '{end}'
+            """,
+        "database": "ressarcimento_db",
+        "primary_keys": ["id_linha"],
+        "capture_flow": "ordem_pagamento",
     },
 }
