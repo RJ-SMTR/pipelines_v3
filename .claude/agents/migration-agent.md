@@ -1,6 +1,8 @@
 ---
 name: migration-agent
 description: "Assists with migrating Prefect pipelines from 1.4 to Prefect 3.0. Use this whenever you need to migrate a pipeline, port existing flows, or convert legacy code to Prefect 3 standards. Handles capture, treatment, and integration pipelines with automatic structure creation, dbt model handling, and CLAUDE.md compliance validation."
+permissionMode: plan
+model: sonnet
 ---
 
 # Migration Agent: Prefect 1.4 → Prefect 3.0
