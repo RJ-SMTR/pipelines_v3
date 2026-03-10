@@ -15,18 +15,73 @@
   },
   "permissions": {
     "allow": [
-      "Bash(dbt parse:*)",
+      "Bash(ruff:*)",
       "Bash(sqlfmt:*)",
+      "Bash(dbt parse:*)",
+      "Bash(dbt compile:*)",
+      "Bash(dbt deps:*)",
+      "Bash(dbt ls:*)",
+      "Bash(dbt build:*)",
+      "Bash(dbt test:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run:*)",
+      "Bash(pre-commit:*)",
       "Bash(git pull:*)",
-      "Bash(ls:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(git stash:*)",
+      "Bash(ls:*)",
+      "Bash(cookiecutter:*)",
+      "Bash(uvx cookiecutter:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(rm -rf:*)"
     ]
   },
-  "description": "Connect Claude Code with Google Vertex AI to access Anthropic's Claude models through Google Cloud Platform. Automatically configures all available Claude models (Sonnet, Haiku, Opus) with enterprise-grade infrastructure, billing, and security. Requires: GCP project with Vertex AI API enabled, authenticated gcloud CLI, and model access approval in Model Garden.",
   "enabledPlugins": {
     "dbt@dbt-agent-marketplace": true
   },
   "statusLine": {
     "type": "command",
     "command": "bash .claude/statusline.sh"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.py ]] && [[ \"$FILE\" == *pipelines/* ]] && cd \"$CLAUDE_PROJECT_DIR\" && ruff check --fix \"$FILE\" && ruff format \"$FILE\" || true"
+          },
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.sql ]] && [[ \"$FILE\" == *queries/* ]] && cd \"$CLAUDE_PROJECT_DIR\" && sqlfmt \"$FILE\" || true"
+          },
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && [[ \"$FILE\" == *.sql ]] && [[ \"$FILE\" == *queries/models/* ]] && cd \"$CLAUDE_PROJECT_DIR/queries\" && dbt parse --quiet || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=$(jq -r '.tool_input.file_path // empty') && if [[ \"$FILE\" == *.env* ]] || [[ \"$(basename \"$FILE\")\" == .env* ]]; then echo '{\"decision\": \"block\", \"reason\": \"Cannot edit .env files directly. Secrets are managed by Infisical SDK.\"}'; fi"
+          }
+        ]
+      }
+    ]
   }
 }
