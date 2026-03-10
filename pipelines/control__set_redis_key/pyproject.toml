@@ -1,0 +1,4 @@
+[project]
+name = "control__set_redis_key"
+version = "0.1.0"
+description = "Pipeline de controle para alteração de chaves Redis"

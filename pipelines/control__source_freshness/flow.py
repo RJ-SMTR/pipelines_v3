@@ -6,7 +6,7 @@ Executa testes de atualização a cada hora e notifica Discord se houver fontes 
 
 Schedule: Horário (cron: "0 * * * *")
 
-DBT: 2026-03-10
+Common: 2026-03-10
 """
 
 from prefect import flow, runtime

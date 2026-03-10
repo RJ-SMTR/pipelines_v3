@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `control__source_freshness` (https://github.com/RJ-SMTR/pipelines_v3/pull/XXX)
+- Cria flow `control__source_freshness` (https://github.com/RJ-SMTR/pipelines_v3/pull/76)
