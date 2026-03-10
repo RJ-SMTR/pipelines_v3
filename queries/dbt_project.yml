@@ -575,3 +575,10 @@ models:
       +materialized: view
       +schema: dashboard_monitoramento_interno
       +description: "Dashboards de Monitoramento Internos"
+    transito_interno:
+      +materialized: incremental
+      +incremental_strategy: insert_overwrite
+      +schema: transito_interno
+      staging:
+        +materialized: view
+        +schema: transito_interno_staging

@@ -6,7 +6,7 @@ Schedule:
 - Diário (horário configurável)
 - Depende de dados do Planejamento Diário
 
-DBT: 2026-03-06
+DBT: 2026-03-09
 """
 
 import pandas as pd
