@@ -21,8 +21,8 @@ from pipelines.common.utils.secret import get_env_secret
 @task
 def create_ressarcimento_db_extractor(context: SourceCaptureContext):
     """Cria a extração de tabelas do ressarcimento_db da Jaé"""
-    credentials = get_env_secret(constants.JAE_SECRET_PATH.value)
-    params = constants.JAE_TABLE_CAPTURE_PARAMS.value[context.source.table_id]
+    credentials = get_env_secret(constants.JAE_SECRET_PATH)
+    params = constants.JAE_TABLE_CAPTURE_PARAMS[context.source.table_id]
 
     end = context.timestamp.astimezone(tz=timezone("UTC"))
     start = (end - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
@@ -41,7 +41,7 @@ def create_ressarcimento_db_extractor(context: SourceCaptureContext):
     )
 
     database_name = params["database"]
-    database = constants.JAE_DATABASE_SETTINGS.value[database_name]
+    database = constants.JAE_DATABASE_SETTINGS[database_name]
     general_func_arguments = {
         "query": query,
         "engine": database["engine"],
