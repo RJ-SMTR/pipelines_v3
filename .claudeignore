@@ -1,0 +1,22 @@
+# Virtual environments
+
+.venv/
+
+# dbt artifacts
+
+queries/dbt_packages/
+queries/dbt_internal_packages/
+queries/target/
+queries/target-base/
+queries/logs/
+
+# Python bytecode
+
+**pycache**/
+_.pyc
+_.egg-info/
+
+# IDE / editor
+
+.vscode/
+.ruff_cache/
