@@ -50,6 +50,7 @@ def create_ressarcimento_db_extractor(context: SourceCaptureContext):
         "password": credentials["password"],
         "database": database_name,
         "max_retries": 3,
+        "raw_filepath": context.raw_filepath,
     }
     if context.source.file_chunk_size is not None:
         return partial(
