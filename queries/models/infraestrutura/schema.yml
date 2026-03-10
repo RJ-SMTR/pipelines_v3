@@ -1,0 +1,135 @@
+models:
+  - name: custo_cloud
+    description: Tabela contendo os dados de custo da GCP
+    columns:
+      - name: data
+        description: data de início do uso do recurso
+        data_type: date
+        quote: true
+      - name: tipo_servico
+        description: Serviço associado à cobrança
+        data_type: string
+        quote: true
+      - name: sku
+        description: Descrição do SKU [variação do serviço associado à cobrança]
+        data_type: string
+        quote: true
+      - name: projeto
+        description: "{{ doc('project_id') }}"
+        data_type: string
+        quote: true
+      - name: custo
+        description: Custo da utilização do serviço (R$)
+        data_type: float64
+        quote: true
+      - name: taxa_conversao_real
+        description: "{{ doc('taxa_conversao_real') }}"
+        data_type: float64
+        quote: true
+      - name: quantidade_uso
+        description: Quantidade do serviço que foi utilizado [na unidade da coluna unidade_uso]
+        data_type: float64
+        quote: true
+      - name: unidade_uso
+        description: Unidade de referente ao uso da coluna quantidade_uso
+        data_type: string
+        quote: true
+      - name: quantidade_unidade_preco
+        description: Quantidade do serviço que foi utilizado em unidades preço
+        data_type: float64
+        quote: true
+      - name: unidade_preco
+        description: Unidade de preço do serviço
+        data_type: string
+        quote: true
+      - name: data_particao_fonte
+        description: Data da partição da tabela fonte
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+  - name: log_bigquery
+    description: Registro dos jobs executados no BigQuery
+    columns:
+      - name: data
+        description: Data de execução
+        data_type: date
+        quote: true
+      - name: projeto
+        description: "{{ doc('project_id') }}"
+        data_type: string
+        quote: true
+      - name: usuario
+        description: Usuário que executou o Job
+        data_type: string
+        quote: true
+      - name: metodo
+        description: Tipo do Job executado
+        data_type: string
+        quote: true
+      - name: id_job
+        description: Identificador único do Job
+        data_type: string
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+      - name: query
+        description: Query executada, se houver
+        data_type: string
+        quote: true
+      - name: processo_execucao
+        description: Processo que executou o Job [nome do Flow, do Dashboard ou nulo]
+        data_type: string
+        quote: true
+      - name: tipo_processo_execucao
+        description: Tipo do processo que executou o Job [Flow, Dashboard, Outro]
+        data_type: string
+        quote: true
+      - name: bytes_processados
+        description: Quantidade de bytes processados
+        data_type: int64
+        quote: true
+      - name: bytes_faturados
+        description: Quantidade de bytes faturados
+        data_type: int64
+        quote: true
+      - name: tib_processados
+        description: Quantidade de TiB processados
+        data_type: float64
+        quote: true
+      - name: custo_real
+        description: Custo do Job (R$)
+        data_type: float64
+        quote: true
+      - name: valor_tib_real
+        description: Valor do TiB (R$)
+        data_type: float64
+        quote: true
+      - name: valor_tib_dolar
+        description: Valor do TiB (USD)
+        data_type: float64
+        quote: true
+      - name: taxa_conversao_real
+        description: "{{ doc('taxa_conversao_real') }}"
+        data_type: float64
+        quote: true
+      - name: origem_valor
+        description: Origem das informações de valor [Real, Fixado Manualmente, Preenchido]
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true

@@ -1,0 +1,4 @@
+[project]
+name = "treatment__infraestrutura"
+version = "0.1.0"
+description = "Pipeline infraestrutura da secretaria rj-smtr"
