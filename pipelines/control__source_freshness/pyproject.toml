@@ -1,0 +1,4 @@
+[project]
+name = "control__source_freshness"
+version = "0.1.0"
+description = "Pipeline de verificação de atualização (freshness) de fontes dbt"
