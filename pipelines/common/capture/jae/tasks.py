@@ -38,9 +38,9 @@ def create_jae_general_extractor(context: SourceCaptureContext):
     )
     end = context.timestamp.astimezone(tz=timezone("UTC"))
 
-    # if context.source.table_id == constants.TRANSACAO_ORDEM_TABLE_ID:
-    #     start = start.replace(hour=0, minute=0, second=0)
-    #     end = end.replace(hour=6, minute=0, second=0)
+    if context.source.table_id == constants.TRANSACAO_ORDEM_TABLE_ID:
+        start = start.replace(hour=0, minute=0, second=0)
+        end = end.replace(hour=6, minute=0, second=0)
 
     start = start.strftime("%Y-%m-%d %H:%M:%S")
     end = end.strftime("%Y-%m-%d %H:%M:%S")

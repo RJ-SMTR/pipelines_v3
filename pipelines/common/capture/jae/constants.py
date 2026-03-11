@@ -90,6 +90,7 @@ TRANSACAO_TABLE_ID = "transacao"
 TRANSACAO_RIOCARD_TABLE_ID = "transacao_riocard"
 GPS_VALIDADOR_TABLE_ID = "gps_validador"
 TRANSACAO_ERRO_TABLE_ID = "transacao_erro"
+TRANSACAO_ORDEM_TABLE_ID = "transacao_ordem"
 INTEGRACAO_TABLE_ID = "integracao_transacao"
 TRANSACAO_RETIFICADA_TABLE_ID = "transacao_retificada"
 LANCAMENTO_TABLE_ID = "lancamento"
@@ -152,6 +153,23 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "processador_transacao_db",
         "capture_delay_minutes": {"0": 5},
+    },
+    TRANSACAO_ORDEM_TABLE_ID: {
+        "query": """
+                SELECT
+                    id,
+                    id_ordem_ressarcimento,
+                    data_processamento,
+                    data_transacao
+                FROM
+                    transacao
+                WHERE
+                    data_processamento >= '{start}'
+                    AND data_processamento <= '{end}'
+                    AND id_ordem_ressarcimento IS NOT NULL
+                ORDER BY data_processamento
+            """,
+        "database": "transacao_db",
     },
     TRANSACAO_RETIFICADA_TABLE_ID: {
         "query": """
