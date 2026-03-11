@@ -326,25 +326,26 @@ def get_raw_backup_billingpay(
 
 @task
 def upload_backup_billingpay(
-    env: str, table_info: dict[str, str], database_name: str
-) -> dict[str, str]:
+    env: str, table_info: list[dict[str, str]], database_name: str
+) -> list[dict[str, str]]:
     """
     Sobe os dados do backup para o storage
 
     Args:
         env (str): prod ou dev
-        table_info (dict[str, str]): Dicionário com as informações da tabela
+        table_info (list[dict[str, str]]): Lista de dicionários com informações das tabelas
         database_name (str): Nome do banco de dados
 
     Returns:
-        dict: Dicionário com informações da tabela
+        list[dict]: Lista de dicionários com informações das tabelas
     """
-    for filepath in table_info["filepath"]:
-        Storage(env=env, dataset_id=database_name, table_id=table_info["table_name"]).upload_file(
-            mode=constants.BACKUP_BILLING_PAY_FOLDER,
-            filepath=filepath,
-            partition=table_info["partition"],
-        )
+    for table in table_info:
+        for filepath in table["filepath"]:
+            Storage(env=env, dataset_id=database_name, table_id=table["table_name"]).upload_file(
+                mode=constants.BACKUP_BILLING_PAY_FOLDER,
+                filepath=filepath,
+                partition=table["partition"],
+            )
 
     return table_info
 
@@ -352,7 +353,7 @@ def upload_backup_billingpay(
 @task
 def set_redis_backup_billingpay(
     env: str,
-    table_info: dict[str, str],
+    table_info: list[dict[str, str]],
     database_name: str,
     timestamp: datetime,
 ):
@@ -361,30 +362,31 @@ def set_redis_backup_billingpay(
 
     Args:
         env (str): prod ou dev
-        table_info (dict[str, str]): Dicionário com as informações da tabela
+        table_info (list[dict[str, str]]): Lista de dicionários com as informações das tabelas
         database_name (str): Nome do banco de dados
         timestamp (datetime): Timestamp de referência da execução
     """
-    if table_info["incremental_type"] is None:
-        return
-    redis_key = f"{env}.backup_jae_billingpay.{database_name}.{table_info['table_name']}"
-    redis_client = get_redis_client()
-    content = redis_client.get(redis_key)
-    if table_info["incremental_type"] == "datetime":
-        save_value = timestamp.strftime(treatment_constants.MATERIALIZATION_LAST_RUN_PATTERN)
-    else:
-        save_value = table_info["redis_save_value"]
+    for table in table_info:
+        if table["incremental_type"] is None:
+            return
+        redis_key = f"{env}.backup_jae_billingpay.{database_name}.{table['table_name']}"
+        redis_client = get_redis_client()
+        content = redis_client.get(redis_key)
+        if table["incremental_type"] == "datetime":
+            save_value = timestamp.strftime(treatment_constants.MATERIALIZATION_LAST_RUN_PATTERN)
+        else:
+            save_value = table["redis_save_value"]
 
-    if not content:
-        print(f"Saving value: {save_value} on key {redis_key}")
-        content = {constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY: save_value}
-        redis_client.set(redis_key, content)
-    elif (
-        content[constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY] < save_value
-        or table_info["incremental_type"] == "count"
-    ):
-        print(f"Saving value: {save_value} on key {redis_key}")
-        content[constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY] = save_value
-        redis_client.set(redis_key, content)
-    else:
-        print(f"[{redis_key}] {save_value} é menor que o valor salvo no Redis")
+        if not content:
+            print(f"Saving value: {save_value} on key {redis_key}")
+            content = {constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY: save_value}
+            redis_client.set(redis_key, content)
+        elif (
+            content[constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY] < save_value
+            or table["incremental_type"] == "count"
+        ):
+            print(f"Saving value: {save_value} on key {redis_key}")
+            content[constants.BACKUP_BILLING_LAST_VALUE_REDIS_KEY] = save_value
+            redis_client.set(redis_key, content)
+        else:
+            print(f"[{redis_key}] {save_value} é menor que o valor salvo no Redis")

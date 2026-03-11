@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Flow para backup incremental de dados BillingPay da Jaé
-Common: 2026-03-11a
+Common: 2026-03-11
 """
 
 from datetime import datetime
@@ -75,13 +75,13 @@ def capture__jae_backup_billingpay(
         timestamp=timestamp,
     )
 
-    table_info = upload_backup_billingpay.map(
+    table_info = upload_backup_billingpay(
         env=env,
         table_info=table_info,
         database_name=database_name,
     )
 
-    set_redis_backup_billingpay.map(
+    set_redis_backup_billingpay(
         env=env,
         table_info=table_info,
         database_name=database_name,
