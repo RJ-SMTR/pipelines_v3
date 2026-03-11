@@ -7,7 +7,8 @@ Executa a captura de dados de transação ordem do sistema Jaé.
 Common: 2026-03-06
 """
 
-from prefect import flow  # noqa: I001
+from prefect import flow
+
 from pipelines.capture__jae_transacao_ordem import constants
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
