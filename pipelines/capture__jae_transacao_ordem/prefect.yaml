@@ -41,6 +41,10 @@ deployments:
     schedules:
       - cron: "0 10 * * *"
         timezone: "America/Sao_Paulo"
+      - cron: "0 12 * * *"
+        timezone: "America/Sao_Paulo"
+      - cron: "0 14 * * *"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
