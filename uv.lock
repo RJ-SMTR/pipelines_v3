@@ -16,6 +16,8 @@ members = [
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
     "common",
+    "control-set-redis-key",
+    "control-source-freshness",
     "integration-previnity-negativacao",
     "pipelines-v3",
     "test-raise-for-sentry",
@@ -410,6 +412,16 @@ wheels = [
 name = "common"
 version = "0.1.0"
 source = { virtual = "pipelines/common" }
+
+[[package]]
+name = "control-set-redis-key"
+version = "0.1.0"
+source = { virtual = "pipelines/control__set_redis_key" }
+
+[[package]]
+name = "control-source-freshness"
+version = "0.1.0"
+source = { virtual = "pipelines/control__source_freshness" }
 
 [[package]]
 name = "coolname"
