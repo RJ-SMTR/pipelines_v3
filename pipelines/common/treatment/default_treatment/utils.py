@@ -483,7 +483,7 @@ class DBTSelectorMaterializationContext:
         return dbt_vars
 
 
-def run_dbt(
+def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
     dbt_command: Optional[str] = None,
     dbt_vars: Optional[dict] = None,
