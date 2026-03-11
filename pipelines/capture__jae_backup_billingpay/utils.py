@@ -59,7 +59,7 @@ def create_billingpay_backup_filepath(
 
 
 def get_redis_last_backup(
-    # env: str,
+    env: str,  # noqa: ARG001
     table_name: str,
     database_name: str,
     incremental_type: str,
