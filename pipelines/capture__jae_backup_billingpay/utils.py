@@ -28,7 +28,7 @@ def get_backup_billing_pay_flow_run_name(database_name: str) -> str:
     Returns:
         str: Nome formatado para a run do flow
     """
-    start_time = runtime.flow_run.start_time
+    start_time = runtime.flow_run.scheduled_start_time
     return f"{database_name}: {start_time.isoformat()}"
 
 
