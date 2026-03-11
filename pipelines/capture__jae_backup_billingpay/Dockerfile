@@ -1,21 +1,13 @@
-FROM python:3.13-slim
+FROM ghcr.io/rj-smtr/pipelines_v3:latest
 
-WORKDIR /app
+LABEL org.opencontainers.image.source=https://github.com/rj-smtr/pipelines_v3
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/prefect/pipelines_v3
 
-# Copy uv installer
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-# Copy project files
-COPY . /app/
+COPY ./pipelines/capture__jae_backup_billingpay ./pipelines/capture__jae_backup_billingpay/
 
-# Install dependencies with uv
-RUN uv sync --frozen
+COPY ./pipelines/common/ ./pipelines/common/
 
-# Set entrypoint
-ENTRYPOINT ["uv", "run", "--package", "capture__jae_backup_billingpay", "prefect", "flow-run", "execute"]
+RUN uv sync --all-packages

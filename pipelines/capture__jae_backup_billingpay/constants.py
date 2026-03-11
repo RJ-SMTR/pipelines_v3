@@ -3,102 +3,10 @@
 Constantes para backup incremental de dados BillingPay da Jaé
 """
 
-from zoneinfo import ZoneInfo
-
-# ============================================================================
-# Timezone
-# ============================================================================
-TIMEZONE = ZoneInfo("America/Sao_Paulo")
-
-# ============================================================================
-# Table validation
-# ============================================================================
 MAX_UNFILTERED_TABLE_ROWS = 5000
 
-# ============================================================================
-# Secrets and Access
-# ============================================================================
-JAE_SECRET_PATH = "smtr_jae_access_data"
-ALERT_WEBHOOK = "alertas_bilhetagem"
-
-# ============================================================================
-# Database Settings
-# ============================================================================
-JAE_DATABASE_SETTINGS = {
-    "principal_db": {
-        "engine": "mysql",
-        "host": "10.5.113.205",
-    },
-    "tarifa_db": {
-        "engine": "postgresql",
-        "host": "10.5.113.254",
-    },
-    "transacao_db": {
-        "engine": "postgresql",
-        "host": "10.5.114.104",
-    },
-    "tracking_db": {
-        "engine": "postgresql",
-        "host": "10.5.12.106",
-    },
-    "ressarcimento_db": {
-        "engine": "postgresql",
-        "host": "10.5.12.50",
-    },
-    "gratuidade_db": {
-        "engine": "postgresql",
-        "host": "10.5.14.19",
-    },
-    "fiscalizacao_db": {
-        "engine": "postgresql",
-        "host": "10.5.115.29",
-    },
-    "atm_gateway_db": {
-        "engine": "postgresql",
-        "host": "10.5.15.127",
-    },
-    "device_db": {
-        "engine": "postgresql",
-        "host": "10.5.114.114",
-    },
-    "erp_integracao_db": {
-        "engine": "postgresql",
-        "host": "10.5.12.105",
-    },
-    "financeiro_db": {
-        "engine": "postgresql",
-        "host": "10.5.12.109",
-    },
-    "midia_db": {
-        "engine": "postgresql",
-        "host": "10.5.12.52",
-    },
-    "processador_transacao_db": {
-        "engine": "postgresql",
-        "host": "10.5.14.59",
-    },
-    "atendimento_db": {
-        "engine": "postgresql",
-        "host": "10.5.14.170",
-    },
-    "gateway_pagamento_db": {
-        "engine": "postgresql",
-        "host": "10.5.113.130",
-    },
-    "vendas_db": {
-        "engine": "postgresql",
-        "host": "10.5.114.15",
-    },
-}
-
-# ============================================================================
-# Backup Configuration
-# ============================================================================
 BACKUP_BILLING_PAY_FOLDER = "backup_jae_billingpay"
 BACKUP_BILLING_LAST_VALUE_REDIS_KEY = "last_backup_value"
-
-# Databases that execute every 6 hours (critical)
-MULTIPLE_EXECUTION_DBS = ["processador_transacao_db", "financeiro_db", "midia_db"]
 
 BACKUP_JAE_BILLING_PAY = {
     "principal_db": {
@@ -235,6 +143,7 @@ BACKUP_JAE_BILLING_PAY = {
             "transacao_riocard",
             "embossadora_producao_20240809",
             "transacao_faltante_23082023",
+            # sem permissão #
             "temp_estudante_cpfduplicado_13032025",
             "temp_estudante_cpfduplicado_14032025",
             "temp_estudante_cpfduplicado_17032025",
@@ -290,188 +199,247 @@ BACKUP_JAE_BILLING_PAY = {
         "exclude": [
             "gratuidade",
             "estudante_import_old",
+            "estudante_import_old",
             "gratuidade_import_pcd_old",
             "estudante_seeduc_25032025",
+            # sem permissão: #
             "pcd_excluir",
+            "estudante_seeduc",
+            "pcd_nao_excluir",
+            "estudante_import_seeduc",
+            "check_cadastro_pcd_validar",
+            "gratuidade_import_pcd",
+            "estudante_seeduc_nov2024",
+            "check_cadastro_total1",
+            "check_cadastro_pcd_validado",
+            "estudante_federal",
+            "estudante_sme_2025",
+            "estudante_universitario",
+            "estudante_sme_2025_2102",
+            "temp_estudante_cpfduplicado_13032025",
+            "temp_estudante_cpfduplicado_14032025",
+            "temp_estudante_cpfduplicado_17032025",
+            "estudante_sme_21012025",
+            "estudante_sme_21022025",
+            "temp_estudante_acerto_20032025",
+            "estudante_universitario_24012025",
+            "estudante_sme_17032025",
+            "estudante_sme_31032025",
+            "estudante_universitario_25032025",
+            "estudante_universitario_25042025",
+            "estudante_universitario_12032025",
+            "estudante_seeduc_27062025",
+            "estudante_seeduc_07082025",
+            "estudante_universitario_10092025",
+            "estudante_seeduc_22102025",
+            "temp_estudante_seeduc_inativos_02122025",
+            "estudante_universitario_24112025",
+            "temp_cancelamento_estudante_08122025",
+            "temp_cancelamento_estudante_sme_08122025",
         ],
         "filter": {
-            "estudante": ["data_atualizacao"],
-            "laudo_pcd": ["data_atualizacao"],
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
+            "lancamento_conta_gratuidade": ["data_inclusao"],
+            "historico_status_gratuidade": ["data_inclusao"],
+            "regra_gratuidade": ["data_fim_validade", "data_inclusao"],
+            "conta_gratuidade": [
+                "data_cancelamento",
+                "data_ultima_atualizacao",
+                "data_inclusao",
             ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
+            "estudante_prefeitura": ["id"],
+            "estudante_anterior": ["data_inclusao"],
+            "estudante": ["data_inclusao"],
+            "laudo_pcd_cid": ["data_inclusao"],
+            "laudo_pcd": ["data_inclusao"],
+            "pcd": ["data_inclusao"],
+            "laudo_pcd_tipo_doenca": ["data_inclusao"],
+            "escola": ["data_inclusao"],
+            "estudante_sme": ["count(*)"],
+            "escola_importa": ["count(*)"],
+            "cid_nova": ["count(*)"],
+            "cid": ["count(*)"],
         },
     },
     "fiscalizacao_db": {
-        "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
+        "filter": {"fiscalizacao": ["dt_inclusao"]},
     },
     "atm_gateway_db": {
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
+            "requisicao": [
+                "dt_requisicao",
+                "dt_resposta",
+            ]
         }
     },
     "device_db": {
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
+            "device_operadora_grupo": ["data_desassociacao", "data_inclusao"],
+            "device_operadora": ["data_desassociacao", "data_inclusao"],
+            "device": ["data_inclusao", "data_ultimo_comando"],
+            "grupo_controle_device": ["data_inclusao"],
         }
     },
-    "erp_integracao_db": {
-        "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
-    },
+    "erp_integracao_db": {},
     "financeiro_db": {
+        "exclude": [
+            "sequencia_lancamento",
+            "cliente_fraude_05092024",
+            "cargas_garota_vip_18082023",
+            "lancamento",
+        ],
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
+            "conta": [
+                "dt_abertura",
+                "dt_fechamento",
+                "dt_lancamento",
             ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
+            "lote_credito_conta": [
+                "dt_abertura",
+                "dt_fechamento",
+                "dt_inclusao",
             ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
+            "evento_recebido": ["dt_inclusao"],
+            "movimento": ["dt_movimento"],
+            "evento_processado": ["dt_inclusao"],
+            "evento_erro": ["dt_inclusao"],
+            "midia_gravacao_fisica_141": ["dt_gravacao"],
+            "midia_gravacao_fisica_148": ["id"],
+            "midia_gravacao_fisica_145": ["id"],
+            "midia_gravacao_fisica_136": ["dt_gravacao"],
+            "midia_gravacao_fisica_142": ["dt_gravacao"],
+            "midia_gravacao_fisica_140": ["dt_gravacao"],
+            "midia_gravacao_fisica_137": ["dt_gravacao"],
+            "midia_gravacao_fisica_138": ["dt_gravacao"],
+            "midia_gravacao_fisica_135": ["dt_gravacao"],
+            "midia_gravacao_fisica_133": ["dt_gravacao"],
+            "midia_gravacao_fisica_139": ["dt_gravacao"],
+            "criar_conta_financeira": ["count(*)"],
+        },
+        "custom_select": {
+            "conta": """
+                select
+                    *
+                from conta c
+                left join (
+                    select
+                        id_conta,
+                        max(dt_lancamento) as dt_lancamento
+                        from lancamento
+                        group by id_conta
+                ) l using(id_conta)
+            """,
+            "lote_credito_conta": """
+                select
+                    lcc.*,
+                    lc.dt_abertura,
+                    lc.dt_fechamento,
+                    lc.dt_inclusao
+                from lote_credito_conta lcc
+                left join lote_credito lc using(id_lote_credito)
+            """,
+        },
     },
     "midia_db": {
+        "exclude": [
+            "midia_chip_12092024",
+            "midia_chip_30092024",
+            "cargas_garota_vip_18082023",
+            # sem permissão #
+            "tb_arquivos_validacao",
+            "jal_sp_cbd_producao_tudo",
+            "midia_chip",
+            "midia_chip_12122024",
+            "midia_gravacao_fisica_150",
+            "midia_gravacao_fisica",
+            "midia_gravacao_fisica_151",
+            "jall_midia_erro",
+            "jall_midia_nao_recebida",
+            "erros_504_criacao_dock",
+            "temp_estudante_cpfduplicado_13032025",
+            "temp_estudante_cpfduplicado_14032025",
+            "temp_estudante_cpfduplicado_17032025",
+            "temp_midias_gratuidade_utilizacao_0107a1208",
+            "temp_midia_limbo_nv",
+            "temp_midia_limbo_09072025",
+            "temp_uids_01",
+            "temp_cartoes_duplicados_14082025",
+            "temp_limbo_25102025",
+        ],
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
+            "midia_evento": ["dt_inclusao"],
+            "midia": [
+                "dt_cancelamento_logico",
+                "dt_cancelamento_fisico",
+                "dt_gravacao",
+                "dt_inclusao",
             ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
+            "midia_cliente": [
+                "dt_associacao",
+                "dt_desassociacao",
             ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
+            "midia_nova": [
+                "dt_cancelamento_logico",
+                "dt_cancelamento_fisico",
+                "dt_gravacao",
+                "dt_inclusao",
+            ],
+            "midia_backup": [
+                "dt_cancelamento_logico",
+                "dt_cancelamento_fisico",
+                "dt_gravacao",
+                "dt_inclusao",
+            ],
+            "midia_gravacao_fisica_141": ["id"],
+            "midia_gravacao_fisica_148": ["id"],
+            "midia_gravacao_fisica_145": ["id"],
+            "midia_gravacao_fisica_142": ["dt_gravacao"],
+            "midia_gravacao_fisica_140": ["dt_gravacao"],
+            "retorno_geral": ["count(*)"],
+            "midia_jall": ["count(*)"],
+            "temp_retorno_midia": ["count(*)"],
+        },
     },
     "processador_transacao_db": {
         "exclude": [
-            "transacao_lote_processamento",
+            "transacao_erro",
         ],
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
+            "transacao_processada": ["dt_inclusao"],
+            "transacao_recebida": ["dt_inclusao"],
         },
     },
-    "atendimento_db": {
-        "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
-    },
+    "atendimento_db": {},
     "gateway_pagamento_db": {
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
+            "payment_processing": ["created_at"],
+            "card_processing": ["created_at"],
+            "cnab_transaction": ["count(*)"],
+        },
     },
+    # "iam_db": {
+    #     "exclude": [
+    #         "gratuidade_import_pcd",
+    #         "CLIENTE_FRAUDE_05092024",
+    #     ],
+    #     "filter": {
+    #         "CONTROLE_CODIGO_VERIFICACAO": ["NR_SEQ"],
+    #         "PERFIL_ACESSO": ["DT_INCLUSAO", "DT_CANCELAMENTO"],
+    #         "SEGURANCA_CONTA_ACESSO": ["DT_INCLUSAO"],
+    #         "CONTA_ACESSO": ["DT_EXPIRACAO", "DT_INCLUSAO"],
+    #         "ATIVACAO_CONTA_ACESSO": ["CRIADO_EM", "DT_ATIVACAO"],
+    #         "CONTA_ACESSO_BACK": ["DT_EXPIRACAO", "DT_INCLUSAO"],
+    #         "check_cadastro_pcd_validado": ["data_nascimento"],
+    #     },
+    # },
     "vendas_db": {
+        "exclude": ["nsu_temp_venda", "vendas_piu"],
         "filter": {
-            "batch_step_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_step_execution_context": ["step_execution_id"],
-            "batch_job_execution_params": ["job_execution_id"],
-            "batch_job_instance": ["job_instance_id"],
-            "batch_job_execution": [
-                "create_time",
-                "last_updated",
-            ],
-            "batch_job_execution_context": ["job_execution_id"],
-        }
+            "venda": [
+                "dt_cancelamento",
+                "dt_pagamento",
+                "dt_credito",
+                "dt_venda",
+            ]
+        },
     },
 }

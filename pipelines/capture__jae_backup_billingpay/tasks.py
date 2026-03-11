@@ -12,10 +12,9 @@ from sqlalchemy import DATE, DATETIME, TIMESTAMP, create_engine, inspect
 from pipelines.capture__jae_backup_billingpay import constants
 from pipelines.capture__jae_backup_billingpay.utils import (
     create_billingpay_backup_filepath,
-    create_partition,
     get_redis_last_backup,
-    get_table_data_backup_billingpay,
 )
+from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.treatment.default_treatment import (
     constants as treatment_constants,
 )
@@ -23,7 +22,8 @@ from pipelines.common.utils.database import (
     create_database_url,
     list_accessible_tables,
 )
-from pipelines.common.utils.extractors.db import get_raw_db
+from pipelines.common.utils.extractors.db import get_db_data, get_raw_db_paginated
+from pipelines.common.utils.fs import create_partition
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
@@ -40,8 +40,8 @@ def get_jae_db_config(database_name: str) -> dict[str, str]:
     Returns:
         dict[str, str]: Dicionário com os argumentos para a função create_database_url
     """
-    secrets = get_env_secret(constants.JAE_SECRET_PATH)
-    settings = constants.JAE_DATABASE_SETTINGS[database_name]
+    secrets = get_env_secret(jae_constants.JAE_SECRET_PATH)
+    settings = jae_constants.JAE_DATABASE_SETTINGS[database_name]
     return {
         "engine": settings["engine"],
         "host": settings["host"],
@@ -303,7 +303,7 @@ def get_raw_backup_billingpay(
             id_column = constants.BACKUP_JAE_BILLING_PAY[database_config["database"]]["filter"][
                 table_name
             ][0]
-            max_id = get_raw_db(
+            max_id = get_db_data(
                 f"select max({id_column}) as max_id FROM {table_name}",
                 **database_config,
             )[0]["max_id"]
@@ -311,9 +311,9 @@ def get_raw_backup_billingpay(
             table["redis_save_value"] = max_id
         sql = sql.format(filter=where)
 
-        filepath = get_table_data_backup_billingpay(
+        filepath = get_raw_db_paginated(
             query=sql,
-            filepath=table["filepath"],
+            raw_filepath=table["filepath"],
             page_size=constants.BACKUP_JAE_BILLING_PAY[database_config["database"]]
             .get("page_size", {})
             .get(table_name, 200_000),
@@ -355,7 +355,7 @@ def set_redis_backup_billingpay(
     table_info: dict[str, str],
     database_name: str,
     timestamp: datetime,
-) -> None:
+):
     """
     Atualiza o Redis com os novos dados capturados
 

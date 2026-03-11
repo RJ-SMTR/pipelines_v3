@@ -14,7 +14,6 @@ from typing import Optional
 
 from prefect import flow
 
-from pipelines.capture__jae_backup_billingpay import constants
 from pipelines.capture__jae_backup_billingpay.tasks import (
     create_non_filtered_discord_message,
     get_jae_db_config,
@@ -24,18 +23,18 @@ from pipelines.capture__jae_backup_billingpay.tasks import (
     set_redis_backup_billingpay,
     upload_backup_billingpay,
 )
-from pipelines.capture__jae_backup_billingpay.utils import get_flow_run_name
+from pipelines.capture__jae_backup_billingpay.utils import get_backup_billing_pay_flow_run_name
+from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
     initialize_sentry,
     setup_environment,
+    task_send_discord_message,
 )
-from pipelines.common.utils.discord import send_discord_message
-from pipelines.common.utils.secret import get_env_secret
 
 
-@flow(log_prints=True, flow_run_name=get_flow_run_name)
+@flow(log_prints=True, flow_run_name=get_backup_billing_pay_flow_run_name)
 def capture__jae_backup_billingpay(
     database_name: str,
     env: Optional[str] = None,
@@ -73,9 +72,7 @@ def capture__jae_backup_billingpay(
             database_name=database_name,
             table_count=table_count,
         )
-        webhook_secret = get_env_secret(constants.ALERT_WEBHOOK)
-        webhook_url = webhook_secret.get("webhook_url", webhook_secret)
-        send_discord_message(message=message, webhook_url=webhook_url)
+        task_send_discord_message(message=message, webhook=jae_constants.ALERT_WEBHOOK)
 
     table_info = get_raw_backup_billingpay(
         table_info=table_info,
