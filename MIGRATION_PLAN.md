@@ -88,6 +88,12 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `capture__jae_gps_validador` — Captura de GPS do validador da Jaé (PR #41)
 - [x] `capture__jae_lancamento` — Captura de lançamentos da Jaé (PR #52)
 - [x] `capture__jae_transacao_erro` — Captura de transações com erro da Jaé (PR #39)
+- [x] `capture__jae_transacao` — Captura de transações JAE (PR #60)
+- [x] `capture__jae_transacao_riocard` — Captura de transações RioCard (PR #67)
+- [x] `capture__jae_transacao_retificada` — Captura de transações retificadas (PR #71)
+- [x] `capture__jae_integracao` — Captura de integração JAE (PR #58)
+- [x] `capture__jae_ordem_pagamento` — Captura de ordem de pagamento JAE (PR #73)
+- [x] `capture__rioonibus_viagem_informada` — Captura de viagem informada RioÔnibus (PR #61)
 
 ### Pendentes — GPS Ônibus (sem dependências, migrar em lote)
 
@@ -123,11 +129,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 
 ### Pendentes — Viagem / Monitoramento
 
-- [ ] `capture__rioonibus_viagem_informada` — Captura de viagem informada (RioÔnibus)
-  - Origem: `pipelines/capture/rioonibus/flows.py` → `CAPTURA_VIAGEM_INFORMADA`
-  - Schedule: `0 7 * * *` (diário às 7h)
-  - Downstream: `treatment__viagem_informada`
-
 - [ ] `capture__sonda_viagem_informada` — Captura de viagem informada BRT (Sonda)
   - Origem: `pipelines/capture/sonda/flows.py` → `CAPTURA_VIAGEM_INFORMADA_BRT`
   - Schedule: `10 7 * * *` (diário às 7:10)
@@ -138,31 +139,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Downstream: `treatment__monitoramento_veiculo`
 
 ### Pendentes — Bilhetagem (JAE)
-
-- [ ] `capture__jae_transacao` — Captura de transações JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO`
-  - Schedule: `*/1 * * * *` (a cada minuto), recaptura horária
-  - Downstream: `treatment__transacao`
-
-- [ ] `capture__jae_transacao_riocard` — Captura de transações RioCard
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO_RIOCARD`
-  - Schedule: `*/1 * * * *` (a cada minuto), recaptura horária
-  - Downstream: `treatment__transacao`
-
-- [ ] `capture__jae_transacao_retificada` — Captura de transações retificadas
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO_RETIFICADA`
-  - Schedule: `*/10 * * * *` (a cada 10 min), recaptura horária
-
-- [ ] `capture__jae_integracao` — Captura de integração JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_INTEGRACAO`
-  - Schedule: diário às 5h, 7h e 10h
-  - Downstream: `treatment__integracao`
-
-- [ ] `capture__jae_ordem_pagamento` — Captura de ordem de pagamento JAE (6 tabelas)
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_ORDEM_PAGAMENTO`
-  - Schedule: diário às 10h
-  - Tabelas: ordem_ressarcimento, ordem_pagamento, ordem_pagamento_consorcio_operadora, ordem_pagamento_consorcio, ordem_rateio, linha_sem_ressarcimento
-  - Downstream: `treatment__financeiro_bilhetagem`
 
 - [ ] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE
   - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO_ORDEM`
@@ -217,6 +193,10 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Waits: cadastro (treatment) + jae/gps_validador (captura já migrada)
 - [x] `treatment__cliente_cpf` — Materialização do selector `cliente_cpf` (PR #28)
 - [x] `treatment__extrato_cliente_cartao` — Materialização do selector `extrato_cliente_cartao` (PR #53)
+- [x] `treatment__planejamento_diario` — Materialização de planejamento diário (PR #64)
+- [x] `treatment__infraestrutura` — Materialização do selector `infraestrutura` (PR #72)
+- [x] `treatment__passageiro_hora` — Materialização de passageiro/hora (PR #57)
+- [x] `treatment__viagem_informada` — Materialização de viagem informada (PR #68)
 
 ### Pendentes — GPS (dependem das capturas GPS acima)
 
@@ -262,17 +242,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Selector: `monitoramento_veiculo` + snapshot `snapshot_veiculo`
   - Post-tests: veiculo_fiscalizacao_lacre, autuacao_disciplinar_historico
 
-- [ ] `treatment__planejamento_diario` — Materialização de planejamento diário
-  - Origem: `pipelines/treatment/planejamento/flows.py` → `PLANEJAMENTO_DIARIO_MATERIALIZACAO`
-  - Schedule: `0 1 * * *` (diário à 1h)
-  - Waits: nenhum
-  - Downstream: `treatment__viagem_informada`, `treatment__viagem_validacao`
-
-- [ ] `treatment__infraestrutura` — Materialização do selector `infraestrutura`
-  - Origem: `pipelines/treatment/infraestrutura/flows.py` → `INFRAESTRUTURA_MATERIALIZACAO`
-  - Schedule: `0 9 * * *` (diário às 9h)
-  - Waits: nenhum
-
 - [ ] `treatment__datario` — Materialização de dados do Datario
   - Origem: `pipelines/treatment/datario/flows.py` → `DATARIO_MATERIALIZACAO`
   - Schedule: sem schedule (executado manualmente)
@@ -315,12 +284,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 ---
 
 ## Materialização / Treatment — Nível 1 (dependem de treatments nível 0)
-
-- [ ] `treatment__viagem_informada` — Materialização de viagem informada
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `VIAGEM_INFORMADA_MATERIALIZACAO`
-  - Schedule: `30 7 * * *` (diário às 7:30)
-  - Waits: `treatment__planejamento_diario` + `capture__rioonibus_viagem_informada`
-  - Nota: pasta já existe em pipelines_v3 como stub (sem flow.py)
 
 - [ ] `treatment__cadastro_veiculo` — Materialização do selector `cadastro_veiculo` + snapshot
   - Origem: `pipelines/treatment/cadastro/flows.py` → `CADASTRO_VEICULO_MATERIALIZACAO`
@@ -371,12 +334,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Waits: `treatment__viagem_informada` (delay -48h) + `treatment__planejamento_diario` + `treatment__gps_conecta` + `treatment__gps_cittati` + `treatment__gps_zirix`
 
 ### Bilhetagem — Nível 2
-
-- [ ] `treatment__passageiro_hora` — Materialização de passageiro/hora
-  - Origem: `pipelines/treatment/bilhetagem/flows.py` → `PASSAGEIRO_HORA_MATERIALIZACAO`
-  - Schedule: horário (minuto 35)
-  - Waits: `treatment__transacao`
-  - Post-tests: passageiro_hora, passageiro_tile_hora, transacao_gratuidade_estudante_municipal
 
 - [ ] `treatment__transacao_valor_ordem` — Materialização de transação valor/ordem
   - Origem: `pipelines/treatment/bilhetagem/flows.py` → `TRANSACAO_VALOR_ORDEM_MATERIALIZACAO`
@@ -529,10 +486,5 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 
 ## Utilitários / Controle
 
-- [ ] `flow_set_key_redis` — Alteração de valores no Redis
-  - Origem: `pipelines/control/flows.py`
-  - Nota: avaliar necessidade na v3
-
-- [ ] `flow_source_freshness` — Teste de freshness de sources DBT
-  - Origem: `pipelines/control/flows.py`
-  - Nota: avaliar necessidade na v3
+- [x] `flow_set_key_redis` — Migrado como `control__set_redis_key`
+- [x] `flow_source_freshness` — Migrado como `control__source_freshness`
