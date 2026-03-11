@@ -1,0 +1,4 @@
+[project]
+name = "capture__jae_ordem_pagamento"
+version = "0.1.0"
+description = "Pipeline jae_ordem_pagamento da secretaria rj-smtr"
