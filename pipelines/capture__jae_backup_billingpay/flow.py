@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Flow para backup incremental de dados BillingPay da Jaé
-
-Realiza backup incremental de múltiplas bases de dados JAE (processador_transacao_db,
-financeiro_db, midia_db, etc.), rastreando incrementos via Redis e validando tabelas
-sem filtro com alertas Discord.
-
-Common: 2026-03-10
+Common: 2026-03-11
 """
 
 from datetime import datetime
