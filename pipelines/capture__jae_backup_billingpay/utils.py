@@ -18,16 +18,14 @@ from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.redis import get_redis_client
 
 
-def get_backup_billing_pay_flow_run_name(database_name: str) -> str:
+def get_backup_billing_pay_flow_run_name() -> str:
     """
     Gera o nome da run do Flow com base no nome do banco de dados
-
-    Args:
-        database_name (str): Nome do banco de dados
 
     Returns:
         str: Nome formatado para a run do flow
     """
+    database_name = runtime.flow_run.parameters["database_name"]
     start_time = runtime.flow_run.scheduled_start_time
     return f"{database_name}: {start_time.isoformat()}"
 
