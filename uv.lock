@@ -10,9 +10,13 @@ members = [
     "capture-jae-lancamento",
     "capture-jae-transacao",
     "capture-jae-transacao-erro",
+    "capture-jae-transacao-retificada",
+    "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
     "common",
+    "control-set-redis-key",
+    "control-source-freshness",
     "integration-previnity-negativacao",
     "pipelines-v3",
     "test-raise-for-sentry",
@@ -21,10 +25,12 @@ members = [
     "treatment-cliente-cpf",
     "treatment-extrato-cliente-cartao",
     "treatment-gps-validador",
+    "treatment-infraestrutura",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
     "treatment-transacao-erro",
     "treatment-transito-autuacao",
+    "treatment-viagem-informada",
 ]
 
 [[package]]
@@ -276,6 +282,16 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao_erro" }
 
 [[package]]
+name = "capture-jae-transacao-retificada"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao_retificada" }
+
+[[package]]
+name = "capture-jae-transacao-riocard"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao_riocard" }
+
+[[package]]
 name = "capture-rioonibus-viagem-informada"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__rioonibus_viagem_informada" }
@@ -390,6 +406,16 @@ wheels = [
 name = "common"
 version = "0.1.0"
 source = { virtual = "pipelines/common" }
+
+[[package]]
+name = "control-set-redis-key"
+version = "0.1.0"
+source = { virtual = "pipelines/control__set_redis_key" }
+
+[[package]]
+name = "control-source-freshness"
+version = "0.1.0"
+source = { virtual = "pipelines/control__source_freshness" }
 
 [[package]]
 name = "coolname"
@@ -2745,6 +2771,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_validador" }
 
 [[package]]
+name = "treatment-infraestrutura"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__infraestrutura" }
+
+[[package]]
 name = "treatment-passageiro-hora"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__passageiro_hora" }
@@ -2763,6 +2794,11 @@ source = { virtual = "pipelines/treatment__transacao_erro" }
 name = "treatment-transito-autuacao"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__transito_autuacao" }
+
+[[package]]
+name = "treatment-viagem-informada"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__viagem_informada" }
 
 [[package]]
 name = "typer"

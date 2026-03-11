@@ -483,8 +483,9 @@ class DBTSelectorMaterializationContext:
         return dbt_vars
 
 
-def run_dbt(
+def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
+    dbt_command: Optional[str] = None,
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
@@ -495,6 +496,7 @@ def run_dbt(
 
     Args:
         dbt_obj (Optional[Union[DBTSelector, DBTTest]]): Objeto DBT a ser executado.
+        dbt_command (Optional[str]): Comando customizado (ex: "source freshness").
         dbt_vars (Optional[dict]): Variáveis para execução do DBT.
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
@@ -517,7 +519,9 @@ def run_dbt(
     target_path = project_dir / "target"
 
     invoke = []
-    if dbt_obj is not None:
+    if dbt_command == "source freshness":
+        invoke = ["source", "freshness"]
+    elif dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
             if is_snapshot:
                 invoke = ["snapshot", "--selector", dbt_obj.name]
