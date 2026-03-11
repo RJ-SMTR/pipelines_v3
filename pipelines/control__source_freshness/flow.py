@@ -14,7 +14,6 @@ from prefect import flow, runtime
 from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
 from pipelines.common.treatment.default_treatment.utils import run_dbt
 from pipelines.common.utils.prefect import handler_notify_failure
-from pipelines.control__source_freshness import constants
 from pipelines.control__source_freshness.tasks import (
     parse_source_freshness_output,
     source_freshness_notify_discord,
@@ -23,7 +22,7 @@ from pipelines.control__source_freshness.tasks import (
 
 @flow(
     log_prints=True,
-    on_failure=[handler_notify_failure(webhook=constants.DISCORD_WEBHOOK_KEY)],
+    on_failure=[handler_notify_failure(webhook="dataplex")],
 )
 def control__source_freshness(env=None, flags=None):
     """
