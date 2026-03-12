@@ -8,8 +8,10 @@ members = [
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
+    "capture-jae-ordem-pagamento",
     "capture-jae-transacao",
     "capture-jae-transacao-erro",
+    "capture-jae-transacao-ordem",
     "capture-jae-transacao-retificada",
     "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
@@ -272,6 +274,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_lancamento" }
 
 [[package]]
+name = "capture-jae-ordem-pagamento"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_ordem_pagamento" }
+
+[[package]]
 name = "capture-jae-transacao"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao" }
@@ -280,6 +287,11 @@ source = { virtual = "pipelines/capture__jae_transacao" }
 name = "capture-jae-transacao-erro"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao_erro" }
+
+[[package]]
+name = "capture-jae-transacao-ordem"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_transacao_ordem" }
 
 [[package]]
 name = "capture-jae-transacao-retificada"

@@ -1,0 +1,252 @@
+# .github/workflows/doc-ci.yml
+#
+# CI de Documentação Automatizada — Arquitetura Viva da Plataforma de Dados SMTR
+#
+# Repositório fonte: RJ-SMTR/pipelines_v3 (branch: master)
+# Repositório de docs: RJ-SMTR/pipelines-docs (branch: main, MkDocs)
+#
+# Este workflow é adicionado ao repo pipelines_v3.
+# A cada push na master, ele:
+#   1. Indexa o código com GitNexus
+#   2. Extrai graph.json do KuzuDB
+#   3. Compara com o graph.json anterior (no repo de docs)
+#   4. Se houve mudança, chama Claude Sonnet via Vertex AI para propor atualizações
+#   5. Abre um PR no repo pipelines-docs
+#
+# Secrets necessários no repo pipelines_v3:
+#   - GKE_SA_KEY: service account key JSON já existente
+#                 (precisa de roles/aiplatform.user no projeto rj-smtr)
+#   - DOCS_REPO_TOKEN: PAT fine-grained com permissão no repo pipelines-docs
+#                       (Contents: write, Pull Requests: write)
+#
+
+name: "CI Documentação Automatizada"
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "pipelines/**"
+      - "queries/**"
+      - "templates/**"
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: "Forçar atualização mesmo sem mudanças estruturais"
+        type: boolean
+        default: false
+
+concurrency:
+  group: doc-ci
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
+  DOCS_REPO: "RJ-SMTR/pipelines-docs"
+  REPO_SLUG: "pipelines_v3"
+
+jobs:
+  detect-changes:
+    name: "Detectar mudanças estruturais"
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.compare.outputs.has_changes }}
+      diff_summary: ${{ steps.compare.outputs.diff_summary }}
+
+    steps:
+      - name: Checkout pipelines_v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar dependências
+        run: |
+          pip install kuzu pandas
+          npm install -g @anthropic-ai/gitnexus || echo "::warning::gitnexus not found in npm, skipping"
+
+      - name: GitNexus analyze
+        run: |
+          echo "::group::GitNexus analyze"
+          if command -v gitnexus &> /dev/null; then
+            gitnexus analyze .
+          else
+            echo "::warning::gitnexus CLI not available, using existing .gitnexus if present"
+          fi
+          echo "::endgroup::"
+
+      - name: Extrair graph.json
+        run: |
+          python .github/scripts/doc-ci/extract_graph.py \
+            --kuzu-path .gitnexus \
+            --repo-name pipelines_v3 \
+            --output /tmp/graph_new.json
+
+      - name: Checkout pipelines-docs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCS_REPO }}
+          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          path: pipelines-docs
+          ref: main
+
+      - name: Comparar grafos
+        id: compare
+        run: |
+          PREVIOUS="pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
+
+          if [ ! -f "$PREVIOUS" ]; then
+            echo "Primeira execução — criando graph.json vazio para comparação."
+            echo '{"files":[],"nodes":[],"edges":[],"processes":[],"module_edges":[]}' > /tmp/graph_empty.json
+            PREVIOUS="/tmp/graph_empty.json"
+          fi
+
+          set +e
+          python .github/scripts/doc-ci/compare_graphs.py \
+            --before "$PREVIOUS" \
+            --after /tmp/graph_new.json \
+            --output /tmp/diff.json
+          EXIT_CODE=$?
+          set -e
+
+          if [ $EXIT_CODE -eq 0 ] || [ "${{ inputs.force_update }}" == "true" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          SUMMARY=$(python3 -c "import json; d=json.load(open('/tmp/diff.json')); print(d.get('summary',''))")
+          echo "diff_summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$SUMMARY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artefatos
+        if: steps.compare.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: graph-artifacts
+          path: |
+            /tmp/graph_new.json
+            /tmp/diff.json
+          retention-days: 7
+
+  update-docs:
+    name: "Propor atualizações de documentação"
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout pipelines_v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar dependências
+        run: pip install 'anthropic[vertex]'
+
+      - name: Autenticar no GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Download artefatos
+        uses: actions/download-artifact@v4
+        with:
+          name: graph-artifacts
+          path: /tmp
+
+      - name: Checkout pipelines-docs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCS_REPO }}
+          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          path: pipelines-docs
+          ref: main
+
+      - name: Gerar git diff
+        run: |
+          git diff HEAD~1 --stat > /tmp/git_diff.txt
+          git diff HEAD~1 --no-color -- '*.py' '*.sql' '*.yml' '*.yaml' >> /tmp/git_diff.txt
+
+      # MkDocs structure: pipelines-docs/docs/
+      # Public docs: pipelines-docs/docs/public/
+      # Tech docs:   pipelines-docs/docs/tech/
+      - name: Propor alterações — documentação PUBLIC
+        run: |
+          python .github/scripts/doc-ci/update_docs.py \
+            --diff /tmp/diff.json \
+            --git-diff /tmp/git_diff.txt \
+            --docs-dir pipelines-docs/docs/public \
+            --doc-type public \
+            --output /tmp/proposed_public.json
+
+      - name: Propor alterações — documentação TECH
+        run: |
+          python .github/scripts/doc-ci/update_docs.py \
+            --diff /tmp/diff.json \
+            --git-diff /tmp/git_diff.txt \
+            --docs-dir pipelines-docs/docs/tech \
+            --doc-type tech \
+            --output /tmp/proposed_tech.json
+
+      - name: Aplicar alterações
+        run: |
+          python .github/scripts/doc-ci/apply_changes.py \
+            --proposals /tmp/proposed_public.json /tmp/proposed_tech.json \
+            --docs-dir pipelines-docs/docs/
+
+      - name: Atualizar graph.json
+        run: |
+          mkdir -p "pipelines-docs/generated/${{ env.REPO_SLUG }}"
+          cp /tmp/graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
+
+      - name: Criar Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          path: pipelines-docs
+          branch: doc-ci/${{ env.REPO_SLUG }}/${{ github.sha }}
+          base: main
+          delete-branch: true
+          title: "docs(pipelines_v3): atualização automática"
+          body: |
+            ## Documentação Automatizada — pipelines_v3
+
+            **Commit:** `${{ github.sha }}`
+            **Trigger:** push to master
+
+            ### Mudanças estruturais detectadas
+
+            ${{ needs.detect-changes.outputs.diff_summary }}
+
+            ### Alterações propostas
+
+            Geradas automaticamente por Claude (Sonnet) com base na análise estrutural do GitNexus.
+
+            **Revise as alterações antes de fazer merge.**
+
+            ---
+            _CI de Documentação Automatizada_
+          commit-message: |
+            docs(pipelines_v3): atualização automática
+
+            Fonte: RJ-SMTR/pipelines_v3@${{ github.sha }}
+          labels: |
+            documentation
+            automated
