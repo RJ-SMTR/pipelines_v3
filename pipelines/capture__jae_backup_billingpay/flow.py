@@ -7,7 +7,7 @@ Common: 2026-03-12
 from datetime import datetime
 from typing import Optional
 
-from prefect import flow
+from prefect import flow, runtime
 
 from pipelines.capture__jae_backup_billingpay.tasks import (
     create_non_filtered_discord_message,
@@ -43,7 +43,7 @@ def capture__jae_backup_billingpay(
         end_datetime (Optional[datetime]): Data/hora final (default: timestamp agora)
     """
 
-    env = get_run_env(env=env)
+    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env)
 
