@@ -12,6 +12,8 @@ import pandas_gbq
 import sentry_sdk
 from prefect import runtime, task
 
+from pipelines.common import constants
+from pipelines.common.utils.discord import send_discord_message
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.secret import get_env_secret, set_local_secrets
@@ -170,3 +172,19 @@ def save_data_to_file(
         csv_mode=csv_mode,
     )
     print(f"Dados salvos em {path}")
+
+
+@task
+def task_send_discord_message(message: str, webhook: str):
+    """
+    Task para enviar uma mensagem para um canal do Discord
+
+    Args:
+        message (str): Mensagem a ser enviada
+        webhook (str): Nome da key do webhook no secret
+    """
+
+    webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
+    webhook_url = webhook_secret[webhook]
+
+    send_discord_message(message=message, webhook_url=webhook_url)

@@ -5,6 +5,7 @@ requires-python = "==3.13.*"
 [manifest]
 members = [
     "capture-jae-auxiliar",
+    "capture-jae-backup-billingpay",
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
@@ -255,6 +256,11 @@ wheels = [
 name = "capture-jae-auxiliar"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_auxiliar" }
+
+[[package]]
+name = "capture-jae-backup-billingpay"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_backup_billingpay" }
 
 [[package]]
 name = "capture-jae-gps-validador"
