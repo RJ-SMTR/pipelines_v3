@@ -42,18 +42,20 @@ def capture__jae_backup_billingpay(
         database_name (str): Nome do banco de dados a fazer backup
         end_datetime (Optional[datetime]): Data/hora final (default: timestamp agora)
     """
-    initialize_sentry(env=env)
-    setup_environment(env=env)
 
     env = get_run_env(env=env)
-    database_config = get_jae_db_config(database_name=database_name)
-    timestamp = get_scheduled_timestamp(timestamp=end_datetime)
+    sentry = initialize_sentry(env=env)
+    setup_env = setup_environment(env=env)
+
+    database_config = get_jae_db_config(database_name=database_name, wait_for=[sentry])
+    timestamp = get_scheduled_timestamp(timestamp=end_datetime, wait_for=[sentry])
 
     table_info = get_table_info(
         env=env,
         database_name=database_name,
         database_config=database_config,
         timestamp=timestamp,
+        wait_for=[setup_env],
     )
 
     send_message, table_count = get_non_filtered_tables(
