@@ -54,7 +54,7 @@ def create_billingpay_backup_filepath(
         / database_name
         / table_name
         / partition
-        / f"{timestamp.strftime(capture_constants.FILENAME_PATTERN)}_{{n}}.json"
+        / f"{timestamp.strftime(capture_constants.FILENAME_PATTERN)}_{{page}}.json"
     )
 
 
