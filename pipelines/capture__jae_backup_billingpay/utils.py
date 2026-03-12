@@ -59,7 +59,7 @@ def create_billingpay_backup_filepath(
 
 
 def get_redis_last_backup(
-    env: str,  # noqa: ARG001
+    env: str,
     table_name: str,
     database_name: str,
     incremental_type: str,
@@ -76,8 +76,7 @@ def get_redis_last_backup(
     Returns:
         Union[int, datetime]: Último valor capturado
     """
-    # redis_key = f"{env}.backup_jae_billingpay.{database_name}.{table_name}"
-    redis_key = f"prod.backup_jae_billingpay.{database_name}.{table_name}"
+    redis_key = f"{env}.backup_jae_billingpay.{database_name}.{table_name}"
 
     print(f"Consultando Redis: {redis_key}")
     redis_client = get_redis_client()
