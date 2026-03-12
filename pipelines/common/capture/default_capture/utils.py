@@ -7,7 +7,7 @@ from prefect import runtime
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture import constants
-from pipelines.common.utils.fs import get_data_folder_path
+from pipelines.common.utils.fs import create_partition, get_data_folder_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.utils import convert_timezone
 
@@ -43,16 +43,10 @@ class SourceCaptureContext:
         Returns:
             str: Partição formatada.
         """
-        print("Criando partição...")
-        print(f"Timestamp recebida: {self.timestamp}")
-
-        partition = f"data={self.timestamp.strftime('%Y-%m-%d')}"
-        if not self.source.partition_date_only:
-            partition = f"{partition}/hora={self.timestamp.strftime('%H')}"
-
-        print(f"Partição criada com sucesso: {partition}")
-
-        return partition
+        return create_partition(
+            timestamp=self.timestamp,
+            partition_date_only=self.source.partition_date_only,
+        )
 
     def get_filepaths(self) -> tuple[str, str]:
         """

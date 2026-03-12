@@ -3,6 +3,7 @@
 
 import json
 import os
+from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
 from typing import Optional, Union
@@ -131,3 +132,28 @@ def read_raw_data(filepath: str, reader_args: Optional[dict] = None) -> pd.DataF
         )
 
     return data
+
+
+def create_partition(timestamp: datetime, partition_date_only: bool) -> str:
+    """
+    Cria a partição Hive de acordo com a timestamp
+
+    Args:
+        timestamp (datetime): timestamp de referência
+        partition_date_only (bool): True se o particionamento deve ser feito apenas por data
+            False se o particionamento deve ser feito por data e hora
+
+    Returns:
+        str: string com o particionamento
+    """
+
+    print("Criando partição...")
+    print(f"Timestamp recebida: {timestamp}")
+
+    partition = f"data={timestamp.strftime('%Y-%m-%d')}"
+    if not partition_date_only:
+        partition = f"{partition}/hora={timestamp.strftime('%H')}"
+
+    print(f"Partição criada com sucesso: {partition}")
+
+    return partition

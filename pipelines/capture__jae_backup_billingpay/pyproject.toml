@@ -1,0 +1,4 @@
+[project]
+name = "capture__jae_backup_billingpay"
+version = "0.1.0"
+description = "Pipeline capture__jae_backup_billingpay da secretaria rj-smtr"
