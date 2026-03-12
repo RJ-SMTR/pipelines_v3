@@ -58,6 +58,7 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_vt_limbo_24102025",
             "temp_estudante_05122025",
             "temp_midias_transferidas_04122025",
+            "temp_estudante_11032026",
         ],
         "filter": {
             "ITEM_PEDIDO": ["DT_INCLUSAO"],
