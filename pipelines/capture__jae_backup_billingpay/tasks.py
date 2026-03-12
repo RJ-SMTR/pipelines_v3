@@ -368,7 +368,7 @@ def set_redis_backup_billingpay(
     """
     for table in table_info:
         if table["incremental_type"] is None:
-            return
+            continue
         redis_key = f"{env}.backup_jae_billingpay.{database_name}.{table['table_name']}"
         redis_client = get_redis_client()
         content = redis_client.get(redis_key)
