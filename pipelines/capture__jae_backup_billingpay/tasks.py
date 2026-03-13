@@ -291,6 +291,11 @@ def get_raw_backup_billingpay(
             last_capture_str = (
                 table["last_capture"].astimezone(tz=timezone("UTC")).strftime("%Y-%m-%d %H:%M:%S")
             )
+            if "{start}" in sql:
+                sql = sql.replace("{start}", last_capture_str)
+            if "{end}" in sql:
+                sql = sql.replace("{end}", timestamp_str)
+
             where = " OR ".join(
                 [
                     f"({c} >= '{last_capture_str}' AND {c} < '{timestamp_str}')"

@@ -326,6 +326,7 @@ BACKUP_JAE_BILLING_PAY = {
                         id_conta,
                         max(dt_lancamento) as dt_lancamento
                         from lancamento
+                        where dt_lancamento >= '{start}' AND dt_lancamento < '{end}'
                         group by id_conta
                 ) l using(id_conta)
             """,
