@@ -4,7 +4,6 @@ Flow para backup incremental de dados BillingPay da Jaé
 Common: 2026-03-12
 """
 
-from datetime import datetime
 from typing import Optional
 
 from prefect import flow, runtime
@@ -33,14 +32,14 @@ from pipelines.common.tasks import (
 def capture__jae_backup_billingpay(
     database_name: str,
     env: Optional[str] = None,
-    end_datetime: Optional[datetime] = None,
+    end_datetime: Optional[str] = None,
 ):
     """
     Flow para backup incremental de dados BillingPay da Jaé
 
     Args:
         database_name (str): Nome do banco de dados a fazer backup
-        end_datetime (Optional[datetime]): Data/hora final (default: timestamp agora)
+        end_datetime (Optional[str]): Data/hora final
     """
 
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)

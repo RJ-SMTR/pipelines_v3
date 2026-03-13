@@ -17,4 +17,5 @@ LANCAMENTO_SOURCE = SourceTable(
     flow_folder_name="capture__jae_lancamento",
     primary_keys=["id_lancamento"],
     bucket_names=jae_constants.JAE_PRIVATE_BUCKET_NAMES,
+    partition_date_only=True,
 )
