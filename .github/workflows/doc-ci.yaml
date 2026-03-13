@@ -12,18 +12,12 @@
 #   4. Se houve mudança, chama Claude Sonnet via Vertex AI para propor atualizações
 #   5. Abre um PR no repo pipelines-docs
 #
-# Secrets necessários no repo pipelines_v3:
-#   - GKE_SA_KEY: service account key JSON já existente
-#                 (precisa de roles/aiplatform.user no projeto rj-smtr)
-#   - DOCS_REPO_TOKEN: PAT fine-grained com permissão no repo pipelines-docs
-#                       (Contents: write, Pull Requests: write)
-#
 
 name: "CI Documentação Automatizada"
 
 on:
   push:
-    branches: [master]
+    branches: [master, ci-docs]
     paths:
       - "pipelines/**"
       - "queries/**"
@@ -41,7 +35,7 @@ concurrency:
 
 env:
   NODE_VERSION: "20"
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.13"
   DOCS_REPO: "RJ-SMTR/pipelines-docs"
   REPO_SLUG: "pipelines_v3"
 
@@ -72,7 +66,7 @@ jobs:
       - name: Instalar dependências
         run: |
           pip install kuzu pandas
-          npm install -g @anthropic-ai/gitnexus || echo "::warning::gitnexus not found in npm, skipping"
+          npm install -g gitnexus || echo "::warning::gitnexus not found in npm, skipping"
 
       - name: GitNexus analyze
         run: |
@@ -91,11 +85,19 @@ jobs:
             --repo-name pipelines_v3 \
             --output /tmp/graph_new.json
 
+      - name: Gerar token do GitHub App
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: pipelines-docs
+
       - name: Checkout pipelines-docs
         uses: actions/checkout@v4
         with:
           repository: ${{ env.DOCS_REPO }}
-          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           path: pipelines-docs
           ref: main
 
@@ -170,11 +172,19 @@ jobs:
           name: graph-artifacts
           path: /tmp
 
+      - name: Gerar token do GitHub App
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: pipelines-docs
+
       - name: Checkout pipelines-docs
         uses: actions/checkout@v4
         with:
           repository: ${{ env.DOCS_REPO }}
-          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           path: pipelines-docs
           ref: main
 
@@ -216,9 +226,9 @@ jobs:
           cp /tmp/graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
 
       - name: Criar Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.DOCS_REPO_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           path: pipelines-docs
           branch: doc-ci/${{ env.REPO_SLUG }}/${{ github.sha }}
           base: main
