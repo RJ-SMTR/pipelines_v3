@@ -43,11 +43,11 @@ deployments:
         timezone: America/Sao_Paulo
         parameters:
           database_name: processador_transacao_db
-      - cron: "30 */6 * * *"
+      - cron: "20 */6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           database_name: financeiro_db
-      - cron: "0 */6 * * *"
+      - cron: "10 */6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           database_name: midia_db
