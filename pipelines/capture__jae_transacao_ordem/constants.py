@@ -17,4 +17,5 @@ JAE_TRANSACAO_ORDEM_SOURCE = SourceTable(
     flow_folder_name="capture__jae_transacao_ordem",
     primary_keys=["id", "id_ordem_ressarcimento", "data_processamento", "data_transacao"],
     max_recaptures=5,
+    partition_date_only=True,
 )
