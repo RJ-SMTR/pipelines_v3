@@ -35,6 +35,8 @@ def create_gps_extractor(context: SourceCaptureContext):
     url = f"{source_config['base_url']}/{endpoint}?"
 
     headers = get_env_secret(source_config["secret_path"])
+    if not headers:
+        raise ValueError(f"Empty credentials for {source_config['secret_path']}")
     key = next(iter(headers))
     params = {
         "guidIdentificacao": headers[key],
