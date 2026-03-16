@@ -1,0 +1,4 @@
+[project]
+name = "capture__zirix_registros"
+version = "1.0.0"
+description = "Pipeline zirix_registros da secretaria rj-smtr"

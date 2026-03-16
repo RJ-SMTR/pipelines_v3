@@ -16,6 +16,6 @@ JAE_TRANSACAO_ORDEM_SOURCE = SourceTable(
     first_timestamp=datetime(2024, 11, 21, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__jae_transacao_ordem",
     primary_keys=["id", "id_ordem_ressarcimento", "data_processamento", "data_transacao"],
-    bucket_names=jae_constants.JAE_PRIVATE_BUCKET_NAMES,
     max_recaptures=5,
+    partition_date_only=True,
 )

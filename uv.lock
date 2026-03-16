@@ -4,7 +4,12 @@ requires-python = "==3.13.*"
 
 [manifest]
 members = [
+    "capture-cittati-realocacao",
+    "capture-cittati-registros",
+    "capture-conecta-realocacao",
+    "capture-conecta-registros",
     "capture-jae-auxiliar",
+    "capture-jae-backup-billingpay",
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
@@ -16,6 +21,8 @@ members = [
     "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
+    "capture-zirix-realocacao",
+    "capture-zirix-registros",
     "common",
     "control-set-redis-key",
     "control-source-freshness",
@@ -254,9 +261,34 @@ wheels = [
 ]
 
 [[package]]
+name = "capture-cittati-realocacao"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__cittati_realocacao" }
+
+[[package]]
+name = "capture-cittati-registros"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__cittati_registros" }
+
+[[package]]
+name = "capture-conecta-realocacao"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__conecta_realocacao" }
+
+[[package]]
+name = "capture-conecta-registros"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__conecta_registros" }
+
+[[package]]
 name = "capture-jae-auxiliar"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_auxiliar" }
+
+[[package]]
+name = "capture-jae-backup-billingpay"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_backup_billingpay" }
 
 [[package]]
 name = "capture-jae-gps-validador"
@@ -322,6 +354,16 @@ requires-dist = [
     { name = "impyla", specifier = ">=0.22.0" },
     { name = "jaydebeapi", specifier = ">=1.2.3" },
 ]
+
+[[package]]
+name = "capture-zirix-realocacao"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__zirix_realocacao" }
+
+[[package]]
+name = "capture-zirix-registros"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__zirix_registros" }
 
 [[package]]
 name = "certifi"
