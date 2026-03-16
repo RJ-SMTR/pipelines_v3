@@ -94,38 +94,12 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `capture__jae_integracao` — Captura de integração JAE (PR #58)
 - [x] `capture__jae_ordem_pagamento` — Captura de ordem de pagamento JAE (PR #73)
 - [x] `capture__rioonibus_viagem_informada` — Captura de viagem informada RioÔnibus (PR #61)
-
-### Pendentes — GPS Ônibus (sem dependências, migrar em lote)
-
-- [ ] `capture__cittati_registros` — Captura de registros GPS ônibus (Cittati)
-  - Origem: `pipelines/capture/cittati/flows.py` → `CAPTURA_REGISTROS_CITTATI`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_cittati`, `treatment__gps_15_minutos_cittati`
-
-- [ ] `capture__cittati_realocacao` — Captura de realocação GPS ônibus (Cittati)
-  - Origem: `pipelines/capture/cittati/flows.py` → `CAPTURA_REALOCACAO_CITTATI`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_cittati`, `treatment__gps_15_minutos_cittati`
-
-- [ ] `capture__conecta_registros` — Captura de registros GPS ônibus (Conecta)
-  - Origem: `pipelines/capture/conecta/flows.py` → `CAPTURA_REGISTROS_CONECTA`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_conecta`, `treatment__gps_15_minutos_conecta`
-
-- [ ] `capture__conecta_realocacao` — Captura de realocação GPS ônibus (Conecta)
-  - Origem: `pipelines/capture/conecta/flows.py` → `CAPTURA_REALOCACAO_CONECTA`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_conecta`, `treatment__gps_15_minutos_conecta`
-
-- [ ] `capture__zirix_registros` — Captura de registros GPS ônibus (Zirix)
-  - Origem: `pipelines/capture/zirix/flows.py` → `CAPTURA_REGISTROS_ZIRIX`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_zirix`, `treatment__gps_15_minutos_zirix`
-
-- [ ] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix)
-  - Origem: `pipelines/capture/zirix/flows.py` → `CAPTURA_REALOCACAO_ZIRIX`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_zirix`, `treatment__gps_15_minutos_zirix`
+- [x] `capture__cittati_registros` — Captura de registros GPS ônibus (Cittati) (PR #83)
+- [x] `capture__cittati_realocacao` — Captura de realocação GPS ônibus (Cittati) (PR #83)
+- [x] `capture__conecta_registros` — Captura de registros GPS ônibus (Conecta) (PR #83)
+- [x] `capture__conecta_realocacao` — Captura de realocação GPS ônibus (Conecta) (PR #83)
+- [x] `capture__zirix_registros` — Captura de registros GPS ônibus (Zirix) (PR #83)
+- [x] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix) (PR #83)
 
 ### Pendentes — Viagem / Monitoramento
 
