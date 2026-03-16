@@ -6,9 +6,8 @@ Valores constantes para captura de dados de GPS registros da Zirix
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.common.capture.gps import constants as gps_constants
-
 from pipelines.common import constants as smtr_constants
+from pipelines.common.capture.gps import constants as gps_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 ZIRIX_REGISTROS_SOURCE = SourceTable(
