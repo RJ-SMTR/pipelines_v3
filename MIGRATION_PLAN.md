@@ -100,6 +100,8 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `capture__conecta_realocacao` — Captura de realocação GPS ônibus (Conecta) (PR #83)
 - [x] `capture__zirix_registros` — Captura de registros GPS ônibus (Zirix) (PR #83)
 - [x] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix) (PR #83)
+- [x] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE (PR #77)
+- [x] `capture__jae_backup_billingpay` — Backup dados BillingPay (PR #78)
 
 ### Pendentes — Viagem / Monitoramento
 
@@ -111,13 +113,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Origem: `pipelines/capture/veiculo_fiscalizacao/flows.py` → `CAPTURA_VEICULO_LACRE`
   - Schedule: `0 5 * * *` (diário às 5h)
   - Downstream: `treatment__monitoramento_veiculo`
-
-### Pendentes — Bilhetagem (JAE)
-
-- [ ] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO_ORDEM`
-  - Schedule: diário às 10h, 12h e 14h
-  - Downstream: `treatment__transacao_ordem`
 
 ### Pendentes — Bilhetagem (CCT)
 
@@ -145,10 +140,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Schedule: horário
   - Nota: monitoramento, envia alerta Discord em caso de falha
 
-- [ ] `capture__jae_backup_billingpay` — Backup dados BillingPay
-  - Origem: `pipelines/capture/jae/flows.py` → `backup_billingpay`
-  - Schedule: a cada 6h (processador_transacao_db, financeiro_db, midia_db), 24h (outros)
-
 - [ ] `capture__jae_verifica_captura` — Verificação de lacunas na captura JAE
   - Origem: `pipelines/capture/jae/flows.py` → `verifica_captura`
   - Schedule: diário às 5h
@@ -171,6 +162,7 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `treatment__infraestrutura` — Materialização do selector `infraestrutura` (PR #72)
 - [x] `treatment__passageiro_hora` — Materialização de passageiro/hora (PR #57)
 - [x] `treatment__viagem_informada` — Materialização de viagem informada (PR #68)
+- [x] `treatment__transacao_erro` — Materialização de transações com erro (PR #65)
 
 ### Pendentes — GPS (dependem das capturas GPS acima)
 
