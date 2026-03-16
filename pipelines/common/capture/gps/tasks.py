@@ -32,7 +32,7 @@ def create_gps_extractor(context: SourceCaptureContext):
         date_range_start = (timestamp - timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S")
         date_range_end = timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
-    url = f"{source_config['base_url']}/{endpoint}?"
+    url = f"{source_config['base_url']}/{endpoint}"
 
     headers = get_env_secret(source_config["secret_path"])
     if not headers:
