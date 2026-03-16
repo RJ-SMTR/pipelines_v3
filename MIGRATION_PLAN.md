@@ -94,38 +94,14 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `capture__jae_integracao` — Captura de integração JAE (PR #58)
 - [x] `capture__jae_ordem_pagamento` — Captura de ordem de pagamento JAE (PR #73)
 - [x] `capture__rioonibus_viagem_informada` — Captura de viagem informada RioÔnibus (PR #61)
-
-### Pendentes — GPS Ônibus (sem dependências, migrar em lote)
-
-- [ ] `capture__cittati_registros` — Captura de registros GPS ônibus (Cittati)
-  - Origem: `pipelines/capture/cittati/flows.py` → `CAPTURA_REGISTROS_CITTATI`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_cittati`, `treatment__gps_15_minutos_cittati`
-
-- [ ] `capture__cittati_realocacao` — Captura de realocação GPS ônibus (Cittati)
-  - Origem: `pipelines/capture/cittati/flows.py` → `CAPTURA_REALOCACAO_CITTATI`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_cittati`, `treatment__gps_15_minutos_cittati`
-
-- [ ] `capture__conecta_registros` — Captura de registros GPS ônibus (Conecta)
-  - Origem: `pipelines/capture/conecta/flows.py` → `CAPTURA_REGISTROS_CONECTA`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_conecta`, `treatment__gps_15_minutos_conecta`
-
-- [ ] `capture__conecta_realocacao` — Captura de realocação GPS ônibus (Conecta)
-  - Origem: `pipelines/capture/conecta/flows.py` → `CAPTURA_REALOCACAO_CONECTA`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_conecta`, `treatment__gps_15_minutos_conecta`
-
-- [ ] `capture__zirix_registros` — Captura de registros GPS ônibus (Zirix)
-  - Origem: `pipelines/capture/zirix/flows.py` → `CAPTURA_REGISTROS_ZIRIX`
-  - Schedule: `*/1 * * * *` (a cada minuto)
-  - Downstream: `treatment__gps_zirix`, `treatment__gps_15_minutos_zirix`
-
-- [ ] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix)
-  - Origem: `pipelines/capture/zirix/flows.py` → `CAPTURA_REALOCACAO_ZIRIX`
-  - Schedule: `*/10 * * * *` (a cada 10 min)
-  - Downstream: `treatment__gps_zirix`, `treatment__gps_15_minutos_zirix`
+- [x] `capture__cittati_registros` — Captura de registros GPS ônibus (Cittati) (PR #83)
+- [x] `capture__cittati_realocacao` — Captura de realocação GPS ônibus (Cittati) (PR #83)
+- [x] `capture__conecta_registros` — Captura de registros GPS ônibus (Conecta) (PR #83)
+- [x] `capture__conecta_realocacao` — Captura de realocação GPS ônibus (Conecta) (PR #83)
+- [x] `capture__zirix_registros` — Captura de registros GPS ônibus (Zirix) (PR #83)
+- [x] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix) (PR #83)
+- [x] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE (PR #77)
+- [x] `capture__jae_backup_billingpay` — Backup dados BillingPay (PR #78)
 
 ### Pendentes — Viagem / Monitoramento
 
@@ -137,13 +113,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Origem: `pipelines/capture/veiculo_fiscalizacao/flows.py` → `CAPTURA_VEICULO_LACRE`
   - Schedule: `0 5 * * *` (diário às 5h)
   - Downstream: `treatment__monitoramento_veiculo`
-
-### Pendentes — Bilhetagem (JAE)
-
-- [ ] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `CAPTURA_TRANSACAO_ORDEM`
-  - Schedule: diário às 10h, 12h e 14h
-  - Downstream: `treatment__transacao_ordem`
 
 ### Pendentes — Bilhetagem (CCT)
 
@@ -171,10 +140,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Schedule: horário
   - Nota: monitoramento, envia alerta Discord em caso de falha
 
-- [ ] `capture__jae_backup_billingpay` — Backup dados BillingPay
-  - Origem: `pipelines/capture/jae/flows.py` → `backup_billingpay`
-  - Schedule: a cada 6h (processador_transacao_db, financeiro_db, midia_db), 24h (outros)
-
 - [ ] `capture__jae_verifica_captura` — Verificação de lacunas na captura JAE
   - Origem: `pipelines/capture/jae/flows.py` → `verifica_captura`
   - Schedule: diário às 5h
@@ -197,6 +162,7 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `treatment__infraestrutura` — Materialização do selector `infraestrutura` (PR #72)
 - [x] `treatment__passageiro_hora` — Materialização de passageiro/hora (PR #57)
 - [x] `treatment__viagem_informada` — Materialização de viagem informada (PR #68)
+- [x] `treatment__transacao_erro` — Materialização de transações com erro (PR #65)
 
 ### Pendentes — GPS (dependem das capturas GPS acima)
 
