@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Migra flow de captura dos dados de GPS registros da Cittati
+- Migra flow de captura dos dados de GPS registros da Cittati (https://github.com/RJ-SMTR/pipelines_v3/pull/83)

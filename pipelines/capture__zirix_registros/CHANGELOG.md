@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Migra flow de captura dos dados de GPS registros da Zirix
+- Migra flow de captura dos dados de GPS registros da Zirix (https://github.com/RJ-SMTR/pipelines_v3/pull/83)
