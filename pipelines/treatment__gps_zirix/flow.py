@@ -13,7 +13,6 @@ DBT: 2026-03-16
 
 from datetime import time
 
-from pipelines.treatment__gps_zirix import constants
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
@@ -21,6 +20,7 @@ from pipelines.common.treatment.default_treatment.flow import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import handler_notify_failure
+from pipelines.treatment__gps_zirix import constants
 
 
 @flow(
