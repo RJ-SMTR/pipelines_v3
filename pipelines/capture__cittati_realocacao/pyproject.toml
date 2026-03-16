@@ -1,0 +1,4 @@
+[project]
+name = "capture__cittati_realocacao"
+version = "1.0.0"
+description = "Pipeline cittati_realocacao da secretaria rj-smtr"
