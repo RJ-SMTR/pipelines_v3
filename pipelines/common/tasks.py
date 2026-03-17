@@ -11,6 +11,7 @@ import pandas as pd
 import pandas_gbq
 import sentry_sdk
 from prefect import runtime, task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants
 from pipelines.common.utils.discord import send_discord_message
@@ -20,7 +21,7 @@ from pipelines.common.utils.secret import get_env_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def initialize_sentry(env):
     print("Inicializando Sentry SDK")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
@@ -31,7 +32,7 @@ def initialize_sentry(env):
     )
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
     """
     Retorna a timestamp do agendamento da run atual
@@ -50,7 +51,7 @@ def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
     return timestamp
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_run_env(env: Optional[str], deployment_name: str) -> str:
     """
     Determina o ambiente de execução baseado no nome do deployment ou configuração local.
@@ -74,7 +75,7 @@ def get_run_env(env: Optional[str], deployment_name: str) -> str:
     return env
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def setup_environment(env: str):
     """
     Configura o ambiente inserindo credenciais necessárias.
