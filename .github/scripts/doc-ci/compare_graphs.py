@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 compare_graphs.py — Compara dois graph.json e produz um diff estrutural.
 

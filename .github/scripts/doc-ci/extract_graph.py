@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 extract_graph.py — Extrai graph.json do KuzuDB gerado pelo GitNexus.
 

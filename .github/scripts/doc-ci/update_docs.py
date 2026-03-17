@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 update_docs.py — Monta contexto e chama Claude (Sonnet) via Vertex AI para propor atualizações.
 
@@ -384,9 +385,7 @@ def _call_api(  # noqa: PLR0913
         system=system_prompt,
         messages=messages,
     )
-    response_text = "".join(
-        b.text for b in message.content if b.type == "text"
-    )
+    response_text = "".join(b.text for b in message.content if b.type == "text")
 
     print(
         f"  [{label}] Tokens: {message.usage.input_tokens} input,"
@@ -411,10 +410,7 @@ def call_claude(
     """
     client = AnthropicVertex(project_id=project_id, region=region)
     print(f"Chamando {model} via Vertex AI (project={project_id}, region={region})...")
-    print(
-        f"  Contexto: ~{len(context):,} chars"
-        f" (~{estimate_tokens(context):,} tokens estimados)"
-    )
+    print(f"  Contexto: ~{len(context):,} chars (~{estimate_tokens(context):,} tokens estimados)")
 
     editorial = _extract_editorial_context(system_prompt)
 
@@ -497,10 +493,7 @@ def call_claude(
         )
 
         if stop_reason == "max_tokens":
-            print(
-                f"  AVISO: conteúdo de {file_path} truncado"
-                " — usando o que foi gerado."
-            )
+            print(f"  AVISO: conteúdo de {file_path} truncado — usando o que foi gerado.")
 
         content = content_text.strip()
         # Strip accidental markdown code fence wrapping

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 apply_changes.py — Aplica as alterações propostas pelo Claude nos arquivos de documentação.
 
@@ -28,7 +29,7 @@ def apply_proposals(proposals_files: list[str], docs_dir: Path) -> list[dict]:
             reason = change.get("reason", "")
 
             if not file_path or not content:
-                print(f"  SKIP: proposta inválida (sem file_path ou content)")
+                print("  SKIP: proposta inválida (sem file_path ou content)")
                 continue
 
             target = docs_dir / file_path
