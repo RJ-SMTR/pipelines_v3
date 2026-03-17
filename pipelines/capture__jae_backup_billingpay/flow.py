@@ -47,7 +47,8 @@ def capture__jae_backup_billingpay(
     setup_env = setup_environment(env=env)
 
     database_config = get_jae_db_config(database_name=database_name, wait_for=[sentry])
-    timestamp = get_scheduled_timestamp(timestamp=end_datetime, wait_for=[sentry])
+    end_timestamp = get_scheduled_timestamp(timestamp=end_datetime, wait_for=[sentry])
+    timestamp = get_scheduled_timestamp(wait_for=[sentry])
 
     table_info = get_table_info(
         env=env,
@@ -73,7 +74,7 @@ def capture__jae_backup_billingpay(
     table_info = get_raw_backup_billingpay(
         table_info=table_info,
         database_config=database_config,
-        timestamp=timestamp,
+        end_timestamp=end_timestamp,
     )
 
     table_info = upload_backup_billingpay(
@@ -86,5 +87,5 @@ def capture__jae_backup_billingpay(
         env=env,
         table_info=table_info,
         database_name=database_name,
-        timestamp=timestamp,
+        end_timestamp=end_timestamp,
     )

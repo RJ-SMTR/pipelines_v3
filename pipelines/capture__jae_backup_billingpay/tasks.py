@@ -254,7 +254,7 @@ As seguintes tabelas não possuem filtros:
 def get_raw_backup_billingpay(
     table_info: list[dict[str, str]],
     database_config: dict[str, str],
-    timestamp: datetime,
+    end_timestamp: datetime,
 ) -> list[dict[str, str]]:
     """
     Captura os dados das tabelas do banco informado
@@ -262,7 +262,7 @@ def get_raw_backup_billingpay(
     Args:
         table_info (list[dict[str, str]]): Lista com as informações das tabelas
         database_config (dict): Dicionário com os argumentos para a função create_database_url
-        timestamp (datetime): Timestamp de referência da execução
+        end_timestamp (datetime) Timestamp final da captura
 
     Returns:
         list[dict[str, str]]: Lista com as informações das tabelas atualizada
@@ -283,7 +283,7 @@ def get_raw_backup_billingpay(
             timestamp_str = (
                 table.get(
                     "last_value",
-                    timestamp,
+                    end_timestamp,
                 )
                 .astimezone(tz=timezone("UTC"))
                 .strftime("%Y-%m-%d %H:%M:%S")
@@ -360,7 +360,7 @@ def set_redis_backup_billingpay(
     env: str,
     table_info: list[dict[str, str]],
     database_name: str,
-    timestamp: datetime,
+    end_timestamp: datetime,
 ):
     """
     Atualiza o Redis com os novos dados capturados
@@ -369,7 +369,7 @@ def set_redis_backup_billingpay(
         env (str): prod ou dev
         table_info (list[dict[str, str]]): Lista de dicionários com as informações das tabelas
         database_name (str): Nome do banco de dados
-        timestamp (datetime): Timestamp de referência da execução
+        end_timestamp (datetime): Timestamp final da captura
     """
     for table in table_info:
         if table["incremental_type"] is None:
@@ -378,7 +378,9 @@ def set_redis_backup_billingpay(
         redis_client = get_redis_client()
         content = redis_client.get(redis_key)
         if table["incremental_type"] == "datetime":
-            save_value = timestamp.strftime(treatment_constants.MATERIALIZATION_LAST_RUN_PATTERN)
+            save_value = end_timestamp.strftime(
+                treatment_constants.MATERIALIZATION_LAST_RUN_PATTERN
+            )
         else:
             save_value = table["redis_save_value"]
 
