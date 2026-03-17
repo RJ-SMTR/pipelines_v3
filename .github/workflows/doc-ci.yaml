@@ -188,6 +188,14 @@ jobs:
           path: pipelines-docs
           ref: main
 
+      - name: Extrair PR de origem
+        id: source-pr
+        run: |
+          COMMIT_MSG=$(git log -1 --format="%s")
+          PR_NUM=$(echo "$COMMIT_MSG" | grep -oP '(?<=#)\d+' | head -1 || echo "")
+          echo "number=${PR_NUM}" >> "$GITHUB_OUTPUT"
+          echo "PR de origem: ${PR_NUM:-nenhum detectado}"
+
       - name: Gerar git diff
         run: |
           git diff HEAD~1 --stat > /tmp/git_diff.txt
@@ -237,7 +245,8 @@ jobs:
           body: |
             ## Documentação Automatizada — pipelines_v3
 
-            **Commit:** `${{ github.sha }}`
+            **Commit:** [`${{ github.sha }}`](https://github.com/RJ-SMTR/pipelines_v3/commit/${{ github.sha }})
+            **PR de origem:** ${{ steps.source-pr.outputs.number != '' && format('https://github.com/RJ-SMTR/pipelines_v3/pull/{0}', steps.source-pr.outputs.number) || 'N/A (commit direto ou PR não detectado)' }}
             **Trigger:** push to master
 
             ### Mudanças estruturais detectadas
@@ -246,7 +255,7 @@ jobs:
 
             ### Alterações propostas
 
-            Geradas automaticamente por Claude (Sonnet) com base na análise estrutural do GitNexus.
+            Geradas automaticamente por Claude com base na análise estrutural do GitNexus.
 
             **Revise as alterações antes de fazer merge.**
 

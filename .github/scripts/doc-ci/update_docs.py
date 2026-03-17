@@ -207,9 +207,7 @@ def build_structural_section(diff: dict) -> str:
 
     if diff["files"]["removed"]:
         removed_files = [f["file_path"] for f in diff["files"]["removed"]]
-        structural.append(
-            "### Arquivos removidos\n" + "\n".join(f"- {f}" for f in removed_files)
-        )
+        structural.append("### Arquivos removidos\n" + "\n".join(f"- {f}" for f in removed_files))
 
     if diff["nodes"]["added"]:
         structural.append(
@@ -241,9 +239,7 @@ def build_structural_section(diff: dict) -> str:
     if diff["processes"]["removed"]:
         structural.append(
             "### Processos removidos\n"
-            + "\n".join(
-                f"- **{p['label']}** ({p['type']})" for p in diff["processes"]["removed"]
-            )
+            + "\n".join(f"- **{p['label']}** ({p['type']})" for p in diff["processes"]["removed"])
         )
 
     if diff["processes"]["modified"]:
@@ -328,9 +324,7 @@ def split_diff_into_batches(diff: dict, n_batches: int) -> list[dict]:
         p_added = procs.get("added", [])
         p_removed = procs.get("removed", [])
         batch["processes"] = {
-            "added": p_added[
-                i * len(p_added) // n_batches : (i + 1) * len(p_added) // n_batches
-            ],
+            "added": p_added[i * len(p_added) // n_batches : (i + 1) * len(p_added) // n_batches],
             "removed": p_removed[
                 i * len(p_removed) // n_batches : (i + 1) * len(p_removed) // n_batches
             ],
@@ -350,48 +344,187 @@ def split_diff_into_batches(diff: dict, n_batches: int) -> list[dict]:
     return batches
 
 
-def call_claude(
-    system_prompt: str,
-    context: str,
-    model: str = "claude-sonnet-4-5@20250514",
-    project_id: str = "rj-smtr",
-    region: str = "global",
-) -> dict:
-    """Chama Claude via Vertex AI e retorna as alterações propostas."""
-    client = AnthropicVertex(project_id=project_id, region=region)
+def _extract_editorial_context(system_prompt: str) -> str:
+    """Extrai a parte editorial do system prompt (antes do FORMATO DE RESPOSTA)."""
+    marker = "FORMATO DE RESPOSTA:"
+    idx = system_prompt.find(marker)
+    if idx > 0:
+        return system_prompt[:idx].strip()
+    return system_prompt.strip()
 
-    context_tokens = estimate_tokens(context)
-    print(f"Chamando {model} via Vertex AI (project={project_id}, region={region})...")
-    print(f"  Contexto: ~{len(context):,} chars (~{context_tokens:,} tokens estimados)")
 
-    message = client.messages.create(
-        model=model,
-        max_tokens=16000,
-        system=system_prompt,
-        messages=[{"role": "user", "content": context}],
-    )
-
-    response_text = ""
-    for block in message.content:
-        if block.type == "text":
-            response_text += block.text
-
-    print(f"  Tokens usados: {message.usage.input_tokens} input, {message.usage.output_tokens} output")
-
-    # Parse JSON response
+def _parse_json_response(response_text: str, label: str) -> dict | None:
+    """Tenta parsear JSON da resposta do Claude. Retorna None em caso de erro."""
     try:
         cleaned = response_text.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[1]
-            if cleaned.endswith("```"):
-                cleaned = cleaned[:-3]
+            if "```" in cleaned:
+                cleaned = cleaned[: cleaned.rfind("```")]
             cleaned = cleaned.strip()
-
         return json.loads(cleaned)
     except json.JSONDecodeError as e:
-        print(f"AVISO: resposta do Claude não é JSON válido: {e}")
-        print(f"Resposta raw (primeiros 500 chars): {response_text[:500]}")
-        return {"changes": [], "summary": f"Erro ao parsear resposta: {e}"}
+        print(f"AVISO [{label}]: resposta não é JSON válido: {e}")
+        print(f"  Raw (primeiros 300 chars): {response_text[:300]}")
+        return None
+
+
+def _call_api(  # noqa: PLR0913
+    client,
+    model: str,
+    system_prompt: str,
+    messages: list,
+    max_tokens: int,
+    label: str,
+) -> tuple[str, str]:
+    """Executa uma chamada à API e retorna (response_text, stop_reason)."""
+    message = client.messages.create(
+        model=model,
+        max_tokens=max_tokens,
+        system=system_prompt,
+        messages=messages,
+    )
+    response_text = "".join(
+        b.text for b in message.content if b.type == "text"
+    )
+
+    print(
+        f"  [{label}] Tokens: {message.usage.input_tokens} input,"
+        f" {message.usage.output_tokens} output, stop={message.stop_reason}"
+    )
+    if message.stop_reason == "max_tokens":
+        print(f"  AVISO [{label}]: resposta truncada (max_tokens)")
+    return response_text, message.stop_reason
+
+
+def call_claude(
+    system_prompt: str,
+    context: str,
+    model: str = "claude-haiku-4-5@20251001",
+    project_id: str = "rj-smtr",
+    region: str = "global",
+) -> dict:
+    """
+    Chama Claude via Vertex AI em duas etapas:
+    1. Planejar: lista quais arquivos criar/atualizar (JSON pequeno).
+    2. Escrever: gera o conteúdo de cada arquivo individualmente.
+    """
+    client = AnthropicVertex(project_id=project_id, region=region)
+    print(f"Chamando {model} via Vertex AI (project={project_id}, region={region})...")
+    print(
+        f"  Contexto: ~{len(context):,} chars"
+        f" (~{estimate_tokens(context):,} tokens estimados)"
+    )
+
+    editorial = _extract_editorial_context(system_prompt)
+
+    # ── Etapa 1: planejamento ────────────────────────────────────────
+    plan_system = (
+        f"{editorial}\n\n"
+        "FORMATO DE RESPOSTA:\n"
+        "Responda EXCLUSIVAMENTE em JSON válido, sem markdown, sem backticks:\n"
+        "{\n"
+        '  "files": [\n'
+        "    {\n"
+        '      "action": "update" | "create",\n'
+        '      "file_path": "...",\n'
+        '      "reason": "motivo em uma linha"\n'
+        "    }\n"
+        "  ],\n"
+        '  "summary": "resumo das alterações"\n'
+        "}\n\n"
+        "Se nenhuma alteração for necessária, retorne:\n"
+        '{"files": [], "summary": "Nenhuma alteração necessária."}'
+    )
+
+    plan_response, _ = _call_api(
+        client,
+        model,
+        plan_system,
+        [{"role": "user", "content": context}],
+        max_tokens=2048,
+        label="plan",
+    )
+
+    plan = _parse_json_response(plan_response, "plan")
+    if plan is None:
+        return {
+            "changes": [],
+            "summary": "Erro ao parsear plano de alterações.",
+        }
+
+    files_to_write = plan.get("files", [])
+    if not files_to_write:
+        return {
+            "changes": [],
+            "summary": plan.get("summary", "Nenhuma alteração necessária."),
+        }
+
+    print(f"  Plano: {len(files_to_write)} arquivo(s) para gerar.")
+
+    # ── Etapa 2: gerar conteúdo de cada arquivo ──────────────────────
+    write_system = (
+        f"{editorial}\n\n"
+        "Gere o conteúdo completo do arquivo de documentação solicitado.\n"
+        "Responda EXCLUSIVAMENTE com o conteúdo markdown do arquivo.\n"
+        "Sem JSON, sem backticks de código, sem explicações extras."
+    )
+
+    changes = []
+    for entry in files_to_write:
+        file_path = entry.get("file_path", "")
+        action = entry.get("action", "update")
+        reason = entry.get("reason", "")
+
+        if not file_path:
+            continue
+
+        write_user = (
+            f"Gere o conteúdo para: `{file_path}`\n"
+            f"Ação: {action}\n"
+            f"Motivo: {reason}\n\n"
+            f"---\n\n"
+            f"{context}"
+        )
+
+        content_text, stop_reason = _call_api(
+            client,
+            model,
+            write_system,
+            [{"role": "user", "content": write_user}],
+            max_tokens=8192,
+            label=file_path,
+        )
+
+        if stop_reason == "max_tokens":
+            print(
+                f"  AVISO: conteúdo de {file_path} truncado"
+                " — usando o que foi gerado."
+            )
+
+        content = content_text.strip()
+        # Strip accidental markdown code fence wrapping
+        if content.startswith("```markdown"):
+            content = content[len("```markdown") :].strip()
+        if content.startswith("```md"):
+            content = content[len("```md") :].strip()
+        if content.endswith("```"):
+            content = content[:-3].strip()
+
+        if content:
+            changes.append(
+                {
+                    "action": action,
+                    "file_path": file_path,
+                    "reason": reason,
+                    "content": content,
+                }
+            )
+            print(f"  OK: {file_path}")
+        else:
+            print(f"  SKIP: {file_path} — conteúdo vazio")
+
+    return {"changes": changes, "summary": plan.get("summary", "")}
 
 
 def merge_proposals(proposals: list[dict]) -> dict:
@@ -437,7 +570,7 @@ def main():
     parser.add_argument("--output", required=True, help="Saída com propostas de alteração")
     parser.add_argument(
         "--model",
-        default="claude-sonnet-4-5@20250514",
+        default="claude-haiku-4-5@20251001",
         help="Modelo Claude no Vertex AI",
     )
     parser.add_argument(
