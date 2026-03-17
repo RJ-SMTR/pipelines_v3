@@ -5,6 +5,7 @@ from typing import Optional
 from zoneinfo import ZoneInfo
 
 from prefect import runtime, task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import (
@@ -24,7 +25,7 @@ from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_materialization_contexts(  # noqa: PLR0913
     env: str,
     selectors: list[DBTSelector],
@@ -72,7 +73,7 @@ def create_materialization_contexts(  # noqa: PLR0913
     return contexts
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def wait_data_sources(
     context: DBTSelectorMaterializationContext,
     skip: bool,
@@ -141,7 +142,7 @@ def wait_data_sources(
                 print("Dados completos")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def run_dbt_selectors(
     contexts: list[DBTSelectorMaterializationContext], flags: Optional[list[str]]
 ):
@@ -158,7 +159,7 @@ def run_dbt_selectors(
     return contexts
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def run_dbt_snapshots(
     contexts: list[DBTSelectorMaterializationContext], flags: Optional[list[str]]
 ):
@@ -183,7 +184,7 @@ def run_dbt_snapshots(
     return contexts
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def run_dbt_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
@@ -214,7 +215,7 @@ def run_dbt_tests(
     return contexts
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
     context: DBTSelectorMaterializationContext,
     mode: str,
@@ -352,7 +353,7 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
         raise DBTTestFailedError()
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializationContext]):
     """
     Salva no Redis o datetime da última materialização do selector.

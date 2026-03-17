@@ -90,7 +90,7 @@ def setup_environment(env: str):
         inject_bd_credentials(environment=environment)
 
 
-@task
+@task(cache_policy=NO_CACHE)
 async def async_api_post_request(
     url: str,
     payloads: list[dict],
@@ -127,7 +127,7 @@ async def async_api_post_request(
     return list(results)
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list[dict]:
     """
     Executa uma query no BigQuery.
@@ -150,7 +150,7 @@ def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list
     return df.to_dict(orient="records")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def save_data_to_file(
     data: Union[str, dict, list[dict], pd.DataFrame],
     path: Union[str, Path],
@@ -175,7 +175,7 @@ def save_data_to_file(
     print(f"Dados salvos em {path}")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def task_send_discord_message(message: str, webhook: str):
     """
     Task para enviar uma mensagem para um canal do Discord

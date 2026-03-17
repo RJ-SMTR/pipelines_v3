@@ -6,6 +6,7 @@ from typing import Optional
 
 import pandas as pd
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 from pytz import timezone
 from sqlalchemy import DATE, DATETIME, TIMESTAMP, create_engine, inspect
 
@@ -29,7 +30,7 @@ from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_jae_db_config(database_name: str) -> dict[str, str]:
     """
     Cria as configurações de conexão com o banco de dados
@@ -51,7 +52,7 @@ def get_jae_db_config(database_name: str) -> dict[str, str]:
     }
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_table_info(
     env: str,
     database_name: str,
@@ -183,7 +184,7 @@ def get_table_info(
     return result
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_non_filtered_tables(
     database_name: str,
     database_config: dict[str, str],
@@ -229,7 +230,7 @@ def get_non_filtered_tables(
     return len(tables) > 0, tables
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_non_filtered_discord_message(database_name: str, table_count: list[dict]) -> str:
     """
     Cria a mensagem para ser enviada no discord caso haja tabelas grandes sem filtro
@@ -250,7 +251,7 @@ As seguintes tabelas não possuem filtros:
     return message
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_raw_backup_billingpay(
     table_info: list[dict[str, str]],
     database_config: dict[str, str],
@@ -329,7 +330,7 @@ def get_raw_backup_billingpay(
     return new_table_info
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def upload_backup_billingpay(
     env: str, table_info: list[dict[str, str]], database_name: str
 ) -> list[dict[str, str]]:
@@ -355,7 +356,7 @@ def upload_backup_billingpay(
     return table_info
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def set_redis_backup_billingpay(
     env: str,
     table_info: list[dict[str, str]],
