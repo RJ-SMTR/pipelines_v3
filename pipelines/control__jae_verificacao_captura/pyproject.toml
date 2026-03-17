@@ -1,0 +1,4 @@
+[project]
+name = "control__jae_verificacao_captura"
+version = "0.1.0"
+description = "Pipeline jae_verificacao_captura da secretaria rj-smtr"
