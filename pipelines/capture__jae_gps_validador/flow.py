@@ -4,7 +4,7 @@ Flow de captura de dados do GPS do validador da Jaé
 
 Executa a captura dos dados de GPS do validador do sistema Jaé.
 
-Common: 2026-03-17
+Common: 2026-03-18
 """
 
 from prefect import flow
