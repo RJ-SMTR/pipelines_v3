@@ -63,9 +63,13 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
       - name: Instalar dependências
         run: |
           pip install kuzu pandas
+          uv venv && uv pip install dbt-core==1.10.11 dbt-bigquery==1.10.1
           npm install -g gitnexus || echo "::warning::gitnexus not found in npm, skipping"
 
       - name: GitNexus analyze
@@ -84,6 +88,21 @@ jobs:
             --kuzu-path .gitnexus \
             --repo-name pipelines_v3 \
             --output /tmp/graph_new.json
+
+      - name: dbt deps + parse
+        id: dbt-parse
+        continue-on-error: true
+        run: source .venv/bin/activate && cd queries && dbt deps && dbt parse
+
+      - name: Extrair dbt graph
+        id: dbt-extract
+        if: steps.dbt-parse.outcome == 'success'
+        run: |
+          source .venv/bin/activate
+          python .github/scripts/doc-ci/extract_dbt_graph.py \
+            --manifest queries/target/manifest.json \
+            --selectors queries/selectors.yml \
+            --output /tmp/dbt_graph_new.json
 
       - name: Gerar token do GitHub App
         id: generate-token
@@ -117,18 +136,52 @@ jobs:
             --before "$PREVIOUS" \
             --after /tmp/graph_new.json \
             --output /tmp/diff.json
-          EXIT_CODE=$?
+          CODE_EXIT=$?
           set -e
 
-          if [ $EXIT_CODE -eq 0 ] || [ "${{ inputs.force_update }}" == "true" ]; then
+          CODE_CHANGES="false"
+          if [ $CODE_EXIT -eq 0 ]; then
+            CODE_CHANGES="true"
+          fi
+
+          # Comparar dbt graphs (se disponível)
+          DBT_CHANGES="false"
+          if [ -f /tmp/dbt_graph_new.json ]; then
+            DBT_PREVIOUS="pipelines-docs/generated/${{ env.REPO_SLUG }}/dbt_graph.json"
+            if [ ! -f "$DBT_PREVIOUS" ]; then
+              echo "Primeira execução dbt — criando dbt_graph.json vazio."
+              echo '{"models":[],"sources":[],"edges":[],"selectors":[]}' > /tmp/dbt_graph_empty.json
+              DBT_PREVIOUS="/tmp/dbt_graph_empty.json"
+            fi
+
+            set +e
+            python .github/scripts/doc-ci/compare_dbt_graphs.py \
+              --before "$DBT_PREVIOUS" \
+              --after /tmp/dbt_graph_new.json \
+              --output /tmp/dbt_diff.json
+            DBT_EXIT=$?
+            set -e
+
+            if [ $DBT_EXIT -eq 0 ]; then
+              DBT_CHANGES="true"
+            fi
+          fi
+
+          FORCE_UPDATE="${{ inputs.force_update }}"
+          if [ "$CODE_CHANGES" = "true" ] || [ "$DBT_CHANGES" = "true" ] || \
+             [ "$FORCE_UPDATE" == "true" ]; then
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
           fi
 
           SUMMARY=$(python3 -c "import json; d=json.load(open('/tmp/diff.json')); print(d.get('summary',''))")
+          if [ -f /tmp/dbt_diff.json ]; then
+            DBT_SUMMARY=$(python3 -c "import json; d=json.load(open('/tmp/dbt_diff.json')); print(d.get('summary',''))")
+            SUMMARY="$SUMMARY\n$DBT_SUMMARY"
+          fi
           echo "diff_summary<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$SUMMARY" >> "$GITHUB_OUTPUT"
+          echo -e "$SUMMARY" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Upload artefatos
@@ -139,6 +192,9 @@ jobs:
           path: |
             /tmp/graph_new.json
             /tmp/diff.json
+            /tmp/dbt_graph_new.json
+            /tmp/dbt_diff.json
+          if-no-files-found: ignore
           retention-days: 7
 
   update-docs:
@@ -204,10 +260,20 @@ jobs:
       # MkDocs structure: pipelines-docs/docs/
       # Public docs: pipelines-docs/docs/public/
       # Tech docs:   pipelines-docs/docs/tech/
+      - name: Preparar argumento dbt-diff
+        id: dbt-diff-arg
+        run: |
+          if [ -f /tmp/dbt_diff.json ]; then
+            echo "arg=--dbt-diff /tmp/dbt_diff.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "arg=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Propor alterações — documentação PUBLIC
         run: |
           python .github/scripts/doc-ci/update_docs.py \
             --diff /tmp/diff.json \
+            ${{ steps.dbt-diff-arg.outputs.arg }} \
             --git-diff /tmp/git_diff.txt \
             --docs-dir pipelines-docs/docs/public \
             --doc-type public \
@@ -217,6 +283,7 @@ jobs:
         run: |
           python .github/scripts/doc-ci/update_docs.py \
             --diff /tmp/diff.json \
+            ${{ steps.dbt-diff-arg.outputs.arg }} \
             --git-diff /tmp/git_diff.txt \
             --docs-dir pipelines-docs/docs/tech \
             --doc-type tech \
@@ -228,10 +295,13 @@ jobs:
             --proposals /tmp/proposed_public.json /tmp/proposed_tech.json \
             --docs-dir pipelines-docs/docs/
 
-      - name: Atualizar graph.json
+      - name: Atualizar grafos
         run: |
           mkdir -p "pipelines-docs/generated/${{ env.REPO_SLUG }}"
           cp /tmp/graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
+          if [ -f /tmp/dbt_graph_new.json ]; then
+            cp /tmp/dbt_graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/dbt_graph.json"
+          fi
 
       - name: Criar Pull Request
         uses: peter-evans/create-pull-request@v8

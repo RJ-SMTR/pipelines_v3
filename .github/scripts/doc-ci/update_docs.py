@@ -43,6 +43,22 @@ CHARS_PER_TOKEN = 4
 # Leave room for system prompt (~2k tokens) + response (max_tokens)
 MAX_CONTEXT_CHARS = 500_000  # ~125k tokens, safe for 200k window
 
+# Preços por 1M tokens no Vertex AI (USD)
+# Fonte: https://cloud.google.com/vertex-ai/generative-ai/pricing
+MODEL_PRICING = {
+    "claude-haiku-4-5": {"input": 1.00, "output": 5.00},
+    "claude-sonnet-4-6": {"input": 3.00, "output": 15.00},
+    "claude-opus-4-6": {"input": 5.00, "output": 25.00},
+}
+
+
+def _get_pricing(model: str) -> dict:
+    """Retorna preços por MTok para o modelo, com fallback para Sonnet."""
+    for key, pricing in MODEL_PRICING.items():
+        if key in model:
+            return pricing
+    return MODEL_PRICING["claude-sonnet-4-6"]
+
 
 PROMPT_PUBLIC = """Você está atualizando a documentação pública de uma plataforma de dados de transporte público (SMTR - Rio de Janeiro).
 
@@ -73,6 +89,8 @@ Evite:
 - comandos de manutenção
 
 Tom: institucional, claro e tecnicamente sólido.
+
+NÃO inclua rodapé ou disclaimer nos arquivos — isso é injetado automaticamente pelo MkDocs.
 
 ESTRUTURA DE DIRETÓRIOS DO REPOSITÓRIO DE DOCUMENTAÇÃO:
 O repositório usa MkDocs (Material theme). A documentação pública fica em docs/public/.
@@ -130,6 +148,8 @@ Priorize:
 - precisão técnica
 
 Tom: técnico, direto e objetivo.
+
+NÃO inclua rodapé ou disclaimer nos arquivos — isso é injetado automaticamente pelo MkDocs.
 
 ESTRUTURA DE DIRETÓRIOS DO REPOSITÓRIO DE DOCUMENTAÇÃO:
 O repositório usa MkDocs (Material theme). A documentação técnica fica em docs/tech/.
@@ -264,7 +284,83 @@ def build_structural_section(diff: dict) -> str:
     return "\n\n".join(structural) if structural else ""
 
 
-def build_context(diff: dict, git_diff: str, existing_docs: str) -> str:
+def build_dbt_section(dbt_diff: dict) -> str:
+    """Formata o diff dbt de forma legível para o contexto do Claude."""
+    parts = []
+
+    models = dbt_diff.get("models", {})
+    if models.get("added"):
+        lines = []
+        for m in models["added"]:
+            deps = ", ".join(d.split(".")[-1] for d in m.get("depends_on", []))
+            dep_str = f"\n  Depende de: {deps}" if deps else ""
+            lines.append(
+                f"- `{m['name']}` ({m.get('materialized', '?')}, schema: {m.get('schema', '?')})"
+                f"{dep_str}"
+            )
+        parts.append("### Modelos adicionados\n" + "\n".join(lines))
+
+    if models.get("removed"):
+        parts.append(
+            "### Modelos removidos\n" + "\n".join(f"- `{m['name']}`" for m in models["removed"])
+        )
+
+    if models.get("modified"):
+        lines = []
+        for m in models["modified"]:
+            fields = ", ".join(m.get("changed_fields", []))
+            lines.append(f"- `{m['name']}`: campos alterados: {fields}")
+        parts.append("### Modelos modificados\n" + "\n".join(lines))
+
+    sources = dbt_diff.get("sources", {})
+    if sources.get("added"):
+        parts.append(
+            "### Novos sources\n"
+            + "\n".join(
+                f"- `{s.get('database', '')}.{s.get('schema', '')}.{s['name']}`"
+                for s in sources["added"]
+            )
+        )
+
+    if sources.get("removed"):
+        parts.append(
+            "### Sources removidos\n"
+            + "\n".join(
+                f"- `{s.get('database', '')}.{s.get('schema', '')}.{s['name']}`"
+                for s in sources["removed"]
+            )
+        )
+
+    edges = dbt_diff.get("edges", {})
+    if edges.get("added"):
+        parts.append(
+            "### Novas dependências\n"
+            + "\n".join(
+                f"- {e['source'].split('.')[-1]} → {e['target'].split('.')[-1]}"
+                f" ({e.get('type', 'ref')})"
+                for e in edges["added"]
+            )
+        )
+
+    selectors = dbt_diff.get("selectors", {})
+    if selectors.get("added"):
+        parts.append(
+            "### Selectors adicionados\n"
+            + "\n".join(f"- `{s['name']}`" for s in selectors["added"])
+        )
+
+    if selectors.get("modified"):
+        parts.append(
+            "### Selectors modificados\n"
+            + "\n".join(f"- `{s['name']}`" for s in selectors["modified"])
+        )
+
+    return "\n\n".join(parts) if parts else ""
+
+
+def build_context(
+    diff: dict, git_diff: str, existing_docs: str, dbt_diff: dict | None = None
+) -> str:
     """Monta o contexto estruturado para enviar ao Claude."""
     sections = []
 
@@ -276,10 +372,16 @@ def build_context(diff: dict, git_diff: str, existing_docs: str) -> str:
     if structural:
         sections.append(f"## Detalhes das Mudanças Estruturais\n\n{structural}")
 
-    # 3. Git diff
+    # 3. Mudanças no DAG dbt (se houver)
+    if dbt_diff and dbt_diff.get("has_changes"):
+        dbt_section = build_dbt_section(dbt_diff)
+        if dbt_section:
+            sections.append(f"## Mudanças no DAG dbt\n\n{dbt_section}")
+
+    # 4. Git diff
     sections.append(f"## Diff do Código\n\n```diff\n{git_diff}\n```")
 
-    # 4. Documentação existente
+    # 5. Documentação existente
     sections.append(f"## Documentação Existente\n\n{existing_docs}")
 
     return "\n\n---\n\n".join(sections)
@@ -370,6 +472,11 @@ def _parse_json_response(response_text: str, label: str) -> dict | None:
         return None
 
 
+# Acumuladores globais de tokens para estimativa de custo
+_total_input_tokens = 0
+_total_output_tokens = 0
+
+
 def _call_api(  # noqa: PLR0913
     client,
     model: str,
@@ -379,6 +486,8 @@ def _call_api(  # noqa: PLR0913
     label: str,
 ) -> tuple[str, str]:
     """Executa uma chamada à API e retorna (response_text, stop_reason)."""
+    global _total_input_tokens, _total_output_tokens  # noqa: PLW0603
+
     message = client.messages.create(
         model=model,
         max_tokens=max_tokens,
@@ -386,6 +495,9 @@ def _call_api(  # noqa: PLR0913
         messages=messages,
     )
     response_text = "".join(b.text for b in message.content if b.type == "text")
+
+    _total_input_tokens += message.usage.input_tokens
+    _total_output_tokens += message.usage.output_tokens
 
     print(
         f"  [{label}] Tokens: {message.usage.input_tokens} input,"
@@ -396,10 +508,29 @@ def _call_api(  # noqa: PLR0913
     return response_text, message.stop_reason
 
 
+def print_cost_summary(model: str) -> None:
+    """Imprime resumo de tokens e custo estimado da execução."""
+    pricing = _get_pricing(model)
+    input_cost = (_total_input_tokens / 1_000_000) * pricing["input"]
+    output_cost = (_total_output_tokens / 1_000_000) * pricing["output"]
+    total_cost = input_cost + output_cost
+
+    print("\n--- Resumo de custo ---")
+    print(f"  Modelo: {model}")
+    print(
+        f"  Tokens: {_total_input_tokens:,} input + {_total_output_tokens:,} output"
+        f" = {_total_input_tokens + _total_output_tokens:,} total"
+    )
+    print(
+        f"  Custo:  ${input_cost:.4f} (input) + ${output_cost:.4f} (output)"
+        f" = ${total_cost:.4f}"
+    )
+
+
 def call_claude(
     system_prompt: str,
     context: str,
-    model: str = "claude-haiku-4-5@20251001",
+    model: str = "claude-sonnet-4-6@default",
     project_id: str = "rj-smtr",
     region: str = "global",
 ) -> dict:
@@ -560,6 +691,7 @@ def main():
         choices=["public", "tech"],
         help="Tipo de documentação",
     )
+    parser.add_argument("--dbt-diff", default=None, help="Arquivo dbt_diff.json (opcional)")
     parser.add_argument("--output", required=True, help="Saída com propostas de alteração")
     parser.add_argument(
         "--model",
@@ -581,8 +713,22 @@ def main():
     # Carregar inputs
     diff = load_diff(Path(args.diff))
 
-    if not diff.get("has_changes", False):
-        print("Nenhuma mudança estrutural detectada. Nada a fazer.")
+    # Carregar dbt_diff se fornecido
+    dbt_diff = None
+    if args.dbt_diff:
+        dbt_diff_path = Path(args.dbt_diff)
+        if dbt_diff_path.exists():
+            dbt_diff = load_diff(dbt_diff_path)
+            if dbt_diff.get("has_changes"):
+                print(f"dbt diff carregado: {dbt_diff.get('summary', '')}")
+            else:
+                dbt_diff = None
+
+    code_changes = diff.get("has_changes", False)
+    dbt_changes = dbt_diff is not None and dbt_diff.get("has_changes", False)
+
+    if not code_changes and not dbt_changes:
+        print("Nenhuma mudança detectada (código ou dbt). Nada a fazer.")
         result = {"changes": [], "summary": "Sem mudanças estruturais."}
         Path(args.output).parent.mkdir(parents=True, exist_ok=True)
         with open(args.output, "w", encoding="utf-8") as f:
@@ -594,7 +740,7 @@ def main():
     system_prompt = PROMPT_PUBLIC if args.doc_type == "public" else PROMPT_TECH
 
     # Build full context to check size
-    full_context = build_context(diff, git_diff, existing_docs)
+    full_context = build_context(diff, git_diff, existing_docs, dbt_diff)
     total_chars = len(full_context) + len(system_prompt)
 
     if total_chars <= MAX_CONTEXT_CHARS:
@@ -627,7 +773,7 @@ def main():
 
         for i, batch_diff in enumerate(batches):
             print(f"\n--- Batch {i + 1}/{n_batches} ---")
-            batch_context = build_context(batch_diff, git_diff, existing_docs)
+            batch_context = build_context(batch_diff, git_diff, existing_docs, dbt_diff)
             proposal = call_claude(
                 system_prompt,
                 batch_context,
@@ -649,6 +795,8 @@ def main():
     print(f"\nResultado: {n_changes} alteração(ões) proposta(s)")
     print(f"Resumo: {result.get('summary', '(sem resumo)')}")
     print(f"Salvo em {args.output}")
+
+    print_cost_summary(args.model)
 
 
 if __name__ == "__main__":

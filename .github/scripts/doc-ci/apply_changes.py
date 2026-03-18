@@ -23,7 +23,6 @@ def apply_proposals(proposals_files: list[str], docs_dir: Path) -> list[dict]:
             proposals = json.load(f)
 
         for change in proposals.get("changes", []):
-            action = change.get("action", "update")
             file_path = change.get("file_path", "")
             content = change.get("content", "")
             reason = change.get("reason", "")
