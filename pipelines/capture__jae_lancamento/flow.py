@@ -4,7 +4,7 @@ Flow de captura de lançamentos da Jaé
 
 Executa a captura de dados de lançamentos financeiros do sistema Jaé.
 
-Common: 2026-03-06
+Common: 2026-03-18
 """
 
 from prefect import flow
