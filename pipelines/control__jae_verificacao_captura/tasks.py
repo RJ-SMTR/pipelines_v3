@@ -6,6 +6,7 @@ from typing import Optional
 
 import pandas_gbq
 from prefect import runtime, task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.utils import convert_timezone
@@ -16,7 +17,7 @@ from pipelines.control__jae_verificacao_captura.utils import (
 )
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def jae_capture_check_get_ts_range(
     timestamp: datetime,
     retroactive_days: int,
@@ -59,7 +60,7 @@ def jae_capture_check_get_ts_range(
     return start, end
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_capture_gaps(
     env: str,
     table_id: str,
@@ -176,7 +177,7 @@ def get_capture_gaps(
     return timestamps
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_capture_check_discord_message(
     table_id: str,
     timestamps: list[dict],
