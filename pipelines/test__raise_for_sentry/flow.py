@@ -3,20 +3,21 @@ from time import sleep
 
 import sentry_sdk
 from prefect import flow, task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.utils.secret import get_env_secret
 
 # from pipelines.common.utils.state_handlers import handler_post_sentry
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def task_raises_exception():
     print("Iniciando o flow test__raise_for_sentry")
     sleep(2)
     raise (KeyError("Erro proposital para testar integração com Sentry, rodando deployado"))
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def initialize_sentry():
     print("Inicializando Sentry SDK")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]

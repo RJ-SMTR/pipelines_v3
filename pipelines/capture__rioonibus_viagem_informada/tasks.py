@@ -6,6 +6,7 @@ from functools import partial
 
 import pandas as pd
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.capture__rioonibus_viagem_informada import constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
@@ -13,7 +14,7 @@ from pipelines.common.utils.extractors.api import get_raw_api_list
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_viagem_informada_extractor(context: SourceCaptureContext):
     """
     Cria função extratora para dados de viagem_informada da Rio Ônibus.
