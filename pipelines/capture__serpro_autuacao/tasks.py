@@ -12,6 +12,7 @@ import pandas as pd
 import requests
 from impala.dbapi import connect
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.capture__serpro_autuacao.constants import SERPRO_CAPTURE_PARAMS
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
@@ -113,7 +114,7 @@ def extract_serpro_data(
     return filepaths
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_serpro_extractor(context: SourceCaptureContext):
     """
     Cria função de extração para o SERPRO.
