@@ -5,13 +5,14 @@ import re
 from typing import Optional
 
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as common_constants
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task(name="Parse Source Freshness Output")
+@task(cache_policy=NO_CACHE, name="Parse Source Freshness Output")
 def parse_source_freshness_output(dbt_output: str) -> tuple[bool, Optional[list[str]]]:
     """
     Analisa a saída do comando `dbt source freshness` para identificar fontes desatualizadas
@@ -29,7 +30,7 @@ def parse_source_freshness_output(dbt_output: str) -> tuple[bool, Optional[list[
     return len(failed_sources) > 0, failed_sources
 
 
-@task(name="Notify Discord - Source Freshness")
+@task(cache_policy=NO_CACHE, name="Notify Discord - Source Freshness")
 def source_freshness_notify_discord(failed_sources: list[str]):
     """
     Envia uma notificação para o Discord alertando sobre fontes de dados desatualizadas
