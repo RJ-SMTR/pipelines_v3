@@ -4,7 +4,7 @@ Flow de captura de dados de integração da Jaé
 
 Executa a captura de dados de integração do sistema Jaé.
 
-Common: 2026-03-06
+Common: 2026-03-18
 """
 
 from prefect import flow
