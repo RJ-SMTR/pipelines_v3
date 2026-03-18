@@ -2,11 +2,12 @@
 """Tasks para controle de Redis"""
 
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.utils.redis import get_redis_client
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def set_redis_keys(keys: dict):
     """
     Define múltiplas chaves e valores em Redis.

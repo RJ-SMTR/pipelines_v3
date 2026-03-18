@@ -6,6 +6,7 @@ from functools import partial
 from zoneinfo import ZoneInfo
 
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 from pytz import timezone
 
 from pipelines.common import constants as smtr_constants
@@ -18,7 +19,7 @@ from pipelines.common.utils.extractors.db import get_raw_db, get_raw_db_paginate
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_jae_general_extractor(context: SourceCaptureContext):
     """Cria a extração de tabelas da Jaé"""
 
