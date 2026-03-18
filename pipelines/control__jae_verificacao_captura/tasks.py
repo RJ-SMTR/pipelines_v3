@@ -81,7 +81,7 @@ def get_capture_gaps(
         list[str]: Lista de strings no formato `%Y-%m-%d %H:%M:%S` representando os timestamps
         com divergência de contagem entre JAE e datalake
     """
-    params = constants.CHECK_CAPTURE_PARAMS.value[table_id]
+    params = constants.CHECK_CAPTURE_PARAMS[table_id]
     timestamp_column = params["timestamp_column"]
     source = params["source"]
     df_jae = get_jae_timestamp_captura_count(
@@ -142,11 +142,11 @@ def get_capture_gaps(
 
     df_datalake = pandas_gbq.read_gbq(
         query_datalake,
-        project_id=smtr_constants.PROJECT_NAME.value[env],
+        project_id=smtr_constants.PROJECT_NAME[env],
     )
 
     df_datalake["timestamp_captura"] = df_datalake["timestamp_captura"].dt.tz_localize(
-        smtr_constants.TIMEZONE.value
+        smtr_constants.TIMEZONE
     )
 
     df_merge = df_jae.merge(df_datalake, how="left", on="timestamp_captura")
@@ -203,9 +203,7 @@ De {timestamp_captura_start.isoformat()} até {timestamp_captura_end.isoformat()
 Foram encontradas {timestamps_len} timestamps com dados faltantes
 """
     if timestamps_len > 0:
-        mentions_tag = (
-            f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS.value['dados_smtr']['user_id']}>"
-        )
+        mentions_tag = f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
         message = f":red_circle: {message}"
         message += (
             "\n"
