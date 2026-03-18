@@ -521,10 +521,7 @@ def print_cost_summary(model: str) -> None:
         f"  Tokens: {_total_input_tokens:,} input + {_total_output_tokens:,} output"
         f" = {_total_input_tokens + _total_output_tokens:,} total"
     )
-    print(
-        f"  Custo:  ${input_cost:.4f} (input) + ${output_cost:.4f} (output)"
-        f" = ${total_cost:.4f}"
-    )
+    print(f"  Custo:  ${input_cost:.4f} (input) + ${output_cost:.4f} (output) = ${total_cost:.4f}")
 
 
 def call_claude(
