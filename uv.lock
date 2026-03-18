@@ -33,7 +33,13 @@ members = [
     "treatment-cadastro",
     "treatment-cliente-cpf",
     "treatment-extrato-cliente-cartao",
+    "treatment-gps-15-minutos-cittati",
+    "treatment-gps-15-minutos-conecta",
+    "treatment-gps-15-minutos-zirix",
+    "treatment-gps-cittati",
+    "treatment-gps-conecta",
     "treatment-gps-validador",
+    "treatment-gps-zirix",
     "treatment-infraestrutura",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
@@ -2820,9 +2826,39 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__extrato_cliente_cartao" }
 
 [[package]]
+name = "treatment-gps-15-minutos-cittati"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_15_minutos_cittati" }
+
+[[package]]
+name = "treatment-gps-15-minutos-conecta"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_15_minutos_conecta" }
+
+[[package]]
+name = "treatment-gps-15-minutos-zirix"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_15_minutos_zirix" }
+
+[[package]]
+name = "treatment-gps-cittati"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_cittati" }
+
+[[package]]
+name = "treatment-gps-conecta"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_conecta" }
+
+[[package]]
 name = "treatment-gps-validador"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_validador" }
+
+[[package]]
+name = "treatment-gps-zirix"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_zirix" }
 
 [[package]]
 name = "treatment-infraestrutura"
