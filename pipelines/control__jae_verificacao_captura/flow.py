@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de verificação da captura dos dados da Jaé
+
+Common: 2026-03-18
+"""
+
 from typing import Iterable, Optional
 
 from prefect import flow, runtime, unmapped
