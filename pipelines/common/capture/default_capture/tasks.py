@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext, constants
@@ -17,7 +18,7 @@ from pipelines.common.utils.pretreatment import (
 from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_capture_contexts(  # noqa: PLR0913
     env: str,
     sources: list[SourceTable],
@@ -80,7 +81,7 @@ def create_capture_contexts(  # noqa: PLR0913
     return contexts
 
 
-@task(tags=["data-processing"])
+@task(cache_policy=NO_CACHE, tags=["data-processing"])
 def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
     """
     Extrai os dados brutos e salva os caminhos dos arquivos no contexto.
@@ -95,7 +96,7 @@ def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
     context.captured_raw_filepaths = captured_raw_filepaths
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
     """
     Envia os arquivos brutos para o GCS.
@@ -114,7 +115,7 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "repl
         )
 
 
-@task(tags=["data-processing"])
+@task(cache_policy=NO_CACHE, tags=["data-processing"])
 def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
     Aplica pré-tratamentos e transforma os dados brutos em estrutura aninhada.
@@ -168,7 +169,7 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
         print(f"Dados salvos em {source_filepath}")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
     """
     Envia os dados aninhados para a pasta source do GCS.

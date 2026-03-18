@@ -11,6 +11,7 @@ import pandas as pd
 import pandas_gbq
 import sentry_sdk
 from prefect import runtime, task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants
 from pipelines.common.utils.discord import send_discord_message
@@ -20,8 +21,10 @@ from pipelines.common.utils.secret import get_env_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def initialize_sentry(env):
+    if is_running_locally():
+        return
     print("Inicializando Sentry SDK")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
@@ -31,7 +34,7 @@ def initialize_sentry(env):
     )
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
     """
     Retorna a timestamp do agendamento da run atual
@@ -50,7 +53,7 @@ def get_scheduled_timestamp(timestamp: Optional[str] = None) -> datetime:
     return timestamp
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_run_env(env: Optional[str], deployment_name: str) -> str:
     """
     Determina o ambiente de execução baseado no nome do deployment ou configuração local.
@@ -74,7 +77,7 @@ def get_run_env(env: Optional[str], deployment_name: str) -> str:
     return env
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def setup_environment(env: str):
     """
     Configura o ambiente inserindo credenciais necessárias.
@@ -89,7 +92,7 @@ def setup_environment(env: str):
         inject_bd_credentials(environment=environment)
 
 
-@task
+@task(cache_policy=NO_CACHE)
 async def async_api_post_request(
     url: str,
     payloads: list[dict],
@@ -126,7 +129,7 @@ async def async_api_post_request(
     return list(results)
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list[dict]:
     """
     Executa uma query no BigQuery.
@@ -149,7 +152,7 @@ def query_bq(query: str, project_id: str, params: Optional[dict] = None) -> list
     return df.to_dict(orient="records")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def save_data_to_file(
     data: Union[str, dict, list[dict], pd.DataFrame],
     path: Union[str, Path],
@@ -174,7 +177,7 @@ def save_data_to_file(
     print(f"Dados salvos em {path}")
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def task_send_discord_message(message: str, webhook: str):
     """
     Task para enviar uma mensagem para um canal do Discord

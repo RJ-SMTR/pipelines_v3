@@ -7,6 +7,7 @@ from datetime import timedelta
 from functools import partial
 
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 from pytz import timezone
 
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
@@ -15,7 +16,7 @@ from pipelines.common.utils.extractors.api import get_raw_api
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_gps_extractor(context: SourceCaptureContext):
     """Cria a extração de dados de GPS das fontes cittati, conecta e zirix"""
     source = context.source

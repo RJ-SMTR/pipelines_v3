@@ -8,6 +8,7 @@ from typing import Optional
 
 import pandas as pd
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.utils.pretreatment import normalize_text
 from pipelines.common.utils.secret import get_env_secret
@@ -15,7 +16,7 @@ from pipelines.integration__previnity_negativacao import constants
 from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_previnity_credentials() -> tuple[str, str]:
     """
     Retorna as credenciais para autenticação na API da Previnity.
@@ -29,7 +30,7 @@ def get_previnity_credentials() -> tuple[str, str]:
     return prev_key, prev_token
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def prepare_previnity_payloads(
     data: list[dict], datetime_start: str, datetime_end: str
 ) -> list[tuple[dict, dict]]:
@@ -97,7 +98,7 @@ def prepare_previnity_payloads(
     return payloads
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def get_previnity_date_range(
     env: str,
     ts: datetime,

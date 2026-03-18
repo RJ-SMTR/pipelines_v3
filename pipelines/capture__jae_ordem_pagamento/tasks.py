@@ -7,6 +7,7 @@ from datetime import timedelta
 from functools import partial
 
 from prefect import task
+from prefect.cache_policies import NO_CACHE
 from pytz import timezone
 
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
@@ -18,7 +19,7 @@ from pipelines.common.utils.extractors.db import get_raw_db, get_raw_db_paginate
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task
+@task(cache_policy=NO_CACHE)
 def create_ressarcimento_db_extractor(context: SourceCaptureContext):
     """Cria a extração de tabelas do ressarcimento_db da Jaé"""
     credentials = get_env_secret(constants.JAE_SECRET_PATH)
