@@ -23,6 +23,8 @@ from pipelines.common.utils.utils import async_post_request, convert_timezone, i
 
 @task(cache_policy=NO_CACHE)
 def initialize_sentry(env):
+    if is_running_locally():
+        return
     print("Inicializando Sentry SDK")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
