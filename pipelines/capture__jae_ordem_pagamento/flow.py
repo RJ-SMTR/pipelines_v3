@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Flow para captura de dados de ordem de pagamento da Jaé
+
+Common: 2026-03-19
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_ordem_pagamento import constants
