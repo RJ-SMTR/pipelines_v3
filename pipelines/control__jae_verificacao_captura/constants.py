@@ -7,6 +7,7 @@ from pipelines.capture__jae_auxiliar import constants as auxiliar_constants
 from pipelines.capture__jae_gps_validador import constants as gps_validador_constants
 from pipelines.capture__jae_lancamento import constants as lancamento_constants
 from pipelines.capture__jae_transacao import constants as transacao_constants
+from pipelines.capture__jae_transacao_erro import constants as transacao_erro_constants
 from pipelines.capture__jae_transacao_riocard import constants as transacao_riocard_constants
 from pipelines.common.capture.jae import constants as jae_constants
 
@@ -67,6 +68,13 @@ CHECK_CAPTURE_PARAMS = {
             "ifnull(id_lancamento, concat(string(dt_lancamento), '_', id_movimento))",
             "id_conta",
         ],
+        "final_timestamp_exclusive": True,
+    },
+    jae_constants.TRANSACAO_ERRO_TABLE_ID: {
+        "source": transacao_constants.TRANSACAO_SOURCE,
+        "datalake_table": "rj-smtr.bilhetagem_staging.transacao_erro",
+        "timestamp_column": "dt_inclusao",
+        "primary_keys": transacao_erro_constants.JAE_TRANSACAO_ERRO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
     },
     jae_constants.CLIENTE_TABLE_ID: {
