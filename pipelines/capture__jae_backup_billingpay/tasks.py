@@ -263,7 +263,7 @@ def get_raw_backup_billingpay(
     Args:
         table_info (list[dict[str, str]]): Lista com as informações das tabelas
         database_config (dict): Dicionário com os argumentos para a função create_database_url
-        end_timestamp (datetime) Timestamp final da captura
+        end_timestamp (datetime): Timestamp final da captura
 
     Returns:
         list[dict[str, str]]: Lista com as informações das tabelas atualizada
