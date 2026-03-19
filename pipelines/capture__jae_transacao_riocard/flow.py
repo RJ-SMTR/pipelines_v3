@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de captura da transação riocard da Jaé
+
+Executa a captura de dados de transação riocard do sistema Jaé.
+
+Common: 2026-03-19
+"""
+
 from prefect import flow
 
 from pipelines.capture__jae_transacao_riocard import constants
