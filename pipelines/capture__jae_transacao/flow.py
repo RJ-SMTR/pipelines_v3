@@ -4,7 +4,7 @@ Flow de captura de transações da Jaé
 
 Executa a captura de dados de transações do sistema Jaé.
 
-Common: 2026-03-06
+Common: 2026-03-19
 """
 
 from prefect import flow
