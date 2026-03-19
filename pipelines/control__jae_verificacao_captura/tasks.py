@@ -180,7 +180,7 @@ def get_capture_gaps(
 @task(cache_policy=NO_CACHE)
 def create_capture_check_discord_message(
     table_id: str,
-    timestamps: list[dict],
+    timestamps: list[str],
     timestamp_captura_start: datetime,
     timestamp_captura_end: datetime,
 ) -> str:
