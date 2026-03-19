@@ -4,7 +4,7 @@ Flow de captura de autuações do SERPRO
 
 Executa a captura de dados de autuações do sistema SERPRO.
 
-Common: 2026-03-06
+Common: 2026-03-19
 """
 
 from prefect import flow
