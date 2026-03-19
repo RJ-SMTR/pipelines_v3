@@ -5,7 +5,7 @@ Flow de verificação da captura dos dados da Jaé
 Common: 2026-03-18
 """
 
-from typing import Iterable, Optional
+from typing import Optional
 
 from prefect import flow, runtime, unmapped
 
@@ -33,7 +33,7 @@ def control__jae_verificacao_captura(
     env: Optional[str] = None,
     timestamp_captura_start: Optional[str] = None,
     timestamp_captura_end: Optional[str] = None,
-    table_ids: Iterable = tuple(table_ids),
+    table_ids: list = tuple(table_ids),
     retroactive_days: int = 1,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
@@ -49,12 +49,13 @@ def control__jae_verificacao_captura(
         timestamp_captura_end=timestamp_captura_end,
     )
 
-    timestamps = get_capture_gaps.map(
+    timestamps_future = get_capture_gaps.map(
         env=unmapped(env),
         table_id=table_ids,
         timestamp_captura_start=unmapped(timestamp_captura_start),
         timestamp_captura_end=unmapped(timestamp_captura_end),
     )
+    timestamps = timestamps_future.result()
 
     discord_messages = create_capture_check_discord_message.map(
         table_id=table_ids,
@@ -65,5 +66,5 @@ def control__jae_verificacao_captura(
 
     task_send_discord_message.map(
         message=discord_messages,
-        key=unmapped(jae_constants.ALERT_WEBHOOK),
+        webhook=unmapped(jae_constants.ALERT_WEBHOOK),
     )
