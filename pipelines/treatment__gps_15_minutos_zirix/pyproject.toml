@@ -1,0 +1,4 @@
+[project]
+name = "treatment__gps_15_minutos_zirix"
+version = "0.1.0"
+description = "Pipeline gps_15_minutos_zirix da secretaria rj-smtr"
