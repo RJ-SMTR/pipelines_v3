@@ -164,56 +164,56 @@ def get_jae_timestamp_captura_count_query(  # noqa: PLR0913
                     AND tc.timestamp_final
             """
 
-            return f"""
-                WITH RECURSIVE timestamps_captura AS (
-                    SELECT
-                        TIMESTAMP('{{timestamp_captura_start}}') AS timestamp_captura,
-                        DATE_SUB(
-                            TIMESTAMP('{{timestamp_captura_start}}'),
-                            INTERVAL ({delay_query} + {capture_interval_minutes}) MINUTE
-                        ) AS timestamp_inicial,
-                        DATE_SUB(
-                            TIMESTAMP('{{timestamp_captura_start}}'),
-                            INTERVAL ({delay_query}) MINUTE
-                        ) AS timestamp_final
-                    UNION ALL
-                    SELECT
-                        timestamp_captura + INTERVAL {capture_interval_minutes} MINUTE,
-                        DATE_SUB(
-                            timestamp_captura  + INTERVAL {capture_interval_minutes} MINUTE,
-                            INTERVAL ({delay_query} + {capture_interval_minutes}) MINUTE
-                        ) AS timestamp_inicial,
-                        DATE_SUB(
-                            timestamp_captura  + INTERVAL {capture_interval_minutes} MINUTE,
-                            INTERVAL ({delay_query}) MINUTE
-                        ) AS timestamp_final
-                    FROM timestamps_captura
-                    WHERE
-                        timestamp_captura
-                        + INTERVAL {capture_interval_minutes} MINUTE
-                        <= TIMESTAMP('{{timestamp_captura_end}}')
-                ),
-                dados_jae AS (
-                    {capture_query}
-                ),
-                jae_timestamp_captura AS (
-                    SELECT
-                        tc.timestamp_captura,
-                        d.{timestamp_column} as col
-                    FROM
-                        timestamps_captura tc
-                    LEFT JOIN
-                        dados_jae d
-                    ON {join_condition}
-                )
+        return f"""
+            WITH RECURSIVE timestamps_captura AS (
                 SELECT
-                    timestamp_captura,
-                    count(col) AS total_jae
-                FROM
-                    jae_timestamp_captura
-                GROUP BY
+                    TIMESTAMP('{{timestamp_captura_start}}') AS timestamp_captura,
+                    DATE_SUB(
+                        TIMESTAMP('{{timestamp_captura_start}}'),
+                        INTERVAL ({delay_query} + {capture_interval_minutes}) MINUTE
+                    ) AS timestamp_inicial,
+                    DATE_SUB(
+                        TIMESTAMP('{{timestamp_captura_start}}'),
+                        INTERVAL ({delay_query}) MINUTE
+                    ) AS timestamp_final
+                UNION ALL
+                SELECT
+                    timestamp_captura + INTERVAL {capture_interval_minutes} MINUTE,
+                    DATE_SUB(
+                        timestamp_captura  + INTERVAL {capture_interval_minutes} MINUTE,
+                        INTERVAL ({delay_query} + {capture_interval_minutes}) MINUTE
+                    ) AS timestamp_inicial,
+                    DATE_SUB(
+                        timestamp_captura  + INTERVAL {capture_interval_minutes} MINUTE,
+                        INTERVAL ({delay_query}) MINUTE
+                    ) AS timestamp_final
+                FROM timestamps_captura
+                WHERE
                     timestamp_captura
-            """
+                    + INTERVAL {capture_interval_minutes} MINUTE
+                    <= TIMESTAMP('{{timestamp_captura_end}}')
+            ),
+            dados_jae AS (
+                {capture_query}
+            ),
+            jae_timestamp_captura AS (
+                SELECT
+                    tc.timestamp_captura,
+                    d.{timestamp_column} as col
+                FROM
+                    timestamps_captura tc
+                LEFT JOIN
+                    dados_jae d
+                ON {join_condition}
+            )
+            SELECT
+                timestamp_captura,
+                count(col) AS total_jae
+            FROM
+                jae_timestamp_captura
+            GROUP BY
+                timestamp_captura
+        """
 
     else:
         raise NotImplementedError(f"Engine {engine} não implementada")
