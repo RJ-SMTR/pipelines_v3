@@ -21,6 +21,9 @@ members = [
     "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
+    "capture-veiculo-infracao",
+    "capture-veiculo-licenciamento",
+    "capture-veiculo-registro-agente-verao",
     "capture-zirix-realocacao",
     "capture-zirix-registros",
     "common",
@@ -360,6 +363,21 @@ requires-dist = [
     { name = "impyla", specifier = ">=0.22.0" },
     { name = "jaydebeapi", specifier = ">=1.2.3" },
 ]
+
+[[package]]
+name = "capture-veiculo-infracao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_infracao" }
+
+[[package]]
+name = "capture-veiculo-licenciamento"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_licenciamento" }
+
+[[package]]
+name = "capture-veiculo-registro-agente-verao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_registro_agente_verao" }
 
 [[package]]
 name = "capture-zirix-realocacao"

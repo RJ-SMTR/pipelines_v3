@@ -1,0 +1,4 @@
+[project]
+name = "capture__veiculo_registro_agente_verao"
+version = "0.1.0"
+description = "Pipeline de captura de registro de agentes de verão de veículos SPPO da secretaria rj-smtr"

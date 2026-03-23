@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+import io
+import traceback
+import zipfile
 from datetime import datetime
+from ftplib import FTP_TLS
+from functools import partial
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
@@ -11,10 +16,12 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext, constants
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
 )
+from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
@@ -196,3 +203,153 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
         print("Tabela de staging já existe, adicionando dados...")
         source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
+
+
+@task(cache_policy=NO_CACHE)
+def create_ftp_extractor(
+    context: SourceCaptureContext,
+    ftp_path: str,
+    csv_args: dict,
+    secret_path: str = "rdo_ftps",
+):
+    """
+    Cria função extratora genérica para dados de servidor FTP.
+
+    Busca dados com base na data do timestamp.
+
+    Args:
+        context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
+        ftp_path (str): Caminho base no FTP (sem data). Ex: "MULTAS/MULTAS"
+        csv_args (dict): Argumentos para leitura do CSV
+        secret_path (str): Caminho da secret com credenciais FTP (default: "rdo_ftps")
+
+    Returns:
+        partial: Função parcial pronta para ser chamada para buscar dados do FTP
+
+    Example:
+        extractor = create_ftp_extractor(
+            context=context,
+            ftp_path="MULTAS/MULTAS",
+            csv_args={"sep": ";", "names": ["col1", "col2"]},
+            secret_path="rdo_ftps",
+        )
+        filepaths = extractor()
+    """
+
+    credentials = get_env_secret(secret_path)
+
+    return partial(
+        get_raw_ftp,
+        credentials=credentials,
+        ftp_path=f"{ftp_path}_{context.timestamp.strftime('%Y%m%d')}.txt",
+        csv_args=csv_args,
+        raw_filepath=context.raw_filepath,
+    )
+
+
+def get_raw_ftp(
+    credentials: dict,
+    ftp_path: str,
+    csv_args: dict,
+    raw_filepath: str,
+) -> list[str]:
+    """
+    Retrieves raw data from FTP server and saves to local file.
+
+    Args:
+        credentials (dict): FTP credentials with host, user, password
+        ftp_path (str): File path on FTP server
+        csv_args (dict): Arguments for CSV reading
+        raw_filepath (str): Local file path template
+
+    Returns:
+        list[str]: List with path where data was saved
+    """
+    try:
+        data = io.BytesIO()
+        ftps = FTP_TLS(
+            credentials.get("host"), credentials.get("user"), credentials.get("password")
+        )
+        ftps.prot_p()
+        ftps.retrbinary(f"RETR {ftp_path}", data.write)
+        ftps.quit()
+
+        data.seek(0)
+        df = pd.read_csv(
+            io.StringIO(data.read().decode("utf-8")),
+            **csv_args,
+        )
+
+        # Save to local file
+        filepath = raw_filepath.format(page=0)
+        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
+
+        return [filepath]
+
+    except Exception:
+        error_msg = traceback.format_exc()
+        print(f"[ERROR] FTP extraction failed: {error_msg}")
+        # Save empty result
+        filepath = raw_filepath.format(page=0)
+        save_local_file(filepath=filepath, filetype="csv", data=[])
+        return [filepath]
+
+
+@task(cache_policy=NO_CACHE)
+def get_raw_from_gcs(
+    context: SourceCaptureContext,
+    table_id: str,
+    csv_args: dict,
+):
+    """
+    Busca dados do GCS como fallback (backup/upload manual).
+
+    Usado quando a extração principal (FTP, API, etc) retorna vazio.
+
+    Args:
+        context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
+        table_id (str): ID da tabela para montar o nome do arquivo
+        csv_args (dict): Argumentos para leitura do CSV
+
+    Returns:
+        list[str]: Lista com caminho do arquivo salvo localmente, ou lista vazia se não encontrar
+    """
+    try:
+        storage = Storage(
+            env=context.source.env,
+            dataset_id=context.source.dataset_id,
+            table_id=context.source.table_id,
+        )
+
+        # Monta o path esperado no GCS
+        filename = f"{table_id}_{context.timestamp.strftime('%Y%m%d')}"
+        blob_path = f"upload/{context.source.dataset_id}/{context.source.table_id}/{filename}.zip"
+
+        blob = storage.bucket.get_blob(blob_path)
+
+        if blob is None:
+            print(f"[GCS] Arquivo não encontrado: {blob_path}")
+            return []
+
+        # Baixa e extrai o ZIP
+        data = blob.download_as_bytes()
+        with zipfile.ZipFile(io.BytesIO(data), "r") as zipped_file:
+            data = zipped_file.read(f"{filename}.txt")
+
+        # Lê o CSV
+        df = pd.read_csv(
+            io.StringIO(data.decode("utf-8")),
+            **csv_args,
+        )
+
+        # Salva localmente
+        filepath = context.raw_filepath.format(page=0)
+        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
+
+        print(f"[GCS] Dados carregados com sucesso: {filepath}")
+        return [filepath]
+
+    except Exception:
+        error_msg = traceback.format_exc()
+        print(f"[GCS] Erro ao buscar dados: {error_msg}")
+        return []
