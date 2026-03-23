@@ -6,11 +6,12 @@ Schedule:
 - Diário (horário configurável)
 - Depende de dados do Planejamento Diário
 
-DBT: 2026-03-09
+DBT: 2026-03-23
 """
 
 import pandas as pd
 from prefect import flow, runtime
+from prefect.utilities.annotations import unmapped
 
 from pipelines.common import constants as common_constants
 from pipelines.common.capture.default_capture.tasks import (
@@ -28,7 +29,9 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    dbt_test_notify_discord,
     run_dbt_selectors,
+    run_dbt_tests,
     save_materialization_datetime_redis,
 )
 from pipelines.integration__previnity_negativacao import constants
@@ -136,6 +139,18 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         run_dbt_future = run_dbt_selectors(
             contexts=materialization_contexts,
             flags=flags,
+        )
+
+        run_tests_future = run_dbt_tests(
+            contexts=materialization_contexts,
+            mode="post",
+            wait_for=[run_dbt_future],
+        )
+
+        dbt_test_notify_discord.map(
+            context=materialization_contexts,
+            mode=unmapped("post"),
+            wait_for=unmapped([run_tests_future]),
         )
 
         save_materialization_datetime_redis(

@@ -1,5 +1,11 @@
 # Changelog - integration\_\_previnity_negativacao
 
+## [1.1.0] - 2026-03-23
+
+### Adicionado
+
+- Adiciona teste `test_consistencia_autuacoes_negativadas_pagas_sem_baixa` para verificar se todas as autuações pagas foram devidamente baixadas da negativação (https://github.com/RJ-SMTR/pipelines_v3/pull/94)
+
 ## [1.0.2] - 2026-02-26
 
 ### Alterado
