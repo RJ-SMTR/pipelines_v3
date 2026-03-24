@@ -8,7 +8,7 @@ Schedule:
 - Diariamente às 1h00 (horário de São Paulo)
 - Depende de dados capturados pela Rio Ônibus
 
-DBT: 2026-03-06
+DBT: 2026-03-24
 """
 
 from prefect import flow
