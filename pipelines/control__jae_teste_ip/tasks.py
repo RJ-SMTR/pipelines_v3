@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Tasks para verificação dos IPs da Jaé
+"""
+
 from prefect import task
 
 from pipelines.common import constants as smtr_constants
