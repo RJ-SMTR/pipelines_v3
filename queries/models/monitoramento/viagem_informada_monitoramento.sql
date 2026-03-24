@@ -103,6 +103,7 @@ with
     staging_rioonibus as (
         select
             id_viagem,
+            id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
             id_veiculo,
@@ -120,6 +121,7 @@ with
     staging_brt as (
         select
             id_viagem,
+            id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
             id_veiculo,
@@ -149,6 +151,7 @@ with
         select
             extract(date from datetime_partida) as data,
             id_viagem,
+            id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
             id_veiculo,
@@ -208,6 +211,7 @@ with
         select
             data,
             v.id_viagem,
+            v.id_viagem_planejada,
             v.datetime_partida,
             v.datetime_chegada,
             case
