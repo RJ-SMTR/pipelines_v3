@@ -72,7 +72,7 @@ CHECK_CAPTURE_PARAMS = {
     },
     jae_constants.TRANSACAO_ERRO_TABLE_ID: {
         "source": transacao_erro_constants.JAE_TRANSACAO_ERRO_SOURCE,
-        "datalake_table": "rj-smtr.bilhetagem_staging.transacao_erro",
+        "datalake_table": "rj-smtr.bilhetagem_interno_staging.transacao_erro",
         "timestamp_column": "dt_inclusao",
         "primary_keys": transacao_erro_constants.JAE_TRANSACAO_ERRO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
