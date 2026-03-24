@@ -22,6 +22,30 @@ Horário de início da viagem
 Horário de fim da viagem
 {% enddocs %}
 
+{% docs datetime_partida_informada %}
+Horário de partida informado pela operadora
+{% enddocs %}
+
+{% docs datetime_chegada_informada %}
+Horário de chegada informado pela operadora
+{% enddocs %}
+
+{% docs datetime_partida_automatica %}
+Horário de partida automática [primeiro GPS fora da cerca eletrônica inicial e dentro do buffer de um segmento]
+{% enddocs %}
+
+{% docs datetime_chegada_automatica %}
+Horário de chegada automática [último GPS fora da cerca eletrônica final e dentro do buffer de um segmento]
+{% enddocs %}
+
+{% docs datetime_partida_considerada %}
+Horário de partida considerado para validação [automática se diferença > 10 min, senão informada]
+{% enddocs %}
+
+{% docs datetime_chegada_considerada %}
+Horário de chegada considerado para validação [automática se diferença > 10 min, senão informada]
+{% enddocs %}
+
 {% docs distancia_planejada %}
 Distância do shape [trajeto] planejado (km)
 {% enddocs %}
@@ -351,7 +375,7 @@ Sentido da linha
 {% enddocs %}
 
 {% docs indicador_viagem_dentro_limite %}
-Indica se a viagem foi remunerada por estar abaixo do teto de 120%/200%
+Indica se a viagem foi remunerada por estar abaixo do teto de 110% / 120% / 200%
 {% enddocs %}
 
 {% docs indicador_penalidade_judicial %}
@@ -632,7 +656,7 @@ Valor efetivo de pagamento [valor_total_apurado - valor_acima_limite - valor_glo
 {% enddocs %}
 
 {% docs valor_acima_limite %}
-Valor apurado das viagens que não foram remuneradas por estar acima do teto de 120% / 200%
+Valor apurado das viagens que não foram remuneradas por estar acima do teto de 110% / 120% / 200%
 {% enddocs %}
 
 {% docs valor_pago %}
@@ -657,6 +681,14 @@ Quantidade de partidas no sentido volta
 
 {% docs extensao %}
 Distância do shape [trajeto] planejado (km)
+{% enddocs %}
+
+{% docs indicador_primeiro_segmento_valido %}
+Indica se o primeiro segmento da viagem é considerado e possui registros de GPS
+{% enddocs %}
+
+{% docs indicador_ultimo_segmento_valido %}
+Indica se o último segmento da viagem é considerado e possui registros de GPS
 {% enddocs %}
 
 {% docs indicador_servico_divergente %}
@@ -981,6 +1013,42 @@ Data da última atualização
 
 {% docs datetime_processamento_viagem %}
 Data e hora do processamento da viagem
+{% enddocs %}
+
+{% docs indicador_prazo_envio %}
+Indica se a viagem foi enviada dentro do prazo de até 2 dias úteis após a data de partida
+{% enddocs %}
+
+{% docs indicador_viagem_sobreposta %}
+Indica se a viagem se sobrepõe a outra viagem do mesmo veículo
+{% enddocs %}
+
+{% docs id_transmissao_gps %}
+Identificador único da tabela de GPS dos validadores
+{% enddocs %}
+
+{% docs temperatura_validador %}
+Temperatura do local, medida pelo sensor do validador (ºC)
+{% enddocs %}
+
+{% docs versao_app_validador %}
+Versão do Software do validador
+{% enddocs %}
+
+{% docs data_recebimento_gps %}
+Data do recebimento da transmissão do GPS
+{% enddocs %}
+
+{% docs hora_recebimento_gps %}
+Hora do recebimento da transmissão do GPS
+{% enddocs %}
+
+{% docs indicador_processamento_posterior_captura %}
+Indica se o datetime de processamento é posterior ao datetime de captura, caracterizando alteração retroativa indevida [Art. 8º, I]
+{% enddocs %}
+
+{% docs indicador_processamento_anterior_chegada %}
+Indica se o datetime de processamento é anterior ao datetime de chegada, indicando processamento antes da conclusão da viagem [Art. 8º, II]
 {% enddocs %}
 
 {% docs especie_veiculo %}
@@ -1521,94 +1589,30 @@ Horário do registro
 Data e hora de geração da transmissão do GPS [GMT-3]
 {% enddocs %}
 
-{% docs modo_operadora %}
-Tipo de transporte [Ônibus, Van, BRT]
+{% docs tempo_integracao_minutos_matriz %}
+Tempo máximo entre a primeira e a última perna para a integração ser realizada
 {% enddocs %}
 
-{% docs nome_operadora %}
-Nome do operador de transporte
+{% docs sequencia_rateio_matriz %}
+Array contendo os percentuais de rateio para cada perna da integração
 {% enddocs %}
 
-{% docs data_lote %}
-Data do lote de negativação
+{% docs agency_id %}
+Identificador único de uma agência de transporte
 {% enddocs %}
 
-{% docs data_inclusao %}
-Data de inclusão da negativação
+{% docs id_viagem_planejada %}
+Código identificador da viagem planejada associada
 {% enddocs %}
 
-{% docs data_baixa %}
-Data de baixa da negativação
+{% docs indice_validacao %}
+Índice de validação da viagem [razão entre segmentos válidos e segmentos considerados]
 {% enddocs %}
 
-{% docs data_confirmacao_inclusao %}
-Data de confirmação da inclusão
+{% docs datetime_inicio_segmento %}
+Data e hora de início do segmento [partida considerada para o primeiro segmento, primeiro GPS para os demais]
 {% enddocs %}
 
-{% docs data_confirmacao_baixa %}
-Data de confirmação da baixa
-{% enddocs %}
-
-{% docs indicador_nao_inclusao %}
-Indicador de não inclusão
-{% enddocs %}
-
-{% docs motivo_nao_inclusao %}
-Motivo da não inclusão
-{% enddocs %}
-
-{% docs nome_proprietario %}
-Nome do proprietário do veículo
-{% enddocs %}
-
-{% docs cpf_proprietario %}
-CPF do proprietário do veículo
-{% enddocs %}
-
-{% docs cnpj_proprietario %}
-CNPJ do proprietário do veículo
-{% enddocs %}
-
-{% docs endereco_proprietario %}
-Endereço do proprietário do veículo
-{% enddocs %}
-
-{% docs bairro_proprietario %}
-Bairro do proprietário do veículo
-{% enddocs %}
-
-{% docs cidade_proprietario %}
-Cidade do proprietário do veículo
-{% enddocs %}
-
-{% docs estado_proprietario %}
-Estado do proprietário do veículo
-{% enddocs %}
-
-{% docs fonte %}
-Origem dos dados
-{% enddocs %}
-
-{% docs id_autuacao %}
-Identificador único da autuação
-{% enddocs %}
-
-{% docs id_alteracao %}
-Identificador único da alteração no histórico
-{% enddocs %}
-
-{% docs datetime_ultima_alteracao %}
-Data e hora da última alteração do registro
-{% enddocs %}
-
-{% docs datetime_inicio_vigencia %}
-Data e hora de início da vigência do registro
-{% enddocs %}
-
-{% docs datetime_fim_vigencia %}
-Data e hora de fim da vigência do registro
-{% enddocs %}
-
-{% docs saldo_cartao %}
-Saldo restante no cartão do cliente no momento da transação (R$)
+{% docs datetime_fim_segmento %}
+Data e hora de fim do segmento [chegada considerada para o último segmento, último GPS para os demais]
 {% enddocs %}
