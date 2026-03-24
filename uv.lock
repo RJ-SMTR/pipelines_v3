@@ -24,6 +24,7 @@ members = [
     "capture-zirix-realocacao",
     "capture-zirix-registros",
     "common",
+    "control-jae-verificacao-captura",
     "control-set-redis-key",
     "control-source-freshness",
     "integration-previnity-negativacao",
@@ -466,6 +467,11 @@ wheels = [
 name = "common"
 version = "0.1.0"
 source = { virtual = "pipelines/common" }
+
+[[package]]
+name = "control-jae-verificacao-captura"
+version = "0.1.0"
+source = { virtual = "pipelines/control__jae_verificacao_captura" }
 
 [[package]]
 name = "control-set-redis-key"
