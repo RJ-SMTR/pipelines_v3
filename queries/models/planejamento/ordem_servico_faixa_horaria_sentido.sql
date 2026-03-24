@@ -108,7 +108,7 @@ with
             sum(
                 case
                     when column_name like '%partidas%'
-                    then safe_cast(value as int64)
+                    then safe_cast(split(value, '.')[0] as int64)
                     else 0
                 end
             ) as partidas,

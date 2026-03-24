@@ -42,6 +42,8 @@ with
                 then "Ponto Facultativo"  -- LEI Nº 8.881, DE 14 DE ABRIL DE 2025 / MTR-PRO-2025/16278
                 when data = date(2025, 10, 20)
                 then "Ponto Facultativo"  -- MTR-MEM-2025/02734 - Indicação de tipo dia "Ponto Facultativo" para o feriado do dia do comerciário
+                when data = date(2025, 10, 31)
+                then "Ponto Facultativo"  -- Retificação Recurso SMTR202511005101
                 when data = date(2025, 11, 21)
                 then "Ponto Facultativo"  -- Decreto Rio nº 57.139, de 10 de novembro de 2025.
                 when data = date(2025, 12, 24)
@@ -162,6 +164,10 @@ with
                 then "Verão"  -- 000399.001320/2026-06 - Acionamento do Plano Verão
                 when data between date(2026, 02, 14) and date(2026, 02, 18)
                 then "Verão"  -- 000399.001536/2026-63 - Acionamento do Plano Verão
+                when data between date(2026, 02, 21) and date(2026, 02, 22)
+                then "Verão"  -- 000399.001668/2026-95 - Acionamento do Plano Verão
+                when data = date(2026, 03, 14)
+                then "Term_Marg"  -- 000399.003413/2026-67 - Inauguração do Terminal Margaridas
             end as tipo_os
         from
             unnest(
