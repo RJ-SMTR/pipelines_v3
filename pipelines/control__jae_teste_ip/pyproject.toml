@@ -1,0 +1,4 @@
+[project]
+name = "control__jae_teste_ip"
+version = "0.1.0"
+description = "Pipeline jae_teste_ip da secretaria rj-smtr"
