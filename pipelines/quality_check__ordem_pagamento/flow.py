@@ -20,7 +20,7 @@ def quality_check__ordem_pagamento(
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     partitions: Optional[str] = None,
-) -> list[str]:
+):
     create_quality_check_flows_default_tasks(
         env=env,
         dbt_test=constants.ORDEM_PAGAMENTO_DBT_TEST,
