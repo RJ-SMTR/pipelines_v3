@@ -817,7 +817,7 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
     try:
         format_send_discord_message(formatted_messages, webhook_url)
     except Exception as e:
-        print(f"Falha ao enviar mensagem para o Discord: {e}", level="error")
+        print(f"Falha ao enviar mensagem para o Discord: {e}")
         raise
 
     if not test_check and raise_check_error:
