@@ -575,7 +575,7 @@ def run_dbt_tests(
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
-    partitions: Optional[list[str]],
+    partitions: Optional[list[str]] = None,
 ):
     """
     Executa o DBT test
