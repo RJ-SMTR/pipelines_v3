@@ -19,7 +19,7 @@ def quality_check__ordem_pagamento(
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
-    partitions: Optional[str] = None,
+    partitions: Optional[list[str]] = None,
 ):
     create_quality_check_flows_default_tasks(
         env=env,
