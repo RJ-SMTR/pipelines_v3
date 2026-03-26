@@ -1,6 +1,5 @@
 {{ config(materialized="ephemeral") }}
 
-
 with
     routes as (
         select
@@ -36,29 +35,66 @@ with
         join {{ ref("trips_gtfs") }} t using (feed_start_date, feed_version)
         join routes r using (feed_start_date, feed_version, route_id)
         where t.service_id in unnest(c.service_ids)
+    ),
+    trajeto_alternativo_sentido as (
+        select
+            feed_start_date, feed_version, tipo_os, servico, evento, sentido, extensao
+        from
+            (
+                select
+                    feed_start_date,
+                    feed_version,
+                    tipo_os,
+                    servico,
+                    evento,
+                    extensao_ida,
+                    extensao_volta
+                from {{ ref("ordem_servico_trajeto_alternativo_gtfs") }}
+                where feed_start_date < date('{{ var("DATA_GTFS_V4_INICIO") }}')
+            ) unpivot (
+                (extensao)
+                for sentido in ((extensao_ida) as 'I', (extensao_volta) as 'V')
+            )
+        union all
+        select
+            feed_start_date,
+            feed_version,
+            tipo_os,
+            servico,
+            evento,
+            left(sentido, 1) as sentido,
+            extensao
+        from {{ ref("ordem_servico_trajeto_alternativo_sentido") }}
+        where feed_start_date >= date('{{ var("DATA_GTFS_V4_INICIO") }}')
     )
 select
     td.* except (evento),
-    osa.evento,
-    case
-        when td.direction_id = '0'
-        then ifnull(osa.extensao_ida, os.extensao_ida)
-        when td.direction_id = '1'
-        then ifnull(osa.extensao_volta, os.extensao_volta)
-    end as extensao,
+    tas.evento,
+    ifnull(tas.extensao, os.extensao) as extensao,
     os.distancia_total_planejada,
     os.feed_start_date is not null as indicador_possui_os,
     os.horario_inicio,
     os.horario_fim,
 from trips_dia td
 left join
-    {{ ref("ordem_servico_trajeto_alternativo_gtfs") }} osa using (
-        feed_start_date, feed_version, tipo_os, servico, evento
+    trajeto_alternativo_sentido tas
+    on td.feed_start_date = tas.feed_start_date
+    and td.feed_version = tas.feed_version
+    and td.tipo_os = tas.tipo_os
+    and td.servico = tas.servico
+    and td.evento = tas.evento
+    and (
+        (tas.sentido in ('I', 'C') and td.direction_id = '0')
+        or (tas.sentido = 'V' and td.direction_id = '1')
     )
-{# `rj-smtr.gtfs.ordem_servico_trajeto_alternativo` osa using (
-        feed_start_date, feed_version, tipo_os, servico, evento
-    ) #}
 left join
-    {{ ref("aux_ordem_servico_horario_tratado") }} os using (
-        feed_start_date, feed_version, tipo_os, tipo_dia, servico
+    {{ ref("aux_ordem_servico_horario_tratado") }} os
+    on td.feed_start_date = os.feed_start_date
+    and td.feed_version = os.feed_version
+    and td.tipo_os = os.tipo_os
+    and td.tipo_dia = os.tipo_dia
+    and td.servico = os.servico
+    and (
+        (os.sentido in ('I', 'C') and td.direction_id = '0')
+        or (os.sentido = 'V' and td.direction_id = '1')
     )

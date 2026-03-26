@@ -116,6 +116,7 @@ with
                     interval headway_secs second
                 )
             ) as partida
+        where tfd.service_id != 'EXCEP'
     ),
     viagens_stop_times as (
         select
@@ -152,6 +153,7 @@ with
             {% endif %}
             and st.stop_sequence = 0
             and f.trip_id is null
+            and td.service_id != 'EXCEP'
     ),
     viagens_trips_alternativas as (
         select v.*, ta.trajetos_alternativos
