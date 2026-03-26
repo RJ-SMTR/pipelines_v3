@@ -4,7 +4,7 @@ from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import runtime, task
+from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
@@ -12,16 +12,14 @@ from pipelines.common.treatment.default_treatment.utils import (
     DBTSelector,
     DBTSelectorMaterializationContext,
     DBTTest,
-    DBTTestFailedError,
     IncompleteDataError,
-    parse_dbt_test_output,
+    dbt_test_notify_discord,
     run_dbt,
+    run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
-from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
 
 
@@ -185,7 +183,7 @@ def run_dbt_snapshots(
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_tests(
+def run_dbt_selector_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
 ):
@@ -201,22 +199,20 @@ def run_dbt_tests(
             continue
 
         dbt_test: DBTTest = context.selector[f"{mode}_test"]
-        dbt_vars = context[f"{mode}_test_dbt_vars"]
 
         if dbt_test is not None:
-            dbt_vars = dbt_test.get_test_vars(
+            log, _ = run_dbt_tests(
+                dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
             )
-            log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, raise_on_failure=False)
-
         context[f"{mode}_test_log"] = log
 
     return contexts
 
 
 @task(cache_policy=NO_CACHE)
-def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
+def task_dbt_selector_test_notify_discord(
     context: DBTSelectorMaterializationContext,
     mode: str,
     webhook_key: str = "dataplex",
@@ -236,121 +232,15 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0915
     test: DBTTest = context.selector[f"{mode}_test"]
     dbt_vars: dict = context[f"{mode}_test_dbt_vars"]
     dbt_logs: str = context[f"{mode}_test_log"]
-    if dbt_logs is None:
-        return
 
-    test_descriptions = test.test_descriptions
-
-    checks_results = parse_dbt_test_output(dbt_logs)
-
-    webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
-    additional_mentions = additional_mentions or []
-    mentions = [*additional_mentions, "dados_smtr"]
-    mention_tags = "".join(
-        [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
+    dbt_test_notify_discord(
+        dbt_test=test,
+        dbt_vars=dbt_vars,
+        dbt_logs=dbt_logs,
+        webhook_key=webhook_key,
+        raise_check_error=raise_check_error,
+        additional_mentions=additional_mentions,
     )
-
-    test_check = all(test["result"] == "PASS" for test in checks_results.values())
-
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    date_range = (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
-    )
-
-    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
-        formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
-            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-    else:
-        formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
-            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-
-    table_groups = {}
-
-    for test_id, test_result in checks_results.items():
-        parts = test_id.split("__")
-        if len(parts) == 2:  # noqa: PLR2004
-            table_name = parts[1]
-        else:
-            table_name = parts[2]
-
-        if table_name not in table_groups:
-            table_groups[table_name] = []
-
-        table_groups[table_name].append((test_id, test_result))
-
-    for table_name, tests in table_groups.items():
-        formatted_messages.append(f"*{table_name}:*\n")
-
-        for test_id, test_result in tests:
-            matched_description = None
-            for existing_table_id, test_configs in test_descriptions.items():
-                if table_name in existing_table_id:
-                    for existing_test_id, test_info in test_configs.items():
-                        if existing_test_id in test_id:
-                            matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}",
-                                test_id.split("__")[1] if "__" in test_id else test_id,
-                            )
-                            break
-                    if matched_description:
-                        break
-
-            test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
-            description = matched_description or f"Teste: {test_id}"
-
-            test_message = (
-                f"{':white_check_mark:' if test_result['result'] == 'PASS' else ':x:'} "
-                f"{description}\n"
-            )
-            formatted_messages.append(test_message)
-
-    formatted_messages.append("\n")
-    formatted_messages.append(
-        ":tada: **Status:** Sucesso"
-        if test_check
-        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-    )
-
-    if not test_check:
-        formatted_messages.append(mention_tags)
-
-    try:
-        format_send_discord_message(formatted_messages, webhook_url)
-    except Exception as e:
-        print(f"Falha ao enviar mensagem para o Discord: {e}", level="error")
-        raise
-
-    if not test_check and raise_check_error:
-        raise DBTTestFailedError()
 
 
 @task(cache_policy=NO_CACHE)
