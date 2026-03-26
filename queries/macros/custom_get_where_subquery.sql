@@ -23,7 +23,10 @@
                 {% endset %}
 
                 {% set partitions = run_query(partition_query).columns[0].values() %}
-                {% set var_value = partitions | join(", ") %}
+                {% if partitions | length > 0 %}
+                    {% set var_value = partitions | join(", ") %}
+                {% else %} {% set var_value = "null" %}
+                {% endif %}
             {% else %} {% set var_value = var(var_name) %}
             {% endif %}
             {% set final_where.value = final_where.value.replace(

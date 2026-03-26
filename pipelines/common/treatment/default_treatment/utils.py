@@ -17,9 +17,11 @@ from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment import constants
 from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
+from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.redis import get_redis_client
+from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone, is_running_locally
 
 
@@ -35,6 +37,7 @@ class DBTTest:
         delay_days_end (int): Dias subtraídos do datetime final da materialização.
         truncate_date (bool): Se True, ajusta o intervalo para o dia inteiro.
         additional_vars (Optional[dict]): Variáveis adicionais para o dbt.
+        test_alias (Optional[str]): Define um alias para o teste.
     """
 
     def __init__(  # noqa: PLR0913
@@ -46,6 +49,8 @@ class DBTTest:
         delay_days_end: int = 0,
         truncate_date: bool = False,
         additional_vars: Optional[dict] = None,
+        test_start_datetime: Optional[datetime] = None,
+        test_alias: Optional[str] = None,
     ):
         self.test_select = test_select
         self.exclude = exclude
@@ -54,11 +59,18 @@ class DBTTest:
         self.delay_days_end = delay_days_end
         self.truncate_date = truncate_date
         self.additional_vars = additional_vars or {}
+        self.test_start_datetime = test_start_datetime
+        self.test_alias = test_alias
 
     def __getitem__(self, key):
         return self.__dict__[key]
 
-    def get_test_vars(self, datetime_start: datetime, datetime_end: datetime) -> dict:
+    def get_test_vars(
+        self,
+        datetime_start: datetime,
+        datetime_end: datetime,
+        partitions: Optional[list[str]] = None,
+    ) -> dict:
         """
         Gera as variáveis para execução do teste do dbt.
 
@@ -81,6 +93,9 @@ class DBTTest:
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
         }
+
+        if partitions is not None:
+            final_dict["partitions"] = partitions
 
         collision = final_dict.keys() & self.additional_vars.keys()
         if collision:
@@ -556,6 +571,39 @@ def run_dbt(  # noqa: PLR0913
         return logs.read()
 
 
+def run_dbt_tests(
+    dbt_test: DBTTest,
+    datetime_start: Optional[datetime],
+    datetime_end: Optional[datetime],
+    partitions: Optional[list[str]] = None,
+) -> tuple[str, dict]:
+    """
+    Executa o DBT test
+
+    Args:
+        dbt_test (DBTTest): Objeto representando o teste do DBT.
+        datetime_start (Optional[datetime]): Datetime inicial da execução.
+        datetime_end (Optional[datetime]): Datetime final da execução.
+        partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+
+    Returns:
+        str: Logs da execução do DBT.
+        dict: Dicionário contendo as variáveis utilizadas na execução do teste.
+    """
+
+    flags = []
+    if dbt_test.exclude is not None:
+        flags += ["--exclude", dbt_test.exclude]
+    dbt_vars = dbt_test.get_test_vars(
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        partitions=partitions,
+    )
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
+
+    return log, dbt_vars
+
+
 def parse_dbt_test_output(dbt_logs: str) -> dict:
     """
     Processa os logs do DBT e extrai os resultados dos testes executados.
@@ -638,3 +686,139 @@ def rename_treatment_flow_run() -> str:
 
     flow_name = runtime.flow_run.flow_name
     return f"[{scheduled_start_time}] {flow_name}"
+
+
+def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
+    dbt_test: DBTTest,
+    dbt_vars: dict,
+    dbt_logs: str,
+    webhook_key: str = "dataplex",
+    raise_check_error: bool = True,
+    additional_mentions: Optional[list] = None,
+):
+    """
+    Processa os resultados dos testes do dbt e envia notificações para o Discord.
+
+    Args:
+        dbt_test (DBTTest): Objeto que representa o teste do dbt.
+        dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
+        dbt_logs (str): Logs retornados pelo DBT.
+        webhook_key (str): Chave do webhook do Discord.
+        raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
+        additional_mentions (Optional[list]): Menções adicionais na mensagem.
+    """
+    if dbt_logs is None:
+        return
+
+    test_descriptions = dbt_test.test_descriptions
+
+    checks_results = parse_dbt_test_output(dbt_logs)
+
+    webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
+    additional_mentions = additional_mentions or []
+    mentions = [*additional_mentions, "dados_smtr"]
+    mention_tags = "".join(
+        [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
+    )
+
+    test_check = all(test["result"] == "PASS" for test in checks_results.values())
+
+    keys = [
+        ("date_range_start", "date_range_end"),
+        ("start_date", "end_date"),
+        ("run_date", None),
+        ("data_versao_gtfs", None),
+    ]
+
+    start_date = None
+    end_date = None
+
+    for start_key, end_key in keys:
+        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
+            start_date = dbt_vars[start_key].split("T")[0]
+
+            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
+                end_date = dbt_vars[end_key].split("T")[0]
+
+            break
+        elif start_key in dbt_vars:
+            start_date = dbt_vars[start_key]
+
+            if end_key and end_key in dbt_vars:
+                end_date = dbt_vars[end_key]
+
+    date_range = (
+        start_date
+        if not end_date
+        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
+    )
+
+    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
+        formatted_messages = [
+            ":green_circle: " if test_check else ":red_circle: ",
+            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
+        ]
+    else:
+        formatted_messages = [
+            ":green_circle: " if test_check else ":red_circle: ",
+            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
+        ]
+
+    table_groups = {}
+
+    for test_id, test_result in checks_results.items():
+        parts = test_id.split("__")
+        if len(parts) == 2:  # noqa: PLR2004
+            table_name = parts[1]
+        else:
+            table_name = parts[2]
+
+        if table_name not in table_groups:
+            table_groups[table_name] = []
+
+        table_groups[table_name].append((test_id, test_result))
+
+    for table_name, tests in table_groups.items():
+        formatted_messages.append(f"*{table_name}:*\n")
+
+        for test_id, test_result in tests:
+            matched_description = None
+            for existing_table_id, test_configs in test_descriptions.items():
+                if table_name in existing_table_id:
+                    for existing_test_id, test_info in test_configs.items():
+                        if existing_test_id in test_id:
+                            matched_description = test_info.get("description", test_id).replace(
+                                "{column_name}",
+                                test_id.split("__")[1] if "__" in test_id else test_id,
+                            )
+                            break
+                    if matched_description:
+                        break
+
+            test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
+            description = matched_description or f"Teste: {test_id}"
+
+            test_message = (
+                f"{':white_check_mark:' if test_result['result'] == 'PASS' else ':x:'} "
+                f"{description}\n"
+            )
+            formatted_messages.append(test_message)
+
+    formatted_messages.append("\n")
+    formatted_messages.append(
+        ":tada: **Status:** Sucesso"
+        if test_check
+        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+    )
+
+    if not test_check:
+        formatted_messages.append(mention_tags)
+
+    try:
+        format_send_discord_message(formatted_messages, webhook_url)
+    except Exception as e:
+        print(f"Falha ao enviar mensagem para o Discord: {e}")
+        raise
+
+    if not test_check and raise_check_error:
+        raise DBTTestFailedError()
