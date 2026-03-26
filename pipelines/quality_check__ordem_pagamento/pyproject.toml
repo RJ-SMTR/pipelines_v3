@@ -1,0 +1,4 @@
+[project]
+name = "quality_check__ordem_pagamento"
+version = "0.1.0"
+description = "Pipeline ordem_pagamento da secretaria rj-smtr"

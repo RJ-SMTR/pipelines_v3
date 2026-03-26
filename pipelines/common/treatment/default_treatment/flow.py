@@ -13,11 +13,11 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
-    dbt_test_notify_discord,
+    run_dbt_selector_tests,
     run_dbt_selectors,
     run_dbt_snapshots,
-    run_dbt_tests,
     save_materialization_datetime_redis,
+    task_dbt_selector_test_notify_discord,
     wait_data_sources,
 )
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
@@ -109,7 +109,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     tasks["wait_data_sources"] = wait_data_sources_future.result()
 
-    tasks["pre_tests"] = run_dbt_tests(
+    tasks["pre_tests"] = run_dbt_selector_tests(
         contexts=tasks["contexts"],
         mode="pre",
         wait_for=[
@@ -118,7 +118,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    pre_tests_notify_discord_future = dbt_test_notify_discord.map(
+    pre_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
         context=tasks["contexts"],
         mode=unmapped("pre"),
         webhook_key=unmapped(test_webhook_key),
@@ -142,7 +142,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    tasks["post_tests"] = run_dbt_tests(
+    tasks["post_tests"] = run_dbt_selector_tests(
         contexts=tasks["contexts"],
         mode="post",
         wait_for=[
@@ -151,7 +151,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
-    post_tests_notify_discord_future = dbt_test_notify_discord.map(
+    post_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
         context=tasks["contexts"],
         mode=unmapped("post"),
         webhook_key=unmapped(test_webhook_key),

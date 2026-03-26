@@ -1,4 +1,10 @@
-# Changelog - integration\_\_previnity_negativacao
+# Changelog - integration__previnity_negativacao
+
+## [1.1.1] - 2026-03-26
+
+### Alterado
+
+- Renomeia task `run_dbt_tests` para `run_dbt_selector_tests` e `dbt_test_notify_discord` para `task_dbt_selector_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
 
 ## [1.1.0] - 2026-03-23
 
