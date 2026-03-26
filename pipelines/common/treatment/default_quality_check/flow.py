@@ -39,9 +39,8 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         datetime_start (Optional[str]): Data/hora inicial para recorte dos dados.
         datetime_end (Optional[str]): Data/hora final para recorte dos dados.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
-        additional_vars (Optional[dict[str, str]]): Variáveis DBT adicionais.
-        test_webhook_key (str): Chave do webhook para notificações dos testes no Discord.
-        test_additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
+        webhook_key (str): Chave do webhook para notificações dos testes no Discord.
+        additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
             nas notificações dos testes no Discord.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
             argumento wait_for das tasks retornadas por esta função.
