@@ -104,6 +104,10 @@ def task_run_dbt_tests(
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+
+    Returns:
+        str: Logs da execução do DBT.
+        dict: Dicionário contendo as variáveis utilizadas na execução do teste.
     """
 
     log, dbt_vars = run_dbt_tests(

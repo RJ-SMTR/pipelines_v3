@@ -576,7 +576,7 @@ def run_dbt_tests(
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
-):
+) -> tuple[str, dict]:
     """
     Executa o DBT test
 
@@ -585,6 +585,10 @@ def run_dbt_tests(
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+
+    Returns:
+        str: Logs da execução do DBT.
+        dict: Dicionário contendo as variáveis utilizadas na execução do teste.
     """
 
     flags = []
