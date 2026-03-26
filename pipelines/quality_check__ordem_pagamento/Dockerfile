@@ -10,7 +10,6 @@ COPY ./pipelines/quality_check__ordem_pagamento ./pipelines/quality_check__ordem
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./pipelines/queries/ ./pipelines/queries/
-
+COPY ./queries ./queries
 
 RUN uv sync --all-packages
