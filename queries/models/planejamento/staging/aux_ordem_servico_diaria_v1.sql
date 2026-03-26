@@ -3,7 +3,7 @@
 select *
 from
     (
-        select * except (versao_modelo)
+        select * except (versao_modelo, partidas_ida, partidas_volta)
         from {{ source("gtfs", "ordem_servico") }}
         where feed_start_date < date('{{ var("DATA_GTFS_V2_INICIO") }}')
         union all
