@@ -15,6 +15,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     IncompleteDataError,
     dbt_test_notify_discord,
     run_dbt,
+    run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -198,15 +199,13 @@ def run_dbt_selector_tests(
             continue
 
         dbt_test: DBTTest = context.selector[f"{mode}_test"]
-        dbt_vars = context[f"{mode}_test_dbt_vars"]
 
         if dbt_test is not None:
-            dbt_vars = dbt_test.get_test_vars(
+            log, _ = run_dbt_tests(
+                dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
             )
-            log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, raise_on_failure=False)
-
         context[f"{mode}_test_log"] = log
 
     return contexts

@@ -5,10 +5,10 @@ from typing import Optional
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
-from pipelines.common.treatment.default_quality_check.utils import run_dbt_tests
 from pipelines.common.treatment.default_treatment.utils import (
     DBTTest,
     dbt_test_notify_discord,
+    run_dbt_tests,
 )
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
@@ -48,7 +48,9 @@ def get_quality_check_datetime_start(
     print(f"Consultando Redis. key = {redis_key}")
     content = client.get(redis_key)
     if content is None:
-        return content
+        if dbt_test.test_start_datetime is None:
+            raise AttributeError("O atributo test_start_datetime do DBTTest não pode ser nulo!")
+        return dbt_test.test_start_datetime
     print(f"content = {content}")
     return convert_timezone(datetime.fromisoformat(content["last_run_timestamp"]))
 
@@ -103,12 +105,15 @@ def task_run_dbt_tests(
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
     """
-    return run_dbt_tests(
+
+    log, dbt_vars = run_dbt_tests(
         dbt_test=dbt_test,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
     )
+
+    return log, dbt_vars
 
 
 @task(cache_policy=NO_CACHE)

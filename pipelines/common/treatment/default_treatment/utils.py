@@ -49,6 +49,7 @@ class DBTTest:
         delay_days_end: int = 0,
         truncate_date: bool = False,
         additional_vars: Optional[dict] = None,
+        test_start_datetime: Optional[datetime] = None,
         test_alias: Optional[str] = None,
     ):
         self.test_select = test_select
@@ -58,6 +59,7 @@ class DBTTest:
         self.delay_days_end = delay_days_end
         self.truncate_date = truncate_date
         self.additional_vars = additional_vars or {}
+        self.test_start_datetime = test_start_datetime
         self.test_alias = test_alias
 
     def __getitem__(self, key):
@@ -567,6 +569,35 @@ def run_dbt(  # noqa: PLR0913
 
     with (Path(log_dir) / "dbt.log").open("r") as logs:
         return logs.read()
+
+
+def run_dbt_tests(
+    dbt_test: DBTTest,
+    datetime_start: Optional[datetime],
+    datetime_end: Optional[datetime],
+    partitions: Optional[list[str]],
+):
+    """
+    Executa o DBT test
+
+    Args:
+        dbt_test (DBTTest): Objeto representando o teste do DBT.
+        datetime_start (Optional[datetime]): Datetime inicial da execução.
+        datetime_end (Optional[datetime]): Datetime final da execução.
+        partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+    """
+
+    flags = []
+    if dbt_test.exclude is not None:
+        flags += ["--exclude", dbt_test.exclude]
+    dbt_vars = dbt_test.get_test_vars(
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        partitions=partitions,
+    )
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
+
+    return log, dbt_vars
 
 
 def parse_dbt_test_output(dbt_logs: str) -> dict:

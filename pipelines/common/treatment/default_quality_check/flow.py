@@ -66,14 +66,14 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         env=env,
         wait_for=[
             tasks["initialize_sentry"],
-            *tasks_wait_for.get("setup_enviroment"),
+            *tasks_wait_for.get("setup_enviroment", []),
         ],
     )
 
     tasks["timestamp"] = get_scheduled_timestamp(
         wait_for=[
             tasks["initialize_sentry"],
-            *tasks_wait_for.get("timestamp"),
+            *tasks_wait_for.get("timestamp", []),
         ],
     )
 
@@ -82,12 +82,15 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         dbt_test=dbt_test,
         datetime_start=datetime_start,
         partitions=partitions,
+        wait_for=tasks_wait_for.get("datetime_start"),
     )
 
     tasks["datetime_end"] = get_quality_check_datetime_end(
         timestamp=tasks["timestamp"],
         datetime_start=tasks["datetime_start"],
         datetime_end=datetime_end,
+        partitions=partitions,
+        wait_for=tasks_wait_for.get("datetime_end"),
     )
 
     tasks["run_dbt_tests"] = task_run_dbt_tests(
@@ -95,6 +98,7 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         datetime_start=tasks["datetime_start"],
         datetime_end=tasks["datetime_end"],
         partitions=partitions,
+        wait_for=tasks_wait_for.get("run_dbt_tests"),
     )
 
     tasks["notify_discord"] = task_dbt_test_notify_discord(
@@ -103,13 +107,14 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         dbt_logs=tasks["run_dbt_tests"][0],
         webhook_key=webhook_key,
         additional_mentions=additional_mentions,
+        wait_for=tasks_wait_for.get("notify_discord"),
     )
 
     tasks["save_redis"] = set_redis_quality_check_datetime(
         env=env,
         dbt_test=dbt_test,
         datetime_end=tasks["datetime_end"],
-        wait_for=[tasks["run_dbt_tests"]],
+        wait_for=[tasks["run_dbt_tests"], *tasks_wait_for.get("save_redis", [])],
     )
 
     return tasks
