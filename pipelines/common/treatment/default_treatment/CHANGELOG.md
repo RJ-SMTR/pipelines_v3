@@ -1,5 +1,17 @@
 # Changelog - default_treatment
 
+## [1.1.0] - 2026-03-26
+
+### Adicionado
+
+- Cria funções `run_dbt_tests` e `dbt_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
+- Adiciona atributos `test_start_datetime` e `test_alias` na classe `DBTTest` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
+
+### Alterado
+
+- Renomeia task `run_dbt_tests` para `run_dbt_selector_tests` e `dbt_test_notify_discord` para `task_dbt_selector_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
+- Utiliza novas funções nas tasks `run_dbt_selector_tests` e `task_dbt_selector_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
+
 ## [1.0.2] - 2026-02-24
 
 ### Alterado
