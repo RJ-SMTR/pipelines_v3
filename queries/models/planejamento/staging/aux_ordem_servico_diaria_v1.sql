@@ -24,6 +24,6 @@ from
             tipo_dia
         from {{ ref("ordem_servico_faixa_horaria") }}
         where feed_start_date >= date('{{ var("DATA_GTFS_V2_INICIO") }}')
-        group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14
     )
     unpivot ((extensao) for sentido in ((extensao_ida) as 'I', (extensao_volta) as 'V'))
