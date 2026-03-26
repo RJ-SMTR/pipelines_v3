@@ -1,0 +1,257 @@
+version: 2
+
+models:
+  - name: bilhetagem_consorcio_dia
+    description: "Tabela com os valores totais de pagamento da Jaé agregados por consorcio e dia"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} (partição)"
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('nome_consorcio') }}"
+      - name: id_ordem_pagamento
+        description: "Identificador da ordem pagamento no banco de dados da Jaé"
+      - name: quantidade_transacao_debito
+        description: "Quantidade de transações feitas na modalidade débito"
+      - name: valor_debito
+        description: "Valor total das transações feitas na modalidade débito (R$)"
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        description: "Valor total das transações feitas em espécie (R$)"
+      - name: quantidade_transacao_gratuidade
+        description: "Quantidade de transações feitas com gratuidade"
+      - name: valor_gratuidade
+        description: "Valor total das transações feitas com gratuidade (R$)"
+      - name: quantidade_transacao_integracao
+        description: "Quantidade de transações feitas com integração"
+      - name: valor_integracao
+        description: "Valor total das transações feitas com integração (R$)"
+      - name: quantidade_transacao_rateio_credito
+        description: "Quantidade total de transações consideradas no crédito da repartição tarifária"
+      - name: valor_rateio_credito
+        description: "Valor total creditado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_transacao_rateio_debito
+        description: "Quantidade total de transações consideradas no débito da repartição tarifária"
+      - name: valor_rateio_debito
+        description: "Valor total debitado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_total_transacao
+        description: "{{ doc('quantidade_total_transacao') }}"
+      - name: valor_total_transacao_bruto
+        description: "Valor total das transações realizadas (R$)"
+      - name: valor_total_transacao_liquido
+        description: "Valor total das transações menos o valor_desconto_taxa (R$)"
+      - name: valor_desconto_taxa
+        description: "Valor da taxa descontado do valor total (R$)"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: bilhetagem_consorcio_operador_dia
+    description: "Tabela com os valores totais de pagamento da Jaé agregados por consorcio, operador e dia"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [partição]"
+        tests:
+          - dbt_expectations.expect_column_max_to_be_between:
+              min_value: "current_date('America/Sao_Paulo')"
+              strictly: false
+              where: "1=1"
+              name: dbt_expectations.expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia
+
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "Identificador único do registro no banco de dados da Jaé"
+        tests:
+          - not_null:
+              where: "data_ordem in ({partitions})"
+              name: not_null__id_ordem_pagamento_consorcio_operador_dia__bilhetagem_consorcio_operador_dia
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+        tests:
+          - not_null:
+              where: "data_ordem in ({partitions})"
+              name: not_null__id_consorcio__bilhetagem_consorcio_operador_dia
+      - name: consorcio
+        description: "{{ doc('nome_consorcio') }}"
+        tests:
+          - not_null:
+              where: "data_ordem in ({partitions})"
+              name: not_null__consorcio__bilhetagem_consorcio_operador_dia
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+        tests:
+          - not_null:
+              where: "data_ordem in ({partitions})"
+              name: not_null__id_operadora__bilhetagem_consorcio_operador_dia
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_ordem_pagamento
+        description: "Identificador da ordem pagamento no banco de dados da Jaé"
+        tests:
+          - not_null:
+              where: "data_ordem in ({partitions})"
+              name: not_null__id_ordem_pagamento__bilhetagem_consorcio_operador_dia
+      - name: quantidade_transacao_debito
+        description: "Quantidade de transações feitas na modalidade débito"
+      - name: valor_debito
+        description: "Valor total das transações feitas na modalidade débito (R$)"
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        description: "Valor total das transações feitas em espécie (R$)"
+      - name: quantidade_transacao_gratuidade
+        description: "Quantidade de transações feitas com gratuidade"
+      - name: valor_gratuidade
+        description: "Valor total das transações feitas com gratuidade (R$)"
+      - name: quantidade_transacao_integracao
+        description: "Quantidade de transações feitas com integração"
+      - name: valor_integracao
+        description: "Valor total das transações feitas com integração (R$)"
+      - name: quantidade_transacao_rateio_credito
+        description: "Quantidade total de transações consideradas no crédito da repartição tarifária"
+      - name: valor_rateio_credito
+        description: "Valor total creditado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_transacao_rateio_debito
+        description: "Quantidade total de transações consideradas no débito da repartição tarifária"
+      - name: valor_rateio_debito
+        description: "Valor total debitado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_total_transacao
+        description: "{{ doc('quantidade_total_transacao') }}"
+      - name: valor_total_transacao_bruto
+        description: "Valor total das transações realizadas (R$)"
+      - name: valor_desconto_taxa
+        description: "Valor da taxa descontado do valor total (R$)"
+      - name: valor_total_transacao_liquido_ordem
+        description: "Valor total das transações menos o valor_desconto_taxa (R$)"
+      - name: valor_total_transacao_liquido
+        description: "Valor corrigido total das transações menos o valor_desconto_taxa (R$)"
+      - name: data_pagamento
+        description: "Data em que foi realizado o pagamento ao operador ou consórcio"
+      - name: valor_pago
+        description: "Valor pago ao operador ou consórcio (R$)"
+      - name: datetime_captura
+        description: "Data e hora da captura da ordem [GMT-3]"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        data_type: datetime
+        quote: true
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+  - name: bilhetagem_dia
+    description: "Tabela com os valores totais de pagamento da Jaé agregados por dia"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} (partição)"
+      - name: data_pagamento
+        description: "{{ doc('data_pagamento') }}"
+      - name: id_ordem_pagamento
+        description: "Identificador da ordem pagamento no banco de dados da Jaé"
+      - name: quantidade_transacao_debito
+        description: "Quantidade de transações feitas na modalidade débito"
+      - name: valor_debito
+        description: "Valor total das transações feitas na modalidade débito (R$)"
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        description: "Valor total das transações feitas em espécie (R$)"
+      - name: quantidade_transacao_gratuidade
+        description: "Quantidade de transações feitas com gratuidade"
+      - name: valor_gratuidade
+        description: "Valor total das transações feitas com gratuidade (R$)"
+      - name: quantidade_transacao_integracao
+        description: "Quantidade de transações feitas com integração"
+      - name: valor_integracao
+        description: "Valor total das transações feitas com integração (R$)"
+      - name: quantidade_transacao_rateio_credito
+        description: "Quantidade total de transações consideradas no crédito da repartição tarifária"
+      - name: valor_rateio_credito
+        description: "Valor total creditado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_total_transacao
+        description: "{{ doc('quantidade_total_transacao') }}"
+      - name: quantidade_transacao_rateio_debito
+        description: "Quantidade total de transações consideradas no débito da repartição tarifária"
+      - name: valor_rateio_debito
+        description: "Valor total debitado em decorrência da repartição tarifária (R$)"
+      - name: valor_total_transacao_bruto
+        description: "Valor total das transações realizadas (R$)"
+      - name: valor_desconto_taxa
+        description: "Valor da taxa descontado do valor total (R$)"
+      - name: valor_total_transacao_liquido
+        description: "Valor total das transações menos o valor_desconto_taxa (R$)"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: bilhetagem_servico_operador_dia
+    description: "Tabela com os valores totais de pagamento da Jaé agregados por serviço, operador e dia"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} (partição)"
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+      - name: servico_jae
+        description: "Nome curto da linha operada pelo veículo com variação de serviço (ex: 010, 011SN, ...) ou código da estação de BRT na Jaé"
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+      # - name: servico
+      #   description: "Nome curto da linha operada pelo veículo com variação de serviço (ex: 010, 011SN, ...) ou código da estação"
+      - name: id_ordem_pagamento
+        description: "Identificador da ordem pagamento no banco de dados da Jaé"
+      - name: id_ordem_rateio
+        description: "Identificador único da ordem de rateio da transação"
+      - name: quantidade_transacao_debito
+        description: "Quantidade de transações feitas na modalidade débito"
+      - name: valor_debito
+        description: "Valor total das transações feitas na modalidade débito (R$)"
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        description: "Valor total das transações feitas em espécie (R$)"
+      - name: quantidade_transacao_gratuidade
+        description: "Quantidade de transações feitas com gratuidade"
+      - name: valor_gratuidade
+        description: "Valor total das transações feitas com gratuidade (R$)"
+      - name: quantidade_transacao_integracao
+        description: "Quantidade de transações feitas com integração"
+      - name: valor_integracao
+        description: "Valor total das transações feitas com integração (R$)"
+      - name: quantidade_transacao_rateio_credito
+        description: "Quantidade total de transações consideradas no crédito da repartição tarifária"
+      - name: valor_rateio_credito
+        description: "Valor total creditado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_transacao_rateio_debito
+        description: "Quantidade total de transações consideradas no débito da repartição tarifária"
+      - name: valor_rateio_debito
+        description: "Valor total debitado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_total_transacao
+        description: "{{ doc('quantidade_total_transacao') }}"
+      - name: valor_total_transacao_bruto
+        description: "Valor total das transações realizadas (R$)"
+      - name: valor_desconto_taxa
+        description: "Valor da taxa descontado do valor total (R$)"
+      - name: valor_total_transacao_liquido
+        description: "Valor total das transações menos o valor_desconto_taxa (R$)"
+      - name: quantidade_total_transacao_captura
+        description: "Quantidade total de transações calculada pela captura de transações"
+      - name: valor_total_transacao_captura
+        description: "Valor total das transações realizadas calculada pela captura de transações (R$)"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: dicionario_financeiro
+    description: "Dicionário dos dados financeiros"
+    columns:
+      - name: chave
+        description: "Chave"
+      - name: cobertura_temporal
+        description: "{{ doc('cobertura_temporal') }}"
+      - name: id_tabela
+        description: "Nome da tabela"
+      - name: coluna
+        description: "{{ doc('column_name') }}"
+      - name: valor
+        description: "Valor"
