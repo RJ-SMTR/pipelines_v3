@@ -11,6 +11,9 @@ import pandas as pd
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
+# Source configuration
+SPPO_INFRACAO_SOURCE_NAME = "veiculo"
+
 # Table IDs
 SPPO_INFRACAO_TABLE_ID = "infracao"
 
@@ -43,8 +46,10 @@ RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
 
 
 def pretreat_infracao(
-    data: pd.DataFrame, timestamp=None, primary_keys=None
-) -> pd.DataFrame:  # noqa: ARG001
+    data: pd.DataFrame,
+    timestamp=None,  # noqa: ARG001
+    primary_keys=None,  # noqa: ARG001
+) -> pd.DataFrame:
     """
     Aplica pré-tratamento aos dados de infrações: renomeia colunas.
 
@@ -62,10 +67,10 @@ def pretreat_infracao(
 # Dataset and table configuration
 SPPO_INFRACAO_SOURCES = [
     SourceTable(
-        source_name="veiculo",
+        source_name=SPPO_INFRACAO_SOURCE_NAME,
         table_id=SPPO_INFRACAO_TABLE_ID,
         first_timestamp=datetime(
-            2026, 3, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
+            2024, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
         ),
         flow_folder_name="capture__veiculo_infracao",
         primary_keys=["id_auto_infracao"],
