@@ -162,7 +162,7 @@ def get_capture_gaps(
         .tolist()
     )
 
-    save_capture_check_results(env=env, results=df_merge)
+    save_capture_check_results(env=env, table_id=table_id, results=df_merge)
 
     if len(timestamps) > 0:
         ts_log = [f'"{t}",' for t in timestamps]
