@@ -332,12 +332,13 @@ def get_jae_timestamp_captura_count(
     return pd.concat(jae_result)
 
 
-def save_capture_check_results(env: str, results: pd.DataFrame):
+def save_capture_check_results(env: str, table_id: str, results: pd.DataFrame):
     """
     Salva os resultados da verificação de captura no BigQuery.
 
     Args:
-        env (str): dev ou prod
+        env (str): dev ou prod.
+        - table_id (str): table_id no BigQuery.
         results (pd.DataFrame): DataFrame contendo os resultados da verificação,
             com as seguintes colunas obrigatórias:
               - table_id (str): table_id no BigQuery
@@ -348,7 +349,7 @@ def save_capture_check_results(env: str, results: pd.DataFrame):
     """
     project_id = smtr_constants.PROJECT_NAME[env]
     dataset_id = f"source_{jae_constants.JAE_SOURCE_NAME}"
-    table_id = constants.RESULTADO_VERIFICACAO_CAPTURA_TABLE_ID
+    result_table_id = constants.RESULTADO_VERIFICACAO_CAPTURA_TABLE_ID
     results = results[
         [
             "table_id",
@@ -360,7 +361,7 @@ def save_capture_check_results(env: str, results: pd.DataFrame):
     ]
 
     now = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y%m%d%H%M%S")
-    tmp_table = f"{dataset_id}.tmp_{table_id}_{now}"
+    tmp_table = f"{dataset_id}.tmp_{result_table_id}_{table_id}_{now}"
 
     pandas_gbq.to_gbq(
         results,
@@ -375,7 +376,7 @@ def save_capture_check_results(env: str, results: pd.DataFrame):
     try:
         pandas_gbq.read_gbq(
             f"""
-                MERGE {project_id}.{dataset_id}.{table_id} t
+                MERGE {project_id}.{dataset_id}.{result_table_id} t
                 USING {tmp_table} s
                 ON
                     t.data BETWEEN '{start_partition}' AND '{end_partition}'
