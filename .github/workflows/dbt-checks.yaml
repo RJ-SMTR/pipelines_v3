@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - staging/*
-      - actions/*
+      - fix/*
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
