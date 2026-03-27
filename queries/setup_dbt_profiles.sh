@@ -5,8 +5,11 @@ mkdir -p ./profiles
 
 echo "Mounting files from env..."
 
-echo "$1" | base64 --decode > ./credentials-dev/dev.json
-echo "$1" | base64 --decode > ./credentials-prod/prod.json
+# echo "$1" | base64 --decode > ./credentials-dev/dev.json
+# echo "$1" | base64 --decode > ./credentials-prod/prod.json
+
+echo "$1" > ./credentials-dev/dev.json
+echo "$1" > ./credentials-prod/prod.json
 
 echo """
 queries:

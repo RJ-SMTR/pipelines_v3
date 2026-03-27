@@ -47,14 +47,6 @@ jobs:
 
       - name: Install sqlfmt
         run: pip install 'shandy-sqlfmt[jinjafmt]'
-      # Setup gcloud CLI
-      # - name: Authenticate to Google Cloud
-      #   uses: google-github-actions/auth@v2
-      #   with:
-      #     credentials_json: ${{ secrets.GKE_SA_KEY }}
-
-      # - name: Setup Google Cloud CLI
-      #   uses: google-github-actions/setup-gcloud@v3
 
       - name: Get changed files
         id: files
@@ -71,7 +63,6 @@ jobs:
           uv run dbt deps --profiles-dir profiles
 
       - name: Run sqlfmt
-        # continue-on-error: true
         if: steps.files.outputs.all_changed_files != ''
         run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
 
@@ -79,4 +70,3 @@ jobs:
         working-directory: queries
         run: |-
           uv run dbt compile --profiles-dir profiles
-#trigger
