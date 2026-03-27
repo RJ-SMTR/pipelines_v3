@@ -4,7 +4,7 @@
 
 ### Corrigido
 
-- Altera nome da tabela temporária do resultado da verificação
+- Altera nome da tabela temporária do resultado da verificação (https://github.com/RJ-SMTR/pipelines_v3/pull/98)
 
 ## [1.0.0] - 2026-03-17
 
