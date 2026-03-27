@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
-import traceback
 import zipfile
 from datetime import datetime
-from ftplib import FTP_TLS
 from functools import partial
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
@@ -13,7 +11,11 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.capture.default_capture.utils import SourceCaptureContext, constants
+from pipelines.common.capture.default_capture.utils import (
+    SourceCaptureContext,
+    connect_ftp,
+    constants,
+)
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.gcp.storage import Storage
@@ -21,7 +23,6 @@ from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
 )
-from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
@@ -58,13 +59,16 @@ def create_capture_contexts(  # noqa: PLR0913
     if source_table_ids is None:
         sources = [s.set_env(env=env) for s in sources]
     else:
-        sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
+        sources = [
+            s.set_env(env=env) for s in sources if s.table_id in source_table_ids
+        ]
 
     for source in sources:
         if recapture:
             if recapture_timestamps:
                 timestamps = [
-                    convert_timezone(datetime.fromisoformat(t)) for t in recapture_timestamps
+                    convert_timezone(datetime.fromisoformat(t))
+                    for t in recapture_timestamps
                 ]
             else:
                 timestamps = source.get_uncaptured_timestamps(
@@ -159,7 +163,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
                 data = step(data=data, timestamp=timestamp, primary_keys=primary_keys)
 
             if len(primary_keys) < data_columns_len:
-                data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+                data = transform_to_nested_structure(
+                    data=data, primary_keys=primary_keys
+                )
 
             data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
 
@@ -177,7 +183,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 
 
 @task(cache_policy=NO_CACHE)
-def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
+def upload_source_data_to_gcs(
+    context: SourceCaptureContext, if_exists: str = "replace"
+):
     """
     Envia os dados aninhados para a pasta source do GCS.
 
@@ -196,12 +204,16 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
 
     if not source.exists():
         print("Tabela de staging não existe, criando tabela...")
-        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
+        source.append(
+            source_filepath=source_filepath, partition=partition, if_exists=if_exists
+        )
         source.create(sample_filepath=source_filepath)
         print("Tabela de staging criada")
     else:
         print("Tabela de staging já existe, adicionando dados...")
-        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
+        source.append(
+            source_filepath=source_filepath, partition=partition, if_exists=if_exists
+        )
         print("Dados adicionados")
 
 
@@ -236,11 +248,9 @@ def create_ftp_extractor(
         filepaths = extractor()
     """
 
-    credentials = get_env_secret(secret_path)
-
     return partial(
         get_raw_ftp,
-        credentials=credentials,
+        secret_path=secret_path,
         ftp_path=f"{ftp_path}_{context.timestamp.strftime('%Y%m%d')}.txt",
         csv_args=csv_args,
         raw_filepath=context.raw_filepath,
@@ -248,7 +258,7 @@ def create_ftp_extractor(
 
 
 def get_raw_ftp(
-    credentials: dict,
+    secret_path: str,
     ftp_path: str,
     csv_args: dict,
     raw_filepath: str,
@@ -257,42 +267,41 @@ def get_raw_ftp(
     Retrieves raw data from FTP server and saves to local file.
 
     Args:
-        credentials (dict): FTP credentials with host, user, password
+        secret_path (str): Path to FTP credentials secret
         ftp_path (str): File path on FTP server
         csv_args (dict): Arguments for CSV reading
         raw_filepath (str): Local file path template
 
     Returns:
-        list[str]: List with path where data was saved
+        list[str]: List with path where data was saved, or empty list if not found
     """
+    ftp_client = None
     try:
-        data = io.BytesIO()
-        ftps = FTP_TLS(
-            credentials.get("host"), credentials.get("user"), credentials.get("password")
-        )
-        ftps.prot_p()
-        ftps.retrbinary(f"RETR {ftp_path}", data.write)
-        ftps.quit()
+        ftp_client = connect_ftp(secret_path)
+        file_data = io.BytesIO()
+        ftp_client.retrbinary(f"RETR {ftp_path}", file_data.write)
+        ftp_client.quit()
+        ftp_client = None
 
-        data.seek(0)
-        df = pd.read_csv(
-            io.StringIO(data.read().decode("utf-8")),
-            **csv_args,
-        )
+        file_data.seek(0)
+        csv_content = file_data.read().decode("utf-8")
 
         # Save to local file
         filepath = raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
+        save_local_file(filepath=filepath, filetype="csv", data=csv_content)
 
         return [filepath]
 
-    except Exception:
-        error_msg = traceback.format_exc()
-        print(f"[ERROR] FTP extraction failed: {error_msg}")
-        # Save empty result
-        filepath = raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=[])
-        return [filepath]
+    except (FileNotFoundError, EOFError, OSError) as e:
+        print(f"[ERROR] FTP extraction failed: {e}")
+        return []
+    finally:
+        if ftp_client is not None:
+            try:
+                ftp_client.quit()
+            except OSError:
+                pass
+
 
 
 @task(cache_policy=NO_CACHE)
@@ -344,12 +353,13 @@ def get_raw_from_gcs(
 
         # Salva localmente
         filepath = context.raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
+        save_local_file(
+            filepath=filepath, filetype="csv", data=df.to_dict(orient="records")
+        )
 
         print(f"[GCS] Dados carregados com sucesso: {filepath}")
         return [filepath]
 
-    except Exception:
-        error_msg = traceback.format_exc()
-        print(f"[GCS] Erro ao buscar dados: {error_msg}")
+    except (FileNotFoundError, EOFError, OSError) as e:
+        print(f"[GCS] Erro ao buscar dados: {e}")
         return []

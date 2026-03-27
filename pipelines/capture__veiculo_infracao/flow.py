@@ -11,7 +11,9 @@ Common: 2026-03-19
 from prefect import flow
 
 from pipelines.capture__veiculo_infracao import constants
-from pipelines.capture__veiculo_infracao.tasks import create_infracao_extractor_with_fallback
+from pipelines.capture__veiculo_infracao.tasks import (
+    create_infracao_extractor_with_fallback,
+)
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
