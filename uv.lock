@@ -21,19 +21,23 @@ members = [
     "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
+    "capture-stu-tabelas",
     "capture-zirix-realocacao",
     "capture-zirix-registros",
     "common",
+    "control-jae-teste-ip",
     "control-jae-verificacao-captura",
     "control-set-redis-key",
     "control-source-freshness",
     "integration-previnity-negativacao",
     "pipelines-v3",
+    "quality-check-ordem-pagamento",
     "test-raise-for-sentry",
     "test-runner-deployment",
     "treatment-cadastro",
     "treatment-cliente-cpf",
     "treatment-extrato-cliente-cartao",
+    "treatment-financeiro-bilhetagem",
     "treatment-gps-15-minutos-cittati",
     "treatment-gps-15-minutos-conecta",
     "treatment-gps-15-minutos-zirix",
@@ -363,6 +367,11 @@ requires-dist = [
 ]
 
 [[package]]
+name = "capture-stu-tabelas"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__stu_tabelas" }
+
+[[package]]
 name = "capture-zirix-realocacao"
 version = "1.0.0"
 source = { virtual = "pipelines/capture__zirix_realocacao" }
@@ -467,6 +476,11 @@ wheels = [
 name = "common"
 version = "0.1.0"
 source = { virtual = "pipelines/common" }
+
+[[package]]
+name = "control-jae-teste-ip"
+version = "0.1.0"
+source = { virtual = "pipelines/control__jae_teste_ip" }
 
 [[package]]
 name = "control-jae-verificacao-captura"
@@ -2325,6 +2339,11 @@ wheels = [
 ]
 
 [[package]]
+name = "quality-check-ordem-pagamento"
+version = "0.1.0"
+source = { virtual = "pipelines/quality_check__ordem_pagamento" }
+
+[[package]]
 name = "readchar"
 version = "4.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2830,6 +2849,11 @@ source = { virtual = "pipelines/treatment__cliente_cpf" }
 name = "treatment-extrato-cliente-cartao"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__extrato_cliente_cartao" }
+
+[[package]]
+name = "treatment-financeiro-bilhetagem"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__financeiro_bilhetagem" }
 
 [[package]]
 name = "treatment-gps-15-minutos-cittati"
