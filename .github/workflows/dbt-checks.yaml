@@ -55,7 +55,7 @@ jobs:
       - name: Check sh script
         run: |
           ls /home/runner/work/_temp | grep .sh | cat 
-          cat setup_dbt_profiles.sh
+          cat queries/setup_dbt_profiles.sh
           
       - name: Setup DBT profile
         working-directory: queries
