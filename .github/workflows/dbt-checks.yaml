@@ -53,7 +53,7 @@ jobs:
         uses: tj-actions/changed-files@v34
 
       - name: Check sh script
-        run: ls /home/runner/work/_temp | grep .sh | cat 
+        run: ls /home/runner/work/_temp | grep .sh | cat
 
       - name: Setup DBT profile
         working-directory: queries
