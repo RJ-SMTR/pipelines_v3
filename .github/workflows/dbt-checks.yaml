@@ -52,6 +52,9 @@ jobs:
         id: files
         uses: tj-actions/changed-files@v34
 
+      - name: Check sh script
+        run: cat /home/runner/work/_temp/7f9a7721-cce7-4edb-be43-67c9113eb704.sh
+
       - name: Setup DBT profile
         working-directory: queries
         run: |-
