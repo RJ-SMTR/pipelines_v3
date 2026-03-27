@@ -70,3 +70,5 @@ jobs:
         working-directory: queries
         run: |-
           uv run dbt compile --profiles-dir profiles
+
+#trigger
