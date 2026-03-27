@@ -69,7 +69,7 @@ def test_database_connection(
             print("Conexão bem-sucedida!")
             return True, None
     except OperationalError as e:
-        print("Conexão falhou", level="warning")
+        print("Conexão falhou")
         return False, str(e)
 
 
