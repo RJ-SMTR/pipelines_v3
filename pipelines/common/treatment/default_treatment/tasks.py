@@ -72,6 +72,40 @@ def create_materialization_contexts(  # noqa: PLR0913
 
 
 @task(cache_policy=NO_CACHE)
+def test_fallback_run(
+    contexts: list[DBTSelectorMaterializationContext], fallback_run: bool
+) -> tuple[list[DBTSelectorMaterializationContext], bool]:
+    """
+    Determina se a materialização deve ser executada.
+
+    Caso `fallback_run` seja verdadeiro, a função verifica se o `selector`
+    está atualizado para o ambiente e timestamp informados. Se não estiver atualizado,
+    retorna `True` indicando que o fallback deve ser executado. Caso contrário,
+    retorna `False`.
+    Se `fallback_run` for falso, a função sempre retorna `True`.
+
+    Args:
+        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        timestamp (datetime): Timestamp de referência para a verificação de atualização
+
+    Returns:
+        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        bool:
+            - `True` se a materialização deve ser executada
+            - `False` caso contrário
+    """
+    if fallback_run:
+        contexts_to_run = []
+        for ctx in contexts:
+            if not ctx.selector.is_up_to_date(env=ctx.env, timestamp=ctx.timestamp):
+                contexts_to_run.append(ctx)
+
+        return contexts_to_run, len(contexts_to_run) > 0
+
+    return contexts, True
+
+
+@task(cache_policy=NO_CACHE)
 def wait_data_sources(
     context: DBTSelectorMaterializationContext,
     skip: bool,

@@ -269,6 +269,9 @@ class DBTSelector:
 
         last_schedule = cron_get_last_date(cron_expr=self.schedule_cron, timestamp=timestamp)
 
+        if self.final_datetime is not None:
+            last_schedule = min(last_schedule, self.final_datetime)
+
         return last_materialization >= last_schedule - timedelta(hours=self.incremental_delay_hours)
 
     def get_next_schedule_datetime(self, timestamp: datetime) -> datetime:
