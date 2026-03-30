@@ -23,7 +23,6 @@ members = [
     "capture-serpro-autuacao",
     "capture-veiculo-infracao",
     "capture-veiculo-licenciamento",
-    "capture-veiculo-registro-agente-verao",
     "capture-zirix-realocacao",
     "capture-zirix-registros",
     "common",
