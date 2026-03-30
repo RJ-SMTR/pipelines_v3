@@ -1,0 +1,4 @@
+[project]
+name = "treatment__transacao_ordem"
+version = "0.1.0"
+description = "Pipeline transacao_ordem da secretaria rj-smtr"
