@@ -64,7 +64,7 @@ def control__jae_verificacao_captura(
         timestamp_captura_end=unmapped(timestamp_captura_end),
     )
 
-    task_send_discord_message.map(
+    task_send_discord_message(
         message=discord_messages,
-        webhook=unmapped(jae_constants.ALERT_WEBHOOK),
+        webhook=jae_constants.ALERT_WEBHOOK,
     )

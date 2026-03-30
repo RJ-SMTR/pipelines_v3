@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.2.0] - 2026-03-30
+
+### Adicionado
+
+- Adiciona parâmetro `fallback_run` (https://github.com/RJ-SMTR/pipelines_v3/pull/102)
+
 ## [1.1.0] - 2026-03-26
 
 ### Adicionado
