@@ -3,7 +3,7 @@
 Flow de captura de registro de agentes de verão de veículos SPPO
 
 Executa a captura de dados de registro de agentes de verão via API,
-aplica tratamento padrão e carrega em BigQuery.
+aplica pré-tratamento e carrega em BigQuery.
 
 Common: 2026-03-19
 """
@@ -11,6 +11,9 @@ Common: 2026-03-19
 from prefect import flow
 
 from pipelines.capture__veiculo_registro_agente_verao import constants
+from pipelines.capture__veiculo_registro_agente_verao.tasks import (
+    create_api_extractor_task,
+)
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
@@ -33,6 +36,7 @@ def capture__veiculo_registro_agente_verao(  # noqa: PLR0913
         sources=sources,
         source_table_ids=source_table_ids,
         timestamp=timestamp,
+        create_extractor_task=create_api_extractor_task,
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
