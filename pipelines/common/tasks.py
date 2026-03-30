@@ -186,13 +186,12 @@ def task_send_discord_message(message: Union[str, list[str]], webhook: str):
         message (Union[str, list[str]]): Mensagem a ser enviada
         webhook (str): Nome da key do webhook no secret
     """
+    webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
+    webhook_url = webhook_secret[webhook]
 
     if isinstance(message, str):
         message = [message]
     for m in message:
         final_message = "[DEV] " + m if is_running_locally() else m
-
-        webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
-        webhook_url = webhook_secret[webhook]
 
         send_discord_message(message=final_message, webhook_url=webhook_url)

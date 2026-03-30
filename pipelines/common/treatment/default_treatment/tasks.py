@@ -86,7 +86,7 @@ def test_fallback_run(
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
-        timestamp (datetime): Timestamp de referência para a verificação de atualização
+        fallback_run (bool): Se a run é no modo fallback ou não.
 
     Returns:
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
