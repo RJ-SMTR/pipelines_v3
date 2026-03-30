@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: transacao_cct
+    description: "Transações para apuração do CCT."
+    columns:
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: tipo_transacao
+        description: "{{ doc('tipo_transacao') }}"
+      - name: valor_pagamento
+        description: "{{ doc('valor_pagamento') }}"
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }}"
+      - name: id_ordem_pagamento
+        description: "{{ doc('id_ordem_pagamento') }}"
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: teste_sincronizacao_transacao_cct
+    description: "Tabela para testar a sincronia entre as transações do BigQuery e as transações salvas no DB do App CCT."
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(SELECT COUNT(*) FROM {{ ref('teste_sincronizacao_transacao_cct') }}) = 0"
+          where: "true"
+          name: dbt_utils.expression_is_true__teste_sincronizacao_transacao_cct
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }}, prioritariamente o valor do BigQuery [particao]"
+      - name: data_bigquery
+        description: "{{ doc('data_transacao') }} no BigQuery"
+      - name: data_postgres
+        description: "{{ doc('data_transacao') }} no Postgres"
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+      - name: sha_dados_bigquery
+        description: Hash dos dados da transação no BigQuery
+      - name: sha_dados_postgres
+        description: Hash dos dados da transação no DB do App CCT
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
