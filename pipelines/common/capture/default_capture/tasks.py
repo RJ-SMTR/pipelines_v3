@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import ftplib
 import io
 import zipfile
 from datetime import datetime
@@ -336,15 +337,15 @@ def get_raw_from_gcs(
         df = pd.read_csv(
             io.StringIO(data.decode("utf-8")),
             **csv_args,
-        )
+        ).to_dict(orient="records")
 
         # Salva localmente
         filepath = context.raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
+        save_local_file(filepath=filepath, filetype="csv", data=df)
 
         print(f"[GCS] Dados carregados com sucesso: {filepath}")
         return [filepath]
 
-    except (FileNotFoundError, EOFError, OSError) as e:
+    except ftplib.all_errors as e:
         print(f"[GCS] Erro ao buscar dados: {e}")
         return []
