@@ -178,19 +178,21 @@ def save_data_to_file(
 
 
 @task(cache_policy=NO_CACHE)
-def task_send_discord_message(message: str, webhook: str):
+def task_send_discord_message(message: Union[str, list[str]], webhook: str):
     """
     Task para enviar uma mensagem para um canal do Discord
 
     Args:
-        message (str): Mensagem a ser enviada
+        message (Union[str, list[str]]): Mensagem a ser enviada
         webhook (str): Nome da key do webhook no secret
     """
 
-    if is_running_locally():
-        message = "[DEV] " + message
+    if isinstance(message, str):
+        message = [message]
+    for m in message:
+        final_message = "[DEV] " + m if is_running_locally() else m
 
-    webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
-    webhook_url = webhook_secret[webhook]
+        webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
+        webhook_url = webhook_secret[webhook]
 
-    send_discord_message(message=message, webhook_url=webhook_url)
+        send_discord_message(message=final_message, webhook_url=webhook_url)
