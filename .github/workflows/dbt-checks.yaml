@@ -52,14 +52,49 @@ jobs:
         id: files
         uses: tj-actions/changed-files@v34
 
-      - name: Check sh script
-        run: |
-          ls /home/runner/work/_temp | grep .sh | cat
-          cat queries/setup_dbt_profiles.sh
+      # - name: Check sh script
+      #   run: |
+      #     ls /home/runner/work/_temp | grep .sh | cat
+      #     cat queries/setup_dbt_profiles.sh
 
-      - name: Setup DBT profile
+      # - name: Setup DBT profile
+      #   working-directory: queries
+      #   run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+
+      - name: Setup dbt profiles
         working-directory: queries
-        run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+        run: |-
+          mkdir -p ./credentials-dev
+          mkdir -p ./credentials-prod
+          mkdir -p ./profiles
+
+          echo "Mounting files from env..."
+
+          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-dev/dev.json
+          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-prod/prod.json
+
+          echo """
+          queries:
+            target: prod
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: rj-smtr
+                dataset: dbt
+                location: US
+                threads: 2
+                keyfile: $PWD/credentials-dev/dev.json
+              prod:
+                type: bigquery
+                method: service-account
+                project: rj-smtr
+                dataset: dbt
+                location: US
+                threads: 2
+                keyfile: $PWD/credentials-prod/prod.json""" > profiles/profiles.yml
+
+          cat profiles/profiles.yml
 
       - name: Run dbt deps
         working-directory: queries
