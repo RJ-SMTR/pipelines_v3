@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - staging/*
-      - actions/*
+      - fix/*
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
@@ -47,23 +47,54 @@ jobs:
 
       - name: Install sqlfmt
         run: pip install 'shandy-sqlfmt[jinjafmt]'
-      # Setup gcloud CLI
-      # - name: Authenticate to Google Cloud
-      #   uses: google-github-actions/auth@v2
-      #   with:
-      #     credentials_json: ${{ secrets.GKE_SA_KEY }}
-
-      # - name: Setup Google Cloud CLI
-      #   uses: google-github-actions/setup-gcloud@v3
 
       - name: Get changed files
         id: files
         uses: tj-actions/changed-files@v34
 
-      - name: Setup DBT profile
+      # - name: Check sh script
+      #   run: |
+      #     ls /home/runner/work/_temp | grep .sh | cat
+      #     cat queries/setup_dbt_profiles.sh
+
+      # - name: Setup DBT profile
+      #   working-directory: queries
+      #   run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+
+      - name: Setup dbt profiles
         working-directory: queries
         run: |-
-          sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
+          mkdir -p ./credentials-dev
+          mkdir -p ./credentials-prod
+          mkdir -p ./profiles
+
+          echo "Mounting files from env..."
+
+          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-dev/dev.json
+          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-prod/prod.json
+
+          echo """
+          queries:
+            target: prod
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: rj-smtr
+                dataset: dbt
+                location: US
+                threads: 2
+                keyfile: $PWD/credentials-dev/dev.json
+              prod:
+                type: bigquery
+                method: service-account
+                project: rj-smtr
+                dataset: dbt
+                location: US
+                threads: 2
+                keyfile: $PWD/credentials-prod/prod.json""" > profiles/profiles.yml
+
+          cat profiles/profiles.yml
 
       - name: Run dbt deps
         working-directory: queries
@@ -71,7 +102,6 @@ jobs:
           uv run dbt deps --profiles-dir profiles
 
       - name: Run sqlfmt
-        # continue-on-error: true
         if: steps.files.outputs.all_changed_files != ''
         run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
 
@@ -79,4 +109,5 @@ jobs:
         working-directory: queries
         run: |-
           uv run dbt compile --profiles-dir profiles
+
 #trigger
