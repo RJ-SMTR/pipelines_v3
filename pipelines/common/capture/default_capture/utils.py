@@ -100,7 +100,7 @@ def rename_capture_flow_run() -> str:
     return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"
 
 
-def connect_ftp(secret_path: str = None, secure: bool = True):
+def connect_ftp(secret_path: str, secure: bool = True):
     """Connect to FTP
 
     Returns:

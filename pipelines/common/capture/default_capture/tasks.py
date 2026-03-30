@@ -249,7 +249,6 @@ def create_ftp_extractor(
 def get_raw_ftp(
     secret_path: str,
     ftp_path: str,
-    csv_args: dict,
     raw_filepath: str,
 ) -> list[str]:
     """
