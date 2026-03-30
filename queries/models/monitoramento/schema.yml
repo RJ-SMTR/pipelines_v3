@@ -10,6 +10,10 @@ models:
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
         quote: true
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+        quote: true
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
@@ -35,7 +39,7 @@ models:
         data_type: string
         quote: true
       - name: shape_id
-        description: Identificador de um shape da tabela shapes do GTFS
+        description: "{{ doc('shape_id') }}"
         data_type: string
         quote: true
       - name: servico
@@ -81,12 +85,32 @@ models:
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
         quote: true
-      - name: datetime_partida
-        description: "{{ doc('datetime_partida') }}"
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+        quote: true
+      - name: datetime_partida_informada
+        description: "{{ doc('datetime_partida_informada') }}"
         data_type: datetime
         quote: true
-      - name: datetime_chegada
-        description: "{{ doc('datetime_chegada') }}"
+      - name: datetime_chegada_informada
+        description: "{{ doc('datetime_chegada_informada') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_partida_automatica
+        description: "{{ doc('datetime_partida_automatica') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_chegada_automatica
+        description: "{{ doc('datetime_chegada_automatica') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_partida_considerada
+        description: "{{ doc('datetime_partida_considerada') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_chegada_considerada
+        description: "{{ doc('datetime_chegada_considerada') }}"
         data_type: datetime
         quote: true
       - name: modo
@@ -106,7 +130,7 @@ models:
         data_type: string
         quote: true
       - name: shape_id
-        description: "Identificador de um shape da tabela shapes do GTFS"
+        description: "{{ doc('shape_id') }}"
         data_type: string
         quote: true
       - name: servico
@@ -125,7 +149,7 @@ models:
         description: "Velocidade média da viagem (km/h)"
         data_type: float64
         quote: true
-      - name: quantidade_segmentos_verificados
+      - name: quantidade_segmentos_considerados
         description: "Quantidade de segmentos considerados na validação"
         data_type: int64
         quote: true
@@ -137,8 +161,12 @@ models:
         description: "Quantidade mínima de segmentos para que a viagem seja validada"
         data_type: int64
         quote: true
+      - name: indice_validacao
+        description: "{{ doc('indice_validacao') }}"
+        data_type: float64
+        quote: true
       - name: indicador_viagem_sobreposta
-        description: "Indica se a viagem se sobrepõe a outra viagem do mesmo veículo"
+        description: "{{ doc('indicador_viagem_sobreposta') }}"
         data_type: boolean
         quote: true
       - name: indicador_trajeto_valido
@@ -153,6 +181,14 @@ models:
         description: "Indica se o serviço estava planejado para a faixa horária na OS [apenas para SPPO]"
         data_type: boolean
         quote: true
+      - name: indicador_primeiro_segmento_valido
+        description: "{{ doc('indicador_primeiro_segmento_valido') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_ultimo_segmento_valido
+        description: "{{ doc('indicador_ultimo_segmento_valido') }}"
+        data_type: boolean
+        quote: true
       - name: indicador_servico_divergente
         description: "{{ doc('indicador_servico_divergente') }}"
         data_type: boolean
@@ -165,12 +201,28 @@ models:
         description: "Indica se os campos obrigatórios para validação da viagem estão preenchidos corretamente"
         data_type: boolean
         quote: true
+      - name: indicador_chegada_posterior_partida
+        description: "Indica se o datetime de chegada considerada é posterior ao datetime de partida considerada"
+        data_type: boolean
+        quote: true
       - name: indicador_trajeto_alternativo
         description: "Indica se o shape é um trajeto alternativo"
         data_type: boolean
         quote: true
       - name: indicador_acima_velocidade_max
         description: "Indica se a velocidade média da viagem está acima do limite estabelecido"
+        data_type: boolean
+        quote: true
+      - name: indicador_processamento_posterior_captura
+        description: "{{ doc('indicador_processamento_posterior_captura') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_processamento_anterior_chegada
+        description: "{{ doc('indicador_processamento_anterior_chegada') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_prazo_envio
+        description: "{{ doc('indicador_prazo_envio') }}"
         data_type: boolean
         quote: true
       - name: indicador_viagem_valida
@@ -213,12 +265,32 @@ models:
         description: "{{ doc('id_viagem') }}"
         data_type: string
         quote: true
-      - name: datetime_partida
-        description: "{{ doc('datetime_partida') }}"
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+        quote: true
+      - name: datetime_partida_informada
+        description: "{{ doc('datetime_partida_informada') }}"
         data_type: datetime
         quote: true
-      - name: datetime_chegada
-        description: "{{ doc('datetime_chegada') }}"
+      - name: datetime_chegada_informada
+        description: "{{ doc('datetime_chegada_informada') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_partida_automatica
+        description: "{{ doc('datetime_partida_automatica') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_chegada_automatica
+        description: "{{ doc('datetime_chegada_automatica') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_partida_considerada
+        description: "{{ doc('datetime_partida_considerada') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_chegada_considerada
+        description: "{{ doc('datetime_chegada_considerada') }}"
         data_type: datetime
         quote: true
       - name: modo
@@ -238,7 +310,7 @@ models:
         data_type: string
         quote: true
       - name: shape_id
-        description: "Identificador de um shape da tabela shapes do GTFS"
+        description: "{{ doc('shape_id') }}"
         data_type: string
         quote: true
       - name: id_segmento
@@ -257,17 +329,29 @@ models:
         description: "Quantidade de sinais GPS detectados no segmento"
         data_type: int64
         quote: true
-      - name: indicador_viagem_sobreposta
-        description: "Indica se a viagem se sobrepõe a outra viagem do mesmo veículo"
-        data_type: boolean
-        quote: true
       - name: indicador_segmento_desconsiderado
         description: "Indica se o segmento deve ser desconsiderado na validação"
+        data_type: boolean
+        quote: true
+      - name: indicador_primeiro_segmento_valido
+        description: "{{ doc('indicador_primeiro_segmento_valido') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_ultimo_segmento_valido
+        description: "{{ doc('indicador_ultimo_segmento_valido') }}"
         data_type: boolean
         quote: true
       - name: indicador_servico_divergente
         description: "{{ doc('indicador_servico_divergente') }}"
         data_type: boolean
+        quote: true
+      - name: datetime_inicio_segmento
+        description: "{{ doc('datetime_inicio_segmento') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_fim_segmento
+        description: "{{ doc('datetime_fim_segmento') }}"
+        data_type: datetime
         quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
@@ -284,6 +368,10 @@ models:
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
+        quote: true
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento_viagem') }} [GMT-3]"
+        data_type: datetime
         quote: true
       - name: datetime_captura_viagem
         description: "Data e hora da captura da viagem"
@@ -390,16 +478,16 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-          - id_veiculo
-          - data_inicio_lacre
-          - id_auto_infracao
+            - id_veiculo
+            - data_inicio_lacre
+            - id_auto_infracao
           name: dbt_utils.unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre
           where: "1=1"
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-          - placa
-          - data_inicio_lacre
-          - id_auto_infracao
+            - placa
+            - data_inicio_lacre
+            - id_auto_infracao
           name: dbt_utils.unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre
           where: "1=1"
     columns:
@@ -661,8 +749,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-          - data
-          - id_veiculo
+            - data
+            - id_veiculo
           name: dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
           date_col: data
@@ -890,25 +978,29 @@ models:
         tests:
           - not_null:
               name: not_null__modo__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: data
-        description: "Data do recebimento da transmissão do GPS (partição)"
+        description: "{{ doc('data_recebimento_gps') }} (partição)"
       - name: hora
-        description: "Hora do recebimento da transmissão do GPS"
+        description: "{{ doc('hora_recebimento_gps') }}"
       - name: datetime_gps
         description: "{{ doc('datetime_gps') }}"
         tests:
           - not_null:
               name: not_null__datetime_gps__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
         tests:
           - not_null:
               name: not_null__datetime_captura__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         tests:
           - not_null:
               name: not_null__id_operadora__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
       - name: operadora
@@ -916,18 +1008,19 @@ models:
         tests:
           - not_null:
               name: not_null__operadora__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_servico_jae
         description: "{{ doc('id_servico_jae') }}"
         tests:
           - not_null:
               name: not_null__id_servico_jae__gps_validador
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
+              where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         tests:
           - not_null:
               name: not_null__servico_jae__gps_validador
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
+              where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
       - name: id_validador
@@ -935,13 +1028,16 @@ models:
         tests:
           - not_null:
               name: not_null__id_validador__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_transmissao_gps
-        description: "Identificador único da tabela de GPS dos validadores"
+        description: "{{ doc('id_transmissao_gps') }}"
         tests:
           - not_null:
               name: not_null__id_transmissao_gps__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
           - unique:
               name: unique__id_transmissao_gps__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: latitude
         description: "Latitude do validador no momento da transmissão"
       - name: longitude
@@ -953,15 +1049,17 @@ models:
         tests:
           - not_null:
               name: not_null__sentido__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: estado_equipamento
         description: "Validador aberto ou fechado no momento da transmissão"
         tests:
           - not_null:
               name: not_null__estado_equipamento__gps_validador
+              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: temperatura
-        description: "Temperatura do local, medida pelo sensor do validador (ºC)"
+        description: "{{ doc('temperatura_validador') }}"
       - name: versao_app
-        description: "Versão do Software do validador"
+        description: "{{ doc('versao_app_validador') }}"
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
@@ -981,9 +1079,9 @@ models:
           - not_null:
               name: not_null__modo__gps_validador_van
       - name: data
-        description: "Data do recebimento da transmissão do GPS (partição)"
+        description: "{{ doc('data_recebimento_gps') }} (partição)"
       - name: hora
-        description: "Hora do recebimento da transmissão do GPS"
+        description: "{{ doc('hora_recebimento_gps') }}"
       - name: datetime_gps
         description: "{{ doc('datetime_gps') }}"
       - name: datetime_captura
@@ -1020,7 +1118,7 @@ models:
           - not_null:
               name: not_null__id_validador__gps_validador_van
       - name: id_transmissao_gps
-        description: "Identificador único da tabela de GPS dos validadores"
+        description: "{{ doc('id_transmissao_gps') }}"
         tests:
           - not_null:
               name: not_null__id_transmissao_gps__gps_validador_van
@@ -1029,11 +1127,11 @@ models:
       - name: latitude
         description: "Latitude do validador no momento da transmissão [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/5185403103447535390'
+          - "projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/5185403103447535390"
       - name: longitude
         description: "Longitude do validador no momento da transmissão [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/5185403103447535390'
+          - "projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/5185403103447535390"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
       - name: sentido
@@ -1047,9 +1145,9 @@ models:
           - not_null:
               name: not_null__estado_equipamento__gps_validador_van
       - name: temperatura
-        description: "Temperatura do local, medida pelo sensor do validador (ºC)"
+        description: "{{ doc('temperatura_validador') }}"
       - name: versao_app
-        description: "Versão do Software do validador"
+        description: "{{ doc('versao_app_validador') }}"
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
@@ -1085,6 +1183,10 @@ models:
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
         quote: true
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+        quote: true
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
@@ -1097,12 +1199,12 @@ models:
         description: "{{ doc('ano_fabricacao') }}"
         data_type: int64
         quote: true
-      - name: datetime_partida
-        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_partida_informada
+        description: "{{ doc('datetime_partida_informada') }}"
         data_type: datetime
         quote: true
-      - name: datetime_chegada
-        description: "{{ doc('datetime_chegada') }}"
+      - name: datetime_chegada_informada
+        description: "{{ doc('datetime_chegada_informada') }}"
         data_type: datetime
         quote: true
       - name: modo

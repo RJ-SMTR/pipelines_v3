@@ -187,6 +187,9 @@ def task_send_discord_message(message: str, webhook: str):
         webhook (str): Nome da key do webhook no secret
     """
 
+    if is_running_locally():
+        message = "[DEV] " + message
+
     webhook_secret = get_env_secret(constants.WEBHOOKS_SECRET_PATH)
     webhook_url = webhook_secret[webhook]
 

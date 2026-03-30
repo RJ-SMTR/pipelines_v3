@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: staging_arquivo_retorno
+    description: "View desaninhada para os dados capturados em rj-smtr-staging.controle_financeiro.arquivo_retorno"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} [partição]"
+      - name: timestamp_captura
+        description: "Data e hora da captura [GMT-3]"
+      - name: id
+        description: "Identificador único do pagamento"
+      - name: dataCaptura
+        description: "Data da captura do sistema da CCT"
+      - name: dataHoraGeracaoRetorno
+        description: "Data e hora da geração do arquivo de retorno"
+      - name: dataOrdem
+        description: "Data da ordem de pagamento da Jaé"
+      - name: dataProcessamento
+        description: "Data de processamento do sistema da CCT"
+      - name: dataVencimento
+        description: "Data e hora do pagamento"
+      - name: favorecido
+        description: "Nome do favorecido do pagamento"
+      - name: idConsorcio
+        description: "Identificador único do consórcio na tabela cadastro.consorcios"
+      - name: idOperadora
+        description: "Identificador único da operadora na tabela cadastro.operadoras"
+      - name: idOrdemPagamento
+        description: "Identificador único da ordem de pagamento da Jaé"
+      - name: isPago
+        description: "Indica se foi pago com sucesso"
+      - name: nomeConsorcio
+        description: "{{ doc('nome_consorcio') }}"
+      - name: nomeOperadora
+        description: "Nome da operadora"
+      - name: ocorrencias
+        description: "Lista de status retornado pelo pagamento"
+      - name: valor
+        description: "Valor requisitado ao pagamento (R$)"
+      - name: valorRealEfetivado
+        description: "Valor real pago (R$)"
+  - name: aux_retorno_ordem_pagamento
+    description: "Tabela auxiliar utilizada no tratamento da ordem de pagamento. É utilizada por ser particionada pela data da ordem"
+    columns:
+      - name: data_ordem
+        description: "Data da ordem de pagamento da Jaé (partição)"
+      - name: data_pagamento
+        description: "Data e hora do pagamento"
+      - name: id_consorcio
+        description: "Identificador único do consórcio na tabela cadastro.consorcios"
+      - name: id_operadora
+        description: "Identificador único da operadora na tabela cadastro.operadoras"
+      - name: unique_id
+        description: "Identificador único do registro, composto pelas colunas data_ordem, id_consorcio e id_operadora"
+      - name: valor_pago
+        description: "Valor real pago (R$)"

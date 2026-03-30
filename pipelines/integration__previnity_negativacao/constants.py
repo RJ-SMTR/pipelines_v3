@@ -7,7 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as common_constants
-from pipelines.common.treatment.default_treatment.utils import DBTSelector
+from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 NEGATIVACAO_PRIVATE_BUCKET_NAMES = {
@@ -42,8 +42,22 @@ PREVINITY_SOURCES = [
     )
 ]
 
+NEGATIVACAO_POST_CHECKS_LIST = {
+    "autuacao_negativacao": {
+        "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
+            "description": "Todas as autuacoes pagas foram devidamente baixadas da negativacao"
+        },
+    },
+}
+
+NEGATIVACAO_TEST = DBTTest(
+    test_select="test_consistencia_autuacoes_negativadas_pagas_sem_baixa",
+    test_descriptions=NEGATIVACAO_POST_CHECKS_LIST,
+)
+
 NEGATIVACAO_SELECTOR = DBTSelector(
     name="autuacao_negativacao",
     initial_datetime=datetime(2025, 12, 23, tzinfo=ZoneInfo(common_constants.TIMEZONE)),
     flow_folder_name="integration__previnity_negativacao",
+    post_test=NEGATIVACAO_TEST,
 )

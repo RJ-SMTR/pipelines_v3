@@ -1,4 +1,16 @@
-# Changelog - integration\_\_previnity_negativacao
+# Changelog - integration__previnity_negativacao
+
+## [1.1.1] - 2026-03-26
+
+### Alterado
+
+- Renomeia task `run_dbt_tests` para `run_dbt_selector_tests` e `dbt_test_notify_discord` para `task_dbt_selector_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/97)
+
+## [1.1.0] - 2026-03-23
+
+### Adicionado
+
+- Adiciona teste `test_consistencia_autuacoes_negativadas_pagas_sem_baixa` para verificar se todas as autuações pagas foram devidamente baixadas da negativação (https://github.com/RJ-SMTR/pipelines_v3/pull/94)
 
 ## [1.0.2] - 2026-02-26
 
