@@ -1,0 +1,4 @@
+[project]
+name = "capture__stu_tabelas"
+version = "0.1.0"
+description = "Pipeline capture__stu_tabelas da secretaria rj-smtr"
