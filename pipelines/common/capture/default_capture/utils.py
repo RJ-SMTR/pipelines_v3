@@ -99,6 +99,7 @@ def rename_capture_flow_run() -> str:
     recapture = runtime.flow_run.parameters["recapture"]
     return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"
 
+
 def connect_ftp(secret_path: str = None, secure: bool = True):
     """Connect to FTP
 
@@ -106,7 +107,7 @@ def connect_ftp(secret_path: str = None, secure: bool = True):
         ImplicitFTP_TLS: ftp client
     """
 
-    ftp_data =  get_env_secret(secret_path)
+    ftp_data = get_env_secret(secret_path)
     if secure:
         ftp_client = ImplicitFtpTls()
     else:

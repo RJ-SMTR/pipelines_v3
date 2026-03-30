@@ -59,16 +59,13 @@ def create_capture_contexts(  # noqa: PLR0913
     if source_table_ids is None:
         sources = [s.set_env(env=env) for s in sources]
     else:
-        sources = [
-            s.set_env(env=env) for s in sources if s.table_id in source_table_ids
-        ]
+        sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
 
     for source in sources:
         if recapture:
             if recapture_timestamps:
                 timestamps = [
-                    convert_timezone(datetime.fromisoformat(t))
-                    for t in recapture_timestamps
+                    convert_timezone(datetime.fromisoformat(t)) for t in recapture_timestamps
                 ]
             else:
                 timestamps = source.get_uncaptured_timestamps(
@@ -163,9 +160,7 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
                 data = step(data=data, timestamp=timestamp, primary_keys=primary_keys)
 
             if len(primary_keys) < data_columns_len:
-                data = transform_to_nested_structure(
-                    data=data, primary_keys=primary_keys
-                )
+                data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
 
             data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
 
@@ -183,9 +178,7 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 
 
 @task(cache_policy=NO_CACHE)
-def upload_source_data_to_gcs(
-    context: SourceCaptureContext, if_exists: str = "replace"
-):
+def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
     """
     Envia os dados aninhados para a pasta source do GCS.
 
@@ -204,16 +197,12 @@ def upload_source_data_to_gcs(
 
     if not source.exists():
         print("Tabela de staging não existe, criando tabela...")
-        source.append(
-            source_filepath=source_filepath, partition=partition, if_exists=if_exists
-        )
+        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         source.create(sample_filepath=source_filepath)
         print("Tabela de staging criada")
     else:
         print("Tabela de staging já existe, adicionando dados...")
-        source.append(
-            source_filepath=source_filepath, partition=partition, if_exists=if_exists
-        )
+        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
 
 
@@ -303,7 +292,6 @@ def get_raw_ftp(
                 pass
 
 
-
 @task(cache_policy=NO_CACHE)
 def get_raw_from_gcs(
     context: SourceCaptureContext,
@@ -353,9 +341,7 @@ def get_raw_from_gcs(
 
         # Salva localmente
         filepath = context.raw_filepath.format(page=0)
-        save_local_file(
-            filepath=filepath, filetype="csv", data=df.to_dict(orient="records")
-        )
+        save_local_file(filepath=filepath, filetype="csv", data=df.to_dict(orient="records"))
 
         print(f"[GCS] Dados carregados com sucesso: {filepath}")
         return [filepath]
