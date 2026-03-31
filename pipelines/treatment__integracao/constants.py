@@ -37,6 +37,10 @@ INTEGRACAO_SELECTOR = DBTSelector(
         integracao_constants.INTEGRACAO_SOURCE,
         financeiro_constants.FINANCEIRO_BILHETAGEM_SELECTOR,
     ]
-     + [s for s in ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES if s.table_id in ["ordem_rateio"]],
+    + [
+        s
+        for s in ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES
+        if s.table_id in ["ordem_rateio"]
+    ],
     post_test=INTEGRACAO_DAILY_TEST,
 )
