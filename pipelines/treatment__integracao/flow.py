@@ -23,6 +23,7 @@ def treatment__integracao(  # noqa: PLR0913
     datetime_end=None,
     flags=None,
     additional_vars=None,
+    fallback_run=False,
     force_test_run=False,
 ):
     create_materialization_flows_default_tasks(
@@ -33,5 +34,6 @@ def treatment__integracao(  # noqa: PLR0913
         flags=flags,
         additional_vars=additional_vars,
         test_scheduled_time=None,
+        fallback_run=fallback_run,
         force_test_run=force_test_run,
     )

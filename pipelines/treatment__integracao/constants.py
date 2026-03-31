@@ -6,8 +6,12 @@ Valores constantes para materialização do selector integracao
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__jae_integracao import constants as integracao_constants
+from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
+from pipelines.treatment__cadastro import constants as cadastro_constants
+from pipelines.treatment__financeiro_bilhetagem import constants as financeiro_constants
 
 INTEGRACAO_DAILY_TEST = DBTTest(
     test_select="integracao",
@@ -28,5 +32,11 @@ INTEGRACAO_SELECTOR = DBTSelector(
     name="integracao",
     initial_datetime=datetime(2025, 3, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__integracao",
+    data_sources=[
+        cadastro_constants.CADASTRO_SELECTOR,
+        integracao_constants.INTEGRACAO_SOURCE,
+        financeiro_constants.FINANCEIRO_BILHETAGEM_SELECTOR,
+    ]
+     + [s for s in ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES if s.table_id in ["ordem_rateio"]],
     post_test=INTEGRACAO_DAILY_TEST,
 )
