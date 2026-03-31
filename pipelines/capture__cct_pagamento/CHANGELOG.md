@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__cct_pagamento`
+- Cria flow `capture__cct_pagamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/105)
