@@ -10,11 +10,10 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 INTEGRACAO_DAILY_TEST = DBTTest(
-        test_select="integracao",
-        test_descriptions={
-            "integracao": {
-                "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+    test_select="integracao",
+    test_descriptions={
+        "integracao": {
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__integracao": {
                 "description": "Todos os registros são únicos"
             },
@@ -31,4 +30,3 @@ INTEGRACAO_SELECTOR = DBTSelector(
     flow_folder_name="treatment__integracao",
     post_test=INTEGRACAO_DAILY_TEST,
 )
-
