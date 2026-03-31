@@ -1,0 +1,4 @@
+[project]
+name = "capture__cct_pagamento"
+version = "0.1.0"
+description = "Pipeline cct_pagamento da secretaria rj-smtr"
