@@ -19,13 +19,10 @@ from pipelines.common.capture.default_capture.flow import (
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 
-sources = constants.SPPO_LICENCIAMENTO_SOURCES
-
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__veiculo_licenciamento(  # noqa: PLR0913
+def capture__veiculo_licenciamento(
     env=None,
-    source_table_ids=tuple([s.table_id for s in sources]),
     timestamp=None,
     recapture=True,
     recapture_days=2,
@@ -33,8 +30,7 @@ def capture__veiculo_licenciamento(  # noqa: PLR0913
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=sources,
-        source_table_ids=source_table_ids,
+        sources=constants.SPPO_LICENCIAMENTO_SOURCES,
         timestamp=timestamp,
         create_extractor_task=create_licenciamento_extractor_with_fallback,
         recapture=recapture,

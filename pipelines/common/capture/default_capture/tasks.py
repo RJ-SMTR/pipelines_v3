@@ -211,7 +211,7 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
 def create_ftp_extractor(
     context: SourceCaptureContext,
     ftp_path: str,
-    csv_args: dict,
+    csv_args: dict,  # noqa: ARG001
     secret_path: str = "rdo_ftps",
 ):
     """
@@ -222,7 +222,7 @@ def create_ftp_extractor(
     Args:
         context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
         ftp_path (str): Caminho base no FTP (sem data). Ex: "MULTAS/MULTAS"
-        csv_args (dict): Argumentos para leitura do CSV
+        csv_args (dict): Argumentos para leitura do CSV (mantido para compatibilidade)
         secret_path (str): Caminho da secret com credenciais FTP (default: "rdo_ftps")
 
     Returns:
@@ -242,7 +242,6 @@ def create_ftp_extractor(
         get_raw_ftp,
         secret_path=secret_path,
         ftp_path=f"{ftp_path}_{context.timestamp.strftime('%Y%m%d')}.txt",
-        csv_args=csv_args,
         raw_filepath=context.raw_filepath,
     )
 
