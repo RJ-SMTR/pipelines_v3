@@ -41,11 +41,7 @@ deployments:
     schedules:
       - cron: "30 10 * * *"
         timezone: "America/Sao_Paulo"
-      - cron: "15 12 * * *"
-        timezone: "America/Sao_Paulo"
-        parameters:
-          fallback_run: true
-      - cron: "15 14 * * *"
+      - cron: "15 12,14 * * *"
         timezone: "America/Sao_Paulo"
         parameters:
           fallback_run: true
