@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Source configuration
 SPPO_VEICULO_SOURCE_NAME = "veiculo"
 
