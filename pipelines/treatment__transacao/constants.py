@@ -11,6 +11,7 @@ from pipelines.capture__jae_transacao_riocard import constants as transacao_rioc
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.treatment__cadastro import constants as cadastro_constants
+from pipelines.treatment__integracao import constants as integracao_constants
 
 TRANSACAO_POST_TEST = DBTTest(
     test_select="aux_gratuidade_info transacao transacao_riocard",
@@ -38,7 +39,7 @@ TRANSACAO_SELECTOR = DBTSelector(
         transacao_constants.TRANSACAO_SOURCE,
         cadastro_constants.CADASTRO_SELECTOR,
         transacao_riocard_constants.TRANSACAO_RIOCARD_SOURCE,
-        # adicionar integracao
+        integracao_constants.INTEGRACAO_SELECTOR,
     ],
     post_test=TRANSACAO_POST_TEST,
 )

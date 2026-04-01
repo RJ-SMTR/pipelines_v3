@@ -14,6 +14,8 @@ COPY ./pipelines/capture__jae_transacao ./pipelines/capture__jae_transacao/
 
 COPY ./pipelines/capture__jae_transacao_riocard ./pipelines/capture__jae_transacao_riocard/
 
+COPY ./pipelines/treatment__integracao ./pipelines/treatment__integracao/
+
 COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
