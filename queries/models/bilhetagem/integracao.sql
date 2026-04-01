@@ -1,4 +1,3 @@
--- depends_on: {{ ref('matriz_integracao') }}
 {{
     config(
         materialized="incremental",
