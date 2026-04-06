@@ -10,7 +10,6 @@ from pipelines.common.capture.default_capture.tasks import get_raw_from_gcs
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.capture.veiculo import constants as veiculo_constants
 from pipelines.common.utils.extractors.ftp import get_raw_ftp
-from pipelines.common.utils.fs import read_raw_data
 
 
 @task(cache_policy=NO_CACHE)

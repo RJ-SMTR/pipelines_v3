@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from ftplib import FTP
 from typing import Optional
 
 import pytz
@@ -10,8 +9,6 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture import constants
 from pipelines.common.utils.fs import create_partition, get_data_folder_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
-from pipelines.common.utils.implicit_ftp import ImplicitFtpTls
-from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
 
 
@@ -98,5 +95,3 @@ def rename_capture_flow_run() -> str:
     flow_name = runtime.flow_run.flow_name
     recapture = runtime.flow_run.parameters["recapture"]
     return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"
-
-

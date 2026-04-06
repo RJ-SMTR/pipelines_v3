@@ -6,11 +6,9 @@ Valores constantes para captura de infrações de veículos SPPO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import pandas as pd
-
 from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.capture.veiculo import constants as veiculo_constants
+from pipelines.common.utils.gcp.bigquery import SourceTable
 
 # Table IDs
 SPPO_INFRACAO_TABLE_ID = "infracao"
@@ -45,8 +43,8 @@ RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
 
 # def pretreat_infracao(
 #     data: pd.DataFrame,
-#     timestamp=None,  # noqa: ARG001
-#     primary_keys=None,  # noqa: ARG001
+#     timestamp=None,
+#     primary_keys=None,
 # ) -> pd.DataFrame:
 #     """
 #     Aplica pré-tratamento aos dados de infrações: renomeia colunas.
@@ -67,9 +65,7 @@ SPPO_INFRACAO_SOURCES = [
     SourceTable(
         source_name=veiculo_constants.SPPO_VEICULO_SOURCE_NAME,
         table_id=SPPO_INFRACAO_TABLE_ID,
-        first_timestamp=datetime(
-            2024, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
-        ),
+        first_timestamp=datetime(2024, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         flow_folder_name="capture__veiculo_infracao",
         primary_keys=["id_auto_infracao"],
         pretreatment_reader_args=SPPO_INFRACAO_CSV_ARGS,
