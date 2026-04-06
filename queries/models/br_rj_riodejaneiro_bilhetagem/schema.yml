@@ -1,0 +1,153 @@
+version: 2
+
+models:
+  - name: view_transacao
+    description: "View com informações da Jaé [no formato da tabela antiga de transações] sobre as transações realizadas no sistema de transporte municipal"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "Hora da transação"
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }} [GMT-3 - formato YYYY-MM-ddTHH:mm:ss.ssssss]"
+      - name: datetime_processamento
+        description: "Data e hora de processamento da transação [GMT-3 - formato YYYY-MM-ddTHH:mm:ss.ssssss]"
+      - name: datetime_captura
+        description: "Timestamp de captura [GMT-3 - formato YYYY-MM-dd HH:mm:ssTZD)"
+      - name: modo
+        description: "Tipo de transporte (Ônibus, Van, BRT)"
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+      - name: servico_jae
+        description: "Nome curto da linha operada pelo veículo com variação de serviço (ex: 010, 011SN, ...) ou código da estação de BRT na Jaé"
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+      - name: sentido
+        description: "{{ doc('sentido_bilhetagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: id_cliente
+        description: "Identificador único do cliente [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: hash_cliente
+        description: "Hash identificador do cliente [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691'
+      - name: id_transacao
+        description: "Identificador único da transação"
+      - name: tipo_pagamento
+        description: "Tipo de pagamento utilizado"
+      - name: tipo_transacao
+        description: "Tipo de transação realizada (a primeira perna de integrações são classificadas como tipo Débito e não Integração)"
+      - name: tipo_transacao_smtr
+        description: "Tipo de transação realizada no padrão usado pela SMTR (Integral, Integração e Gratuidade)"
+      - name: tipo_gratuidade
+        description: "Tipo da gratuidade (Estudante, PCD, Sênior)"
+      - name: id_tipo_integracao
+        description: "Tipo da integração realizada (identificador relacionado à matriz de integração)"
+      - name: id_integracao
+        description: "{{ doc('id_integracao') }}"
+      - name: latitude
+        description: "Latitude da transação (WGS84)"
+      - name: longitude
+        description: "{{ doc('longitude_transacao') }}"
+      - name: geo_point_transacao
+        description: "Ponto geográfico do local da transação"
+      - name: tile_id
+        description: "Identificador do hexágono da geolocalização da transação na tabela rj-smtr.br_rj_riodejaneiro_geo.h3_res9"
+      - name: stop_id
+        description: "Código identificador do ponto de embarque (GTFS)"
+      - name: stop_lat
+        description: "Latitude do ponto de embarque (GTFS)"
+      - name: stop_lon
+        description: "Longitude do ponto de embarque (GTFS)"
+      - name: valor_transacao
+        description: "Valor debitado na transação atual (R$)"
+      - name: valor_pagamento
+        description: "Valor valor a ser pago pela transação (R$). Valores nulos indicam que o valor de pagamento para a transação ainda não foi calculado"
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} da transação"
+      - name: id_ordem_pagamento_servico_operador_dia
+        description: "Identificador único da tabela rj-smtr.br_rj_riodejaneiro_bilhetagem.ordem_pagamento_servico_operador_dia"
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "Identificador único da tabela rj-smtr.br_rj_riodejaneiro_bilhetagem.ordem_pagamento_consorcio_operador_dia"
+      - name: id_ordem_pagamento_consorcio_dia
+        description: "Identificador único da tabela rj-smtr.br_rj_riodejaneiro_bilhetagem.ordem_pagamento_consorcio_dia"
+      - name: id_ordem_pagamento
+        description: "Identificador único da tabela rj-smtr.br_rj_riodejaneiro_bilhetagem.ordem_pagamento_dia"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: ordem_pagamento_consorcio_operador_dia
+    description: "View com os valores totais de pagamento da Jaé agregados por consorcio, operador e dia"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [partição]"
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "Identificador único do registro no banco de dados da Jaé"
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('nome_consorcio') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_ordem_pagamento
+        description: "Identificador da ordem pagamento no banco de dados da Jaé"
+      - name: quantidade_transacao_debito
+        description: "Quantidade de transações feitas na modalidade débito"
+      - name: valor_debito
+        description: "Valor total das transações feitas na modalidade débito (R$)"
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        description: "Valor total das transações feitas em espécie (R$)"
+      - name: quantidade_transacao_gratuidade
+        description: "Quantidade de transações feitas com gratuidade"
+      - name: valor_gratuidade
+        description: "Valor total das transações feitas com gratuidade (R$)"
+      - name: quantidade_transacao_integracao
+        description: "Quantidade de transações feitas com integração"
+      - name: valor_integracao
+        description: "Valor total das transações feitas com integração (R$)"
+      - name: quantidade_transacao_rateio_credito
+        description: "Quantidade total de transações consideradas no crédito da repartição tarifária"
+      - name: valor_rateio_credito
+        description: "Valor total creditado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_transacao_rateio_debito
+        description: "Quantidade total de transações consideradas no débito da repartição tarifária"
+      - name: valor_rateio_debito
+        description: "Valor total debitado em decorrência da repartição tarifária (R$)"
+      - name: quantidade_total_transacao
+        description: "{{ doc('quantidade_total_transacao') }}"
+      - name: valor_total_transacao_bruto
+        description: "Valor total das transações realizadas (R$)"
+      - name: valor_desconto_taxa
+        description: "Valor da taxa descontado do valor total (R$)"
+      - name: valor_total_transacao_liquido_ordem
+        description: "Valor total das transações menos o valor_desconto_taxa (R$)"
+      - name: valor_total_transacao_liquido
+        description: "Valor corrigido total das transações menos o valor_desconto_taxa (R$)"
+      - name: data_pagamento
+        description: "Data em que foi realizado o pagamento ao operador ou consórcio"
+      - name: valor_pago
+        description: "Valor pago ao operador ou consórcio (R$)"
+      - name: datetime_captura
+        description: "Data e hora da captura da ordem [GMT-3]"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        data_type: datetime
+        quote: true
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
