@@ -3,7 +3,6 @@ import ftplib
 import io
 import zipfile
 from datetime import datetime
-from functools import partial
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
@@ -14,7 +13,6 @@ from prefect.cache_policies import NO_CACHE
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import (
     SourceCaptureContext,
-    connect_ftp,
     constants,
 )
 from pipelines.common.utils.fs import read_raw_data, save_local_file
@@ -60,13 +58,16 @@ def create_capture_contexts(  # noqa: PLR0913
     if source_table_ids is None:
         sources = [s.set_env(env=env) for s in sources]
     else:
-        sources = [s.set_env(env=env) for s in sources if s.table_id in source_table_ids]
+        sources = [
+            s.set_env(env=env) for s in sources if s.table_id in source_table_ids
+        ]
 
     for source in sources:
         if recapture:
             if recapture_timestamps:
                 timestamps = [
-                    convert_timezone(datetime.fromisoformat(t)) for t in recapture_timestamps
+                    convert_timezone(datetime.fromisoformat(t))
+                    for t in recapture_timestamps
                 ]
             else:
                 timestamps = source.get_uncaptured_timestamps(
@@ -161,7 +162,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
                 data = step(data=data, timestamp=timestamp, primary_keys=primary_keys)
 
             if len(primary_keys) < data_columns_len:
-                data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+                data = transform_to_nested_structure(
+                    data=data, primary_keys=primary_keys
+                )
 
             data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
 
@@ -179,7 +182,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 
 
 @task(cache_policy=NO_CACHE)
-def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "replace"):
+def upload_source_data_to_gcs(
+    context: SourceCaptureContext, if_exists: str = "replace"
+):
     """
     Envia os dados aninhados para a pasta source do GCS.
 
@@ -198,104 +203,25 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
 
     if not source.exists():
         print("Tabela de staging não existe, criando tabela...")
-        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
+        source.append(
+            source_filepath=source_filepath, partition=partition, if_exists=if_exists
+        )
         source.create(sample_filepath=source_filepath)
         print("Tabela de staging criada")
     else:
         print("Tabela de staging já existe, adicionando dados...")
-        source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
+        source.append(
+            source_filepath=source_filepath, partition=partition, if_exists=if_exists
+        )
         print("Dados adicionados")
 
 
-@task(cache_policy=NO_CACHE)
-def create_ftp_extractor(
-    context: SourceCaptureContext,
-    ftp_path: str,
-    csv_args: dict,  # noqa: ARG001
-    secret_path: str = "rdo_ftps",
-):
-    """
-    Cria função extratora genérica para dados de servidor FTP.
-
-    Busca dados com base na data do timestamp.
-
-    Args:
-        context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
-        ftp_path (str): Caminho base no FTP (sem data). Ex: "MULTAS/MULTAS"
-        csv_args (dict): Argumentos para leitura do CSV (mantido para compatibilidade)
-        secret_path (str): Caminho da secret com credenciais FTP (default: "rdo_ftps")
-
-    Returns:
-        partial: Função parcial pronta para ser chamada para buscar dados do FTP
-
-    Example:
-        extractor = create_ftp_extractor(
-            context=context,
-            ftp_path="MULTAS/MULTAS",
-            csv_args={"sep": ";", "names": ["col1", "col2"]},
-            secret_path="rdo_ftps",
-        )
-        filepaths = extractor()
-    """
-
-    return partial(
-        get_raw_ftp,
-        secret_path=secret_path,
-        ftp_path=f"{ftp_path}_{context.timestamp.strftime('%Y%m%d')}.txt",
-        raw_filepath=context.raw_filepath,
-    )
-
-
-def get_raw_ftp(
-    secret_path: str,
-    ftp_path: str,
-    raw_filepath: str,
-) -> list[str]:
-    """
-    Retrieves raw data from FTP server and saves to local file.
-
-    Args:
-        secret_path (str): Path to FTP credentials secret
-        ftp_path (str): File path on FTP server
-        csv_args (dict): Arguments for CSV reading
-        raw_filepath (str): Local file path template
-
-    Returns:
-        list[str]: List with path where data was saved, or empty list if not found
-    """
-    ftp_client = None
-    try:
-        ftp_client = connect_ftp(secret_path)
-        file_data = io.BytesIO()
-        ftp_client.retrbinary(f"RETR {ftp_path}", file_data.write)
-        ftp_client.quit()
-        ftp_client = None
-
-        file_data.seek(0)
-        csv_content = file_data.read().decode("utf-8")
-
-        # Save to local file
-        filepath = raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=csv_content)
-
-        return [filepath]
-
-    except (FileNotFoundError, EOFError, OSError) as e:
-        print(f"[ERROR] FTP extraction failed: {e}")
-        return []
-    finally:
-        if ftp_client is not None:
-            try:
-                ftp_client.quit()
-            except OSError:
-                pass
 
 
 @task(cache_policy=NO_CACHE)
 def get_raw_from_gcs(
     context: SourceCaptureContext,
     table_id: str,
-    csv_args: dict,
 ):
     """
     Busca dados do GCS como fallback (backup/upload manual).
@@ -305,7 +231,6 @@ def get_raw_from_gcs(
     Args:
         context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
         table_id (str): ID da tabela para montar o nome do arquivo
-        csv_args (dict): Argumentos para leitura do CSV
 
     Returns:
         list[str]: Lista com caminho do arquivo salvo localmente, ou lista vazia se não encontrar
@@ -335,7 +260,7 @@ def get_raw_from_gcs(
         # Lê o CSV
         df = pd.read_csv(
             io.StringIO(data.decode("utf-8")),
-            **csv_args,
+            **context.pretreatment_reader_args,
         ).to_dict(orient="records")
 
         # Salva localmente

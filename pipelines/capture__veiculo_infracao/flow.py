@@ -11,13 +11,11 @@ Common: 2026-03-19
 from prefect import flow
 
 from pipelines.capture__veiculo_infracao import constants
-from pipelines.capture__veiculo_infracao.tasks import (
-    create_infracao_extractor_with_fallback,
-)
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.capture.veiculo.tasks import create_veiculo_extractor
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
@@ -32,8 +30,11 @@ def capture__veiculo_infracao(
         env=env,
         sources=constants.SPPO_INFRACAO_SOURCES,
         timestamp=timestamp,
-        create_extractor_task=create_infracao_extractor_with_fallback,
+        create_extractor_task=create_veiculo_extractor,
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
+        extra_parameters={
+            constants.SPPO_INFRACAO_TABLE_ID: {"ftp_path": constants.SPPO_INFRACAO_FTP_PATH}
+        },
     )

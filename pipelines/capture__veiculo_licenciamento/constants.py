@@ -10,9 +10,7 @@ import pandas as pd
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
-
-# Source configuration
-SPPO_LICENCIAMENTO_SOURCE_NAME = "veiculo"
+from pipelines.common.capture.veiculo import constants as veiculo_constants
 
 # Table IDs
 SPPO_LICENCIAMENTO_TABLE_ID = "licenciamento_stu"
@@ -81,9 +79,11 @@ def pretreat_licenciamento(
 # Dataset and table configuration
 SPPO_LICENCIAMENTO_SOURCES = [
     SourceTable(
-        source_name=SPPO_LICENCIAMENTO_SOURCE_NAME,
+        source_name=veiculo_constants.SPPO_VEICULO_SOURCE_NAME,
         table_id=SPPO_LICENCIAMENTO_TABLE_ID,
-        first_timestamp=datetime(2024, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        first_timestamp=datetime(
+            2024, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
+        ),
         flow_folder_name="capture__veiculo_licenciamento",
         primary_keys=["id_veiculo"],
         pretreatment_reader_args=SPPO_LICENCIAMENTO_CSV_ARGS,

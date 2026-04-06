@@ -100,20 +100,3 @@ def rename_capture_flow_run() -> str:
     return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"
 
 
-def connect_ftp(secret_path: str, secure: bool = True):
-    """Connect to FTP
-
-    Returns:
-        ImplicitFTP_TLS: ftp client
-    """
-
-    ftp_data = get_env_secret(secret_path)
-    if secure:
-        ftp_client = ImplicitFtpTls()
-    else:
-        ftp_client = FTP()
-    ftp_client.connect(host=ftp_data["host"], port=int(ftp_data["port"]))
-    ftp_client.login(user=ftp_data["username"], passwd=ftp_data["pwd"])
-    if secure:
-        ftp_client.prot_p()
-    return ftp_client
