@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import time
+from typing import Optional
 
 from prefect import flow
 
@@ -18,11 +19,11 @@ from pipelines.treatment__transacao import constants
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
 def treatment__transacao(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
