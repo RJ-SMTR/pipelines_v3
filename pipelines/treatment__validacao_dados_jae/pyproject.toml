@@ -1,0 +1,4 @@
+[project]
+name = "treatment__validacao_dados_jae"
+version = "0.1.0"
+description = "Pipeline validacao_dados_jae da secretaria rj-smtr"

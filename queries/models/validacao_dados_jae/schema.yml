@@ -1,0 +1,350 @@
+version: 2
+
+models:
+  - name: integracao_invalida
+    description: "Tabela contendo as integrações inválidas da Jaé"
+    columns:
+      - name: data
+        description: "Data de processamento da integração [partição]"
+        data_type: date
+      - name: id_integracao
+        description: "{{ doc('id_integracao') }}"
+        data_type: string
+      - name: integracao_realizada
+        description: String representando a integração realizada [sequência modos da integração separados por "-"]
+        data_type: string
+        quote: true
+      - name: tempo_integracao_minutos_realizado
+        description: Tempo entre a primeira e a última perna da integração
+        data_type: int64
+        quote: true
+      - name: tempo_integracao_minutos_matriz
+        description: "{{ doc('tempo_integracao_minutos_matriz') }} [de acordo com a matriz de integração]"
+        data_type: float64
+        quote: true
+      - name: rateio_realizado
+        description: Array contendo os percentuais de rateio para cada perna realizados na integração
+        data_type: numeric
+        quote: true
+      - name: rateio_matriz
+        description: "{{ doc('sequencia_rateio_matriz') }} [de acordo com a matriz]"
+        data_type: string
+        quote: true
+      - name: transferencias_realizadas
+        description: Array contendo as informações das transferências realizadas dentro da integração
+        data_type: record
+        quote: true
+      - name: indicador_integracao_fora_matriz
+        description: Indica se a integração não estava prevista na matriz de integração
+        data_type: boolean
+        quote: true
+      - name: indicador_tempo_integracao_invalido
+        description: "Indica se o tempo entre a primeira e a última transação da integração é maior que o tempo limite de integração"
+        data_type: boolean
+      - name: indicador_rateio_invalido
+        description: Indica se o rateio não foi feito de acordo com os valores estipulados na matriz
+        data_type: boolean
+        quote: true
+      - name: indicador_transferencia_fora_matriz
+        description: Indica se houve alguma transferência que não estava prevista na matriz
+        data_type: boolean
+        quote: true
+      - name: indicador_tempo_transferencia_invalido
+        description: Indica se houve alguma transferência em que o tempo entre a primeira e a última transação foi maior que o tempo limite de transferência
+        data_type: boolean
+        quote: true
+      - name: datas_transacoes
+        description: Array contendo as datas distintas das transações presentes na integração [e transferências]
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: transacao_invalida
+    description: "Tabela para validação dos dados de transação da Jaé"
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora
+        description: "{{ doc('hora_transacao') }}"
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+      - name: datetime_processamento
+        description: "Data e hora de processamento da transação"
+      - name: datetime_captura
+        description: "Data e hora de captura dos dados da transação"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: operadora
+        description: "{{ doc('operadora') }}"
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+      - name: servico_jae
+        description: "{{ doc('servico_variacao') }} ou código da estação de BRT na Jaé"
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+      - name: id_transacao
+        description: "Identificador único da transação"
+      - name: longitude
+        description: "{{ doc('longitude_transacao') }}"
+      - name: latitude
+        description: "Latitude da transação (WGS84)"
+      - name: longitude_servico
+        description: "Longitude do stop no GTFS (WGS84)"
+      - name: latitude_servico
+        description: "Latitude do stop no GTFS (WGS84)"
+      - name: indicador_geolocalizacao_zerada
+        description: "Indica se a transação está com geolocalização zerada ou nula"
+      - name: indicador_geolocalizacao_fora_rio
+        description: "Indica se a transação está com geolocalização fora do município (transações com geolocalização zeradas não se enquadram)"
+      - name: indicador_geolocalizacao_fora_stop
+        description: "Indica se a transação do modo BRT está com geolocalização a mais de 100m da estação (transações com geolocalização zeradas não se enquadram)"
+      - name: descricao_geolocalizacao_invalida
+        description: "Resumo do tipo de geolocalização inválida de acordo com as colunas indicadoras"
+      - name: indicador_servico_fora_gtfs
+        description: "Indica se o serviço não tem correspondência com as tabela 'trips' ou 'stops' do GTFS"
+      - name: indicador_servico_fora_vigencia
+        description: "Indica se a transação foi feita em um serviço fora de vigência"
+      - name: indicador_processamento_anterior_transacao
+        description: "Indica se a data da transação e maior que a data de processamento"
+      - name: indicador_integracao_fora_tabela
+        description: "Indica se a transação é do tipo Integração e está fora da tabela bilhetagem.integracao"
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: ordem_pagamento_invalida
+    description: "Tabela para validação dos dados da ordem de pagamento da Jaé"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [partição]"
+      - name: id_ordem_pagamento
+        description: "Identificador único da ordem de pagamento"
+      - name: indicador_captura_invalida
+        description: "Indica se o número e valor das transações capturadas é diferente das informações encontradas na ordem de pagamento"
+      - name: indicador_servico_fora_vigencia
+        description: "Indica se houve alguma transação feita em um serviço fora de vigência. Quando nulo informa que não foi possível encontrar a vigência do serviço"
+      - name: indicador_agregacao_consorcio_operador_dia_invalida
+        description: "Indica se os valores e quantidades da tabela ordem_pagamento_servico_operador_dia agregada por consórcio, operador e dia está diferente das informações da tabela ordem_pagamento_consorcio_operador_dia"
+      - name: indicador_agregacao_consorcio_dia_invalida
+        description: "Indica se os valores e quantidades da tabela ordem_pagamento_consorcio_operador_dia agregada por consórcio e dia está diferente das informações da tabela ordem_pagamento_consorcio_dia"
+      - name: indicador_agregacao_dia_invalida
+        description: "Indica se os valores e quantidades da tabela ordem_pagamento_consorcio_dia agregada por dia está diferente das informações da tabela ordem_pagamento_dia"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: integracao_nao_realizada
+    description: Tabela contendo integrações que deveriam ter ocorrido mas não estão listadas na base da Jaé
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+        data_type: date
+        quote: true
+      - name: id_integracao
+        description: "{{ doc('id_integracao') }} (é igual ao id_transacao da primeira transação da integração)"
+        data_type: string
+        quote: true
+      - name: datetime_inicio_integracao
+        description: Data e hora da primeira transação da integração [GMT-3]
+        data_type: datetime
+        quote: true
+      - name: sequencia_integracao
+        description: "{{ doc('sequencia_integracao') }}"
+        data_type: int64
+        quote: true
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }} [GMT-3]"
+        data_type: datetime
+        quote: true
+      - name: tipo_integracao
+        description: Tipo da integração [Primeira perna, Integração ou Transferência]
+        data_type: string
+        quote: true
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+        data_type: string
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_transacao__integracao_nao_realizada
+              where: data in ({partitions})
+      - name: datetime_transacao
+        description: "{{ doc('datetime_transacao') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento_transacao') }}"
+        data_type: datetime
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+        data_type: string
+        quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido_bilhetagem') }}"
+        data_type: string
+        quote: true
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        quote: true
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: hash_cartao
+        description: "{{ doc('hash_cartao') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: cadastro_cliente
+        description: "{{ doc('cadastro_cliente') }}"
+        data_type: string
+        quote: true
+      - name: produto
+        description: "{{ doc('produto') }}"
+        data_type: string
+        quote: true
+      - name: produto_jae
+        description: "{{ doc('produto_jae') }}"
+        data_type: string
+        quote: true
+      - name: tipo_transacao_jae
+        description: "{{ doc('tipo_transacao_jae') }}"
+        data_type: string
+        quote: true
+      - name: tipo_transacao
+        description: "{{ doc('tipo_transacao') }}"
+        data_type: string
+        quote: true
+      - name: tipo_usuario
+        description: "{{ doc('tipo_usuario') }}"
+        data_type: string
+        quote: true
+      - name: meio_pagamento
+        description: "{{ doc('meio_pagamento') }}"
+        data_type: string
+        quote: true
+      - name: meio_pagamento_jae
+        description: "{{ doc('meio_pagamento_jae') }}"
+        data_type: string
+        quote: true
+      - name: valor_transacao
+        description: "{{ doc('valor_transacao') }}"
+        data_type: float64
+        quote: true
+      - name: classificacao_integracao_nao_realizada
+        description: "Classificação da falha no processo de integração"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: alerta_transacao
+    description: Tabela contendo transações suspeitas de Van
+    columns:
+      - name: data
+        description: "{{ doc('data_transacao') }} [partição]"
+        data_type: date
+        quote: true
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: permissao
+        description: Número de permissionário do operador
+      - name: documento_operadora
+        description: "{{ doc('documento_operadora') }} [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: cliente_cartao
+        description: "hash_cliente ou hash_cartao [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691'
+      - name: datetime_inicio_intervalo
+        description: Data e hora da primeira transação do agrupamento [GMT-3]
+        data_type: datetime
+        quote: true
+      - name: datetime_fim_intervalo
+        description: Data e hora da última transação do agrupamento [GMT-3]
+        data_type: datetime
+        quote: true
+      - name: quantidade_transacao
+        description: Quantidade de transações
+        data_type: int64
+        quote: true
+      - name: ids_transacao
+        description: Array com os ids das transações do agrupamento
+      - name: latitude_ultima_transacao
+        description: Latitude da última transação do agrupamento [WGS84]
+      - name: longitude_ultima_transacao
+        description: Longitude da última transação do agrupamento [WGS84]
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
