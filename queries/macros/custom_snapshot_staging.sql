@@ -3,9 +3,18 @@
     {% if strategy.hard_deletes == 'new_record' %}
         {% set new_scd_id = snapshot_hash_arguments([columns.dbt_scd_id, snapshot_get_time()]) %}
     {% endif %}
+    {% set use_partition_filter = config.get('use_partition_filter', true) %}
+    {% if use_partition_filter %}
+        {% set source_model_name = target_relation.identifier | replace("snapshot_", "", 1) %}
+        {% set source_relation = ref(source_model_name) %}
+        {% set partition_filter = get_modified_partitions_filter(source_relation) %}
+    {% endif %}
     with snapshot_query as (
 
-        {{ source_sql }}
+        select * from ({{ source_sql }}) as _source
+        {% if use_partition_filter %}
+        where {{ partition_filter }}
+        {% endif %}
 
     ),
 
@@ -23,8 +32,8 @@
             {% else %}
                 {{ columns.dbt_valid_to }} is null
             {% endif %}
-            {% if config.get('partition_filter') %}
-                and {{ config.get('partition_filter') }}
+            {% if use_partition_filter %}
+                and {{ partition_filter }}
             {% endif %}
 
     ),
