@@ -1,0 +1,4 @@
+[project]
+name = "treatment__matriz_integracao_smtr"
+version = "0.1.0"
+description = "Pipeline matriz_integracao_smtr da secretaria rj-smtr"

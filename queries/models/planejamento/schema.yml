@@ -9,8 +9,8 @@ models:
           expression: count(distinct tipo_os)
           compare_model: ref("ordem_servico_gtfs")
           compare_expression: count(distinct tipo_os)
-          group_by: [feed_start_date, tipo_os]
-          compare_group_by: [feed_start_date, tipo_os]
+          group_by: [ feed_start_date, tipo_os ]
+          compare_group_by: [ feed_start_date, tipo_os ]
           row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
@@ -608,8 +608,8 @@ models:
           expression: count(distinct tipo_os)
           compare_model: ref("ordem_servico_faixa_horaria_sentido")
           compare_expression: count(distinct tipo_os)
-          group_by: [feed_start_date, tipo_os]
-          compare_group_by: [feed_start_date, tipo_os]
+          group_by: [ feed_start_date, tipo_os ]
+          compare_group_by: [ feed_start_date, tipo_os ]
           row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
@@ -692,3 +692,4 @@ models:
         description: Decreto que alterou o valor da tarifa
         data_type: string
         quote: true
+
