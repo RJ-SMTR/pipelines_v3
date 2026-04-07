@@ -1,3 +1,4 @@
+-- fmt: off
 {% macro snapshot_staging_table(strategy, source_sql, target_relation) -%}
     {% set columns = (
         config.get("snapshot_table_column_names")
