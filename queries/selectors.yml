@@ -370,7 +370,7 @@ selectors:
   - name: snapshot_transito
     definition:
       method: fqn
-      value: snapshot_transito_autuacao
+      value: snapshot_autuacao
 
   - name: gps
     description: Materialização das tabelas de gps

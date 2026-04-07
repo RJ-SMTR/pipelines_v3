@@ -1,7 +1,8 @@
-{% snapshot snapshot_transito_autuacao %}
+{% snapshot snapshot_autuacao %}
 
     {{
         config(
+            alias="snapshot_transito_autuacao",
             target_schema="transito_staging",
             unique_key="id_autuacao",
             strategy="timestamp",
@@ -20,3 +21,4 @@
     where data >= '2023-05-01' and fonte = 'SERPRO'
 
 {% endsnapshot %}
+
