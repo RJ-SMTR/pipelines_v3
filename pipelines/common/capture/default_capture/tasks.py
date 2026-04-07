@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import ftplib
 import io
 import zipfile
 from datetime import datetime
@@ -257,6 +256,6 @@ def get_raw_from_gcs(
         print(f"[GCS] Dados carregados com sucesso: {filepath}")
         return [filepath]
 
-    except ftplib.all_errors as e:
+    except Exception as e:
         print(f"[GCS] Erro ao buscar dados: {e}")
         return []
