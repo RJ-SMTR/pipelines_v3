@@ -134,6 +134,10 @@ selectors:
           value: aux_integracao_calculada
         - method: fqn
           value: integracao_nao_realizada
+        - method: fqn
+          value: integracao_invalida
+        - method: fqn
+          value: transacao_invalida
 
   - name: monitoramento_subsidio
     description: Materialização das tabelas utilizadas nos dashboards do subsidio
