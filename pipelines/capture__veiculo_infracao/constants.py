@@ -6,6 +6,8 @@ Valores constantes para captura de infrações de veículos SPPO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pandas as pd
+
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.veiculo import constants as veiculo_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -41,23 +43,23 @@ SPPO_INFRACAO_FTP_PATH = "MULTAS/MULTAS"
 RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
 
 
-# def pretreat_infracao(
-#     data: pd.DataFrame,
-#     timestamp=None,
-#     primary_keys=None,
-# ) -> pd.DataFrame:
-#     """
-#     Aplica pré-tratamento aos dados de infrações: renomeia colunas.
+def pretreat_infracao(
+    data: pd.DataFrame,
+    timestamp=None,  # noqa: ARG001
+    primary_keys=None,  # noqa: ARG001
+) -> pd.DataFrame:
+    """
+    Aplica pré-tratamento aos dados de infrações: renomeia colunas.
 
-#     Args:
-#         data (pd.DataFrame): Dataframe com os dados brutos
-#         timestamp: Timestamp da captura (não utilizado)
-#         primary_keys: Primary keys da tabela (não utilizadas)
+    Args:
+        data (pd.DataFrame): Dataframe com os dados brutos
+        timestamp: Timestamp da captura (não utilizado)
+        primary_keys: Primary keys da tabela (não utilizadas)
 
-#     Returns:
-#         pd.DataFrame: Dataframe com colunas renomeadas
-#     """
-#     return data.rename(columns=SPPO_INFRACAO_MAPPING_KEYS)
+    Returns:
+        pd.DataFrame: Dataframe com colunas renomeadas
+    """
+    return data.rename(columns=SPPO_INFRACAO_MAPPING_KEYS)
 
 
 # Dataset and table configuration
@@ -69,7 +71,7 @@ SPPO_INFRACAO_SOURCES = [
         flow_folder_name="capture__veiculo_infracao",
         primary_keys=["id_auto_infracao"],
         pretreatment_reader_args=SPPO_INFRACAO_CSV_ARGS,
-        pretreat_funcs=[],
+        pretreat_funcs=[pretreat_infracao],
         raw_filetype="txt",
         partition_date_only=True,
     )
