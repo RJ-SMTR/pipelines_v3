@@ -38,9 +38,6 @@ deployments:
   - name: rj-treatment--matriz_integracao_smtr--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__matriz_integracao_smtr/flow.py:treatment__matriz_integracao_smtr
-    schedules:
-      - cron: "0 0 * * *"
-        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default

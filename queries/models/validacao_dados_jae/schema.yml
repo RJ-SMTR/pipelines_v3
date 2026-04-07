@@ -171,10 +171,6 @@ models:
         description: "{{ doc('sequencia_integracao') }}"
         data_type: int64
         quote: true
-      - name: datetime_transacao
-        description: "{{ doc('datetime_transacao') }} [GMT-3]"
-        data_type: datetime
-        quote: true
       - name: tipo_integracao
         description: Tipo da integração [Primeira perna, Integração ou Transferência]
         data_type: string

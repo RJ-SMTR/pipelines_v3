@@ -18,6 +18,10 @@ COPY ./pipelines/treatment__integracao ./pipelines/treatment__integracao/
 
 COPY ./pipelines/capture__jae_integracao/ ./pipelines/capture__jae_integracao/
 
+COPY ./pipelines/treatment__financeiro_bilhetagem/ ./pipelines/treatment__financeiro_bilhetagem/
+
+COPY ./pipelines/capture__jae_ordem_pagamento/ ./pipelines/capture__jae_ordem_pagamento/
+
 COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
