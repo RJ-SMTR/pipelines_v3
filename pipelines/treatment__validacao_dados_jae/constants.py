@@ -25,7 +25,7 @@ VALIDACAO_DADOS_JAE_DAILY_TEST = DBTTest(
 VALIDACAO_DADOS_JAE_SELECTOR = DBTSelector(
     name="validacao_dados_jae",
     initial_datetime=datetime(2024, 12, 30, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="treatment__transacao_valor_ordem",
+    flow_folder_name="treatment__validacao_dados_jae",
     post_test=VALIDACAO_DADOS_JAE_DAILY_TEST,
     data_sources=[
         transacao_constants.TRANSACAO_SELECTOR,
