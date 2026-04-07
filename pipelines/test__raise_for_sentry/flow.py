@@ -19,6 +19,7 @@ def task_raises_exception():
 
 @task(cache_policy=NO_CACHE)
 def initialize_sentry():
+    print('Adding trigger for CD workflow')
     print("Inicializando Sentry SDK")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = "staging"
