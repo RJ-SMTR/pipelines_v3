@@ -16,13 +16,19 @@ COPY ./pipelines/capture__jae_transacao_riocard ./pipelines/capture__jae_transac
 
 COPY ./pipelines/treatment__integracao ./pipelines/treatment__integracao/
 
-COPY ./pipelines/capture__jae_integracao/ ./pipelines/capture__jae_integracao/
+COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 
-COPY ./pipelines/treatment__financeiro_bilhetagem/ ./pipelines/treatment__financeiro_bilhetagem/
+COPY ./pipelines/treatment__transacao_ordem ./pipelines/treatment__transacao_ordem/
+
+COPY ./pipelines/capture__jae_transacao_ordem ./pipelines/capture__jae_transacao_ordem/
+
+COPY ./pipelines/treatment__financeiro_bilhetagem ./pipelines/treatment__financeiro_bilhetagem/
 
 COPY ./pipelines/capture__jae_ordem_pagamento/ ./pipelines/capture__jae_ordem_pagamento/
 
-COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
+COPY ./pipelines/capture__jae_integracao ./pipelines/capture__jae_integracao/
+
+COPY ./pipelines/treatment__transacao_valor_ordem ./pipelines/treatment__transacao_valor_ordem/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
