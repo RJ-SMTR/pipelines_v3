@@ -341,6 +341,11 @@ selectors:
         - method: fqn
           value: log_bigquery
 
+  - name: snapshot_infraestrutura
+    definition:
+      method: fqn
+      value: snapshot_log_bigquery
+
   - name: transito_autuacao
     description: Materialização das tabelas de autuação de trânsito
     definition:
