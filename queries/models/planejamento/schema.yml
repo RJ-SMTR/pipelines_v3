@@ -180,7 +180,90 @@ models:
         data_type: geography
         quote: true
   - name: viagem_planejada_planejamento
-    description: Tabela contendo as viagens planejadas para o dia com base no GTFS
+    description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
+    columns:
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        data_type: string
+        quote: true
+      - name: horario_partida
+        description: "Horário de partida da viagem no formato HH:MM:SS"
+        data_type: string
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: service_id
+        description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        quote: true
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        quote: true
+      - name: shape_id
+        description: Identificador de um shape da tabela shapes do GTFS
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: evento
+        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
+        data_type: string
+        quote: true
+      - name: extensao
+        description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
+        data_type: float64
+        quote: true
+      - name: trajetos_alternativos
+        description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
+        data_type: record
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: subtipo_dia
+        description: "Subtipo de dia (ex: 'Verão')"
+        data_type: string
+        quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "Data inicial do feed do GTFS (versão). [partição]"
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: viagem_planejada_planejamento_dia
+    description: Tabela contendo as viagens planejadas por dia com base no GTFS e no calendário
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"

@@ -1,7 +1,7 @@
 {{
     config(
         partition_by={
-            "field": "data",
+            "field": "feed_start_date",
             "data_type": "date",
             "granularity": "day",
         },
@@ -10,20 +10,7 @@
     )
 }}
 
-{% set incremental_filter %}
-    data between
-        date('{{ var("date_range_start") }}')
-        and date('{{ var("date_range_end") }}')
-{% endset %}
-
-{% set source_filter %}
-    data between
-        date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
-        and date('{{ var("date_range_end") }}')
-{% endset %}
-
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
+-- depends_on: {{ ref('calendario') }}
 {% if execute and is_incremental() %}
     {% set columns = (
         list_columns()
@@ -47,8 +34,10 @@
     {% endset %}
     {% set gtfs_feeds_query %}
         select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ calendario }}
-        where {{ source_filter }}
+        from {{ ref("calendario") }}
+        where data between
+            date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
+            and date('{{ var("date_range_end") }}')
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
 {% else %}
@@ -58,14 +47,13 @@
 {% endif %}
 
 with
-    trips_dia as (
+    trips as (
         select *
-        from {{ ref("aux_trips_dia") }}
+        from {{ ref("aux_trips") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %}
                 and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-                and {{ source_filter }}
             {% endif %}
     ),
     frequencies_tratada as (
@@ -77,18 +65,24 @@ with
                 and feed_start_date in ({{ gtfs_feeds | join(", ") }})
             {% endif %}
     ),
-    trips_frequences_dia as (
+    trips_frequencies as (
         select
-            td.*,
-            timestamp(data + start_time, "America/Sao_Paulo") as start_timestamp,
-            timestamp(data + end_time, "America/Sao_Paulo") as end_timestamp,
+            t.*,
+            extract(hour from start_time) * 3600
+            + extract(minute from start_time) * 60
+            + extract(second from start_time) as start_seconds,
+            extract(hour from end_time) * 3600
+            + extract(minute from end_time) * 60
+            + extract(second from end_time) as end_seconds,
             f.headway_secs
-        from trips_dia td
+        from trips t
         join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
     ),
     trips_alternativas as (
         select
-            data,
+            feed_start_date,
+            feed_version,
+            tipo_os,
             servico,
             direction_id,
             array_agg(
@@ -99,61 +93,64 @@ with
                     extensao as extensao
                 )
             ) as trajetos_alternativos
-        from trips_dia td
-        where td.trip_id not in (select trip_id from frequencies_tratada)
-        group by 1, 2, 3
+        from trips t
+        where t.trip_id not in (select trip_id from frequencies_tratada)
+        group by 1, 2, 3, 4, 5
     ),
     viagens_frequencies as (
         select
-            tfd.* except (start_timestamp, end_timestamp, headway_secs),
-            datetime(partida, "America/Sao_Paulo") as datetime_partida
+            tf.trip_id,
+            tf.modo,
+            tf.route_id,
+            tf.service_id,
+            tf.servico,
+            tf.direction_id,
+            tf.shape_id,
+            tf.feed_version,
+            tf.feed_start_date,
+            tf.evento,
+            tf.extensao,
+            tf.distancia_total_planejada,
+            tf.indicador_possui_os,
+            tf.horario_inicio,
+            tf.horario_fim,
+            tf.tipo_dia,
+            tf.tipo_os,
+            make_interval(second => partida_seconds) as horario_partida
         from
-            trips_frequences_dia tfd,
+            trips_frequencies tf,
             unnest(
-                generate_timestamp_array(
-                    start_timestamp,
-                    timestamp_sub(end_timestamp, interval 1 second),
-                    interval headway_secs second
-                )
-            ) as partida
-        where tfd.service_id != 'EXCEP'
+                generate_array(tf.start_seconds, tf.end_seconds - 1, tf.headway_secs)
+            ) as partida_seconds
+        where tf.service_id != 'EXCEP'
     ),
     viagens_stop_times as (
         select
-            td.data,
-            trip_id,
-            td.modo,
-            td.route_id,
-            td.service_id,
-            td.servico,
-            td.direction_id,
-            td.shape_id,
-            td.tipo_dia,
-            td.subtipo_dia,
-            td.tipo_os,
-            feed_version,
-            feed_start_date,
-            td.evento,
-            td.extensao,
-            td.distancia_total_planejada,
-            td.indicador_possui_os,
-            td.horario_inicio,
-            td.horario_fim,
-            td.data + st.arrival_time as datetime_partida
-        from trips_dia td
+            t.trip_id,
+            t.modo,
+            t.route_id,
+            t.service_id,
+            t.servico,
+            t.direction_id,
+            t.shape_id,
+            t.feed_version,
+            t.feed_start_date,
+            t.evento,
+            t.extensao,
+            t.distancia_total_planejada,
+            t.indicador_possui_os,
+            t.horario_inicio,
+            t.horario_fim,
+            t.tipo_dia,
+            t.tipo_os,
+            st.arrival_time as horario_partida
+        from trips t
         join
             {{ ref("aux_stop_times_horario_tratado") }} st using (
                 feed_start_date, feed_version, trip_id
             )
         left join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
-        where
-            feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %}
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% endif %}
-            and st.stop_sequence = 0
-            and f.trip_id is null
-            and td.service_id != 'EXCEP'
+        where st.stop_sequence = 0 and f.trip_id is null and t.service_id != 'EXCEP'
     ),
     viagens_trips_alternativas as (
         select v.*, ta.trajetos_alternativos
@@ -165,24 +162,26 @@ with
                 select *
                 from viagens_stop_times
             ) v
-        left join trips_alternativas ta using (data, servico, direction_id)
+        left join
+            trips_alternativas ta using (
+                feed_start_date, feed_version, tipo_os, servico, direction_id
+            )
     ),
     viagem_filtrada as (
-        -- filtra viagens fora do horario de inicio e fim e em dias não previstos na OS
         select *
         from viagens_trips_alternativas
         where
-            (distancia_total_planejada is null or distancia_total_planejada > 0)
+            tipo_os is not null
+            and (distancia_total_planejada is null or distancia_total_planejada > 0)
             and (
                 not indicador_possui_os
                 or horario_inicio is null
                 or horario_fim is null
-                or datetime_partida between data + horario_inicio and data + horario_fim
+                or horario_partida between horario_inicio and horario_fim
             )
     ),
     servico_circular as (
         select feed_start_date, feed_version, shape_id
-        {# from `rj-smtr.planejamento.shapes_geom` #}
         from {{ ref("shapes_geom_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
@@ -194,8 +193,13 @@ with
     ),
     viagem_planejada as (
         select
-            date(datetime_partida) as data,
-            datetime_partida,
+            concat(
+                lpad(cast(extract(hour from horario_partida) as string), 2, '0'),
+                ':',
+                lpad(cast(extract(minute from horario_partida) as string), 2, '0'),
+                ':',
+                lpad(cast(extract(second from horario_partida) as string), 2, '0')
+            ) as horario_partida,
             modo,
             service_id,
             trip_id,
@@ -212,9 +216,7 @@ with
             evento,
             extensao,
             trajetos_alternativos,
-            data as data_referencia,
             tipo_dia,
-            subtipo_dia,
             tipo_os,
             feed_version,
             feed_start_date
@@ -231,27 +233,33 @@ with
                 "_",
                 shape_id,
                 "_",
-                format_datetime("%Y%m%d%H%M%S", datetime_partida)
+                service_id,
+                "_",
+                tipo_os,
+                "_",
+                replace(horario_partida, ':', '')
             ) as id_viagem
         from viagem_planejada
     ),
     dados_novos as (
-        select data, id_viagem, * except (data, id_viagem, rn)
+        select id_viagem, * except (id_viagem, rn)
         from
             (
                 select
                     *,
                     row_number() over (
-                        partition by id_viagem order by data_referencia desc
+                        partition by id_viagem order by feed_start_date desc
                     ) as rn
                 from viagem_planejada_id
             )
-        where
-            rn = 1 and data is not null
-            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        where rn = 1
     ),
     {% if is_incremental() %}
-        dados_atuais as (select * from {{ this }} where {{ incremental_filter }}),
+        dados_atuais as (
+            select *
+            from {{ this }}
+            where feed_start_date in ({{ gtfs_feeds | join(", ") }})
+        ),
     {% endif %}
     sha_dados_atuais as (
         {% if is_incremental() %}

@@ -16,6 +16,6 @@
         timestamp(
             datetime_ultima_atualizacao, "America/Sao_Paulo"
         ) as timestamp_ultima_atualizacao
-    from {{ ref("viagem_planejada_planejamento") }}
+    from {{ ref("viagem_planejada_planejamento_dia") }}
 
 {% endsnapshot %}

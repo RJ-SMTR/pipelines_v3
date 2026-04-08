@@ -85,6 +85,8 @@ selectors:
           value: servico_planejado_faixa_horaria
         - method: fqn
           value: viagem_planejada_planejamento
+        - method: fqn
+          value: viagem_planejada_planejamento_dia
 
   - name: transacao_ordem
     description: Materialização da tabela auxiliar de relacionamento entre as ordens de pagamento e as transações
