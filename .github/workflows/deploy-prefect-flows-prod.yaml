@@ -41,7 +41,7 @@ on:
 jobs:
   deploy-prefect-prod-flows:
     name: Deploy Prefect prod flows
-    runs-on: k8s
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -50,10 +50,12 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: prod
           pipelines_path: ./pipelines
-          prefect_api_url: ${{ secrets.PREFECT_API_URL }}
+          prefect_api_url: ${{ secrets.PREFECT_WEB_API_URL }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           force_deploy: ${{ github.event.inputs.force_deploy == 'true' && '1' || '0' }}
           debug: ${{ github.event.inputs.debug }}
