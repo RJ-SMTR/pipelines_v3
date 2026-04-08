@@ -33,4 +33,5 @@ def treatment__transacao(
         flags=flags,
         test_scheduled_time=time(12, 15, 0),
         force_test_run=force_test_run,
+        test_webhook_key="alertas_bilhetagem",
     )

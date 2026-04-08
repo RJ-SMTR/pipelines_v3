@@ -32,4 +32,5 @@ def treatment__transacao_valor_ordem(
         flags=flags,
         test_scheduled_time=None,
         force_test_run=force_test_run,
+        test_webhook_key="alertas_bilhetagem",
     )
