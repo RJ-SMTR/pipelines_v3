@@ -39,4 +39,5 @@ def treatment__passageiro_hora(  # noqa: PLR0913
         additional_vars=additional_vars,
         test_scheduled_time=time(0, 35, 0),
         force_test_run=force_test_run,
+        test_webhook_key="alertas_bilhetagem",
     )
