@@ -75,13 +75,14 @@ def integration__upload_transacao_cct(
         )
     else:
         test_dates = param_test_dates
+        upload_postgres = None
 
     upload_test_bq = upload_postgres_modified_data_to_bq(
         env=env,
         timestamp=timestamp,
         dates=test_dates,
         full_refresh=full_refresh,
-        upstream_tasks=[upload_postgres],
+        wait_for=[upload_postgres],
     )
 
     contexts = create_sincronizacao_materialization_context(env=env)
