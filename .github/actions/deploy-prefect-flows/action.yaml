@@ -65,7 +65,7 @@ runs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: "3.13"
 
     - name: Install project dependencies
       shell: bash
@@ -77,7 +77,6 @@ runs:
     - name: Deploy Prefect flows
       shell: bash
       env:
-        PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         ENVIRONMENT: ${{ inputs.environment }}
         PREFECT_API_URL: ${{ inputs.prefect_api_url }}
         PIPELINES_PATH: ${{ inputs.pipelines_path }}
