@@ -86,7 +86,12 @@ def integration__upload_transacao_cct(
     )
 
     contexts = create_sincronizacao_materialization_context(env=env)
-    run_sincronizacao_model = run_dbt_selectors(contexts=contexts, wait_for=[upload_test_bq])
+
+    run_sincronizacao_model = run_dbt_selectors(
+        contexts=contexts,
+        flags=None,
+        wait_for=[upload_test_bq],
+    )
 
     run_sincronizacao_test = run_dbt_selector_tests(
         contexts=contexts,
