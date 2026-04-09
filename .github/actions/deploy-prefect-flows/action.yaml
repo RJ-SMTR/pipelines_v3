@@ -15,15 +15,6 @@ inputs:
   pipelines_path:
     description: Path to pipelines
     required: true
-  ts_tags:
-    description: Tailscale tags
-    required: true
-  ts_oauth_client_id:
-    description: Tailscale OAuth client ID
-    required: true
-  ts_oauth_secret:
-    description: Tailscale OAuth secret
-    required: true
   gh_token:
     description: GitHub token
     required: true
@@ -86,6 +77,7 @@ runs:
     - name: Deploy Prefect flows
       shell: bash
       env:
+        PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         ENVIRONMENT: ${{ inputs.environment }}
         PREFECT_API_URL: ${{ inputs.prefect_api_url }}
         PIPELINES_PATH: ${{ inputs.pipelines_path }}
