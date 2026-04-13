@@ -543,3 +543,26 @@ selectors:
           value: aux_transacao_erro_completa
         - method: fqn
           value: transacao_erro
+
+  - name: viagens_sppo
+    description: Materialização das viagens SPPO
+    definition:
+      intersection:
+        - method: fqn
+          value: "+viagem_completa"
+        - method: path
+          value: models/projeto_subsidio_sppo
+
+  - name: viagens_sppo_d0
+    description: >
+      Materialização dos modelos D0 das viagens SPPO (subsidio_data_versao_efetiva e
+      viagem_planejada), executados na segunda run diária (14h) para o dia seguinte.
+    definition:
+      union:
+        - method: fqn
+          value: subsidio_data_versao_efetiva
+        - intersection:
+            - method: fqn
+              value: "+viagem_planejada"
+            - method: path
+              value: models/projeto_subsidio_sppo

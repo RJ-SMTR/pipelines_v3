@@ -15,6 +15,12 @@ VIAGENS_SPPO_SELECTOR = DBTSelector(
     flow_folder_name="treatment__sppo_viagens",
 )
 
+VIAGENS_SPPO_D0_SELECTOR = DBTSelector(
+    name="viagens_sppo_d0",
+    initial_datetime=datetime(2026, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__sppo_viagens",
+)
+
 VIAGENS_SPPO_SNAPSHOT_SELECTOR = DBTSelector(
     name="snapshot_viagem",
     initial_datetime=datetime(2026, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),

@@ -6,17 +6,7 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/treatment__transacao_ordem ./pipelines/treatment__transacao_ordem/
-
-COPY ./pipelines/capture__jae_transacao_ordem ./pipelines/capture__jae_transacao_ordem/
-
-COPY ./pipelines/treatment__financeiro_bilhetagem ./pipelines/treatment__financeiro_bilhetagem/
-
-COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
-
-COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
-
-COPY ./pipelines/capture__jae_ordem_pagamento/ ./pipelines/capture__jae_ordem_pagamento/
+COPY ./pipelines/treatment__sppo_viagens ./pipelines/treatment__sppo_viagens/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

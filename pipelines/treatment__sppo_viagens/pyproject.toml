@@ -1,4 +1,4 @@
 [project]
-name = "treatment__transacao_ordem"
+name = "treatment__sppo_viagens"
 version = "0.1.0"
-description = "Pipeline transacao_ordem da secretaria rj-smtr"
+description = "Pipeline sppo_viagens da secretaria rj-smtr"

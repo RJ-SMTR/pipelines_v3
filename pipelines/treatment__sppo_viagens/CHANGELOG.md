@@ -1,7 +1,7 @@
-# Changelog - treatment__transacao_ordem
+# Changelog - treatment__sppo_viagens
 
-## [1.0.0] - 2026-03-30
+## [1.0.0] - 2026-04-10
 
 ### Adicionado
 
-- Cria flow `treatment__transacao_ordem` (https://github.com/RJ-SMTR/pipelines_v3/pull/102)
+- Cria flow `treatment__sppo_viagens`
