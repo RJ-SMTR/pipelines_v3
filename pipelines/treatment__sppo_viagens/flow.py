@@ -42,10 +42,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         start = datetime.fromisoformat(datetime_start).date()
         end = datetime.fromisoformat(datetime_end).date()
 
-        run_dates = [
-            start + timedelta(days=i)
-            for i in range((end - start).days + 1)
-        ]
+        run_dates = [start + timedelta(days=i) for i in range((end - start).days + 1)]
     else:
         run_dates = [None]
 
