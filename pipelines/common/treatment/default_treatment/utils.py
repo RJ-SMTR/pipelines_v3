@@ -767,10 +767,12 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     for test_id, test_result in checks_results.items():
         parts = test_id.split("__")
-        if len(parts) == 2:  # noqa: PLR2004
+        if len(parts) >= 3:  # noqa: PLR2004
+            table_name = parts[2]
+        elif len(parts) == 2:  # noqa: PLR2004
             table_name = parts[1]
         else:
-            table_name = parts[2]
+            table_name = parts[0]
 
         if table_name not in table_groups:
             table_groups[table_name] = []
