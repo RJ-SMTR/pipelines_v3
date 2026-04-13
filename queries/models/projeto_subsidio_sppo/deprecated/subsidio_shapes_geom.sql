@@ -11,11 +11,11 @@
         incremental_strategy="insert_overwrite",
     )
 }}
-{% if is_incremental() and execute %}
+{% if  execute %}
     {% set run_date_str = "'" ~ var("run_date") ~ "'" %}
     {% set query = (
         "SELECT COALESCE(data_versao_shapes, feed_start_date) FROM "
-        ~ ref("subsidio_data_versao_efetiva")
+        ~ "rj-smtr.projeto_subsidio_sppo.subsidio_data_versao_efetiva"
         ~ " WHERE data BETWEEN DATE_SUB(DATE("
         ~ run_date_str
         ~ "), INTERVAL 1 DAY) AND DATE("
@@ -35,9 +35,7 @@ with
             safe_cast(shape_pt_sequence as int64) shape_pt_sequence,
             date(data_versao) as data_versao
         from {{ var("subsidio_shapes") }} s
-        {% if is_incremental() %}
             where data_versao in ("{{ data_versao_shapes | join('", "') }}")
-        {% endif %}
     ),
     pts as (
         select

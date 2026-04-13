@@ -42,7 +42,7 @@
                 st_geogpoint(longitude, latitude) posicao_veiculo_geo,
                 {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
                     date_sub(
-                        date("{{ var(" run_date ") }}"), interval 1 day
+                        date('{{ var("run_date") }}'), interval 1 day
                     ) as data_operacao
                 {% endif %}
             from
@@ -51,17 +51,17 @@
             where
                 (
                     data between date_sub(
-                        date("{{ var(" run_date ") }}"), interval 1 day
-                    ) and date("{{ var(" run_date ") }}")
+                        date('{{ var("run_date") }}'), interval 1 day
+                    ) and date('{{ var("run_date") }}')
                 )
                 -- Limita range de busca do gps de D-2 às 00h até D-1 às 3h
                 and (
                     timestamp_gps
                     between datetime_sub(
-                        datetime_trunc("{{ var(" run_date ") }}", day),
+                        datetime_trunc('{{ var("run_date") }}', day),
                         interval 1 day
                     ) and datetime_add(
-                        datetime_trunc("{{ var(" run_date ") }}", day),
+                        datetime_trunc('{{ var("run_date") }}', day),
                         interval {{ gps_interval }} hour
                     )
                 )
@@ -114,11 +114,11 @@
                     where
                         {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
                             data
-                            = date_sub(date("{{ var(" run_date ") }}"), interval 1 day)
+                            = date_sub(date('{{ var("run_date") }}'), interval 1 day)
                         {% else %}
                             data between date_sub(
-                                date("{{ var(" run_date ") }}"), interval 1 day
-                            ) and date("{{ var(" run_date ") }}")
+                                date('{{ var("run_date") }}'), interval 1 day
+                            ) and date('{{ var("run_date") }}')
                         {% endif %}
                 ) s
                 on {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
@@ -139,26 +139,24 @@
                 servico,
                 substr(id_veiculo, 2, 3) as id_empresa,
                 st_geogpoint(longitude, latitude) posicao_veiculo_geo,
-                date_sub(
-                    date("{{ var(" run_date ") }}"), interval 1 day
-                ) as data_operacao
+                date_sub(date('{{ var("run_date") }}'), interval 1 day) as data_operacao
             from
                 -- `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g
                 {{ ref("gps_sppo") }} g
             where
                 (
                     data between date_sub(
-                        date("{{ var(" run_date ") }}"), interval 1 day
-                    ) and date("{{ var(" run_date ") }}")
+                        date('{{ var("run_date") }}'), interval 1 day
+                    ) and date('{{ var("run_date") }}')
                 )
                 -- Limita range de busca do gps de D-2 às 00h até D-1 às 3h
                 and (
                     timestamp_gps
                     between datetime_sub(
-                        datetime_trunc("{{ var(" run_date ") }}", day),
+                        datetime_trunc('{{ var("run_date") }}', day),
                         interval 1 day
                     ) and datetime_add(
-                        datetime_trunc("{{ var(" run_date ") }}", day),
+                        datetime_trunc('{{ var("run_date") }}', day),
                         interval {{ gps_interval }} hour
                     )
                 )
@@ -184,7 +182,7 @@
                     end_pt
                 )
             from {{ ref("viagem_planejada") }}
-            where data = date_sub(date("{{ var(" run_date ") }}"), interval 1 day)
+            where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
         ),
         deduplica_viagem_planejada as (
             select v.*, s.shape, s.start_pt, s.end_pt

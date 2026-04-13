@@ -46,8 +46,7 @@ with
                     id_tipo_trajeto
                 from {{ ref("viagem_planejada") }}
                 {% if is_incremental() %}
-                    where
-                        data = date_sub(date("{{ var(" run_date ") }}"), interval 1 day)
+                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
                 {% endif %}
             ) p
         inner join
@@ -55,8 +54,7 @@ with
                 select distinct *
                 from {{ ref("viagem_conformidade") }}
                 {% if is_incremental() %}
-                    where
-                        data = date_sub(date("{{ var(" run_date ") }}"), interval 1 day)
+                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
                 {% endif %}
             ) v
             on v.trip_id = p.trip_id

@@ -553,7 +553,8 @@ selectors:
     definition:
       intersection:
         - method: fqn
-          value: "+viagem_completa"
+          value: viagem_completa
+          parents: true
         - method: path
           value: models/projeto_subsidio_sppo
 
@@ -562,11 +563,9 @@ selectors:
       Materialização dos modelos D0 das viagens SPPO (subsidio_data_versao_efetiva e
       viagem_planejada), executados na segunda run diária (14h) para o dia seguinte.
     definition:
-      union:
+      intersection:
         - method: fqn
-          value: subsidio_data_versao_efetiva
-        - intersection:
-            - method: fqn
-              value: "+viagem_planejada"
-            - method: path
-              value: models/projeto_subsidio_sppo
+          value: viagem_planejada
+          parents: true
+        - method: path
+          value: models/projeto_subsidio_sppo

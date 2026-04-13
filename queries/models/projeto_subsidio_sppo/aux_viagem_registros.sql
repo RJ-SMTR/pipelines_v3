@@ -42,12 +42,12 @@ with
                         where
                             {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
                                 data = date_sub(
-                                    date("{{ var(" run_date ") }}"), interval 1 day
+                                    date('{{ var("run_date") }}'), interval 1 day
                                 )
                             {% else %}
                                 data between date_sub(
-                                    date("{{ var(" run_date ") }}"), interval 1 day
-                                ) and date("{{ var(" run_date ") }}")
+                                    date('{{ var("run_date") }}'), interval 1 day
+                                ) and date('{{ var("run_date") }}')
                             {% endif %}
                     )
                 group by 1, 2
