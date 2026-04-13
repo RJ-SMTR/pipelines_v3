@@ -14,7 +14,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selectors,
     task_dbt_selector_test_notify_discord,
 )
-from pipelines.common.utils.prefect import rename_flow_run
+from pipelines.common.utils.prefect import handler_notify_failure, rename_flow_run
 from pipelines.integration__upload_transacao_cct.tasks import (
     create_sincronizacao_materialization_context,
     delete_all_files,
@@ -27,7 +27,12 @@ from pipelines.integration__upload_transacao_cct.tasks import (
 )
 
 
-@flow(log_prints=True, flow_run_name=rename_flow_run)
+@flow(
+    log_prints=True,
+    flow_run_name=rename_flow_run,
+    on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+)
 def integration__upload_transacao_cct(
     env: Optional[str] = None,
     full_refresh: bool = False,
