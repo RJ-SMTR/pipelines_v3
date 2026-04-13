@@ -112,7 +112,8 @@
 
         select
             'delete' as dbt_change_type,
-            source_data.*,
+            source_data.*
+            {% if partition_by %} replace (snapshotted_data.{{ partition_by.field }} as {{ partition_by.field }}) {% endif %},
             {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
             {{ snapshot_get_time() }} as {{ columns.dbt_updated_at }},
             {{ snapshot_get_time() }} as {{ columns.dbt_valid_to }},
