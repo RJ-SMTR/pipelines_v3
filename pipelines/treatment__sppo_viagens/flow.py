@@ -37,7 +37,9 @@ def treatment__sppo_viagens(  # noqa: PLR0913
 
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.VIAGENS_SPPO_D0_SELECTOR if second_run else constants.VIAGENS_SPPO_SELECTOR],
+        selectors=[
+            constants.VIAGENS_SPPO_D0_SELECTOR if second_run else constants.VIAGENS_SPPO_SELECTOR
+        ],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
