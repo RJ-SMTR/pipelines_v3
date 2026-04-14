@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from prefect import runtime
+
 from pipelines.common import constants
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.secret import get_env_secret
+from pipelines.common.utils.utils import convert_timezone
 
 
 def handler_notify_failure(webhook: str):
@@ -27,3 +30,18 @@ def handler_notify_failure(webhook: str):
         format_send_discord_message(formatted_messages=formatted_messages, webhook_url=webhook_url)
 
     return handler
+
+
+def rename_flow_run() -> str:
+    """
+    Gera o nome para execução de flows de tratamento.
+
+    Returns:
+        str: Nome para execução do flow.
+    """
+    scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
+        "%Y-%m-%d %H-%M-%S"
+    )
+
+    flow_name = runtime.flow_run.flow_name
+    return f"[{scheduled_start_time}] {flow_name}"
