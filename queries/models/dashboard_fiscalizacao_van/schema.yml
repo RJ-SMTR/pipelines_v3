@@ -1,0 +1,33 @@
+models:
+  - name: gps_validador_van
+    description: "Tabela de posições de GPS de todos os validadores da Jaé instalados em vans, incluindo estado do equipamento [Aberto/Fechado], serviço, sentido e veículo associado e temperatura do veículo"
+    columns:
+
+      - name: data
+        description: "{{ doc('data_recebimento_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_recebimento_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: numero_permissao
+        description: "Número do permissionário na planilha de cadastro de vans"
+      - name: id_area_planejamento_operador
+        description: "Identificador da área de planejamento em que o permissionário deve operar"
+      - name: modo_van
+        description: "STPL, STPC ou TEC"
+      - name: servico
+        description: "Nome curto da linha na planilha de cadastro de vans para ser operada pelo permissionário"
+      - name: descricao_servico
+        description: "Nome longo da linha na planilha de cadastro de vans para ser operada pelo permissionário"
+      - name: nome_completo_servico
+        description: "{{ doc('nome_completo_servico') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: estado_equipamento
+        description: "{{ doc('estado_equipamento') }}"
+      - name: latitude
+        description: "Latitude do validador no momento da transmissão [protegido]"
+      - name: longitude
+        description: "Longitude do validador no momento da transmissão [protegido]"

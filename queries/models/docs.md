@@ -1708,3 +1708,7 @@ Data e hora de início do segmento [partida considerada para o primeiro segmento
 {% docs datetime_fim_segmento %}
 Data e hora de fim do segmento [chegada considerada para o último segmento, último GPS para os demais]
 {% enddocs %}
+
+{% docs nome_completo_servico %}
+Concatenação das colunas servico e descricao_servico, separadas por ' - '
+{% enddocs %}

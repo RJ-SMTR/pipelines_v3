@@ -502,3 +502,10 @@ sources:
 
     tables:
       - name: autuacao_controle_negativacao
+
+  - name: sandbox_cadastro
+    database: rj-smtr-dev
+    schema: rafael__cadastro
+
+    tables:
+      - name: operador_van_ap

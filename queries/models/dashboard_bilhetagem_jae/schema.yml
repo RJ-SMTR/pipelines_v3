@@ -19,7 +19,7 @@ models:
       - name: descricao_servico
         description: "{{ doc('descricao_servico_cadastro') }}"
       - name: nome_completo_servico
-        description: "Concatenação das colunas servico e descricao_servico, separadas por ' - '"
+        description: "{{ doc('nome_completo_servico') }}"
       - name: latitude_servico
         description: "Latitude do stop no GTFS (apenas para modo BRT)"
       - name: longitude_servico

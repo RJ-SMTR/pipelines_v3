@@ -582,3 +582,7 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    dashboard_fiscalizacao_van:
+      +materialized: view
+      +schema: dashboard_fiscalizacao_van
+      +description: "Dashboards para fiscalização da operação das Vans"
