@@ -193,7 +193,7 @@ def export_data_from_bq_to_gcs(  # noqa: PLR0913
 def upload_files_postgres(
     env: str,
     full_refresh: bool,
-    export_bigquery_dates=list[str],
+    export_bigquery_dates: list[str],
 ):
     """
     Carrega os arquivos CSV das transações no GCS para o PostgreSQL
