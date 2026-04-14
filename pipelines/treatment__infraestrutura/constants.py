@@ -14,3 +14,9 @@ INFRAESTRUTURA_SELECTOR = DBTSelector(
     initial_datetime=datetime(2025, 6, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__infraestrutura",
 )
+
+SNAPSHOT_INFRAESTRUTURA_SELECTOR = DBTSelector(
+    name="snapshot_infraestrutura",
+    initial_datetime=datetime(2025, 6, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__infraestrutura",
+)
