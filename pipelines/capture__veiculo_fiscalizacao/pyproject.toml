@@ -1,0 +1,4 @@
+[project]
+name = "capture__veiculo_fiscalizacao"
+version = "0.1.0"
+description = "Pipeline de captura de dados de fiscalização de veículos da secretaria rj-smtr"

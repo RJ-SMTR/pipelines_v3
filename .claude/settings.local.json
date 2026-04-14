@@ -37,20 +37,16 @@
       "Bash(ls:*)",
       "Bash(cookiecutter:*)",
       "Bash(uvx cookiecutter:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(python:*)",
+      "Read(//home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/**)",
+      "Bash(grep:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
       "Bash(rm -rf:*)"
     ]
-  },
-  "enabledPlugins": {
-    "dbt@dbt-agent-marketplace": true
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash .claude/statusline.sh"
   },
   "hooks": {
     "PostToolUse": [
@@ -83,5 +79,12 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash .claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "dbt@dbt-agent-marketplace": true
   }
 }

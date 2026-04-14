@@ -1,0 +1,4 @@
+[project]
+name = "treatment__monitoramento_veiculo"
+version = "0.1.0"
+description = "Pipeline de materialização de monitoramento de veículo da secretaria rj-smtr"
