@@ -44,6 +44,8 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         run_dates = [None]
 
     for run_date in run_dates:
+        is_last = run_date == run_dates[-1]
+
         if run_date is not None:
             run_date_str = run_date.strftime("%Y-%m-%d")
             iter_start = f"{run_date_str}T00:00:00"
@@ -64,5 +66,5 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             test_scheduled_time=None,
             fallback_run=fallback_run,
             skip_source_check=skip_source_check,
-            snapshot_selector=snapshot_selector,
+            snapshot_selector=snapshot_selector if is_last else None,
         )
