@@ -14,7 +14,7 @@ with
             datetime(dbt_updated_at, "America/Sao_Paulo") as datetime_ultima_alteracao,
             datetime(dbt_valid_from, "America/Sao_Paulo") as datetime_inicio_vigencia,
             datetime(dbt_valid_to, "America/Sao_Paulo") as datetime_fim_vigencia
-        from {{ ref("snapshot_transito_autuacao") }}
+        from {{ ref("snapshot_autuacao") }}
     )
 select *
 from historico

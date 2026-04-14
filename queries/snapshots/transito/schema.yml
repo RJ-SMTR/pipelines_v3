@@ -1,7 +1,7 @@
 version: 2
 
 snapshots:
-  - name: snapshot_transito_autuacao
+  - name: snapshot_autuacao
     description: "Snapshot com dados de autuações"
     columns:
       - name: data
