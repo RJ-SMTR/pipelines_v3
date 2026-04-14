@@ -1,9 +1,9 @@
-{% snapshot snapshot_transito_autuacao %}
+{% snapshot snapshot_log_bigquery %}
 
     {{
         config(
-            target_schema="transito_staging",
-            unique_key="id_autuacao",
+            target_schema="infraestrutura_staging",
+            unique_key="id_job",
             strategy="timestamp",
             updated_at="timestamp_ultima_atualizacao",
             invalidate_hard_deletes=True,
@@ -16,7 +16,6 @@
         timestamp(
             datetime_ultima_atualizacao, "America/Sao_Paulo"
         ) as timestamp_ultima_atualizacao
-    from {{ ref("autuacao") }}
-    where data >= '2023-05-01' and fonte = 'SERPRO'
+    from {{ ref("log_bigquery") }}
 
 {% endsnapshot %}
