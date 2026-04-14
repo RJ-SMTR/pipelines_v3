@@ -11,7 +11,7 @@
         ~ var("run_date")
         ~ "'), INTERVAL 2 DAY) AND DATE_SUB(DATE('"
         ~ var("run_date")
-        ~ "'), INTERVAL 1 DAY) ORDER BY data"
+        ~ "'), INTERVAL 1 DAY) ORDER BY data desc"
     ) %}
     {% set tipo_oss = result.columns[0].values() %}
     {% set feed_versions = result.columns[1].values() %}
@@ -62,20 +62,20 @@ with
             id_tipo_trajeto,
         from ordem_servico_trips_shapes
         where
-            tipo_os = "{{ tipo_oss[1] }}"
-            and feed_version = "{{ feed_versions[1] }}"
-            and feed_start_date = date("{{ feed_start_dates[1] }}")
-            and tipo_dia = "{{ tipo_dias[1] }}"
+            tipo_os = "{{ tipo_oss[0] }}"
+            and feed_version = "{{ feed_versions[0] }}"
+            and feed_start_date = date("{{ feed_start_dates[0] }}")
+            and tipo_dia = "{{ tipo_dias[0] }}"
     ),
     {% if var("run_date") < var("DATA_SUBSIDIO_V17_INICIO") %}
         -- 2. Busca partidas e quilometragem da faixa horaria (dia anterior)
         dia_anterior as (
             select
-                "{{ feed_versions[1] }}" as feed_version,
-                date("{{ feed_start_dates[1] }}") as feed_start_date,
+                "{{ feed_versions[0] }}" as feed_version,
+                date("{{ feed_start_dates[0] }}") as feed_start_date,
                 ts.feed_end_date,
-                "{{ tipo_oss[1] }}" as tipo_os,
-                "{{ tipo_dias[1] }}" as tipo_dia,
+                "{{ tipo_oss[0] }}" as tipo_os,
+                "{{ tipo_dias[0] }}" as tipo_dia,
                 -- Alteração referente ao Processo.rio MTR-CAP-2025/06098
                 case
                     when "{{ var('run_date') }}" = "2025-06-02" and ts.servico = "864"
@@ -132,10 +132,10 @@ with
                 and da.sentido = ts.sentido
             where
                 ts.faixa_horaria_inicio = "24:00:00"
-                and ts.tipo_os = "{{ tipo_oss[0] }}"
-                and ts.feed_version = "{{ feed_versions[0] }}"
-                and ts.feed_start_date = date("{{ feed_start_dates[0] }}")
-                and ts.tipo_dia = "{{ tipo_dias[0] }}"
+                and ts.tipo_os = "{{ tipo_oss[1] }}"
+                and ts.feed_version = "{{ feed_versions[1] }}"
+                and ts.feed_start_date = date("{{ feed_start_dates[1] }}")
+                and ts.tipo_dia = "{{ tipo_dias[1] }}"
         ),
     {% endif %}
     combina_trips_shapes as (

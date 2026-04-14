@@ -7,7 +7,6 @@ from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.prefect import handler_notify_failure
 from pipelines.common.utils.utils import convert_timezone
 from pipelines.treatment__sppo_viagens import constants
 
@@ -15,8 +14,6 @@ from pipelines.treatment__sppo_viagens import constants
 @flow(
     log_prints=True,
     flow_run_name=rename_treatment_flow_run,
-    on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
-    on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
 def treatment__sppo_viagens(  # noqa: PLR0913
     env=None,

@@ -33,9 +33,6 @@ models:
           name: check_km_planejada__viagem_planejada
       - check_partidas_planejadas:
           name: check_partidas_planejadas__viagem_planejada
-      - test_tecnologia_servico_planejado:
-          name: test_tecnologia_servico_planejado__viagem_planejada
-          where: "data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V16_INICIO}')) and date('{date_range_end}')"
     columns:
       - name: data
         description: "{{ doc('data') }}"

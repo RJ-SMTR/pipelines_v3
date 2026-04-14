@@ -77,7 +77,7 @@ select distinct
     v.* except (versao_modelo),
     d.* except (id_viagem, versao_modelo),
     if(
-        data >= date("{{ var(" data_subsidio_v12_inicio ") }}"),
+        data >= date("{{ var('DATA_SUBSIDIO_V12_INICIO') }}"),
         v.distancia_planejada * 60 / tempo_viagem,
         null
     ) as velocidade_media,
