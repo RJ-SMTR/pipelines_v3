@@ -287,6 +287,8 @@ selectors:
           value: gps_validador_van
         - method: fqn
           value: dashboard_bilhetagem_implantacao_jae
+        - method: fqn
+          value: view_gps_validador_van
 
   - name: financeiro_bilhetagem
     description: Materialização das tabelas financeiras da bilhetagem
