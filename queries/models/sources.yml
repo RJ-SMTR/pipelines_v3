@@ -504,8 +504,8 @@ sources:
       - name: autuacao_controle_negativacao
 
   - name: sandbox_cadastro
-    database: rj-smtr-dev
-    schema: rafael__cadastro
+    database: rj-smtr-sandbox
+    schema: cadastro
 
     tables:
       - name: operador_van_ap
