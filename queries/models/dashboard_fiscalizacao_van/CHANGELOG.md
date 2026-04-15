@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria modelo `view_gps_validador_van.sql`
+- Cria modelo `view_gps_validador_van.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/115)
