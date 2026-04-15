@@ -58,7 +58,14 @@
 
 with
     calendario as (
-        select data, tipo_dia, subtipo_dia, tipo_os, feed_version, feed_start_date
+        select
+            data,
+            tipo_dia,
+            subtipo_dia,
+            tipo_os,
+            service_ids,
+            feed_version,
+            feed_start_date
         from {{ calendario }}
         where {{ source_filter }}
     ),
@@ -119,6 +126,7 @@ with
             on c.feed_start_date = vp.feed_start_date
             and c.tipo_dia = vp.tipo_dia
             and c.tipo_os = vp.tipo_os
+            and vp.service_id in unnest(c.service_ids)
     ),
     viagem_dia_id as (
         select
