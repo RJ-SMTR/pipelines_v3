@@ -1,6 +1,6 @@
 models:
-  - name: gps_validador_van
-    description: "Tabela de posições de GPS de todos os validadores da Jaé instalados em vans, incluindo estado do equipamento [Aberto/Fechado], serviço, sentido e veículo associado e temperatura do veículo"
+  - name: view_gps_validador_van
+    description: "View com posições de GPS dos validadores da Jaé instalados em vans enriquecido com os dados de cadastro de operadores de Van"
     columns:
 
       - name: data
