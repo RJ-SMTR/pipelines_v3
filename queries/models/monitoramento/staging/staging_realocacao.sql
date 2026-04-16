@@ -37,7 +37,7 @@ with
             case
                 when
                     safe_cast(json_value(content, '$.datetime_saida') as string)
-                    = '1971-01-01 00:00:00-0300'
+                    in ('1971-01-01 00:00:00-0300', '1971-01-01T03:00:00Z')
                 then null
                 else
                     datetime(
