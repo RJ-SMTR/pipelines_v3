@@ -552,3 +552,8 @@ selectors:
           value: aux_transacao_erro_completa
         - method: fqn
           value: transacao_erro
+
+  - name: teste_sincronizacao_transacao_cct
+    definition:
+      method: fqn
+      value: teste_sincronizacao_transacao_cct

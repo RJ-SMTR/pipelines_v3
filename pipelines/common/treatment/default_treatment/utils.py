@@ -328,7 +328,7 @@ class DBTSelectorMaterializationContext:
         datetime_start: Optional[str],
         datetime_end: Optional[str],
         additional_vars: Optional[dict],
-        test_scheduled_time: time,
+        test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
     ):
@@ -342,7 +342,7 @@ class DBTSelectorMaterializationContext:
             datetime_start (Optional[str]): Datetime inicial forçado.
             datetime_end (Optional[str]): Datetime final forçado.
             additional_vars (Optional[dict]): Variáveis adicionais do dbt.
-            test_scheduled_time (time): Horário agendado para execução dos testes.
+            test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
         """
