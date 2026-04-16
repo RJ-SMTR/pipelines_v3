@@ -17,10 +17,10 @@ MONITORAMENTO_VEICULO_CHECKS_LIST = {
             "description": "Todos os ids de auto infração estão na tabela de autuação"
         },
         "dbt_utils.unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre": {
-            "description": "Todos os registros são únicos para combinação `id_veiculo`, `data_inicio_lacre` e `id_auto_infracao`"  # noqa: E501
+            "description": "Todos os registros são únicos para combinação `id_veiculo`, `data_inicio_lacre` e `id_auto_infracao`"
         },
         "dbt_utils.unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre": {
-            "description": "Todos os registros são únicos para combinação `placa`, `data_inicio_lacre` e `id_auto_infracao`"  # noqa: E501
+            "description": "Todos os registros são únicos para combinação `placa`, `data_inicio_lacre` e `id_auto_infracao`"
         },
     },
     "autuacao_disciplinar_historico": {
