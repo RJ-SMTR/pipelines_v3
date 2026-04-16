@@ -378,6 +378,7 @@ name = "capture-veiculo-licenciamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__veiculo_licenciamento" }
 
+[[package]]
 name = "capture-stu-tabelas"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__stu_tabelas" }
