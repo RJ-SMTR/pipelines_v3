@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import io
+import zipfile
 from datetime import datetime
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
@@ -8,9 +10,13 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.capture.default_capture.utils import SourceCaptureContext, constants
+from pipelines.common.capture.default_capture.utils import (
+    SourceCaptureContext,
+    constants,
+)
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
@@ -196,3 +202,60 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
         print("Tabela de staging já existe, adicionando dados...")
         source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
+
+
+@task(cache_policy=NO_CACHE)
+def get_raw_from_gcs(
+    context: SourceCaptureContext,
+    table_id: str,
+):
+    """
+    Busca dados do GCS como fallback (backup/upload manual).
+
+    Usado quando a extração principal (FTP, API, etc) retorna vazio.
+
+    Args:
+        context (SourceCaptureContext): Contexto de captura com informações de fonte e timestamp
+        table_id (str): ID da tabela para montar o nome do arquivo
+
+    Returns:
+        list[str]: Lista com caminho do arquivo salvo localmente, ou lista vazia se não encontrar
+    """
+    try:
+        storage = Storage(
+            env=context.source.env,
+            dataset_id=context.source.dataset_id,
+            table_id=context.source.table_id,
+        )
+
+        # Monta o path esperado no GCS
+        filename = f"{table_id}_{context.timestamp.strftime('%Y%m%d')}"
+        blob_path = f"upload/{context.source.dataset_id}/{context.source.table_id}/{filename}.zip"
+
+        blob = storage.bucket.get_blob(blob_path)
+
+        if blob is None:
+            print(f"[GCS] Arquivo não encontrado: {blob_path}")
+            return []
+
+        # Baixa e extrai o ZIP
+        data = blob.download_as_bytes()
+        with zipfile.ZipFile(io.BytesIO(data), "r") as zipped_file:
+            data = zipped_file.read(f"{filename}.txt")
+
+        # Lê o CSV
+        df = pd.read_csv(
+            io.StringIO(data.decode("utf-8")),
+            **context.pretreatment_reader_args,
+        ).to_dict(orient="records")
+
+        # Salva localmente
+        filepath = context.raw_filepath.format(page=0)
+        save_local_file(filepath=filepath, filetype="csv", data=df)
+
+        print(f"[GCS] Dados carregados com sucesso: {filepath}")
+        return [filepath]
+
+    except Exception as e:
+        print(f"[GCS] Erro ao buscar dados: {e}")
+        return []
