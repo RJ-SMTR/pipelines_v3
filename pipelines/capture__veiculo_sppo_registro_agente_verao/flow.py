@@ -21,7 +21,7 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__veiculo_sppo_registro_agente_verao(  # noqa: PLR0913
+def capture__veiculo_sppo_registro_agente_verao(
     env=None,
     timestamp=None,
     recapture=True,
