@@ -51,10 +51,6 @@ SPPO_LICENCIAMENTO_CSV_ARGS = {
 # FTP path for raw data
 SPPO_LICENCIAMENTO_FTP_PATH = "LICENCIAMENTO/CadastrodeVeiculos"
 
-# RDO FTPS credentials secret path
-RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
-
-
 # Dataset and table configuration
 SPPO_LICENCIAMENTO_SOURCES = [
     SourceTable(

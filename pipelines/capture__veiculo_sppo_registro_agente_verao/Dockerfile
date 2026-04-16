@@ -6,7 +6,7 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
+COPY ./pipelines/capture__veiculo_sppo_registro_agente_verao ./pipelines/capture__veiculo_sppo_registro_agente_verao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

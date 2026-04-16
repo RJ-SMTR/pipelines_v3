@@ -10,6 +10,8 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.veiculo import constants as veiculo_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
+SPPO_VEICULO_SOURCE_NAME = "veiculo"
+
 # Table IDs
 SPPO_INFRACAO_TABLE_ID = "infracao"
 
@@ -36,10 +38,6 @@ SPPO_INFRACAO_CSV_ARGS = {
 
 # FTP path for raw data
 SPPO_INFRACAO_FTP_PATH = "MULTAS/MULTAS"
-
-# RDO FTPS credentials secret path
-RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
-
 
 # Dataset and table configuration
 SPPO_INFRACAO_SOURCES = [
