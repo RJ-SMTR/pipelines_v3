@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from prefect import flow, runtime, unmapped
 
-from prefect import flow, runtime
-
-from pipelines.common.treatment.default_treatment.flow import (
-    create_materialization_flows_default_tasks,
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    initialize_sentry,
+    setup_environment,
+)
+from pipelines.common.treatment.default_treatment.tasks import (
+    run_dbt_selectors,
+    run_dbt_snapshots,
+    test_fallback_run,
+    wait_data_sources,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.utils import convert_timezone
-from pipelines.treatment__sppo_viagens import constants
+from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
 
 
 @flow(
@@ -19,52 +25,43 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     env=None,
     datetime_start=None,
     datetime_end=None,
-    flags=None,
     additional_vars=None,
     fallback_run=False,
     skip_source_check=False,
 ):
-    scheduled_time = convert_timezone(runtime.flow_run.scheduled_start_time)
-    second_run = scheduled_time.hour >= 14 and datetime_start is None and datetime_end is None
+    env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
+    setup_environment(env=env)
+    sentry_task = initialize_sentry(env=env)
 
-    if second_run:
-        d1 = (scheduled_time + timedelta(days=1)).date()
-        datetime_start = f"{d1}T00:00:00"
-        datetime_end = f"{d1}T23:59:59"
+    timestamp = get_scheduled_timestamp(wait_for=[sentry_task])
 
-    selector = constants.VIAGENS_SPPO_D0_SELECTOR if second_run else constants.VIAGENS_SPPO_SELECTOR
-    snapshot_selector = None if second_run else constants.VIAGENS_SPPO_SNAPSHOT_SELECTOR
+    contexts = prepare_sppo_viagens_contexts(
+        env=env_task,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        additional_vars=additional_vars,
+        timestamp=timestamp,
+    )
 
-    if datetime_start and datetime_end:
-        start = datetime.fromisoformat(datetime_start).date()
-        end = datetime.fromisoformat(datetime_end).date()
+    contexts, should_run = test_fallback_run(
+        contexts=contexts,
+        fallback_run=fallback_run,
+    )
 
-        run_dates = [start + timedelta(days=i) for i in range((end - start).days + 1)]
-    else:
-        run_dates = [None]
+    if should_run:
+        wait_sources = wait_data_sources.map(
+            context=contexts,
+            skip=unmapped(skip_source_check),
+        ).result()
 
-    for run_date in run_dates:
-        is_last = run_date == run_dates[-1]
+        run_dbt_selectors(
+            contexts=contexts,
+            flags=None,
+            wait_for=[wait_sources],
+        )
 
-        if run_date is not None:
-            run_date_str = run_date.strftime("%Y-%m-%d")
-            iter_start = f"{run_date_str}T00:00:00"
-            iter_end = f"{run_date_str}T23:59:59"
-            iter_vars = {**(additional_vars or {}), "run_date": run_date_str}
-        else:
-            iter_start = datetime_start
-            iter_end = datetime_end
-            iter_vars = additional_vars
-
-        create_materialization_flows_default_tasks(
-            env=env,
-            selectors=[selector],
-            datetime_start=iter_start,
-            datetime_end=iter_end,
-            flags=flags,
-            additional_vars=iter_vars,
-            test_scheduled_time=None,
-            fallback_run=fallback_run,
-            skip_source_check=skip_source_check,
-            snapshot_selector=snapshot_selector if is_last else None,
+        run_dbt_snapshots(
+            contexts=contexts,
+            flags=None,
+            wait_for=[wait_sources],
         )
