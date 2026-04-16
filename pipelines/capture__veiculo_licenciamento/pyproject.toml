@@ -1,0 +1,4 @@
+[project]
+name = "capture__veiculo_licenciamento"
+version = "0.1.0"
+description = "Pipeline de captura de licenciamento de veículos SPPO da secretaria rj-smtr"
