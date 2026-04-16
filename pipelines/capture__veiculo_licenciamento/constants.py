@@ -6,8 +6,6 @@ Valores constantes para captura de licenciamento de veículos SPPO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import pandas as pd
-
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.veiculo import constants as veiculo_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -47,7 +45,7 @@ SPPO_LICENCIAMENTO_MAPPING_KEYS = {
 # CSV reading arguments
 SPPO_LICENCIAMENTO_CSV_ARGS = {
     "sep": ";",
-    "names": SPPO_LICENCIAMENTO_MAPPING_KEYS.keys(),
+    "names": SPPO_LICENCIAMENTO_MAPPING_KEYS.values(),
 }
 
 # FTP path for raw data
@@ -55,25 +53,6 @@ SPPO_LICENCIAMENTO_FTP_PATH = "LICENCIAMENTO/CadastrodeVeiculos"
 
 # RDO FTPS credentials secret path
 RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
-
-
-def pretreat_licenciamento(
-    data: pd.DataFrame,
-    timestamp=None,  # noqa: ARG001
-    primary_keys=None,  # noqa: ARG001
-) -> pd.DataFrame:
-    """
-    Aplica pré-tratamento aos dados de licenciamento: renomeia colunas.
-
-    Args:
-        data (pd.DataFrame): Dataframe com os dados brutos
-        timestamp: Timestamp da captura (não utilizado)
-        primary_keys: Primary keys da tabela (não utilizadas)
-
-    Returns:
-        pd.DataFrame: Dataframe com colunas renomeadas
-    """
-    return data.rename(columns=SPPO_LICENCIAMENTO_MAPPING_KEYS)
 
 
 # Dataset and table configuration
@@ -85,7 +64,7 @@ SPPO_LICENCIAMENTO_SOURCES = [
         flow_folder_name="capture__veiculo_licenciamento",
         primary_keys=["id_veiculo"],
         pretreatment_reader_args=SPPO_LICENCIAMENTO_CSV_ARGS,
-        pretreat_funcs=[pretreat_licenciamento],
+        pretreat_funcs=[],
         raw_filetype="txt",
         partition_date_only=True,
     )
