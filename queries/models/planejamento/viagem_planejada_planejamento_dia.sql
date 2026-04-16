@@ -78,6 +78,80 @@ with
                 and feed_start_date in ({{ gtfs_feeds | join(", ") }})
             {% endif %}
     ),
+    ordem_servico as (
+        select
+            feed_start_date,
+            feed_version,
+            servico,
+            sentido,
+            tipo_dia,
+            tipo_os,
+            distancia_total_planejada,
+            horario_inicio,
+            horario_fim,
+            extensao
+        from {{ ref("aux_ordem_servico_horario_tratado") }}
+    ),
+    trajeto_alternativo_sentido as (
+        select
+            feed_start_date, feed_version, tipo_os, servico, evento, sentido, extensao
+        from
+            (
+                select
+                    feed_start_date,
+                    feed_version,
+                    tipo_os,
+                    servico,
+                    evento,
+                    extensao_ida,
+                    extensao_volta
+                from {{ ref("ordem_servico_trajeto_alternativo_gtfs") }}
+                where feed_start_date < date('{{ var("DATA_GTFS_V4_INICIO") }}')
+            ) unpivot (
+                (extensao)
+                for sentido in ((extensao_ida) as 'I', (extensao_volta) as 'V')
+            )
+        union all
+        select
+            feed_start_date,
+            feed_version,
+            tipo_os,
+            servico,
+            evento,
+            left(sentido, 1) as sentido,
+            extensao
+        from {{ ref("ordem_servico_trajeto_alternativo_sentido") }}
+        where feed_start_date >= date('{{ var("DATA_GTFS_V4_INICIO") }}')
+    ),
+    trajetos_alternativos_agg as (
+        select
+            vp.feed_start_date,
+            vp.feed_version,
+            tas.tipo_os,
+            vp.servico,
+            case when vp.sentido = 'V' then '1' else '0' end as direction_id,
+            array_agg(
+                struct(
+                    ta.trip_id as trip_id,
+                    ta.shape_id as shape_id,
+                    ta.evento as evento,
+                    tas.extensao as extensao
+                )
+            ) as trajetos_alternativos
+        from viagem_planejada vp, unnest(vp.trajetos_alternativos) ta
+        join
+            trajeto_alternativo_sentido tas
+            on vp.feed_start_date = tas.feed_start_date
+            and vp.feed_version = tas.feed_version
+            and vp.servico = tas.servico
+            and ta.evento = tas.evento
+            and (
+                (tas.sentido in ('I', 'C') and vp.sentido in ('I', 'C'))
+                or (tas.sentido = 'V' and vp.sentido = 'V')
+            )
+        where vp.trajetos_alternativos is not null
+        group by 1, 2, 3, 4, 5
+    ),
     viagem_dia as (
         select
             date(
@@ -112,25 +186,58 @@ with
             vp.servico,
             vp.sentido,
             vp.evento,
-            vp.extensao,
-            vp.trajetos_alternativos,
+            os.extensao,
+            ta.trajetos_alternativos,
             c.data as data_referencia,
             c.tipo_dia,
             c.subtipo_dia,
             c.tipo_os,
+            os.distancia_total_planejada,
+            os.feed_start_date is not null as indicador_possui_os,
+            os.horario_inicio,
+            os.horario_fim,
+            vp.horario_partida,
             vp.feed_version,
             vp.feed_start_date
         from calendario c
         join
             viagem_planejada vp
             on c.feed_start_date = vp.feed_start_date
-            and c.tipo_dia = vp.tipo_dia
-            and c.tipo_os = vp.tipo_os
             and vp.service_id in unnest(c.service_ids)
+        left join
+            ordem_servico os
+            on os.feed_start_date = c.feed_start_date
+            and os.feed_version = c.feed_version
+            and os.servico = vp.servico
+            and os.tipo_dia = c.tipo_dia
+            and os.tipo_os = c.tipo_os
+            and (
+                (os.sentido in ('I', 'C') and vp.sentido in ('I', 'C'))
+                or (os.sentido = 'V' and vp.sentido = 'V')
+            )
+        left join
+            trajetos_alternativos_agg ta
+            on ta.feed_start_date = c.feed_start_date
+            and ta.feed_version = c.feed_version
+            and ta.tipo_os = c.tipo_os
+            and ta.servico = vp.servico
+            and ta.direction_id = case when vp.sentido = 'V' then '1' else '0' end
+    ),
+    viagem_filtrada as (
+        select * except (horario_inicio, horario_fim, horario_partida)
+        from viagem_dia
+        where
+            (distancia_total_planejada is null or distancia_total_planejada > 0)
+            and (
+                not indicador_possui_os
+                or horario_inicio is null
+                or horario_fim is null
+                or datetime_partida between data + horario_inicio and data + horario_fim
+            )
     ),
     viagem_dia_id as (
         select
-            *,
+            * except (distancia_total_planejada, indicador_possui_os),
             concat(
                 servico,
                 "_",
@@ -140,7 +247,7 @@ with
                 "_",
                 format_datetime("%Y%m%d%H%M%S", datetime_partida)
             ) as id_viagem
-        from viagem_dia
+        from viagem_filtrada
     ),
     dados_novos as (
         select data, id_viagem, * except (data, id_viagem, rn)

@@ -222,25 +222,9 @@ models:
         description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
         data_type: string
         quote: true
-      - name: extensao
-        description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
-        data_type: float64
-        quote: true
       - name: trajetos_alternativos
-        description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
+        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct sem extensao (enriquecida no _dia a partir da OS)"
         data_type: record
-        quote: true
-      - name: tipo_dia
-        description: "{{ doc('tipo_dia') }}"
-        data_type: string
-        quote: true
-      - name: subtipo_dia
-        description: "Subtipo de dia (ex: 'Verão')"
-        data_type: string
-        quote: true
-      - name: tipo_os
-        description: "{{ doc('tipo_os') }}"
-        data_type: string
         quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"

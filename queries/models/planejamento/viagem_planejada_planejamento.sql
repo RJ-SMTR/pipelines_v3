@@ -82,20 +82,14 @@ with
         select
             feed_start_date,
             feed_version,
-            tipo_os,
             servico,
             direction_id,
             array_agg(
-                struct(
-                    trip_id as trip_id,
-                    shape_id as shape_id,
-                    evento as evento,
-                    extensao as extensao
-                )
+                struct(trip_id as trip_id, shape_id as shape_id, evento as evento)
             ) as trajetos_alternativos
         from trips t
         where t.trip_id not in (select trip_id from frequencies_tratada)
-        group by 1, 2, 3, 4, 5
+        group by 1, 2, 3, 4
     ),
     viagens_frequencies as (
         select
@@ -109,13 +103,6 @@ with
             tf.feed_version,
             tf.feed_start_date,
             tf.evento,
-            tf.extensao,
-            tf.distancia_total_planejada,
-            tf.indicador_possui_os,
-            tf.horario_inicio,
-            tf.horario_fim,
-            tf.tipo_dia,
-            tf.tipo_os,
             make_interval(second => partida_seconds) as horario_partida
         from
             trips_frequencies tf,
@@ -136,13 +123,6 @@ with
             t.feed_version,
             t.feed_start_date,
             t.evento,
-            t.extensao,
-            t.distancia_total_planejada,
-            t.indicador_possui_os,
-            t.horario_inicio,
-            t.horario_fim,
-            t.tipo_dia,
-            t.tipo_os,
             st.arrival_time as horario_partida
         from trips t
         join
@@ -164,20 +144,7 @@ with
             ) v
         left join
             trips_alternativas ta using (
-                feed_start_date, feed_version, tipo_os, servico, direction_id
-            )
-    ),
-    viagem_filtrada as (
-        select *
-        from viagens_trips_alternativas
-        where
-            tipo_os is not null
-            and (distancia_total_planejada is null or distancia_total_planejada > 0)
-            and (
-                not indicador_possui_os
-                or horario_inicio is null
-                or horario_fim is null
-                or horario_partida between horario_inicio and horario_fim
+                feed_start_date, feed_version, servico, direction_id
             )
     ),
     servico_circular as (
@@ -214,13 +181,10 @@ with
                 else "V"
             end as sentido,
             evento,
-            extensao,
             trajetos_alternativos,
-            tipo_dia,
-            tipo_os,
             feed_version,
             feed_start_date
-        from viagem_filtrada v
+        from viagens_trips_alternativas v
         left join servico_circular c using (shape_id, feed_version, feed_start_date)
     ),
     viagem_planejada_id as (
@@ -234,8 +198,6 @@ with
                 shape_id,
                 "_",
                 service_id,
-                "_",
-                tipo_os,
                 "_",
                 replace(horario_partida, ':', '')
             ) as id_viagem
