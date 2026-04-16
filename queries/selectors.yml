@@ -552,7 +552,7 @@ selectors:
           value: aux_transacao_erro_completa
         - method: fqn
           value: transacao_erro
-          
+
   - name: viagens_sppo
     description: Materialização das viagens SPPO
     definition:
