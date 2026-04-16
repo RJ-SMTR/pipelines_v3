@@ -7,7 +7,7 @@ Executa o selector DBT 'infraestrutura' para materializar dados no BigQuery.
 Schedule:
 - Diariamente às 9h00 (horário de São Paulo)
 
-DBT: 2026-04-07
+DBT: 2026-04-16
 """
 
 from prefect import flow
