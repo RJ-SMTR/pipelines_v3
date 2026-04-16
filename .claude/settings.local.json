@@ -37,20 +37,19 @@
       "Bash(ls:*)",
       "Bash(cookiecutter:*)",
       "Bash(uvx cookiecutter:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(python -m py_compile pipelines/treatment__monitoramento_temperatura/flow.py pipelines/treatment__monitoramento_temperatura/constants.py)",
+      "Bash(cp /home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/models/monitoramento/temperatura.sql /home/duartejanaina/pipelines_v3/queries/models/monitoramento/temperatura.sql)",
+      "Bash(cp /home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/models/monitoramento/veiculo_regularidade_temperatura_dia.sql /home/duartejanaina/pipelines_v3/queries/models/monitoramento/veiculo_regularidade_temperatura_dia.sql)",
+      "Bash(cp /home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/models/monitoramento/staging/temperatura_inmet.sql /home/duartejanaina/pipelines_v3/queries/models/monitoramento/staging/temperatura_inmet.sql)",
+      "Bash(cp /home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/models/monitoramento/staging/temperatura_alertario.sql /home/duartejanaina/pipelines_v3/queries/models/monitoramento/staging/temperatura_alertario.sql)",
+      "Bash(cp /home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/models/monitoramento/staging/aux_veiculo_falha_ar_condicionado.sql /home/duartejanaina/pipelines_v3/queries/models/monitoramento/staging/aux_veiculo_falha_ar_condicionado.sql)"
     ],
     "deny": [
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
       "Bash(rm -rf:*)"
     ]
-  },
-  "enabledPlugins": {
-    "dbt@dbt-agent-marketplace": true
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash .claude/statusline.sh"
   },
   "hooks": {
     "PostToolUse": [
@@ -83,5 +82,12 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash .claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "dbt@dbt-agent-marketplace": true
   }
 }
