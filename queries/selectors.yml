@@ -552,7 +552,7 @@ selectors:
           value: aux_transacao_erro_completa
         - method: fqn
           value: transacao_erro
-
+          
   - name: viagens_sppo
     description: Materialização das viagens SPPO
     definition:
@@ -574,3 +574,8 @@ selectors:
           parents: true
         - method: path
           value: models/projeto_subsidio_sppo
+
+  - name: teste_sincronizacao_transacao_cct
+    definition:
+      method: fqn
+      value: teste_sincronizacao_transacao_cct

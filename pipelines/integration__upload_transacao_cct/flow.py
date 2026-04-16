@@ -90,7 +90,7 @@ def integration__upload_transacao_cct(
         wait_for=[upload_postgres],
     )
 
-    contexts = create_sincronizacao_materialization_context(env=env)
+    contexts = create_sincronizacao_materialization_context(env=env, timestamp=timestamp)
 
     run_sincronizacao_model = run_dbt_selectors(
         contexts=contexts,
