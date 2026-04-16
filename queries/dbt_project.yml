@@ -270,6 +270,7 @@ vars:
 
   ### Monitoramento ###
   data_final_veiculo_arquitetura_1: "2025-03-31"
+  datetime_gps_sppo_2: "2026-04-16T17:00:00"
 
 query-comment: "{{ query_comment(node) }}"
 

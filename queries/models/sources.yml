@@ -1,7 +1,6 @@
 version: 2
 
 sources:
-
   - name: br_rj_riodejaneiro_bilhetagem_staging
     database: rj-smtr-staging
 
@@ -31,7 +30,6 @@ sources:
       - name: linha_consorcio_operadora_transporte
       - name: endereco
       - name: linha_tarifa
-
 
   - name: br_rj_riodejaneiro_gtfs_staging
     database: rj-smtr-staging
@@ -378,9 +376,16 @@ sources:
       - name: gps_onibus_conecta
       - name: gps_onibus_cittati
       - name: gps_onibus_zirix
+      - name: gps_onibus_sppo
       - name: gps_15_minutos_onibus_conecta
       - name: gps_15_minutos_onibus_cittati
       - name: gps_15_minutos_onibus_zirix
+
+  - name: br_rj_riodejaneiro_veiculos
+    database: rj-smtr
+
+    tables:
+      - name: gps_sppo
 
   - name: source_veiculo_fiscalizacao
     database: rj-smtr-staging
@@ -409,6 +414,13 @@ sources:
       - name: realocacao
 
   - name: source_zirix
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: source_sppo
     database: rj-smtr-staging
 
     tables:
