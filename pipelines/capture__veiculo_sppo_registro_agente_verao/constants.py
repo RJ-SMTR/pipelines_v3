@@ -26,9 +26,7 @@ SPPO_REGISTRO_AGENTE_VERAO_SOURCES = [
     SourceTable(
         source_name=veiculo_constants.SPPO_VEICULO_SOURCE_NAME,
         table_id=TABLE_ID,
-        first_timestamp=datetime(
-            2026, 4, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
-        ),
+        first_timestamp=datetime(2026, 4, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         flow_folder_name="capture__veiculo_sppo_registro_agente_verao",
         primary_keys=["datetime_registro", "email"],
         pretreatment_reader_args={

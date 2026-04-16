@@ -35,8 +35,6 @@ def capture__veiculo_infracao(
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
         extra_parameters={
-            constants.SPPO_INFRACAO_TABLE_ID: {
-                "ftp_path": constants.SPPO_INFRACAO_FTP_PATH
-            }
+            constants.SPPO_INFRACAO_TABLE_ID: {"ftp_path": constants.SPPO_INFRACAO_FTP_PATH}
         },
     )
