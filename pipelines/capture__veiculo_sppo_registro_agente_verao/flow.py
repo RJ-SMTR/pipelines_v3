@@ -5,7 +5,7 @@ Flow de captura de registro de agentes de verão do SPPO
 Executa a captura de dados de registro de agentes que atuam durante
 o período de verão.
 
-Common: 2026-03-31
+Common: 2026-04-16
 """
 
 from prefect import flow
