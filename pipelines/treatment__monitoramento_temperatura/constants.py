@@ -37,14 +37,14 @@ MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
     "temperatura": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "test_completude__temperatura": {
-            "description": "Há pelo menos uma temperatura não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"  # noqa
+            "description": "Há pelo menos uma temperatura não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
         },
     },
 }
 
 MONITORAMENTO_TEMPERATURA_TEST = DBTTest(
-    test_select="temperatura_inmet temperatura_alertario aux_viagem_temperatura aux_veiculo_falha_ar_condicionado veiculo_regularidade_temperatura_dia temperatura",  # noqa
-    exclude="test_check_regularidade_temperatura__viagem_regularidade_temperatura test_consistencia_indicadores_temperatura__viagem_regularidade_temperatura",  # noqa
+    test_select="temperatura_inmet temperatura_alertario aux_viagem_temperatura aux_veiculo_falha_ar_condicionado veiculo_regularidade_temperatura_dia temperatura",
+    exclude="test_check_regularidade_temperatura__viagem_regularidade_temperatura test_consistencia_indicadores_temperatura__viagem_regularidade_temperatura",
     test_descriptions=MONITORAMENTO_TEMPERATURA_CHECKS_LIST,
     truncate_date=True,
 )

@@ -24,8 +24,8 @@ pipelines/treatment__monitoramento_temperatura/
 └── .dockerignore        # Exclusões Docker
 ```
 
-**Schedule**: Diariamente às 6h00 (São Paulo)  
-**Dependência**: treatment__monitoramento_veiculo  
+**Schedule**: Diariamente às 6h00 (São Paulo)
+**Dependência**: treatment__monitoramento_veiculo
 **Tipos de variáveis adicionais**: `tipo_materializacao="monitoramento"`
 
 ### Modelos dbt
@@ -56,11 +56,11 @@ pipelines/treatment__monitoramento_temperatura/
 
 ## Validações Aplicadas
 
-✅ Sintaxe Python compilada sem erros  
-✅ Ruff lint passou  
-✅ Todos os arquivos SQL formatados com sqlfmt  
-✅ Estrutura dbt validada  
-✅ Arquivos de configuração completos  
+✅ Sintaxe Python compilada sem erros
+✅ Ruff lint passou
+✅ Todos os arquivos SQL formatados com sqlfmt
+✅ Estrutura dbt validada
+✅ Arquivos de configuração completos
 
 ## Próximos Passos
 

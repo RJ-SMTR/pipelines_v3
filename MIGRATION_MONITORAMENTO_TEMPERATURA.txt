@@ -47,7 +47,7 @@ SEÇÃO 2: MODELOS DBT
      - Combina dados INMET e Alerta Rio
      - Partição: data (incremental)
      - Incremental Strategy: insert_overwrite
-     
+
    • veiculo_regularidade_temperatura_dia.sql [192 linhas]
      - Indicadores de ar condicionado por veículo
      - Partição: data (incremental)
@@ -58,17 +58,17 @@ SEÇÃO 2: MODELOS DBT
      - Temperatura do INMET com fallback
      - Partição: data (incremental)
      - Query de runtime com check de partições
-     
+
    • temperatura_alertario.sql [45 linhas]
      - Temperatura do Alerta Rio
      - Partição: data (incremental)
      - Deduplicação por hora/estação
-     
+
    • staging_temperatura_inmet.sql [56 linhas]
      - Fallback para dados INMET
      - View (não materializado)
      - Conversão de timezones UTC → São Paulo
-     
+
    • aux_veiculo_falha_ar_condicionado.sql [241 linhas]
      - Identificação de falhas de ar condicionado
      - Partição: data (incremental)
