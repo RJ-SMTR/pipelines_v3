@@ -21,6 +21,8 @@ members = [
     "capture-jae-transacao-riocard",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
+    "capture-veiculo-infracao",
+    "capture-veiculo-licenciamento",
     "capture-stu-tabelas",
     "capture-zirix-realocacao",
     "capture-zirix-registros",
@@ -367,6 +369,15 @@ requires-dist = [
 ]
 
 [[package]]
+name = "capture-veiculo-infracao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_infracao" }
+
+[[package]]
+name = "capture-veiculo-licenciamento"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_licenciamento" }
+
 name = "capture-stu-tabelas"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__stu_tabelas" }
