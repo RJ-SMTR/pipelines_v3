@@ -426,11 +426,17 @@ def upload_postgres_modified_data_to_bq(
 
 @task(cache_policy=NO_CACHE)
 def create_sincronizacao_materialization_context(
-    env: str,
+    env: str, timestamp: datetime
 ) -> list[DBTSelectorMaterializationContext]:
     return [
         DBTSelectorMaterializationContext(
             env=env,
             selector=constants.TESTE_SINCRONIZACAO_SELECTOR,
+            timestamp=timestamp,
+            datetime_start=None,
+            datetime_end=None,
+            additional_vars=None,
+            test_scheduled_time=None,
+            force_test_run=False,
         )
     ]
