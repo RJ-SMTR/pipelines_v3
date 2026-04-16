@@ -36,5 +36,7 @@ GPS_SOURCE_CONFIGS = {
         "realocacao_secret_path": "realocacao_api",
         "registros_endpoint": "EnvioIplan",
         "realocacao_endpoint": "EnvioViagensRetroativasSMTR",
+        "registros_datetime_format": "%Y-%m-%d+%H:%M:%S",
+        "realocacao_datetime_format": "%Y-%m-%dT%H:%M:%S",
     },
 }
