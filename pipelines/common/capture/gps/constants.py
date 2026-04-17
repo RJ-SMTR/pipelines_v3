@@ -38,5 +38,6 @@ GPS_SOURCE_CONFIGS = {
         "realocacao_endpoint": "EnvioViagensRetroativasSMTR",
         "registros_datetime_format": "%Y-%m-%d+%H:%M:%S",
         "realocacao_datetime_format": "%Y-%m-%dT%H:%M:%S",
+        "timezone": "America/Sao_Paulo",
     },
 }

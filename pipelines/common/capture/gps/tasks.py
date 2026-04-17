@@ -20,9 +20,9 @@ from pipelines.common.utils.secret import get_env_secret
 def create_gps_extractor(context: SourceCaptureContext):
     """Cria a extração de dados de GPS das fontes cittati, conecta e zirix"""
     source = context.source
-    timestamp = context.timestamp.astimezone(timezone("UTC"))
-
     source_config = constants.GPS_SOURCE_CONFIGS[source.source_name]
+    tz_name = source_config.get("timezone", "UTC")
+    timestamp = context.timestamp.astimezone(timezone(tz_name))
 
     if source.table_id == constants.REGISTROS_TABLE_ID:
         endpoint = source_config["registros_endpoint"]

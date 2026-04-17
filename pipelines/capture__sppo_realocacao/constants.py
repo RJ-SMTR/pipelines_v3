@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.gps import constants as gps_constants
+from pipelines.common.capture.gps.utils import rename_sppo_realocacao
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 SPPO_REALOCACAO_SOURCE = SourceTable(
@@ -17,4 +18,5 @@ SPPO_REALOCACAO_SOURCE = SourceTable(
     flow_folder_name="capture__sppo_realocacao",
     primary_keys=["id_veiculo", "datetime_processamento"],
     pretreatment_reader_args={"dtype": "object", "convert_dates": False},
+    pretreat_funcs=[rename_sppo_realocacao],
 )
