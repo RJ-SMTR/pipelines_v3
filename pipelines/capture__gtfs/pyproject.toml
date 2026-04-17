@@ -1,0 +1,9 @@
+[project]
+name = "capture__gtfs"
+version = "0.1.0"
+description = "Pipeline de captura e tratamento dos dados do GTFS da secretaria rj-smtr"
+dependencies = [
+    "google-api-python-client>=2.0.0",
+    "google-auth>=2.0.0",
+    "openpyxl>=3.1.0",
+]
