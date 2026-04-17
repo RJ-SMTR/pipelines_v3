@@ -1,6 +1,17 @@
 {{ config(materialized="view", alias="sppo_registro_agente_verao") }}
 
-select
+with
+
+    veiculo as (
+        select *
+        from {{ source("veiculo_staging", "sppo_registro_agente_verao") }}
+
+        union all
+        select *
+        from {{ source("source_veiculo", "sppo_registro_agente_verao") }}
+    )
+
+select distinct
     safe_cast(parse_datetime("%d/%m/%Y %H:%M:%S", datetime_registro) as date) as data,
     safe_cast(
         parse_datetime("%d/%m/%Y %H:%M:%S", datetime_registro) as datetime
@@ -24,4 +35,4 @@ select
         ) as datetime
     ) as datetime_captura,
     "{{ var('version') }}" as versao
-from {{ source("veiculo_staging", "sppo_registro_agente_verao") }}
+from veiculo

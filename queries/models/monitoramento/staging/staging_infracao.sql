@@ -1,9 +1,17 @@
 {{ config(materialized="view", alias="infracao") }}
 
-
 with
+
+    veiculo_infracao as (
+        select *
+        from {{ source("veiculo_staging", "infracao") }}
+        union all
+        select *
+        from {{ source("source_veiculo", "infracao") }}
+    ),
+
     infracoes_base as (
-        select
+        select distinct
             data,
             safe_cast(json_value(content, '$.id_infracao') as string) as id_infracao,
             safe_cast(json_value(content, '$.modo') as string) as modo,
@@ -24,7 +32,7 @@ with
                 ) as datetime
             ) as timestamp_captura,
             json_value(content, '$.data_pagamento') as raw_data_pagamento
-        from {{ source("veiculo_staging", "infracao") }} as t
+        from veiculo_infracao as t
     ),
 
     infracoes_com_datas as (

@@ -1,6 +1,16 @@
 {{ config(materialized="view", alias="licenciamento_stu") }}
 
-select
+
+with
+    licenciamento as (
+        select *
+        from {{ source("veiculo_staging", "licenciamento_stu") }}
+        union all
+        select *
+        from {{ source("source_veiculo", "licenciamento_stu") }}
+    )
+
+select distinct
     data,
     safe_cast(
         datetime(
@@ -60,4 +70,4 @@ select
     end as data_inicio_vinculo,
     safe_cast(json_value(content, "$.ultima_situacao") as string) ultima_situacao,
     safe_cast(json_value(content, "$.ano_ultima_vistoria") as int64) ano_ultima_vistoria
-from {{ source("veiculo_staging", "licenciamento_stu") }} as t
+from licenciamento as t
