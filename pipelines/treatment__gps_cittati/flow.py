@@ -39,7 +39,7 @@ def treatment__gps_cittati(  # noqa: PLR0913
         "modo_gps": "onibus",
         "fonte_gps": "cittati",
         "15_minutos": False,
-    },  # noqa: B006
+    },
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(

@@ -40,7 +40,7 @@ def treatment__gps_sppo(  # noqa: PLR0913
         "modo_gps": "onibus",
         "fonte_gps": "sppo",
         "15_minutos": False,
-    },  # noqa: B006
+    },
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
