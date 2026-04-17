@@ -202,7 +202,11 @@ def download_file(file_link: str, drive_service) -> io.BytesIO:
 
 
 def processa_ordem_servico(
-    sheetnames, file_bytes, local_filepath, raw_filepaths, regular_sheet_index=None  # noqa: ARG001
+    sheetnames,
+    file_bytes,
+    local_filepath,
+    raw_filepaths,
+    regular_sheet_index=None,  # noqa: ARG001
 ):
     """Processa as abas de Ordem de Serviço de um arquivo Excel."""
     sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO I " in name]
@@ -507,13 +511,12 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
                 if metrica in ["Quilometragem", "KM"]
                 else (
                     "partidas"
-                    if (metrica == "Partidas"
-                    and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO)
+                    if (metrica == "Partidas" and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO)
                     or data_versao_gtfs >= constants.DATA_GTFS_V4_INICIO
                     else ("partidas_ida" if metrica == "Partidas Ida" else "partidas_volta")
                 )
             )
-            + f"_entre_{intervalo.replace(' ', '_').replace('(', '').replace(')', '').replace('-', '_')}_{dia.lower().replace(' ', '_')}"  # noqa
+            + f"_entre_{intervalo.replace(' ', '_').replace('(', '').replace(')', '').replace('-', '_')}_{dia.lower().replace(' ', '_')}"
         )
         for metrica in metricas
         for intervalo in intervalos

@@ -165,8 +165,7 @@ def capture__gtfs(  # noqa: PLR0915
     if dbt_success:
         task_send_discord_message(
             message=(
-                f"Captura e materialização do GTFS {data_versao_gtfs_final} "
-                "finalizada com sucesso!"
+                f"Captura e materialização do GTFS {data_versao_gtfs_final} finalizada com sucesso!"
             ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
