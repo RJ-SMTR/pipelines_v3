@@ -2,13 +2,7 @@
 """
 Flow de materialização de dados do GPS do validador
 
-Executa o selector DBT 'gps_validador' para materializar dados no BigQuery.
-
-Schedule:
-- Diariamente às 1h15 (horário de São Paulo)
-- Envia notificações em caso de falha
-
-DBT: 2026-03-06
+DBT: 2026-04-15
 """
 
 from datetime import time
