@@ -132,7 +132,7 @@ sources:
       - name: sppo_vistoria_tr_subtt_cmo_recurso_SMTR202404004977
       - name: infracao
       - name: licenciamento_stu
-  
+
   - name: source_veiculo
     database: rj-smtr-staging
 
