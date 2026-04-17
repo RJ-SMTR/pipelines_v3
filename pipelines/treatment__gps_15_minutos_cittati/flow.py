@@ -34,7 +34,11 @@ def treatment__gps_15_minutos_cittati(  # noqa: PLR0913
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict] = {"modo_gps": "onibus", "fonte_gps": "cittati", "15_minutos": True},  # noqa: B006
+    additional_vars: Optional[dict] = {
+        "modo_gps": "onibus",
+        "fonte_gps": "cittati",
+        "15_minutos": True,
+    },  # noqa: B006
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(

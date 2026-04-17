@@ -36,7 +36,11 @@ def treatment__gps_sppo(  # noqa: PLR0913
     datetime_end: Optional[str] = None,
     skip_source_check: bool = False,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict] = {"modo_gps": "onibus", "fonte_gps": "sppo", "15_minutos": False},  # noqa: B006
+    additional_vars: Optional[dict] = {
+        "modo_gps": "onibus",
+        "fonte_gps": "sppo",
+        "15_minutos": False,
+    },  # noqa: B006
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(

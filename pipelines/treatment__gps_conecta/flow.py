@@ -12,7 +12,6 @@ DBT: 2026-04-16
 """
 
 from datetime import time
-
 from typing import Optional
 
 from prefect import flow
@@ -36,7 +35,11 @@ def treatment__gps_conecta(  # noqa: PLR0913
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict] = {"modo_gps": "onibus", "fonte_gps": "conecta", "15_minutos": False},  # noqa: B006
+    additional_vars: Optional[dict] = {
+        "modo_gps": "onibus",
+        "fonte_gps": "conecta",
+        "15_minutos": False,
+    },  # noqa: B006
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
