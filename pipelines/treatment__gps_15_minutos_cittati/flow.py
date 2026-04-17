@@ -11,6 +11,8 @@ Schedule:
 DBT: 2026-04-16
 """
 
+from typing import Optional
+
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
@@ -28,12 +30,12 @@ from pipelines.treatment__gps_15_minutos_cittati import constants
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
 def treatment__gps_15_minutos_cittati(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars={"modo_gps": "onibus", "fonte_gps": "cittati", "15_minutos": True},  # noqa: B006
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = {"modo_gps": "onibus", "fonte_gps": "cittati", "15_minutos": True},  # noqa: B006
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

@@ -12,6 +12,7 @@ DBT: 2026-04-16
 """
 
 from datetime import time
+from typing import Optional
 
 from prefect import flow
 
@@ -30,18 +31,20 @@ from pipelines.treatment__gps_sppo import constants
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
 def treatment__gps_sppo(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars={"modo_gps": "onibus", "fonte_gps": "sppo", "15_minutos": False},  # noqa: B006
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    skip_source_check: bool = False,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = {"modo_gps": "onibus", "fonte_gps": "sppo", "15_minutos": False},  # noqa: B006
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.GPS_SPPO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        skip_source_check=skip_source_check,
         flags=flags,
         additional_vars=additional_vars,
         test_scheduled_time=time(2, 6, 0),
