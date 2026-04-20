@@ -4,11 +4,11 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__rdo_geral.utils import rename_rdo_columns
+from pipelines.capture__rioonibus_rdo_rho.utils import rename_rdo_columns
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
-RDO_SOURCE_NAME = "rdo"
+RDO_SOURCE_NAME = "rioonibus"
 
 RDO_FTPS_SECRET_PATH = "smtr_rdo_ftps"
 

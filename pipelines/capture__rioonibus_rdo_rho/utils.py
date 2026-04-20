@@ -3,7 +3,7 @@
 
 import pandas as pd
 
-from pipelines.capture__rdo_geral import constants
+from pipelines.capture__rioonibus_rdo_rho import constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
 

@@ -10,7 +10,7 @@ from dateutil import parser
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
-from pipelines.capture__rdo_geral import constants
+from pipelines.capture__rioonibus_rdo_rho import constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.extractors.ftp import get_raw_ftp

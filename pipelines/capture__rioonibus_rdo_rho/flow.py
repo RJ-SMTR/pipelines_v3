@@ -5,8 +5,8 @@ from typing import Optional
 
 from prefect import flow
 
-from pipelines.capture__rdo_geral import constants
-from pipelines.capture__rdo_geral.tasks import create_rdo_general_extractor
+from pipelines.capture__rioonibus_rdo_rho import constants
+from pipelines.capture__rioonibus_rdo_rho.tasks import create_rdo_general_extractor
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
@@ -20,7 +20,7 @@ from pipelines.common.utils.prefect import handler_notify_failure
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
-def capture__rdo_geral(
+def capture__rioonibus_rdo_rho(
     env: Optional[str] = None,
     timestamp: Optional[str] = None,
     recapture: bool = True,
