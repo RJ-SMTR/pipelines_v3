@@ -10,6 +10,6 @@ COPY ./pipelines/integration__upload_transacao_cct ./pipelines/integration__uplo
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-
+COPY ./queries ./queries
 
 RUN uv sync --all-packages
