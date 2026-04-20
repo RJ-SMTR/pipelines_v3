@@ -1,0 +1,4 @@
+[project]
+name = "capture__rdo_geral"
+version = "0.1.0"
+description = "Pipeline rdo_geral da secretaria rj-smtr"
