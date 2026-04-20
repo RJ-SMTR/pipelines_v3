@@ -7,7 +7,7 @@
 }}
 
 with
-    prod as (
+    logs as (
         select
             date(timestamp, 'America/Sao_Paulo') as data,
             resource.labels.project_id as projeto,
@@ -34,55 +34,12 @@ with
                 protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
                 / pow(1024, 4)
             ) as tib_processados
-
-        from {{ source("bq_logs_prod", "cloudaudit_googleapis_com_data_access_*") }}
-        where
-            {% if is_incremental() %}
-                parse_date('%Y%m%d', _table_suffix) between date_sub(
-                    date('{{ var("date_range_start") }}'), interval 1 day
-                ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
-                and date(
-                    timestamp,
-                    'America/Sao_Paulo'
-                ) between date('{{ var("date_range_start") }}') and date(
-                    '{{ var("date_range_end") }}'
+        from
+            {{
+                source(
+                    "infraestrutura_staging", "cloudaudit_googleapis_com_data_access"
                 )
-                and
-            {% endif %}
-            parse_date('%Y%m%d', _table_suffix)
-            >= date('{{ var("data_inicial_logs_bigquery") }}')
-            and date(timestamp, 'America/Sao_Paulo')
-            >= date('{{ var("data_inicial_logs_bigquery") }}')
-    ),
-    dev as (
-        select
-            date(timestamp, 'America/Sao_Paulo') as data,
-            resource.labels.project_id as projeto,
-            protopayload_auditlog.authenticationinfo.principalemail as usuario,
-            protopayload_auditlog.methodname as metodo,
-            protopayload_auditlog.resourcename as id_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.labels
-            as labels,
-            regexp_extract(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query,
-                r'"flow_name"\s*:\s*"([^"]+)"'
-            ) as nome_flow,
-            regexp_extract(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query,
-                r'"dashboard_code"\s*:\s*"([^"]+)"'
-            ) as nome_dashboard,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query
-            as query,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalprocessedbytes
-            as bytes_processados,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
-            as bytes_faturados,
-            (
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
-                / pow(1024, 4)
-            ) as tib_processados
-
-        from {{ source("bq_logs_dev", "cloudaudit_googleapis_com_data_access") }}
+            }}
         where
             {% if is_incremental() %}
                 date(timestamp, 'America/Sao_Paulo') between date_sub(
@@ -98,69 +55,10 @@ with
             {% endif %}
             date(timestamp, 'America/Sao_Paulo')
             >= date('{{ var("data_inicial_logs_bigquery") }}')
-    ),
-    staging as (
-        select
-            date(timestamp, 'America/Sao_Paulo') as data,
-            resource.labels.project_id as projeto,
-            protopayload_auditlog.authenticationinfo.principalemail as usuario,
-            protopayload_auditlog.methodname as metodo,
-            protopayload_auditlog.resourcename as id_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.labels
-            as labels,
-            regexp_extract(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query,
-                r'"flow_name"\s*:\s*"([^"]+)"'
-            ) as nome_flow,
-            regexp_extract(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query,
-                r'"dashboard_code"\s*:\s*"([^"]+)"'
-            ) as nome_dashboard,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query
-            as query,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalprocessedbytes
-            as bytes_processados,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
-            as bytes_faturados,
-            (
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
-                / pow(1024, 4)
-            ) as tib_processados
-
-        from {{ source("bq_logs_staging", "cloudaudit_googleapis_com_data_access") }}
-        where
-            {% if is_incremental() %}
-                date(timestamp, 'America/Sao_Paulo') between date_sub(
-                    date('{{ var("date_range_start") }}'), interval 1 day
-                ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
-                and date(
-                    timestamp,
-                    'America/Sao_Paulo'
-                ) between date('{{ var("date_range_start") }}') and date(
-                    '{{ var("date_range_end") }}'
-                )
-                and
-            {% endif %}
-            date(timestamp, 'America/Sao_Paulo')
-            >= date('{{ var("data_inicial_logs_bigquery") }}')
-    ),
-    union_projetos as (
-        select *
-        from prod
-
-        union all
-
-        select *
-        from dev
-
-        union all
-
-        select *
-        from staging
     ),
     label_dbt as (
         select data, projeto, id_job, label.value as id_execucao_dbt
-        from union_projetos, unnest(labels) as label
+        from logs, unnest(labels) as label
         where label.key = 'dbt_invocation_id'
     )
 select
