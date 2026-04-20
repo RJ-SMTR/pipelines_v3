@@ -61,11 +61,6 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
         ftp_filepaths=files,
         raw_filetype="csv",
         raw_filepath=context.raw_filepath,
-        read_raw_params={
-            "header": None,
-            "delimiter": ";",
-            "index_col": False,
-            "encoding": "latin1",
-        },
+        encoding="latin1",
         **conetion_params,
     )

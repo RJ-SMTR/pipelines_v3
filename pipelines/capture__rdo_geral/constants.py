@@ -29,7 +29,15 @@ RDO_SOURCES = [
         ),
         flow_folder_name="capture__jae_auxiliar",
         primary_keys=v.get("primary_keys", []),
-        pretreatment_reader_args=v.get("pre_treatment_reader_args"),
+        pretreatment_reader_args=v.get(
+            "pre_treatment_reader_args",
+            {
+                "header": None,
+                "delimiter": ";",
+                "index_col": False,
+                "encoding": "latin1",
+            },
+        ),
         pretreat_funcs=v.get("pretreat_funcs", [rename_rdo_columns]),
         bucket_names=v.get("save_bucket_names"),
         partition_date_only=v.get("partition_date_only", True),
