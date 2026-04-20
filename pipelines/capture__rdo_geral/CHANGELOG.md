@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__rdo_geral`
+- Cria flow `capture__rdo_geral` (https://github.com/RJ-SMTR/pipelines_v3/pull/124)
