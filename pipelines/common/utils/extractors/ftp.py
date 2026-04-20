@@ -14,6 +14,17 @@ def get_ftp_data(
     ftp_filepath: str,
     encoding: str,
 ) -> str:
+    """
+    Obtém o conteúdo de um arquivo no FTP e retorna como string.
+
+    Args:
+        ftp_client (Union[ImplicitFtpTls, FTP]): Cliente FTP já conectado.
+        ftp_filepath (str): Caminho do arquivo no servidor FTP.
+        encoding (str): Encoding utilizado para decodificar o conteúdo.
+
+    Returns:
+        str: Conteúdo do arquivo como string decodificada.
+    """
     buffer = io.BytesIO()
     ftp_client.retrbinary("RETR " + ftp_filepath, buffer.write)
     buffer.seek(0)
@@ -31,6 +42,22 @@ def get_raw_ftp(  # noqa: PLR0913
     raw_filepath: str,
     encoding: str,
 ) -> list[str]:
+    """
+    Baixa múltiplos arquivos de um servidor FTP e salva localmente.
+    Args:
+        host (str): Endereço do servidor FTP.
+        port (int): Porta do servidor FTP.
+        username (str): Usuário para autenticação.
+        password (str): Senha para autenticação.
+        ftp_filepaths (list[str]): Lista de caminhos dos arquivos no FTP.
+        raw_filetype (str): Tipo do arquivo a ser salvo localmente.
+        raw_filepath (str): Template do caminho local com placeholder
+            `{page}` para indexação.
+        encoding (str): Encoding utilizado para decodificar os arquivos.
+
+    Returns:
+        list[str]: Lista com os caminhos dos arquivos salvos localmente.
+    """
     filepaths = []
 
     ftp_client = connect_ftp(
