@@ -1,7 +1,6 @@
 version: 2
 
 sources:
-
   - name: br_rj_riodejaneiro_bilhetagem_staging
     database: rj-smtr-staging
 
@@ -31,7 +30,6 @@ sources:
       - name: linha_consorcio_operadora_transporte
       - name: endereco
       - name: linha_tarifa
-
 
   - name: br_rj_riodejaneiro_gtfs_staging
     database: rj-smtr-staging
@@ -428,17 +426,6 @@ sources:
 
     tables:
       - name: meteorologia_inmet
-        freshness:
-          warn_after:
-            count: 2
-            period: hour
-          filter: |
-            {% set now = modules.datetime.datetime.now(
-              modules.pytz.timezone("America/Sao_Paulo")
-            ) %}
-
-            data_particao = date("{{ now.date() }}")
-        loaded_at_field: timestamp(datetime(data_particao, horario), 'America/Sao_Paulo')
       - name: meteorologia_alertario
 
   - name: source_inmet
