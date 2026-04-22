@@ -66,15 +66,7 @@ with
             {% endif %}
     ),
     trips_frequencies as (
-        select
-            t.*,
-            extract(hour from start_time) * 3600
-            + extract(minute from start_time) * 60
-            + extract(second from start_time) as start_seconds,
-            extract(hour from end_time) * 3600
-            + extract(minute from end_time) * 60
-            + extract(second from end_time) as end_seconds,
-            f.headway_secs
+        select t.*, f.start_seconds, f.end_seconds, f.headway_secs
         from trips t
         join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
     ),
@@ -103,7 +95,7 @@ with
             tf.feed_version,
             tf.feed_start_date,
             tf.evento,
-            make_interval(second => partida_seconds) as horario_partida
+            partida_seconds
         from
             trips_frequencies tf,
             unnest(
@@ -123,7 +115,7 @@ with
             t.feed_version,
             t.feed_start_date,
             t.evento,
-            st.arrival_time as horario_partida
+            st.arrival_seconds as partida_seconds
         from trips t
         join
             {{ ref("aux_stop_times_horario_tratado") }} st using (
@@ -161,11 +153,11 @@ with
     viagem_planejada as (
         select
             concat(
-                lpad(cast(extract(hour from horario_partida) as string), 2, '0'),
+                lpad(cast(div(partida_seconds, 3600) as string), 2, '0'),
                 ':',
-                lpad(cast(extract(minute from horario_partida) as string), 2, '0'),
+                lpad(cast(mod(div(partida_seconds, 60), 60) as string), 2, '0'),
                 ':',
-                lpad(cast(extract(second from horario_partida) as string), 2, '0')
+                lpad(cast(mod(partida_seconds, 60) as string), 2, '0')
             ) as horario_partida,
             modo,
             service_id,
