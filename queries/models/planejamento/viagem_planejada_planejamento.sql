@@ -40,6 +40,12 @@
             and date('{{ var("date_range_end") }}')
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% set feed_filter %}
+        {% if gtfs_feeds | length > 0 %}
+            feed_start_date in ({{ gtfs_feeds | join(", ") }})
+        {% else %} 1 = 0
+        {% endif %}
+    {% endset %}
 {% else %}
     {% set sha_column %}
         cast(null as bytes)
@@ -52,18 +58,14 @@ with
         from {{ ref("aux_trips") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %}
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% endif %}
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     frequencies_tratada as (
         select *
         from {{ ref("aux_frequencies_horario_tratado") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %}
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% endif %}
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     trips_frequencies as (
         select t.*, f.start_seconds, f.end_seconds, f.headway_secs
@@ -144,9 +146,7 @@ with
         from {{ ref("shapes_geom_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %}
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% endif %}
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
             and round(st_y(start_pt), 4) = round(st_y(end_pt), 4)
             and round(st_x(start_pt), 4) = round(st_x(end_pt), 4)
     ),
@@ -209,11 +209,7 @@ with
         where rn = 1
     ),
     {% if is_incremental() %}
-        dados_atuais as (
-            select *
-            from {{ this }}
-            where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        ),
+        dados_atuais as (select * from {{ this }} where {{ feed_filter }}),
     {% endif %}
     sha_dados_atuais as (
         {% if is_incremental() %}

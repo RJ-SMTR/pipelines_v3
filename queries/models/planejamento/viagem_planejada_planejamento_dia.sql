@@ -50,6 +50,12 @@
         where {{ source_filter }}
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% set feed_filter %}
+        {% if gtfs_feeds | length > 0 %}
+            feed_start_date in ({{ gtfs_feeds | join(", ") }})
+        {% else %} 1 = 0
+        {% endif %}
+    {% endset %}
 {% else %}
     {% set sha_column %}
         cast(null as bytes)
@@ -74,9 +80,7 @@ with
         from {{ ref("viagem_planejada_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %}
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% endif %}
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     ordem_servico as (
         select
@@ -203,6 +207,7 @@ with
         join
             viagem_planejada vp
             on c.feed_start_date = vp.feed_start_date
+            and c.feed_version = vp.feed_version
             and vp.service_id in unnest(c.service_ids)
         left join
             ordem_servico os
