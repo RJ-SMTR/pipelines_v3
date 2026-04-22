@@ -46,8 +46,8 @@
                     ) as data_operacao
                 {% endif %}
             from
-                `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g
-                -- {{ ref("gps_sppo") }} g
+                {{ ref("gps_sppo") }} g
+                --`rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g
             where
                 (
                     data between date_sub(
@@ -141,8 +141,8 @@
                 st_geogpoint(longitude, latitude) posicao_veiculo_geo,
                 date_sub(date('{{ var("run_date") }}'), interval 1 day) as data_operacao
             from
-                 `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g
-                -- {{ ref("gps_sppo") }} g
+                {{ ref("gps_sppo") }} g
+                -- `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g
             where
                 (
                     data between date_sub(
