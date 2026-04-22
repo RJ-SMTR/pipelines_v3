@@ -116,12 +116,17 @@ def get_previnity_date_range(
             constants.NEGATIVACAO_SELECTOR.get_last_materialized_datetime(env=env)
         )
 
-        min_last_materialization = min(
-            autuacao_last_materialization, negativacao_last_materialization
-        )
+        diff_days = (
+            autuacao_last_materialization.date() - negativacao_last_materialization.date()
+        ).days
+
+        if diff_days <= 1:
+            datetime_start_obj = autuacao_last_materialization
+        else:
+            datetime_start_obj = negativacao_last_materialization
 
         datetime_start_obj = max(
-            min_last_materialization,
+            datetime_start_obj,
             constants.NEGATIVACAO_SELECTOR.initial_datetime,
         )
         datetime_start = datetime_start_obj.isoformat()

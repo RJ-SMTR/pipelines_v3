@@ -1,6 +1,6 @@
 # Changelog - planejamento
 
-## [1.7.0] - 2026-03-30
+## [1.7.0] - 2026-04-22
 
 ### Adicionado
 
@@ -11,6 +11,43 @@
 - Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
 - Refatora modelo `aux_trips_dia` para utilizar trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
 - Exclui `service_id = 'EXCEP'` das viagens planejadas nos modelos `viagem_planejada_planejamento` (frequencies e stop_times) (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+
+## [1.6.9] - 2026-03-31
+
+### Alterado
+
+- Altera lógica das colunas `data_inicio_matriz` e `data_fim_matriz` no modelo `matriz_reparticao_tarifaria.sql` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1356)
+
+## [1.6.8] - 2026-03-23
+
+### Alterado
+
+- Alterado o `tipo_dia` no modelo `aux_calendario_manual.sql` de `2025-10-31` -> `Ponto Facultativo` conforme Recurso SMTR202511005101 (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1337)
+
+
+## [1.6.7] - 2026-03-19
+
+### Alterado
+
+- Alterados no modelo `aux_calendario_manual` o `tipo_os` de `2026-03-14` para `Term_Marg` conforme `Processo 000399.003413/2026-67` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1334)
+
+## [1.6.6] - 2026-03-13
+
+### Corrigido
+
+- Corrigida a conversão do valor da coluna `partidas` para int64 no modelo `ordem_servico_faixa_horaria_sentido` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1324)
+
+## [1.6.5] - 2026-03-09
+
+### Alterado
+
+- Alterados no modelo `aux_calendario_manual` o `tipo_os` de `2026-02-21`, `2026-02-22` para `Verão` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1304)
+
+## [1.6.4] - 2026-02-25
+
+### Alterado
+
+- Altera lógica de interseção no modelo `segmento_shape` para impedir redução de buffer no primeiro e último segmento, recortando apenas segmentos intermediários (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
 
 ## [1.6.3] - 2026-02-23
 

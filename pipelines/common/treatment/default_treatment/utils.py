@@ -20,6 +20,7 @@ from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.prefect import rename_flow_run
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone, is_running_locally
@@ -327,7 +328,7 @@ class DBTSelectorMaterializationContext:
         datetime_start: Optional[str],
         datetime_end: Optional[str],
         additional_vars: Optional[dict],
-        test_scheduled_time: time,
+        test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
     ):
@@ -341,7 +342,7 @@ class DBTSelectorMaterializationContext:
             datetime_start (Optional[str]): Datetime inicial forçado.
             datetime_end (Optional[str]): Datetime final forçado.
             additional_vars (Optional[dict]): Variáveis adicionais do dbt.
-            test_scheduled_time (time): Horário agendado para execução dos testes.
+            test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
         """
@@ -683,12 +684,7 @@ def rename_treatment_flow_run() -> str:
     Returns:
         str: Nome para execução do flow.
     """
-    scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
-        "%Y-%m-%d %H-%M-%S"
-    )
-
-    flow_name = runtime.flow_run.flow_name
-    return f"[{scheduled_start_time}] {flow_name}"
+    return rename_flow_run()
 
 
 def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
@@ -771,10 +767,12 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     for test_id, test_result in checks_results.items():
         parts = test_id.split("__")
-        if len(parts) == 2:  # noqa: PLR2004
+        if len(parts) >= 3:  # noqa: PLR2004
+            table_name = parts[2]
+        elif len(parts) == 2:  # noqa: PLR2004
             table_name = parts[1]
         else:
-            table_name = parts[2]
+            table_name = parts[0]
 
         if table_name not in table_groups:
             table_groups[table_name] = []

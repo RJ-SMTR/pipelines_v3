@@ -136,6 +136,10 @@ selectors:
           value: aux_integracao_calculada
         - method: fqn
           value: integracao_nao_realizada
+        - method: fqn
+          value: integracao_invalida
+        - method: fqn
+          value: transacao_invalida
 
   - name: monitoramento_subsidio
     description: Materialização das tabelas utilizadas nos dashboards do subsidio
@@ -343,6 +347,11 @@ selectors:
         - method: fqn
           value: log_bigquery
 
+  - name: snapshot_infraestrutura
+    definition:
+      method: fqn
+      value: snapshot_log_bigquery
+
   - name: transito_autuacao
     description: Materialização das tabelas de autuação de trânsito
     definition:
@@ -363,7 +372,7 @@ selectors:
   - name: snapshot_transito
     definition:
       method: fqn
-      value: snapshot_transito_autuacao
+      value: snapshot_autuacao
 
   - name: gps
     description: Materialização das tabelas de gps
@@ -545,3 +554,8 @@ selectors:
           value: aux_transacao_erro_completa
         - method: fqn
           value: transacao_erro
+
+  - name: teste_sincronizacao_transacao_cct
+    definition:
+      method: fqn
+      value: teste_sincronizacao_transacao_cct

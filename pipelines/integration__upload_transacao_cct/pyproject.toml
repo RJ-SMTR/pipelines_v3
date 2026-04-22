@@ -1,0 +1,4 @@
+[project]
+name = "integration__upload_transacao_cct"
+version = "0.1.0"
+description = "Pipeline upload_transacao_cct da secretaria rj-smtr"

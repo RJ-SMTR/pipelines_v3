@@ -42,4 +42,5 @@ def treatment__integracao(  # noqa: PLR0913
         test_scheduled_time=None,
         fallback_run=fallback_run,
         force_test_run=force_test_run,
+        test_webhook_key="alertas_bilhetagem",
     )
