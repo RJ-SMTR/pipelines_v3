@@ -37,10 +37,7 @@
       "Bash(ls:*)",
       "Bash(cookiecutter:*)",
       "Bash(uvx cookiecutter:*)",
-      "Bash(mkdir:*)",
-      "Bash(python:*)",
-      "Read(//home/duartejanaina/prefeitura_rio/pipelines_rj_smtr/queries/**)",
-      "Bash(grep:*)"
+      "Bash(mkdir:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
