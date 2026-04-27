@@ -34,6 +34,7 @@ ipython_config.py
 __pypackages__/
 
 # Environments
+.secrets
 .env
 .venv
 env/
@@ -51,3 +52,5 @@ dump.rdb
 
 # VSCode
 .vscode/
+.gitnexus
+.claude/worktrees
