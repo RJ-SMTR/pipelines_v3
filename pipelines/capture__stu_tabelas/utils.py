@@ -10,6 +10,7 @@ from io import StringIO
 import pandas as pd
 
 from pipelines.capture__stu_tabelas import constants
+from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.gcp.storage import Storage
 
 
@@ -142,19 +143,24 @@ def compara_dataframes(df_hoje: pd.DataFrame, df_ontem: pd.DataFrame) -> pd.Data
     return new_records
 
 
-def extract_stu_data(source, timestamp: datetime) -> pd.DataFrame:
+def extract_stu_data(
+    source,
+    timestamp: datetime,
+    raw_filepath: str,
+) -> list[str]:
     """
     Extrai dados do STU a partir dos arquivos do Airbyte no GCS.
 
-    Compara os dados de hoje com o dia anterior mais recente que tenha dados
-    e retorna apenas os registros que são novos ou foram alterados.
+    Compara os dados de hoje com o dia anterior mais recente que tenha dados,
+    salva localmente os registros novos/alterados e retorna os caminhos.
 
     Args:
         source: Objeto SourceTable com configurações da tabela
         timestamp: Timestamp de referência da captura
+        raw_filepath: Template do caminho local com placeholder `{page}`
 
     Returns:
-        pd.DataFrame: DataFrame com os registros novos/alterados
+        list[str]: Lista com os caminhos dos arquivos salvos localmente
     """
     st = Storage(
         env=source.env,
@@ -180,12 +186,16 @@ def extract_stu_data(source, timestamp: datetime) -> pd.DataFrame:
     df_hoje = processa_dados(blobs, hoje_str)
     print(f"Registros de hoje: {len(df_hoje)}")
 
+    filepath = raw_filepath.format(page=0)
+
     if df_hoje.empty:
         print("Nenhum dado encontrado para hoje")
-        return pd.DataFrame()
+        save_local_file(filepath=filepath, filetype="csv", data=pd.DataFrame())
+        return [filepath]
 
     if first_run:
-        return df_hoje
+        save_local_file(filepath=filepath, filetype="csv", data=df_hoje)
+        return [filepath]
 
     max_days_back = 30
     df_anterior = pd.DataFrame()
@@ -223,4 +233,5 @@ def extract_stu_data(source, timestamp: datetime) -> pd.DataFrame:
     print("Iniciando limpeza de arquivos antigos...")
     remove_arquivos(blobs=blobs, date=hoje, days=30)
 
-    return new_records
+    save_local_file(filepath=filepath, filetype="csv", data=new_records)
+    return [filepath]
