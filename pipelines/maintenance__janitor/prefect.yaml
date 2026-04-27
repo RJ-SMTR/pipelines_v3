@@ -77,4 +77,3 @@ deployments:
         command: uv run --package maintenance__janitor -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-    
