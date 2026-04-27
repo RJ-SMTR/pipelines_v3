@@ -320,6 +320,7 @@ def processa_ordem_servico_trajeto_alternativo(
     local_filepath,
     raw_filepaths,
     data_versao_gtfs,
+    filename,
 ):
     """Processa as abas de Trajetos Alternativos de um arquivo Excel."""
     sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO II " in name]
@@ -386,9 +387,7 @@ def processa_ordem_servico_trajeto_alternativo(
     if not all_columns_present or not no_duplicate_columns:
         raise Exception("Missing or duplicated columns in ordem_servico_trajeto_alternativo")
 
-    local_file_path = next(
-        filter(lambda x: "ordem_servico_trajeto_alternativo/" in x, local_filepath)
-    )
+    local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
     csv_data = ordem_servico_trajeto_alternativo.to_csv(index=False)
     raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
     print(f"Saved file: {raw_file_path}")
@@ -396,7 +395,7 @@ def processa_ordem_servico_trajeto_alternativo(
 
 
 def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
-    sheetnames, file_bytes, local_filepath, raw_filepaths, data_versao_gtfs
+    sheetnames, file_bytes, local_filepath, raw_filepaths, data_versao_gtfs, filename="ordem_servico_faixa_horaria"
 ):
     """Processa as abas de Faixa Horária de um arquivo Excel."""
     if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
@@ -595,7 +594,7 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
         print(columns_in_dataframe.difference(columns_in_values))
         raise Exception("Missing or duplicated columns in ordem_servico_faixa_horaria")
 
-    local_file_path = next(filter(lambda x: "ordem_servico_faixa_horaria/" in x, local_filepath))
+    local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
     csv_data = ordem_servico_faixa_horaria.to_csv(index=False)
     raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
     print(f"Saved file: {raw_file_path}")

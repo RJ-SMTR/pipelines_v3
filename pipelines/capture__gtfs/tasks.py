@@ -200,6 +200,7 @@ def get_raw_gtfs_files(  # noqa: PLR0913
                     local_filepath=local_filepath,
                     raw_filepaths=raw_filepaths,
                     data_versao_gtfs=data_versao_gtfs,
+                    filename=filename,
                 )
             elif "ordem_servico_faixa_horaria" in filename:
                 processa_ordem_servico_faixa_horaria(
@@ -208,6 +209,7 @@ def get_raw_gtfs_files(  # noqa: PLR0913
                     local_filepath=local_filepath,
                     raw_filepaths=raw_filepaths,
                     data_versao_gtfs=data_versao_gtfs,
+                    filename=filename,
                 )
             else:
                 data = zipped_file.read(filename + ".txt").decode(encoding="utf-8")
