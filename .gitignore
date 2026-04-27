@@ -5,6 +5,7 @@ prefect_rj_iplanrio.egg-info/
 .cursor/
 
 #dbt
+target
 queries/logs/*
 queries/target/*
 queries/target-base/*

@@ -1,5 +1,17 @@
 # Changelog - planejamento
 
+## [1.7.0] - 2026-04-22
+
+### Adicionado
+
+- Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+- Refatora modelo `aux_trips_dia` para utilizar trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+- Exclui `service_id = 'EXCEP'` das viagens planejadas nos modelos `viagem_planejada_planejamento` (frequencies e stop_times) (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+
 ## [1.6.9] - 2026-03-31
 
 ### Alterado
