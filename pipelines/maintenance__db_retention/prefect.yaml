@@ -35,7 +35,7 @@ deployments:
         command: uv run --package maintenance__db_retention -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-        
+
   - name: rj-maintenance--db_retention--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/maintenance__db_retention/flow.py:maintenance__db_retention
@@ -50,4 +50,3 @@ deployments:
         command: uv run --package maintenance__db_retention -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-    

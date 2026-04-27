@@ -15,10 +15,7 @@ from prefect.exceptions import ObjectNotFound
 
 
 @task
-async def delete_old_flow_runs(
-    days_to_keep: int = 25,
-    batch_size: int = 200
-):
+async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
     """Delete completed flow runs older than specified days."""
     # logger = get_run_logger()
 
