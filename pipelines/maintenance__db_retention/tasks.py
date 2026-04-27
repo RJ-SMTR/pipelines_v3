@@ -6,24 +6,25 @@ from prefect.client.schemas.filters import FlowRunFilter, FlowRunFilterState, Fl
 from prefect.client.schemas.objects import StateType
 from prefect.exceptions import ObjectNotFound
 
+
 @task
-async def delete_old_flow_runs(
-    days_to_keep: int = 25,
+async def delete_stale_pending_runs(
+    threshold_hours: int = 1,
     batch_size: int = 200
 ):
     """Delete completed flow runs older than specified days."""
     # logger = get_run_logger()
 
     async with get_client() as client:
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=threshold_hours)
 
-        # Create filter for old completed flow runs
+        # Create filter for pending runs older than threshold
         # Note: Using start_time because created time filtering is not available
         flow_run_filter = FlowRunFilter(
             start_time=FlowRunFilterStartTime(before_=cutoff),
             state=FlowRunFilterState(
                 type=FlowRunFilterStateType(
-                    any_=[StateType.COMPLETED, StateType.FAILED, StateType.CANCELLED, StateType.CRASHED]
+                    any_=[StateType.PENDING]
                 )
             )
         )
@@ -33,9 +34,7 @@ async def delete_old_flow_runs(
             flow_run_filter=flow_run_filter,
             limit=batch_size
         )
-        to_delete_dates = [run.start_time if run.start_time else run.created for run in flow_runs]
-        to_delete_dates.sort()
-        print(to_delete_dates)
+
         deleted_total = 0
 
         while flow_runs:
@@ -48,12 +47,13 @@ async def delete_old_flow_runs(
                     await client.delete_flow_run(flow_run.id)
                     deleted_total += 1
                     batch_deleted += 1
+                    print(f"Deleted pending flow run: {flow_run.name}")
                 except ObjectNotFound:
                     # Already deleted (e.g., by concurrent cleanup) - treat as success
                     deleted_total += 1
                     batch_deleted += 1
                 except Exception as e:
-                    print(f"Failed to delete flow run {flow_run.id}: {e}")
+                    print(f"Failed to delete flow run {flow_run.name}: {e}")
                     failed_deletes.append(flow_run.id)
 
                 # # Rate limiting - adjust based on your API capacity
@@ -73,4 +73,4 @@ async def delete_old_flow_runs(
             # Delay between batches to avoid overwhelming the API
             await asyncio.sleep(0.5)
 
-        print(f"Retention complete. Total deleted: {deleted_total}")
+        print(f"Janitoring complete. Total deleted: {deleted_total}")
