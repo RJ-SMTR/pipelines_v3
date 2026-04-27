@@ -27,7 +27,7 @@ RDO_SOURCES = [
             "first_timestamp",
             datetime(2026, 4, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         ),
-        flow_folder_name="capture__jae_auxiliar",
+        flow_folder_name="capture__rioonibus_rdo_rho",
         primary_keys=v.get("primary_keys", []),
         pretreatment_reader_args=v.get(
             "pre_treatment_reader_args",
