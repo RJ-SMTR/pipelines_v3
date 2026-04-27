@@ -63,31 +63,31 @@ with
     )
 select
     data,
-    u.projeto,
-    u.usuario,
-    u.metodo,
-    u.id_job,
+    l.projeto,
+    l.usuario,
+    l.metodo,
+    l.id_job,
     d.id_execucao_dbt,
-    u.query,
-    coalesce(u.nome_flow, u.nome_dashboard) as processo_execucao,
+    l.query,
+    coalesce(l.nome_flow, l.nome_dashboard) as processo_execucao,
     case
-        when u.nome_flow is not null
+        when l.nome_flow is not null
         then 'Flow'
-        when u.nome_dashboard is not null
+        when l.nome_dashboard is not null
         then 'Dashboard'
         else 'Outro'
     end as tipo_processo_execucao,
-    u.bytes_processados,
-    u.bytes_faturados,
-    u.tib_processados,
-    u.tib_processados * p.valor_tib_real as custo_real,
+    l.bytes_processados,
+    l.bytes_faturados,
+    l.tib_processados,
+    l.tib_processados * p.valor_tib_real as custo_real,
     p.valor_tib_real,
     p.valor_tib_dolar,
     p.taxa_conversao_real,
     p.origem as origem_valor,
     '{{ var("version") }}' as versao,
     current_datetime('America/Sao_Paulo') as datetime_ultima_atualizacao
-from union_projetos u
+from logs l
 left join {{ ref("aux_preco_bigquery") }} p using (data)
 left join label_dbt d using (data, projeto, id_job)
 where usuario is not null and bytes_faturados > 0
