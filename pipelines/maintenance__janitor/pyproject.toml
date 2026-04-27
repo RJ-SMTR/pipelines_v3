@@ -1,0 +1,4 @@
+[project]
+name = "maintenance__janitor"
+version = "0.1.0"
+description = "Pipeline janitor da secretaria rj-smtr"
