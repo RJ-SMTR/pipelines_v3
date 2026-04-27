@@ -34,7 +34,7 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
         "password": credentials["pwd"],
     }
 
-    ftp_client = connect_ftp(**conetion_params)
+    ftp_client = connect_ftp(**conection_params)
     try:
         files_updated_times = {
             file: datetime.timestamp(parser.parse(info["modify"]))
