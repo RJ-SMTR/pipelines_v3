@@ -6,13 +6,10 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/capture__cct_pagamento ./pipelines/capture__cct_pagamento/
-
-COPY ./pipelines/integration__upload_transacao_cct ./pipelines/integration__upload_transacao_cct/
-
+COPY ./pipelines/capture__rioonibus_rdo_rho ./pipelines/capture__rioonibus_rdo_rho/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
+
 
 RUN uv sync --all-packages

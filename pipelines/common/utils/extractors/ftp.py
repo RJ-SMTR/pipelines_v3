@@ -1,103 +1,86 @@
 # -*- coding: utf-8 -*-
-"""Module to get data from FTP servers"""
-
+import io
 from ftplib import FTP
-from io import BytesIO
+from typing import Union
 
 from pipelines.common.utils.fs import save_local_file
-from pipelines.common.utils.implicit_ftp import ImplicitFtpTls
-from pipelines.common.utils.secret import get_env_secret
+from pipelines.common.utils.ftp import ImplicitFtpTls, connect_ftp
 
-
-def connect_ftp(secret_path: str, secure: bool = True):
-    """
-    Conecta a um servidor FTP.
-
-    Args:
-        secret_path (str): Caminho do secret com credenciais FTP
-        secure (bool): Se True, usa FTPS implícito (default: True)
-
-    Returns:
-        ImplicitFtpTls | FTP: cliente FTP conectado
-    """
-    ftp_data = get_env_secret(secret_path)
-    if secure:
-        ftp_client = ImplicitFtpTls()
-    else:
-        ftp_client = FTP()
-    ftp_client.connect(host=ftp_data["host"], port=int(ftp_data["port"]))
-    ftp_client.login(user=ftp_data["username"], passwd=ftp_data["pwd"])
-    if secure:
-        ftp_client.prot_p()
-    return ftp_client
+# from pipelines.common import constants as smtr_constants
 
 
 def get_ftp_data(
-    secret_path: str,
-    ftp_path: str,
-    secure: bool = True,
+    ftp_client: Union[ImplicitFtpTls, FTP],
+    ftp_filepath: str,
+    encoding: str,
 ) -> str:
     """
-    Captura dados de um servidor FTP.
+    Obtém o conteúdo de um arquivo no FTP e retorna como string.
 
     Args:
-        secret_path (str): Caminho do secret com credenciais FTP
-        ftp_path (str): Caminho do arquivo no servidor FTP
-        secure (bool): Se True, usa FTPS implícito (default: True)
+        ftp_client (Union[ImplicitFtpTls, FTP]): Cliente FTP já conectado.
+        ftp_filepath (str): Caminho do arquivo no servidor FTP.
+        encoding (str): Encoding utilizado para decodificar o conteúdo.
 
     Returns:
-        str: Conteúdo do arquivo como string, ou string vazia se não encontrado
+        str: Conteúdo do arquivo como string decodificada.
     """
-    ftp_client = None
-    try:
-        ftp_client = connect_ftp(secret_path, secure=secure)
-        file_data = BytesIO()
-        ftp_client.retrbinary(f"RETR {ftp_path}", file_data.write)
-        ftp_client.quit()
-        ftp_client = None
+    buffer = io.BytesIO()
+    ftp_client.retrbinary("RETR " + ftp_filepath, buffer.write)
+    buffer.seek(0)
 
-        file_data.seek(0)
-        return file_data.read().decode("utf-8")
-
-    except (FileNotFoundError, EOFError, OSError) as e:
-        print(f"[ERROR] FTP extraction failed: {e}")
-        return ""
-    finally:
-        if ftp_client is not None:
-            try:
-                ftp_client.quit()
-            except OSError:
-                pass
+    return buffer.read().decode(encoding)
 
 
-def get_raw_ftp(
-    secret_path: str,
-    ftp_path: str,
+def get_raw_ftp(  # noqa: PLR0913
+    host: str,
+    port: int,
+    username: str,
+    password: str,
+    ftp_filepaths: list[str],
+    raw_filetype: str,
     raw_filepath: str,
-    secure: bool = True,
+    encoding: str,
 ) -> list[str]:
     """
-    Captura e salva dados de um servidor FTP.
-
+    Baixa múltiplos arquivos de um servidor FTP e salva localmente.
     Args:
-        secret_path (str): Caminho do secret com credenciais FTP
-        ftp_path (str): Caminho do arquivo no servidor FTP
-        raw_filepath (str): Caminho local para salvar o arquivo
-        secure (bool): Se True, usa FTPS implícito (default: True)
+        host (str): Endereço do servidor FTP.
+        port (int): Porta do servidor FTP.
+        username (str): Usuário para autenticação.
+        password (str): Senha para autenticação.
+        ftp_filepaths (list[str]): Lista de caminhos dos arquivos no FTP.
+        raw_filetype (str): Tipo do arquivo a ser salvo localmente.
+        raw_filepath (str): Template do caminho local com placeholder
+            `{page}` para indexação.
+        encoding (str): Encoding utilizado para decodificar os arquivos.
 
     Returns:
-        list[str]: Lista com o caminho onde os dados foram salvos, ou lista vazia se não encontrado
+        list[str]: Lista com os caminhos dos arquivos salvos localmente.
     """
-    csv_content = get_ftp_data(
-        secret_path=secret_path,
-        ftp_path=ftp_path,
-        secure=secure,
+    filepaths = []
+
+    ftp_client = connect_ftp(
+        host=host,
+        port=port,
+        username=username,
+        password=password,
     )
+    try:
+        page = 0
+        for path in ftp_filepaths:
+            filepath = raw_filepath.format(page=page)
+            page_data = get_ftp_data(
+                ftp_client=ftp_client,
+                ftp_filepath=path,
+                encoding=encoding,
+            )
 
-    if not csv_content:
-        return []
+            save_local_file(filepath=filepath, filetype=raw_filetype, data=page_data)
+            page += 1
+            filepaths.append(filepath)
 
-    filepath = raw_filepath.format(page=0)
-    save_local_file(filepath=filepath, filetype="csv", data=csv_content)
+    finally:
+        ftp_client.quit()
 
-    return [filepath]
+    return filepaths
