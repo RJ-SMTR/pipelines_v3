@@ -400,7 +400,7 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
     local_filepath,
     raw_filepaths,
     data_versao_gtfs,
-    filename="ordem_servico_faixa_horaria",
+    filename,
 ):
     """Processa as abas de Faixa Horária de um arquivo Excel."""
     if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
