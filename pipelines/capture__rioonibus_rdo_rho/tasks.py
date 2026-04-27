@@ -62,5 +62,5 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
         raw_filetype="csv",
         raw_filepath=context.raw_filepath,
         encoding="latin1",
-        **conetion_params,
+        **conection_params,
     )
