@@ -23,15 +23,16 @@ def create_gps_extractor(context: SourceCaptureContext):
     timestamp = context.timestamp.astimezone(timezone("UTC"))
 
     source_config = constants.GPS_SOURCE_CONFIGS[source.source_name]
+    date_format = source_config["date_format"]
 
     if source.table_id == constants.REGISTROS_TABLE_ID:
         endpoint = source_config["registros_endpoint"]
-        date_range_start = (timestamp - timedelta(minutes=6)).strftime("%Y-%m-%d %H:%M:%S")
-        date_range_end = (timestamp - timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M:%S")
+        date_range_start = (timestamp - timedelta(minutes=6)).strftime(date_format)
+        date_range_end = (timestamp - timedelta(minutes=5)).strftime(date_format)
     else:
         endpoint = source_config["realocacao_endpoint"]
-        date_range_start = (timestamp - timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S")
-        date_range_end = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        date_range_start = (timestamp - timedelta(minutes=10)).strftime(date_format)
+        date_range_end = timestamp.strftime(date_format)
 
     url = f"{source_config['base_url']}/{endpoint}"
 
