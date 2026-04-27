@@ -8,10 +8,11 @@ Schedule:
 - A cada hora, no minuto 6 (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-03-16
+DBT: 2026-04-16
 """
 
 from datetime import time
+from typing import Optional
 
 from prefect import flow
 
@@ -30,12 +31,16 @@ from pipelines.treatment__gps_conecta import constants
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
 def treatment__gps_conecta(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars={"modo_gps": "onibus", "fonte_gps": "conecta", "15_minutos": False},  # noqa: B006
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = {
+        "modo_gps": "onibus",
+        "fonte_gps": "conecta",
+        "15_minutos": False,
+    },
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
