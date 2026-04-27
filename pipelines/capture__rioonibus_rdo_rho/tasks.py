@@ -27,14 +27,14 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
     report_type = info[0].upper()
 
     credentials = get_env_secret(constants.RDO_FTPS_SECRET_PATH)
-    conetion_params = {
+    conection_params = {
         "host": credentials["host"],
         "port": int(credentials["port"]),
         "username": credentials["username"],
         "password": credentials["pwd"],
     }
 
-    ftp_client = connect_ftp(**conetion_params)
+    ftp_client = connect_ftp(**conection_params)
     try:
         files_updated_times = {
             file: datetime.timestamp(parser.parse(info["modify"]))
@@ -62,5 +62,5 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
         raw_filetype="csv",
         raw_filepath=context.raw_filepath,
         encoding="latin1",
-        **conetion_params,
+        **conection_params,
     )
