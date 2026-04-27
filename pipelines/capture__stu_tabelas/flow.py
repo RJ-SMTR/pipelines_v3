@@ -8,6 +8,8 @@ informado. Sem o parâmetro, captura todas as tabelas.
 Common: 2026-03-27
 """
 
+from typing import Optional
+
 from prefect import flow
 
 from pipelines.capture__stu_tabelas import constants
@@ -18,12 +20,12 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__stu_tabelas(  # noqa: PLR0913
-    env=None,
-    source_table_ids=None,
-    timestamp=None,
-    recapture=True,
-    recapture_days=5,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    source_table_ids: Optional[list[str]] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 5,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,
