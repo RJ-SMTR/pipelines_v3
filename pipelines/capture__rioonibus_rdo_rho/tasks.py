@@ -27,7 +27,7 @@ def create_rdo_general_extractor(context: SourceCaptureContext):
     report_type = info[0].upper()
 
     credentials = get_env_secret(constants.RDO_FTPS_SECRET_PATH)
-    conetion_params = {
+    conection_params = {
         "host": credentials["host"],
         "port": int(credentials["port"]),
         "username": credentials["username"],
