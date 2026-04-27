@@ -534,6 +534,8 @@ models:
               name: dbt_utils.relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre
               to: ref('autuacao_disciplinar_historico')
               field: id_auto_infracao
+              to_condition: "data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
+              from_condition: "data_inicio_lacre <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
               where: "1=1"
           - not_null:
               name: not_null__id_auto_infracao__veiculo_fiscalizacao_lacre
