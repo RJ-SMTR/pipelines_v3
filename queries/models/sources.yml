@@ -490,3 +490,9 @@ sources:
 
     tables:
       - name: autuacao_controle_negativacao
+
+  - name: rmi_dados_mestres
+    database: rj-crm-registry
+
+    tables:
+      - name: pessoa_juridica
