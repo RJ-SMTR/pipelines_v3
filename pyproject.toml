@@ -7,8 +7,10 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
     "croniter>=6.0.0",
     "dbt-bigquery==1.10.1",
+    "google-api-python-client>=2.194.0",
     "idna>=3.10",
     "infisicalsdk>=1.0.12",
+    "openpyxl>=3.1.5",
     "pandas>=2.2.3",
     "pandas-gbq>=0.33.0",
     "pendulum>=3.1.0",

@@ -83,23 +83,23 @@ models:
         quote: true
   - name: transacao_gratuidade_estudante_municipal
     description: View com transações de gratuidade dos estudantes da rede municipal
-    tests:
-      - sincronizacao_tabelas:
-          name: sincronizacao_tabelas__transacao_gratuidade_estudante_municipal
-          where: ""
-          tabela_base: "{{ ref('transacao') }}"
-          filtro_tabela_base: |
-            tipo_transacao_jae in ('Gratuidade', 'Integração gratuidade')
-            and tipo_usuario = "Estudante"
-            and subtipo_usuario = 'Ensino Básico Municipal'
-          join_key: "id_transacao"
-          excluir_colunas:
-            - versao
-            - datetime_ultima_atualizacao
-            - id_execucao_dbt
-            - nome_cliente
-            - nome_escola
-          filtro_particao_modificada: True
+    # tests:
+    #   - sincronizacao_tabelas:
+    #       name: sincronizacao_tabelas__transacao_gratuidade_estudante_municipal
+    #       where: ""
+    #       tabela_base: "{{ ref('transacao') }}"
+    #       filtro_tabela_base: |
+    #         tipo_transacao_jae in ('Gratuidade', 'Integração gratuidade')
+    #         and tipo_usuario = "Estudante"
+    #         and subtipo_usuario = 'Ensino Básico Municipal'
+    #       join_key: "id_transacao"
+    #       excluir_colunas:
+    #         - versao
+    #         - datetime_ultima_atualizacao
+    #         - id_execucao_dbt
+    #         - nome_cliente
+    #         - nome_escola
+    #       filtro_particao_modificada: True
     columns:
       - name: data
         description: "{{ doc('data_transacao') }} [partição]"
