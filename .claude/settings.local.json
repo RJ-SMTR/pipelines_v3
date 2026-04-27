@@ -45,13 +45,6 @@
       "Bash(rm -rf:*)"
     ]
   },
-  "enabledPlugins": {
-    "dbt@dbt-agent-marketplace": true
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash .claude/statusline.sh"
-  },
   "hooks": {
     "PostToolUse": [
       {
@@ -83,5 +76,12 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash .claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "dbt@dbt-agent-marketplace": true
   }
 }
