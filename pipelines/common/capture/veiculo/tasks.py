@@ -48,10 +48,10 @@ def get_raw_veiculo_with_fallback(
         port=int(credentials["port"]),
         username=credentials["username"],
         password=credentials["pwd"],
-        secret_path=secret_path,
         ftp_filepaths=[ftp_full_path],
         raw_filepath=raw_filepath,
         raw_filetype="csv",
+        encoding="utf-8",
     )
 
     if ftp_result:
