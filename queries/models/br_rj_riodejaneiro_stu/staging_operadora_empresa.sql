@@ -1,35 +1,43 @@
 {{
-  config(
-    alias='operadora_empresa',
-  )
+    config(
+        alias="operadora_empresa",
+    )
 }}
 {# trigger testing #}
-WITH
-    operadora_empresa AS (
-        SELECT
+with
+    operadora_empresa as (
+        select
             data,
-            SAFE_CAST(Perm_Autor AS STRING) AS perm_autor,
-            timestamp_captura,
-            SAFE_CAST(JSON_VALUE(content, '$.CNPJ') AS STRING) AS cnpj,
-            DATE(PARSE_TIMESTAMP('%d/%m/%Y', SAFE_CAST(JSON_VALUE(content, '$.Data') AS STRING)), "America/Sao_Paulo") AS data_registro,
-            SAFE_CAST(JSON_VALUE(content, '$.Processo') AS STRING) AS processo,
-            SAFE_CAST(JSON_VALUE(content, '$.Razao_Social') AS STRING) AS razao_social,
-            SAFE_CAST(JSON_VALUE(content, '$.id_modo') AS STRING) AS id_modo,
-            SAFE_CAST(JSON_VALUE(content, '$.modo') AS STRING) AS modo,
-            SAFE_CAST(JSON_VALUE(content, '$.tipo_permissao') AS STRING) AS tipo_permissao
-        FROM
-            {{ source("br_rj_riodejaneiro_stu_staging", "operadora_empresa") }}
+            safe_cast(perm_autor as string) as perm_autor,
+            datetime(
+                parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
+                "America/Sao_Paulo"
+            ) as timestamp_captura,
+            safe_cast(json_value(content, '$.CNPJ') as string) as cnpj,
+            date(
+                parse_timestamp(
+                    '%d/%m/%Y', safe_cast(json_value(content, '$.Data') as string)
+                ),
+                "America/Sao_Paulo"
+            ) as data_registro,
+            safe_cast(json_value(content, '$.Processo') as string) as processo,
+            safe_cast(json_value(content, '$.Razao_Social') as string) as razao_social,
+            safe_cast(json_value(content, '$.id_modo') as string) as id_modo,
+            safe_cast(json_value(content, '$.modo') as string) as modo,
+            safe_cast(
+                json_value(content, '$.tipo_permissao') as string
+            ) as tipo_permissao
+        from {{ source("br_rj_riodejaneiro_stu_staging", "operadora_empresa") }}
     ),
-    operadora_empresa_rn AS (
-        SELECT
+    operadora_empresa_rn as (
+        select
             *,
-            ROW_NUMBER() OVER (PARTITION BY COALESCE(cnpj, perm_autor), modo ORDER BY timestamp_captura DESC, data_registro DESC) AS rn
-        FROM
-            operadora_empresa
+            row_number() over (
+                partition by coalesce(cnpj, perm_autor), modo
+                order by timestamp_captura desc, data_registro desc
+            ) as rn
+        from operadora_empresa
     )
-SELECT
-  * EXCEPT(rn)
-FROM
-  operadora_empresa_rn
-WHERE
-  rn = 1
+select * except (rn)
+from operadora_empresa_rn
+where rn = 1

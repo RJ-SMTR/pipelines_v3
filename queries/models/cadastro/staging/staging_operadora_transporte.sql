@@ -11,7 +11,10 @@ with
             replace(
                 safe_cast(cd_operadora_transporte as string), ".0", ""
             ) as cd_operadora_transporte,
-            timestamp_captura,
+            datetime(
+                parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
+                "America/Sao_Paulo"
+            ) as timestamp_captura,
             datetime(
                 parse_timestamp(
                     '%Y-%m-%dT%H:%M:%S%Ez',

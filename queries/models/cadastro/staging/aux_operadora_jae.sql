@@ -19,7 +19,8 @@ select
     cb.cd_tipo_conta,
     cb.nm_banco,
     cb.nr_banco,
-    cb.nr_conta
+    cb.nr_conta,
+    ot.timestamp_captura
 from {{ ref("staging_operadora_transporte") }} as ot
 join {{ ref("cliente_jae") }} as c on ot.cd_cliente = c.id_cliente
 left join {{ ref("staging_conta_bancaria") }} as cb on ot.cd_cliente = cb.cd_cliente

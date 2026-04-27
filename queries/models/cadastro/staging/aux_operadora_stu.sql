@@ -9,7 +9,8 @@ with
             tipo_permissao,
             data_registro,
             razao_social as nome_operadora,
-            "CNPJ" as tipo_documento
+            "CNPJ" as tipo_documento,
+            timestamp_captura
         from {{ ref("staging_operadora_empresa") }}
         where
             perm_autor not in (
@@ -30,7 +31,8 @@ with
             tipo_permissao,
             data_registro,
             nome as nome_operadora,
-            "CPF" as tipo_documento
+            "CPF" as tipo_documento,
+            timestamp_captura
         from {{ ref("staging_operadora_pessoa_fisica") }}
     )
 select s.*, m.modo
