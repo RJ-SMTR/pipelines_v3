@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from prefect import flow
-
 from tasks import delete_old_flow_runs
 
 

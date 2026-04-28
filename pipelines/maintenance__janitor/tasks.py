@@ -29,18 +29,11 @@ async def delete_stale_pending_runs(
         # Note: Using start_time because created time filtering is not available
         flow_run_filter = FlowRunFilter(
             start_time=FlowRunFilterStartTime(before_=cutoff),
-            state=FlowRunFilterState(
-                type=FlowRunFilterStateType(
-                    any_=[StateType.PENDING]
-                )
-            )
+            state=FlowRunFilterState(type=FlowRunFilterStateType(any_=[StateType.PENDING])),
         )
 
         # Get flow runs to delete
-        flow_runs = await client.read_flow_runs(
-            flow_run_filter=flow_run_filter,
-            limit=batch_size
-        )
+        flow_runs = await client.read_flow_runs(flow_run_filter=flow_run_filter, limit=batch_size)
 
         deleted_total = 0
 
@@ -73,8 +66,7 @@ async def delete_stale_pending_runs(
 
             # Get next batch
             flow_runs = await client.read_flow_runs(
-                flow_run_filter=flow_run_filter,
-                limit=batch_size
+                flow_run_filter=flow_run_filter, limit=batch_size
             )
 
             # Delay between batches to avoid overwhelming the API

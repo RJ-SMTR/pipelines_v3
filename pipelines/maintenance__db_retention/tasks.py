@@ -82,4 +82,3 @@ async def delete_old_flow_runs(
             await asyncio.sleep(0.5)
 
         print(f"Retention complete. Total deleted: {deleted_total}")
-
