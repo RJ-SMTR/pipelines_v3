@@ -5,7 +5,7 @@ Flow de captura e tratamento de dados do GTFS
 Captura arquivos GTFS (Ordem de Serviço e tabelas padrão) do Google Drive,
 transforma em estrutura aninhada e materializa via dbt.
 
-Common: 2026-04-28_
+Common: 2026-04-28
 """
 
 from prefect import flow, runtime
