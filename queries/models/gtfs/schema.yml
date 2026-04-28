@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: "gtfs"
+  - name: gtfs
 
 models:
   - name: agency_gtfs
