@@ -1,0 +1,4 @@
+[project]
+name = "capture__rioonibus_rdo_rho"
+version = "0.1.0"
+description = "Pipeline rioonibus_rdo_rho da secretaria rj-smtr"

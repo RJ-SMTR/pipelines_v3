@@ -10,6 +10,7 @@ import pandas as pd
 import pytz
 
 from pipelines.common import constants
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
 
 def normalize_text(
@@ -109,8 +110,7 @@ def raise_if_column_isna(
 
     def func(
         data: pd.DataFrame,
-        timestamp: datetime,  # noqa: ARG001
-        primary_keys: list,  # noqa: ARG001
+        context: SourceCaptureContext,  # noqa: ARG001
     ):
         if not data[data[column_name].isna()].empty:
             raise ValueError(f"A coluna {column_name} está nula")

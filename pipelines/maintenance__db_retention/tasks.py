@@ -1,8 +1,15 @@
+# -*- coding: utf-8 -*-
 import asyncio
 from datetime import datetime, timedelta, timezone
+
 from prefect import task
 from prefect.client.orchestration import get_client
-from prefect.client.schemas.filters import FlowRunFilter, FlowRunFilterState, FlowRunFilterStateType, FlowRunFilterStartTime
+from prefect.client.schemas.filters import (
+    FlowRunFilter,
+    FlowRunFilterStartTime,
+    FlowRunFilterState,
+    FlowRunFilterStateType,
+)
 from prefect.client.schemas.objects import StateType
 from prefect.exceptions import ObjectNotFound
 
