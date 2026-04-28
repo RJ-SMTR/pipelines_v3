@@ -342,10 +342,6 @@ models:
 
   - name: trips_gtfs
     description: "Viagens para cada rota"
-    tests:
-      - test_shape_id_gtfs:
-            name: test_shape_id_gtfs__trips_gtfs
-            where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
@@ -363,6 +359,10 @@ models:
         description: "Identifica o bloco ao qual pertence a viagem"
       - name: shape_id
         description: "{{ doc('shape_id') }}"
+        tests:
+          - test_shape_id_gtfs:
+              name: test_shape_id_gtfs__trips_gtfs
+              where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
         description: "Indica acessibilidade para cadeiras de rodas"
       - name: bikes_allowed
