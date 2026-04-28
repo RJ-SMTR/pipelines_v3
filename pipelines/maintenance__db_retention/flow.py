@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from prefect import flow
 
-from tasks import delete_stale_pending_runs
+from tasks import delete_old_flow_runs
 
 
 @flow(log_prints=True)
 def maintenance__db_retention() -> list[str]:
-    delete_stale_pending_runs(
-        threshold_hours=1,
+    delete_old_flow_runs(
+        days_to_keep=15,
         batch_size=200
     )
