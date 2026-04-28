@@ -14,7 +14,7 @@ from prefect.client.schemas.objects import StateType
 from prefect.exceptions import ObjectNotFound
 
 
-@task
+@task(log_prints=True)
 async def delete_stale_pending_runs(
     threshold_hours: int = 1,
     batch_size: int = 200
