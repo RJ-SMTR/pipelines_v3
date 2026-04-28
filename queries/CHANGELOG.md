@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.2] - 2026-04-28
+
+### Alterado
+
+- Altera o tempo de timeout da key `job_execution_timeout_seconds` do `profiles.yml` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/132)
+
 ## [1.1.1] - 2025-09-23
 
 ### Alterado
