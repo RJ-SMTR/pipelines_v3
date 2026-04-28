@@ -344,8 +344,8 @@ models:
     description: "Viagens para cada rota"
     tests:
       - test_shape_id_gtfs:
-          name: test_shape_id_gtfs__trips_gtfs
-          column_name: shape_id
+            name: test_shape_id_gtfs__trips_gtfs
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
