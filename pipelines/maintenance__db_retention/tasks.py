@@ -13,11 +13,9 @@ from prefect.client.schemas.filters import (
 from prefect.client.schemas.objects import StateType
 from prefect.exceptions import ObjectNotFound
 
+
 @task
-async def delete_old_flow_runs(
-    days_to_keep: int = 25,
-    batch_size: int = 200
-):
+async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
     """Delete completed flow runs older than specified days."""
     # logger = get_run_logger()
 
@@ -82,4 +80,3 @@ async def delete_old_flow_runs(
             await asyncio.sleep(0.5)
 
         print(f"Retention complete. Total deleted: {deleted_total}")
-
