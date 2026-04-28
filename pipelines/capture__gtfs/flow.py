@@ -5,7 +5,7 @@ Flow de captura e tratamento de dados do GTFS
 Captura arquivos GTFS (Ordem de Serviço e tabelas padrão) do Google Drive,
 transforma em estrutura aninhada e materializa via dbt.
 
-Common: 2026-04-17
+Common: 2026-04-28
 """
 
 from prefect import flow, runtime
@@ -30,7 +30,9 @@ from pipelines.common.tasks import (
     setup_environment,
     task_send_discord_message,
 )
-from pipelines.common.treatment.default_quality_check.tasks import task_dbt_test_notify_discord
+from pipelines.common.treatment.default_quality_check.tasks import (
+    task_dbt_test_notify_discord,
+)
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.prefect import rename_flow_run
