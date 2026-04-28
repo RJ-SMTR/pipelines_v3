@@ -40,7 +40,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/maintenance__janitor/flow.py:maintenance__janitor
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "15 * * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
