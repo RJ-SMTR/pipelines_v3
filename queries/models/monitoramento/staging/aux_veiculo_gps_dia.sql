@@ -11,7 +11,7 @@
 }}
 
 select data, id_veiculo, count(*) as quantidade_gps
-from {{ ref("gps_sppo") }}
+from {{ ref("view_gps_sppo_completo") }}
 where
     data > '{{ var("data_final_veiculo_arquitetura_1") }}'
     {% if is_incremental() %}

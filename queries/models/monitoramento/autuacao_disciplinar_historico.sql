@@ -105,7 +105,7 @@ with
                 ) as sha_dado
             from dados_completos
         )
-    select * except (sha_dado)
+    select * except (sha_dado, fonte, ordem)
     from dados_completos_sha
     qualify
         (
