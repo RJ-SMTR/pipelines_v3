@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de materialização de validação de dados da Jaé
+
+Executa o selector DBT 'validacao_dados_jae' para materializar dados no BigQuery.
+
+DBT: 2026-04-28
+"""
+
 from typing import Optional
 
 from prefect import flow
