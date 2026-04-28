@@ -27,13 +27,13 @@ def create_gps_extractor(context: SourceCaptureContext):
     if source.table_id == constants.REGISTROS_TABLE_ID:
         endpoint = source_config["registros_endpoint"]
         secret_path = source_config.get("registros_secret_path", source_config.get("secret_path"))
-        fmt = source_config.get("registros_datetime_format", "%Y-%m-%d %H:%M:%S")
+        fmt = source_config["registros_datetime_format"]
         date_range_start = (timestamp - timedelta(minutes=6)).strftime(fmt)
         date_range_end = (timestamp - timedelta(minutes=5)).strftime(fmt)
     else:
         endpoint = source_config["realocacao_endpoint"]
         secret_path = source_config.get("realocacao_secret_path", source_config.get("secret_path"))
-        fmt = source_config.get("realocacao_datetime_format", "%Y-%m-%d %H:%M:%S")
+        fmt = source_config["realocacao_datetime_format"]
         date_range_start = (timestamp - timedelta(minutes=10)).strftime(fmt)
         date_range_end = timestamp.strftime(fmt)
 
