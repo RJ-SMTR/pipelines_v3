@@ -78,4 +78,4 @@ queries:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
             spark.driver.memoryOverhead: 1g
-  target: prod
+  target: dev
