@@ -5,7 +5,7 @@
 ### Adicionado
 
 - Cria modelo `view_gps_sppo_completo` que une o histórico legado `br_rj_riodejaneiro_veiculos.gps_sppo` com o novo `gps_onibus_sppo` (https://github.com/RJ-SMTR/pipelines_v3/pull/119)
-- 
+-
 ## [2.0.2] - 2026-03-19
 
 ### Alterado
