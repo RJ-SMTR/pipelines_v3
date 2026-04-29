@@ -40,8 +40,6 @@ jobs:
       - name: Get Changed Files
         id: changed-files
         uses: tj-actions/changed-files@v34
-        with:
-          files: "automations/**"
 
       - name: Create automations
         if: steps.changed-files.outputs.any_changed == 'true'
