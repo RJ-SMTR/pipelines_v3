@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 
 # from queries.dev.utils import run_dbt_model, run_dbt_selector, run_dbt_tests
 # import pandas as pd
 # # Veja os parâmetros disponíveis da função run_dbt_model em util.py
-
 
 
 # inicio = "2026-04-01"
@@ -23,7 +23,6 @@
 #     }
 
 
-
 from pipelines.treatment__monitoramento_temperatura.flow import treatment__monitoramento_temperatura
 
 treatment__monitoramento_temperatura()
@@ -35,6 +34,6 @@ treatment__monitoramento_temperatura()
 #     flags = "--target dev --defer --state target-base --favor-state")
 
 # run_dbt_selector(
-#     selector_name="monitoramento_temperatura",     
-#     _vars=vars, 
+#     selector_name="monitoramento_temperatura",
+#     _vars=vars,
 #     flags = "--target dev --defer --state target-base --favor-state")
