@@ -1,0 +1,4 @@
+[project]
+name = "capture__sppo_registros"
+version = "1.0.0"
+description = "Pipeline sppo_registros da secretaria rj-smtr"
