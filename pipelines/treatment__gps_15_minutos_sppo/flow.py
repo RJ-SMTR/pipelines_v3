@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flow de materialização de dados do GPS 15 minutos zirix
+Flow de materialização de dados do GPS 15 minutos SPPO
 
 Executa o selector DBT 'gps_15_minutos' para materializar dados no BigQuery.
 
@@ -8,7 +8,7 @@ Schedule:
 - A cada 15 minutos (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-04-16
+DBT: 2026-04-17
 """
 
 from typing import Optional
@@ -20,7 +20,7 @@ from pipelines.common.treatment.default_treatment.flow import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import handler_notify_failure
-from pipelines.treatment__gps_15_minutos_zirix import constants
+from pipelines.treatment__gps_15_minutos_sppo import constants
 
 
 @flow(
@@ -29,21 +29,21 @@ from pipelines.treatment__gps_15_minutos_zirix import constants
     on_failure=[handler_notify_failure(webhook="dataplex")],
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
-def treatment__gps_15_minutos_zirix(  # noqa: PLR0913
+def treatment__gps_15_minutos_sppo(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = {
         "modo_gps": "onibus",
-        "fonte_gps": "zirix",
+        "fonte_gps": "sppo",
         "15_minutos": True,
     },
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.GPS_15_MINUTOS_ZIRIX_SELECTOR],
+        selectors=[constants.GPS_15_MINUTOS_SPPO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
