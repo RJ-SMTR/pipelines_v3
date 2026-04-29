@@ -36,7 +36,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
-      
+
       - name: Get Changed Files
         id: changed-files
         uses: tj-actions/changed-files@v34
