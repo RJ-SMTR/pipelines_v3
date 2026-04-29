@@ -1,6 +1,6 @@
 version: 2
 sources:
-  - name: "gtfs"
+  - name: gtfs
 
 models:
   - name: agency_gtfs
@@ -31,9 +31,9 @@ models:
       - name: service_id
         description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
         tests:
-          - dbt_utils.expression_is_true:
-              name: dbt_utils.expression_is_true__service_id__calendar_gtfs
-              expression: "REGEXP_CONTAINS(service_id, '^([USD]_|EXCEP)')"
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs
+              regex: "^([USD]_|EXCEP)"
               where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: monday
         description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
@@ -359,6 +359,10 @@ models:
         description: "Identifica o bloco ao qual pertence a viagem"
       - name: shape_id
         description: "{{ doc('shape_id') }}"
+        tests:
+          - test_shape_id_gtfs:
+              name: test_shape_id_gtfs__trips_gtfs
+              where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
         description: "Indica acessibilidade para cadeiras de rodas"
       - name: bikes_allowed
