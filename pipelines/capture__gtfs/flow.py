@@ -157,13 +157,6 @@ def capture__gtfs(  # noqa: PLR0915
         dbt_success = False
         print(f"Falha na materialização do GTFS: {e}")
 
-    if data_index is not None:
-        update_last_captured_os(
-            dataset_id=constants.GTFS_DATASET_ID,
-            data_index=data_index,
-            mode=env,
-        )
-
     if dbt_success:
         task_send_discord_message(
             message=(
@@ -187,6 +180,12 @@ def capture__gtfs(  # noqa: PLR0915
             webhook_key=constants.GTFS_DISCORD_WEBHOOK,
             raise_check_error=False,
         )
+        if data_index is not None:
+            update_last_captured_os(
+                dataset_id=constants.GTFS_DATASET_ID,
+                data_index=data_index,
+                mode=env,
+            )
     else:
         task_send_discord_message(
             message=f"Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",

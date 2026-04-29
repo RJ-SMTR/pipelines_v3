@@ -35,8 +35,10 @@ deployments:
         command: uv run --package capture__gtfs -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-        memory: "4600Mi"
-        cpu: "1000m"
+        cpu_limit: "1000m"
+        memory_limit: "4600Mi"
+        cpu_request: "500m"
+        memory_request: "1000Mi"
   - name: rj-capture--gtfs--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__gtfs/flow.py:capture__gtfs
@@ -51,5 +53,7 @@ deployments:
         command: uv run --package capture__gtfs -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-        memory: "4600Mi"
-        cpu: "1000m"
+        cpu_limit: "1000m"
+        memory_limit: "4600Mi"
+        cpu_request: "500m"
+        memory_request: "1000Mi"
