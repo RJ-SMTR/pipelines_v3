@@ -314,7 +314,7 @@ def processa_ordem_servico(
     raw_filepaths.append(raw_file_path)
 
 
-def processa_ordem_servico_trajeto_alternativo(
+def processa_ordem_servico_trajeto_alternativo( # noqa: PLR0913
     sheetnames,
     file_bytes,
     local_filepath,
@@ -394,7 +394,7 @@ def processa_ordem_servico_trajeto_alternativo(
     raw_filepaths.append(raw_file_path)
 
 
-def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
+def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
     sheetnames,
     file_bytes,
     local_filepath,
