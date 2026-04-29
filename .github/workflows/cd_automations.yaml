@@ -42,7 +42,7 @@ jobs:
         uses: tj-actions/changed-files@v34
 
       - name: Create automations
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.files.outputs.all_changed_files != ''
         run: |
           for file in $(echo "${{ steps.changed-files.outputs.changed_files }}" | tr ',' '\n'); do
             echo "Processing $file"
