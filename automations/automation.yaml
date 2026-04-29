@@ -1,4 +1,4 @@
-name: Test Automation
+name: Test
 description: Crash flows without heartbeats
 enabled: true
 trigger:

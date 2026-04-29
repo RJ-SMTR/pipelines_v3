@@ -38,14 +38,17 @@ jobs:
           uv sync --all-packages
 
       - name: Get Changed Files
-        id: changed-files
+        id: files
         uses: tj-actions/changed-files@v34
+        with:
+          files: |
+            automations/**/*.yaml
 
       - name: Create automations
-        if: steps.changed-files.outputs.all_changed_files != ''
+        if: steps.files.outputs.any_changed == 'true'
         run: |
-          echo "${{ steps.changed-files.outputs.changed_files }}"
-          for file in $(echo "${{ steps.changed-files.outputs.changed_files }}" | tr ',' '\n'); do
+          echo "${{ steps.files.outputs.changed_files }}"
+          for file in $(echo "${{ steps.files.outputs.all_changed_files }}" | tr ',' '\n'); do
             echo "Processing $file"
             uv run prefect automation create --file $file
           done
