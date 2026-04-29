@@ -1,0 +1,58 @@
+name: Automations CD
+on:
+  push:
+    branches:
+      - staging/*
+      - devops/*
+    paths:
+      - pipelines/automations/**
+      - .github/workflows/cd_automations.yaml
+
+env:
+  PREFECT_API_URL: ${{ secrets.PREFECT_WEB_API_URL }}
+  PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
+
+jobs:
+  create-automations:
+    name: Create automations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          uv sync --all-packages
+      
+      - name: Get Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v34
+        with:
+          files: "pipelines/automations/**"
+
+      - name: Create automations
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          for file in $(echo "${{ steps.changed-files.outputs.changed_files }}" | tr ',' '\n'); do
+            echo "Processing $file"
+            prefect automations create --file $file
+          done
+        # with:
+        #   environment: staging
+        #   pipelines_path: ./pipelines/automations
+        #   prefect_api_url: ${{ secrets.PREFECT_API_URL }}
+        #   gh_token: ${{ secrets.GITHUB_TOKEN }}
+        
