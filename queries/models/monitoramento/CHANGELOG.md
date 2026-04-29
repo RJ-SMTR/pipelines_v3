@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.0.3] - 2026-04-16
+
+### Adicionado
+
+- Cria modelo `view_gps_sppo_completo` que une o histórico legado `br_rj_riodejaneiro_veiculos.gps_sppo` com o novo `gps_onibus_sppo` (https://github.com/RJ-SMTR/pipelines_v3/pull/119)
+-
 ## [2.0.2] - 2026-03-19
 
 ### Alterado
@@ -49,7 +55,6 @@
 ### Alterado
 
 - Alterados os testes do modelo `gps_validador` para testar apenas o modo `Ônibus` quando executado pelo flow do subsídio (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1247)
-
 
 ## [1.9.2] - 2026-02-10
 
