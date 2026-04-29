@@ -42,9 +42,10 @@ jobs:
         uses: tj-actions/changed-files@v34
 
       - name: Create automations
-        if: steps.files.outputs.all_changed_files != ''
+        if: steps.changed-files.outputs.all_changed_files != ''
         run: |
+          echo "${{ steps.changed-files.outputs.changed_files }}"
           for file in $(echo "${{ steps.changed-files.outputs.changed_files }}" | tr ',' '\n'); do
             echo "Processing $file"
-            prefect automations create --file $file
+            uv run prefect automation create --file $file
           done
