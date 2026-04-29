@@ -33,7 +33,7 @@ GPS_DAILY_TEST = DBTTest(
 
 GPS_SPPO_SELECTOR = DBTSelector(
     name="gps",
-    initial_datetime=datetime(2026, 4, 16, 17, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 4, 29, 10, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_sppo",
     incremental_delay_hours=1,
     redis_key_suffix="sppo",
