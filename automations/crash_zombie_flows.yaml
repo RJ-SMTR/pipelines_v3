@@ -1,4 +1,4 @@
-name: Crash Zombie Flows
+name: Crash Zombie Flows - test
 description: Crash flows without heartbeats
 enabled: true
 trigger:

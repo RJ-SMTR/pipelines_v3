@@ -50,5 +50,5 @@ jobs:
           echo "${{ steps.files.outputs.changed_files }}"
           for file in $(echo "${{ steps.files.outputs.all_changed_files }}" | tr ',' '\n'); do
             echo "Processing $file"
-            uv run prefect automation create --file $file
+            uv run prefect automation create -f $file
           done
