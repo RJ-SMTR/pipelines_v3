@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Migração do flow `DATARIO_MATERIALIZACAO` do Prefect 1.4 para Prefect 3.0
+- Cria flow `treatment__datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/134)
