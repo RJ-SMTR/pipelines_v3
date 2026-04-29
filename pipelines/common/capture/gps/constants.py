@@ -11,6 +11,36 @@ CONECTA_SOURCE_NAME = "conecta"
 ZIRIX_SOURCE_NAME = "zirix"
 SPPO_SOURCE_NAME = "sppo"
 
+OUTPUT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+SPPO_REGISTROS_RENAME = {
+    "ordem": "id_veiculo",
+    "linha": "servico",
+    "datahora": "datetime",
+    "datahoraenvio": "datetime_envio",
+    "datahoraservidor": "datetime_servidor",
+}
+
+SPPO_REGISTROS_DATETIME_COLS = ["datetime", "datetime_envio", "datetime_servidor"]
+
+SPPO_REALOCACAO_RENAME = {
+    "veiculo": "id_veiculo",
+    "dataOperacao": "datetime_operacao",
+    "linha": "servico",
+    "dataEntrada": "datetime_entrada",
+    "dataSaida": "datetime_saida",
+    "dataProcessado": "datetime_processamento",
+}
+
+SPPO_REALOCACAO_DATETIME_COLS = [
+    "datetime_operacao",
+    "datetime_entrada",
+    "datetime_saida",
+    "datetime_processamento",
+]
+
+REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"]
+
 GPS_SOURCE_CONFIGS = {
     "cittati": {
         "base_url": "https://servicos.cittati.com.br/WSIntegracaoCittati/SMTR/v2",

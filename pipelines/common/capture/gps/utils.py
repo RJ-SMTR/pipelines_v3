@@ -3,41 +3,18 @@
 Funções de pré-tratamento para captura de dados de GPS do SPPO.
 """
 
-from datetime import datetime
-
 import pandas as pd
 
 from pipelines.common import constants as smtr_constants
-
-OUTPUT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-
-SPPO_REGISTROS_RENAME = {
-    "ordem": "id_veiculo",
-    "linha": "servico",
-    "datahora": "datetime",
-    "datahoraenvio": "datetime_envio",
-    "datahoraservidor": "datetime_servidor",
-}
-
-SPPO_REGISTROS_DATETIME_COLS = ["datetime", "datetime_envio", "datetime_servidor"]
-
-SPPO_REALOCACAO_RENAME = {
-    "veiculo": "id_veiculo",
-    "dataOperacao": "datetime_operacao",
-    "linha": "servico",
-    "dataEntrada": "datetime_entrada",
-    "dataSaida": "datetime_saida",
-    "dataProcessado": "datetime_processamento",
-}
-
-SPPO_REALOCACAO_DATETIME_COLS = [
-    "datetime_operacao",
-    "datetime_entrada",
-    "datetime_saida",
-    "datetime_processamento",
-]
-
-REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"]
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
+from pipelines.common.capture.gps.constants import (
+    OUTPUT_DATETIME_FORMAT,
+    REALOCACAO_DATETIME_INPUT_FORMATS,
+    SPPO_REALOCACAO_DATETIME_COLS,
+    SPPO_REALOCACAO_RENAME,
+    SPPO_REGISTROS_DATETIME_COLS,
+    SPPO_REGISTROS_RENAME,
+)
 
 
 def _convert_epoch_ms_to_utc_iso(series: pd.Series) -> pd.Series:
@@ -69,8 +46,7 @@ def _convert_naive_sp_to_utc_iso(series: pd.Series) -> pd.Series:
 
 def rename_sppo_registros(
     data: pd.DataFrame,
-    timestamp: datetime,  # noqa: ARG001
-    primary_keys: list[str],  # noqa: ARG001
+    context: SourceCaptureContext,  # noqa: ARG001
 ) -> pd.DataFrame:
     """Renomeia colunas e converte datetimes (epoch ms → ISO UTC) dos registros do SPPO."""
     data = data.rename(columns=SPPO_REGISTROS_RENAME)
@@ -82,8 +58,7 @@ def rename_sppo_registros(
 
 def rename_sppo_realocacao(
     data: pd.DataFrame,
-    timestamp: datetime,  # noqa: ARG001
-    primary_keys: list[str],  # noqa: ARG001
+    context: SourceCaptureContext,  # noqa: ARG001
 ) -> pd.DataFrame:
     """Renomeia colunas e converte datetimes (naive SP → ISO UTC) das realocações do SPPO."""
     data = data.rename(columns=SPPO_REALOCACAO_RENAME)
