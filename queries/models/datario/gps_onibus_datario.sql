@@ -16,4 +16,4 @@ select
     distancia,
     'conecta' as fonte_gps,
     versao
-from {{ ref("gps_sppo") }}
+from {{ ref("view_gps_sppo_completo") }}
