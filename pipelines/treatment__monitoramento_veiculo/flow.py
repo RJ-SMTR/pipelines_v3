@@ -13,6 +13,7 @@ DBT: 2026-04-14
 """
 
 from typing import Optional
+
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
