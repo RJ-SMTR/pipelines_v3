@@ -24,7 +24,7 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--monitoramento-temperatura--staging
+  - name: rj-treatment--monitoramento_temperatura--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/treatment__monitoramento_temperatura/flow.py:treatment__monitoramento_temperatura
     work_pool:
@@ -35,7 +35,7 @@ deployments:
         command: uv run --package treatment__monitoramento_temperatura -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--monitoramento-temperatura--prod
+  - name: rj-treatment--monitoramento_temperatura--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__monitoramento_temperatura/flow.py:treatment__monitoramento_temperatura
     schedules:
