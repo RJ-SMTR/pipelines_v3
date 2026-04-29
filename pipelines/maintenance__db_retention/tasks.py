@@ -70,6 +70,9 @@ async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
             print(f"Deleted {batch_deleted}/{len(flow_runs)} flow runs (total: {deleted_total})")
             if failed_deletes:
                 print(f"Failed to delete {len(failed_deletes)} flow runs")
+                if batch_deleted == 0:
+                    print("No successful deletions in this batch, stopping to avoid infinite loop.")
+                    break
 
             # Get next batch
             flow_runs = await client.read_flow_runs(
