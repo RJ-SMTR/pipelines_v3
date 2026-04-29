@@ -1,3 +1,7 @@
-# Changelog
+# Changelog - treatment__monitoramento_temperatura
 
-Histórico de alterações do pipeline `treatment__monitoramento_temperatura`.
+## [1.0.0] - 2026-04-29
+
+### Adicionado
+
+- Cria flow `treatment__monitoramento_temperatura` (https://github.com/RJ-SMTR/pipelines_v3/pull/120)
