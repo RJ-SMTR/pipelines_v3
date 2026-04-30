@@ -436,6 +436,13 @@ sources:
       - name: registros
       - name: realocacao
 
+  - name: source_sonda
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
   - name: clima_estacao_meteorologica
     database: rj-cor
 
