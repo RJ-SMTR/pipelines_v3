@@ -180,11 +180,13 @@
                             )
                             and indicador_ar_condicionado
                             and p.test_percentual_temperatura_nula_descartada = 100
-                            and i.indicador_regularidade_ar_condicionado_viagem
+                            and not coalesce(
+                                i.indicador_regularidade_ar_condicionado_viagem, false
+                            )
                             is not null
                         )
                     then
-                        'Indicador_regularidade_ar_condicionado_viagem deveria ser nulo, 100% das temperaturas foram nulas'
+                        'Indicador_regularidade_ar_condicionado_viagem deveria ser true, 100% das temperaturas foram nulas'
                 end as inconsistencia_temperatura_nula,
             from indicadores i
             left join percentuais p using (data, id_viagem, id_validador)
