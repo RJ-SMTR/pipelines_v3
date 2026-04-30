@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
+ADDITIONAL_VARS = {"tipo_materializacao": "monitoramento"}
+
 MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
     "temperatura_inmet": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
