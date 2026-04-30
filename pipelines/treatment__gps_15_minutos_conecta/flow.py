@@ -34,11 +34,7 @@ def treatment__gps_15_minutos_conecta(  # noqa: PLR0913
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict] = {
-        "modo_gps": "onibus",
-        "fonte_gps": "conecta",
-        "15_minutos": True,
-    },
+    additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
@@ -47,6 +43,6 @@ def treatment__gps_15_minutos_conecta(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
         force_test_run=force_test_run,
     )
