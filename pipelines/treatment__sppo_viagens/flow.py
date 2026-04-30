@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from prefect import flow, runtime, unmapped
 
 from pipelines.common.tasks import (
@@ -15,7 +17,6 @@ from pipelines.common.treatment.default_treatment.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
-from typing import Optional
 
 
 @flow(
