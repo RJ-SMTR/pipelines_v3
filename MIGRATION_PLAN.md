@@ -102,6 +102,17 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `capture__zirix_realocacao` — Captura de realocação GPS ônibus (Zirix) (PR #83)
 - [x] `capture__jae_transacao_ordem` — Captura de transação/ordem JAE (PR #77)
 - [x] `capture__jae_backup_billingpay` — Backup dados BillingPay (PR #78)
+- [x] `capture__cct_pagamento` — Captura de pagamento CCT (5 tabelas)
+- [x] `capture__stu_tabelas` — Captura de tabelas STU (21 tabelas)
+- [x] `capture__jae_verificacao_ip` — Verificação de IP do banco JAE (Migrado como `control__jae_teste_ip`)
+- [x] `capture__jae_verifica_captura` — Verificação de lacunas na captura JAE (Migrado como `control__jae_verificacao_captura`)
+- [x] `capture__gtfs` — GTFS captura e tratamento
+- [x] `capture__rioonibus_rdo_rho` — Captura de RDO/RHO RioÔnibus
+- [x] `capture__sppo_registros` — Captura de registros GPS ônibus (SPPO)
+- [x] `capture__sppo_realocacao` — Captura de realocação GPS ônibus (SPPO)
+- [x] `capture__veiculo_infracao` — Captura de infrações de veículos
+- [x] `capture__veiculo_licenciamento` — Captura de licenciamento de veículos
+- [x] `capture__veiculo_sppo_registro_agente_verao` — Captura de registros agente verão
 
 ### Pendentes — Viagem / Monitoramento
 
@@ -113,37 +124,11 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Origem: `pipelines/capture/veiculo_fiscalizacao/flows.py` → `CAPTURA_VEICULO_LACRE`
   - Schedule: `0 5 * * *` (diário às 5h)
   - Downstream: `treatment__monitoramento_veiculo`
-
-### Pendentes — Bilhetagem (CCT)
-
-- [ ] `capture__cct_pagamento` — Captura de pagamento CCT (5 tabelas)
-  - Origem: `pipelines/capture/cct/flows.py` → `CAPTURA_PAGAMENTO_CCT`
-  - Schedule: `0 0 * * *` (diário à 0h)
-  - Tabelas: ordem_pagamento, ordem_pagamento_agrupado, ordem_pagamento_agrupado_historico, detalhe_a, user
-  - Downstream: `treatment__pagamento_cct`
-
 ### Pendentes — Outros
-
-- [ ] `capture__stu_tabelas` — Captura de tabelas STU (21 tabelas)
-  - Origem: `pipelines/capture/stu/flows.py` → `CAPTURA_STU`
-  - Schedule: `0 8 * * *` (diário às 8h)
-  - Nota: Kubernetes resource limits customizados (1000m CPU, 4600Mi mem)
 
 - [ ] `capture__inmet_temperatura` — Captura de temperatura (INMET)
   - Origem: `pipelines/capture/inmet/flows.py` → `CAPTURA_TEMPERATURA_INMET`
   - Schedule: sem schedule (executado manualmente)
-
-### Pendentes — Bilhetagem (Controle/Verificação)
-
-- [ ] `capture__jae_verificacao_ip` — Verificação de IP do banco JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `verificacao_ip`
-  - Schedule: horário
-  - Nota: monitoramento, envia alerta Discord em caso de falha
-
-- [ ] `capture__jae_verifica_captura` — Verificação de lacunas na captura JAE
-  - Origem: `pipelines/capture/jae/flows.py` → `verifica_captura`
-  - Schedule: diário às 5h
-  - Tabelas verificadas: transacao, transacao_riocard, gps_validador, lancamento, cliente, gratuidade, estudante, laudo_pcd
 
 ---
 
@@ -163,84 +148,27 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 - [x] `treatment__passageiro_hora` — Materialização de passageiro/hora (PR #57)
 - [x] `treatment__viagem_informada` — Materialização de viagem informada (PR #68)
 - [x] `treatment__transacao_erro` — Materialização de transações com erro (PR #65)
-
-### Pendentes — GPS (dependem das capturas GPS acima)
-
-- [ ] `treatment__gps_conecta` — Materialização de GPS Conecta
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_CONECTA_MATERIALIZACAO`
-  - Schedule: horário (minuto 6)
-  - Waits: `capture__conecta_registros` + `capture__conecta_realocacao`
-  - Selector: `gps` (vars: modo_gps=onibus, fonte_gps=conecta)
-
-- [ ] `treatment__gps_cittati` — Materialização de GPS Cittati
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_CITTATI_MATERIALIZACAO`
-  - Schedule: horário (minuto 6)
-  - Waits: `capture__cittati_registros` + `capture__cittati_realocacao`
-  - Selector: `gps` (vars: modo_gps=onibus, fonte_gps=cittati)
-
-- [ ] `treatment__gps_zirix` — Materialização de GPS Zirix
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_ZIRIX_MATERIALIZACAO`
-  - Schedule: horário (minuto 6)
-  - Waits: `capture__zirix_registros` + `capture__zirix_realocacao`
-  - Selector: `gps` (vars: modo_gps=onibus, fonte_gps=zirix)
-
-- [ ] `treatment__gps_15_minutos_conecta` — Materialização de GPS 15 minutos (Conecta)
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_15_MINUTOS_CONECTA_MATERIALIZACAO`
-  - Schedule: a cada 15 minutos
-  - Waits: `capture__conecta_registros` + `capture__conecta_realocacao`
-
-- [ ] `treatment__gps_15_minutos_cittati` — Materialização de GPS 15 minutos (Cittati)
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_15_MINUTOS_CITTATI_MATERIALIZACAO`
-  - Schedule: a cada 15 minutos
-  - Waits: `capture__cittati_registros` + `capture__cittati_realocacao`
-
-- [ ] `treatment__gps_15_minutos_zirix` — Materialização de GPS 15 minutos (Zirix)
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `GPS_15_MINUTOS_ZIRIX_MATERIALIZACAO`
-  - Schedule: a cada 15 minutos
-  - Waits: `capture__zirix_registros` + `capture__zirix_realocacao`
+- [x] `treatment__gps_conecta` — Materialização de GPS Conecta
+- [x] `treatment__gps_cittati` — Materialização de GPS Cittati
+- [x] `treatment__gps_zirix` — Materialização de GPS Zirix
+- [x] `treatment__gps_15_minutos_conecta` — Materialização de GPS 15 minutos (Conecta)
+- [x] `treatment__gps_15_minutos_cittati` — Materialização de GPS 15 minutos (Cittati)
+- [x] `treatment__gps_15_minutos_zirix` — Materialização de GPS 15 minutos (Zirix)
+- [x] `treatment__monitoramento_veiculo` — Materialização de monitoramento de veículos + snapshot
+- [x] `treatment__financeiro_bilhetagem` — Materialização de financeiro bilhetagem
+- [x] `treatment__integracao` — Materialização de integração bilhetagem
+- [x] `treatment__pagamento_cct` — Materialização de pagamento CCT
+- [x] `treatment__matriz_integracao_smtr` — Materialização de matriz de integração
+- [x] `treatment__ordem_pagamento_quality_check` — Quality check bilhetagem (Migrado como `quality_check__ordem_pagamento`)
+- [x] `treatment__gps_sppo` — Materialização de GPS SPPO
+- [x] `treatment__gps_15_minutos_sppo` — Materialização de GPS 15 minutos (SPPO)
 
 ### Pendentes — Sem dependências de outros treatments
-
-- [ ] `treatment__monitoramento_veiculo` — Materialização de monitoramento de veículos + snapshot
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `MONITORAMENTO_VEICULO_MATERIALIZACAO`
-  - Schedule: `0 45 5 * * *` (diário às 5:45)
-  - Waits: `capture__veiculo_fiscalizacao_lacre`
-  - Selector: `monitoramento_veiculo` + snapshot `snapshot_veiculo`
-  - Post-tests: veiculo_fiscalizacao_lacre, autuacao_disciplinar_historico
 
 - [ ] `treatment__datario` — Materialização de dados do Datario
   - Origem: `pipelines/treatment/datario/flows.py` → `DATARIO_MATERIALIZACAO`
   - Schedule: sem schedule (executado manualmente)
   - Waits: nenhum
-
-- [ ] `treatment__matriz_integracao_smtr` — Materialização de matriz de integração
-  - Origem: `pipelines/treatment/planejamento/flows.py` → `MATRIZ_INTEGRACAO_SMTR_MATERIALIZACAO`
-  - Schedule: sem schedule (executado manualmente)
-  - Waits: nenhum
-
-### Pendentes — Bilhetagem Nível 0 (dependem apenas de capturas)
-
-- [ ] `treatment__financeiro_bilhetagem` — Materialização de financeiro bilhetagem
-  - Origem: `pipelines/treatment/financeiro/flows.py` → `FINANCEIRO_BILHETAGEM_MATERIALIZACAO`
-  - Schedule: `5 10 * * *` (diário às 10:05)
-  - Waits: `treatment__cadastro` + todas as 6 tabelas de `capture__jae_ordem_pagamento`
-  - Downstream: `treatment__transacao_ordem`, `ordem_atrasada`
-
-- [ ] `treatment__integracao` — Materialização de integração bilhetagem
-  - Origem: `pipelines/treatment/bilhetagem/flows.py` → `INTEGRACAO_MATERIALIZACAO`
-  - Schedule: diário às 10:30 + fallbacks 12:15 e 14:15
-  - Waits: `treatment__cadastro` + `capture__jae_integracao` + ordem_rateio source
-  - Downstream: `treatment__transacao`, `treatment__transacao_valor_ordem`, `treatment__validacao_dados_jae`
-
-- [ ] `treatment__pagamento_cct` — Materialização de pagamento CCT
-  - Origem: `pipelines/treatment/financeiro/flows.py` → `PAGAMENTO_CCT_MATERIALIZACAO`
-  - Schedule: `30 0 * * *` (diário às 0:30)
-  - Waits: todas as 5 tabelas de `capture__cct_pagamento`
-
-- [ ] `treatment__ordem_pagamento_quality_check` — Quality check bilhetagem consórcio/operador/dia
-  - Origem: `pipelines/treatment/financeiro/flows.py` → `ordem_pagamento_quality_check`
-  - Schedule: diário às 10:15
-  - Waits: nenhum explícito (lê Redis/BQ)
 
 - [ ] `treatment__alerta_transacao` — Alerta de transação
   - Origem: `pipelines/treatment/validacao_dados_jae/flows.py` → `ALERTA_TRANSACAO_MATERIALIZACAO`
@@ -251,42 +179,31 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 
 ## Materialização / Treatment — Nível 1 (dependem de treatments nível 0)
 
+### Concluídos
+
+- [x] `treatment__monitoramento_temperatura` — Materialização de monitoramento de temperatura + snapshot
+- [x] `treatment__transacao` — Materialização de transações bilhetagem
+- [x] `treatment__transacao_ordem` — Materialização de transação/ordem bilhetagem
+- [x] `upload_transacao_cct` — Upload de transação para PostgreSQL CCT (Migrado como `integration__upload_transacao_cct`)
+
+### Pendentes
+
 - [ ] `treatment__cadastro_veiculo` — Materialização do selector `cadastro_veiculo` + snapshot
   - Origem: `pipelines/treatment/cadastro/flows.py` → `CADASTRO_VEICULO_MATERIALIZACAO`
   - Schedule: `0 6 * * *` (diário às 6h)
   - Waits: `treatment__monitoramento_veiculo`
   - Post-tests: veiculo_licenciamento_dia
 
-- [ ] `treatment__monitoramento_temperatura` — Materialização de monitoramento de temperatura + snapshot
-  - Origem: `pipelines/treatment/monitoramento/flows.py` → `MONITORAMENTO_TEMPERATURA_MATERIALIZACAO`
-  - Schedule: `0 6 * * *` (diário às 6h)
-  - Waits: `treatment__monitoramento_veiculo`
-  - Post-tests: temperatura_inmet, temperatura_alertario, aux_viagem_temperatura, etc.
-
-### Bilhetagem — Nível 1
-
-- [ ] `treatment__transacao` — Materialização de transações bilhetagem
-  - Origem: `pipelines/treatment/bilhetagem/flows.py` → `TRANSACAO_MATERIALIZACAO`
-  - Schedule: horário (minuto 15)
-  - Waits: `treatment__cadastro` + `capture__jae_transacao` + `capture__jae_transacao_riocard` + `treatment__integracao` + auxiliares (gratuidade, escola, laudo_pcd, estudante)
-  - Post-tests: aux_gratuidade_info, transacao, transacao_riocard (diário 12:15)
-  - Downstream: `treatment__passageiro_hora`, `treatment__transacao_valor_ordem`, `treatment__validacao_dados_jae`
-
-- [ ] `treatment__transacao_ordem` — Materialização de transação/ordem bilhetagem
-  - Origem: `pipelines/treatment/bilhetagem/flows.py` → `TRANSACAO_ORDEM_MATERIALIZACAO`
-  - Schedule: diário às 11h + fallbacks 13:15 e 16:15
-  - Waits: `treatment__financeiro_bilhetagem` + `capture__jae_transacao_ordem`
-  - Downstream: `treatment__transacao_valor_ordem`
-
-- [ ] `upload_transacao_cct` — Upload de transação para PostgreSQL CCT
-  - Origem: `pipelines/upload_transacao_cct/flows.py` → `upload_transacao_cct`
-  - Schedule: diário à 1h
-  - Dependência implícita: lê `transacao_valor_ordem` do BigQuery
-  - Nota: alimenta CCT PostgreSQL, que depois é capturado por `capture__cct_pagamento`
-
 ---
 
 ## Materialização / Treatment — Nível 2 (dependem de treatments nível 1)
+
+### Concluídos
+
+- [x] `treatment__transacao_valor_ordem` — Materialização de transação valor/ordem
+- [x] `treatment__validacao_dados_jae` — Validação de dados JAE
+
+### Pendentes
 
 - [ ] `treatment__veiculo_dia` — Materialização de veículo/dia + snapshot
   - Origem: `pipelines/treatment/monitoramento/flows.py` → `VEICULO_DIA_MATERIALIZACAO`
@@ -299,19 +216,6 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Schedule: `0 8 * * *` (diário às 8h)
   - Waits: `treatment__viagem_informada` (delay -48h) + `treatment__planejamento_diario` + `treatment__gps_conecta` + `treatment__gps_cittati` + `treatment__gps_zirix`
 
-### Bilhetagem — Nível 2
-
-- [ ] `treatment__transacao_valor_ordem` — Materialização de transação valor/ordem
-  - Origem: `pipelines/treatment/bilhetagem/flows.py` → `TRANSACAO_VALOR_ORDEM_MATERIALIZACAO`
-  - Schedule: `0 12 * * *` (diário às 12h)
-  - Waits: `treatment__transacao_ordem` + `treatment__transacao` + `treatment__integracao`
-  - Post-tests: transacao_valor_ordem
-
-- [ ] `treatment__validacao_dados_jae` — Validação de dados JAE
-  - Origem: `pipelines/treatment/validacao_dados_jae/flows.py` → `VALIDACAO_DADOS_JAE_MATERIALIZACAO`
-  - Schedule: `0 12 * * *` (diário às 12h)
-  - Waits: `treatment__transacao` + `treatment__integracao`
-  - Post-tests: integracao_nao_realizada
 
 ---
 
@@ -327,30 +231,13 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
   - Flows: `captura_brt` (a cada minuto), `materialize_brt` (horário)
   - Dependências: nenhuma
 
-- [ ] `capture__sppo_gps` + `treatment__sppo_gps` — GPS SPPO ônibus
-  - Origem: `pipelines/migration/br_rj_riodejaneiro_onibus_gps/flows.py`
-  - Flows: `captura_sppo_v2` (a cada minuto), `realocacao_sppo` (a cada 10 min), `recaptura` + `materialize_sppo` (horário)
-  - Dependências: nenhuma externa
-  - Downstream: `treatment__viagens_sppo`, `treatment__subsidio_sppo_apuracao`
-  - Nota: múltiplos subflows, precisa ser desmembrado
-
-- [ ] `capture__gtfs` — GTFS captura e tratamento
-  - Origem: `pipelines/migration/br_rj_riodejaneiro_gtfs/flows.py`
-  - Flow: `gtfs_captura_nova` (a cada 5 min, skip_if_running)
-  - Dependências: nenhuma
-  - Downstream: `treatment__viagens_sppo` (via dbt)
-  - Nota: combina captura + materialização em um único flow
-
+- [x] `capture__sppo_gps` + `treatment__sppo_gps` — GPS SPPO ônibus (Migrado como `capture__sppo_registros`, `capture__sppo_realocacao` e `treatment__gps_sppo`)
 - [ ] `treatment__diretorios` — Materialização de diretórios
   - Origem: `pipelines/migration/br_rj_riodejaneiro_diretorios/flows.py`
   - Flows: `diretorios_materializacao` (sem schedule, manual)
   - Dependências: nenhuma
 
-- [ ] `capture__rdo` + `treatment__rdo` — RDO captura e materialização
-  - Origem: `pipelines/migration/br_rj_riodejaneiro_rdo/flows.py`
-  - Flows: `rdo_captura_tratamento` (diário)
-  - Dependências: nenhuma
-  - Nota: captura FTP sequencial (RHO SPPO → RHO STPL → RDO SPPO → RDO STPL → materialização)
+- [x] `capture__rdo` + `treatment__rdo` — RDO captura e materialização (Migrado como `capture__rioonibus_rdo_rho`)
 
 - [ ] `capture__recursos` + `treatment__recursos` — Subsídio recursos
   - Origem: `pipelines/migration/br_rj_riodejaneiro_recursos/flows.py`
@@ -371,17 +258,8 @@ TREATMENT - Nível 2 (dependem de treatments nível 1)
 
 ### Nível 1 — Dependem de capturas/tratamentos nível 0
 
-- [ ] `capture__veiculo` — Veículo (licenciamento, infração, agente verão) + materialização sppo_veiculo_dia
-  - Origem: `pipelines/migration/veiculo/flows.py`
-  - Flows: `sppo_licenciamento_captura` (diário 5h), `sppo_infracao_captura` (diário 5h), `sppo_veiculo_dia` (sem schedule, chamado pelo subsídio), `veiculo_sppo_registro_agente_verao_captura` (diário 7h)
-  - Dependências (via dbt): diretórios/cadastro
-  - Downstream: `treatment__subsidio_sppo_apuracao` (subflow explícito)
-
-- [ ] `treatment__viagens_sppo` — Viagens SPPO tratamento
-  - Origem: `pipelines/migration/projeto_subsidio_sppo/flows.py` → `viagens_sppo`
-  - Schedule: diário às 5h e 14h
-  - Dependências (via dbt): `treatment__sppo_gps` (gps_sppo), `capture__gtfs` (GTFS/planejamento)
-  - Downstream: `treatment__subsidio_sppo_apuracao`
+- [x] `capture__veiculo` — Veículo (licenciamento, infração, agente verão)
+- [x] `treatment__viagens_sppo` — Viagens SPPO tratamento (Migrado como `treatment__sppo_viagens`)
 
 ### Nível 2 — Dependem de treatments nível 1
 
