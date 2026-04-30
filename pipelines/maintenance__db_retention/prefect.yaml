@@ -1,4 +1,4 @@
-name: capture__veiculo_fiscalizacao_lacre
+name: maintenance__db_retention
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "capture__veiculo_fiscalizacao_lacre-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/capture__veiculo_fiscalizacao_lacre/Dockerfile
+      tag: "maintenance__db_retention-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/maintenance__db_retention/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,29 +24,29 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-capture--veiculo_fiscalizacao_lacre--staging
+  - name: rj-maintenance--db_retention--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/capture__veiculo_fiscalizacao_lacre/flow.py:capture__veiculo_fiscalizacao_lacre
+    entrypoint: pipelines/maintenance__db_retention/flow.py:maintenance__db_retention
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package capture__veiculo_fiscalizacao_lacre -- prefect flow-run execute
+        command: uv run --package maintenance__db_retention -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-capture--veiculo_fiscalizacao_lacre--prod
+
+  - name: rj-maintenance--db_retention--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/capture__veiculo_fiscalizacao_lacre/flow.py:capture__veiculo_fiscalizacao_lacre
+    entrypoint: pipelines/maintenance__db_retention/flow.py:maintenance__db_retention
     schedules:
-      - cron: "0 5 * * *"
+      - cron: "0 0 * * *"
         timezone: "America/Sao_Paulo"
-        active: false
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package capture__veiculo_fiscalizacao_lacre -- prefect flow-run execute
+        command: uv run --package maintenance__db_retention -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
