@@ -10,7 +10,7 @@ Schedule:
 
 DBT: 2026-04-08
 """
-
+from typing import Optional
 from prefect import flow
 
 from pipelines.common.treatment.default_treatment.flow import (
@@ -22,17 +22,14 @@ from pipelines.treatment__monitoramento_temperatura import constants
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__monitoramento_temperatura(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
-    additional_vars = additional_vars or {}
-    additional_vars["tipo_materializacao"] = "monitoramento"
-
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.MONITORAMENTO_TEMPERATURA_SELECTOR],
@@ -40,7 +37,7 @@ def treatment__monitoramento_temperatura(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars={"tipo_materializacao": "monitoramento"},
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
     )

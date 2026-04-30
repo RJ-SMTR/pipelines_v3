@@ -54,8 +54,6 @@ MONITORAMENTO_TEMPERATURA_SELECTOR = DBTSelector(
     initial_datetime=datetime(2025, 7, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__monitoramento_temperatura",
     post_test=MONITORAMENTO_TEMPERATURA_TEST,
-    # Depende do pipeline de monitoramento_veiculo
-    # As dependências dbt são gerenciadas automaticamente via dbt manifest
 )
 
 SNAPSHOT_TEMPERATURA_SELECTOR = DBTSelector(
