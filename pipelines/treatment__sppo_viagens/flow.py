@@ -15,6 +15,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
+from typing import Optional
 
 
 @flow(
@@ -22,12 +23,12 @@ from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_context
     flow_run_name=rename_treatment_flow_run,
 )
 def treatment__sppo_viagens(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    additional_vars=None,
-    fallback_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    additional_vars: Optional[dict] = None,
+    fallback_run: bool = False,
+    skip_source_check: bool = False,
 ):
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_environment(env=env)
