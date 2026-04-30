@@ -1,0 +1,858 @@
+
+version: 2
+
+models:
+  - name: viagem_planejada
+    description: "Tabela histórica com detalhes das viagens planejadas a cada dia"
+    tests:
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          date_col: data
+          row_condition: "1=1"
+          test_start_date: "{{ var('date_range_start') }}"
+          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__viagem_planejada
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__viagem_planejada
+          expression: count(distinct tipo_dia)
+          compare_model: ref("subsidio_data_versao_efetiva")
+          compare_expression: count(distinct coalesce(concat(concat(tipo_dia, " - "), subtipo_dia), tipo_dia))
+          group_by: ['tipo_dia']
+          compare_group_by: ['coalesce(concat(concat(tipo_dia, " - "), subtipo_dia), tipo_dia)']
+          row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}')"
+          compare_row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}')"
+          where: "1=1"
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+          - data
+          - servico
+          - sentido
+          - faixa_horaria_inicio
+          - shape_id
+          name: dbt_utils.unique_combination_of_columns__viagem_planejada
+      - check_km_planejada:
+          name: check_km_planejada__viagem_planejada
+      - check_partidas_planejadas:
+          name: check_partidas_planejadas__viagem_planejada
+    columns:
+      - name: data
+        description: "{{ doc('data') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        tests:
+          - not_null:
+              name: not_null__tipo_dia__viagem_planejada
+      - name: servico
+        description: "Serviço planejado"
+        tests:
+          - not_null:
+              name: not_null__servico__viagem_planejada
+      - name: vista
+        description: "Itinerário do serviço [ex: Bananal ↔ Saens Peña]"
+        tests:
+          - not_null:
+              name: not_null__vista__viagem_planejada
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        tests:
+          - not_null:
+              name: not_null__consorcio__viagem_planejada
+      - name: sentido
+        description: "Sentido planejado - categorias: I [ida], V [volta], C [circular]"
+        tests:
+          - not_null:
+              name: not_null__sentido__viagem_planejada
+          - accepted_values:
+              values: ["I", "V", "C"]
+              name: accepted_values__sentido__viagem_planejada
+      - name: partidas_total_planejada
+        description: "{{ doc('partidas') }}"
+        tests:
+          - not_null:
+              name: not_null__partidas_total_planejada__viagem_planejada
+              where: "data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V6_INICIO}')) and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              name: dbt_utils.accepted_range__partidas_total_planejada__viagem_planejada
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado (km)"
+        tests:
+          - not_null:
+              name: not_null__distancia_planejada__viagem_planejada
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              name: dbt_utils.accepted_range__distancia_planejada__viagem_planejada
+      - name: distancia_total_planejada
+        description: "{{ doc('distancia_total_planejada') }}"
+        tests:
+          - not_null:
+              name: not_null__distancia_total_planejada__viagem_planejada
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              name: dbt_utils.accepted_range__distancia_total_planejada__viagem_planejada
+      - name: inicio_periodo
+        description: "{{ doc('inicio_periodo') }}"
+        tests:
+          - not_null:
+              name: not_null__inicio_periodo__viagem_planejada
+              where: "data BETWEEN date('{date_range_start}') and least(date('{date_range_end}'), date_sub(date('{DATA_SUBSIDIO_V17_INICIO}'), interval 1 day))"
+      - name: fim_periodo
+        description: "Fim do período de operação planejado"
+        tests:
+          - not_null:
+              name: not_null__fim_periodo__viagem_planejada
+              where: "data BETWEEN date('{date_range_start}') and least(date('{date_range_end}'), date_sub(date('{DATA_SUBSIDIO_V17_INICIO}'), interval 1 day))"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+        tests:
+          - not_null:
+              name: not_null__faixa_horaria_inicio__viagem_planejada
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+        tests:
+          - not_null:
+              name: not_null__faixa_horaria_fim__viagem_planejada
+      - name: trip_id_planejado
+        description: "{{ doc('trip_id') }}"
+        tests:
+          - not_null:
+              name: not_null__trip_id_planejado__viagem_planejada
+      - name: trip_id
+        description: "{{ doc('trip_id') }} com ajustes"
+        tests:
+          - not_null:
+              name: not_null__trip_id__viagem_planejada
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null:
+              name: not_null__shape_id__viagem_planejada
+      - name: shape_id_planejado
+        description: "{{ doc('shape_id_planejado') }}"
+        tests:
+          - not_null:
+              name: not_null__shape_id_planejado__viagem_planejada
+      - name: data_shape
+        description: "Data do shape capturado no SIGMOB às 00h [Válida até 2024-03-30]"
+      - name: shape
+        description: "Linestring dos pontos gelocalizados do trajeto"
+        tests:
+          - not_null:
+              name: not_null__shape__viagem_planejada
+      - name: sentido_shape
+        description: "Sentido do shape [codificado no shape_id - categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null:
+              name: not_null__sentido_shape__viagem_planejada
+          - accepted_values:
+              values: ["I", "V", "C"]
+              name: accepted_values__sentido_shape__viagem_planejada
+      - name: start_pt
+        description: "{{ doc('start_pt') }}"
+        tests:
+          - not_null:
+              name: not_null__start_pt__viagem_planejada
+      - name: end_pt
+        description: "{{ doc('end_pt') }}"
+        tests:
+          - not_null:
+              name: not_null__end_pt__viagem_planejada
+      - name: id_tipo_trajeto
+        description: "Tipo de trajeto [0 - Regular, 1 - Alternativo, válida a partir de 2024-04-01]"
+        tests:
+          - not_null:
+              name: not_null__id_tipo_trajeto__viagem_planejada
+              where: "data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V6_INICIO}')) and date('{date_range_end}')"
+          - accepted_values:
+              values: [0,1]
+              quote: false
+              name: accepted_values__id_tipo_trajeto__viagem_planejada
+      - name: feed_version
+        description: "String que indica a versão atual do conjunto de dados GTFS [Válida a partir de 2024-04-01]"
+        tests:
+          - not_null:
+              name: not_null__feed_version__viagem_planejada
+              where: "data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V6_INICIO}')) and date('{date_range_end}')"
+      - name: feed_start_date
+        description: "Data inicial do feed do GTFS [Válida a partir de 2024-04-01]"
+        tests:
+          - not_null:
+              name: not_null__feed_start_date__viagem_planejada
+              where: "data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V6_INICIO}')) and date('{date_range_end}')"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_ultima_atualizacao__viagem_planejada
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: aux_registros_status_trajeto
+    description: "Tabela auxiliar de classificação dos registros de GPS no trajeto [shape], com base no serviço informado pelo veículo [atualizada diariamente, sem histórico]"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        # tests:
+          # - not_null
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
+        tests:
+          - not_null
+      - name: timestamp_minuto_gps
+        description: "{{ doc('timestamp_gps') }} truncado em minutos [para fins de comparação com minutos da viagem]"
+        tests:
+          - not_null
+      - name: posicao_veiculo_geo
+        description: "{{ doc('posicao_veiculo_geo') }}"
+        tests:
+          - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "Outro serviço da empresa que o veículo pode estar operando"
+        # tests:
+          # - not_null
+      - name: shape_id
+        description: "Código identificador do shape [trajeto] do serviço realizado"
+        tests:
+          - not_null
+      - name: shape_id_planejado
+        description: "{{ doc('shape_id_planejado') }}"
+      - name: trip_id_planejado
+        description: "{{ doc('trip_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }} com ajustes"
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+      - name: distancia
+        description: "Distância geodésica da última posição do GPS em relação a posição atual"
+        tests:
+          - not_null
+          - not_negative
+      - name: status_viagem
+        description: "Indica se a posição do GPS está no início [start], meio [middle], fim [end] ou fora [out] do shape do serviço informado"
+        tests:
+          - not_null
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: sentido_shape
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: start_pt
+        description: "{{ doc('start_pt') }}"
+      - name: end_pt
+        description: "{{ doc('end_pt') }}"
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+  - name: aux_viagem_inicio_fim
+    description: "Tabela auxiliar de identificação de início e fim de viagens [atualizada diariamente, sem histórico]"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        # tests:
+          # - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+        tests:
+          - not_null
+      - name: trip_id
+        description: "Código identificador do itinerário operado"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null
+      - name: sentido_shape
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: distancia_inicio_fim
+        description: "Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)"
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        tests:
+          - not_null
+          - unique
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+      - name: shape_id_planejado
+        description: "{{ doc('shape_id_planejado') }}"
+      - name: trip_id_planejado
+        description: "{{ doc('trip_id') }}"
+  - name: aux_viagem_circular
+    description: "Tabela auxiliar de tratamento de viagens circulares [atualizada diariamente, sem histórico]"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        # tests:
+          # - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+        # tests:
+          # - not_null
+      - name: trip_id
+        description: "{{ doc('trip_id') }} com ajustes"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null
+      - name: sentido_shape
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: distancia_inicio_fim
+        description: "Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)"
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: id_viagem
+        description: "Código identificador da viagem [id_veiculo + servico + datetime_partida]"
+        tests:
+          - not_null
+          - unique
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+      - name: shape_id_planejado
+        description: "{{ doc('shape_id_planejado') }}"
+      - name: trip_id_planejado
+        description: "{{ doc('trip_id') }}"
+  - name: registros_status_viagem
+    description: "Registros de GPS clasificados por viagem"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        tests:
+          - not_null
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
+        tests:
+          - not_null
+      - name: timestamp_minuto_gps
+        description: "{{ doc('timestamp_gps') }} truncado em minutos [para fins de comparação com minutos da viagem]"
+        tests:
+          - not_null
+      - name: posicao_veiculo_geo
+        description: "{{ doc('posicao_veiculo_geo') }}"
+        tests:
+          - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "Outro serviço da empresa que o veículo pode estar operando"
+        tests:
+          - not_null
+      - name: shape_id
+        description: "Código identificador do shape [trajeto] do serviço
+        realizado "
+        tests:
+          - not_null
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+      - name: distancia
+        description: "Distância geodésica da última posição do GPS em relação a posição atual"
+        tests:
+          - not_null
+          - not_negative
+      - name: status_viagem
+        description: "Indica se a posição do GPS está no início [start], meio [middle], fim [end] ou fora [out] do shape do serviço informado"
+        tests:
+          - not_null
+      - name: sentido_shape
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: id_viagem
+        description: "Código identificador da viagem [id_veiculo + servico + datetime_partida]"
+        tests:
+          - not_null
+          - unique
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null
+      - name: distancia_inicio_fim
+        description: "Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)"
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }} com ajustes"
+      - name: shape_id_planejado
+        description: "{{ doc('shape_id_planejado') }}"
+      - name: trip_id_planejado
+        description: "{{ doc('trip_id') }}"
+      - name: start_pt
+        description: "{{ doc('start_pt') }}"
+      - name: end_pt
+        description: "{{ doc('end_pt') }}"
+  - name: aux_viagem_registros
+    description: "Tabela auxiliar de cálculo da distância e total de registros de GPS das viagens identificadas [atualizada diariamente, sem histórico]"
+    columns:
+      - name: id_viagem
+        description: "Código identificador da viagem [id_veiculo + servico + datetime_partida]"
+        tests:
+          - not_null
+          - unique
+        tests:
+          - not_null
+          - unique
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_aferida
+        description: "Distância aferida da viagem [geodésia entre posições consecutivas do sinal de GPS]"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_inicio_fim
+        description: "Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)"
+      - name: n_registros_middle
+        description: "Contagem de sinais de GPS emitidos no meio do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_start
+        description: "Contagem de sinais de GPS emitidos no ponto de início do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_end
+        description: "Contagem de sinais de GPS emitidos no ponto final do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_out
+        description: "Contagem de sinais de GPS emitidos fora do trajeto"
+        tests:
+          - not_null
+          - not_negative
+      - name: n_registros_total
+        description: "{{ doc('n_registros_total') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_minuto
+        description: "{{ doc('n_registros_minuto') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: n_registros_shape
+        description: "Contagem total de sinais de GPS emitidos dentro do trajeto"
+        tests:
+          - not_null
+          - not_negative
+  - name: viagem_conformidade
+    description: "Tabela de cálculo da conformidade de viagens identificadas por GPS"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        # tests:
+          # - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+        tests:
+          - not_null
+      - name: trip_id
+        description: "Código identificador do itinerário operado"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null
+      - name: sentido_shape
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: id_viagem
+        description: "Código identificador da viagem [id_veiculo + servico + datetime_partida]"
+        tests:
+          - not_null
+          - unique
+        tests:
+          - not_null
+          - unique
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null
+      - name: tempo_viagem
+        description: "Tempo da viagem (min)"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_aferida
+        description: "Distância aferida da viagem [geodésia entre posições consecutivas do sinal de GPS]"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_inicio_fim
+        description: "Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)"
+      - name: n_registros_middle
+        description: "Contagem de sinais de GPS emitidos no meio do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_start
+        description: "Contagem de sinais de GPS emitidos no ponto de início do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_end
+        description: "Contagem de sinais de GPS emitidos no ponto final do trajeto"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_out
+        description: "Contagem de sinais de GPS emitidos fora do trajeto"
+        tests:
+          - not_null
+          - not_negative
+      - name: n_registros_shape
+        description: "Contagem total de sinais de GPS emitidos dentro do trajeto"
+        tests:
+          - not_null
+          - not_negative
+      - name: n_registros_total
+        description: "{{ doc('n_registros_total') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_minuto
+        description: "{{ doc('n_registros_minuto') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: velocidade_media
+        description: "Velocidade média da viagem (km/h)"
+      - name: perc_conformidade_shape
+        description: "Percentual de sinais emitidos dentro do shape [trajeto] ao longo da viagem"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: perc_conformidade_distancia
+        description: "{{ doc('perc_conformidade_distancia') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: perc_conformidade_registros
+        description: "{{ doc('perc_conformidade_registros') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+  - name: viagem_completa
+    description: "Detalhes de todas as viagens completas identificadas"
+    columns:
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        tests:
+          - not_null
+      - name: data
+        description: "{{ doc('data_viagem') }}"
+        tests:
+          - not_null
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Dia Útil", "Sabado", "Domingo"]
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+        # tests:
+          # - not_null
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        tests:
+          - not_null
+      - name: servico_realizado
+        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+        tests:
+          - not_null
+      - name: vista
+        description: "{{ doc('trip_headsign') }}"
+        tests:
+          - not_null
+      - name: trip_id
+        description: "Código identificador do itinerário operado"
+        tests:
+          - not_null
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null
+      - name: sentido
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["I", "V", "C"]
+      - name: id_viagem
+        description: "Código identificador da viagem [ex: id_veiculo + servico + sentido + shape_id + datetime_partida]"
+        tests:
+          - not_null
+          - unique
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null
+      - name: tipo_viagem
+        description: "Tipo de viagem - categorias: Completa linha
+        correta, Completa linha incorreta"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Completa linha correta", "Completa linha incorreta"]
+      - name: inicio_periodo
+        description: "{{ doc('inicio_periodo') }}"
+        # tests:
+          # - not_null
+      - name: fim_periodo
+        description: "Fim do período de operação planejado"
+        # tests:
+          # - not_null
+      - name: tempo_planejado
+        description: "Tempo planejado da viagem (min)"
+        # tests:
+          # - not_null
+          # - greater_than_zero
+      - name: tempo_viagem
+        description: "Tempo aferido da viagem (min)"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_planejada
+        description: "Distância do shape [trajeto] planejado"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: distancia_aferida
+        description: "Distância aferida da viagem [geodésia entre posições consecutivas do sinal de GPS]"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_shape
+        description: "{{ doc('n_registros_shape') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_total
+        description: "{{ doc('n_registros_total') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: n_registros_minuto
+        description: "{{ doc('n_registros_minuto') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: velocidade_media
+        description: "Velocidade média da viagem (km/h)"
+      - name: perc_conformidade_shape
+        description: "Percentual de sinais emitidos dentro do shape [trajeto] ao longo da viagem"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: perc_conformidade_distancia
+        description: "{{ doc('perc_conformidade_distancia') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: perc_conformidade_registros
+        description: "{{ doc('perc_conformidade_registros') }}"
+        tests:
+          - not_null
+          - greater_than_zero
+      - name: perc_conformidade_tempo
+        description: "Razão do tempo aferido da viagem pelo planejado x 100"
+        # tests:
+          # - not_null
+          # - greater_than_zero
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+        tests:
+          - not_null
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+  - name: subsidio_data_versao_efetiva
+    description: "Relacionamento entre datas de operação de planejamento dos serviços"
+    columns:
+      - name: data
+        description: "Data de Operação [Partição]"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: subtipo_dia
+        description: "Subtipo de dia [ex: 'Verão', válida a partir de 2024-04-01]"
+      - name: data_versao_trips
+        description: "Data da versão de planejamento de trips [Descontinuada a partir de 2024-04-01]"
+      - name: data_versao_shapes
+        description: "Data da versão de planejamento de shapes [Descontinuada a partir de 2024-04-01]"
+      - name: data_versao_frequencies
+        description: "Data da versão de planejamento de frequencies [Descontinuada a partir de 2024-04-01]"
+      - name: valor_subsidio_por_km
+        description: "Valor do subsídio (R$/km) [Descontinuada a partir de 2023-01-07]"
+      - name: feed_start_date
+        description: "Data inicial do feed [versão válida a partir de 2024-04-01]"
+      - name: feed_version
+        description: "String que indica a versão atual do conjunto de dados GTFS [Válida a partir de 2024-04-01]"
+      - name: tipo_os
+        description: "Tipo de Ordem de Serviço [ex: 'Regular', 'Extraordinária - Verão', válida a partir de 2024-04-01]"
