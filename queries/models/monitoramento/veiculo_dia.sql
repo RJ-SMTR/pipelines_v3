@@ -130,7 +130,6 @@ with
     registros_agente_verao as (
         select distinct data, id_veiculo
         from {{ ref("sppo_registro_agente_verao") }}
-        {# from `rj-smtr.veiculo.sppo_registro_agente_verao` #}
         {% if is_incremental() %}
             where
                 data between date("{{ var('date_range_start') }}") and date(

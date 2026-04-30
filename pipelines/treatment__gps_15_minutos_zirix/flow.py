@@ -8,8 +8,10 @@ Schedule:
 - A cada 15 minutos (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-03-16
+DBT: 2026-04-16
 """
+
+from typing import Optional
 
 from prefect import flow
 
@@ -28,12 +30,12 @@ from pipelines.treatment__gps_15_minutos_zirix import constants
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
 def treatment__gps_15_minutos_zirix(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars={"modo_gps": "onibus", "fonte_gps": "zirix", "15_minutos": True},  # noqa: B006
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -41,6 +43,6 @@ def treatment__gps_15_minutos_zirix(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
         force_test_run=force_test_run,
     )

@@ -228,6 +228,11 @@ class SourceTable(BQTable):
             if d["name"] == f"rj-{flow_name.replace('__', '--', 1)}--prod"
         ).get("schedules", [{}])
 
+        for sched in schedules:
+            ids = (sched.get("parameters") or {}).get("source_table_ids") or []
+            if self.table_id in ids:
+                return sched.get("cron")
+
         return schedules[0].get("cron")
 
     def _create_table_schema(self, sample_filepath: str) -> list[bigquery.SchemaField]:

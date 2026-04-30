@@ -1,0 +1,4 @@
+[project]
+name = "treatment__monitoramento_temperatura"
+version = "0.1.0"
+description = "Pipeline monitoramento_temperatura da secretaria rj-smtr"
