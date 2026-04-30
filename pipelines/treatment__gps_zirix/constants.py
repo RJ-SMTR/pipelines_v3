@@ -11,6 +11,12 @@ from pipelines.capture__zirix_registros import constants as registros_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
+ADDITIONAL_VARS = {
+    "modo_gps": "onibus",
+    "fonte_gps": "zirix",
+    "15_minutos": False,
+}
+
 GPS_POST_CHECKS_LIST = {
     "gps": {
         "check_gps_treatment__gps": {
