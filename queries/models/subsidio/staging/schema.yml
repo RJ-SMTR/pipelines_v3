@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: aux_viagem_temperatura
+    description: "Tabela auxiliar com indicadores de temperatura e validadores por viagem"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data
+            - id_viagem
+          name: dbt_utils.unique_combination_of_columns__aux_viagem_temperatura
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__aux_viagem_temperatura
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        tests:
+          - not_null:
+              name: not_null__id_viagem__aux_viagem_temperatura
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__aux_viagem_temperatura
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_partida__aux_viagem_temperatura
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_chegada__aux_viagem_temperatura
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+        tests:
+          - not_null:
+              name: not_null__placa__aux_viagem_temperatura
+              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+        tests:
+          - not_null:
+              name: not_null__ano_fabricacao__aux_viagem_temperatura
+              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+        tests:
+          - not_null:
+              name: not_null__tecnologia_apurada__aux_viagem_temperatura
+              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+        tests:
+          - not_null:
+              name: not_null__tecnologia_remunerada__aux_viagem_temperatura
+              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem not in ('Não autorizado por capacidade', 'Não licenciado', 'Não vistoriado', 'Lacrado', 'Não autorizado por ausência de ar-condicionado')"
+      - name: tipo_viagem
+        description: "{{ doc('tipo_viagem_status') }}"
+        tests:
+          - not_null:
+              name: not_null__tipo_viagem__aux_viagem_temperatura
+      - name: quantidade_pre_tratamento
+        description: "Quantidade de registros de temperatura antes do tratamento estatístico"
+      - name: quantidade_nula_zero
+        description: "Quantidade de registros de temperatura nulos ou iguais a zero"
+      - name: quantidade_pos_tratamento
+        description: "Quantidade de registros de temperatura após o tratamento estatístico"
+      - name: indicadores
+        description: "Indicadores expandidos incluindo temperatura, validadores e ar condicionado"
+        tests:
+          - not_null:
+              name: not_null__indicadores__aux_viagem_temperatura
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__aux_viagem_temperatura
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        tests:
+          - not_null:
+              name: not_null__sentido__aux_viagem_temperatura
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+        tests:
+          - not_null:
+              name: not_null__distancia_planejada__aux_viagem_temperatura
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: dicionario_subsidio
+    description: "Dicionário dos dados do Subsídio"
+    columns:
+      - name: chave
+        description: "Chave"
+      - name: cobertura_temporal
+        description: "{{ doc('cobertura_temporal') }}"
+      - name: id_tabela
+        description: "Nome da tabela"
+      - name: coluna
+        description: "{{ doc('column_name') }}"
+      - name: valor
+        description: "Valor"
