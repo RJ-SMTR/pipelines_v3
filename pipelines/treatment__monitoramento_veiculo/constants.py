@@ -6,7 +6,9 @@ Valores constantes para materialização dos dados de monitoramento de veículo
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__veiculo_fiscalizacao_lacre import constants as veiculo_fiscalizacao_constants
+from pipelines.capture__veiculo_fiscalizacao_lacre import (
+    constants as veiculo_fiscalizacao_constants,
+)
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
