@@ -2,7 +2,7 @@
 # import os
 
 import pandas as pd
-from utils import run_dbt_model, run_dbt_selector, run_dbt_tests, run_dbt
+from utils import run_dbt_tests
 
 # Veja os parâmetros disponíveis da função run_dbt_model em util.py
 
