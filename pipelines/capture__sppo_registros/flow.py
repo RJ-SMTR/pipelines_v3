@@ -2,7 +2,7 @@
 """
 Flow de captura de dados de GPS registros do SPPO
 
-Common: 2026-04-16
+Common: 2026-04-30
 """
 
 from typing import Optional
