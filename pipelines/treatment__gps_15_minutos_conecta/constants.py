@@ -11,6 +11,12 @@ from pipelines.capture__conecta_registros import constants as registros_constant
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
+ADDITIONAL_VARS = {
+    "modo_gps": "onibus",
+    "fonte_gps": "conecta",
+    "15_minutos": True,
+}
+
 GPS_15_MINUTOS_CONECTA_SELECTOR = DBTSelector(
     name="gps_15_minutos",
     initial_datetime=datetime(2025, 5, 27, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
