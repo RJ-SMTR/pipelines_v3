@@ -1,6 +1,7 @@
 with
     stu_pessoa_juridica as (
         select
+            data,
             perm_autor,
             cnpj as documento,
             processo,
@@ -23,6 +24,7 @@ with
     ),
     stu_pessoa_fisica as (
         select
+            data,
             perm_autor,
             cpf as documento,
             processo,
@@ -35,7 +37,11 @@ with
             timestamp_captura
         from {{ ref("staging_operadora_pessoa_fisica") }}
     )
-select s.*, m.modo
+select
+    datetime("2023-11-09T10:00:00") as datetime_inicio_validade,
+    cast(null as datetime) as datetime_fim_validade,
+    s.*,
+    m.modo
 from
     (
         select *

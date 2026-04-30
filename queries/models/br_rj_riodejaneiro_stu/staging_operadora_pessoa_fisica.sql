@@ -10,8 +10,7 @@ with
             data,
             safe_cast(perm_autor as string) as perm_autor,
             datetime(
-                parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
-                "America/Sao_Paulo"
+                parse_timestamp('%Y-%m-%d', timestamp_captura), "America/Sao_Paulo"
             ) as timestamp_captura,
             safe_cast(json_value(content, '$.CPF') as string) as cpf,
             parse_date(

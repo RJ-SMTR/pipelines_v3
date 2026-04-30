@@ -1,4 +1,4 @@
-{{ config(materialized="table", tags=["identificacao"]) }}
+{# {{ config(materialized="table", tags=["identificacao"]) }}
 
 with
     operadora_jae as (select * from {{ ref("aux_operadora_jae") }}),
@@ -58,4 +58,4 @@ select
     data_processo,
     indicador_operador_ativo_jae
 from cadastro
-where modo not in ("Escolar", "Táxi")
+where modo not in ("Escolar", "Táxi") #}
