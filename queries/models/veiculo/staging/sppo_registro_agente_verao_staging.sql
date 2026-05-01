@@ -7,7 +7,10 @@ with
         from {{ source("veiculo_staging", "sppo_registro_agente_verao") }}
 
         union all
-        select *
+        select 
+        cast(data as string) as data,
+        *
+        except(data)
         from {{ source("source_veiculo", "sppo_registro_agente_verao") }}
     )
 
