@@ -5,7 +5,7 @@ with
     veiculo_infracao as (
         select *
         from {{ source("veiculo_staging", "infracao") }}
-        union all
+        union all by name
         select cast(data as string) as data, * except (data)
         from {{ source("source_veiculo", "infracao") }}
     ),
