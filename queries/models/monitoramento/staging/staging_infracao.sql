@@ -6,7 +6,7 @@ with
         select *
         from {{ source("veiculo_staging", "infracao") }}
         union all
-        select *
+        select cast(data as string) as data, * except (data)
         from {{ source("source_veiculo", "infracao") }}
     ),
 
