@@ -5,13 +5,14 @@ with
     veiculo as (
         select *
         from {{ source("veiculo_staging", "sppo_registro_agente_verao") }}
-
-        union all
-        select *
+        where data < "{{ var('data_inicio_source_veiculo') }}"
+        union all by name
+        select cast(data as string) as data, * except (data)
         from {{ source("source_veiculo", "sppo_registro_agente_verao") }}
+        where data >= "{{ var('data_inicio_source_veiculo') }}"
     )
 
-select distinct
+select
     safe_cast(parse_datetime("%d/%m/%Y %H:%M:%S", datetime_registro) as date) as data,
     safe_cast(
         parse_datetime("%d/%m/%Y %H:%M:%S", datetime_registro) as datetime

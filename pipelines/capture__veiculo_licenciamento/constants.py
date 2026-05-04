@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.veiculo import constants as veiculo_constants
+from pipelines.common.capture.veiculo.utils import pre_treatment_sppo_licenciamento
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
 # Table IDs
@@ -60,7 +61,7 @@ SPPO_LICENCIAMENTO_SOURCES = [
         flow_folder_name="capture__veiculo_licenciamento",
         primary_keys=["id_veiculo"],
         pretreatment_reader_args=SPPO_LICENCIAMENTO_CSV_ARGS,
-        pretreat_funcs=[],
+        pretreat_funcs=[pre_treatment_sppo_licenciamento],
         raw_filetype="txt",
         partition_date_only=True,
     )
