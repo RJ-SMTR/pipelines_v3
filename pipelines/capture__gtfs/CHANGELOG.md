@@ -4,7 +4,8 @@
 
 ### Alterado
 
-- Alterado o flow `capture__gtfs` para utilizar o parametro `concurrency_limit: 1` (https://github.com/RJ-SMTR/pipelines_v3/pull/146)
+- Altera o flow `capture__gtfs` para utilizar o parâmetro `concurrency_limit` (https://github.com/RJ-SMTR/pipelines_v3/pull/146)
+- Altera o flow `capture__gtfs` para utilizar o parâmetro `collision_strategy` (https://github.com/RJ-SMTR/pipelines_v3/pull/147)
 
 ## [1.0.0] - 2026-04-29
 
