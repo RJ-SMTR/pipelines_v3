@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__operadora_cnpj/flow.py:treatment__operadora_cnpj
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "30 0 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
