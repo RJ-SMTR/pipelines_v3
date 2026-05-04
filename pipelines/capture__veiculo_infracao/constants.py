@@ -8,9 +8,8 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.veiculo import constants as veiculo_constants
+from pipelines.common.capture.veiculo.utils import pre_treatment_sppo_infracao
 from pipelines.common.utils.gcp.bigquery import SourceTable
-
-SPPO_VEICULO_SOURCE_NAME = "veiculo"
 
 # Table IDs
 SPPO_INFRACAO_TABLE_ID = "infracao"
@@ -48,7 +47,7 @@ SPPO_INFRACAO_SOURCES = [
         flow_folder_name="capture__veiculo_infracao",
         primary_keys=["id_auto_infracao"],
         pretreatment_reader_args=SPPO_INFRACAO_CSV_ARGS,
-        pretreat_funcs=[],
+        pretreat_funcs=[pre_treatment_sppo_infracao],
         raw_filetype="txt",
         partition_date_only=True,
     )
