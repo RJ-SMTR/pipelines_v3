@@ -47,6 +47,7 @@ SPPO_LICENCIAMENTO_MAPPING_KEYS = {
 SPPO_LICENCIAMENTO_CSV_ARGS = {
     "sep": ";",
     "names": SPPO_LICENCIAMENTO_MAPPING_KEYS.values(),
+    "dtype": "object",
 }
 
 # FTP path for raw data
