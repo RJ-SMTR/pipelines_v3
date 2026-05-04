@@ -5,13 +5,15 @@ with
     veiculo_infracao as (
         select *
         from {{ source("veiculo_staging", "infracao") }}
+        where data < "{{ var('data_inicio_source_veiculo') }}"
         union all by name
         select cast(data as string) as data, * except (data)
         from {{ source("source_veiculo", "infracao") }}
+        where data >= "{{ var('data_inicio_source_veiculo') }}"
     ),
 
     infracoes_base as (
-        select distinct
+        select
             data,
             safe_cast(json_value(content, '$.id_infracao') as string) as id_infracao,
             safe_cast(json_value(content, '$.modo') as string) as modo,

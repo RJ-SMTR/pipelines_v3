@@ -5,12 +5,13 @@ with
     licenciamento as (
         select *
         from {{ source("veiculo_staging", "licenciamento_stu") }}
+        where data < "{{ var('data_inicio_source_veiculo') }}"
         union all by name
         select cast(data as string) as data, * except (data)
         from {{ source("source_veiculo", "licenciamento_stu") }}
+        where data >= "{{ var('data_inicio_source_veiculo') }}"
     )
-
-select distinct
+select
     data,
     safe_cast(
         datetime(
