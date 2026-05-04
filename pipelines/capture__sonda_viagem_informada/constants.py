@@ -13,13 +13,11 @@ VIAGEM_INFORMADA_LOGIN_URL = "http://consultaviagem.m2mfrota.com.br/AutenticarUs
 VIAGEM_INFORMADA_BASE_URL = "https://zn4.sinopticoplus.com/servico-dados/api/v1/obterDadosGTFS"
 VIAGEM_INFORMADA_TABLE_ID = "viagem_informada"
 
-FLOW_FOLDER_NAME = "capture__sonda_viagem_informada"
-
 VIAGEM_INFORMADA_SOURCE = SourceTable(
     source_name=SONDA_SOURCE_NAME,
     table_id=VIAGEM_INFORMADA_TABLE_ID,
     first_timestamp=datetime(2024, 9, 10, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name=FLOW_FOLDER_NAME,
+    flow_folder_name="capture__sonda_viagem_informada",
     partition_date_only=True,
     max_recaptures=5,
     primary_keys=["id_viagem"],
