@@ -1,5 +1,16 @@
 {{ config(materialized="view", alias="licenciamento_stu") }}
 
+
+with
+    licenciamento as (
+        select *
+        from {{ source("veiculo_staging", "licenciamento_stu") }}
+        where data < "{{ var('data_inicio_source_veiculo') }}"
+        union all by name
+        select cast(data as string) as data, * except (data)
+        from {{ source("source_veiculo", "licenciamento_stu") }}
+        where data >= "{{ var('data_inicio_source_veiculo') }}"
+    )
 select
     data,
     safe_cast(
@@ -60,4 +71,4 @@ select
     end as data_inicio_vinculo,
     safe_cast(json_value(content, "$.ultima_situacao") as string) ultima_situacao,
     safe_cast(json_value(content, "$.ano_ultima_vistoria") as int64) ano_ultima_vistoria
-from {{ source("veiculo_staging", "licenciamento_stu") }} as t
+from licenciamento as t
