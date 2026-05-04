@@ -162,9 +162,15 @@ vars:
   DATA_SUBSIDIO_V20_INICIO: "2025-08-16"
   # Feature RESOLUÇÃO SMTR 3878/2025
   DATA_SUBSIDIO_V21_INICIO: "2025-10-01"
+  # Processo.SEI 006400.000323/2026-14 - Condição de temperatura nula para veículos com `indicador_falha_recorrente igual a True
+  DATA_SUBSIDIO_V22_INICIO: "2026-03-01"
+  # Temperatura máxima e ajuste de horário no INMET
+  DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
-   # Recursos #
+
+
+  # Recursos #
   recurso_staging: "rj-smtr-staging.projeto_subsidio_sppo_staging.recurso"
   recurso_prazo: "rj-smtr.projeto_subsidio_sppo.recurso_prazo"
   recurso_julgamento: "rj-smtr.projeto_subsidio_sppo.recurso_julgamento"

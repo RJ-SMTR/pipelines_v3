@@ -72,6 +72,7 @@ with
             datetime_partida,
             datetime_chegada,
             id_veiculo,
+            substr(id_veiculo, 2) as id_veiculo_join,
             placa,
             ano_fabricacao,
             id_viagem,
@@ -190,7 +191,8 @@ with
         from viagens as v
         left join
             estado_equipamento_aux as e
-            on e.id_veiculo = substr(v.id_veiculo, 2)
+            on e.data = v.data
+            and e.id_veiculo = v.id_veiculo_join
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_bilhetagem_viagem_filtrada as (  -- Filtra pontos de GPS fora das garagens e endereços de manutenção dos validadores
@@ -245,11 +247,14 @@ with
             e.latitude,
             e.longitude,
             temperatura,
-            extract(hour from datetime_gps) as hora
+            extract(hour from datetime_gps) as hora,
+            extract(date from e.datetime_gps) as data_gps_join,
+            extract(hour from e.datetime_gps) as hora_gps_join
         from viagens as v
         left join
             gps_validador as e
-            on e.id_veiculo = substr(v.id_veiculo, 2)
+            on e.data = v.data
+            and e.id_veiculo = v.id_veiculo_join
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_indicadores as (  -- Indicadores de temperatura por veículo
@@ -387,8 +392,8 @@ with
             and f.id_validador = i.id_validador
         left join
             temperatura_inmet_alertario as e
-            on e.data = extract(date from i.datetime_gps)
-            and e.hora = extract(hour from i.datetime_gps)
+            on e.data = i.data_gps_join
+            and e.hora = i.hora_gps_join
     ),
     percentual_indicadores_validador_viagem as (  -- Indicadores de regularidade de temperatura por validador e viagem
         select
