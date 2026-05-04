@@ -38,5 +38,5 @@ def pre_treatment_sppo_infracao(
     for col in data.columns[data.dtypes == "object"].to_list():
         data[col] = data[col].str.strip().replace("", np.nan)
 
-    data["valor"] = data["valor"].str.replace(",", ".").astype(float)
+    data["valor"] = data["valor"].astype(str).str.replace(",", ".").astype(float)
     return data
