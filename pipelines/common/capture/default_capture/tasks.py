@@ -247,8 +247,8 @@ def get_raw_from_gcs(
         # Lê o CSV
         df = pd.read_csv(
             io.StringIO(data.decode("utf-8")),
-            **context.pretreatment_reader_args,
-        ).to_dict(orient="records")
+            **context.source.pretreatment_reader_args,
+        )
 
         # Salva localmente
         filepath = context.raw_filepath.format(page=0)
