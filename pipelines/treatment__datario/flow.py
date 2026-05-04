@@ -5,10 +5,12 @@ Flow de materialização das views do datario.
 Executa o selector DBT 'datario' para materializar as views do datario no BigQuery.
 
 Schedule:
-- Sem schedule (execução manual/ad-hoc)
+- Sem schedule
 
-DBT: 2025-11-06
+DBT: 2025-05-04
 """
+
+from typing import Optional
 
 from prefect import flow
 
@@ -21,11 +23,11 @@ from pipelines.treatment__datario import constants
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__datario(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     create_materialization_flows_default_tasks(
         env=env,
