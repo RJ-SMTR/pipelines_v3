@@ -44,9 +44,115 @@ deployments:
     entrypoint: pipelines/capture__stu_tabelas/flow.py:capture__stu_tabelas
     schedules:
       - cron: "20 8 * * *"
-        timezone: "America/Sao_Paulo"
+        timezone: America/Sao_Paulo
         parameters:
           recapture: true
+          source_table_ids: [combustivel]
+      - cron: "21 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [controle_processo]
+      - cron: "22 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [darm_apropriacao]
+      - cron: "23 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [mod_carroceria]
+      - cron: "24 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [mod_chassi]
+      - cron: "25 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [multa]
+      - cron: "26 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [permissao]
+      - cron: "27 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [pessoa_fisica]
+      - cron: "28 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [pessoa_juridica]
+      - cron: "29 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [planta]
+      - cron: "30 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [talonario]
+      - cron: "31 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [tipo_de_permissao]
+      - cron: "32 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [tipo_de_permissionario]
+      - cron: "33 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [tipo_de_transporte]
+      - cron: "34 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [tipo_de_veiculo]
+      - cron: "35 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [veiculo]
+      - cron: "36 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [veiculo_ativo]
+      - cron: "37 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [vistoria]
+      - cron: "38 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [guia]
+      - cron: "39 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [permis_empresa_escola]
+      - cron: "40 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [modelo]
+      - cron: "41 8 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          recapture: true
+          source_table_ids: [multa_postagem]
     work_pool:
       name: smtr-pool
       work_queue_name: default

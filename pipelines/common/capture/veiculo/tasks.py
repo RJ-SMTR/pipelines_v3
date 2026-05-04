@@ -12,6 +12,7 @@ from pipelines.common.capture.default_capture.tasks import get_raw_from_gcs
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.capture.veiculo import constants as veiculo_constants
 from pipelines.common.utils.extractors.ftp import get_raw_ftp
+from pipelines.common.utils.secret import get_env_secret
 
 
 def get_raw_veiculo_with_fallback(
@@ -40,10 +41,17 @@ def get_raw_veiculo_with_fallback(
     """
     ftp_full_path = f"{ftp_path}_{context.timestamp.strftime('%Y%m%d')}.txt"
 
+    credentials = get_env_secret(secret_path)
+
     ftp_result = get_raw_ftp(
-        secret_path=secret_path,
-        ftp_path=ftp_full_path,
+        host=credentials["host"],
+        port=int(credentials["port"]),
+        username=credentials["username"],
+        password=credentials["pwd"],
+        ftp_filepaths=[ftp_full_path],
         raw_filepath=raw_filepath,
+        raw_filetype="csv",
+        encoding="utf-8",
     )
 
     if ftp_result:

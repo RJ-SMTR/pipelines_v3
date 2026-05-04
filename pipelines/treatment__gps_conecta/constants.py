@@ -11,6 +11,12 @@ from pipelines.capture__conecta_registros import constants as registros_constant
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
+ADDITIONAL_VARS = {
+    "modo_gps": "onibus",
+    "fonte_gps": "conecta",
+    "15_minutos": False,
+}
+
 GPS_POST_CHECKS_LIST = {
     "gps": {
         "check_gps_treatment__gps": {
