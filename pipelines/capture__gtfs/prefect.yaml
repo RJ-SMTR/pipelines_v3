@@ -58,4 +58,6 @@ deployments:
         memory_limit: "4600Mi"
         cpu_request: "500m"
         memory_request: "1000Mi"
-    concurrency_limit: 1
+    concurrency_limit:
+      limit: 1
+      collision_strategy: CANCEL_NEW
