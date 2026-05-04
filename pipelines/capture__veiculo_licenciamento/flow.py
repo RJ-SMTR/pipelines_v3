@@ -22,7 +22,7 @@ from pipelines.common.capture.veiculo.tasks import create_veiculo_extractor
 def capture__veiculo_licenciamento(
     env=None,
     timestamp=None,
-    recapture=True,
+    recapture=False,
     recapture_days=2,
     recapture_timestamps=None,
 ):
