@@ -33,6 +33,7 @@ SPPO_INFRACAO_MAPPING_KEYS = {
 SPPO_INFRACAO_CSV_ARGS = {
     "sep": ";",
     "names": SPPO_INFRACAO_MAPPING_KEYS.values(),
+    "dtype": "object",
 }
 
 # FTP path for raw data
