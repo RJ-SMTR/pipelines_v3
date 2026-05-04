@@ -43,19 +43,22 @@ def get_raw_veiculo_with_fallback(
 
     credentials = get_env_secret(secret_path)
 
-    ftp_result = get_raw_ftp(
-        host=credentials["host"],
-        port=int(credentials["port"]),
-        username=credentials["username"],
-        password=credentials["pwd"],
-        ftp_filepaths=[ftp_full_path],
-        raw_filepath=raw_filepath,
-        raw_filetype="csv",
-        encoding="utf-8",
-    )
+    try:
+        ftp_result = get_raw_ftp(
+            host=credentials["host"],
+            port=int(credentials["port"]),
+            username=credentials["username"],
+            password=credentials["pwd"],
+            ftp_filepaths=[ftp_full_path],
+            raw_filepath=raw_filepath,
+            raw_filetype="csv",
+            encoding="utf-8",
+        )
 
-    if ftp_result:
-        return ftp_result
+        if ftp_result:
+            return ftp_result
+    except Exception as e:
+        print(f"[FALLBACK] Erro ao buscar do FTP: {e}")
 
     print("[FALLBACK] FTP vazio ou sem dados válidos, tentando GCS...")
     gcs_result = get_raw_from_gcs(
