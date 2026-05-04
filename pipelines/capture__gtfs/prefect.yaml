@@ -39,6 +39,7 @@ deployments:
         memory_limit: "4600Mi"
         cpu_request: "500m"
         memory_request: "1000Mi"
+    concurrency_limit: 1
   - name: rj-capture--gtfs--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__gtfs/flow.py:capture__gtfs
@@ -57,3 +58,4 @@ deployments:
         memory_limit: "4600Mi"
         cpu_request: "500m"
         memory_request: "1000Mi"
+    concurrency_limit: 1
