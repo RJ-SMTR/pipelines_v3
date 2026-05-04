@@ -242,17 +242,11 @@ def get_raw_from_gcs(
         # Baixa e extrai o ZIP
         data = blob.download_as_bytes()
         with zipfile.ZipFile(io.BytesIO(data), "r") as zipped_file:
-            data = zipped_file.read(f"{filename}.txt")
+            raw_text = zipped_file.read(f"{filename}.txt").decode("utf-8")
 
-        # Lê o CSV
-        df = pd.read_csv(
-            io.StringIO(data.decode("utf-8")),
-            **context.source.pretreatment_reader_args,
-        )
-
-        # Salva localmente
+        # Salva localmente como texto bruto (igual ao get_raw_ftp)
         filepath = context.raw_filepath.format(page=0)
-        save_local_file(filepath=filepath, filetype="csv", data=df)
+        save_local_file(filepath=filepath, filetype="txt", data=raw_text)
 
         print(f"[GCS] Dados carregados com sucesso: {filepath}")
         return [filepath]
