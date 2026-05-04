@@ -177,11 +177,23 @@ selectors:
         - method: fqn
           value: aux_servico_jae
         - method: fqn
+          value: aux_operadora_stu
+        - method: fqn
+          value: aux_operadora_jae_cliente_historico
+        - method: fqn
+          value: aux_operadora_jae_historico
+        - method: fqn
+          value: aux_operadora_cliente_join_jae_historico
+        - method: fqn
+          value: aux_operadora_jae_stu_historico
+        - method: fqn
           value: consorcios
         - method: fqn
           value: cliente_jae
         - method: fqn
           value: operadoras_contato
+        - method: fqn
+          value: operadora_historico
         - method: fqn
           value: operadoras
         - method: fqn
@@ -557,3 +569,8 @@ selectors:
     definition:
       method: fqn
       value: teste_sincronizacao_transacao_cct
+
+  - name: operadora_cnpj
+    definition:
+      method: fqn
+      value: aux_operadora_cnpj

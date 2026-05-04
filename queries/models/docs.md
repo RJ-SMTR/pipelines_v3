@@ -1708,3 +1708,11 @@ Data e hora de início do segmento [partida considerada para o primeiro segmento
 {% docs datetime_fim_segmento %}
 Data e hora de fim do segmento [chegada considerada para o último segmento, último GPS para os demais]
 {% enddocs %}
+
+{% docs id_operadora_stu %}
+Código de permissionário vindo do STU
+{% enddocs %}
+
+{% docs indicador_operador_ativo_jae %}
+Indicador de atividade do operador no sistema da Jaé
+{% enddocs %}

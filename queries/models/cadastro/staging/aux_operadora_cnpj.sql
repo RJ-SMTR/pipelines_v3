@@ -31,7 +31,7 @@
     )
 {% endset %}
 
-{% if is_incremental() %}
+{% if table_exists(this) %}
 
     {% set all_columns = (
         list_columns()
@@ -45,7 +45,7 @@
     {% set sha_all_column %}
         sha256(
             concat(
-                {% for c in columns %}
+                {% for c in all_columns %}
                     ifnull(cast({{ c }} as string), 'n/a')
 
                     {% if not loop.last %}, {% endif %}
@@ -56,10 +56,6 @@
     {% endset %}
 
 {% else %}
-    {% set incremental_filter %}
-            tipo_documento = "CNPJ"
-    {% endset %}
-
     {% set sha_all_column %}
         cast(null as bytes)
     {% endset %}
