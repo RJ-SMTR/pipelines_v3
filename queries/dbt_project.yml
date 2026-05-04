@@ -115,6 +115,7 @@ vars:
   frequencies_version: "YYYY-MM-DD"
   tipo_materializacao: "subsidio"
   tipo_teste: ""
+  tolerancia_teste_lacre: 5
   data_inicio_trips_shapes: "2023-04-01"
   data_inclusao_autuacao_disciplinar: "2025-07-10"
   data_processamento_veiculo_licenciamento_dia: ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
@@ -257,8 +258,10 @@ vars:
   ### Viagens 2.0 ###
 
   limite_reducao_area_buffer:  0.5
+  limite_validacao_inicio_fim_minutos: 10
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
+  buffer_validacao_inicio_fim_metros: 500
   buffer_tunel_metros: 50
   parametro_validacao: 0.9
   comprimento_shape: 1000
