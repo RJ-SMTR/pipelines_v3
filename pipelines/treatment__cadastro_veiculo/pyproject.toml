@@ -1,0 +1,4 @@
+[project]
+name = "treatment__cadastro_veiculo"
+version = "0.1.0"
+description = "Pipeline para materialização do cadastro de veículos"
