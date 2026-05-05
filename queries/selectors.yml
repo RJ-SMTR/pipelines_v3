@@ -177,11 +177,23 @@ selectors:
         - method: fqn
           value: aux_servico_jae
         - method: fqn
+          value: aux_operadora_stu
+        - method: fqn
+          value: aux_operadora_jae_cliente_historico
+        - method: fqn
+          value: aux_operadora_jae_historico
+        - method: fqn
+          value: aux_operadora_cliente_join_jae_historico
+        - method: fqn
+          value: aux_operadora_jae_stu_historico
+        - method: fqn
           value: consorcios
         - method: fqn
           value: cliente_jae
         - method: fqn
           value: operadoras_contato
+        - method: fqn
+          value: operadora_historico
         - method: fqn
           value: operadoras
         - method: fqn
@@ -491,6 +503,10 @@ selectors:
         - method: fqn
           value: temperatura_inmet
         - method: fqn
+          value: temperatura_alertario
+        - method: fqn
+          value: temperatura
+        - method: fqn
           value: viagem_classificada
         - method: fqn
           value: aux_viagem_temperatura
@@ -500,6 +516,8 @@ selectors:
           value: veiculo_regularidade_temperatura_dia
         - method: fqn
           value: dicionario_subsidio
+        - method: fqn
+          value: monitoramento_viagem_transacao
 
   - name: snapshot_temperatura
     definition:
@@ -510,6 +528,10 @@ selectors:
           value: snapshot_viagem_regularidade_temperatura
         - method: fqn
           value: snapshot_temperatura_inmet
+        - method: fqn
+          value: snapshot_temperatura_alertario
+        - method: fqn
+          value: snapshot_temperatura
 
   - name: pagamento_cct
     description: Materialização dos dados de pagamento da CCT
@@ -553,7 +575,34 @@ selectors:
         - method: fqn
           value: transacao_erro
 
+  - name: viagens_sppo
+    description: Materialização das viagens SPPO
+    definition:
+      intersection:
+        - method: fqn
+          value: viagem_completa
+          parents: true
+        - method: path
+          value: models/projeto_subsidio_sppo
+
+  - name: viagens_sppo_d0
+    description: >
+      Materialização dos modelos D0 das viagens SPPO (subsidio_data_versao_efetiva e
+      viagem_planejada), executados na segunda run diária (14h) para o dia seguinte.
+    definition:
+      intersection:
+        - method: fqn
+          value: viagem_planejada
+          parents: true
+        - method: path
+          value: models/projeto_subsidio_sppo
+
   - name: teste_sincronizacao_transacao_cct
     definition:
       method: fqn
       value: teste_sincronizacao_transacao_cct
+
+  - name: operadora_cnpj
+    definition:
+      method: fqn
+      value: aux_operadora_cnpj

@@ -478,7 +478,7 @@ with
                         'D33200',
                         'D33199'
                     )
-                then "BASICO"
+                then "BASICO"  -- MTR-CAP-2025/59482
                 when
                     data between "2025-11-20" and "2025-12-16"
                     and id_veiculo in (
@@ -493,7 +493,7 @@ with
                         'C27129'
 
                     )
-                then "BASICO"
+                then "BASICO"  -- MTR-CAP-2025/59482
                 when tipo_veiculo like "%BASIC%" or tipo_veiculo like "%BS%"
                 then "BASICO"
                 when tipo_veiculo like "%MIDI%"

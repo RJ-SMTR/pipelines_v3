@@ -131,6 +131,14 @@ sources:
       - name: infracao
       - name: licenciamento_stu
 
+  - name: source_veiculo
+    database: rj-smtr-staging
+
+    tables:
+      - name: sppo_registro_agente_verao
+      - name: infracao
+      - name: licenciamento_stu
+
   - name: dashboard_subsidio_sppo_staging
     database: rj-smtr-staging
 
@@ -504,3 +512,9 @@ sources:
 
     tables:
       - name: autuacao_controle_negativacao
+
+  - name: rmi_dados_mestres
+    database: rj-crm-registry
+
+    tables:
+      - name: pessoa_juridica

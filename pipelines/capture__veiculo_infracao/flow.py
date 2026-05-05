@@ -5,7 +5,7 @@ Flow de captura de infrações de veículos SPPO
 Executa a captura de dados de infrações de veículos via FTP RDO ou GCS,
 aplica pré-tratamento e carrega em BigQuery.
 
-Common: 2026-04-17
+Common: 2026-05-04
 """
 
 from prefect import flow
@@ -22,7 +22,7 @@ from pipelines.common.capture.veiculo.tasks import create_veiculo_extractor
 def capture__veiculo_infracao(
     env=None,
     timestamp=None,
-    recapture=True,
+    recapture=False,
     recapture_days=2,
     recapture_timestamps=None,
 ):
