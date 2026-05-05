@@ -10,7 +10,7 @@ DBT: 2026-03-23
 """
 
 import pandas as pd
-from prefect import flow, runtime
+from prefect import runtime
 from prefect.utilities.annotations import unmapped
 
 from pipelines.common import constants as common_constants
@@ -34,6 +34,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     save_materialization_datetime_redis,
     task_dbt_selector_test_notify_discord,
 )
+from pipelines.common.utils.prefect import flow
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
     get_previnity_credentials,

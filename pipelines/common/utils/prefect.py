@@ -3,8 +3,13 @@ from prefect import runtime
 
 from pipelines.common import constants
 from pipelines.common.utils.discord import format_send_discord_message
+from pipelines.common.utils.prefect import flow as prefect_flow
 from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
+
+
+def flow(*args, timeout_seconds=constants.DEFAULT_FLOW_TIMEOUT, **kwargs):
+    return prefect_flow(*args, timeout_seconds=timeout_seconds, **kwargs)
 
 
 def handler_notify_failure(webhook: str):

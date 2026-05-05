@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.common.tasks import (
     get_run_env,
@@ -14,7 +14,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selectors,
     task_dbt_selector_test_notify_discord,
 )
-from pipelines.common.utils.prefect import handler_notify_failure, rename_flow_run
+from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
 from pipelines.integration__upload_transacao_cct.tasks import (
     create_sincronizacao_materialization_context,
     delete_all_files,

@@ -7,12 +7,11 @@ Common: 2026-04-30
 
 from typing import Optional
 
-from prefect import flow
-
 from pipelines.capture__sppo_registros import constants
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 from pipelines.common.capture.gps.tasks import create_gps_extractor
+from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
