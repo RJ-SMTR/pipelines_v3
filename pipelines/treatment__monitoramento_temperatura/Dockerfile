@@ -8,6 +8,8 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__monitoramento_temperatura ./pipelines/treatment__monitoramento_temperatura/
 
+COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitoramento_veiculo/
+
 COPY ./pipelines/common/ ./pipelines/common/
 COPY ./queries ./queries
 
