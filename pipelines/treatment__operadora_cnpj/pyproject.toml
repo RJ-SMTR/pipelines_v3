@@ -1,0 +1,4 @@
+[project]
+name = "treatment__operadora_cnpj"
+version = "0.1.0"
+description = "Pipeline operadora_cnpj da secretaria rj-smtr"

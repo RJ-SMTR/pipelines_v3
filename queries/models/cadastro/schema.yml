@@ -10,52 +10,22 @@ models:
         description: "{{ doc('nome_operadora') }} [mascarado quando o operador é pessoa física]"
       - name: operadora_completo
         description: "{{ doc('nome_operadora') }} [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: tipo_operadora
-        description: "Tipo de permissionário (Exemplos: autônomo, empresa, cooperativa)"
       - name: modo
         description: "{{ doc('modo_operadora') }}"
       - name: modo_stu
         description: "Modo de transporte no STU [ônibus, van, BRT]"
       - name: modo_jae
         description: "Modo de transporte na Jaé [ônibus, van, BRT]"
-      - name: id_processo
-        description: "Número do processo no STU"
-      - name: data_processo
-        description: "Data do processo no STU"
       - name: documento
         description: "{{ doc('documento_operadora') }}"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
       - name: tipo_documento
         description: "{{ doc('tipo_documento_operadora') }}"
       - name: id_operadora_stu
-        description: "Código de permissionário vindo do STU"
+        description: "{{ doc('id_operadora_stu') }}"
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
       - name: indicador_operador_ativo_jae
-        description: "Indicador de atividade do operador no sistema da Jaé"
-      - name: agencia
-        description: "Número da agência bancária do operador [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: tipo_conta
-        description: "Tipo da conta bancária do operador [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: banco
-        description: "Nome do banco [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: codigo_banco
-        description: "Código do banco (COMPE) [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: conta
-        description: "Número da conta bancária do operador [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+        description: "{{ doc('indicador_operador_ativo_jae') }}"
   - name: operadoras_contato
     description: "Tabela de contatos das operadoras de transporte"
     columns:
@@ -95,7 +65,7 @@ models:
       - name: razao_social
         description: "Razão social do consórcio"
       - name: id_consorcio_stu
-        description: "Código de permissionário vindo do STU"
+        description: "{{ doc('id_operadora_stu') }}"
       - name: id_consorcio_jae
         description: "Código do consórcio no sistema da Jaé"
   - name: servicos
@@ -427,6 +397,59 @@ models:
         description: "Data e hora do fim da vinculação entre a operadora de transporte e o validador da Jaé"
       - name: id_validador
         description: "{{ doc('id_validador') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+  - name: operadora_historico
+    description: "Tabela histórica de operadoras de transporte"
+    columns:
+      - name: datetime_inicio_validade
+        description: "Data e hora do início da validade dos dados do operador"
+      - name: datetime_fim_validade
+        description: "Data e hora do fim da validade dos dados do operador"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
+      - name: id_operadora_stu
+        description: "{{ doc('id_operadora_stu') }}"
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+      - name: modo_jae
+        description: "{{ doc('modo') }} na Jaé"
+      - name: modo_stu
+        description: "{{ doc('modo') }} no STU"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_operadora') }}"
+      - name: documento
+        description: "{{ doc('documento_operadora') }}"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: operadora_jae
+        description: "{{ doc('nome_operadora') }} na Jaé [mascarado quando o operador é pessoa física]"
+      - name: operadora_stu
+        description: "{{ doc('nome_operadora') }} no STU [mascarado quando o operador é pessoa física]"
+      - name: razao_social
+        description: "Razão social no cadastro do CNPJ do operador [nulo se for pessoa física]"
+      - name: nome_fantasia
+        description: "Nome fantasia no cadastro do CNPJ do operador [nulo se for pessoa física]"
+      - name: situacao_cadastral
+        description: "Situação cadastral no cadastro do CNPJ do operador [nulo se for pessoa física]"
+      - name: situacao_especial
+        description: "Situação especial no cadastro do CNPJ do operador [nulo se for pessoa física]"
+      - name: indicador_operador_ativo_jae
+        description: "{{ doc('indicador_operador_ativo_jae') }}"
+      - name: operadora_completo_jae
+        description: "{{ doc('nome_operadora') }} na Jaé [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+      - name: operadora_completo_stu
+        description: "{{ doc('nome_operadora') }} no STU [protegido]"
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
