@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__gps_sonda`
+- Cria flow `capture__gps_sonda` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
