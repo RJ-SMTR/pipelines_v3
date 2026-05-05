@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__operadora_cnpj`
+- Cria flow `treatment__operadora_cnpj` (https://github.com/RJ-SMTR/pipelines_v3/pull/144)
