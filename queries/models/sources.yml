@@ -312,6 +312,8 @@ sources:
 
     tables:
       - name: viagem_informada
+      - name: registros
+      - name: realocacao
 
   - name: source_smtr
     database: rj-smtr-staging
@@ -430,13 +432,6 @@ sources:
       - name: realocacao
 
   - name: source_sppo
-    database: rj-smtr-staging
-
-    tables:
-      - name: registros
-      - name: realocacao
-
-  - name: source_sonda
     database: rj-smtr-staging
 
     tables:
