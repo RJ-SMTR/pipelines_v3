@@ -39,5 +39,5 @@ def treatment__cadastro_veiculo(  # noqa: PLR0913
         test_scheduled_time=None,
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
-        snapshot_selector=constants.CADASTRO_VEICULO_SNAPSHOT_SELECTOR,
+        snapshot_selector=constants.SNAPSHOT_CADASTRO_VEICULO_SELECTOR,
     )
