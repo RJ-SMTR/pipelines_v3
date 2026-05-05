@@ -1,14 +1,7 @@
-# Changelog
+# Changelog - treatment__cadastro
 
-All notable changes to this project will be documented in this file.
+## [1.0.0] - 2026-05-05
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Adicionado
 
-## [0.1.0] - 2026-04-29
-
-### Added
-
-- Initial migration to Prefect 3
-- Treatment flow for cadastro_veiculo selector
-- Snapshot for cadastro_veiculo
+- Cria flow `treatment__cadastro_veiculo` (https://github.com/RJ-SMTR/pipelines_v3/pull/135)
