@@ -4,7 +4,6 @@ Valores constantes para materialização do cadastro de veículos
 """
 
 from datetime import datetime
-
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
