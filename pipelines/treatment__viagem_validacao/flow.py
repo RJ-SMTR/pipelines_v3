@@ -2,7 +2,7 @@
 """
 Flow de materialização de viagem validação
 
-DBT: 2026-04-29
+DBT: 2026-05-06
 """
 
 from typing import Optional
