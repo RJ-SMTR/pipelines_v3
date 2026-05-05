@@ -8,8 +8,10 @@ materializar dados de licenciamento no BigQuery.
 DBT: 2026-04-29
 """
 
-from prefect import flow
 from typing import Optional
+
+from prefect import flow
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
