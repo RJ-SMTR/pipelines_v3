@@ -24,7 +24,7 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--cadastro-veiculo--staging
+  - name: rj-treatment--cadastro_veiculo--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/treatment__cadastro_veiculo/flow.py:treatment__cadastro_veiculo
     work_pool:
@@ -35,7 +35,7 @@ deployments:
         command: uv run --package treatment__cadastro_veiculo -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--cadastro-veiculo--prod
+  - name: rj-treatment--cadastro_veiculo--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__cadastro_veiculo/flow.py:treatment__cadastro_veiculo
     schedules:
