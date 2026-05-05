@@ -1,0 +1,242 @@
+version: 2
+
+models:
+  - name: gps_brt_datario
+    description: "Dados tratados de registros de GPS do BRT"
+    columns:
+      - name: modo
+        description: "{{ doc('modo_brt') }}"
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: flag_em_movimento
+        description: "{{ doc('flag_em_movimento') }}"
+      - name: tipo_parada
+        description: "{{ doc('tipo_parada') }}"
+      - name: flag_linha_existe_sigmob
+        description: "{{ doc('flag_linha_existe_sigmob') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+
+  - name: gps_onibus_datario
+    description: "Dados tratados de registros de GPS dos Ônibus"
+    columns:
+      - name: modo
+        description: "{{ doc('modo_sppo') }}"
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: flag_em_movimento
+        description: "{{ doc('flag_em_movimento') }}"
+      - name: tipo_parada
+        description: "{{ doc('tipo_parada') }}"
+      - name: flag_linha_existe_sigmob
+        description: "{{ doc('flag_linha_existe_sigmob') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: fonte_gps
+        description: "Fornecedor dos dados de GPS (zirix ou conecta)"
+      - name: versao
+        description: "{{ doc('versao') }}"
+  - name: viagem_onibus_datario
+    description: "Detalhes de todas as viagens completas identificadas"
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: id_empresa
+        description: "{{ doc('id_empresa') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: servico
+        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: tempo_viagem
+        description: "{{ doc('tempo_viagem') }}"
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+      - name: perc_conformidade_shape
+        description: "{{ doc('perc_conformidade_shape') }}"
+      - name: perc_conformidade_registros
+        description: "{{ doc('perc_conformidade_registros') }}"
+      - name: versao_modelo
+        description: "{{ doc('versao') }}"
+  - name: licenciamento_veiculo_datario
+    description: Tabela histórica de dados cadastrais dos veículos que operam o sistema de transporte rodoviário, considerando tanto os licenciados no Sistema de Transporte Urbano [STU] quanto as solicitações válidas em andamento para ingresso no sistema
+    columns:
+      - name: data
+        description: Data [partição]
+        data_type: date
+        quote: true
+      - name: data_processamento
+        description: Data em que as informações do veículo foram atualizadas nesta tabela
+        data_type: date
+        quote: true
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        quote: true
+      - name: placa
+        description: "{{ doc('placa') }}"
+        data_type: string
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: permissao
+        description: "{{ doc('permissao') }}"
+        data_type: string
+        quote: true
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }} [chassi]"
+        data_type: int64
+        quote: true
+      - name: id_carroceria
+        description: "{{ doc('id_carroceria') }}"
+        data_type: int64
+        quote: true
+      - name: id_interno_carroceria
+        description: "{{ doc('id_interno_carroceria') }}"
+        data_type: int64
+        quote: true
+      - name: carroceria
+        description: "{{ doc('carroceria') }}"
+        data_type: string
+        quote: true
+      - name: id_chassi
+        description: "{{ doc('id_chassi') }}"
+        data_type: int64
+        quote: true
+      - name: id_fabricante_chassi
+        description: "{{ doc('id_fabricante_chassi') }}"
+        data_type: int64
+        quote: true
+      - name: nome_chassi
+        description: "{{ doc('nome_chassi') }}"
+        data_type: string
+        quote: true
+      - name: id_planta
+        description: "{{ doc('id_planta') }}"
+        data_type: int64
+        quote: true
+      - name: tipo_veiculo
+        description: "{{ doc('tipo_veiculo') }}"
+        data_type: string
+        quote: true
+      - name: status
+        description: Status do veículo
+        data_type: string
+        quote: true
+      - name: data_inicio_vinculo
+        description: "{{ doc('data_inicio_vinculo') }}"
+        data_type: date
+        quote: true
+      - name: data_ultima_vistoria
+        description: "{{ doc('data_ultima_vistoria') }}"
+        data_type: date
+        quote: true
+      - name: ano_ultima_vistoria
+        description: "{{ doc('ano_ultima_vistoria_atualizado') }}"
+        data_type: int64
+        quote: true
+      - name: ultima_situacao
+        description: Última situação do veículo na data atual
+        data_type: string
+        quote: true
+      - name: tecnologia
+        description: "{{ doc('tecnologia') }}"
+        data_type: string
+        quote: true
+      - name: quantidade_lotacao_pe
+        description: "{{ doc('quantidade_lotacao_pe') }}"
+        data_type: int64
+        quote: true
+      - name: quantidade_lotacao_sentado
+        description: "{{ doc('quantidade_lotacao_sentado') }}"
+        data_type: int64
+        quote: true
+      - name: tipo_combustivel
+        description: "{{ doc('tipo_combustivel') }}"
+        data_type: string
+        quote: true
+      - name: indicador_ar_condicionado
+        description: "{{ doc('indicador_ar_condicionado') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_elevador
+        description: "{{ doc('indicador_elevador') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_usb
+        description: "{{ doc('indicador_usb') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_wifi
+        description: "{{ doc('indicador_wifi') }}"
+        data_type: boolean
+        quote: true
+      - name: indicador_veiculo_lacrado
+        description: Indicador se o veículo estava lacrado na data atual [Verdadeiro/Falso]
+        data_type: boolean
+        quote: true
+      - name: data_arquivo_fonte
+        description: data do arquivo do STU com os dados utilizados
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
