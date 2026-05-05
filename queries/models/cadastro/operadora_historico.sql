@@ -60,7 +60,7 @@ with
                 when js.tipo_documento = "CNPJ"
                 then js.operadora_tratado_jae
                 else regexp_replace(js.operadora_tratado_jae, '[^ ]', '*')
-            end as operadora_tratado_jae,
+            end as operadora_jae,
             case
                 when js.tipo_documento = "CNPJ"
                 then js.operadora_tratado_stu
@@ -73,10 +73,10 @@ with
             c.situacao_cadastral,
             c.situacao_especial,
             js.indicador_operador_ativo_jae
-        from {{ ref("aux_operadora_jae_stu_historico") }} js
+        from operadora_tratado js
         left join
             {{ ref("aux_operadora_cnpj") }} c
-            on js.documento = c.documento
+            on js.documento = c.cnpj
             and js.tipo_documento = 'CNPJ'
             and (
                 (
@@ -105,16 +105,7 @@ with
             * except (datetime_inicio_validade)
         from operadora_jae_stu_cnpj
     ),
-    sha_dados_novos as (
-        select *, {{ sha_all_column }} as sha_dado_novo
-        from fim_validade
-        qualify
-            row_number() over (
-                partition by datetime_inicio_validade, id_operadora_jae
-                order by priority
-            )
-            = 1
-    ),
+    sha_dados_novos as (select *, {{ sha_column }} as sha_dado_novo from fim_validade),
     sha_dados_atuais as (
         {% if table_exists(this) %}
 
@@ -124,7 +115,7 @@ with
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
-            from dados_atuais
+            from {{ this }}
 
         {% else %}
             select
@@ -146,8 +137,7 @@ with
                 sha_dado_novo,
                 sha_dado_atual,
                 datetime_ultima_atualizacao_atual,
-                id_execucao_dbt_atual,
-                priority
+                id_execucao_dbt_atual
             ),
             '{{ var("version") }}' as versao,
             case

@@ -14,8 +14,13 @@
     "cnpj",
     "razao_social",
     "nome_fantasia",
+    "id_situacao_cadastral",
     "situacao_cadastral",
+    "data_situacao_cadastral",
+    "id_motivo_situacao_cadastral",
+    "motivo_situacao_cadastral",
     "situacao_especial",
+    "data_situacao_especial",
 ] %}
 
 {% set sha_column %}
@@ -75,7 +80,7 @@
                 union distinct
 
                 select distinct documento
-                from {{ aux_operadora_jae }}
+                from {{ aux_operadora_cliente_jae_historico }}
                 where tipo_documento = "CNPJ"
             )
     {% endset %}
@@ -88,7 +93,16 @@ with
     dados_novos as (
         select
             current_datetime("America/Sao_Paulo") as datetime_inicio_validade,
-            {{ columns | join(", ") }}
+            cnpj,
+            razao_social,
+            nome_fantasia,
+            situacao_cadastral.id as id_situacao_cadastral,
+            situacao_cadastral.descricao as situacao_cadastral,
+            situacao_cadastral.data as data_situacao_cadastral,
+            situacao_cadastral.motivo_id as id_motivo_situacao_cadastral,
+            situacao_cadastral.motivo_descricao as motivo_situacao_cadastral,
+            situacao_especial.descricao as situacao_especial,
+            situacao_especial.data as data_situacao_especial
         from {{ source("rmi_dados_mestres", "pessoa_juridica") }}
         where cnpj_particao in ({{ partitions | join(", ") }})
 
@@ -112,31 +126,39 @@ with
             from dados_atuais
         {% endif %}
     ),
+    dados_completos_deduplicados as (
+        select *
+        from dados_completos
+        qualify
+            row_number() over (
+                partition by datetime_inicio_validade, cnpj order by priority
+            )
+            = 1
+    ),
     operadora_mudanca_valor as (
         select
             * except (priority),
-            {{ sha_column }} != ifnull(lag({{ sha_column }}), cast("" as bytes)) over (
-                partition by cnpj order by datetime_inicio_validade, priority
+            {{ sha_column }} != ifnull(
+                lag({{ sha_column }}) over (
+                    partition by cnpj order by datetime_inicio_validade
+                ),
+                cast("" as bytes)
             ) as indicador_mudanca_valor
-        from dados_completos
+        from dados_completos_deduplicados
     ),
     operadora_datetime_fim_validade as (
         select
-            * except (indicador_mudanca_valor),
+            datetime_inicio_validade,
             lag(datetime_inicio_validade) over (
                 partition by cnpj order by datetime_inicio_validade
-            ) as datetime_fim_validade
+            ) as datetime_fim_validade,
+            * except (datetime_inicio_validade, indicador_mudanca_valor)
         from operadora_mudanca_valor
         where indicador_mudanca_valor
     ),
     sha_dados_novos as (
         select *, {{ sha_all_column }} as sha_dado_novo
         from operadora_datetime_fim_validade
-        qualify
-            row_number() over (
-                partition by datetime_inicio_validade, cnpj order by priority
-            )
-            = 1
     ),
     sha_dados_atuais as (
         {% if table_exists(this) %}
@@ -169,8 +191,7 @@ with
                 sha_dado_novo,
                 sha_dado_atual,
                 datetime_ultima_atualizacao_atual,
-                id_execucao_dbt_atual,
-                priority
+                id_execucao_dbt_atual
             ),
             '{{ var("version") }}' as versao,
             case
