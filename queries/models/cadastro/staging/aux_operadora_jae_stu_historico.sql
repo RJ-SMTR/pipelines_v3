@@ -24,7 +24,7 @@ with
         left join
             {{ ref("aux_operadora_stu") }} s
             on j.documento = s.documento
-            and j.tipo_documento = j.tipo_documento
+            and j.tipo_documento = s.tipo_documento
             and s.modo = j.modo_join
             and (
                 (
