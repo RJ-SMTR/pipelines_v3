@@ -67,7 +67,7 @@ models:
       - name: distancia
         description: "{{ doc('distancia_gps') }}"
       - name: fonte_gps
-        description: "Fornecedor dos dados de GPS (zirix ou conecta)"
+        description: "Fornecedor dos dados de GPS"
       - name: versao
         description: "{{ doc('versao') }}"
   - name: viagem_onibus_datario
