@@ -39,6 +39,13 @@ with
                         or o.datetime_fim_validade is null
                     )
                 )
+                or (
+                    c.datetime_inicio_validade < o.datetime_inicio_validade
+                    and (
+                        c.datetime_fim_validade >= o.datetime_fim_validade
+                        or c.datetime_fim_validade is null
+                    )
+                )
             )
     ),
     fim_validade as (

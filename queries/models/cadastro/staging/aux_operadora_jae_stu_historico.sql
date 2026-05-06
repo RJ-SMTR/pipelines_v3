@@ -7,8 +7,9 @@
 with
     operadora_jae_stu as (
         select
-            greatest(
-                j.datetime_inicio_validade, s.datetime_inicio_validade
+            ifnull(
+                greatest(j.datetime_inicio_validade, s.datetime_inicio_validade),
+                j.datetime_inicio_validade
             ) as datetime_inicio_validade,
             j.id_operadora_jae,
             s.perm_autor as id_operadora_stu,
@@ -40,6 +41,13 @@ with
                     and (
                         s.datetime_fim_validade < j.datetime_fim_validade
                         or j.datetime_fim_validade is null
+                    )
+                )
+                or (
+                    s.datetime_inicio_validade < j.datetime_inicio_validade
+                    and (
+                        s.datetime_fim_validade >= j.datetime_fim_validade
+                        or s.datetime_fim_validade is null
                     )
                 )
             )
