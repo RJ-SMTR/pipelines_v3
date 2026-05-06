@@ -86,6 +86,10 @@ with
                     data between "2025-11-20" and "2025-12-16"  -- Exceção para ajuste na tecnologia MTR-CAP-2025/59482
                     and data_processamento between "2025-11-20" and "2026-01-13"
                 )
+                or (
+                    data between "2026-04-25" and "2026-05-06"  -- Exceção para tratamento de dados de licenciamento de abril/maio de 2026, devido à falha na captura dos dados de licenciamento e infração no período
+                    and data_processamento between "2026-04-25" and "2026-05-06"
+                )
             )
             {% if is_incremental() %}
                 and data between date("{{ var('date_range_start') }}") and date(
