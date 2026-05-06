@@ -22,8 +22,4 @@ GPS_15_MINUTOS_SPPO_SELECTOR = DBTSelector(
     initial_datetime=datetime(2026, 4, 29, 10, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_15_minutos_sppo",
     redis_key_suffix="sppo",
-    data_sources=[
-        registros_constants.SPPO_REGISTROS_SOURCE,
-        realocacao_constants.SPPO_REALOCACAO_SOURCE,
-    ],
 )
