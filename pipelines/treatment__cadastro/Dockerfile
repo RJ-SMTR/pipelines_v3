@@ -9,7 +9,11 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/common/ ./pipelines/common/
+
 COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
+
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./queries ./queries
 
 RUN uv sync --all-packages
