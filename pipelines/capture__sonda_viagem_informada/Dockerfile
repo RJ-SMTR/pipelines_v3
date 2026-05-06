@@ -6,11 +6,8 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/treatment__monitoramento_temperatura ./pipelines/treatment__monitoramento_temperatura/
-
-COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitoramento_veiculo/
+COPY ./pipelines/capture__sonda_viagem_informada ./pipelines/capture__sonda_viagem_informada/
 
 COPY ./pipelines/common/ ./pipelines/common/
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
