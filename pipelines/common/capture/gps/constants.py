@@ -10,8 +10,20 @@ CITTATI_SOURCE_NAME = "cittati"
 CONECTA_SOURCE_NAME = "conecta"
 ZIRIX_SOURCE_NAME = "zirix"
 SPPO_SOURCE_NAME = "sppo"
+SONDA_SOURCE_NAME = "sonda"
 
 OUTPUT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+SONDA_REGISTROS_RENAME = {
+    "codigo": "id_veiculo",
+    "linha": "servico",
+    "latitude": "latitude",
+    "longitude": "longitude",
+    "dataHora": "datetime",
+    "velocidade": "velocidade",
+    "sentido": "sentido",
+    "trajeto": "vista",
+}
 
 SPPO_REGISTROS_RENAME = {
     "ordem": "id_veiculo",
@@ -42,6 +54,11 @@ SPPO_REALOCACAO_DATETIME_COLS = [
 REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"]
 
 GPS_SOURCE_CONFIGS = {
+    "sonda": {
+        "base_url": "https://zn4.m2mcontrol.com.br/api/integracao/veiculos",
+        "secret_path": "brt_api_v2",
+        "registros_response_key": "veiculos",
+    },
     "cittati": {
         "base_url": "https://servicos.cittati.com.br/WSIntegracaoCittati/SMTR/v2",
         "secret_path": "cittati_api",
