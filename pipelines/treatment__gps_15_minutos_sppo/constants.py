@@ -6,8 +6,6 @@ Valores constantes para materialização do selector gps_15_minutos SPPO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__sppo_realocacao import constants as realocacao_constants
-from pipelines.capture__sppo_registros import constants as registros_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
