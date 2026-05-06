@@ -46,9 +46,10 @@ with
                 or (
                     s.datetime_inicio_validade < j.datetime_inicio_validade
                     and (
-                        s.datetime_fim_validade >= j.datetime_fim_validade
+                        s.datetime_fim_validade > j.datetime_inicio_validade
                         or s.datetime_fim_validade is null
                     )
+
                 )
             )
     ),

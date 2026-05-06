@@ -98,9 +98,10 @@ with
                 or (
                     c.datetime_inicio_validade < js.datetime_inicio_validade
                     and (
-                        c.datetime_fim_validade >= js.datetime_fim_validade
+                        c.datetime_fim_validade > js.datetime_inicio_validade
                         or c.datetime_fim_validade is null
                     )
+
                 )
             )
     ),
