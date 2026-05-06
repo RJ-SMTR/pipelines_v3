@@ -198,6 +198,10 @@ models:
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
         quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string

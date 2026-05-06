@@ -84,8 +84,6 @@ selectors:
         - method: fqn
           value: servico_planejado_faixa_horaria
         - method: fqn
-          value: viagem_planejada_planejamento
-        - method: fqn
           value: viagem_planejada_planejamento_dia
 
   - name: transacao_ordem

@@ -80,6 +80,7 @@ with
         from {{ ref("viagem_planejada_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
+            and service_id != 'EXCEP'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     ordem_servico as (

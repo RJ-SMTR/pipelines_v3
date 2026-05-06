@@ -10,7 +10,7 @@
     )
 }}
 
--- depends_on: {{ ref('calendario') }}
+-- depends_on: {{ ref('feed_info_gtfs') }}
 {% if execute and is_incremental() %}
     {% set columns = (
         list_columns()
@@ -32,24 +32,17 @@
             )
         )
     {% endset %}
-    {% set gtfs_feeds_query %}
-        select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ ref("calendario") }}
-        where data between
-            date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
-            and date('{{ var("date_range_end") }}')
-    {% endset %}
-    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
     {% set feed_filter %}
-        {% if gtfs_feeds | length > 0 %}
-            feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        {% else %} 1 = 0
-        {% endif %}
+        feed_start_date in (
+            date('{{ last_feed_version }}'), date('{{ var("data_versao_gtfs") }}')
+        )
     {% endset %}
 {% else %}
     {% set sha_column %}
         cast(null as bytes)
     {% endset %}
+    {% set feed_filter %} 1 = 0 {% endset %}
 {% endif %}
 
 with
@@ -103,7 +96,6 @@ with
             unnest(
                 generate_array(tf.start_seconds, tf.end_seconds - 1, tf.headway_secs)
             ) as partida_seconds
-        where tf.service_id != 'EXCEP'
     ),
     viagens_stop_times as (
         select
@@ -124,7 +116,7 @@ with
                 feed_start_date, feed_version, trip_id
             )
         left join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
-        where st.stop_sequence = 0 and f.trip_id is null and t.service_id != 'EXCEP'
+        where st.stop_sequence = 0 and f.trip_id is null
     ),
     viagens_trips_alternativas as (
         select v.*, ta.trajetos_alternativos
@@ -161,6 +153,15 @@ with
             ) as horario_partida,
             modo,
             service_id,
+            case
+                when service_id like "%U_%"
+                then "Dia Útil"
+                when service_id like "%S_%"
+                then "Sabado"
+                when service_id like "%D_%"
+                then "Domingo"
+                else service_id
+            end as tipo_dia,
             trip_id,
             route_id,
             shape_id,
