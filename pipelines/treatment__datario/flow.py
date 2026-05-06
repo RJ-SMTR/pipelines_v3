@@ -7,7 +7,7 @@ Executa o selector DBT 'datario' para materializar as views do datario no BigQue
 Schedule:
 - Sem schedule
 
-DBT: 2025-05-04
+DBT: 2026-05-06
 """
 
 from typing import Optional
