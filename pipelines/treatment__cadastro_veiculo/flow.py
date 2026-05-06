@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Flow de materialização de dados de monitoramento de temperatura
+Flow de materialização de cadastro de veículos
 
-Executa o selector DBT 'monitoramento_temperatura' para materializar dados no BigQuery.
+Executa os selectors DBT 'cadastro_veiculo' e 'snapshot_cadastro_veiculo' para
+materializar dados de licenciamento no BigQuery.
 
-Schedule:
-- Diariamente às 6h00 (horário de São Paulo)
-- Depende de dados do monitoramento_veiculo
-
-DBT: 2026-05-05
+DBT 2026-05-05
 """
 
 from typing import Optional
@@ -19,27 +16,28 @@ from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.treatment__monitoramento_temperatura import constants
+from pipelines.treatment__cadastro_veiculo import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__monitoramento_temperatura(  # noqa: PLR0913
+def treatment__cadastro_veiculo(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict] = None,
+    additional_vars: Optional[dict[str, str]] = None,
     force_test_run: bool = False,
     skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.MONITORAMENTO_TEMPERATURA_SELECTOR],
-        snapshot_selector=constants.SNAPSHOT_TEMPERATURA_SELECTOR,
+        selectors=[constants.CADASTRO_VEICULO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
+        additional_vars=additional_vars,
+        test_scheduled_time=None,
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
+        snapshot_selector=constants.SNAPSHOT_CADASTRO_VEICULO_SELECTOR,
     )
