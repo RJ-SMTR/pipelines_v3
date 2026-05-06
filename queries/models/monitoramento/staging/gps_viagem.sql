@@ -65,8 +65,7 @@ with
             id_veiculo,
             latitude,
             longitude
-        {# from `rj-smtr.br_rj_riodejaneiro_veiculos.gps_brt` #}
-        from {{ ref("gps_brt") }}
+        from {{ ref("view_gps_brt_completo") }}
         where {{ incremental_filter }}
     ),
     gps_union as (
