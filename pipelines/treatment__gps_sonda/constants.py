@@ -22,5 +22,4 @@ GPS_SONDA_SELECTOR = DBTSelector(
     flow_folder_name="treatment__gps_sonda",
     incremental_delay_hours=1,
     redis_key_suffix="sonda",
-    data_sources=[sonda_constants.SONDA_REGISTROS_SOURCE],
 )
