@@ -55,12 +55,13 @@ def get_api_data(
     return data
 
 
-def get_raw_api(
+def get_raw_api(  # noqa: PLR0913
     url: str,
     raw_filepath: str,
     headers: Union[None, dict] = None,
     params: Union[None, dict] = None,
     raw_filetype: str = "json",
+    response_key: Union[None, str] = None,
 ) -> list[str]:
     """
     Get data from a single API endpoint and save to a local file.
@@ -71,11 +72,14 @@ def get_raw_api(
         headers (Union[None, dict]): Request headers
         params (Union[None, dict]): Request parameters
         raw_filetype (str): File type for response (json, csv, etc.)
+        response_key (Union[None, str]): If set, extracts data[response_key] before saving
 
     Returns:
         list[str]: List with the path where data was saved
     """
     data = get_api_data(url=url, headers=headers, params=params, raw_filetype=raw_filetype)
+    if response_key is not None:
+        data = data[response_key]
     filepath = raw_filepath.format(page=0)
     save_local_file(filepath=filepath, filetype=raw_filetype, data=data)
     return [filepath]
