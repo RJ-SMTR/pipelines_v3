@@ -4,6 +4,7 @@ on:
     branches:
       - staging/*
       - devops/*
+      - master
     paths:
       - automations/**
       - .github/workflows/cd_automations.yaml
