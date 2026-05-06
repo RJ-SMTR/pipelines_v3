@@ -18,7 +18,7 @@ ADDITIONAL_VARS = {
 
 GPS_SONDA_SELECTOR = DBTSelector(
     name="gps",
-    initial_datetime=datetime(2026, 5, 6, 10, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 5, 6, 12, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_sonda",
     incremental_delay_hours=1,
     redis_key_suffix="sonda",

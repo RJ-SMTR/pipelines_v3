@@ -14,7 +14,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 SONDA_REGISTROS_SOURCE = SourceTable(
     source_name=gps_constants.SONDA_SOURCE_NAME,
     table_id=gps_constants.REGISTROS_TABLE_ID,
-    first_timestamp=datetime(2026, 5, 6, 10, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    first_timestamp=datetime(2026, 5, 6, 12, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__sonda_registros",
     primary_keys=["id_veiculo", "datetime_servidor"],
     pretreatment_reader_args={"dtype": "object", "convert_dates": False},
