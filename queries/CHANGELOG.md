@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.3] - 2026-05-06
+
+### Adicionado
+
+- Adiciona a tabela `gps_15_minutos_onibus_sppo` ao arquivo `sources.yml` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
+
 ## [1.1.2] - 2026-04-28
 
 ### Alterado

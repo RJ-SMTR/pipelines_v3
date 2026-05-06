@@ -5,6 +5,7 @@
 ### Alterado
 
 - Altera modelo `gps_brt_datario` para referenciar `view_gps_brt_completo` e recalcular as colunas `flag_em_movimento`, `tipo_parada` e `flag_linha_existe_sigmob` a partir das fontes legada e nova (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+- Refatora o modelo `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
 
 ## [1.0.2] - 2025-11-05
 
