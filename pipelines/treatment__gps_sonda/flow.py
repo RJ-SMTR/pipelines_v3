@@ -8,7 +8,7 @@ Schedule:
 - A cada hora, no minuto 6 (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-04-30
+DBT: 2026-05-06
 """
 
 from datetime import time
