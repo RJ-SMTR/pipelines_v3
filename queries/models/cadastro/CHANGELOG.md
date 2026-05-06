@@ -1,5 +1,21 @@
 # Changelog - cadastro
 
+## [1.8.0] - 2026-05-05
+
+### Adicionado
+
+- Cria modelos (https://github.com/RJ-SMTR/pipelines_v3/pull/144):
+  - `aux_operadora_stu.sql`
+  - `aux_operadora_jae_cliente_historico.sql`
+  - `aux_operadora_jae_historico.sql`
+  - `aux_operadora_cliente_join_jae_historico.sql`
+  - `aux_operadora_jae_stu_historico.sql`
+  - `operadora_historico.sql`
+
+### Alterado
+
+- Altera arquitetura do modelo `operadoras.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/144)
+
 ## [1.7.6] - 2026-01-15
 
 ### Adicionado

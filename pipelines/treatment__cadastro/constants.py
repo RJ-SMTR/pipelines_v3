@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from pipelines.capture__jae_auxiliar import constants as jae_auxiliar_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
+from pipelines.treatment__operadora_cnpj import constants as operadora_cnpj_constants
 
 CADASTRO_SELECTOR = DBTSelector(
     name="cadastro",
@@ -29,5 +30,6 @@ CADASTRO_SELECTOR = DBTSelector(
             "laudo_pcd",
             "estudante",
         ]
-    ],
+    ]
+    + [operadora_cnpj_constants.OPERADORA_CNPJ_SELECTOR],
 )
