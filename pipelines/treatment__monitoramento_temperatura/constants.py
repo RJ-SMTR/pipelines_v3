@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
+from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
 
 ADDITIONAL_VARS = {"tipo_materializacao": "monitoramento"}
 
@@ -56,6 +57,7 @@ MONITORAMENTO_TEMPERATURA_SELECTOR = DBTSelector(
     initial_datetime=datetime(2025, 7, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__monitoramento_temperatura",
     post_test=MONITORAMENTO_TEMPERATURA_TEST,
+    data_sources=[monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR],
 )
 
 SNAPSHOT_TEMPERATURA_SELECTOR = DBTSelector(

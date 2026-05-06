@@ -5,7 +5,7 @@ Flow de materialização de cadastro de veículos
 Executa os selectors DBT 'cadastro_veiculo' e 'snapshot_cadastro_veiculo' para
 materializar dados de licenciamento no BigQuery.
 
-DBT: 2026-04-29
+DBT 2026-05-05
 """
 
 from typing import Optional
@@ -39,5 +39,5 @@ def treatment__cadastro_veiculo(  # noqa: PLR0913
         test_scheduled_time=None,
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
-        snapshot_selector=constants.CADASTRO_VEICULO_SNAPSHOT_SELECTOR,
+        snapshot_selector=constants.SNAPSHOT_CADASTRO_VEICULO_SELECTOR,
     )

@@ -46,8 +46,9 @@ with
     ),
     operadora_jae_stu_cnpj as (
         select
-            greatest(
-                js.datetime_inicio_validade, c.datetime_inicio_validade
+            ifnull(
+                greatest(js.datetime_inicio_validade, c.datetime_inicio_validade),
+                js.datetime_inicio_validade
             ) as datetime_inicio_validade,
             js.id_operadora_jae,
             js.id_operadora_stu,
@@ -93,6 +94,14 @@ with
                         c.datetime_fim_validade < js.datetime_fim_validade
                         or js.datetime_fim_validade is null
                     )
+                )
+                or (
+                    c.datetime_inicio_validade < js.datetime_inicio_validade
+                    and (
+                        c.datetime_fim_validade > js.datetime_inicio_validade
+                        or c.datetime_fim_validade is null
+                    )
+
                 )
             )
     ),

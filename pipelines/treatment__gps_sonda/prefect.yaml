@@ -1,4 +1,4 @@
-name: treatment__cadastro_veiculo
+name: treatment__gps_sonda
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "treatment__cadastro_veiculo-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/treatment__cadastro_veiculo/Dockerfile
+      tag: "treatment__gps_sonda-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/treatment__gps_sonda/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,28 +24,31 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--cadastro_veiculo--staging
+  - name: rj-treatment--gps_sonda--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/treatment__cadastro_veiculo/flow.py:treatment__cadastro_veiculo
+    entrypoint: pipelines/treatment__gps_sonda/flow.py:treatment__gps_sonda
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__cadastro_veiculo -- prefect flow-run execute
+        command: uv run --package treatment__gps_sonda -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--cadastro_veiculo--prod
+    concurrency_limit: 1
+
+  - name: rj-treatment--gps_sonda--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/treatment__cadastro_veiculo/flow.py:treatment__cadastro_veiculo
+    entrypoint: pipelines/treatment__gps_sonda/flow.py:treatment__gps_sonda
     schedules:
-      - cron: "0 6 * * *"
+      - cron: "6 * * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__cadastro_veiculo -- prefect flow-run execute
+        command: uv run --package treatment__gps_sonda -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+    concurrency_limit: 1
