@@ -1,5 +1,6 @@
 name: Crash Zombie Flows
 description: Crash flows without heartbeats
+id: 4523f46b-9b6e-4dd7-89cd-ce7d6731bd68
 enabled: true
 trigger:
   type: event
