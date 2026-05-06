@@ -30,7 +30,7 @@ from pipelines.common.tasks import (
 from pipelines.common.utils.prefect import flow
 
 
-@flow(log_prints=True, flow_run_name=get_backup_billing_pay_flow_run_name)
+@flow(log_prints=True, flow_run_name=get_backup_billing_pay_flow_run_name, timeout_seconds=18000)
 def capture__jae_backup_billingpay(
     database_name: str,
     env: Optional[str] = None,

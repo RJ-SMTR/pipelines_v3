@@ -43,7 +43,7 @@ from pipelines.integration__previnity_negativacao.tasks import (
 )
 
 
-@flow(log_prints=True)
+@flow(log_prints=True, timeout_seconds=10800)
 async def integration__previnity_negativacao(  # noqa: PLR0913
     timestamp=None,
     env=None,

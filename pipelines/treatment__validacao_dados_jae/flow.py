@@ -22,6 +22,7 @@ from pipelines.treatment__validacao_dados_jae import constants
     flow_run_name=rename_treatment_flow_run,
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    timeout_seconds=10800,
 )
 def treatment__validacao_dados_jae(
     env: Optional[str] = None,

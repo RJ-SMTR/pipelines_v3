@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from prefect import flow as prefect_flow
 from prefect import runtime
 
 from pipelines.common import constants
 from pipelines.common.utils.discord import format_send_discord_message
-from pipelines.common.utils.prefect import flow as prefect_flow
 from pipelines.common.utils.secret import get_env_secret
 from pipelines.common.utils.utils import convert_timezone
 

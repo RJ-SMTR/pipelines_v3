@@ -32,6 +32,7 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     flow_run_name=rename_flow_run,
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    timeout_seconds=10800,
 )
 def integration__upload_transacao_cct(
     env: Optional[str] = None,
