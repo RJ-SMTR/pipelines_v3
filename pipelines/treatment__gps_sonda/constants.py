@@ -6,7 +6,6 @@ Valores constantes para materialização do selector gps Sonda (BRT)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__sonda_registros import constants as sonda_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
