@@ -12,6 +12,8 @@ COPY ./pipelines/capture__jae_lancamento ./pipelines/capture__jae_lancamento/
 
 COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
 
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/common/ ./pipelines/common/
