@@ -78,7 +78,7 @@ def get_google_sheet_xlsx(
 
     df = pd.DataFrame(file[1:], columns=file[0])
 
-    df.columns = [normalize_text(c, snake_case=True, case="lower") for c in df.columns]
+    df.columns = [normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True) for c in df.columns]
     if filter_expr:
         df = df.query(filter_expr)
 
