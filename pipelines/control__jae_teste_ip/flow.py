@@ -5,7 +5,7 @@ Flow para verificação dos IPs da Jaé
 
 from typing import Optional
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.common.capture.jae import constants
 from pipelines.common.tasks import (
@@ -14,6 +14,7 @@ from pipelines.common.tasks import (
     setup_environment,
     task_send_discord_message,
 )
+from pipelines.common.utils.prefect import flow
 from pipelines.control__jae_teste_ip.tasks import (
     create_database_error_discord_message,
     test_jae_databases_connections,

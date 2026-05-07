@@ -9,11 +9,11 @@ Schedule: Horário (cron: "0 * * * *")
 Common: 2026-04-20
 """
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
 from pipelines.common.treatment.default_treatment.utils import run_dbt
-from pipelines.common.utils.prefect import handler_notify_failure
+from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.control__source_freshness.tasks import (
     parse_source_freshness_output,
     source_freshness_notify_discord,

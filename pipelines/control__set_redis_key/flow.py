@@ -7,8 +7,7 @@ Executa a alteração de chaves e valores em Redis via API de controle manual.
 Common: 2026-03-10
 """
 
-from prefect import flow
-
+from pipelines.common.utils.prefect import flow
 from pipelines.control__set_redis_key.tasks import set_redis_keys
 
 

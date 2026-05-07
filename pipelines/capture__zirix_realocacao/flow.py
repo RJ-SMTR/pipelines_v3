@@ -3,12 +3,11 @@
 Flow de captura de dados de GPS realocacao da Zirix
 """
 
-from prefect import flow
-
 from pipelines.capture__zirix_realocacao import constants
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 from pipelines.common.capture.gps.tasks import create_gps_extractor
+from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)

@@ -7,7 +7,7 @@ Common: 2026-03-18
 
 from typing import Optional
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.capture__jae_backup_billingpay.tasks import (
     create_non_filtered_discord_message,
@@ -27,9 +27,10 @@ from pipelines.common.tasks import (
     setup_environment,
     task_send_discord_message,
 )
+from pipelines.common.utils.prefect import flow
 
 
-@flow(log_prints=True, flow_run_name=get_backup_billing_pay_flow_run_name)
+@flow(log_prints=True, flow_run_name=get_backup_billing_pay_flow_run_name, timeout_seconds=18000)
 def capture__jae_backup_billingpay(
     database_name: str,
     env: Optional[str] = None,
