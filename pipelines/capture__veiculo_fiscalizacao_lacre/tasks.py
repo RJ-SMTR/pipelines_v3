@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tasks de captura dos dados de fiscalização de veículos"""
 
-from pathlib import Path
-
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
@@ -20,7 +18,6 @@ def create_veiculo_fiscalizacao_lacre_extractor(context: SourceCaptureContext):
         sheet_name=constants.VEICULO_LACRE_SHEET_NAME,
     )
 
-    filepath = Path(context.raw_filepath).parent / "veiculo_fiscalizacao_lacre.csv"
-    save_local_file(filepath=str(filepath), filetype="csv", data=df)
+    save_local_file(filepath=context.raw_filepath, filetype="csv", data=df)
 
-    return filepath
+    return context.raw_filepath
