@@ -9,6 +9,7 @@ from google.auth import default
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
+from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.pretreatment import normalize_text
 
 
@@ -49,8 +50,19 @@ def get_google_sheet_xlsx(
     spread_sheet_id: str,
     sheet_name: str,
     filter_expr: Optional[str] = None,
-) -> pd.DataFrame:
-    """Extrai dados de uma planilha Google Sheets"""
+    filepath: Optional[str] = None,
+) -> pd.DataFrame | list[str]:
+    """Extrai dados de uma planilha Google Sheets
+
+    Args:
+        spread_sheet_id: ID da planilha
+        sheet_name: Nome da aba
+        filter_expr: Expressão de filtro opcional
+        filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
+
+    Returns:
+        DataFrame se filepath for None, lista com filepath se filepath for fornecido
+    """
 
     sheets_service = get_google_api_service(service_name="sheets", version="v4")
 
@@ -69,5 +81,9 @@ def get_google_sheet_xlsx(
     df.columns = [normalize_text(c) for c in df.columns]
     if filter_expr:
         df = df.query(filter_expr)
+
+    if filepath:
+        save_local_file(filepath=filepath, filetype="csv", data=df)
+        return [filepath]
 
     return df
