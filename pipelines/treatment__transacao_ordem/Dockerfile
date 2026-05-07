@@ -14,6 +14,8 @@ COPY ./pipelines/treatment__financeiro_bilhetagem ./pipelines/treatment__finance
 
 COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
 
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/capture__jae_ordem_pagamento/ ./pipelines/capture__jae_ordem_pagamento/
