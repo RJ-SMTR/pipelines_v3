@@ -1,5 +1,30 @@
 # Changelog - monitoramento
 
+## [2.0.5] - 2026-05-06
+
+### Adicionado
+
+- Cria exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-25` e `2026-05-06`  devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/161)
+- Cria o modelo `view_gps_sppo_15_minutos` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
+
+### Alterado
+
+- Adiciona `require_partition_filter=true` à configuração do modelo `gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
+
+## [2.0.4] - 2026-05-06
+
+### Adicionado
+
+- Cria modelo `view_gps_brt_completo` que une o histórico legado `br_rj_riodejaneiro_veiculos.gps_brt` com o novo `monitoramento.gps_brt_sonda` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+
+### Alterado
+
+- Altera modelo `gps_viagem` para referenciar `view_gps_brt_completo` em substituição a `gps_brt` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+
+### Removido
+
+- Remove modelo temporário `gps_brt` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+
 ## [2.0.3] - 2026-04-16
 
 ### Adicionado

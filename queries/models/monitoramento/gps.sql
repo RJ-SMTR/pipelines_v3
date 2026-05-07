@@ -5,6 +5,7 @@
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
         tags=["geolocalizacao"],
         alias=this.name ~ "_" ~ var("modo_gps") ~ "_" ~ var("fonte_gps"),
+        require_partition_filter=true,
     )
 }}
 
