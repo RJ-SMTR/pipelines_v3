@@ -14,16 +14,41 @@
     data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
 {% endset %}
 
+{% set incremental_filter_inmet %}
+    data between date("{{var('date_range_start')}}") and date_add(
+        date("{{var('date_range_end')}}"), interval 1 day
+    )
+{% endset %}
+
 with
-    inmet as (
+    inmet_ajustado as (
         select
-            data,
-            extract(hour from hora) as hora,
-            max(temperatura) as temperatura,
-            "inmet" as fonte
+            case
+                when data >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
+                then
+                    extract(
+                        date from datetime_sub(datetime(data, hora), interval 1 hour)
+                    )
+                else data
+            end as data,
+            case
+                when data >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
+                then
+                    extract(
+                        hour from datetime_sub(datetime(data, hora), interval 1 hour)
+                    )
+                else extract(hour from hora)
+            end as hora,
+            temperatura
         from {{ ref("temperatura_inmet") }}
         where
-            {{ incremental_filter }} and id_estacao in ("A621", "A652", "A636", "A602")  -- Estações do Rio de Janeiro
+            {{ incremental_filter_inmet }}
+            and id_estacao in ("A621", "A652", "A636", "A602")  -- Estações do Rio de Janeiro
+    ),
+    inmet as (
+        select data, hora, max(temperatura) as temperatura, "inmet" as fonte
+        from inmet_ajustado
+        where {{ incremental_filter }}
         group by 1, 2
     ),
     alertario as (
