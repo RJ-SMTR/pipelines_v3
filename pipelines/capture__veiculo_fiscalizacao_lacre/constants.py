@@ -11,6 +11,8 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 
 VEICULO_FISCALIZACAO_SOURCE_NAME = "veiculo_fiscalizacao"
 VEICULO_LACRE_TABLE_ID = "veiculo_fiscalizacao_lacre"
+VEICULO_LACRE_SHEET_ID = "1LTyNe2_AgWR0JlCmUOYGtYKpe33w57hslkMkrUqYPbw"
+VEICULO_LACRE_SHEET_NAME = "Controle de processos - Fiscalização"
 
 VEICULO_LACRE_SOURCE = SourceTable(
     source_name=VEICULO_FISCALIZACAO_SOURCE_NAME,

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Tasks de captura dos dados de fiscalização de veiculos"""
+"""Tasks de captura dos dados de fiscalização de veículos"""
 
 from functools import partial
 
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
-from pipelines.capture__veiculo_fiscalizacao import constants
+from pipelines.capture__veiculo_fiscalizacao_lacre import constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 

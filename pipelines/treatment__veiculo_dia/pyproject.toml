@@ -1,0 +1,4 @@
+[project]
+name = "treatment__veiculo_dia"
+version = "0.1.0"
+description = "Pipeline de tratamento de dados de veículos por dia rj-smtr"
