@@ -10,6 +10,8 @@ COPY ./pipelines/treatment__transacao_erro ./pipelines/treatment__transacao_erro
 
 COPY ./pipelines/common/ ./pipelines/common/
 
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
