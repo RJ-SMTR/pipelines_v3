@@ -16,6 +16,14 @@ VEICULO_LACRE_RENAME = {
     "PLACA": "placa",
     "N DE ORDEM": "n_o_de_ordem",
     "DATA DO LACRE": "data_do_lacre",
+    "N DO AUTO": "n_do_auto",
+    "N DO LACRE": "n_do_lacre",
+    "DATA DO DESLACRE": "data_do_deslacre",
+    "NOME DO FISCAL DESLACRE": "nome_do_fiscal_deslacre",
+    "DIAS LACRADOS": "dias_lacrados",
+    "MOTIVO DO LACRE": "motivo_do_lacre",
+    "ULTIMO EDITOR": "ultimo_editor",
+    "ULTIMA ATUALIZACAO": "ultima_atualizacao",
 }
 
 
@@ -24,9 +32,12 @@ def rename_veiculo_lacre_columns(
     context: SourceCaptureContext,  # noqa: ARG001
 ) -> pd.DataFrame:
     """Normaliza os nomes das colunas da planilha de controle de lacre."""
-    normalized_columns = {
-        col: normalize_text(col, snake_case=True, case="lower") for col in data.columns
-    }
+    normalized_columns = {}
+    for col in data.columns:
+        if col in VEICULO_LACRE_RENAME:
+            normalized_columns[col] = VEICULO_LACRE_RENAME[col]
+        else:
+            normalized_columns[col] = normalize_text(col, snake_case=True, case="lower")
     data = data.rename(columns=normalized_columns)
     return data
 
