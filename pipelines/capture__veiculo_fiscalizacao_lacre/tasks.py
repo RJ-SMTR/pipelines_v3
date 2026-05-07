@@ -12,7 +12,7 @@ from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 
 
 @task(cache_policy=NO_CACHE)
-def create_veiculo_fiscalizacao_lacre_extractor(_context: SourceCaptureContext):
+def create_veiculo_fiscalizacao_lacre_extractor(context: SourceCaptureContext):
     """Cria a extração da planilha de controle de lacre dos veículos"""
     return partial(
         get_google_sheet_xlsx,
