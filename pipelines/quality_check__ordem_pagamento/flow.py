@@ -5,12 +5,11 @@ Flow para o teste de qualidade da ordem de pagamento da Jaé
 
 from typing import Optional
 
-from prefect import flow
-
 from pipelines.common.treatment.default_quality_check.flow import (
     create_quality_check_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.quality_check__ordem_pagamento import constants
 
 

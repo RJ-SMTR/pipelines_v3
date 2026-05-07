@@ -7,12 +7,11 @@ Executa o selector DBT 'cliente_cpf' para materializar dados no BigQuery.
 DBT: 2026-03-06
 """
 
-from prefect import flow
-
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__cliente_cpf import constants
 
 
