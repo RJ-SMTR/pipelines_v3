@@ -5,9 +5,9 @@ on:
     branches:
       - master
       - staging/*
-    paths:
-      - 'queries/**'
-      - '.github/workflows/cd_dbt_docs.yaml'
+    # paths:
+    #   - 'queries/**'
+    #   - '.github/workflows/cd_dbt_docs.yaml'
   workflow_dispatch:
 
 jobs:
@@ -23,35 +23,49 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install dbt-core dbt-postgres
-          pip install -r dbt/requirements.txt
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Generate dbt docs
-        run: |
-          cd dbt
-          dbt docs generate
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
+      - name: Install project dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          uv sync --all-packages
+      
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+    
+      - name: Setup credentials for dbt
+        run: |-
+
+          echo "Mounting files from env..."
+
+          echo "${{ secrets.GKE_SA_KEY }}" > /tmp/credentials.json
+
+      - name: Generate dbt docs
+        run: |
+          cd queries
+          uv run dbt docs generate --static --target prod
 
       - name: Upload docs to GCS
         run: |
-          gsutil -m cp -r dbt/target/compiled dbt/target/run gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
-          gsutil -m cp dbt/target/manifest.json gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
-          gsutil -m cp dbt/target/run_results.json gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
-          gsutil -m cp dbt/target/index.html gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
-          gsutil -m cp -r dbt/target/dependencies gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp queries/target/index.html gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp queries/target/manifest.json gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
 
-      - name: Notify on success
-        if: success()
-        run: echo "DBT docs generated and uploaded successfully to GCS"
+      # - name: Notify on success
+      #   if: success()
+      #   run: echo "DBT docs generated and uploaded successfully to GCS"
 
-      - name: Notify on failure
-        if: failure()
-        run: echo "DBT docs generation or upload failed"
+      # - name: Notify on failure
+      #   if: failure()
+      #   run: echo "DBT docs generation or upload failed"
