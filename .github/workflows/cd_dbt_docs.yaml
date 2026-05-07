@@ -48,7 +48,7 @@ jobs:
 
       - name: Setup credentials for dbt
         run: |-
-          
+
           echo "Mounting files from env..."
 
           echo "${{ secrets.GKE_SA_KEY }}" > /tmp/credentials.json
