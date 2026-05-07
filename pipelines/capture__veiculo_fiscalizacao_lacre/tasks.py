@@ -18,5 +18,5 @@ def create_veiculo_fiscalizacao_lacre_extractor(context: SourceCaptureContext):
         get_google_sheet_xlsx,
         spread_sheet_id=constants.VEICULO_LACRE_SHEET_ID,
         sheet_name=constants.VEICULO_LACRE_SHEET_NAME,
-        filepath=context.raw_filepath,
+        raw_filepath=context.raw_filepath,
     )

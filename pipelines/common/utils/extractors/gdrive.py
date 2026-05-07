@@ -50,7 +50,7 @@ def get_google_sheet_xlsx(
     spread_sheet_id: str,
     sheet_name: str,
     filter_expr: Optional[str] = None,
-    filepath: Optional[str] = None,
+    raw_filepath: Optional[str] = None,
 ) -> pd.DataFrame | list[str]:
     """Extrai dados de uma planilha Google Sheets
 
@@ -58,10 +58,10 @@ def get_google_sheet_xlsx(
         spread_sheet_id: ID da planilha
         sheet_name: Nome da aba
         filter_expr: Expressão de filtro opcional
-        filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
+        raw_filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
 
     Returns:
-        DataFrame se filepath for None, lista com filepath se filepath for fornecido
+        DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
     """
 
     sheets_service = get_google_api_service(service_name="sheets", version="v4")
@@ -82,7 +82,8 @@ def get_google_sheet_xlsx(
     if filter_expr:
         df = df.query(filter_expr)
 
-    if filepath:
+    if raw_filepath:
+        filepath = raw_filepath.format(page=0)
         save_local_file(filepath=filepath, filetype="csv", data=df)
         return [filepath]
 
