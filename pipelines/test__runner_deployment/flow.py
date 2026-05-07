@@ -2,8 +2,10 @@
 import random
 
 import pandas as pd
-from prefect import flow, task
+from prefect import task
 from prefect.cache_policies import NO_CACHE
+
+from pipelines.common.utils.prefect import flow
 
 
 @task(cache_policy=NO_CACHE)
