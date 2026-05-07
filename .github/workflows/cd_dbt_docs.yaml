@@ -26,11 +26,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
       - name: Install project dependencies
         shell: bash
         run: |
@@ -38,16 +33,19 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v3
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-  
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          version: "latest"
+
       - name: Setup credentials for dbt
         run: |-
           
