@@ -10,7 +10,6 @@ from prefect.cache_policies import NO_CACHE
 from pipelines.capture__veiculo_fiscalizacao_lacre import constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
-from pipelines.common.utils.pretreatment import normalize_text
 
 VEICULO_LACRE_RENAME_MAPPING = {
     "n_de_ordem": "n_o_de_ordem",
