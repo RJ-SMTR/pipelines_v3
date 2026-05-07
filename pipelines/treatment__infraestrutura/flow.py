@@ -10,12 +10,11 @@ Schedule:
 DBT: 2026-04-27
 """
 
-from prefect import flow
-
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__infraestrutura import constants
 
 
