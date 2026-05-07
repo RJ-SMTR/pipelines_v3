@@ -1,0 +1,57 @@
+name: CD - DBT Docs Generation and Upload
+
+on:
+  push:
+    branches:
+      - master
+      - staging/*
+    paths:
+      - 'queries/**'
+      - '.github/workflows/cd_dbt_docs.yaml'
+  workflow_dispatch:
+
+jobs:
+  generate-and-upload-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install dbt-core dbt-postgres
+          pip install -r dbt/requirements.txt
+
+      - name: Generate dbt docs
+        run: |
+          cd dbt
+          dbt docs generate
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Upload docs to GCS
+        run: |
+          gsutil -m cp -r dbt/target/compiled dbt/target/run gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp dbt/target/manifest.json gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp dbt/target/run_results.json gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp dbt/target/index.html gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp -r dbt/target/dependencies gs://${{ secrets.GCS_BUCKET_NAME }}/dbt-docs/
+
+      - name: Notify on success
+        if: success()
+        run: echo "DBT docs generated and uploaded successfully to GCS"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "DBT docs generation or upload failed"
