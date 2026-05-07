@@ -7,7 +7,7 @@ Common: 2026-04-30
 
 from typing import Optional
 
-from prefect import flow, runtime, unmapped
+from prefect import runtime, unmapped
 
 from pipelines.common.tasks import (
     get_run_env,
@@ -22,6 +22,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     wait_data_sources,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
 
 

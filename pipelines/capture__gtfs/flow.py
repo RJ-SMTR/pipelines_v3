@@ -8,7 +8,7 @@ transforma em estrutura aninhada e materializa via dbt.
 Common: 2026-04-28
 """
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.capture__gtfs import constants
 from pipelines.capture__gtfs.tasks import (
@@ -35,7 +35,7 @@ from pipelines.common.treatment.default_quality_check.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
-from pipelines.common.utils.prefect import rename_flow_run
+from pipelines.common.utils.prefect import flow, rename_flow_run
 
 
 @flow(log_prints=True, flow_run_name=rename_flow_run)
