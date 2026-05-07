@@ -18,6 +18,7 @@ with
             ) as hora_utc,
             CD_ESTACAO as id_estacao,
             safe_cast(json_value(content, '$.TEM_INS') as float64) as temperatura,
+            safe_cast(json_value(content, '$.TEM_MAX') as float64) as temperatura_maxima,
             datetime(
                 parse_timestamp(
                     '%Y-%m-%d %H:%M:%S%Ez',
@@ -51,6 +52,7 @@ select
     extract(time from datetime_medicao) as hora,
     id_estacao,
     temperatura,
+    temperatura_maxima,
     datetime_execucao_flow,
     datetime_captura
 from datetime_conversion
