@@ -8,7 +8,7 @@ Common  2026-05-07
 """
 
 from prefect import flow
-
+from typing import Optional
 from pipelines.capture__veiculo_fiscalizacao_lacre import constants
 from pipelines.capture__veiculo_fiscalizacao_lacre.tasks import (
     create_veiculo_fiscalizacao_lacre_extractor,
@@ -23,12 +23,12 @@ sources = [constants.VEICULO_LACRE_SOURCE]
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__veiculo_fiscalizacao_lacre(  # noqa: PLR0913
-    env=None,
-    source_table_ids=tuple([s.table_id for s in sources]),
-    timestamp=None,
-    recapture=True,
-    recapture_days=7,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    source_table_ids: Optional[tuple[str]] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 7,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,
