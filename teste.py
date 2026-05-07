@@ -1,14 +1,15 @@
+# -*- coding: utf-8 -*-
 # from pipelines.treatment__cadastro_veiculo.flow import treatment__cadastro_veiculo
 
 
 # treatment__cadastro_veiculo(skip_source_check=True, datetime_start="2026-05-04", datetime_end="2026-05-05")
 
 
-
-from queries.dev.utils import run_dbt_model, run_dbt_selector, run_dbt_tests
 import pandas as pd
-# Veja os parâmetros disponíveis da função run_dbt_model em util.py
 
+from queries.dev.utils import run_dbt_model
+
+# Veja os parâmetros disponíveis da função run_dbt_model em util.py
 
 
 inicio = "2026-04-25"
@@ -26,12 +27,11 @@ vars = {
     "partitions": partitions,
     "data_versao_gtfs": "2025-06-01",
     "feed_start_date": "2025-06-01",
-    }
-
-
+}
 
 
 run_dbt_model(
-dataset_id="veiculo_dia",
-_vars=vars,
-flags = "--target dev --defer --state target-base --favor-state")
+    dataset_id="veiculo_dia",
+    _vars=vars,
+    flags="--target dev --defer --state target-base --favor-state",
+)

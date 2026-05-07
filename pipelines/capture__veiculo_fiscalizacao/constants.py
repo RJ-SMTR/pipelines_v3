@@ -17,9 +17,7 @@ VEICULO_LACRE_TABLE_ID = "veiculo_fiscalizacao_lacre"
 VEICULO_LACRE_SOURCE = SourceTable(
     source_name=VEICULO_FISCALIZACAO_SOURCE_NAME,
     table_id=VEICULO_LACRE_TABLE_ID,
-    first_timestamp=datetime(
-        2025, 5, 28, 5, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
-    ),
+    first_timestamp=datetime(2025, 5, 28, 5, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__veiculo_fiscalizacao",
     partition_date_only=True,
     max_recaptures=5,
