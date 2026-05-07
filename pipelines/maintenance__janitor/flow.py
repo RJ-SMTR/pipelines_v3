@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from prefect import flow
 from tasks import delete_stale_pending_runs
+
+from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True)

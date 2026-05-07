@@ -5,14 +5,13 @@ Flow para captura de dados de ordem de pagamento da Jaé
 Common: 2026-03-19
 """
 
-from prefect import flow
-
 from pipelines.capture__jae_ordem_pagamento import constants
 from pipelines.capture__jae_ordem_pagamento.tasks import create_ressarcimento_db_extractor
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.utils.prefect import flow
 
 sources = constants.JAE_ORDEM_PAGAMENTO_SOURCES
 

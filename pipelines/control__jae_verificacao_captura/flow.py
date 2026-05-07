@@ -7,7 +7,7 @@ Common: 2026-03-18
 
 from typing import Optional
 
-from prefect import flow, runtime, unmapped
+from prefect import runtime, unmapped
 
 from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.tasks import (
@@ -17,6 +17,7 @@ from pipelines.common.tasks import (
     setup_environment,
     task_send_discord_message,
 )
+from pipelines.common.utils.prefect import flow
 from pipelines.control__jae_verificacao_captura import constants
 from pipelines.control__jae_verificacao_captura.tasks import (
     create_capture_check_discord_message,
