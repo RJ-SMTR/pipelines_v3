@@ -65,16 +65,66 @@ with
         from trips t
         join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
     ),
-    trips_alternativas as (
+    trajeto_alternativo_sentido as (
         select
             feed_start_date,
             feed_version,
             servico,
-            direction_id,
+            evento,
+            case when sentido = 'V' then '1' else '0' end as direction_id,
+            extensao
+        from
+            (
+                select
+                    feed_start_date,
+                    feed_version,
+                    servico,
+                    evento,
+                    extensao_ida,
+                    extensao_volta
+                from {{ ref("ordem_servico_trajeto_alternativo_gtfs") }}
+                where
+                    feed_start_date < date('{{ var("DATA_GTFS_V4_INICIO") }}')
+                    {% if is_incremental() %} and {{ feed_filter }} {% endif %}
+            ) unpivot (
+                (extensao)
+                for sentido in ((extensao_ida) as 'I', (extensao_volta) as 'V')
+            )
+        union all
+        select
+            feed_start_date,
+            feed_version,
+            servico,
+            evento,
+            case when left(sentido, 1) = 'V' then '1' else '0' end as direction_id,
+            extensao
+        from {{ ref("ordem_servico_trajeto_alternativo_sentido") }}
+        where
+            feed_start_date >= date('{{ var("DATA_GTFS_V4_INICIO") }}')
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
+    ),
+    trips_alternativas as (
+        select
+            t.feed_start_date,
+            t.feed_version,
+            t.servico,
+            t.direction_id,
             array_agg(
-                struct(trip_id as trip_id, shape_id as shape_id, evento as evento)
+                struct(
+                    t.trip_id as trip_id,
+                    t.shape_id as shape_id,
+                    t.evento as evento,
+                    tas.extensao as extensao
+                )
             ) as trajetos_alternativos
         from trips t
+        left join
+            trajeto_alternativo_sentido tas
+            on t.feed_start_date = tas.feed_start_date
+            and t.feed_version = tas.feed_version
+            and t.servico = tas.servico
+            and t.evento = tas.evento
+            and t.direction_id = tas.direction_id
         where t.trip_id not in (select trip_id from frequencies_tratada)
         group by 1, 2, 3, 4
     ),
@@ -133,6 +183,13 @@ with
                 feed_start_date, feed_version, servico, direction_id
             )
     ),
+    ordem_servico_extensao as (
+        select feed_start_date, feed_version, servico, tipo_dia, sentido, extensao
+        from {{ ref("aux_ordem_servico_diaria") }}
+        where
+            feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
+            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
+    ),
     servico_circular as (
         select feed_start_date, feed_version, shape_id
         from {{ ref("shapes_geom_planejamento") }}
@@ -180,6 +237,23 @@ with
         from viagens_trips_alternativas v
         left join servico_circular c using (shape_id, feed_version, feed_start_date)
     ),
+    viagem_planejada_extensao as (
+        select
+            v.* except (tipo_dia),
+            coalesce(ose.tipo_dia, v.tipo_dia) as tipo_dia,
+            ose.extensao
+        from viagem_planejada v
+        left join
+            ordem_servico_extensao ose
+            on ose.feed_start_date = v.feed_start_date
+            and ose.feed_version = v.feed_version
+            and ose.servico = v.servico
+            and ose.sentido = v.sentido
+            and (
+                ose.tipo_dia = v.tipo_dia
+                or (ose.tipo_dia = 'Ponto Facultativo' and v.tipo_dia = 'Dia Útil')
+            )
+    ),
     viagem_planejada_id as (
         select
             *,
@@ -192,9 +266,11 @@ with
                 "_",
                 service_id,
                 "_",
+                tipo_dia,
+                "_",
                 replace(horario_partida, ':', '')
             ) as id_viagem
-        from viagem_planejada
+        from viagem_planejada_extensao
     ),
     dados_novos as (
         select id_viagem, * except (id_viagem, rn)

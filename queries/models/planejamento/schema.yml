@@ -9,8 +9,8 @@ models:
           expression: count(distinct tipo_os)
           compare_model: ref("ordem_servico_gtfs")
           compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
+          group_by: [feed_start_date, tipo_os]
+          compare_group_by: [feed_start_date, tipo_os]
           row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
@@ -226,8 +226,12 @@ models:
         description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
         data_type: string
         quote: true
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: float64
+        quote: true
       - name: trajetos_alternativos
-        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct sem extensao (enriquecida no _dia a partir da OS)"
+        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido)"
         data_type: record
         quote: true
       - name: feed_version
@@ -679,8 +683,8 @@ models:
           expression: count(distinct tipo_os)
           compare_model: ref("ordem_servico_faixa_horaria_sentido")
           compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
+          group_by: [feed_start_date, tipo_os]
+          compare_group_by: [feed_start_date, tipo_os]
           row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
@@ -763,4 +767,3 @@ models:
         description: Decreto que alterou o valor da tarifa
         data_type: string
         quote: true
-
