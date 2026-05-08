@@ -10,8 +10,6 @@ Common:2026-05-08
 
 from typing import Optional
 
-from pipelines.common.utils.prefect import flow  
-
 from pipelines.capture__veiculo_fiscalizacao_lacre import constants
 from pipelines.capture__veiculo_fiscalizacao_lacre.tasks import (
     create_veiculo_fiscalizacao_lacre_extractor,
@@ -20,6 +18,7 @@ from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
