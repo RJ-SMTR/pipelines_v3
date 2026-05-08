@@ -202,6 +202,10 @@ models:
         description: "{{ doc('tipo_dia') }}"
         data_type: string
         quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
@@ -231,7 +235,7 @@ models:
         data_type: float64
         quote: true
       - name: trajetos_alternativos
-        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido)"
+        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido, tipo_os)"
         data_type: record
         quote: true
       - name: feed_version

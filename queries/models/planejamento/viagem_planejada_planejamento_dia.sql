@@ -149,13 +149,21 @@ with
             on c.feed_start_date = vp.feed_start_date
             and c.feed_version = vp.feed_version
             and vp.service_id in unnest(c.service_ids)
+            and (
+                vp.tipo_os = c.tipo_os
+                or vp.modo != 'Ônibus'
+                or (
+                    length(regexp_extract(vp.servico, r"[0-9]+")) = 4
+                    and regexp_extract(servico, r"[0-9]+") like "2%"
+                )
+            )
         left join
             ordem_servico os
             on os.feed_start_date = c.feed_start_date
             and os.feed_version = c.feed_version
             and os.servico = vp.servico
             and os.tipo_dia = c.tipo_dia
-            and os.tipo_os = c.tipo_os
+            and os.tipo_os = vp.tipo_os
             and (
                 (os.sentido in ('I', 'C') and vp.sentido in ('I', 'C'))
                 or (os.sentido = 'V' and vp.sentido = 'V')
