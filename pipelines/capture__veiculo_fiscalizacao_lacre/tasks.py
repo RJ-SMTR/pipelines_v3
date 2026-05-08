@@ -46,4 +46,5 @@ def create_veiculo_fiscalizacao_lacre_extractor(context: SourceCaptureContext):
         spread_sheet_id=constants.VEICULO_LACRE_SHEET_ID,
         sheet_name=constants.VEICULO_LACRE_SHEET_NAME,
         raw_filepath=context.raw_filepath,
+        rename_mapping=VEICULO_LACRE_RENAME_MAPPING,
     )

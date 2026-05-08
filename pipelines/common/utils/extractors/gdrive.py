@@ -51,6 +51,7 @@ def get_google_sheet_xlsx(
     sheet_name: str,
     filter_expr: Optional[str] = None,
     raw_filepath: Optional[str] = None,
+    rename_mapping: Optional[dict[str, str]] = None,
 ) -> pd.DataFrame | list[str]:
     """Extrai dados de uma planilha Google Sheets
 
@@ -59,6 +60,7 @@ def get_google_sheet_xlsx(
         sheet_name: Nome da aba
         filter_expr: Expressão de filtro opcional
         raw_filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
+        rename_mapping: Dicionário com mapeamento de renomeação de colunas
 
     Returns:
         DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
@@ -82,6 +84,10 @@ def get_google_sheet_xlsx(
         normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True)
         for c in df.columns
     ]
+
+    if rename_mapping:
+        df = df.rename(columns=rename_mapping)
+
     if filter_expr:
         df = df.query(filter_expr)
 

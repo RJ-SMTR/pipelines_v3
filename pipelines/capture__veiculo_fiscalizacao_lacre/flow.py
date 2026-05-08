@@ -20,8 +20,6 @@ from pipelines.common.capture.default_capture.flow import (
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 
-sources = [constants.VEICULO_LACRE_SOURCE]
-
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__veiculo_fiscalizacao_lacre(  # noqa: PLR0913
@@ -34,7 +32,7 @@ def capture__veiculo_fiscalizacao_lacre(  # noqa: PLR0913
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=sources,
+        sources=[constants.VEICULO_LACRE_SOURCE],
         source_table_ids=source_table_ids,
         timestamp=timestamp,
         create_extractor_task=create_veiculo_fiscalizacao_lacre_extractor,
