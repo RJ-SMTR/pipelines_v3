@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import argparse
 import asyncio
+
 import yaml
 from prefect.automations import Automation
 
@@ -34,9 +36,7 @@ async def main(yaml_file):
 
 if __name__ == "__main__":
     print("Starting automation deployment...")
-    parser = argparse.ArgumentParser(
-        description="Create Prefect automations from YAML file."
-    )
+    parser = argparse.ArgumentParser(description="Create Prefect automations from YAML file.")
     parser.add_argument(
         "yaml_file", help="Path to the YAML file containing automation definitions."
     )
