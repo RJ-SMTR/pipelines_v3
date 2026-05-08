@@ -6,6 +6,7 @@ Valores constantes para materialização dos dados de monitoramento de veículo
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__stu_tabelas import constants as stu_constants
 from pipelines.capture__veiculo_fiscalizacao_lacre import (
     constants as veiculo_fiscalizacao_constants,
 )
@@ -44,7 +45,7 @@ MONITORAMENTO_VEICULO_SELECTOR = DBTSelector(
     name="monitoramento_veiculo",
     initial_datetime=datetime(2025, 5, 28, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__monitoramento_veiculo",
-    data_sources=[veiculo_fiscalizacao_constants.VEICULO_LACRE_SOURCE],
+    data_sources=[veiculo_fiscalizacao_constants.VEICULO_LACRE_SOURCE] + stu_constants.STU_SOURCES,
     post_test=MONITORAMENTO_VEICULO_TEST,
 )
 

@@ -43,112 +43,112 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__stu_tabelas/flow.py:capture__stu_tabelas
     schedules:
-      - cron: "20 8 * * *"
+      - cron: "10 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [combustivel]
-      - cron: "21 8 * * *"
+      - cron: "11 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [controle_processo]
-      - cron: "22 8 * * *"
+      - cron: "12 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [darm_apropriacao]
-      - cron: "23 8 * * *"
+      - cron: "13 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [mod_carroceria]
-      - cron: "24 8 * * *"
+      - cron: "14 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [mod_chassi]
-      - cron: "25 8 * * *"
+      - cron: "15 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [multa]
-      - cron: "26 8 * * *"
+      - cron: "16 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [permissao]
-      - cron: "27 8 * * *"
+      - cron: "17 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [pessoa_fisica]
-      - cron: "28 8 * * *"
+      - cron: "18 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [pessoa_juridica]
-      - cron: "29 8 * * *"
+      - cron: "19 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [planta]
-      - cron: "30 8 * * *"
+      - cron: "20 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [talonario]
-      - cron: "31 8 * * *"
+      - cron: "21 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [tipo_de_permissao]
-      - cron: "32 8 * * *"
+      - cron: "22 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [tipo_de_permissionario]
-      - cron: "33 8 * * *"
+      - cron: "23 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [tipo_de_transporte]
-      - cron: "34 8 * * *"
+      - cron: "24 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [tipo_de_veiculo]
-      - cron: "35 8 * * *"
+      - cron: "25 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [veiculo]
-      - cron: "36 8 * * *"
+      - cron: "26 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [veiculo_ativo]
-      - cron: "37 8 * * *"
+      - cron: "27 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [vistoria]
-      - cron: "38 8 * * *"
+      - cron: "28 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [guia]
-      - cron: "39 8 * * *"
+      - cron: "29 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [permis_empresa_escola]
-      - cron: "40 8 * * *"
+      - cron: "30 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true
           source_table_ids: [modelo]
-      - cron: "41 8 * * *"
+      - cron: "31 6 * * *"
         timezone: America/Sao_Paulo
         parameters:
           recapture: true

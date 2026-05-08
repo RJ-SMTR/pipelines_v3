@@ -491,6 +491,12 @@ sources:
       - name: mod_chassi
       - name: mod_carroceria
       - name: planta
+      - name: tipo_de_transporte
+      - name: combustivel
+      - name: darm_apropriacao
+      - name: pessoa_juridica
+      - name: veiculo_ativo
+      - name: multa
 
   - name: projeto_subsidio_sppo_staging
     database: rj-smtr-staging
