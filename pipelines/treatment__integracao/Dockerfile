@@ -8,6 +8,8 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__integracao ./pipelines/treatment__integracao/
 
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/treatment__cadastro/ ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/treatment__financeiro_bilhetagem/ ./pipelines/treatment__financeiro_bilhetagem/
