@@ -34,7 +34,7 @@ with
                 then date_sub(extract(date from timestamp_gps), interval 1 day)
                 else extract(date from timestamp_gps)
             end as data_operacao
-        from {{ ref("gps_sppo") }} g
+        from {{ ref("view_gps_sppo_completo") }} g
         {# from `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g #}
         where
             data between date('{{ var("date_range_start") }}') and date_add(
