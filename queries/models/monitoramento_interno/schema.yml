@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: viagem_inferida
+    description: "Viagens inferidas a partir dos dados de GPS"
+    columns:
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        data_type: string
+        quote: true
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        data_type: date
+        quote: true
+      - name: id_empresa
+        description: "Código identificador da empresa [extraído do id_veiculo]"
+        data_type: string
+        quote: true
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        quote: true
+      - name: servico_gps
+        description: "Serviço informado pelo GPS no momento da partida"
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        quote: true
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        quote: true
+      - name: shape_id
+        description: "Identificador de um shape da tabela shapes do GTFS"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+        data_type: float64
+        quote: true
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        data_type: timestamp
+        quote: true
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        data_type: timestamp
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+  - name: monitoramento_sumario_servico_dia_historico
+    description: "Viagens sumario serviço dia histórico"
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: vista
+        description: "{{ doc('vista') }}"
+      - name: viagens
+        description: "Viagens realizadas"
+      - name: km_apurada
+        description: "{{ doc('km_apurada') }}"
+      - name: km_planejada
+        description: "{{ doc('km_planejada') }}"
+      - name: perc_km_planejada
+        description: "{{ doc('perc_km_planejada') }}"
+      - name: valor_subsidio_pago
+        description: "{{ doc('valor_subsidio_pago') }}"
+      - name: valor_penalidade
+        description: "{{ doc('valor_penalidade') }}"
+  - name: monitoramento_sumario_servico_dia_tipo_viagem_historico
+    description: "Viagens sumario serviço dia tipo viagem histórico"
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: tipo_viagem
+        description: "{{ doc('tipo_viagem_status') }}"
+      - name: indicador_ar_condicionado
+        description: "{{ doc('indicador_ar_condicionado') }}"
+      - name: viagens
+        description: "Viagens realizadas"
+      - name: km_apurada
+        description: "{{ doc('km_apurada') }}"
