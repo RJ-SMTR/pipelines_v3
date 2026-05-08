@@ -6,9 +6,6 @@ Valores constantes para captura de dados de fiscalização de veículos
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__veiculo_fiscalizacao_lacre.tasks import (
-    rename_veiculo_lacre_columns,
-)
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.gcp.bigquery import SourceTable
 
