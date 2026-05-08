@@ -1,0 +1,120 @@
+version: 2
+
+models:
+  - name: subsidio_faixa_servico_dia_tipo_viagem
+    description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia, faixa horária e tipo de viagem"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: tipo_dia
+        description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: indicador_ar_condicionado
+        description: "{{ doc('indicador_ar_condicionado') }}"
+      - name: indicador_penalidade_judicial
+        description: "{{ doc('indicador_penalidade_judicial') }}"
+      - name: indicador_viagem_dentro_limite
+        description: "{{ doc('indicador_viagem_dentro_limite') }}"
+      - name: tipo_viagem
+        description: "{{ doc('tipo_viagem_status') }}"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+      - name: viagens_faixa
+        description: "{{ doc('viagens_faixa') }}"
+      - name: km_apurada_faixa
+        description: "{{ doc('km_apurada_faixa') }}"
+      - name: km_subsidiada_faixa
+        description: "Distância subsidiada para o serviço por faixa horária (km)"
+      - name: valor_apurado
+        description: "Valor da distância apurada multiplicada pelo subsídio por quilômetro [sem glosa, é zerado quando POF < 80%]"
+      - name: valor_glosado_tecnologia
+        description: "{{ doc('valor_glosado_tecnologia') }}"
+      - name: valor_acima_limite
+        description: "{{ doc('valor_acima_limite') }}"
+      - name: valor_total_sem_glosa
+        description: "{{ doc('valor_total_sem_glosa') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+  - name: subsidio_sumario_servico_dia_pagamento
+    description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia [Dados entre 2024-08-16 e 2025-01-05]"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: "'2024-08-15'"
+              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+              strictly: true
+              name: dbt_expectations.expect_column_values_to_be_between__data__subsidio_sumario_servico_dia_pagamento
+      - name: tipo_dia
+        description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
+      - name: consorcio
+        description: "Consórcio que opera o serviço"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: viagens_dia
+        description: "{{ doc('viagens_dia') }}"
+      - name: km_apurada_dia
+        description: "{{ doc('km_apurada') }}"
+      - name: km_subsidiada_dia
+        description: "{{ doc('km_subsidiada_dia') }}"
+      - name: km_planejada_dia
+        description: "{{ doc('km_planejada_dia') }}"
+      - name: valor_a_pagar
+        description: "{{ doc('valor_a_pagar') }}"
+      - name: valor_glosado
+        description: "{{ doc('valor_glosado') }}"
+      - name: valor_acima_limite
+        description: "{{ doc('valor_acima_limite') }}"
+      - name: valor_total_sem_glosa
+        description: "{{ doc('valor_total_sem_glosa') }}"
+      - name: valor_total_apurado
+        description: "{{ doc('valor_total_apurado') }}"
+      - name: valor_judicial
+        description: "{{ doc('valor_judicial') }}"
+      - name: valor_penalidade
+        description: "{{ doc('valor_penalidade') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+  - name: subsidio_penalidade_servico_faixa
+    description: "Tabela com o valor penalidade dos serviços de ônibus [SPPO] por faixa horária e serviço"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: valor_penalidade
+        description: "{{ doc('valor_penalidade') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"

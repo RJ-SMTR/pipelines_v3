@@ -29,7 +29,6 @@ members = [
     "capture-sppo-realocacao",
     "capture-sppo-registros",
     "capture-stu-tabelas",
-    "capture-veiculo-fiscalizacao",
     "capture-veiculo-fiscalizacao-lacre",
     "capture-veiculo-infracao",
     "capture-veiculo-licenciamento",
@@ -81,7 +80,6 @@ members = [
     "treatment-transacao-valor-ordem",
     "treatment-transito-autuacao",
     "treatment-validacao-dados-jae",
-    "treatment-veiculo-dia",
     "treatment-viagem-informada",
     "treatment-viagem-validacao",
 ]
@@ -450,11 +448,6 @@ source = { virtual = "pipelines/capture__sppo_registros" }
 name = "capture-stu-tabelas"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__stu_tabelas" }
-
-[[package]]
-name = "capture-veiculo-fiscalizacao"
-version = "0.1.0"
-source = { virtual = "pipelines/capture__veiculo_fiscalizacao" }
 
 [[package]]
 name = "capture-veiculo-fiscalizacao-lacre"
@@ -3189,11 +3182,6 @@ source = { virtual = "pipelines/treatment__transito_autuacao" }
 name = "treatment-validacao-dados-jae"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__validacao_dados_jae" }
-
-[[package]]
-name = "treatment-veiculo-dia"
-version = "0.1.0"
-source = { virtual = "pipelines/treatment__veiculo_dia" }
 
 [[package]]
 name = "treatment-viagem-informada"
