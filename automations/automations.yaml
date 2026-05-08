@@ -1,5 +1,5 @@
 automations:
-  - name: Crash Zombie Flows
+  - name: maintenance__crash_zombie_flows
     description: Crash flows without heartbeats
     enabled: true
     trigger:
@@ -20,4 +20,5 @@ automations:
     actions:
       - type: change-flow-run-state
         state: CRASHED
-        message: "Flow run has not sent a heartbeat in over 5 minutes, marking as CRASHED."
+        message: "Flow run has not sent a heartbeat in over 5 minutes, marking as
+          CRASHED."
