@@ -657,7 +657,7 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
         result = info["result"]
         log_message += f"Test: {test} Status: {result}\n"
 
-        if result == "FAIL":
+        if result in ("FAIL", "WARN"):
             log_message += "Query:\n"
             log_message += f"{info['query']}\n"
 
@@ -720,7 +720,8 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(test["result"] == "PASS" for test in checks_results.values())
+    test_check = all(test["result"] in ("PASS", "WARN") for test in checks_results.values())
+    has_warn = any(test["result"] == "WARN" for test in checks_results.values())
 
     keys = [
         ("date_range_start", "date_range_end"),
@@ -752,14 +753,19 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         else (start_date if start_date == end_date else f"{start_date} a {end_date}")
     )
 
+    status_circle = (
+        ":red_circle: "
+        if not test_check
+        else (":yellow_circle: " if has_warn else ":green_circle: ")
+    )
     if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
         formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
+            status_circle,
             f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
         ]
     else:
         formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
+            status_circle,
             f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
         ]
 
@@ -799,18 +805,23 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
             test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
             description = matched_description or f"Teste: {test_id}"
 
-            test_message = (
-                f"{':white_check_mark:' if test_result['result'] == 'PASS' else ':x:'} "
-                f"{description}\n"
-            )
+            result_icon = {
+                "PASS": ":white_check_mark:",
+                "WARN": ":warning:",
+            }.get(test_result["result"], ":x:")
+            test_message = f"{result_icon} {description}\n"
             formatted_messages.append(test_message)
 
     formatted_messages.append("\n")
-    formatted_messages.append(
-        ":tada: **Status:** Sucesso"
-        if test_check
-        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-    )
+    if not test_check:
+        status_message = (
+            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+        )
+    elif has_warn:
+        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
+    else:
+        status_message = ":tada: **Status:** Sucesso"
+    formatted_messages.append(status_message)
 
     if not test_check:
         formatted_messages.append(mention_tags)
