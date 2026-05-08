@@ -15,6 +15,9 @@ ADDITIONAL_VARS = {"tipo_materializacao": "monitoramento"}
 MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
     "temperatura_inmet": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "test_completude__temperatura_inmet": {
+            "description": "Há pelo menos uma temperatura INMET não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
+        },
     },
     "aux_viagem_temperatura": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -36,6 +39,9 @@ MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
     },
     "temperatura_alertario": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "test_completude__temperatura_alertario": {
+            "description": "Há pelo menos uma temperatura AlertaRio não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
+        },
     },
     "temperatura": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
