@@ -66,10 +66,4 @@ jobs:
         run: |
           gsutil -m cp queries/target/index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
           gsutil -m cp queries/target/manifest.json gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
-      # - name: Notify on success
-      #   if: success()
-      #   run: echo "DBT docs generated and uploaded successfully to GCS"
-
-      # - name: Notify on failure
-      #   if: failure()
-      #   run: echo "DBT docs generation or upload failed"
+      
