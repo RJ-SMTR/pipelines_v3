@@ -61,7 +61,7 @@ jobs:
       
       - name: Add threads to dbt profiles
         run: |
-          yq -i '.queries.outputs.prod.threads = 3' queries/profiles.yml
+          yq -iy '.queries.outputs.prod.threads = 3' queries/profiles.yml
 
       - name: Generate dbt docs
         run: |
