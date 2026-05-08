@@ -35,5 +35,4 @@ VEICULO_LACRE_SOURCE = SourceTable(
     max_recaptures=5,
     primary_keys=["placa", "n_o_de_ordem", "data_do_lacre"],
     raw_filetype="csv",
-
 )
