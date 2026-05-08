@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import asyncio
+from pathlib import Path
 
 import yaml
 from prefect.automations import Automation
@@ -25,7 +26,7 @@ async def upsert_automation(auto_spec):
 
 
 async def main(yaml_file):
-    with open(yaml_file, "r") as f:
+    with Path.open(yaml_file, "r") as f:
         data = yaml.safe_load(f)
         print("Loaded YAML data: ", data)
 
