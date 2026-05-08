@@ -38,14 +38,14 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      - name: Get Changed Files
-        id: files
-        uses: tj-actions/changed-files@v34
-        with:
-          files: |
-            automations/**/*.yaml
+      # - name: Get Changed Files
+      #   id: files
+      #   uses: tj-actions/changed-files@v34
+      #   with:
+      #     files: |
+      #       automations/**/*.yaml
 
       - name: Create automations
-        if: steps.files.outputs.any_changed == 'true'
+        # if: steps.files.outputs.any_changed == 'true'
         run: |
           uv run automations/deploy_automations.py automations/automations.yaml
