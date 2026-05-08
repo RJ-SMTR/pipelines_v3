@@ -17,7 +17,11 @@ async def upsert_automation(auto_spec):
 
     if existing:
         print(f"Updating existing automation: {automation.name}")
-        print(f"Existing automation details: {existing}")
+        print(f"""Existing automation details: 
+        {existing.name}
+        {existing.description}
+        {existing.id}
+        """)
         automation.id = existing.id
         await automation.update()
     else:
@@ -28,7 +32,6 @@ async def upsert_automation(auto_spec):
 async def main(yaml_file):
     with Path.open(yaml_file, "r") as f:
         data = yaml.safe_load(f)
-        print("Loaded YAML data: ", data)
 
     automations = data.get("automations", [])
     for auto_spec in automations:
@@ -37,7 +40,9 @@ async def main(yaml_file):
 
 if __name__ == "__main__":
     print("Starting automation deployment...")
-    parser = argparse.ArgumentParser(description="Create Prefect automations from YAML file.")
+    parser = argparse.ArgumentParser(
+        description="Create Prefect automations from YAML file."
+    )
     parser.add_argument(
         "yaml_file", help="Path to the YAML file containing automation definitions."
     )
