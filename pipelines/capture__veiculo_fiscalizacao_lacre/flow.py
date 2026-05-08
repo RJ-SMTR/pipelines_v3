@@ -4,12 +4,12 @@ Flow de captura de dados de fiscalização de veículos
 
 Realiza a captura de dados da planilha de controle de lacre dos veículos.
 
-Common  2026-05-08
+Common:2026-05-08
 """
 
 from typing import Optional
 
-from prefect import flow
+from pipelines.common.utils.prefect import flow  
 
 from pipelines.capture__veiculo_fiscalizacao_lacre import constants
 from pipelines.capture__veiculo_fiscalizacao_lacre.tasks import (
