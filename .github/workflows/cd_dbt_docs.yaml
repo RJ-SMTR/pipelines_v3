@@ -54,7 +54,7 @@ jobs:
 
           echo "Mounting files from env..."
 
-          echo ${{ env.GCP_SA_KEY }} > /tmp/credentials.json
+          echo '${{ env.GCP_SA_KEY }}'> /tmp/credentials.json
 
       - name: Generate dbt docs
         run: |
