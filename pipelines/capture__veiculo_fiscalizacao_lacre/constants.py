@@ -18,7 +18,7 @@ VEICULO_LACRE_RENAME_MAPPING = {
     "motivo": "motivo",
     "processo": "processo",
     "consorcio": "consorcio",
-    "permissionario_empresa": "permissionario_empresa",
+    "permissionarioempresa": "permissionario_empresa",
     "placa": "placa",
     "n_de_ordem": "n_o_de_ordem",
     "n_do_auto": "no_do_auto",
