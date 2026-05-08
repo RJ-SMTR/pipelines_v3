@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.0.6] - 2026-05-08
+
+### Adicionado
+
+- Adiciona teste de completude aos modelos `temperatura_inmet` e `temperatura_alertario` (https://github.com/RJ-SMTR/pipelines_v3/pull/167)
+
 ## [2.0.5] - 2026-05-06
 
 ### Adicionado
