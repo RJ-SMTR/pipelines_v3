@@ -8,7 +8,7 @@ Schedule:
 - Diariamente às 6h00 (horário de São Paulo)
 - Depende de dados do monitoramento_veiculo
 
-DBT: 2026-05-07
+DBT: 2026-05-08
 """
 
 from typing import Optional
