@@ -16,7 +16,15 @@
 
 with
     dados_temperatura as (
-        select data_particao as data, horario as hora, id_estacao, temperatura
+        select
+            data_particao as data,
+            horario as hora,
+            id_estacao,
+            case
+                when data_particao >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
+                then temperatura_maxima
+                else temperatura
+            end as temperatura
         from {{ source("clima_estacao_meteorologica", "meteorologia_inmet") }}
         where
             data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
@@ -25,7 +33,15 @@ with
             {% endif %}
     ),
     dados_contingencia as (
-        select data, hora, id_estacao, temperatura
+        select
+            data,
+            hora,
+            id_estacao,
+            case
+                when data >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
+                then temperatura_maxima
+                else temperatura
+            end as temperatura
         from {{ ref("staging_temperatura_inmet") }}
         where
             data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
