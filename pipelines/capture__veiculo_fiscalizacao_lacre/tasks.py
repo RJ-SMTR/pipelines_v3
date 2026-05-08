@@ -7,7 +7,6 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.capture__veiculo_fiscalizacao_lacre import constants
-from pipelines.capture__veiculo_fiscalizacao_lacre import constants.VEICULO_LACRE_RENAME_MAPPING
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 
