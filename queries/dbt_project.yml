@@ -192,6 +192,8 @@ vars:
   sppo_licenciamento_tolerancia_primeira_vistoria_dia: 15
   # Novo source licenciamento_stu / Infração / Agente de verão
   data_inicio_source_veiculo: "2026-04-30"
+  # Nova arquitetura de captura do stu
+  data_inicio_dbstu: "2026-05-06"
 
   ### RDO ###
   rho_registros_sppo_staging: "rj-smtr-staging.br_rj_riodejaneiro_rdo_staging.rho_registros_sppo"

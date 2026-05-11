@@ -45,7 +45,18 @@ MONITORAMENTO_VEICULO_SELECTOR = DBTSelector(
     name="monitoramento_veiculo",
     initial_datetime=datetime(2025, 5, 28, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__monitoramento_veiculo",
-    data_sources=[veiculo_fiscalizacao_constants.VEICULO_LACRE_SOURCE] + stu_constants.STU_SOURCES,
+    data_sources=[veiculo_fiscalizacao_constants.VEICULO_LACRE_SOURCE]
+    + [
+        s
+        for s in stu_constants.STU_SOURCES
+        if s.table_id
+        in [
+            "darm_apropriacao",
+            "multa",
+            "permissao",
+            "tipo_de_transporte",
+        ]
+    ],
     post_test=MONITORAMENTO_VEICULO_TEST,
 )
 
