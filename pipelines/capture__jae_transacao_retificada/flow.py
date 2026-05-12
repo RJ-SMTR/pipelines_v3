@@ -4,7 +4,7 @@ Flow de captura da transação retificada da Jaé
 
 Executa a captura de dados de transação retificada do sistema Jaé.
 
-Common: 2026-03-19
+Common: 2026-05-12
 """
 
 from pipelines.capture__jae_transacao_retificada import constants
