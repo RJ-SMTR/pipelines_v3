@@ -38,6 +38,13 @@ wait_monitoramento_veiculo = deepcopy(
 wait_monitoramento_veiculo.incremental_delay_hours = (
     VEICULO_DIA_INCREMENTAL_DELAY_HOURS
 )
+wait_cadastro_veiculo = deepcopy(
+    cadastro_veiculo_constants.CADASTRO_VEICULO_SELECTOR
+)
+wait_cadastro_veiculo.incremental_delay_hours = (
+    VEICULO_DIA_INCREMENTAL_DELAY_HOURS
+)
+
 
 VEICULO_DIA_TEST = DBTTest(
     test_select="veiculo_dia",
