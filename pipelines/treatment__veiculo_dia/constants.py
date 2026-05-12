@@ -3,6 +3,7 @@
 Valores constantes para materialização do selector veiculo_dia
 """
 
+from copy import deepcopy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -28,6 +29,15 @@ VEICULO_DIA_CHECKS_LIST = {
         },
     }
 }
+wait_monitoramento_veiculo = deepcopy(monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR)
+wait_monitoramento_veiculo.incremental_delay_hours = (
+    monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR.incremental_delay_hours
+)
+
+wait_cadastro_veiculo = deepcopy(cadastro_veiculo.CADASTRO_VEICULO_SELECTOR)
+wait_cadastro_veiculo.incremental_delay_hours = (
+    cadastro_veiculo.CADASTRO_VEICULO_SELECTOR.incremental_delay_hours
+)
 
 VEICULO_DIA_TEST = DBTTest(
     test_select="veiculo_dia",
@@ -47,6 +57,7 @@ VEICULO_DIA_SELECTOR = DBTSelector(
         veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
     ],
 )
+
 
 SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
     name="snapshot_veiculo_dia",
