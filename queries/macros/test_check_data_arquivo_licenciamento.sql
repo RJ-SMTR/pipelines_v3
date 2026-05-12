@@ -29,13 +29,14 @@
                 vld.data,
                 vld.id_veiculo,
                 vld.placa,
-                max(sls.data) as data_arquivo_mais_recente
+                coalesce(
+                    max(case when sls.data <= vld.data then sls.data end), min(sls.data)
+                ) as data_arquivo_mais_recente
             from veiculo_licenciamento_dados vld
             left join
                 staging_licenciamento_stu sls
                 on vld.id_veiculo = sls.id_veiculo
                 and vld.placa = sls.placa
-                and sls.data <= vld.data
             group by vld.data, vld.id_veiculo, vld.placa
         )
     select
