@@ -35,15 +35,9 @@ VEICULO_DIA_CHECKS_LIST = {
 wait_monitoramento_veiculo = deepcopy(
     monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR
 )
-wait_monitoramento_veiculo.incremental_delay_hours = (
-    VEICULO_DIA_INCREMENTAL_DELAY_HOURS
-)
-wait_cadastro_veiculo = deepcopy(
-    cadastro_veiculo_constants.CADASTRO_VEICULO_SELECTOR
-)
-wait_cadastro_veiculo.incremental_delay_hours = (
-    VEICULO_DIA_INCREMENTAL_DELAY_HOURS
-)
+wait_monitoramento_veiculo.incremental_delay_hours = VEICULO_DIA_INCREMENTAL_DELAY_HOURS
+wait_cadastro_veiculo = deepcopy(cadastro_veiculo_constants.CADASTRO_VEICULO_SELECTOR)
+wait_cadastro_veiculo.incremental_delay_hours = VEICULO_DIA_INCREMENTAL_DELAY_HOURS
 
 
 VEICULO_DIA_TEST = DBTTest(
