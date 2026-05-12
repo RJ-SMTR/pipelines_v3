@@ -76,6 +76,18 @@ jobs:
                 dataset: dbt
                 location: US
                 threads: 2
+                keyfile: $PWD/credentials-prod/prod.json
+
+          elementary:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: rj-smtr
+                dataset: elementary
+                location: US
+                threads: 2
                 keyfile: $PWD/credentials-prod/prod.json""" > profiles/profiles.yml
 
           cat profiles/profiles.yml
