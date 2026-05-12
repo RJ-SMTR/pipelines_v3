@@ -12,7 +12,6 @@ from pipelines.capture__veiculo_sppo_registro_agente_verao import (
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -30,20 +29,26 @@ VEICULO_DIA_CHECKS_LIST = {
 
 MONITORAMENTO_VEICULO_DELAY_HOURS = 168
 
-WAIT_MONITORAMENTO_VEICULO_SELECTOR = DBTSelector(
-    name="monitoramento_veiculo",
-    initial_datetime=datetime(2025, 5, 28, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="tratment__monitoramento_veiculo",
-    incremental_delay_hours=-MONITORAMENTO_VEICULO_DELAY_HOURS),
+WAIT_MONITORAMENTO_VEICULO_SELECTOR = (
+    DBTSelector(
+        name="monitoramento_veiculo",
+        initial_datetime=datetime(2025, 5, 28, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        flow_folder_name="tratment__monitoramento_veiculo",
+        incremental_delay_hours=-MONITORAMENTO_VEICULO_DELAY_HOURS,
+    ),
+)
 
 
 CADASTO_VEICULO_DELAY_HOURS = 168
 
-WAIT_CADASTRO_VEICULO_SELECTOR = DBTSelector(
-    name="cadastro_veiculo",
-    initial_datetime=datetime(2025, 6, 23, 6, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="tratment__cadastro_veiculo",
-    incremental_delay_hours=-CADASTO_VEICULO_DELAY_HOURS),
+WAIT_CADASTRO_VEICULO_SELECTOR = (
+    DBTSelector(
+        name="cadastro_veiculo",
+        initial_datetime=datetime(2025, 6, 23, 6, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        flow_folder_name="tratment__cadastro_veiculo",
+        incremental_delay_hours=-CADASTO_VEICULO_DELAY_HOURS,
+    ),
+)
 
 VEICULO_DIA_TEST = DBTTest(
     test_select="veiculo_dia",
