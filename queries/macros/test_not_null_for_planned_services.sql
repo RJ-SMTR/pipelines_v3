@@ -4,9 +4,9 @@
             select distinct servico
             from {{ ref("viagem_planejada") }}
             where
-                data
-                between '{{ var("date_range_start") }}'
-                and '{{ var("date_range_end") }}'
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
         )
 
     select *
