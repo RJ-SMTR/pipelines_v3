@@ -1,13 +1,7 @@
-# Changelog
+# Changelog - treatment__monitoramento_veiculo
 
-Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
+## [1.0.0] - 2026-05-12
 
-## [0.1.0] - 2026-05-07
+### Adicionado
 
-### Added
-
-- Migração inicial da pipeline `treatment__veiculo_dia` de Prefect 1.4 para Prefect 3.0
-- Implementação do flow de materialização usando `create_materialization_flows_default_tasks()`
-- Configuração de selectors DBT para `veiculo_dia` e `snapshot_veiculo_dia`
-- Testes DBT configurados com validações de dados
-- Deployment em staging e produção com agendamento diário às 6:15
+- Cria flow `treatment__veiculo_dia`(https://github.com/RJ-SMTR/pipelines_v3/pull/166)
