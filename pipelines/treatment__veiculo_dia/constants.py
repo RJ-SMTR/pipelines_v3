@@ -29,7 +29,9 @@ VEICULO_DIA_CHECKS_LIST = {
         },
     }
 }
-wait_monitoramento_veiculo = deepcopy(monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR)
+wait_monitoramento_veiculo = deepcopy(
+    monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR
+)
 wait_monitoramento_veiculo.incremental_delay_hours = (
     monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR.incremental_delay_hours
 )
