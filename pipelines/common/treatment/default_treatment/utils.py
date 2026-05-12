@@ -790,13 +790,22 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
         for test_id, test_result in tests:
             matched_description = None
-            for existing_table_id, test_configs in test_descriptions.items():
-                if table_name in existing_table_id:
-                    for existing_test_id, test_info in test_configs.items():
+
+            for key, value in test_descriptions.items():
+                # singular: {test_id: {"description": ...}}
+                if "description" in value:
+                    if key == test_id:
+                        matched_description = value["description"]
+                        break
+                    continue
+
+                # grupo por tabela: {table_name: {test_id: {"description": ...}}}
+                if table_name in key:
+                    for existing_test_id, test_info in value.items():
                         if existing_test_id in test_id:
+                            column = test_id.split("__")[1] if "__" in test_id else test_id
                             matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}",
-                                test_id.split("__")[1] if "__" in test_id else test_id,
+                                "{column_name}", column
                             )
                             break
                     if matched_description:
