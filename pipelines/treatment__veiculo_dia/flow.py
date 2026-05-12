@@ -4,7 +4,12 @@ Flow de materialização de dados do veiculo_dia
 
 Executa o selector DBT 'veiculo_dia' para materializar dados no BigQuery.
 
-DBT: 2026-05-07
+Schedule:
+- Diariamente às 6h15 (horário de São Paulo)
+- Depende de dados do capture__veiculo_fiscalizacao_lacre e capture__veiculo_sppo_agente_verao
+
+DBT: 2026-05-12
+
 """
 
 from pipelines.common.treatment.default_treatment.flow import (
