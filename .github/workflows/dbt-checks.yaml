@@ -47,8 +47,6 @@ jobs:
 
       - name: Setup dbt profiles
         working-directory: queries
-        env:
-          GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
         run: |-
           mkdir -p ./credentials-dev
           mkdir -p ./credentials-prod
@@ -56,8 +54,8 @@ jobs:
 
           echo "Mounting files from env..."
 
-          printf '%s' "$GKE_SA_KEY" > ./credentials-dev/dev.json
-          printf '%s' "$GKE_SA_KEY" > ./credentials-prod/prod.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-dev/dev.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-prod/prod.json
 
           echo """
           queries:
