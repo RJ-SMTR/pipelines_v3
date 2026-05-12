@@ -121,7 +121,7 @@ models:
       - test_completude_temperatura_inmet:
           name: test_completude__temperatura_inmet
           severity: warn
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 1 day)"
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
