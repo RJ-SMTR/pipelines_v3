@@ -13,7 +13,6 @@ on:
 
 env:
   DBT_USER: ${{ github.actor }}
-  GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
 
 jobs:
   check-files:
@@ -48,6 +47,8 @@ jobs:
 
       - name: Setup dbt profiles
         working-directory: queries
+        env:
+          GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
         run: |-
           mkdir -p ./credentials-dev
           mkdir -p ./credentials-prod
