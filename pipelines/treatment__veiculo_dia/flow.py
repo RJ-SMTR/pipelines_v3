@@ -27,13 +27,13 @@ def treatment__veiculo_dia(  # noqa: PLR0913
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.VEICULO_DIA_SELECTOR, constants.SNAPSHOT_VEICULO_DIA_SELECTOR],
+        selectors=[constants.VEICULO_DIA_SELECTOR],
+        snapshot_selector=constants.SNAPSHOT_VEICULO_DIA_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
         test_scheduled_time=None,
-        post_tests=constants.VEICULO_DIA_TEST,
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
     )

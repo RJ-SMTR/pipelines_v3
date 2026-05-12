@@ -24,7 +24,7 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--veiculo-dia--staging
+  - name: rj-treatment--veiculo_dia--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/treatment__veiculo_dia/flow.py:treatment__veiculo_dia
     work_pool:
@@ -35,7 +35,7 @@ deployments:
         command: uv run --package treatment__veiculo_dia -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--veiculo-dia--prod
+  - name: rj-treatment--veiculo_dia--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__veiculo_dia/flow.py:treatment__veiculo_dia
     schedules:

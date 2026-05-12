@@ -18,6 +18,7 @@ VEICULO_DIA_SELECTOR = DBTSelector(
 
 SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
     name="snapshot_veiculo_dia",
+    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__veiculo_dia",
 )
 
@@ -37,7 +38,7 @@ VEICULO_DIA_CHECKS_LIST = {
 }
 
 VEICULO_DIA_TEST = DBTTest(
-    model="veiculo_dia",
-    checks_list=VEICULO_DIA_CHECKS_LIST,
+    test_select="veiculo_dia",
+    test_descriptions=VEICULO_DIA_CHECKS_LIST,
     truncate_date=True,
 )
