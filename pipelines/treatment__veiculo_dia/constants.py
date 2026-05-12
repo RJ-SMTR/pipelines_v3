@@ -12,7 +12,7 @@ from pipelines.capture__veiculo_sppo_registro_agente_verao import (
 )
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
-from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo
+from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo_constants
 from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
 
 VEICULO_DIA_INCREMENTAL_DELAY_HOURS = 24 * 7
