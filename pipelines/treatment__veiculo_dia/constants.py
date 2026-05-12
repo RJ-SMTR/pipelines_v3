@@ -6,20 +6,24 @@ Valores constantes para materialização do selector veiculo_dia
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__veiculo_fiscalizacao_lacre import (
+    constants as veiculo_fiscalizacao_lacre_constants,
+)
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo
 from pipelines.treatment__monitoramento_veiculo import (
     constants as monitoramento_veiculo_constants,
 )
+<<<<<<< HEAD
 from pipelines.capture__veiculo_sppo_registro_agente_verao import constants as veiculo_sppo_registro_agente_verao_constants
 
+=======
+>>>>>>> ca32ef74c17d0430cafb1538869544a47cdcc8c9
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
             "description": "Todos os registros são únicos"
         },
@@ -40,9 +44,7 @@ VEICULO_DIA_TEST = DBTTest(
 
 VEICULO_DIA_SELECTOR = DBTSelector(
     name="veiculo_dia",
-    initial_datetime=datetime(
-        2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
-    ),
+    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     incremental_delay_hours=24 * 7,
     flow_folder_name="treatment__veiculo_dia",
     post_test=VEICULO_DIA_TEST,
@@ -55,8 +57,6 @@ VEICULO_DIA_SELECTOR = DBTSelector(
 
 SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
     name="snapshot_veiculo_dia",
-    initial_datetime=datetime(
-        2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
-    ),
+    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__veiculo_dia",
 )
