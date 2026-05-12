@@ -10,7 +10,7 @@ COPY ./pipelines/treatment__veiculo_dia ./pipelines/treatment__veiculo_dia/
 
 COPY ./pipelines/capture__veiculo_sppo_registro_agente_verao/ ./pipelines/capture__veiculo_sppo_registro_agente_verao/
 
-COPY ./pipelines/treatment__cadastro_veiculo ./pipelines/treatment__cadastro_veiculo/  
+COPY ./pipelines/treatment__cadastro_veiculo ./pipelines/treatment__cadastro_veiculo/
 
 COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitoramento_veiculo/
 
