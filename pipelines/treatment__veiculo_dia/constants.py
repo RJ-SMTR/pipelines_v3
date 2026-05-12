@@ -6,11 +6,13 @@ Valores constantes para materialização do selector veiculo_dia
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__veiculo_sppo_registro_agente_verao import (
+    constants as veiculo_sppo_registro_agente_verao_constants,
+)
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo
 from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
-from pipelines.capture__veiculo_sppo_registro_agente_verao import constants as veiculo_sppo_registro_agente_verao_constants
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
