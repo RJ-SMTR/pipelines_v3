@@ -4,12 +4,17 @@ with
     multa as (select * from {{ ref("staging_stu_multa") }}),
 
     permissao as (
-        select distinct tptran, tpperm, termo, dv
+        select tptran, tpperm, termo, dv, data
         from {{ ref("staging_stu_permissao") }}
+        qualify
+            row_number() over (
+                partition by tptran, tpperm, termo, data order by data desc
+            )
+            = 1
     ),
 
     tipo_transporte as (
-        select distinct id_tipo_transporte, descricao
+        select distinct id_tipo_transporte, descricao, data
         from {{ ref("staging_stu_tipo_de_transporte") }}
     ),
 
@@ -40,8 +45,9 @@ select
 from multa m
 left join
     permissao p
-    on m.tptran = cast(p.tptran as string)
+    on m.data = p.data
+    and m.tptran = cast(p.tptran as string)
     and m.tpperm = cast(p.tpperm as string)
     and m.termo = cast(p.termo as string)
-left join tipo_transporte t on m.tptran = t.id_tipo_transporte
-left join darm d on m.cm = d.darm
+left join tipo_transporte t on m.tptran = t.id_tipo_transporte and m.data = t.data
+left join darm d on m.cm = d.darm and m.data = d.data

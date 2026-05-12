@@ -8,8 +8,8 @@ with
 
 select *
 from {{ ref("staging_infracao_v2") }}
-where data >= date("2026-05-06")
+where data >= date("{{ var('data_inicio_dbstu') }}")
 union all by name
 select *
 from v1_normalizada
-where data < date("2026-05-06")
+where data < date("{{ var('data_inicio_dbstu') }}")
