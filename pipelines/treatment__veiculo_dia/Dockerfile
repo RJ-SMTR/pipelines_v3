@@ -8,6 +8,10 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__veiculo_dia ./pipelines/treatment__veiculo_dia/
 
+COPY ./pipelines/capture__veiculo_sppo_registro_agente_verao/ ./pipelines/capture__veiculo_sppo_registro_agente_verao/
+
+COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veiculo_fiscalizacao_lacre/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 COPY ./queries ./queries
