@@ -28,7 +28,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           activate-environment: true
 
       - name: Install project dependencies
@@ -54,8 +54,8 @@ jobs:
 
           echo "Mounting files from env..."
 
-          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-dev/dev.json
-          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-prod/prod.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-dev/dev.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-prod/prod.json
 
           echo """
           queries:
@@ -93,5 +93,3 @@ jobs:
         working-directory: queries
         run: |-
           uv run dbt compile --profiles-dir profiles
-
-#trigger
