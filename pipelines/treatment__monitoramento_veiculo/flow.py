@@ -9,7 +9,7 @@ Schedule:
 - Diariamente às 5h45 (horário de São Paulo)
 - Depende de dados de fiscalização de veículos
 
-DBT: 2026-05-11
+DBT 2026-05-11
 """
 
 from typing import Optional
