@@ -37,7 +37,7 @@ VEICULO_DIA_SELECTOR = DBTSelector(
     incremental_delay_hours=24 * 7,
     flow_folder_name="treatment__veiculo_dia",
     post_test=VEICULO_DIA_TEST,
-    data_sources=["capture__veiculo_fiscalizacao_lacre", "capture__veiculo_sppo_agente_verao"],
+    data_sources=["cadastro_veiculo", "monitoramento_veiculo", "capture__veiculo_sppo_registro_agente_verao", "capture__veiculo_fiscalizacao_lacre"],
 )
 
 SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
