@@ -1,5 +1,11 @@
 # Changelog - capture__serpro_autuacao
 
+## [1.0.2] - 2026-05-12
+
+### Alterado
+
+- Define `timeout_seconds=10800` (3h) no flow (https://github.com/RJ-SMTR/pipelines_v3/pull/176)
+
 ## [1.0.1] - 2026-01-09
 
 ### Alterado
