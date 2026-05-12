@@ -1,5 +1,11 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.1.2] - 2026-05-12
+
+### Corrigido
+
+- Corrige cálculo do intervalo em `get_previnity_date_range` para evitar reprocessamento do último dia já materializado quando a autuação falha ou está atrasada (https://github.com/RJ-SMTR/pipelines_v3/pull/176)
+
 ## [1.1.1] - 2026-03-26
 
 ### Alterado
