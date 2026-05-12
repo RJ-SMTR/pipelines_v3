@@ -3,7 +3,7 @@
 Tasks para integração com a API da Previnity
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
@@ -120,10 +120,10 @@ def get_previnity_date_range(
             autuacao_last_materialization.date() - negativacao_last_materialization.date()
         ).days
 
-        if diff_days <= 1:
+        if diff_days == 1:
             datetime_start_obj = autuacao_last_materialization
         else:
-            datetime_start_obj = negativacao_last_materialization
+            datetime_start_obj = negativacao_last_materialization + timedelta(days=1)
 
         datetime_start_obj = max(
             datetime_start_obj,
