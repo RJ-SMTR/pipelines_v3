@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pipelines.treatment__veiculo_dia.flow import treatment__veiculo_dia
 
 treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
@@ -47,7 +48,7 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 
 # # for date in run_dates:
 
-    
+
 # #     run_dbt_model(
 # #     _vars = {"run_date": date.strftime("%Y-%m-%d")},
 # #     dataset_id="subsidio_data_versao_efetiva viagem_completa",
@@ -61,12 +62,12 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 
 # # run_dbt_tests(
 # #     dataset_id="sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia transacao transacao_riocard gps_validador",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg --defer --state target-base ")
 
 # # run_dbt_tests(
 # #     dataset_id="tecnologia_servico viagem_planejada  ",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg")
 
 # # run_dbt_selector(
@@ -85,7 +86,7 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 
 # # run_dbt_tests(
 # #     dataset_id="viagem_classificada viagem_regularidade_temperatura viagens_remuneradas sumario_faixa_servico_dia_pagamento valor_km_tipo_viagem",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg")
 # -*- coding: utf-8 -*-
 # import os
@@ -109,15 +110,12 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 # }
 
 
-
 # run_dbt_tests(
 #     dataset_id="veiculo_dia",
 #     _vars=vars,
 #     flags="--target dev --defer --state target-base"
 #     # flags="--target prod",
 # )
-
-
 
 
 # run_dbt_selector(
@@ -131,10 +129,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 #     # exclude="+licenciamento +infracao",
 #     # flags="--target hmg",
 #     flags="--target dev --defer --state target-base --favor-state")
-
-
-
-
 
 
 # run_dbt_model(
@@ -155,7 +149,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 # flags="--target dev --defer --state target-base --favor-state")
 
 
-
 # run_dbt_model(
 # dataset_id="gtfs",
 # exclude="calendario aux_calendario_manual viagem_planejada_planejamento \
@@ -163,8 +156,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 #                      servico_planejado_faixa_horaria",
 # _vars= {"data_versao_gtfs": "2026-04-15"},
 # flags = "--target dev --defer --state target-base --favor-state")
-
-
 
 
 # run_dbt_model(
@@ -193,15 +184,12 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 # )
 
 
-
-
 # run_dbt_tests(
 #     dataset_id="ordem_servico_trips_shapes_gtfs",
 #     _vars={"data_versao_gtfs": "2026-01-26"},
 #     flags="--target hmg",
-    # flags="--target prod",
+# flags="--target prod",
 # )
-
 
 
 # for run_date in run_dates_list:
@@ -237,7 +225,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 #         flags="--target dev --defer --state target-base")
 
 
-
 # for run_date in run_dates_list:
 #     # print(run_date)
 #     run_dbt_model(
@@ -258,7 +245,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 # )
 
 
-
 # run_dbt_selector(
 #     selector_name="planejamento_diario",
 #     _vars={"start_date": "2026-02-01",
@@ -267,7 +253,6 @@ treatment__veiculo_dia(datetime_start="2026-02-01", datetime_end="2026-02-15")
 #     "date_range_end": "2026-02-15" + "T01:00:00"},
 #     flags="--target hmg --defer --state target-base",
 # )
-
 
 
 # run_dbt(
