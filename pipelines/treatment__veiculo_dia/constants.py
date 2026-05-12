@@ -3,7 +3,6 @@
 Valores constantes para materialização do selector veiculo_dia
 """
 
-from copy import deepcopy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -12,8 +11,7 @@ from pipelines.capture__veiculo_sppo_registro_agente_verao import (
 )
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
-from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo
-from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
+
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
@@ -29,17 +27,23 @@ VEICULO_DIA_CHECKS_LIST = {
         },
     }
 }
-wait_monitoramento_veiculo = deepcopy(
-    monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR
-)
-wait_monitoramento_veiculo.incremental_delay_hours = (
-    monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR.incremental_delay_hours
-)
 
-wait_cadastro_veiculo = deepcopy(cadastro_veiculo.CADASTRO_VEICULO_SELECTOR)
-wait_cadastro_veiculo.incremental_delay_hours = (
-    cadastro_veiculo.CADASTRO_VEICULO_SELECTOR.incremental_delay_hours
-)
+MONITORAMENTO_VEICULO_DELAY_HOURS = 168
+
+WAIT_MONITORAMENTO_VEICULO_SELECTOR = DBTSelector(
+    name="monitoramento_veiculo",
+    initial_datetime=datetime(2025, 5, 28, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="tratment__monitoramento_veiculo",
+    incremental_delay_hours=-MONITORAMENTO_VEICULO_DELAY_HOURS),
+
+
+CADASTO_VEICULO_DELAY_HOURS = 168
+
+WAIT_CADASTRO_VEICULO_SELECTOR = DBTSelector(
+    name="cadastro_veiculo",
+    initial_datetime=datetime(2025, 6, 23, 6, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="tratment__cadastro_veiculo",
+    incremental_delay_hours=-CADASTO_VEICULO_DELAY_HOURS),
 
 VEICULO_DIA_TEST = DBTTest(
     test_select="veiculo_dia",
@@ -54,13 +58,11 @@ VEICULO_DIA_SELECTOR = DBTSelector(
     flow_folder_name="treatment__veiculo_dia",
     post_test=VEICULO_DIA_TEST,
     data_sources=[
-        cadastro_veiculo.CADASTRO_VEICULO_SELECTOR,
-        monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR,
+        WAIT_CADASTRO_VEICULO_SELECTOR,
+        WAIT_MONITORAMENTO_VEICULO_SELECTOR,
         veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
     ],
 )
-
-
 SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
     name="snapshot_veiculo_dia",
     initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
