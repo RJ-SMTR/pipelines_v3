@@ -9,7 +9,6 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -45,6 +44,3 @@ SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
     initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__veiculo_dia",
 )
-
-
-
