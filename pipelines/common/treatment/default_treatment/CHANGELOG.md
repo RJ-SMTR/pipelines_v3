@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.2.1] - 2026-05-11
+
+### Alterado
+
+- Suporta testes singulares na notificação do Discord em `dbt_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/170)
+
 ## [1.2.0] - 2026-03-30
 
 ### Adicionado
