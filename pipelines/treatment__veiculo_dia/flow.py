@@ -22,13 +22,13 @@ from pipelines.treatment__veiculo_dia import constants
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__veiculo_dia(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

@@ -9,18 +9,6 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-VEICULO_DIA_SELECTOR = DBTSelector(
-    name="veiculo_dia",
-    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    incremental_delay_hours=24 * 7,
-    flow_folder_name="treatment__veiculo_dia",
-)
-
-SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
-    name="snapshot_veiculo_dia",
-    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="treatment__veiculo_dia",
-)
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
@@ -42,3 +30,21 @@ VEICULO_DIA_TEST = DBTTest(
     test_descriptions=VEICULO_DIA_CHECKS_LIST,
     truncate_date=True,
 )
+
+VEICULO_DIA_SELECTOR = DBTSelector(
+    name="veiculo_dia",
+    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    incremental_delay_hours=24 * 7,
+    flow_folder_name="treatment__veiculo_dia",
+    post_test=VEICULO_DIA_TEST,
+    data_sources=["capture__veiculo_fiscalizacao_lacre", "capture__veiculo_sppo_agente_verao"],
+)
+
+SNAPSHOT_VEICULO_DIA_SELECTOR = DBTSelector(
+    name="snapshot_veiculo_dia",
+    initial_datetime=datetime(2025, 6, 23, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__veiculo_dia",
+)
+
+
+
