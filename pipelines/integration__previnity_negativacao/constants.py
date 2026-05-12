@@ -43,10 +43,8 @@ PREVINITY_SOURCES = [
 ]
 
 NEGATIVACAO_POST_CHECKS_LIST = {
-    "autuacao_negativacao": {
-        "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
-            "description": "Todas as autuacoes pagas foram devidamente baixadas da negativacao"
-        },
+    "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
+        "description": "Todas as autuacoes pagas foram devidamente baixadas da negativacao"
     },
 }
 
