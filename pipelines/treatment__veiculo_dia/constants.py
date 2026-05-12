@@ -12,9 +12,7 @@ from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo
 from pipelines.treatment__monitoramento_veiculo import (
     constants as monitoramento_veiculo_constants,
 )
-from pipelines.capture__veiculo_fiscalizacao_lacre import (
-    constants as veiculo_fiscalizacao_lacre_constants,
-)
+from pipelines.capture__veiculo_sppo_registro_agente_verao import constants as veiculo_sppo_registro_agente_verao_constants
 
 
 VEICULO_DIA_CHECKS_LIST = {
@@ -51,7 +49,7 @@ VEICULO_DIA_SELECTOR = DBTSelector(
     data_sources=[
         cadastro_veiculo.CADASTRO_VEICULO_SELECTOR,
         monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR,
-        veiculo_fiscalizacao_lacre_constants.VEICULO_LACRE_SOURCE,
+        veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
     ],
 )
 
