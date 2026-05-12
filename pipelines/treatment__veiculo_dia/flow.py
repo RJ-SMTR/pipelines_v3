@@ -11,7 +11,7 @@ Schedule:
 DBT: 2026-05-12
 
 """
-
+from typing import Optional
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -30,7 +30,7 @@ def treatment__veiculo_dia(  # noqa: PLR0913
     force_test_run: bool = False,
     skip_source_check: bool = False,
 ):
-    create_materialization_flows_default_tasks(
+       create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.VEICULO_DIA_SELECTOR],
         snapshot_selector=constants.SNAPSHOT_VEICULO_DIA_SELECTOR,
