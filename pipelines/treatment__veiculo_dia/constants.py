@@ -53,8 +53,8 @@ VEICULO_DIA_SELECTOR = DBTSelector(
     flow_folder_name="treatment__veiculo_dia",
     post_test=VEICULO_DIA_TEST,
     data_sources=[
-        cadastro_veiculo_constants.CADASTRO_VEICULO_SELECTOR,
-        monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR,
+        wait_monitoramento_veiculo,
+        wait_cadastro_veiculo,
         veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
     ],
 )
