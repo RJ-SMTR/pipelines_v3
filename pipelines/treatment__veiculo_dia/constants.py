@@ -15,7 +15,7 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo_constants
 from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
 
-VEICULO_DIA_INCREMENTAL_DELAY_HOURS = -(24 * 7)
+VEICULO_DIA_INCREMENTAL_DELAY_HOURS = 24 * 7
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
@@ -35,9 +35,9 @@ VEICULO_DIA_CHECKS_LIST = {
 wait_monitoramento_veiculo = deepcopy(
     monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR
 )
-wait_monitoramento_veiculo.incremental_delay_hours = VEICULO_DIA_INCREMENTAL_DELAY_HOURS
+wait_monitoramento_veiculo.incremental_delay_hours = -VEICULO_DIA_INCREMENTAL_DELAY_HOURS
 wait_cadastro_veiculo = deepcopy(cadastro_veiculo_constants.CADASTRO_VEICULO_SELECTOR)
-wait_cadastro_veiculo.incremental_delay_hours = VEICULO_DIA_INCREMENTAL_DELAY_HOURS
+wait_cadastro_veiculo.incremental_delay_hours = -VEICULO_DIA_INCREMENTAL_DELAY_HOURS
 
 
 VEICULO_DIA_TEST = DBTTest(
