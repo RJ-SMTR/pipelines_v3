@@ -65,6 +65,24 @@ with
 
         {% endif %}
     ),
+    operadora_historico as (
+        select date(datetime_inicio_validade) as data_inicio_validade, *
+        from {{ ref("operadora_historico") }}
+        qualify
+            row_number() over (
+                partition by id_operadora_jae, date(datetime_inicio_validade)
+                order by datetime_inicio_validade desc
+            )
+            = 1
+    ),
+    operadora_historico_fim_validade as (
+        select
+            *,
+            lead(data_inicio_validade) over (
+                partition by id_operadora_jae order by data_inicio_validade
+            ) as data_fim_validade
+        from operadora_historico
+    ),
     ordem_pagamento as (
         select
             o.data_ordem,
@@ -72,8 +90,12 @@ with
             as id_ordem_pagamento_consorcio_operador_dia,
             dc.id_consorcio,
             dc.consorcio,
-            do.id_operadora,
-            do.operadora,
+            coalesce(
+                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
+            coalesce(
+                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
             op.id_ordem_pagamento as id_ordem_pagamento,
             o.qtd_debito as quantidade_transacao_debito,
             o.valor_debito,
@@ -101,8 +123,18 @@ with
             {{ ref("staging_ordem_pagamento") }} op
             {# `rj-smtr.br_rj_riodejaneiro_bilhetagem_staging.ordem_pagamento` op #}
             on o.data_ordem = op.data_ordem
-        left join {{ ref("operadoras") }} do on o.id_operadora = do.id_operadora_jae
-        {# `rj-smtr.cadastro.operadoras` do on o.id_operadora = do.id_operadora_jae #}
+        left join
+            {{ ref("operadoras") }} do
+            on o.id_operadora = do.id_operadora_jae
+            and i.data_ordem < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            operadora_historico_fim_validade oh
+            on o.id_operadora = oh.id_operadora_jae
+            and o.data_ordem >= "{{ var('data_inicial_operadora_historico') }}"
+            and o.data_ordem >= oh.data_inicio_validade
+            and (
+                o.data_ordem < oh.data_fim_validade or oh.datetime_fim_validade is null
+            )
         left join {{ ref("consorcios") }} dc on o.id_consorcio = dc.id_consorcio_jae
         {# `rj-smtr.cadastro.consorcios` dc on o.id_consorcio = dc.id_consorcio_jae #}
         {% if is_incremental() %}

@@ -179,11 +179,15 @@ with
             m.modo,
             t.id_consorcio,
             dc.consorcio,
-            o.id_operadora,
+            coalesce(
+                o.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
             t.id_operadora as id_operadora_jae,
-            o.operadora,
-            o.documento as documento_operadora,
-            o.tipo_documento as tipo_documento_operadora,
+            coalesce(
+                o.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
+            ifnull(o.documento, oh.documento) as documento_operadora,
+            ifnull(o.tipo_documento, oh.tipo_documento) as tipo_documento_operadora,
             t.id_linha as id_servico_jae,
             s.servico_jae,
             s.descricao_servico_jae,
@@ -216,7 +220,23 @@ with
         from transacao_erro_json_desaninhado t
         left join
             {{ ref("modos") }} m on t.id_tipo_modal = m.id_modo and m.fonte = "jae"
-        left join {{ ref("operadoras") }} o on t.id_operadora = o.id_operadora_jae
+        left join
+            {{ ref("operadoras") }} o
+            on t.id_operadora = o.id_operadora_jae
+            and date(ifnull(t.datetime_transacao, t.datetime_inclusao))
+            < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            {{ ref("operadora_historico") }} oh
+            on t.cd_operadora = oh.id_operadora_jae
+            and date(ifnull(t.datetime_transacao, t.datetime_inclusao))
+            >= "{{ var('data_inicial_operadora_historico') }}"
+            and ifnull(t.datetime_transacao, t.datetime_inclusao)
+            >= oh.datetime_inicio_validade
+            and (
+                ifnull(t.datetime_transacao, t.datetime_inclusao)
+                < oh.datetime_fim_validade
+                or oh.datetime_fim_validade is null
+            )
         left join {{ ref("consorcios") }} dc on t.id_consorcio = dc.id_consorcio_jae
         left join
             {{ ref("aux_servico_jae") }} s

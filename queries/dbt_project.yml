@@ -201,6 +201,7 @@ vars:
   ### Bilhetagem ###
   var_percentual_tarifa_cbd: 0.04
   quantidade_integracoes_max: 5
+  data_inicial_operadora_historico: "2026-05-12"
   colunas_integracao: {
     "data_transacao": {"type": "DATETIME", "select": true},
     "id_aplicacao": {"type": "ID", "select": false},
