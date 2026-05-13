@@ -7,16 +7,12 @@ from functools import partial
 from prefect import task
 
 from pipelines.capture__inmet_temperatura import constants
-from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.extractors.api import get_raw_api_list
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.secret import get_env_secret
 
 
-@task(
-    retries=smtr_constants.RETRIES,
-    retry_delay_seconds=smtr_constants.RETRY_DELAY_SECONDS,
-)
+@task(log_prints=True)
 def create_temperatura_extractor(
     _source: SourceTable,
     timestamp: datetime,
