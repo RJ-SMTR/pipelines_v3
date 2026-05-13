@@ -13,8 +13,7 @@ COPY ./pipelines/capture__veiculo_sppo_registro_agente_verao/ ./pipelines/captur
 COPY ./pipelines/treatment__cadastro_veiculo ./pipelines/treatment__cadastro_veiculo/
 
 COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitoramento_veiculo/
-C
-OPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veiculo_fiscalizacao_lacre/
+COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veiculo_fiscalizacao_lacre/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

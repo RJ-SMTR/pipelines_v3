@@ -15,7 +15,7 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 from pipelines.treatment__cadastro_veiculo import constants as cadastro_veiculo_constants
 from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
 
-VEICULO_DIA_INCREMENTAL_DELAY_HOURS = 24 * 7
+VEICULO_DIA_INCREMENTAL_DELAY_HOURS = -(24 * 7)
 
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
