@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__inmet_temperatura` migrando de Prefect 1.4 para Prefect 3
+- Cria flow `capture__inmet_temperatura` (https://github.com/RJ-SMTR/pipelines_v3/pull/)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Valores constantes para captura de dados de temperatura do INMET
+
 """
 
 from datetime import datetime

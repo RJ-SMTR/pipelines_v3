@@ -7,7 +7,6 @@ WORKDIR /opt/prefect/pipelines_v3
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/capture__inmet_temperatura ./pipelines/capture__inmet_temperatura/
-
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages
