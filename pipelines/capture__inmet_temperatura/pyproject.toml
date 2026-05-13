@@ -1,0 +1,4 @@
+[project]
+name = "capture__inmet_temperatura"
+version = "0.1.0"
+description = "Pipeline de captura de temperatura INMET da secretaria rj-smtr"
