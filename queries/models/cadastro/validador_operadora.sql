@@ -28,10 +28,6 @@ select
     s.id_device_operadora,
     o.modo,
     id_operadora_jae,
-    o.operadora,
-    o.operadora_completo,
-    o.tipo_documento,
-    o.documento,
     s.datetime_inicio_validade,
     s.datetime_fim_validade,
     s.id_validador,
@@ -39,4 +35,3 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
 from staging_device_operadora s
-join {{ ref("operadoras") }} o using (id_operadora_jae)
