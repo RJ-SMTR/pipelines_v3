@@ -226,7 +226,6 @@ vars:
     "valor_tarifa": {"type": "FLOAT64", "select": true},
     "valor_transacao": {"type": "FLOAT64", "select": true},
     "veiculo_id": {"type": "ID", "select": false},
-    "id_ordem_rateio": {"type": "ID", "select": true},
   }
 
   ### Diretorios ###
