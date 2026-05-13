@@ -26,7 +26,6 @@ with
     )
 select
     s.id_device_operadora,
-    o.modo,
     id_operadora_jae,
     s.datetime_inicio_validade,
     s.datetime_fim_validade,
