@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tasks de captura dos dados de temperatura do INMET
-"""
+"""Tasks de captura dos dados de temperatura do INMET"""
 
 from datetime import datetime, timedelta
 from functools import partial
