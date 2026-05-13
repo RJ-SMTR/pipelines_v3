@@ -636,7 +636,10 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
             test_name = node_info["node_name"]
             status = data.get("status")
             if status is not None:
-                results[test_name] = {"result": status.upper()}
+                entry = {"result": status.upper()}
+                if status.upper() == "ERROR":
+                    entry["error"] = data.get("exc_info") or log_line_json.get("info", {}).get("msg", "")
+                results[test_name] = entry
 
             path = data.get("path")
 
@@ -662,7 +665,7 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
             log_message += f"{info['query']}\n"
 
         if result == "ERROR":
-            log_message += f"Error: {info['error']}\n"
+            log_message += f"Error: {info.get('error', 'No details available')}\n"
 
         log_message += "\n"
 
