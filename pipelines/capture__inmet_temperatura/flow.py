@@ -26,7 +26,7 @@ def capture__inmet_temperatura(  # noqa: PLR0913
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=[constants.INMET_TEMPERATURA_SOURCES],
+        sources=[constants.INMET_METEOROLOGIA_SOURCE],
         timestamp=timestamp,
         create_extractor_task=create_temperatura_extractor,
         recapture=recapture,
