@@ -9,6 +9,7 @@ from pipelines.capture.jae.flows import (
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
 )
+from pipelines.capture__jae_auxiliar import flow
 from pipelines.tasks import (
     get_scheduled_timestamp,
     parse_timestamp_to_string,
@@ -26,13 +27,11 @@ from pipelines.treatment.financeiro.flows import (
     ordem_pagamento_quality_check,
 )
 
-from pipelines.capture__jae_auxiliar import flow
+sources = jae_constants.ORDEM_PAGAMENTO_SOURCES
 
-sources=jae_constants.ORDEM_PAGAMENTO_SOURCES
 
-@flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento") 
+@flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
 def ordem_atrasada(timestamp: str | None = None):
-
     timestamp = get_scheduled_timestamp(timestamp=timestamp)
 
     run_recapture = run_subflow(

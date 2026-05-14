@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """Tasks para os processos manuais de bilhetagem"""
+
 from datetime import datetime, timedelta
 
 import pandas_gbq
+from prefect import task
+
 from pipelines.capture.jae.constants import JAE_SOURCE_NAME
 from pipelines.capture.jae.constants import constants as jae_constants
 from pipelines.constants import constants as smtr_constants
 from pipelines.treatment.bilhetagem_processos_manuais.constants import constants
-from prefect import task
 
 
 @task
@@ -66,7 +68,7 @@ def get_gaps_from_result_table(
             {project_id}.{dataset_id}.{jae_constants.RESULTADO_VERIFICACAO_CAPTURA_TABLE_ID.value}
         where
             not indicador_captura_correta
-            and table_id in ({', '.join([f"'{t}'" for t in table_ids])})
+            and table_id in ({", ".join([f"'{t}'" for t in table_ids])})
             {date_filter}
         """
 
@@ -80,7 +82,7 @@ def get_gaps_from_result_table(
                 {
                     "table_id": table_id,
                     "recapture": True,
-                    "recapture_timestamps": timestamps[i : i + 20],  # noqa
+                    "recapture_timestamps": timestamps[i : i + 20],
                 }
                 for i in range(0, len(timestamps), 20)
             ],
@@ -155,9 +157,7 @@ def create_verify_capture_params(gaps: dict) -> list[dict]:
         list[dict]: Lista de parâmetros a serem executados
     """
     dates = sorted(
-        list(
-            {datetime.fromisoformat(t).date() for v in gaps.values() for t in v["timestamps"]}
-        )
+        list({datetime.fromisoformat(t).date() for v in gaps.values() for t in v["timestamps"]})
     )
 
     params = []

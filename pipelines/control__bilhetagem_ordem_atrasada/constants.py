@@ -24,7 +24,8 @@ from pipelines.treatment.monitoramento.constants import (
 )
 from pipelines.treatment.monitoramento.flows import GPS_VALIDADOR_MATERIALIZACAO
 
-CAPTURE_GAP_TABLES = {
+CAPTURE_GAP_TABLES = (
+    {
         jae_constants.TRANSACAO_TABLE_ID: {
             "flow_name": CAPTURA_TRANSACAO,
             "reprocess_all": False,
@@ -43,8 +44,10 @@ CAPTURE_GAP_TABLES = {
         },
         CLIENTE_TABLE_ID: {"flow_name": CAPTURA_AUXILIAR, "reprocess_all": True},
     },
+)
 
-CAPTURE_GAP_SELECTORS = {
+CAPTURE_GAP_SELECTORS = (
+    {
         cadastro_constants.CADASTRO_SELECTOR: {
             "flow_name": CADASTRO_MATERIALIZACAO,
             "capture_tables": [CLIENTE_TABLE_ID],
@@ -70,3 +73,4 @@ CAPTURE_GAP_SELECTORS = {
             "selector": bilhetagem_constants.EXTRATO_CLIENTE_CARTAO_SELECTOR,
         },
     },
+)

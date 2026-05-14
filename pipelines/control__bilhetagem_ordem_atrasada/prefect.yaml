@@ -49,4 +49,3 @@ deployments:
         command: uv run --package control__bilhetagem_ordem_atrasada -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
-    
