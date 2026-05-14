@@ -1,7 +1,7 @@
 {{
     config(
         materialized="view",
-        target_schema="br_rj_riodejaneiro_veiculos",
+        schema="br_rj_riodejaneiro_veiculos",
         alias="gps_sppo_15_minutos",
         tags=["geolocalizacao"],
     )

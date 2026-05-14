@@ -4,12 +4,13 @@
     )
 }}
 
-select
-    safe_cast(status as string) status,
-    safe_cast(subsidio_km as float64) subsidio_km,
-    safe_cast(irk as float64) irk,
-    safe_cast(data_inicio as date) data_inicio,
-    safe_cast(data_fim as date) data_fim,
-    safe_cast(indicador_penalidade_judicial as bool) indicador_penalidade_judicial,
-    safe_cast(legislacao as string) legislacao
-from {{ source("dashboard_subsidio_sppo_staging", "subsidio_valor_km_tipo_viagem") }}
+SELECT
+  SAFE_CAST(status AS STRING) status,
+  SAFE_CAST(subsidio_km AS FLOAT64) subsidio_km,
+  SAFE_CAST(irk AS FLOAT64) irk,
+  SAFE_CAST(data_inicio AS DATE) data_inicio,
+  SAFE_CAST(data_fim AS DATE) data_fim,
+  SAFE_CAST(indicador_penalidade_judicial AS BOOL) indicador_penalidade_judicial,
+  SAFE_CAST(legislacao AS STRING) legislacao
+FROM
+  {{ source("dashboard_subsidio_sppo_staging", "subsidio_valor_km_tipo_viagem") }}

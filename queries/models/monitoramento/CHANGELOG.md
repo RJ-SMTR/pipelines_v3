@@ -1,5 +1,29 @@
 # Changelog - monitoramento
 
+## [2.0.9] - 2026-05-14
+
+### Alterado
+
+- Ajusta `test_completude_temperatura` para aceitar parâmetro `expected_qtd` (default 24) e define 96 para `temperatura_alertario`. Substitui lógica de `data_fim_ajustada` por `least(date_range_end, ontem)` em `test_completude_temperatura` e `test_completude_temperatura_inmet` para evitar falso negativo no dia corrente sem perder cobertura em reprocessamentos. (https://github.com/RJ-SMTR/pipelines_v3/pull/183)
+
+## [2.0.8] - 2026-05-13
+
+### Alterado
+
+- Remove filtro da coluna `data` nas CTEs dos modelos `view_gps_brt_completo` e `view_gps_sppo_completo`, forçando a obrigatoriedade de um filtro de partição explícito por parte do usuário e evitando o consumo acidental de grandes volumes de dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/179)
+
+## [2.0.7] - 2026-05-11
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-16` e `2026-04-30` com `data_processamento`entre `2026-04-16` e `2026-05-11` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/175)
+
+## [2.0.6] - 2026-05-08
+
+### Adicionado
+
+- Adiciona teste de completude aos modelos `temperatura_inmet` e `temperatura_alertario` (https://github.com/RJ-SMTR/pipelines_v3/pull/167)
+
 ## [2.0.5] - 2026-05-06
 
 ### Adicionado
@@ -20,6 +44,9 @@
 ### Alterado
 
 - Altera modelo `gps_viagem` para referenciar `view_gps_brt_completo` em substituição a `gps_brt` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+- Altera modelo `staging_temperatura_inmet` para adicionar a coluna `temperatura_maxima` (`TEM_MAX`), mantendo `temperatura` (`TEM_INS`) (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
+- Altera modelo `temperatura_inmet` para utilizar `temperatura_maxima` a partir de `DATA_SUBSIDIO_V23_INICIO` (2026-04-16) e `temperatura` (instantânea) antes dessa data, aplicando a regra tanto na fonte `meteorologia_inmet` quanto na contingência via `staging_temperatura_inmet` (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
+- Altera modelo `temperatura` para aplicar deslocamento de 1 hora nos dados do INMET apenas a partir de `DATA_SUBSIDIO_V23_INICIO` (2026-04-16), ajustando a janela de referência da temperatura máxima (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
 
 ### Removido
 
