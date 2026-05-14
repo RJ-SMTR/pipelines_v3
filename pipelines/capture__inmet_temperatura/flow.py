@@ -14,7 +14,8 @@ from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
-from pipelines.common.utils.prefect import flow   
+from pipelines.common.utils.prefect import flow
+
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__inmet_temperatura(  # noqa: PLR0913
