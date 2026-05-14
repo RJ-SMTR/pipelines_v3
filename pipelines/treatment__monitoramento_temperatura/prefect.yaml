@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__monitoramento_temperatura/flow.py:treatment__monitoramento_temperatura
     schedules:
-      - cron: "40 6 * * *"
+      - cron: "50 6 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool

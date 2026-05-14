@@ -14,8 +14,10 @@ with
     ),
 
     tipo_transporte as (
-        select distinct id_tipo_transporte, descricao, data
+        select *
         from {{ ref("staging_stu_tipo_de_transporte") }}
+        qualify
+            row_number() over (partition by id_tipo_transporte order by data desc) = 1
     ),
 
     darm as (select * from {{ ref("staging_stu_darm_apropriacao") }})
@@ -34,7 +36,7 @@ select
         cast(p.dv as string)
     ) as permissao,
     m.placa,
-    concat(m.serie, '-', lpad(m.cm, 8, '0')) as id_auto_infracao,
+    concat(trim(m.serie), '-', lpad(m.cm, 8, '0')) as id_auto_infracao,
     date(m.datetime_infracao) as data_infracao,
     m.datetime_infracao,
     m.descricao_infracao as infracao,
@@ -45,9 +47,8 @@ select
 from multa m
 left join
     permissao p
-    on m.data = p.data
-    and m.tptran = cast(p.tptran as string)
+    on m.tptran = cast(p.tptran as string)
     and m.tpperm = cast(p.tpperm as string)
     and m.termo = cast(p.termo as string)
-left join tipo_transporte t on m.tptran = t.id_tipo_transporte and m.data = t.data
+left join tipo_transporte t on m.tptran = t.id_tipo_transporte
 left join darm d on m.cm = d.darm and m.data = d.data

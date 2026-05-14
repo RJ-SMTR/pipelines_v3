@@ -63,6 +63,14 @@ with
         from {{ ref("staging_stu_combustivel") }}
         qualify
             row_number() over (partition by id_combustivel, data order by data desc) = 1
+    ),
+
+    tipo_veiculo as (
+        select *
+        from {{ ref("staging_stu_tipo_de_veiculo") }}
+        qualify
+            row_number() over (partition by id_tipo_veiculo, data order by data desc)
+            = 1
     )
 
 select
@@ -95,7 +103,7 @@ select
     safe_cast(pl.lotacao_em_pe as int64) as quantidade_lotacao_pe,
     safe_cast(pl.lotacao_sentado as int64) as quantidade_lotacao_sentado,
     cb.descricao as tipo_combustivel,
-    t.descricao as tipo_veiculo,
+    tv.descricao as tipo_veiculo,
     va.situacao as status,
     date(va.datetime_ativo) as data_inicio_vinculo,
     va.situacao as ultima_situacao,
@@ -118,3 +126,5 @@ left join
 left join
     mod_chassi mch on pl.id_modelo_chassi = mch.id_modelo_chassi and va.data = mch.data
 left join combustivel cb on ve.id_combustivel = cb.id_combustivel and va.data = cb.data
+left join
+    tipo_veiculo tv on pl.id_tipo_veiculo = tv.id_tipo_veiculo and va.data = tv.data

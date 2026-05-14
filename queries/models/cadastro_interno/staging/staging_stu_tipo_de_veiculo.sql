@@ -1,9 +1,9 @@
-{{ config(alias="combustivel") }}
+{{ config(alias="tipo_de_veiculo") }}
 
 select
     data,
-    safe_cast(cod_combustivel as string) as id_combustivel,
-    safe_cast(json_value(content, '$.des_combustivel') as string) as descricao,
+    safe_cast(tpveic as string) as id_tipo_veiculo,
+    safe_cast(json_value(content, '$.des_tipo_veiculo') as string) as descricao,
     datetime(
         parse_timestamp(
             '%Y-%m-%d %H:%M:%S%Ez',
@@ -12,4 +12,4 @@ select
         "America/Sao_Paulo"
     ) as datetime_execucao_flow,
     safe_cast(timestamp_captura as datetime) as datetime_captura
-from {{ source("source_stu", "combustivel") }}
+from {{ source("source_stu", "tipo_de_veiculo") }}

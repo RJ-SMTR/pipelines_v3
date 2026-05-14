@@ -13,8 +13,12 @@ select
         ) as string
     ) as id_fabricante,
     safe_cast(json_value(content, '$.des_mod_carroceria') as string) as descricao,
-    safe_cast(
-        json_value(content, '$._datetime_execucao_flow') as datetime
+    datetime(
+        parse_timestamp(
+            '%Y-%m-%d %H:%M:%S%Ez',
+            safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
+        ),
+        "America/Sao_Paulo"
     ) as datetime_execucao_flow,
     safe_cast(timestamp_captura as datetime) as datetime_captura
 from {{ source("source_stu", "mod_carroceria") }}

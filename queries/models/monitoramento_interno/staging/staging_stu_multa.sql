@@ -48,8 +48,7 @@ select
         parse_timestamp(
             '%Y-%m-%dT%H:%M:%E6S',
             safe_cast(json_value(content, '$.dt_infracao') as string)
-        ),
-        "America/Sao_Paulo"
+        )
     ) as datetime_infracao,
     safe_cast(json_value(content, '$.cod_infracao') as string) as id_infracao,
     safe_cast(json_value(content, '$.des_infracao') as string) as descricao_infracao,

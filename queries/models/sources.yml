@@ -497,6 +497,7 @@ sources:
       - name: pessoa_juridica
       - name: veiculo_ativo
       - name: multa
+      - name: tipo_de_veiculo
 
   - name: projeto_subsidio_sppo_staging
     database: rj-smtr-staging
