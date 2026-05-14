@@ -32,8 +32,6 @@ INMET_METEOROLOGIA_SOURCE = SourceTable(
     table_id=INMET_METEOROLOGIA_TABLE_ID,
     first_timestamp=datetime(2025, 7, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__inmet_temperatura",
-    primary_keys=["CD_ESTACAO", "DT_MEDICAO", "HR_MEDICAO"],
+    primary_keys=["CD_ESTACAO", "DT_MEDICAO", "HR_MEDICAO"]
     partition_date_only=True,
 )
-
-INMET_TEMPERATURA_SOURCES = [INMET_METEOROLOGIA_SOURCE]

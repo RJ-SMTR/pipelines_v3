@@ -14,15 +14,11 @@ from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
-from pipelines.common.utils.prefect import flow
-
-sources = constants.INMET_TEMPERATURA_SOURCES
-
+from pipelines.common.utils.prefect import flow   
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__inmet_temperatura(  # noqa: PLR0913
     env=None,
-    source_table_ids=tuple([s.table_id for s in sources]),
     timestamp=None,
     recapture=True,
     recapture_days=2,
@@ -30,8 +26,7 @@ def capture__inmet_temperatura(  # noqa: PLR0913
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=sources,
-        source_table_ids=source_table_ids,
+        sources=constants.INMET_TEMPERATURA_SOURCES,
         timestamp=timestamp,
         create_extractor_task=create_temperatura_extractor,
         recapture=recapture,
