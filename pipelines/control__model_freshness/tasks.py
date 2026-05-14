@@ -46,9 +46,7 @@ def model_freshness_notify_discord(failed_results: dict, test_select: str):
     mention_id = common_constants.OWNERS_DISCORD_MENTIONS["dados_smtr"]["user_id"]
     mentions_tag = f" - <@&{mention_id}>\n"
     tag_label = test_select.removeprefix("tag:")
-    formatted_messages = [
-        f":warning: **Tabelas desatualizadas** [`{tag_label}`]{mentions_tag}"
-    ]
+    formatted_messages = [f":warning: **Tabelas desatualizadas** [`{tag_label}`]{mentions_tag}"]
 
     for test_name, info in failed_results.items():
         relation = extract_relation_from_query(info.get("query"))
