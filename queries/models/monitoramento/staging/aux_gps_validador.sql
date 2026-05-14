@@ -27,16 +27,13 @@ from {{ ref("staging_gps_validador") }} g
 left join
     {{ ref("operadoras") }} as do
     on g.codigo_operadora = do.id_operadora_jae
-    and date(g.data_transacao) < "{{ var('data_inicial_operadora_historico') }}"
+    and date(g.data_tracking) < "{{ var('data_inicial_operadora_historico') }}"
 left join
     {{ ref("operadora_historico") }} oh
     on g.codigo_operadora = oh.id_operadora_jae
-    and date(g.datetime_gps) >= "{{ var('data_inicial_operadora_historico') }}"
-    and g.codigo_operadora >= oh.datetime_inicio_validade
-    and (
-        g.codigo_operadora < oh.datetime_fim_validade
-        or oh.datetime_fim_validade is null
-    )
+    and date(g.data_tracking) >= "{{ var('data_inicial_operadora_historico') }}"
+    and g.data_tracking >= oh.datetime_inicio_validade
+    and (g.data_tracking < oh.datetime_fim_validade or oh.datetime_fim_validade is null)
 left join
     {{ ref("aux_servico_jae") }} s
     on g.codigo_linha_veiculo = s.id_servico_jae

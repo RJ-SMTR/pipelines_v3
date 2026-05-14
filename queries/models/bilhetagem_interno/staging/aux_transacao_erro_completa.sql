@@ -227,7 +227,7 @@ with
             < "{{ var('data_inicial_operadora_historico') }}"
         left join
             {{ ref("operadora_historico") }} oh
-            on t.cd_operadora = oh.id_operadora_jae
+            on t.id_operadora = oh.id_operadora_jae
             and date(ifnull(t.datetime_transacao, t.datetime_inclusao))
             >= "{{ var('data_inicial_operadora_historico') }}"
             and ifnull(t.datetime_transacao, t.datetime_inclusao)

@@ -210,7 +210,7 @@ vars:
     "id_linha": {"type": "ID", "select": true},
     "id_matriz_integracao": {"type": "ID", "select": false},
     "id_operadora": {"type": "ID", "select": true},
-    "id_ordem_rateio": {"type": "ID", "select": false},
+    "id_ordem_rateio": {"type": "ID", "select": true},
     "id_secao": {"type": "STRING", "select": false},
     "id_servico": {"type": "ID", "select": false},
     "id_tipo_modal": {"type": "ID", "select": true},
