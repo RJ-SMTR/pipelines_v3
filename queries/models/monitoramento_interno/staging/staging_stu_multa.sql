@@ -1,4 +1,4 @@
-{{ config(alias="multa") }}
+{{ config( materialized="view", alias="multa") }}
 
 select
     data,

@@ -1,15 +1,21 @@
 {{ config(materialized="ephemeral") }}
 
 with
-    multa as (select * from {{ ref("staging_stu_multa") }}),
-
-    permissao as (
-        select tptran, tpperm, termo, dv, data
-        from {{ ref("staging_stu_permissao") }}
+    multa as (
+        select *
+        from {{ ref("staging_stu_multa") }}
         qualify
             row_number() over (
-                partition by tptran, tpperm, termo, data order by data desc
+                partition by id_infracao, data order by datetime_captura desc
             )
+            = 1
+    ),
+
+    permissao as (
+        select tptran, tpperm, termo, dv
+        from {{ ref("staging_stu_permissao") }}
+        qualify
+            row_number() over (partition by tptran, tpperm, termo order by data desc)
             = 1
     ),
 
@@ -20,7 +26,11 @@ with
             row_number() over (partition by id_tipo_transporte order by data desc) = 1
     ),
 
-    darm as (select * from {{ ref("staging_stu_darm_apropriacao") }})
+    darm as (
+        select *
+        from {{ ref("staging_stu_darm_apropriacao") }}
+        qualify row_number() over (partition by darm, data order by data desc) = 1
+    )
 
 select
     m.data,
