@@ -152,6 +152,7 @@ models:
       - test_completude_temperatura:
           name: test_completude__temperatura_alertario
           severity: warn
+          expected_qtd: 96
           where: "data between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
