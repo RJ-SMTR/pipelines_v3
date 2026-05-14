@@ -1,15 +1,17 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.2.0] - 2026-05-08
+
+### Alterado
+
+- Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000300.017825/2026-26 no período entre `2026-04-16` e `2026-04-30` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1446)
+
 ## [8.1.9] - 2026-04-22
 
 ### Alterado
 
-<<<<<<< staging/migra-apuracao-subsidio
-- Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000399006676/2026-28 no período entre `2026-04-02T18:00:00` and `2026-04-02T23:59:59` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1405)
-=======
 - Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000399006676/2026-28 no período entre `2026-04-02T18:00:00` e `2026-04-02T23:59:59` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1405)
 - Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000300.014987/2026-11 no período entre `2026-04-01` e `2026-04-15` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1409)
->>>>>>> master
 
 ## [8.1.8] - 2026-04-08
 
