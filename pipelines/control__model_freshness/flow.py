@@ -8,7 +8,7 @@ caso haja modelos com anomalia de atualização.
 Schedule: Horário (cron: "0 * * * *")
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from prefect import runtime
@@ -45,7 +45,9 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"
 
     dbt_test = DBTTest(test_select=test_select)
     now = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
-    dbt_logs, _ = run_dbt_tests(dbt_test=dbt_test, datetime_start=now, datetime_end=now)
+    dbt_logs, _ = run_dbt_tests(
+        dbt_test=dbt_test, datetime_start=now - timedelta(hours=1), datetime_end=now
+    )
 
     has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)
 
