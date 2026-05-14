@@ -66,7 +66,7 @@ queries/               # dbt project — see queries/CLAUDE.md
 - **Python 3.13** | **Prefect 3.4.9** | **dbt-bigquery 1.10.1**
 - **Formatter**: Ruff (Python), sqlfmt (SQL)
 - **Branches**: `staging/*` → staging deploy, `master` → prod deploy
-- **Work pools**: `default-pool` (general), `datario-pool` (VPN/internal DB)
+- **Work pools**: `smtr-pool` (general)
 
 ## Code Style
 

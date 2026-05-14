@@ -1028,6 +1028,14 @@ models:
           - not_null:
               name: not_null__datetime_captura__gps_validador
               where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: recent_data__datetime_captura__gps_validador
+              arguments:
+                datepart: hour
+                interval: 2
+              config:
+                tags: ["freshness_hourly"]
+                severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         tests:
