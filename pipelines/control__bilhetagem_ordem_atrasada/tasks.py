@@ -9,7 +9,6 @@ from prefect import task
 from pipelines.capture.jae.constants import JAE_SOURCE_NAME
 from pipelines.capture.jae.constants import constants as jae_constants
 from pipelines.constants import constants as smtr_constants
-
 from pipelines.control__bilhetagem_ordem_atrasada import constants
 
 
