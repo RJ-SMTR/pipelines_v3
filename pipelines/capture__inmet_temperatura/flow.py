@@ -18,7 +18,7 @@ from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
-def capture__inmet_temperatura(  # noqa: PLR0913
+def capture__inmet_temperatura(
     env=None,
     timestamp=None,
     recapture=True,
