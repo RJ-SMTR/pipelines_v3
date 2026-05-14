@@ -26,7 +26,7 @@ pull:
 deployments:
   - name: rj-control--bilhetagem_ordem_atrasada--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/control__bilhetagem_ordem_atrasada/flow.py:control__bilhetagem_ordem_atrasada
+    entrypoint: pipelines/control__bilhetagem_ordem_atrasada/flow.py:ordem_atrasada
     work_pool:
       name: smtr-pool
       work_queue_name: default
@@ -37,7 +37,7 @@ deployments:
         image_pull_policy: Always
   - name: rj-control--bilhetagem_ordem_atrasada--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/control__bilhetagem_ordem_atrasada/flow.py:control__bilhetagem_ordem_atrasada
+    entrypoint: pipelines/control__bilhetagem_ordem_atrasada/flow.py:ordem_atrasada
     schedules:
       - cron: "0 0 * * *"
         timezone: "America/Sao_Paulo"

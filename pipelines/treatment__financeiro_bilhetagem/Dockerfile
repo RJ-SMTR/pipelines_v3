@@ -14,6 +14,8 @@ COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnp
 
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
+COPY /pipelines/capture__jae_integracao ./pipelines/capture__jae_integracao
+
 COPY ./pipelines/capture__jae_ordem_pagamento/ ./pipelines/capture__jae_ordem_pagamento/
 
 COPY ./pipelines/common/ ./pipelines/common/

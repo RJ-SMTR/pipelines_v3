@@ -9,14 +9,15 @@ from prefect import task
 from pipelines.capture.jae.constants import JAE_SOURCE_NAME
 from pipelines.capture.jae.constants import constants as jae_constants
 from pipelines.constants import constants as smtr_constants
-from pipelines.treatment.bilhetagem_processos_manuais.constants import constants
+
+from pipelines.control__bilhetagem_ordem_atrasada import constants
 
 
 @task
 def create_transacao_ordem_integracao_capture_params(timestamp: datetime, table_id: str) -> dict:
     source_map = {
-        jae_constants.TRANSACAO_ORDEM_TABLE_ID.value: jae_constants.TRANSACAO_ORDEM_SOURCE.value,
-        jae_constants.INTEGRACAO_TABLE_ID.value: jae_constants.INTEGRACAO_SOURCE.value,
+        jae_constants.TRANSACAO_ORDEM_TABLE_ID: jae_constants.TRANSACAO_ORDEM_SOURCE,
+        jae_constants.INTEGRACAO_TABLE_ID: jae_constants.INTEGRACAO_SOURCE,
     }
     return {
         "timestamp": source_map[table_id]
@@ -47,7 +48,7 @@ def get_gaps_from_result_table(
             - `"timestamps"` (list[str]): Lista de timestamps das falhas de captura
             - `"flag_has_gaps"` (bool): Indica se houve lacunas de captura
     """
-    project_id = smtr_constants.PROJECT_NAME.value[env]
+    project_id = smtr_constants.PROJECT_NAME[env]
     dataset_id = f"source_{JAE_SOURCE_NAME}"
     result = {}
     date_filter = (
@@ -65,7 +66,7 @@ def get_gaps_from_result_table(
             table_id,
             format_datetime('%Y-%m-%d %H:%M:%S', timestamp_captura) as timestamp_captura
         from
-            {project_id}.{dataset_id}.{jae_constants.RESULTADO_VERIFICACAO_CAPTURA_TABLE_ID.value}
+            {project_id}.{dataset_id}.{jae_constants.RESULTADO_VERIFICACAO_CAPTURA_TABLE_ID}
         where
             not indicador_captura_correta
             and table_id in ({", ".join([f"'{t}'" for t in table_ids])})
@@ -86,7 +87,7 @@ def get_gaps_from_result_table(
                 }
                 for i in range(0, len(timestamps), 20)
             ],
-            "reprocess_all": constants.CAPTURE_GAP_TABLES.value[table_id]["reprocess_all"],
+            "reprocess_all": constants.CAPTURE_GAP_TABLES[table_id]["reprocess_all"],
             "flag_has_gaps": not df.empty,
         }
     return result
@@ -112,7 +113,7 @@ def create_gap_materialization_params(gaps: dict, env: str) -> dict:
         dict: Parâmetros para execução do flow de materialização
     """
     result = {}
-    for k, v in constants.CAPTURE_GAP_SELECTORS.value.items():
+    for k, v in constants.CAPTURE_GAP_SELECTORS.items():
         ts_list = []
         reprocess_all = False
 
