@@ -34,8 +34,7 @@
                     date("{{ var('date_range_start') }}"),
                     date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
                 ) and date("{{ var('date_range_end') }}")
-                full outer
-            union all by name
+            full outer union all by name
             select
                 data,
                 feed_start_date,
@@ -79,7 +78,9 @@
                     servico,
                     faixa_horaria_inicio,
                     km_planejada_faixa,
-                    {% if var("date_range_end") >= var("DATA_SUBSIDIO_V17_INICIO") %}
+                    {% if var("date_range_end") >= var(
+                        "DATA_SUBSIDIO_V17_INICIO"
+                    ) and "pagamento" in model %}
                         sentido,
                     {% else %} cast(null as string) as sentido
                     {% endif %}

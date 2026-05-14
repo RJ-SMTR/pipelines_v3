@@ -1,6 +1,6 @@
 {% test check_gps_treatment(model) -%}
 
-    {% if "gps_sppo" in model %}
+    {% if model.identifier == "gps_sppo" %}
         -- depends_on: {{ ref('sppo_registros') }}
         -- depends_on: {{ ref('sppo_aux_registros_filtrada') }}
         -- depends_on: {{ ref('gps_sppo') }}
@@ -75,7 +75,7 @@
                 -- `rj-smtr.br_rj_riodejaneiro_onibus_gps.sppo_aux_registros_filtrada`
                 {{ aux_filtrada }}
             where
-                {% if "gps_sppo" in model %}
+                {% if model.identifier == "gps_sppo" %}
                     data between date("{{ var('date_range_start') }}") and date(
                         "{{ add_to_datetime(var('date_range_end'), seconds=1) }}"
                     )
