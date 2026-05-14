@@ -331,6 +331,7 @@ class DBTSelectorMaterializationContext:
         test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
+        skip_pre_test: bool = False,
     ):
         """
         Armazena o contexto completo necessário para materializar um selector do DBT.
@@ -345,6 +346,7 @@ class DBTSelectorMaterializationContext:
             test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
+            skip_pre_test (bool): Se True, ignora a execução do pre_test do selector.
         """
         self.env = env
         self.selector = selector
@@ -372,7 +374,9 @@ class DBTSelectorMaterializationContext:
             force_test_run or test_scheduled_time is None or timestamp.time() == test_scheduled_time
         ) and self.should_run
 
-        self.should_run_pre_test = selector.pre_test is not None and is_test_scheduled_time
+        self.should_run_pre_test = (
+            selector.pre_test is not None and is_test_scheduled_time and not skip_pre_test
+        )
 
         self.should_run_post_test = selector.post_test is not None and is_test_scheduled_time
 

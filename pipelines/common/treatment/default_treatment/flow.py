@@ -39,6 +39,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     snapshot_selector: Optional[DBTSelector] = None,
     fallback_run: bool = False,
+    skip_pre_test: bool = False,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -60,6 +61,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             argumento wait_for das tasks retornadas por esta função.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
+        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -101,6 +103,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         test_scheduled_time=test_scheduled_time,
         force_test_run=force_test_run,
         snapshot_selector=snapshot_selector,
+        skip_pre_test=skip_pre_test,
         wait_for=[
             tasks["setup_enviroment"],
             *tasks_wait_for.get("contexts", []),
