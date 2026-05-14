@@ -21,7 +21,7 @@ def create_temperatura_extractor(context: SourceCaptureContext):
     data_inicio = start.strftime("%Y-%m-%d")
     data_fim = context.timestamp.strftime("%Y-%m-%d")
 
-    key = get_env_secret(constants.INMET_SECRET_PATH)
+    key = get_env_secret(constants.INMET_SECRET_PATH)["key"]
 
     url_list = []
     for estacao in constants.INMET_ESTACOES:

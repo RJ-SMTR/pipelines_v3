@@ -5,7 +5,7 @@ Flow de captura de dados de temperatura do INMET
 Executa a captura de dados de temperatura das estações meteorológicas do INMET
 para as análises de monitoramento de temperatura dos veículos da SMTR.
 
-Common: 2026-05-13
+Common 2026-05-13
 """
 
 from pipelines.capture__inmet_temperatura import constants
