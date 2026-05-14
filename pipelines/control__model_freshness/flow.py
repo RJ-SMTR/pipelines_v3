@@ -25,9 +25,10 @@ from pipelines.control__model_freshness.tasks import (
 
 @flow(
     log_prints=True,
+    flow_run_name="control__model_freshness - {test_select}",
     on_failure=[handler_notify_failure(webhook="dataplex")],
 )
-def control__model_freshness(env=None, test_select: str = "tag:freshness_daily"):
+def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"):
     """
     Roda testes de freshness em modelos dbt (selecionados por tag) e notifica
     Discord caso haja falhas.
@@ -49,4 +50,4 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_daily")
     has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)
 
     if has_issues and failed_results:
-        model_freshness_notify_discord(failed_results=failed_results)
+        model_freshness_notify_discord(failed_results=failed_results, test_select=test_select)
