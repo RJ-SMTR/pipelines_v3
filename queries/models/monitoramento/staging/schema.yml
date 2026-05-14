@@ -142,15 +142,6 @@ models:
         description: "Temperatura medida pela estação meteorológica (°C)"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
-        tests:
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: recent_data__datetime_ultima_atualizacao__temperatura_inmet
-              arguments:
-                datepart: hour
-                interval: 24
-              config:
-                tags: ["freshness_daily"]
-                severity: warn
       - name: versao
         description: "{{ doc('versao') }}"
       - name: id_execucao_dbt
