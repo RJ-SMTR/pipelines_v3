@@ -608,6 +608,22 @@ def run_dbt_tests(
     return log, dbt_vars
 
 
+RELATION_RE = re.compile(r"`([^`]+)`\.`([^`]+)`\.`([^`]+)`")
+
+
+def extract_relation_from_query(query: Optional[str]) -> Optional[str]:
+    """
+    Extrai nome completo da tabela (`project.dataset.table`) da primeira referência
+    em uma query compilada do dbt.
+    """
+    if not query:
+        return None
+    match = RELATION_RE.search(query)
+    if not match:
+        return None
+    return ".".join(match.groups())
+
+
 def parse_dbt_test_output(dbt_logs: str) -> dict:
     """
     Processa os logs do DBT e extrai os resultados dos testes executados.
