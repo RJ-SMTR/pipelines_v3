@@ -1,5 +1,17 @@
 # Changelog - monitoramento
 
+## [2.0.8] - 2026-05-13
+
+### Alterado
+
+- Remove filtro da coluna `data` nas CTEs dos modelos `view_gps_brt_completo` e `view_gps_sppo_completo`, forçando a obrigatoriedade de um filtro de partição explícito por parte do usuário e evitando o consumo acidental de grandes volumes de dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/179)
+
+## [2.0.7] - 2026-05-11
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-16` e `2026-04-30` com `data_processamento`entre `2026-04-16` e `2026-05-11` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/175)
+
 ## [2.0.6] - 2026-05-08
 
 ### Adicionado
