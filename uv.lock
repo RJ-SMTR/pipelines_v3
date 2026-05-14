@@ -38,6 +38,7 @@ members = [
     "common",
     "control-jae-teste-ip",
     "control-jae-verificacao-captura",
+    "control-model-freshness",
     "control-set-redis-key",
     "control-source-freshness",
     "integration-previnity-negativacao",
@@ -80,6 +81,7 @@ members = [
     "treatment-transacao-valor-ordem",
     "treatment-transito-autuacao",
     "treatment-validacao-dados-jae",
+    "treatment-veiculo-dia",
     "treatment-viagem-informada",
     "treatment-viagem-validacao",
 ]
@@ -584,6 +586,11 @@ source = { virtual = "pipelines/control__jae_teste_ip" }
 name = "control-jae-verificacao-captura"
 version = "0.1.0"
 source = { virtual = "pipelines/control__jae_verificacao_captura" }
+
+[[package]]
+name = "control-model-freshness"
+version = "0.1.0"
+source = { virtual = "pipelines/control__model_freshness" }
 
 [[package]]
 name = "control-set-redis-key"
@@ -3182,6 +3189,11 @@ source = { virtual = "pipelines/treatment__transito_autuacao" }
 name = "treatment-validacao-dados-jae"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__validacao_dados_jae" }
+
+[[package]]
+name = "treatment-veiculo-dia"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__veiculo_dia" }
 
 [[package]]
 name = "treatment-viagem-informada"

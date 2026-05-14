@@ -17,6 +17,8 @@ clean-targets:
   - "dbt_modules"
 
 vars:
+  "dbt_date:time_zone": "America/Sao_Paulo"
+
   ### Date default variables ###
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"
