@@ -27,7 +27,7 @@ def capture__inmet_temperatura(
 ):
     create_capture_flows_default_tasks(
         env=env,
-        sources=[constants.INMET_METEOROLOGIA_SOURCE],
+        sources=[constants.INMET_TEMPERATURA_SOURCE],
         timestamp=timestamp,
         create_extractor_task=create_temperatura_extractor,
         recapture=recapture,

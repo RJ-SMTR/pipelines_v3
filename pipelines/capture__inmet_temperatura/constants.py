@@ -27,7 +27,7 @@ INMET_ESTACOES = [
 ]
 
 INMET_METEOROLOGIA_TABLE_ID = "meteorologia"
-INMET_METEOROLOGIA_SOURCE = SourceTable(
+INMET_TEMPERATURA_SOURCE = SourceTable(
     source_name=INMET_SOURCE_NAME,
     table_id=INMET_METEOROLOGIA_TABLE_ID,
     first_timestamp=datetime(2025, 7, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
