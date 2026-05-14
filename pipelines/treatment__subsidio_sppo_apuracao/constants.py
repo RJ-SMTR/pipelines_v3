@@ -42,9 +42,7 @@ SUBSIDIO_SPPO_PRE_TEST = DBTTest(
             },
         },
         "veiculo_dia": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
                 "description": "Todos os registros são únicos"
             },
@@ -52,21 +50,17 @@ SUBSIDIO_SPPO_PRE_TEST = DBTTest(
                 "description": "Todas as datas possuem dados"
             },
             "test_check_veiculo_lacre__veiculo_dia": {
-                "description": "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e `veiculo_fiscalizacao_lacre`"  # noqa: E501
+                "description": "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e `veiculo_fiscalizacao_lacre`"
             },
         },
         "tecnologia_servico": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__tecnologia_servico": {
                 "description": "Todos os registros são únicos"
             },
         },
         "viagem_planejada": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.accepted_range": {
                 "description": "Todos os valores da coluna `{column_name}` maiores ou iguais a zero"
             },
@@ -80,7 +74,7 @@ SUBSIDIO_SPPO_PRE_TEST = DBTTest(
                 "description": "Todos os valores da coluna `{column_name}` são aceitos"
             },
             "dbt_expectations.expect_table_aggregation_to_equal_other_table__viagem_planejada": {
-                "description": "Todos os dados de `tipo_os` correspondem 1:1 entre as tabelas `subsidio_data_versao_efetiva` e `viagem_planejada`."  # noqa: E501
+                "description": "Todos os dados de `tipo_os` correspondem 1:1 entre as tabelas `subsidio_data_versao_efetiva` e `viagem_planejada`."
             },
             "test_tecnologia_servico_planejado__viagem_planejada": {
                 "description": "Todos os serviços planejados possuem tecnologia permitida."
@@ -89,12 +83,12 @@ SUBSIDIO_SPPO_PRE_TEST = DBTTest(
                 "description": "Todas as viagens possuem `km_planejada` correspondente à OS"
             },
             "check_partidas_planejadas": {
-                "description": "Todas as viagens possuem `partidas_total_planejada` correspondente à OS"  # noqa: E501
+                "description": "Todas as viagens possuem `partidas_total_planejada` correspondente à OS"
             },
         },
         "temperatura": {
             "test_completude__temperatura": {
-                "description": "Há pelo menos uma temperatura não nula registrada em cada uma das 24 horas do dia"  # noqa: E501
+                "description": "Há pelo menos uma temperatura não nula registrada em cada uma das 24 horas do dia"
             },
         },
         "transacao": {
@@ -124,17 +118,13 @@ SUBSIDIO_SPPO_V9_POS_TEST = DBTTest(
     truncate_date=True,
     test_descriptions={
         "viagens_remuneradas": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__viagens_remuneradas": {
                 "description": "Todas as viagens são únicas"
             },
         },
         "sumario_servico_dia_pagamento": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__sumario_servico_dia_pagamento": {
                 "description": "Todos os registros são únicos"
             },
@@ -151,27 +141,19 @@ SUBSIDIO_SPPO_V14_POS_TEST = DBTTest(
     truncate_date=True,
     test_descriptions={
         "viagem_classificada": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
             "dbt_utils.unique_combination_of_columns__viagem_classificada": {
                 "description": "Todos os registros são únicos"
             },
         },
         "viagem_regularidade_temperatura": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         },
         "viagens_remuneradas": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         },
         "sumario_faixa_servico_dia_pagamento": {
-            "not_null": {
-                "description": "Todos os valores da coluna `{column_name}` não nulos"
-            },
+            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         },
     },
 )

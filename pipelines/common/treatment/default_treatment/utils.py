@@ -638,7 +638,9 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
             if status is not None:
                 entry = {"result": status.upper()}
                 if status.upper() == "ERROR":
-                    entry["error"] = data.get("exc_info") or log_line_json.get("info", {}).get("msg", "")
+                    entry["error"] = data.get("exc_info") or log_line_json.get("info", {}).get(
+                        "msg", ""
+                    )
                 results[test_name] = entry
 
             path = data.get("path")
