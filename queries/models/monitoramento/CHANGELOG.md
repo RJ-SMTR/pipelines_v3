@@ -1,5 +1,21 @@
 # Changelog - monitoramento
 
+## [2.0.9] - 2026-05-14
+
+### Alterado
+
+- Ajusta `test_completude_temperatura` para aceitar parâmetro `expected_qtd` (default 24) e define 96 para `temperatura_alertario`. Substitui lógica de `data_fim_ajustada` por `least(date_range_end, ontem)` em `test_completude_temperatura` e `test_completude_temperatura_inmet` para evitar falso negativo no dia corrente sem perder cobertura em reprocessamentos. (https://github.com/RJ-SMTR/pipelines_v3/pull/183)
+
+### Adicionado
+
+- Adiciona teste `recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
+
+## [2.0.8] - 2026-05-13
+
+### Alterado
+
+- Remove filtro da coluna `data` nas CTEs dos modelos `view_gps_brt_completo` e `view_gps_sppo_completo`, forçando a obrigatoriedade de um filtro de partição explícito por parte do usuário e evitando o consumo acidental de grandes volumes de dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/179)
+
 ## [2.0.7] - 2026-05-11
 
 ### Alterado

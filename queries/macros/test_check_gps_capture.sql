@@ -1,6 +1,6 @@
 {% test check_gps_capture(model, table_id, interval) -%}
     {%- if execute -%}
-        {%- if "sppo" in model -%}
+        {%- if model.identifier in ["sppo_registros", "sppo_realocacao"] -%}
             with
                 t as (
                     select datetime(timestamp_array) as timestamp_array

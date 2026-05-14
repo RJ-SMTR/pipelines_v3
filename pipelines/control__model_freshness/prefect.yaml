@@ -1,4 +1,4 @@
-name: capture__veiculo_fiscalizacao_lacre
+name: control__model_freshness
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "capture__veiculo_fiscalizacao_lacre-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/capture__veiculo_fiscalizacao_lacre/Dockerfile
+      tag: "control__model_freshness-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/control__model_freshness/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,28 +24,35 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-capture--veiculo_fiscalizacao_lacre--staging
+  - name: rj-control--model_freshness--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/capture__veiculo_fiscalizacao_lacre/flow.py:capture__veiculo_fiscalizacao_lacre
+    entrypoint: pipelines/control__model_freshness/flow.py:control__model_freshness
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package capture__veiculo_fiscalizacao_lacre -- prefect flow-run execute
+        command: uv run --package control__model_freshness -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-capture--veiculo_fiscalizacao_lacre--prod
+  - name: rj-control--model_freshness--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/capture__veiculo_fiscalizacao_lacre/flow.py:capture__veiculo_fiscalizacao_lacre
+    entrypoint: pipelines/control__model_freshness/flow.py:control__model_freshness
     schedules:
-      - cron: "0 5 * * *"
+      - cron: "10 * * * *"
         timezone: "America/Sao_Paulo"
+        parameters:
+          test_select: "tag:freshness_hourly"
+      - cron: "30 12 * * *"
+        timezone: "America/Sao_Paulo"
+        active: false
+        parameters:
+          test_select: "tag:freshness_daily"
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package capture__veiculo_fiscalizacao_lacre -- prefect flow-run execute
+        command: uv run --package control__model_freshness -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
