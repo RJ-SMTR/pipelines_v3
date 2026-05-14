@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.0.9] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [2.0.8] - 2026-05-13
 
 ### Alterado
