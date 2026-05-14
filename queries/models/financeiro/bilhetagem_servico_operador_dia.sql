@@ -17,7 +17,8 @@ with
             date(datetime_fim_validade) as data_fim_validade,
             id_servico_jae,
             servico_jae,
-            descricao_servico_jae
+            descricao_servico_jae,
+
         from {{ ref("aux_servico_jae") }}
         qualify
             row_number() over (
@@ -26,36 +27,14 @@ with
             )
             = 1
     ),
-    operadora_historico as (
-        select date(datetime_inicio_validade) as data_inicio_validade, *
-        from {{ ref("operadora_historico") }}
-        qualify
-            row_number() over (
-                partition by id_operadora_jae, date(datetime_inicio_validade)
-                order by datetime_inicio_validade desc
-            )
-            = 1
-    ),
-    operadora_historico_fim_validade as (
-        select
-            *,
-            lead(data_inicio_validade) over (
-                partition by id_operadora_jae order by data_inicio_validade
-            ) as data_fim_validade
-        from operadora_historico
-    ),
     ordem_pagamento as (
         select
             r.data_ordem,
             r.id_ordem_ressarcimento as id_ordem_pagamento_servico_operador_dia,
             dc.id_consorcio,
             dc.consorcio,
-            coalesce(
-                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
-            ) as id_operadora,
-            coalesce(
-                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
-            ) as operadora,
+            do.id_operadora,
+            do.operadora,
             l.id_servico_jae,
             l.servico_jae,
             l.descricao_servico_jae,
@@ -95,18 +74,7 @@ with
             {{ ref("staging_ordem_rateio") }} rat using (
                 data_ordem, id_consorcio, id_operadora, id_linha
             )
-        left join
-            {{ ref("operadoras") }} as do
-            on r.id_operadora = do.id_operadora_jae
-            and i.data_ordem < "{{ var('data_inicial_operadora_historico') }}"
-        left join
-            operadora_historico_fim_validade oh
-            on o.id_operadora = oh.id_operadora_jae
-            and o.data_ordem >= "{{ var('data_inicial_operadora_historico') }}"
-            and o.data_ordem >= oh.data_inicio_validade
-            and (
-                o.data_ordem < oh.data_fim_validade or oh.datetime_fim_validade is null
-            )
+        left join {{ ref("operadoras") }} as do on r.id_operadora = do.id_operadora_jae
         left join {{ ref("consorcios") }} as dc on r.id_consorcio = dc.id_consorcio_jae
         left join
             aux_servico l
