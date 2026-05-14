@@ -1,13 +1,8 @@
-{% test test_completude_temperatura(model) %}
+{% test test_completude_temperatura(model, expected_qtd=24) %}
     {% set data_fim_ajustada %}
-        if(
-            date_diff(
-                date('{{ var("date_range_end") }}'),
-                date('{{ var("date_range_start") }}'),
-                day
-            ) = 1,
-            date_sub(date('{{ var("date_range_end") }}'), interval 1 day),
-            date('{{ var("date_range_end") }}')
+        least(
+            date('{{ var("date_range_end") }}'),
+            date_sub(current_date('America/Sao_Paulo'), interval 1 day)
         )
     {% endset %}
 
@@ -34,5 +29,5 @@
     select e.data, v.qtd
     from datas_esperadas e
     left join validation v using (data)
-    where v.qtd is null or v.qtd != 24
+    where v.qtd is null or v.qtd != {{ expected_qtd }}
 {% endtest %}
