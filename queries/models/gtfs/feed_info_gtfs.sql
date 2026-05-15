@@ -41,7 +41,7 @@ WITH feed_info AS (
   SELECT
     feed_version,
     feed_start_date,
-    DATE_SUB(LEAD(DATE(feed_version)) OVER (ORDER BY feed_version), INTERVAL 1 DAY) AS feed_end_date,
+    DATE_SUB(LEAD(DATE(feed_start_date)) OVER (ORDER BY feed_start_date), INTERVAL 1 DAY) AS feed_end_date,
     feed_publisher_name,
     feed_publisher_url,
     feed_lang,
