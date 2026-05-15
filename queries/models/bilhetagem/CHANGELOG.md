@@ -1,5 +1,11 @@
 # Changelog - bilhetagem
 
+## [3.3.8] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` nos modelos `integracao.sql`, `transacao.sql` e `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [3.3.7] - 2026-03-23
 
 ### Alterado

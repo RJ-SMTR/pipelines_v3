@@ -110,11 +110,8 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-      - name: id_operadora
-        description: "Identificador único do operador, podendo ser o código de permissionário ou código da Jaé"
-        data_type: string
-      - name: operadora
-        description: "Nome do operador [mascarado quando o operador é pessoa física]"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
         data_type: string
       - name: servico
         description: "Nome do serviço consolidado. Para linhas, é o nome curto da linha [ex: 010, 011SN]. E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé. [Caso o registro não exista no GTFS, busca o serviço na base de dados da Jaé]"
@@ -375,22 +372,8 @@ models:
     columns:
       - name: id_device_operadora
         description: "Identificador do relacionamento entre o validador da Jaé e a operadora de transporte"
-      - name: modo
-        description: "{{ doc('modo_operadora') }}"
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
-      - name: operadora
-        description: "{{ doc('nome_operadora') }} [mascarado quando o operador é pessoa física]"
-      - name: operadora_completo
-        description: "{{ doc('nome_operadora') }} [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: tipo_documento
-        description: "{{ doc('tipo_documento_operadora') }}"
-      - name: documento
-        description: "{{ doc('documento_operadora') }}"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
       - name: datetime_inicio_validade
         description: "Data e hora do início da vinculação entre a operadora de transporte e o validador da Jaé"
       - name: datetime_fim_validade
