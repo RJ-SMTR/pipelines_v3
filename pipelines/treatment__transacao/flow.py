@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Flow de materialização dos dados de transação
+
+DBT: 2026-05-14
+"""
+
 from datetime import time
 from typing import Optional
 
