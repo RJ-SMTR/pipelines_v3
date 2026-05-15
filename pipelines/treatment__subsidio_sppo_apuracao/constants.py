@@ -54,9 +54,7 @@ PRE_CHECKS_LIST = {
         },
     },
     "sppo_veiculo_dia": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__data_id_veiculo__sppo_veiculo_dia": {
             "description": "Todos os registros são únicos"
         },
@@ -65,9 +63,7 @@ PRE_CHECKS_LIST = {
         },
     },
     "veiculo_dia": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
             "description": "Todas as datas possuem dados"
         },
@@ -76,17 +72,13 @@ PRE_CHECKS_LIST = {
         },
     },
     "tecnologia_servico": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__tecnologia_servico": {
             "description": "Todos os registros são únicos"
         },
     },
     "viagem_planejada": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
@@ -105,9 +97,7 @@ PRE_CHECKS_LIST = {
 }
 
 POST_TEST_V8_SELECT = "dashboard_subsidio_sppo"
-POST_TEST_V9_SELECT = (
-    "viagens_remuneradas sumario_servico_dia_pagamento valor_km_tipo_viagem"
-)
+POST_TEST_V9_SELECT = "viagens_remuneradas sumario_servico_dia_pagamento valor_km_tipo_viagem"
 POST_TEST_V14_SELECT = (
     "viagem_classificada viagem_regularidade_temperatura viagens_remuneradas"
     " sumario_faixa_servico_dia_pagamento valor_km_tipo_viagem"
@@ -115,17 +105,13 @@ POST_TEST_V14_SELECT = (
 
 POST_CHECKS_LIST = {
     "sumario_faixa_servico_dia_pagamento": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__sumario_faixa_servico_dia_pagamento": {
             "description": "Todos os registros são únicos"
         },
     },
     "viagens_remuneradas": {
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.unique_combination_of_columns__viagens_remuneradas": {
             "description": "Todas as viagens são únicas"
         },
@@ -134,25 +120,19 @@ POST_CHECKS_LIST = {
         "date_overlap_tipo_viagem": {
             "description": "Todos os períodos de vigência não se sobrepõem"
         },
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
     "viagem_classificada": {
         "dbt_utils.unique_combination_of_columns__viagem_classificada": {
             "description": "Todos os registros são únicos"
         },
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
     "viagem_regularidade_temperatura": {
         "dbt_utils.unique_combination_of_columns__viagem_regularidade_temperatura": {
             "description": "Todos os registros são únicos"
         },
-        "not_null": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
-        },
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
 }
 

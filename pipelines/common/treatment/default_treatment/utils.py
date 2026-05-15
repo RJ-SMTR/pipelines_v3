@@ -100,9 +100,7 @@ class DBTTest:
 
         collision = final_dict.keys() & self.additional_vars.keys()
         if collision:
-            raise ValueError(
-                f"Variáveis reservadas não podem ser sobrescritas: {collision}"
-            )
+            raise ValueError(f"Variáveis reservadas não podem ser sobrescritas: {collision}")
 
         return final_dict | self.additional_vars
 
@@ -127,12 +125,8 @@ class DBTTest:
         adjusted_end = adjusted_end - timedelta(days=self.delay_days_end)
 
         if self.truncate_date:
-            adjusted_start = adjusted_start.replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
-            adjusted_end = adjusted_end.replace(
-                hour=23, minute=59, second=59, microsecond=0
-            )
+            adjusted_start = adjusted_start.replace(hour=0, minute=0, second=0, microsecond=0)
+            adjusted_end = adjusted_end.replace(hour=23, minute=59, second=59, microsecond=0)
 
         return adjusted_start, adjusted_end
 
@@ -171,9 +165,7 @@ class DBTSelector:
         self.incremental_delay_hours = incremental_delay_hours
         self.initial_datetime = convert_timezone(initial_datetime)
         self.final_datetime = (
-            final_datetime
-            if final_datetime is None
-            else convert_timezone(final_datetime)
+            final_datetime if final_datetime is None else convert_timezone(final_datetime)
         )
         self.redis_key_suffix = redis_key_suffix
         self.schedule_cron = self._get_schedule_cron()
@@ -212,8 +204,7 @@ class DBTSelector:
         else:
             flow_name = self.flow_folder_name
             flow_folder_path = (
-                Path(constants.__file__).resolve().parent.parent.parent.parent
-                / flow_name
+                Path(constants.__file__).resolve().parent.parent.parent.parent / flow_name
             )
 
         with (flow_folder_path / "prefect.yaml").open("r") as f:
@@ -277,16 +268,12 @@ class DBTSelector:
             raise ValueError("O selector não possui agendamento")
         last_materialization = self.get_last_materialized_datetime(env=env)
 
-        last_schedule = cron_get_last_date(
-            cron_expr=self.schedule_cron, timestamp=timestamp
-        )
+        last_schedule = cron_get_last_date(cron_expr=self.schedule_cron, timestamp=timestamp)
 
         if self.final_datetime is not None:
             last_schedule = min(last_schedule, self.final_datetime)
 
-        return last_materialization >= last_schedule - timedelta(
-            hours=self.incremental_delay_hours
-        )
+        return last_materialization >= last_schedule - timedelta(hours=self.incremental_delay_hours)
 
     def get_next_schedule_datetime(self, timestamp: datetime) -> datetime:
         """
@@ -384,20 +371,14 @@ class DBTSelectorMaterializationContext:
         )
 
         is_test_scheduled_time = (
-            force_test_run
-            or test_scheduled_time is None
-            or timestamp.time() == test_scheduled_time
+            force_test_run or test_scheduled_time is None or timestamp.time() == test_scheduled_time
         ) and self.should_run
 
         self.should_run_pre_test = (
-            selector.pre_test is not None
-            and is_test_scheduled_time
-            and not skip_pre_test
+            selector.pre_test is not None and is_test_scheduled_time and not skip_pre_test
         )
 
-        self.should_run_post_test = (
-            selector.post_test is not None and is_test_scheduled_time
-        )
+        self.should_run_post_test = selector.post_test is not None and is_test_scheduled_time
 
         self.pre_test_dbt_vars = (
             selector.pre_test.get_test_vars(
@@ -471,10 +452,7 @@ class DBTSelectorMaterializationContext:
 
         datetime_end = convert_timezone(timestamp=datetime_end)
 
-        if (
-            self.selector.final_datetime is not None
-            and datetime_end > self.selector.final_datetime
-        ):
+        if self.selector.final_datetime is not None and datetime_end > self.selector.final_datetime:
             return self.selector.final_datetime
 
         return datetime_end
@@ -639,9 +617,7 @@ def run_dbt_tests(
         datetime_end=datetime_end,
         partitions=partitions,
     )
-    log = run_dbt(
-        dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False
-    )
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
 
     return log, dbt_vars
 
@@ -696,8 +672,7 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
 
             if (
                 path is not None
-                and "compiled code at"
-                in log_line_json.get("info", {}).get("msg", "").lower()
+                and "compiled code at" in log_line_json.get("info", {}).get("msg", "").lower()
             ):
                 filepath = queries_path / Path(os.path.relpath(path, queries_path))
                 filepath = filepath.resolve()
@@ -768,21 +743,14 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     checks_results = parse_dbt_test_output(dbt_logs)
 
-    webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[
-        webhook_key
-    ]
+    webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
     additional_mentions = additional_mentions or []
     mentions = [*additional_mentions, "dados_smtr"]
     mention_tags = "".join(
-        [
-            f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n"
-            for m in mentions
-        ]
+        [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(
-        test["result"] in ("PASS", "WARN") for test in checks_results.values()
-    )
+    test_check = all(test["result"] in ("PASS", "WARN") for test in checks_results.values())
     has_warn = any(test["result"] == "WARN" for test in checks_results.values())
 
     keys = [
@@ -865,12 +833,10 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
                 if table_name in key:
                     for existing_test_id, test_info in value.items():
                         if existing_test_id in test_id:
-                            column = (
-                                test_id.split("__")[1] if "__" in test_id else test_id
+                            column = test_id.split("__")[1] if "__" in test_id else test_id
+                            matched_description = test_info.get("description", test_id).replace(
+                                "{column_name}", column
                             )
-                            matched_description = test_info.get(
-                                "description", test_id
-                            ).replace("{column_name}", column)
                             break
                     if matched_description:
                         break
@@ -887,11 +853,11 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     formatted_messages.append("\n")
     if not test_check:
-        status_message = ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-    elif has_warn:
         status_message = (
-            ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
+            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
         )
+    elif has_warn:
+        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
     else:
         status_message = ":tada: **Status:** Sucesso"
     formatted_messages.append(status_message)

@@ -162,9 +162,7 @@ def wait_data_sources(
                 )
 
             else:
-                raise NotImplementedError(
-                    f"Espera por fontes do tipo {type(ds)} não implementada"
-                )
+                raise NotImplementedError(f"Espera por fontes do tipo {type(ds)} não implementada")
 
             print(f"Checando dados do {type(ds)} {name}")
             if not complete:
