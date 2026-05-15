@@ -8,7 +8,8 @@ on:
     paths:
       - Dockerfile
       - uv.lock
-      - queries/**
+      - queries/packages.yml
+      - queries/dbt_project.yml
       - .github/workflows/build-and-push-root-image.yaml
   workflow_dispatch:
 env:
