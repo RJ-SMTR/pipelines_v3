@@ -154,9 +154,13 @@ with
             m.modo,
             dc.id_consorcio,
             dc.consorcio,
-            do.id_operadora,
+            coalesce(
+                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
             i.id_operadora as id_operadora_jae,
-            do.operadora,
+            coalesce(
+                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
             l.id_servico_jae,
             l.servico_jae,
             l.descricao_servico_jae,
@@ -177,10 +181,20 @@ with
         from integracao_melt i
         left join
             {{ ref("modos") }} m on i.id_tipo_modal = m.id_modo and m.fonte = "jae"
-        left join {{ ref("operadoras") }} do on i.id_operadora = do.id_operadora_jae
-        {# `rj-smtr.cadastro.operadoras` do on i.id_operadora = do.id_operadora_jae #}
+        left join
+            {{ ref("operadoras") }} do
+            on i.id_operadora = do.id_operadora_jae
+            and i.data < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            {{ ref("operadora_historico") }} oh
+            on i.id_operadora = oh.id_operadora_jae
+            and i.data >= "{{ var('data_inicial_operadora_historico') }}"
+            and i.datetime_transacao >= oh.datetime_inicio_validade
+            and (
+                i.datetime_transacao < oh.datetime_fim_validade
+                or oh.datetime_fim_validade is null
+            )
         left join {{ ref("consorcios") }} dc on i.id_consorcio = dc.id_consorcio_jae
-        {# `rj-smtr.cadastro.consorcios` dc on i.id_consorcio = dc.id_consorcio_jae #}
         left join
             {{ ref("aux_servico_jae") }} l
             on i.id_linha = l.id_servico_jae
