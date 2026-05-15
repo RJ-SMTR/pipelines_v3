@@ -195,7 +195,9 @@ async def get_changed_directories(package_dir: Path, sha: str) -> list[Path]:
 
         # Check if any changed file is in the queries directory
         if any(Path("queries") in p.parents for p in changed_paths):
-            logging.info("Changes detected in `queries/` directory. Identifying dbt-dependent pipelines...")
+            logging.info(
+                "Changes detected in `queries/` directory. Identifying dbt-dependent pipelines..."
+            )
             dbt_pipelines = []
             for pipeline_dir in package_dir.iterdir():
                 if not pipeline_dir.is_dir():
@@ -205,7 +207,9 @@ async def get_changed_directories(package_dir: Path, sha: str) -> list[Path]:
                     dbt_pipelines.append(pipeline_dir)
 
             if dbt_pipelines:
-                logging.info(f"Adding {len(dbt_pipelines)} dbt-dependent pipelines to deployment list.")
+                logging.info(
+                    f"Adding {len(dbt_pipelines)} dbt-dependent pipelines to deployment list."
+                )
                 changed_dirs.update(dbt_pipelines)
 
         return list(changed_dirs)
