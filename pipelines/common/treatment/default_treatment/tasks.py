@@ -162,7 +162,9 @@ def wait_data_sources(
                 )
 
             else:
-                raise NotImplementedError(f"Espera por fontes do tipo {type(ds)} não implementada")
+                raise NotImplementedError(
+                    f"Espera por fontes do tipo {type(ds)} não implementada"
+                )
 
             print(f"Checando dados do {type(ds)} {name}")
             if not complete:
@@ -281,7 +283,9 @@ def task_dbt_selector_test_notify_discord(
 
 
 @task(cache_policy=NO_CACHE)
-def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializationContext]):
+def save_materialization_datetime_redis(
+    contexts: list[DBTSelectorMaterializationContext],
+):
     """
     Salva no Redis o datetime da última materialização do selector.
 
@@ -289,6 +293,9 @@ def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializatio
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
     """
     for context in contexts:
-        context.selector.set_redis_materialized_datetime(
-            env=context.env, timestamp=context.datetime_end
-        )
+        try:
+            context.selector.set_redis_materialized_datetime(
+                env=context.env, timestamp=context.datetime_end
+            )
+        except Exception as e:
+            print(f"Erro ao salvar timestamp no Redis: {e}")

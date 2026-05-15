@@ -6,7 +6,7 @@ Migrado de pipelines_rj_smtr (Prefect 1.4) — `subsidio_sppo_apuracao`.
 Executa selectors V8/V9/monitoramento conforme range de datas, snapshot final
 e pré-checagem de captura de dados da Jaé.
 
-Common: 2026-05-14
+Common: 2026-05-15
 """
 
 from typing import Optional
