@@ -10,6 +10,14 @@ from pipelines.capture.jae.flows import (
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
 )
+from pipelines.capture__jae_auxiliar import flow
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    initialize_sentry,
+    setup_environment,
+)
+from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
 from pipelines.tasks import (
     get_scheduled_timestamp,
     parse_timestamp_to_string,
@@ -26,15 +34,6 @@ from pipelines.treatment.financeiro.flows import (
     FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
     ordem_pagamento_quality_check,
 )
-
-from pipelines.capture__jae_auxiliar import flow
-from pipelines.common.tasks import (
-    get_run_env,
-    get_scheduled_timestamp,
-    initialize_sentry,
-    setup_environment,
-)
-from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
 
 sources = jae_constants.sources
 
