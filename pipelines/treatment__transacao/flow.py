@@ -2,7 +2,7 @@
 """
 Flow de materialização dos dados de transação
 
-DBT: 2026-05-14
+DBT: 2026-05-15
 """
 
 from datetime import time
