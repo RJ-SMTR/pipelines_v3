@@ -3,9 +3,8 @@
 
 from datetime import datetime
 
-from prefect import task
-
 from pipelines.capture.jae.constants import constants as jae_constants
+from prefect import task
 
 
 @task

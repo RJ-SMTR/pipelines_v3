@@ -5,18 +5,10 @@ Flows de tratamento dos dados financeiros
 
 from typing import Optional
 
-from pipelines.capture.jae.constants import constants as jae_constants
 from pipelines.capture.jae.flows import (
     CAPTURA_INTEGRACAO,
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
-)
-from pipelines.capture__jae_auxiliar import flow
-from pipelines.common.tasks import (
-    get_run_env,
-    get_scheduled_timestamp,
-    initialize_sentry,
-    setup_environment,
 )
 from pipelines.tasks import (
     get_scheduled_timestamp,
@@ -35,7 +27,16 @@ from pipelines.treatment.financeiro.flows import (
     ordem_pagamento_quality_check,
 )
 
-sources = jae_constants.ORDEM_PAGAMENTO_SOURCES
+from pipelines.capture__jae_auxiliar import flow
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    initialize_sentry,
+    setup_environment,
+)
+from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
+
+sources = jae_constants.sources
 
 
 @flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
