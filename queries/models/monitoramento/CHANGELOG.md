@@ -4,6 +4,7 @@
 
 ### Alterado
 
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
 - Ajusta `test_completude_temperatura` para aceitar parâmetro `expected_qtd` (default 24) e define 96 para `temperatura_alertario`. Substitui lógica de `data_fim_ajustada` por `least(date_range_end, ontem)` em `test_completude_temperatura` e `test_completude_temperatura_inmet` para evitar falso negativo no dia corrente sem perder cobertura em reprocessamentos. (https://github.com/RJ-SMTR/pipelines_v3/pull/183)
 
 ### Adicionado
