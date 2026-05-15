@@ -1,5 +1,11 @@
 # Changelog - gtfs
 
+## [1.3.8] - 2026-05-15
+
+### Alterado
+
+- Atualiza calculo do `feed_end_date` no modelo `feed_info_gtfs` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/189)
+
 ## [1.3.7] - 2026-01-08
 
 ### Adicionado
