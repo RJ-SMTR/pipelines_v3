@@ -231,7 +231,7 @@ with
                 or s.datetime_fim_validade is null
             )
         left join {{ ref("staging_produto") }} p on t.id_produto = p.cd_produto
-        left join {{ ref("cliente_jae") }} c using (id_cliente)
+        left join {{ ref("cliente_jae") }} c on t.id_cliente = c.id_cliente
         left join tipo_transacao tt on tt.id_tipo_transacao = t.tipo_transacao
         left join tipo_pagamento tp on t.id_tipo_midia = tp.id_tipo_pagamento
         left join
