@@ -2,7 +2,7 @@
 """
 Flow de materialização das viagens do SPPO
 
-Common: 2026-05-15
+Common 2026-05-15
 """
 
 from typing import Optional
