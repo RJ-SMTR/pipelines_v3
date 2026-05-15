@@ -2,6 +2,7 @@
 """
 Flows de tratamento dos dados financeiros
 """
+
 from typing import Optional
 
 from pipelines.capture.jae.constants import constants as jae_constants
@@ -9,6 +10,13 @@ from pipelines.capture.jae.flows import (
     CAPTURA_INTEGRACAO,
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
+)
+from pipelines.capture__jae_auxiliar import flow
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    initialize_sentry,
+    setup_environment,
 )
 from pipelines.tasks import (
     get_scheduled_timestamp,
@@ -27,22 +35,11 @@ from pipelines.treatment.financeiro.flows import (
     ordem_pagamento_quality_check,
 )
 
-from pipelines.capture__jae_auxiliar import flow
-from pipelines.common.tasks import (
-    get_run_env,
-    get_scheduled_timestamp,
-    initialize_sentry,
-    setup_environment,
-)
-
 sources = jae_constants.ORDEM_PAGAMENTO_SOURCES
 
 
 @flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
-def ordem_atrasada(
-    timestamp: str | None = None,
-    env: Optional[str] = None
-):
+def ordem_atrasada(timestamp: str | None = None, env: Optional[str] = None):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
 
     sentry = initialize_sentry(env=env)
