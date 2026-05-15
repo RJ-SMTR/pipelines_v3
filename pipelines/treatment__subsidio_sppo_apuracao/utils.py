@@ -48,8 +48,8 @@ def wait_jae_capture_gaps(  # noqa: PLR0913
         A task `raise_on_gaps` (gate para `tasks_wait_for`).
     """
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
-    sentry = initialize_sentry(env=env)
-    setup_environment(env=env, wait_for=[sentry])
+    sentry = initialize_sentry(env=env_task)
+    setup_environment(env=env_task, wait_for=[sentry])
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
 
     ts_start, ts_end = jae_capture_check_get_ts_range(
