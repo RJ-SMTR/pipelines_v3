@@ -4,7 +4,7 @@ Flow de materialização de dados cadastrais
 
 Executa o selector DBT 'cadastro' para materializar dados no BigQuery.
 
-DBT: 2026-05-06
+DBT: 2026-05-14
 """
 
 from pipelines.common.treatment.default_treatment.flow import (
