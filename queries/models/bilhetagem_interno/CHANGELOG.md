@@ -1,5 +1,11 @@
 # Changelog - bilhetagem_interno
 
+## [1.3.1] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_transacao_erro_completa.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [1.3.0] - 2026-03-04
 
 ### Adicionado
