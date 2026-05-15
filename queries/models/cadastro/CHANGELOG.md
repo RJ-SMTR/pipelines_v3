@@ -1,5 +1,11 @@
 # Changelog - cadastro
 
+## [1.8.1] - 2026-05-14
+
+### Removido
+
+- Remove join com dados de operador dos modelos `servico_operadora.sql` e `validador_operadora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [1.8.0] - 2026-05-05
 
 ### Adicionado

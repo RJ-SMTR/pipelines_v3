@@ -205,6 +205,7 @@ vars:
   ### Bilhetagem ###
   var_percentual_tarifa_cbd: 0.04
   quantidade_integracoes_max: 5
+  data_inicial_operadora_historico: "2026-05-12"
   colunas_integracao: {
     "data_transacao": {"type": "DATETIME", "select": true},
     "id_aplicacao": {"type": "ID", "select": false},
@@ -213,7 +214,7 @@ vars:
     "id_linha": {"type": "ID", "select": true},
     "id_matriz_integracao": {"type": "ID", "select": false},
     "id_operadora": {"type": "ID", "select": true},
-    "id_ordem_rateio": {"type": "ID", "select": false},
+    "id_ordem_rateio": {"type": "ID", "select": true},
     "id_secao": {"type": "STRING", "select": false},
     "id_servico": {"type": "ID", "select": false},
     "id_tipo_modal": {"type": "ID", "select": true},
@@ -229,7 +230,6 @@ vars:
     "valor_tarifa": {"type": "FLOAT64", "select": true},
     "valor_transacao": {"type": "FLOAT64", "select": true},
     "veiculo_id": {"type": "ID", "select": false},
-    "id_ordem_rateio": {"type": "ID", "select": true},
   }
 
   ### Diretorios ###

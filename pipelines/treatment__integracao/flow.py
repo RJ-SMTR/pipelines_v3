@@ -4,7 +4,7 @@ Flow de materialização das integrações
 
 Executa o selector DBT 'integracao' para materializar dados no BigQuery.
 
-DBT: 2026-03-31
+DBT: 2026-05-14
 """
 
 from pipelines.common.treatment.default_treatment.flow import (
