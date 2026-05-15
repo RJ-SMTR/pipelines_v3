@@ -10,7 +10,6 @@ on:
       - uv.lock
       - queries/packages.yml
       - queries/dbt_project.yml
-      - queries/selectors.yml
       - .github/workflows/build-and-push-root-image.yaml
   workflow_dispatch:
 env:
