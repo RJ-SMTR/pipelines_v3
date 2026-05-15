@@ -715,6 +715,5 @@
             data between i.feed_start_date and i.feed_end_date
             or (data >= i.feed_start_date and i.feed_end_date is null)
         )
-        and i.feed_version = d.feed_version
 
 {% endif %}
