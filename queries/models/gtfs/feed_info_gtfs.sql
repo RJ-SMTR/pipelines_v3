@@ -1,47 +1,52 @@
-{{config(
-  materialized='incremental',
-  partition_by = { 'field' :'feed_start_date',
-  'data_type' :'date',
-  'granularity': 'day' },
-  alias = 'feed_info',
-  unique_key = 'feed_start_date',
-  incremental_strategy = 'insert_overwrite'
-)}}
+{{
+    config(
+        materialized="incremental",
+        partition_by={
+            "field": "feed_start_date",
+            "data_type": "date",
+            "granularity": "day",
+        },
+        alias="feed_info",
+        unique_key="feed_start_date",
+        incremental_strategy="insert_overwrite",
+    )
+}}
 
-WITH feed_info AS (
-  SELECT
-    SAFE_CAST(timestamp_captura AS STRING) AS feed_version,
-    SAFE_CAST(data_versao AS DATE) AS feed_start_date,
-    NULL AS feed_end_date,
-    SAFE_CAST(feed_publisher_name AS STRING) feed_publisher_name,
-    SAFE_CAST(JSON_VALUE(content, '$.feed_publisher_url') AS STRING) feed_publisher_url,
-    SAFE_CAST(JSON_VALUE(content, '$.feed_lang') AS STRING) feed_lang,
-    SAFE_CAST(JSON_VALUE(content, '$.default_lang') AS STRING) default_lang,
-    SAFE_CAST(JSON_VALUE(content, '$.feed_contact_email') AS STRING) feed_contact_email,
-    SAFE_CAST(JSON_VALUE(content, '$.feed_contact_url') AS STRING) feed_contact_url,
-    CURRENT_DATETIME("America/Sao_Paulo") AS feed_update_datetime,
-    '{{ var("version") }}' AS versao_modelo
-  FROM
-    {{ source(
-      'br_rj_riodejaneiro_gtfs_staging',
-      'feed_info'
-    ) }}
-  {% if is_incremental() %}
-    WHERE
-      data_versao =  '{{ var("data_versao_gtfs") }}'
-    UNION ALL
-      SELECT
-        *
-      FROM
-        {{ this }}
-      WHERE
-        feed_start_date != DATE('{{ var("data_versao_gtfs") }}')
-  {% endif %}
-  )
-  SELECT
+with
+    feed_info as (
+        select
+            safe_cast(timestamp_captura as string) as feed_version,
+            safe_cast(data_versao as date) as feed_start_date,
+            null as feed_end_date,
+            safe_cast(feed_publisher_name as string) feed_publisher_name,
+            safe_cast(
+                json_value(content, '$.feed_publisher_url') as string
+            ) feed_publisher_url,
+            safe_cast(json_value(content, '$.feed_lang') as string) feed_lang,
+            safe_cast(json_value(content, '$.default_lang') as string) default_lang,
+            safe_cast(
+                json_value(content, '$.feed_contact_email') as string
+            ) feed_contact_email,
+            safe_cast(
+                json_value(content, '$.feed_contact_url') as string
+            ) feed_contact_url,
+            current_datetime("America/Sao_Paulo") as feed_update_datetime,
+            '{{ var("version") }}' as versao_modelo
+        from {{ source("br_rj_riodejaneiro_gtfs_staging", "feed_info") }}
+        {% if is_incremental() %}
+            where data_versao = '{{ var("data_versao_gtfs") }}'
+            union all
+            select *
+            from {{ this }}
+            where feed_start_date != date('{{ var("data_versao_gtfs") }}')
+        {% endif %}
+    )
+select
     feed_version,
     feed_start_date,
-    DATE_SUB(LEAD(DATE(feed_version)) OVER (ORDER BY feed_version), INTERVAL 1 DAY) AS feed_end_date,
+    date_sub(
+        lead(date(feed_start_date)) over (order by feed_start_date), interval 1 day
+    ) as feed_end_date,
     feed_publisher_name,
     feed_publisher_url,
     feed_lang,
@@ -50,5 +55,4 @@ WITH feed_info AS (
     feed_contact_url,
     feed_update_datetime,
     versao_modelo
-  FROM
-    feed_info
+from feed_info
