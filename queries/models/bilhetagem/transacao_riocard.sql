@@ -57,9 +57,9 @@ with
             l.descricao_servico_jae,
             t.sentido,
             case
-                when ifnull(do.modo, dc.modo, oh.modo_jae) = "VLT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "VLT"
                 then substring(t.veiculo_id, 1, 3)
-                when ifnull(do.modo, dc.modo, oh.modo_jae) = "BRT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "BRT"
                 then null
                 else t.veiculo_id
             end as id_veiculo,
