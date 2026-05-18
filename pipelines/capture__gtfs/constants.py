@@ -40,7 +40,7 @@ GTFS_TABLE_CAPTURE_PARAMS = {
 GTFS_DBT_EXCLUDE = (
     "calendario aux_calendario_manual "
     "matriz_integracao tecnologia_servico aux_ordem_servico_faixa_horaria "
-    "servico_planejado_faixa_horaria matriz_reparticao_tarifaria aux_segmento_shape "
+    "servico_planejado_faixa_horaria matriz_reparticao_tarifaria"
 )
 
 GTFS_DBT_TEST_EXCLUDE = (
