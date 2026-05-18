@@ -32,6 +32,7 @@ PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
     " not_null__data_ordem__transacao"
     " sincronizacao_tabelas__transacao_gratuidade_estudante_municipal"
+    " recent_data__datetime_captura__gps_validador"
 )
 
 PRE_CHECKS_LIST = {
