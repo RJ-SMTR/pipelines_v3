@@ -164,7 +164,7 @@ dependencies = [
     "sentry-sdk==2.53.0",
     "setuptools==82.0.0",
     "sgqlc==18.0",
-    "shandy-sqlfmt==0.29.0",
+    "shandy-sqlfmt[jinjafmt]==0.29.0",
     "shapely==2.1.1",
     "shellingham==1.5.4",
     "six==1.17.0",
@@ -199,8 +199,8 @@ exclude = ["pipelines/__pycache__"]
 
 [dependency-groups]
 dev = [
-    "prefect-docker>=0.6.5",
-    "ruff>=0.15.4",
+    "prefect-docker==0.6.6",
+    "ruff==0.15.4",
 ]
 
 [tool.ruff]

@@ -2180,7 +2180,7 @@ dependencies = [
     { name = "sentry-sdk" },
     { name = "setuptools" },
     { name = "sgqlc" },
-    { name = "shandy-sqlfmt" },
+    { name = "shandy-sqlfmt", extra = ["jinjafmt"] },
     { name = "shapely" },
     { name = "shellingham" },
     { name = "six" },
@@ -2376,7 +2376,7 @@ requires-dist = [
     { name = "sentry-sdk", specifier = "==2.53.0" },
     { name = "setuptools", specifier = "==82.0.0" },
     { name = "sgqlc", specifier = "==18.0" },
-    { name = "shandy-sqlfmt", specifier = "==0.29.0" },
+    { name = "shandy-sqlfmt", extras = ["jinjafmt"], specifier = "==0.29.0" },
     { name = "shapely", specifier = "==2.1.1" },
     { name = "shellingham", specifier = "==1.5.4" },
     { name = "six", specifier = "==1.17.0" },
@@ -2407,8 +2407,8 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "prefect-docker", specifier = ">=0.6.5" },
-    { name = "ruff", specifier = ">=0.15.4" },
+    { name = "prefect-docker", specifier = "==0.6.6" },
+    { name = "ruff", specifier = "==0.15.4" },
 ]
 
 [[package]]
@@ -3177,6 +3177,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b8/df/7302d0919664eb3bbb157c2c0cc1cb4ac63cf15ee832a7cb14488b08be2a/shandy_sqlfmt-0.29.0.tar.gz", hash = "sha256:0aad53fa4e77926645dbd19c2e0b3b8ca650b29d0ea16f7e7a5d4c0e410c5560", size = 70789, upload-time = "2026-01-12T17:36:25.527Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d3/86/c1772c879c5d8ff5a1b2754e5c891b3f2ada402f2bb7a8c181dfb0f290b9/shandy_sqlfmt-0.29.0-py3-none-any.whl", hash = "sha256:8c02cd47eb08a14fca6d1963ae71b8c5fa1f80edafc451a46ca98707542ed031", size = 71825, upload-time = "2026-01-12T17:36:23.83Z" },
+]
+
+[package.optional-dependencies]
+jinjafmt = [
+    { name = "black" },
 ]
 
 [[package]]
