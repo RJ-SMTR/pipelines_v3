@@ -1,5 +1,11 @@
 # Changelog - capture__zirix_registros
 
+## [1.1.1] - 2026-05-18
+
+### Adicionado
+
+- Adiciona schedule inativo de recaptura a cada 15 minutos (https://github.com/RJ-SMTR/pipelines_v3/pull/193)
+
 ## [1.1.0] - 2026-04-27
 
 ### Alterado
