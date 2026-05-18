@@ -56,8 +56,8 @@ select
         when m.situacao = 'PG' then 'Pago'
         when m.situacao = 'E' then 'Em Parcelamento'
         when m.situacao = 'PR' then 'Prescrita'
-        when m.situacao = 'T' then 'Transferida'                                          
-        when m.situacao = 'PD' then 'Decurso de Prazo'                                          
+        when m.situacao = 'T' then 'Transferida'
+        when m.situacao = 'PD' then 'Decurso de Prazo'
      else m.situacao end as situacao,
     m.situacao as status,
     d.data_pagamento,
