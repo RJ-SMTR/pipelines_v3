@@ -17,7 +17,7 @@ SUBSIDIO_INITIAL_DATETIME = datetime(2022, 6, 1, 0, 0, 0, tzinfo=TZ)
 
 INCREMENTAL_DELAY_HOURS = 24 * 7  # D-7
 
-TABLE_IDS_JAE = []
+TABLE_IDS_JAE = ["transacao", "transacao_riocard", "gps_validador"]
 
 WEBHOOK_KEY = "subsidio_data_check"
 
