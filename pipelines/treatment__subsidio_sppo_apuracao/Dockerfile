@@ -10,6 +10,8 @@ COPY ./pipelines/treatment__subsidio_sppo_apuracao ./pipelines/treatment__subsid
 
 COPY ./pipelines/control__jae_verificacao_captura ./pipelines/control__jae_verificacao_captura/
 
+COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 COPY ./queries ./queries
