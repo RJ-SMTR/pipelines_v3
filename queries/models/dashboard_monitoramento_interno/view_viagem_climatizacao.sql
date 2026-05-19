@@ -7,9 +7,15 @@
 with
 
     validador as (
-        select operadora, id_validador, datetime_inicio_validade, datetime_fim_validade
-        from {{ ref("validador_operadora") }}
-    ),
+    select 
+        v.id_validador,
+        v.datetime_inicio_validade,
+        v.datetime_fim_validade,
+        o.operadora
+    from {{ ref("validador_operadora") }} v
+    left join {{ ref("operadoras") }} o
+        on v.id_operadora_jae  = o.id_validador
+),
     viagem as (
         select
             data,
