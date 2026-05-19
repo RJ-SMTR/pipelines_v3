@@ -1,5 +1,11 @@
 # Changelog - dashboard_monitoramento_interno
 
+## [1.0.4] - 2026-05-19
+
+### Alterado
+
+- Refatora o modelo `view_viagem_climatizacao.sql` para consultar os dados de `operadora` na view `operadoras` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/195)
+
 ## [1.0.3] - 2026-04-17
 
 ### Alterado
