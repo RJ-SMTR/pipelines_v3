@@ -19,7 +19,7 @@ async def run_subflow(
 ):
     parameters = parameters or [{}]
     flow_name = flow.name
-    flow_type, pipeline = flow_name.split("__", maxsplit=1)
+    flow_type, pipeline = flow_name.split("--", maxsplit=1)
     flow_env = "prod" if env == "prod" else "staging"
     deployment_name = f"rj-{flow_type}--{pipeline}--{flow_env}" or deployment_name
 
