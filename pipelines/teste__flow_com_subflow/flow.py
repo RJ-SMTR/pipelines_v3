@@ -41,19 +41,23 @@ async def run_subflow(
 @flow(log_prints=True)
 async def teste__flow_com_subflow():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
-    subflow1 = await run_subflow(
+
+    subflow1 = run_subflow.submit(
         env=env, flow=teste__subflow, parameters=[{"seconds": 1}, {"seconds": 2}, {"seconds": 3}]
     )
 
-    subflow2 = await run_subflow(
+    await subflow1.wait()
+
+    subflow2 = run_subflow.submit(
         env=env,
         flow=teste__subflow,
         parameters=[{"seconds": 10}, {"seconds": 10}, {"seconds": 10}],
         maximum_parallelism=2,
-        wait_for=[subflow1],
     )
 
-    subflow3 = await run_subflow(
+    await subflow2.wait()
+
+    subflow3 = run_subflow.submit(
         env=env,
         flow=teste__subflow,
         parameters=[
@@ -61,8 +65,9 @@ async def teste__flow_com_subflow():
                 "fail": True,
             }
         ],
-        wait_for=[subflow2],
     )
+
+    await subflow3.wait()
 
     await run_subflow(
         env=env,
