@@ -58,8 +58,7 @@ select
         when m.situacao = 'PR' then 'Prescrita'
         when m.situacao = 'T' then 'Transferida'
         when m.situacao = 'PD' then 'Decurso de Prazo'
-     else m.situacao end as situacao,
-    m.situacao as status,
+     else m.situacao end as status,
     d.data_pagamento,
     m.datetime_captura as timestamp_captura
 from multa m
