@@ -72,5 +72,4 @@ async def teste__flow_com_subflow():
     await run_subflow(
         env=env,
         flow=teste__subflow,
-        wait_for=[subflow3],
     )
