@@ -1,10 +1,22 @@
 # Changelog - planejamento
 
-## [1.7.0] - 2026-05-04
+## [1.7.1] - 2026-05-04
 
 ### Alterado
 
 - Alterado o `tipo_dia` no modelo `aux_calendario_manual.sql` de `2024-04-24` -> `Ponto Facultativo` conforme DECRETO RIO Nº 57867 DE 13 DE ABRIL DE 2026 (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/145)
+
+## [1.7.0] - 2026-04-22
+
+### Adicionado
+
+- Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+- Refatora modelo `aux_trips_dia` para utilizar trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
+- Exclui `service_id = 'EXCEP'` das viagens planejadas nos modelos `viagem_planejada_planejamento` (frequencies e stop_times) (https://github.com/prefeitura-rio/pipelines_v3/pull/101)
 
 ## [1.6.9] - 2026-03-31
 
