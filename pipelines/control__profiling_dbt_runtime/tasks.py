@@ -1,73 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Tasks de profiling e download de queries em runtime"""
+"""Tasks: download de queries em runtime e execução de dbt com profiling."""
 
 import os
 import shutil
 import subprocess
-import threading
-import time
-from contextlib import contextmanager
+from pathlib import Path
 
-import psutil
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
 from pipelines.common.utils.fs import get_project_root_path
-from pipelines.control__profiling_dbt.constants import (
-    GITHUB_TOKEN_ENV,
-    PROFILE_SAMPLE_INTERVAL,
-)
-
-
-@contextmanager
-def profile_resources(label: str):
-    """
-    Context manager que mede consumo de recursos do processo durante um bloco.
-
-    Amostra RSS e CPU em uma thread de fundo e imprime um relatório ao final.
-
-    Args:
-        label (str): Identificador do bloco medido (aparece no relatório).
-    """
-    process = psutil.Process()
-    process.cpu_percent(None)  # primeira chamada inicializa a medição
-
-    samples: list[tuple[float, float]] = []  # (rss_bytes, cpu_percent)
-    stop = threading.Event()
-
-    def _sampler():
-        while not stop.is_set():
-            try:
-                samples.append((process.memory_info().rss, process.cpu_percent(None)))
-            except psutil.Error:
-                break
-            stop.wait(PROFILE_SAMPLE_INTERVAL)
-
-    sampler = threading.Thread(target=_sampler, daemon=True)
-    wall_start = time.time()
-    cpu_start = sum(process.cpu_times()[:2])  # user + system
-    sampler.start()
-    try:
-        yield
-    finally:
-        stop.set()
-        sampler.join(timeout=5)
-        wall = time.time() - wall_start
-        cpu = sum(process.cpu_times()[:2]) - cpu_start
-        rss_values = [s[0] for s in samples] or [process.memory_info().rss]
-        cpu_values = [s[1] for s in samples if s[1] > 0]
-        mb = 1024 * 1024
-
-        print(f"===== PROFILE [{label}] =====")
-        print(f"wall_time_s      = {wall:.2f}")
-        print(f"cpu_time_s       = {cpu:.2f}")
-        print(f"cpu_avg_percent  = {(sum(cpu_values) / len(cpu_values)) if cpu_values else 0:.1f}")
-        print(f"cpu_max_percent  = {max(cpu_values) if cpu_values else 0:.1f}")
-        print(f"rss_peak_mb      = {max(rss_values) / mb:.1f}")
-        print(f"rss_avg_mb       = {(sum(rss_values) / len(rss_values)) / mb:.1f}")
-        print(f"samples          = {len(samples)}")
-        print("=============================")
+from pipelines.common.utils.profiling import profile_resources
+from pipelines.control__profiling_dbt_runtime.constants import GITHUB_TOKEN_ENV
 
 
 @task(cache_policy=NO_CACHE)
@@ -75,8 +20,8 @@ def fetch_queries(git_repo_url: str, git_ref: str) -> str:
     """
     Baixa apenas a pasta `queries` do repositório em runtime via git sparse-checkout.
 
-    O conteúdo é colocado em `<project_root>/queries`, substituindo qualquer
-    pasta existente, de modo que `run_dbt`/`get_project_root_path` funcionem
+    Coloca o conteúdo em `<project_root>/queries`, substituindo qualquer pasta
+    existente, para que helpers comuns (`get_project_root_path`) funcionem
     sem alteração.
 
     Args:
@@ -144,9 +89,9 @@ def _dbt_runner() -> PrefectDbtRunner:
     os.environ["DBT_TARGET_PATH"] = str(target_path)
     return PrefectDbtRunner(
         settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=project_dir,
-            target_path=target_path,
+            project_dir=Path(project_dir),
+            profiles_dir=Path(project_dir),
+            target_path=Path(target_path),
         ),
         raise_on_failure=True,
     )

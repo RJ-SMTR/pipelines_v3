@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Flows de teste para avaliação de consumo de recursos.
+Flow de teste: baixa a pasta `queries` do repositório em runtime, roda
+`dbt deps` e dbt escrevendo no target `dev`, tudo instrumentado com profiling.
+
+Valida a remoção da pasta `queries` da imagem base — em vez de embutir no
+container, o flow obtém o projeto dbt em runtime.
 
 Common: 2026-05-19
 """
 
 from pipelines.common.tasks import setup_environment
 from pipelines.common.utils.prefect import flow
-from pipelines.control__profiling_dbt.constants import DEFAULT_GIT_REF, GIT_REPO_URL
-from pipelines.control__profiling_dbt.tasks import (
+from pipelines.common.utils.profiling import profile_resources
+from pipelines.control__profiling_dbt_runtime.constants import (
+    DEFAULT_GIT_REF,
+    GIT_REPO_URL,
+)
+from pipelines.control__profiling_dbt_runtime.tasks import (
     fetch_queries,
-    profile_resources,
     run_dbt_deps,
     run_dbt_select,
 )
-
-
-@flow(log_prints=True)
-def control__profiling_baseline():
-    """Flow vazio instrumentado — baseline de consumo de recursos."""
-    with profile_resources("baseline_flow"):
-        print("Flow baseline: nenhuma operação executada.")
 
 
 @flow(log_prints=True)

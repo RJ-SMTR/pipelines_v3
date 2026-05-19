@@ -1,4 +1,4 @@
-name: control__profiling_dbt
+name: control__profiling_dbt_runtime
 prefect-version: 3.4.9
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "control__profiling_dbt-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/control__profiling_dbt/Dockerfile
+      tag: "control__profiling_dbt_runtime-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/control__profiling_dbt_runtime/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,25 +24,14 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-control--profiling-baseline--staging
-    version: "{{ build-image.tag }}"
-    entrypoint: pipelines/control__profiling_dbt/flow.py:control__profiling_baseline
-    work_pool:
-      name: smtr-pool
-      work_queue_name: default
-      job_variables:
-        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package control__profiling_dbt -- prefect flow-run execute
-        secretName: prefect-jobs-secrets-staging
-        image_pull_policy: Always
   - name: rj-control--profiling-dbt-runtime--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/control__profiling_dbt/flow.py:control__profiling_dbt_runtime
+    entrypoint: pipelines/control__profiling_dbt_runtime/flow.py:control__profiling_dbt_runtime
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package control__profiling_dbt -- prefect flow-run execute
+        command: uv run --package control__profiling_dbt_runtime -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
