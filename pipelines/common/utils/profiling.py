@@ -28,11 +28,18 @@ def profile_resources(label: str):
     stop = threading.Event()
 
     def _sampler():
+        first = True
         while not stop.is_set():
             try:
-                samples.append((process.memory_info().rss, process.cpu_percent(None)))
+                rss = process.memory_info().rss
+                cpu = process.cpu_percent(None)
             except psutil.Error:
                 break
+            # Primeira amostra do cpu_percent é ruidosa (janela curta desde a
+            # chamada de inicialização); descarta para não inflar avg/max.
+            if not first:
+                samples.append((rss, cpu))
+            first = False
             stop.wait(PROFILE_SAMPLE_INTERVAL)
 
     sampler = threading.Thread(target=_sampler, daemon=True)
