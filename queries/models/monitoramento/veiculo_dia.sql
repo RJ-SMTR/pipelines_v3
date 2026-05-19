@@ -92,7 +92,7 @@ with
                 )
                 or (
                     data between "2026-05-01" and "2026-05-18"  -- Exceção para tratamento de dados de licenciamento de maio de 2026, devido à falha na captura dos dados de licenciamento e infração no período
-                    and data_processamento between "2026-05-12" and "2026-05-18"
+                    and data_processamento between "2026-05-01" and "2026-05-18"
                 )
             )
             {% if is_incremental() %}
