@@ -1,0 +1,340 @@
+#
+# CI de Documentação Automatizada — Arquitetura Viva da Plataforma de Dados SMTR
+#
+# Repositório fonte: RJ-SMTR/pipelines_v3 (branch: master)
+# Repositório de docs: RJ-SMTR/pipelines-docs (branch: main, MkDocs)
+#
+# Este workflow é adicionado ao repo pipelines_v3.
+# A cada push na master, ele:
+#   1. Indexa o código com GitNexus
+#   2. Extrai graph.json do KuzuDB
+#   3. Compara com o graph.json anterior (no repo de docs)
+#   4. Se houve mudança, chama Claude Sonnet via Vertex AI para propor atualizações
+#   5. Abre um PR no repo pipelines-docs
+#
+
+name: "CI Documentação Automatizada"
+
+on:
+  push:
+    branches: [master, ci-docs]
+    paths:
+      - "pipelines/**"
+      - "queries/**"
+      - "templates/**"
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: "Forçar atualização mesmo sem mudanças estruturais"
+        type: boolean
+        default: false
+
+concurrency:
+  group: doc-ci
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.13"
+  DOCS_REPO: "RJ-SMTR/pipelines-docs"
+  REPO_SLUG: "pipelines_v3"
+
+jobs:
+  detect-changes:
+    name: "Detectar mudanças estruturais"
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.compare.outputs.has_changes }}
+      diff_summary: ${{ steps.compare.outputs.diff_summary }}
+
+    steps:
+      - name: Checkout pipelines_v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Instalar dependências
+        run: |
+          pip install kuzu pandas
+          uv venv && uv pip install dbt-core==1.10.11 dbt-bigquery==1.10.1
+          npm install -g gitnexus || echo "::warning::gitnexus not found in npm, skipping"
+
+      - name: GitNexus analyze
+        run: |
+          echo "::group::GitNexus analyze"
+          if command -v gitnexus &> /dev/null; then
+            gitnexus analyze .
+          else
+            echo "::warning::gitnexus CLI not available, using existing .gitnexus if present"
+          fi
+          echo "::endgroup::"
+
+      - name: Extrair graph.json
+        run: |
+          python .github/scripts/doc-ci/extract_graph.py \
+            --kuzu-path .gitnexus \
+            --repo-name pipelines_v3 \
+            --output /tmp/graph_new.json
+
+      - name: dbt deps + parse
+        id: dbt-parse
+        continue-on-error: true
+        run: source .venv/bin/activate && cd queries && dbt deps && dbt parse
+
+      - name: Extrair dbt graph
+        id: dbt-extract
+        if: steps.dbt-parse.outcome == 'success'
+        run: |
+          source .venv/bin/activate
+          python .github/scripts/doc-ci/extract_dbt_graph.py \
+            --manifest queries/target/manifest.json \
+            --selectors queries/selectors.yml \
+            --output /tmp/dbt_graph_new.json
+
+      - name: Gerar token do GitHub App
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: pipelines-docs
+
+      - name: Checkout pipelines-docs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCS_REPO }}
+          token: ${{ steps.generate-token.outputs.token }}
+          path: pipelines-docs
+          ref: main
+
+      - name: Comparar grafos
+        id: compare
+        run: |
+          PREVIOUS="pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
+
+          if [ ! -f "$PREVIOUS" ]; then
+            echo "Primeira execução — criando graph.json vazio para comparação."
+            echo '{"files":[],"nodes":[],"edges":[],"processes":[],"module_edges":[]}' > /tmp/graph_empty.json
+            PREVIOUS="/tmp/graph_empty.json"
+          fi
+
+          set +e
+          python .github/scripts/doc-ci/compare_graphs.py \
+            --before "$PREVIOUS" \
+            --after /tmp/graph_new.json \
+            --output /tmp/diff.json
+          CODE_EXIT=$?
+          set -e
+
+          CODE_CHANGES="false"
+          if [ $CODE_EXIT -eq 0 ]; then
+            CODE_CHANGES="true"
+          fi
+
+          # Comparar dbt graphs (se disponível)
+          DBT_CHANGES="false"
+          if [ -f /tmp/dbt_graph_new.json ]; then
+            DBT_PREVIOUS="pipelines-docs/generated/${{ env.REPO_SLUG }}/dbt_graph.json"
+            if [ ! -f "$DBT_PREVIOUS" ]; then
+              echo "Primeira execução dbt — criando dbt_graph.json vazio."
+              echo '{"models":[],"sources":[],"edges":[],"selectors":[]}' > /tmp/dbt_graph_empty.json
+              DBT_PREVIOUS="/tmp/dbt_graph_empty.json"
+            fi
+
+            set +e
+            python .github/scripts/doc-ci/compare_dbt_graphs.py \
+              --before "$DBT_PREVIOUS" \
+              --after /tmp/dbt_graph_new.json \
+              --output /tmp/dbt_diff.json
+            DBT_EXIT=$?
+            set -e
+
+            if [ $DBT_EXIT -eq 0 ]; then
+              DBT_CHANGES="true"
+            fi
+          fi
+
+          FORCE_UPDATE="${{ inputs.force_update }}"
+          if [ "$CODE_CHANGES" = "true" ] || [ "$DBT_CHANGES" = "true" ] || \
+             [ "$FORCE_UPDATE" == "true" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          SUMMARY=$(python3 -c "import json; d=json.load(open('/tmp/diff.json')); print(d.get('summary',''))")
+          if [ -f /tmp/dbt_diff.json ]; then
+            DBT_SUMMARY=$(python3 -c "import json; d=json.load(open('/tmp/dbt_diff.json')); print(d.get('summary',''))")
+            SUMMARY="$SUMMARY\n$DBT_SUMMARY"
+          fi
+          echo "diff_summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo -e "$SUMMARY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artefatos
+        if: steps.compare.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: graph-artifacts
+          path: |
+            /tmp/graph_new.json
+            /tmp/diff.json
+            /tmp/dbt_graph_new.json
+            /tmp/dbt_diff.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  update-docs:
+    name: "Propor atualizações de documentação"
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout pipelines_v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Instalar dependências
+        run: pip install 'anthropic[vertex]'
+
+      - name: Autenticar no GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Download artefatos
+        uses: actions/download-artifact@v4
+        with:
+          name: graph-artifacts
+          path: /tmp
+
+      - name: Gerar token do GitHub App
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: pipelines-docs
+
+      - name: Checkout pipelines-docs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCS_REPO }}
+          token: ${{ steps.generate-token.outputs.token }}
+          path: pipelines-docs
+          ref: main
+
+      - name: Extrair PR de origem
+        id: source-pr
+        run: |
+          COMMIT_MSG=$(git log -1 --format="%s")
+          PR_NUM=$(echo "$COMMIT_MSG" | grep -oP '(?<=#)\d+' | head -1 || echo "")
+          echo "number=${PR_NUM}" >> "$GITHUB_OUTPUT"
+          echo "PR de origem: ${PR_NUM:-nenhum detectado}"
+
+      - name: Gerar git diff
+        run: |
+          git diff HEAD~1 --stat > /tmp/git_diff.txt
+          git diff HEAD~1 --no-color -- '*.py' '*.sql' '*.yml' '*.yaml' >> /tmp/git_diff.txt
+
+      # MkDocs structure: pipelines-docs/docs/
+      # Public docs: pipelines-docs/docs/public/
+      # Tech docs:   pipelines-docs/docs/tech/
+      - name: Preparar argumento dbt-diff
+        id: dbt-diff-arg
+        run: |
+          if [ -f /tmp/dbt_diff.json ]; then
+            echo "arg=--dbt-diff /tmp/dbt_diff.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "arg=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Propor alterações — documentação PUBLIC
+        run: |
+          python .github/scripts/doc-ci/update_docs.py \
+            --diff /tmp/diff.json \
+            ${{ steps.dbt-diff-arg.outputs.arg }} \
+            --git-diff /tmp/git_diff.txt \
+            --docs-dir pipelines-docs/docs/public \
+            --doc-type public \
+            --output /tmp/proposed_public.json
+
+      - name: Propor alterações — documentação TECH
+        run: |
+          python .github/scripts/doc-ci/update_docs.py \
+            --diff /tmp/diff.json \
+            ${{ steps.dbt-diff-arg.outputs.arg }} \
+            --git-diff /tmp/git_diff.txt \
+            --docs-dir pipelines-docs/docs/tech \
+            --doc-type tech \
+            --output /tmp/proposed_tech.json
+
+      - name: Aplicar alterações
+        run: |
+          python .github/scripts/doc-ci/apply_changes.py \
+            --proposals /tmp/proposed_public.json /tmp/proposed_tech.json \
+            --docs-dir pipelines-docs/docs/
+
+      - name: Atualizar grafos
+        run: |
+          mkdir -p "pipelines-docs/generated/${{ env.REPO_SLUG }}"
+          cp /tmp/graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/graph.json"
+          if [ -f /tmp/dbt_graph_new.json ]; then
+            cp /tmp/dbt_graph_new.json "pipelines-docs/generated/${{ env.REPO_SLUG }}/dbt_graph.json"
+          fi
+
+      - name: Criar Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          path: pipelines-docs
+          branch: doc-ci/${{ env.REPO_SLUG }}/${{ github.sha }}
+          base: main
+          delete-branch: true
+          title: "docs(pipelines_v3): atualização automática"
+          body: |
+            ## Documentação Automatizada — pipelines_v3
+
+            **Commit:** [`${{ github.sha }}`](https://github.com/RJ-SMTR/pipelines_v3/commit/${{ github.sha }})
+            **PR de origem:** ${{ steps.source-pr.outputs.number != '' && format('https://github.com/RJ-SMTR/pipelines_v3/pull/{0}', steps.source-pr.outputs.number) || 'N/A (commit direto ou PR não detectado)' }}
+            **Trigger:** push to master
+
+            ### Mudanças estruturais detectadas
+
+            ${{ needs.detect-changes.outputs.diff_summary }}
+
+            ### Alterações propostas
+
+            Geradas automaticamente por Claude com base na análise estrutural do GitNexus.
+
+            **Revise as alterações antes de fazer merge.**
+
+            ---
+            _CI de Documentação Automatizada_
+          commit-message: |
+            docs(pipelines_v3): atualização automática
+
+            Fonte: RJ-SMTR/pipelines_v3@${{ github.sha }}
+          labels: |
+            documentation
+            automated

@@ -37,7 +37,13 @@
       "Bash(ls:*)",
       "Bash(cookiecutter:*)",
       "Bash(uvx cookiecutter:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(git config:*)",
+      "Bash(gh api:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker stop:*)",
+      "Bash(gh pr:*)",
+      "Bash(cat:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
@@ -79,6 +85,28 @@
           {
             "type": "command",
             "command": "FILE=$(jq -r '.tool_input.file_path // empty') && if [[ \"$FILE\" == *.env* ]] || [[ \"$(basename \"$FILE\")\" == .env* ]]; then echo '{\"decision\": \"block\", \"reason\": \"Cannot edit .env files directly. Secrets are managed by Infisical SDK.\"}'; fi"
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree-create.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree-remove.sh",
+            "timeout": 30
           }
         ]
       }
