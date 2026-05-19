@@ -42,7 +42,7 @@ with
             t.data_transacao as datetime_transacao,
             t.data_processamento as datetime_processamento,
             t.timestamp_captura as datetime_captura,
-            coalesce(do.modo, dc.modo) as modo,
+            coalesce(do.modo, dc.modo, oh.modo_jae) as modo,
             dc.id_consorcio,
             dc.consorcio,
             t.cd_operadora as id_operadora_jae,
@@ -57,9 +57,9 @@ with
             l.descricao_servico_jae,
             t.sentido,
             case
-                when ifnull(do.modo, oh.modo_jae) = "VLT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "VLT"
                 then substring(t.veiculo_id, 1, 3)
-                when ifnull(do.modo, oh.modo_jae) = "BRT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "BRT"
                 then null
                 else t.veiculo_id
             end as id_veiculo,
