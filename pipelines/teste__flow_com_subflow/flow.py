@@ -21,7 +21,7 @@ async def run_subflow(
     flow_name = flow.name
     flow_type, pipeline = flow_name.split("--", maxsplit=1)
     flow_env = "prod" if env == "prod" else "staging"
-    deployment_name = f"rj-{flow_type}--{pipeline}--{flow_env}" or deployment_name
+    deployment_name = deployment_name or f"rj-{flow_type}--{pipeline.replace('-', '_')}--{flow_env}"
 
     deployment_name = f"{flow_name}/{deployment_name}"
     semaphore = asyncio.Semaphore(maximum_parallelism)
