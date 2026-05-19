@@ -7,7 +7,7 @@
 with
 
     validador as (
-    select 
+    select
         v.id_validador,
         v.datetime_inicio_validade,
         v.datetime_fim_validade,
