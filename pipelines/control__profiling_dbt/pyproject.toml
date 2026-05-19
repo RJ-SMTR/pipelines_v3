@@ -1,0 +1,4 @@
+[project]
+name = "control__profiling_dbt"
+version = "0.1.0"
+description = "Flows de teste para medir consumo de recursos e validar download da pasta queries em runtime"
