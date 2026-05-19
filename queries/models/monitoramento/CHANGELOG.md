@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.1.0] - 2026-05-19
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-05-01` e `2026-05-18` com `data_processamento`entre `2026-05-12` e `2026-05-18` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/195)
+
 ## [2.0.9] - 2026-05-14
 
 ### Alterado
