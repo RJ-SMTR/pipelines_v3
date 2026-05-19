@@ -6,7 +6,7 @@ Migrado de pipelines_rj_smtr (Prefect 1.4) — `subsidio_sppo_apuracao`.
 Executa selectors V8/V9/monitoramento conforme range de datas, snapshot final
 e pré-checagem de captura de dados da Jaé.
 
-Common: 2026-05-15
+Common: 2026-05-19
 """
 
 from typing import Optional
@@ -29,6 +29,7 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
     fallback_run: bool = False,
     skip_source_check: bool = False,
     skip_pre_test: bool = False,
+    flags: Optional[list[str]] = None,
 ):
     tasks_wait_for = None
 
@@ -59,4 +60,5 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
         tasks_wait_for=tasks_wait_for,
         fallback_run=fallback_run,
         skip_pre_test=skip_pre_test,
+        flags=flags,
     )
