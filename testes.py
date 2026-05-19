@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # from pipelines.treatment__cadastro_veiculo.flow import treatment_cadastro_veiculo
 # from pipelines.treatment__monitoramento_veiculo.flow import treatment__monitoramento_veiculo
@@ -52,7 +53,7 @@
 
 # # for date in run_dates:
 
-    
+
 # #     run_dbt_model(
 # #     _vars = {"run_date": date.strftime("%Y-%m-%d")},
 # #     dataset_id="subsidio_data_versao_efetiva viagem_completa",
@@ -66,12 +67,12 @@
 
 # # run_dbt_tests(
 # #     dataset_id="sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia transacao transacao_riocard gps_validador",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg --defer --state target-base ")
 
 # # run_dbt_tests(
 # #     dataset_id="tecnologia_servico viagem_planejada  ",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg")
 
 # # run_dbt_selector(
@@ -90,13 +91,14 @@
 
 # # run_dbt_tests(
 # #     dataset_id="viagem_classificada viagem_regularidade_temperatura viagens_remuneradas sumario_faixa_servico_dia_pagamento valor_km_tipo_viagem",
-# #       _vars=vars, 
+# #       _vars=vars,
 # #     flags = "--target hmg")
 # -*- coding: utf-8 -*-
 # import os
 
 import pandas as pd
-from queries.dev.utils import run_dbt_model, run_dbt_selector, run_dbt_tests, run_dbt
+
+from queries.dev.utils import run_dbt_model
 
 # # Veja os parâmetros disponíveis da função run_dbt_model em util.py
 
@@ -114,15 +116,12 @@ vars = {
 }
 
 
-
 # run_dbt_tests(
 #     dataset_id="view_viagem_climatizacao",
 #     _vars=vars,
 #     flags="--target dev --defer --state target-base --favor-state"
 #     # flags="--target prod",
 # )
-
-
 
 
 # run_dbt_selector(
@@ -136,10 +135,6 @@ vars = {
 #     # exclude="+licenciamento +infracao",
 #     # flags="--target hmg",
 #     flags="--target dev --defer --state target-base --favor-state")
-
-
-
-
 
 
 # run_dbt_model(
@@ -160,7 +155,6 @@ vars = {
 # flags="--target dev --defer --state target-base --favor-state")
 
 
-
 # run_dbt_model(
 # dataset_id="gtfs",
 # exclude="calendario aux_calendario_manual viagem_planejada_planejamento \
@@ -168,8 +162,6 @@ vars = {
 #                      servico_planejado_faixa_horaria",
 # _vars= {"data_versao_gtfs": "2026-04-15"},
 # flags = "--target dev --defer --state target-base --favor-state")
-
-
 
 
 # run_dbt_model(
@@ -192,21 +184,18 @@ vars = {
 run_dbt_model(
     dataset_id="view_viagem_climatizacao",
     # table_id="ordem_servico_diaria",
-    _vars= vars,
+    _vars=vars,
     # flags="--target hmg",
     flags="--target dev --defer --state target-base --favor-state",
 )
-
-
 
 
 # run_dbt_tests(
 #     dataset_id="ordem_servico_trips_shapes_gtfs",
 #     _vars={"data_versao_gtfs": "2026-01-26"},
 #     flags="--target hmg",
-    # flags="--target prod",
+# flags="--target prod",
 # )
-
 
 
 # run_dbt_model(
@@ -250,7 +239,6 @@ run_dbt_model(
 #         flags="--target dev --defer --state target-base")
 
 
-
 # for run_date in run_dates_list:
 #     # print(run_date)
 #     run_dbt_model(
@@ -271,7 +259,6 @@ run_dbt_model(
 # )
 
 
-
 # run_dbt_selector(
 #     selector_name="planejamento_diario",
 #     _vars={"start_date": "2026-02-01",
@@ -280,7 +267,6 @@ run_dbt_model(
 #     "date_range_end": "2026-02-15" + "T01:00:00"},
 #     flags="--target hmg --defer --state target-base",
 # )
-
 
 
 # run_dbt(
@@ -349,5 +335,5 @@ run_dbt_model(
 # )
 # run_dbt_tests(
 #     dataset_id="dashboard_subsidio_sppo_staging viagem_transacao dashboard_subsidio_sppo monitoramento_sumario_servico_dia_historico valor_km_tipo_viagem",
-#       _vars=vars, 
+#       _vars=vars,
 #     flags = "--target dev --defer --state target-base --favor-state")
