@@ -291,9 +291,6 @@ def save_materialization_datetime_redis(
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
     """
     for context in contexts:
-        try:
-            context.selector.set_redis_materialized_datetime(
-                env=context.env, timestamp=context.datetime_end
-            )
-        except Exception as e:
-            print(f"Erro ao salvar timestamp no Redis: {e}")
+        context.selector.set_redis_materialized_datetime(
+            env=context.env, timestamp=context.datetime_end
+        )

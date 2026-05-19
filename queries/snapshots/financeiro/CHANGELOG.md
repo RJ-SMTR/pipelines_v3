@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera unique key de `snapshot_subsidio_faixa_servico_dia_tipo_viagem.sql` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1395):
+- Altera unique key de `snapshot_subsidio_faixa_servico_dia_tipo_viagem.sql` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1395)
 
 ## [1.0.2] - 2025-09-24
 
