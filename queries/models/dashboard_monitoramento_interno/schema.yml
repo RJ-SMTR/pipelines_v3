@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: view_viagem_climatizacao
+    description: "Dados do status dos veículos para o painel de climatização do Subsídio SPPO"
+    columns:
+      - name: consorcio
+        description: "{{ doc('nome_consorcio') }}"
+      - name: data
+        description: "{{ doc('data_viagem') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: hora
+        description: "{{ doc('hora') }}"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: indicador_regularidade_temperatura
+        description: "Indicador de regularidade da temperatura da viagem"
+      - name: operadora
+        description: "{{ doc('operadora') }}"
