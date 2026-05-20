@@ -218,8 +218,7 @@ async def run_subflow(
         parameters (Optional[list[dict]]): Lista de dicionários contendo os parâmetros de cada
             execução do deployment. Se não informado, executa uma única vez com parâmetros vazios.
         maximum_parallelism (int): Número máximo de execuções simultâneas do deployment.
-        deployment_name (Optional[str]): Nome completo do deployment no formato
-            `<flow_name>/<deployment_name>`.
+        deployment_name (Optional[str]): Nome do deployment
 
     Returns:
         list[FlowRun]: Lista contendo os objetos `FlowRun` retornados pelo `run_deployment`.
