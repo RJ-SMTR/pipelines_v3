@@ -28,6 +28,7 @@ def wait_jae_capture_gaps(  # noqa: PLR0913
     table_ids: list[str],
     retroactive_days: int = 7,
     webhook: str = jae_constants.ALERT_WEBHOOK,
+    save_results: bool = False,
 ):
     """
     Executa a pré-checagem de captura da Jaé e retorna a task de bloqueio.
@@ -43,6 +44,9 @@ def wait_jae_capture_gaps(  # noqa: PLR0913
         table_ids (list[str]): table_ids da Jaé a verificar.
         retroactive_days (int): Dias retroativos quando datetime não é forçado.
         webhook (str): Key do webhook do Discord para o alerta.
+        save_results (bool): Se True, persiste o resultado da checagem na tabela
+            de controle. Default False para evitar duplicação com o flow
+            `control__jae_verificacao_captura`.
 
     Returns:
         A task `raise_on_gaps` (gate para `tasks_wait_for`).
@@ -64,6 +68,7 @@ def wait_jae_capture_gaps(  # noqa: PLR0913
         table_id=table_ids,
         timestamp_captura_start=unmapped(ts_start),
         timestamp_captura_end=unmapped(ts_end),
+        save_results=unmapped(save_results),
     ).result()
 
     discord_messages = create_capture_check_discord_message.map(
