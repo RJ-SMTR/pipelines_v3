@@ -100,7 +100,7 @@ select
     tv.descricao as tipo_veiculo,
     'Licenciado' as status,
     date(va.datetime_ativo) as data_inicio_vinculo,
-    case 
+    case
         when va.situacao = 'N' then 'Normal'
         when va.situacao = 'S' then 'Suspenso'
         else null
