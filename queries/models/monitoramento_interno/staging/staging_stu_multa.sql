@@ -1,4 +1,4 @@
-{{ config( materialized="view", alias="multa") }}
+{{ config(materialized="view", alias="multa") }}
 
 select
     data,
@@ -20,44 +20,25 @@ select
     safe_cast(json_value(content, '$.sentido') as string) as sentido,
     safe_cast(json_value(content, '$.apreensao') as string) as apreensao,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.dt_calculo') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$.dt_calculo') as string)
     ) as datetime_calculo,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.dt_ciencia') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$.dt_ciencia') as string)
     ) as datetime_ciencia,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.dt_usuario') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$.dt_usuario') as string)
     ) as datetime_usuario,
     safe_cast(json_value(content, '$.logradouro') as string) as logradouro,
     safe_cast(json_value(content, '$.valor_hist') as numeric) as valor_historico,
     safe_cast(json_value(content, '$.complemento') as string) as complemento,
     safe_cast(json_value(content, '$.data_recred') as string) as data_recred,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.dt_infracao') as string)
-        )
+        safe_cast(json_value(content, '$.dt_infracao') as string)
     ) as datetime_infracao,
     safe_cast(json_value(content, '$.cod_infracao') as string) as id_infracao,
     safe_cast(json_value(content, '$.des_infracao') as string) as descricao_infracao,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.dt_alteracao') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$.dt_alteracao') as string)
     ) as datetime_alteracao,
     safe_cast(json_value(content, '$.matr_usuario') as string) as matricula_usuario,
     safe_cast(
@@ -71,18 +52,10 @@ select
     safe_cast(json_value(content, '$.grupo_infracao') as string) as grupo_infracao,
     safe_cast(json_value(content, '$.matr_alteracao') as string) as matricula_alteracao,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
-            safe_cast(json_value(content, '$.DtNotificacaoAutuacao') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$.DtNotificacaoAutuacao') as string)
     ) as datetime_notificacao_autuacao,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%d %H:%M:%S%Ez',
-            safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
-        ),
-        "America/Sao_Paulo"
+        safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
     ) as datetime_execucao_flow,
     safe_cast(timestamp_captura as datetime) as datetime_captura
 from {{ source("source_stu", "multa") }}

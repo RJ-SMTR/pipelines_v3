@@ -26,10 +26,7 @@ select
     replace(
         safe_cast(json_value(content, '$.lotacao_em_pe') as string), '.0', ''
     ) as lotacao_em_pe,
-    date(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S', safe_cast(json_value(content, '$.dtproc') as string)
-        )
+    date(safe_cast(json_value(content, '$.dtproc') as string)
     ) as data_processo,
     replace(safe_cast(json_value(content, '$.portas') as string), '.0', '') as portas,
     safe_cast(json_value(content, '$.observ') as string) as observacao,

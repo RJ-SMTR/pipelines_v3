@@ -5,7 +5,7 @@ with
         select *
         from {{ ref("staging_stu_veiculo_ativo") }}
         qualify
-            row_number() over (partition by placa, data order by datetime_captura desc)
+            row_number() over (partition by placa order by data desc)
             = 1
     ),
 
@@ -98,9 +98,13 @@ select
     safe_cast(pl.lotacao_sentado as int64) as quantidade_lotacao_sentado,
     cb.descricao as tipo_combustivel,
     tv.descricao as tipo_veiculo,
-    if(va.situacao = 'N', 'Licenciado', null) as status,
+    'Licenciado' as status,
     date(va.datetime_ativo) as data_inicio_vinculo,
-    if(va.situacao = 'N', 'Licenciado', null) as ultima_situacao,
+    case 
+        when va.situacao = 'N' then 'Normal'
+        when va.situacao = 'S' then 'Suspenso'
+        else null
+    end as ultima_situacao,
     extract(year from vi.data_vistoria) as ano_ultima_vistoria
 from veiculo_ativo va
 left join

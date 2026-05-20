@@ -11,18 +11,10 @@ select
     safe_cast(json_value(content, '$.tpperm') as string) as tpperm,
     safe_cast(json_value(content, '$.tptran') as string) as tptran,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
             safe_cast(json_value(content, '$.dt_ativo') as string)
-        ),
-        "America/Sao_Paulo"
     ) as datetime_ativo,
     datetime(
-        parse_timestamp(
-            '%Y-%m-%dT%H:%M:%E6S',
             safe_cast(json_value(content, '$.dt_prazo') as string)
-        ),
-        "America/Sao_Paulo"
     ) as datetime_prazo,
     datetime(
         parse_timestamp(

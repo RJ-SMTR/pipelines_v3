@@ -6,7 +6,7 @@ with
         from {{ ref("staging_stu_multa") }}
         qualify
             row_number() over (
-                partition by id_infracao, data order by datetime_captura desc
+                partition by serie, cm order by data desc
             )
             = 1
     ),
@@ -46,7 +46,7 @@ select
         cast(p.dv as string)
     ) as permissao,
     m.placa,
-    concat(trim(m.serie), '-', lpad(m.cm, 8, '0')) as id_auto_infracao,
+    concat(m.serie, '-', lpad(m.cm, 8, '0')) as id_auto_infracao,
     date(m.datetime_infracao) as data_infracao,
     m.datetime_infracao,
     m.descricao_infracao as infracao,
