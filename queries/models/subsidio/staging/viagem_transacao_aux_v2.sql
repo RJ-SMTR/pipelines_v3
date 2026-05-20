@@ -5,14 +5,14 @@
 {% endif %}
 
 {% set date_range_start %}
-    {% if var("flow_name") == "monitoramento_temperatura - materializacao" %}
+    {% if var("flow_name") == "treatment__monitoramento_temperatura" %}
         "{{var('date_range_start')}}"
     {% else %}
        "{{var('start_date')}}"
     {% endif %}
 {% endset %}
 {% set date_range_end %}
-    {% if var("flow_name") == "monitoramento_temperatura - materializacao" %}
+    {% if var("flow_name") == "treatment__monitoramento_temperatura" %}
         "{{var('date_range_end')}}"
     {% else %}
        "{{var('end_date')}}"

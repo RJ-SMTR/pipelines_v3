@@ -50,3 +50,7 @@ def rename_flow_run() -> str:
 
     flow_name = runtime.flow_run.flow_name
     return f"[{scheduled_start_time}] {flow_name}"
+
+
+class FailedSubFlowError(Exception):
+    """Erro para ser usado quando um subflow falha"""
