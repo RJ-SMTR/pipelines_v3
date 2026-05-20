@@ -41,8 +41,14 @@ async def run_subflow(
     coroutines = [_run(params) for params in parameters]
     runs = await asyncio.gather(*coroutines)
 
+    fail_message = "Os seguintes execuções não foram completas com sucesso:"
+    raise_error = False
     for run in runs:
-        run.state.result()
+        if not run.state.is_completed():
+            fail_message += f"\n {run.id} finalizou com o estado: {run.state_name}"
+            raise_error = True
+    if raise_error:
+        raise Exception(fail_message)
 
     return runs
 
@@ -50,16 +56,6 @@ async def run_subflow(
 @flow(log_prints=True)
 async def teste__flow_com_subflow():
     env = get_run_env(env=None, deployment_name=runtime.deployment.name)
-    await run_subflow(
-        env=env, flow=teste__subflow, parameters=[{"seconds": 1}, {"seconds": 2}, {"seconds": 3}]
-    )
-
-    await run_subflow(
-        env=env,
-        flow=teste__subflow,
-        parameters=[{"seconds": 10}, {"seconds": 10}, {"seconds": 10}],
-        maximum_parallelism=2,
-    )
 
     await run_subflow(
         env=env,
