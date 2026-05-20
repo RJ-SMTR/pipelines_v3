@@ -63,47 +63,13 @@ with
     trips_frequencies as (
         select t.*, f.start_seconds, f.end_seconds, f.headway_secs
         from trips t
-        join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
+        join frequencies_tratada f using (feed_start_date, trip_id)
     ),
     trajeto_alternativo_sentido as (
-        select
-            feed_start_date,
-            feed_version,
-            servico,
-            tipo_os,
-            evento,
-            case when sentido = 'V' then '1' else '0' end as direction_id,
-            extensao
-        from
-            (
-                select
-                    feed_start_date,
-                    feed_version,
-                    servico,
-                    tipo_os,
-                    evento,
-                    extensao_ida,
-                    extensao_volta
-                from {{ ref("ordem_servico_trajeto_alternativo_gtfs") }}
-                where
-                    feed_start_date < date('{{ var("DATA_GTFS_V4_INICIO") }}')
-                    {% if is_incremental() %} and {{ feed_filter }} {% endif %}
-            ) unpivot (
-                (extensao)
-                for sentido in ((extensao_ida) as 'I', (extensao_volta) as 'V')
-            )
-        union all
-        select
-            feed_start_date,
-            feed_version,
-            servico,
-            tipo_os,
-            evento,
-            case when left(sentido, 1) = 'V' then '1' else '0' end as direction_id,
-            extensao
-        from {{ ref("ordem_servico_trajeto_alternativo_sentido") }}
+        select *
+        from {{ ref("aux_trajeto_alternativo_sentido") }}
         where
-            feed_start_date >= date('{{ var("DATA_GTFS_V4_INICIO") }}')
+            feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     viagens_frequencies as (
@@ -141,17 +107,19 @@ with
         from trips t
         join
             {{ ref("aux_stop_times_horario_tratado") }} st using (
-                feed_start_date, feed_version, trip_id
+                feed_start_date, trip_id
             )
-        left join frequencies_tratada f using (feed_start_date, feed_version, trip_id)
+        left join frequencies_tratada f using (feed_start_date, trip_id)
         where st.stop_sequence = 0 and f.trip_id is null
     ),
     viagens_unidas as (
         select *
         from viagens_frequencies
+        where service_id != 'EXCEP'
         union all
         select *
         from viagens_stop_times
+        where service_id != 'EXCEP'
     ),
     ordem_servico_extensao as (
         select
@@ -162,13 +130,13 @@ with
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     servico_circular as (
-        select feed_start_date, feed_version, shape_id
+        select feed_start_date, shape_id
         from {{ ref("shapes_geom_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
-            and round(st_y(start_pt), 4) = round(st_y(end_pt), 4)
-            and round(st_x(start_pt), 4) = round(st_x(end_pt), 4)
+            and
+            {{ is_shape_circular("start_pt", "end_pt", "feed_start_date", "shape_id") }}
     ),
     viagem_planejada_base as (
         select
@@ -206,7 +174,7 @@ with
             feed_version,
             feed_start_date
         from viagens_unidas v
-        left join servico_circular c using (shape_id, feed_version, feed_start_date)
+        left join servico_circular c using (shape_id, feed_start_date)
     ),
     viagem_planejada_os as (
         select
@@ -218,7 +186,6 @@ with
         left join
             ordem_servico_extensao ose
             on ose.feed_start_date = v.feed_start_date
-            and ose.feed_version = v.feed_version
             and ose.servico = v.servico
             and ose.sentido = v.sentido
             and (
@@ -254,7 +221,6 @@ with
         left join
             trajeto_alternativo_sentido tas
             on t.feed_start_date = tas.feed_start_date
-            and t.feed_version = tas.feed_version
             and t.servico = tas.servico
             and t.evento = tas.evento
             and t.direction_id = tas.direction_id
@@ -266,7 +232,7 @@ with
         from viagem_planejada_os v
         left join
             trips_alternativas ta using (
-                feed_start_date, feed_version, servico, direction_id, tipo_os
+                feed_start_date, servico, direction_id, tipo_os
             )
     ),
     viagem_planejada_id as (
@@ -290,17 +256,10 @@ with
         from viagem_planejada_completa
     ),
     dados_novos as (
-        select id_viagem, * except (id_viagem, rn)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by id_viagem order by feed_start_date desc
-                    ) as rn
-                from viagem_planejada_id
-            )
-        where rn = 1
+        select id_viagem, * except (id_viagem)
+        from viagem_planejada_id
+        qualify
+            row_number() over (partition by id_viagem order by feed_start_date desc) = 1
     ),
     {% if is_incremental() %}
         dados_atuais as (select * from {{ this }} where {{ feed_filter }}),

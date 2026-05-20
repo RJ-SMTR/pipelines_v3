@@ -3,7 +3,7 @@
     {{
         config(
             target_schema="planejamento_staging",
-            unique_key="id_viagem",
+            unique_key="concat(data, '-', id_viagem)",
             strategy="timestamp",
             updated_at="timestamp_ultima_atualizacao",
             invalidate_hard_deletes=True,

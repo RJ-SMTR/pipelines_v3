@@ -80,7 +80,6 @@ with
         from {{ ref("viagem_planejada_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            and service_id != 'EXCEP'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
     ordem_servico as (
@@ -141,13 +140,13 @@ with
             os.horario_inicio,
             os.horario_fim,
             vp.horario_partida,
+            vp.id_viagem,
             vp.feed_version,
             vp.feed_start_date
         from calendario c
         join
             viagem_planejada vp
             on c.feed_start_date = vp.feed_start_date
-            and c.feed_version = vp.feed_version
             and vp.service_id in unnest(c.service_ids)
             and (
                 vp.tipo_os = c.tipo_os
@@ -160,7 +159,6 @@ with
         left join
             ordem_servico os
             on os.feed_start_date = c.feed_start_date
-            and os.feed_version = c.feed_version
             and os.servico = vp.servico
             and os.tipo_dia = c.tipo_dia
             and os.tipo_os = vp.tipo_os
@@ -181,34 +179,20 @@ with
                 or datetime_partida between data + horario_inicio and data + horario_fim
             )
     ),
-    viagem_dia_id as (
-        select
-            * except (distancia_total_planejada, indicador_possui_os),
-            concat(
-                servico,
-                "_",
-                sentido,
-                "_",
-                shape_id,
-                "_",
-                format_datetime("%Y%m%d%H%M%S", datetime_partida)
-            ) as id_viagem
-        from viagem_filtrada
-    ),
     dados_novos as (
-        select data, id_viagem, * except (data, id_viagem, rn)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by id_viagem order by data_referencia desc
-                    ) as rn
-                from viagem_dia_id
-            )
+        select
+            data,
+            id_viagem,
+            * except (data, id_viagem, distancia_total_planejada, indicador_possui_os)
+        from viagem_filtrada
         where
-            rn = 1 and data is not null
+            data is not null
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        qualify
+            row_number() over (
+                partition by data, id_viagem order by data_referencia desc
+            )
+            = 1
     ),
     {% if is_incremental() %}
         dados_atuais as (select * from {{ this }} where {{ incremental_filter }}),
@@ -216,6 +200,7 @@ with
     sha_dados_atuais as (
         {% if is_incremental() %}
             select
+                data,
                 id_viagem,
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
@@ -223,6 +208,7 @@ with
             from dados_atuais
         {% else %}
             select
+                cast(null as date) as data,
                 cast(null as string) as id_viagem,
                 cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
@@ -230,9 +216,9 @@ with
         {% endif %}
     ),
     sha_dados_completos as (
-        select n.*, {{ sha_column }} as sha_dado_novo, a.* except (id_viagem)
+        select n.*, {{ sha_column }} as sha_dado_novo, a.* except (data, id_viagem)
         from dados_novos n
-        left join sha_dados_atuais a using (id_viagem)
+        left join sha_dados_atuais a using (data, id_viagem)
     ),
     colunas_controle as (
         select
