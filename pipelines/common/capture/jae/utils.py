@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from pipelines.common.utils.utils import convert_timezone
+from pipelines.common.capture.jae import constants
+from pipelines.common.utils.utils import convert_timezone, is_running_locally
 
 
 def get_capture_delay_minutes(capture_delay_minutes: dict[str, int], timestamp: datetime) -> int:
@@ -40,3 +41,24 @@ def get_capture_delay_minutes(capture_delay_minutes: dict[str, int], timestamp: 
             delay = capture_delay_minutes[t.strftime("%Y-%m-%d %H:%M:%S")]
 
     return int(delay)
+
+
+def get_jae_database_settings(database_name: str) -> dict:
+    """
+    Pega os dados de configuração do banco de dados da Jaé
+    e trata o host, se estiver executando localmente.
+
+    Args:
+        database_name (str): Nome do banco de dados
+
+    Returns:
+        dict: Configuração definida nas constantes com o host tratado
+    """
+    database = constants.JAE_DATABASE_SETTINGS[database_name]
+    database["host"] = (
+        f"{database_name.rsplit('_', maxsplit=1)[0].replace('_', '-')}-database-replica.internal"
+        if is_running_locally()
+        else database["host"]
+    )
+
+    return database
