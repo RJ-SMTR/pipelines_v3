@@ -37,8 +37,12 @@ async def run_subflow(
             )
 
     coroutines = [_run(params) for params in parameters]
+    runs = await asyncio.gather(*coroutines)
 
-    return await asyncio.gather(*coroutines)
+    for run in runs:
+        run.state.result()
+
+    return runs
 
 
 @flow(log_prints=True)
