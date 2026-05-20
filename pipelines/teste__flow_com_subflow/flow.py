@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 
-from prefect import flow, runtime
+from prefect import flow, runtime, task
 from prefect.deployments import run_deployment
 from prefect.flows import Flow
 
@@ -9,6 +9,7 @@ from pipelines.common.tasks import get_run_env
 from pipelines.teste__subflow.flow import teste__subflow
 
 
+@task
 async def run_subflow(
     env: str,
     flow: Flow,
