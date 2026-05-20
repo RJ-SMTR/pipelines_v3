@@ -338,7 +338,7 @@ with
                                 or not indicador_estado_equipamento_aberto
                             )
                         )
-                        
+
                     )
                     AND datetime_partida NOT BETWEEN "2024-10-06 06:00:00" AND "2024-10-06 20:00:00" --  Eleição (2024-10-06)
                 then 'Sem transação'
