@@ -4,7 +4,7 @@ Flow de captura de transações da Jaé
 
 Executa a captura de dados de transações do sistema Jaé.
 
-Common: 2026-05-21
+Common: 2026-05-20
 """
 
 from pipelines.capture__jae_transacao import constants
