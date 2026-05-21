@@ -84,10 +84,10 @@ models:
           where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-          - data
-          - servico
-          - faixa_horaria_inicio
-          - sentido
+            - data
+            - servico
+            - faixa_horaria_inicio
+            - sentido
           name: dbt_utils.unique_combination_of_columns__sumario_faixa_servico_dia_pagamento
           where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - dbt_utils.expression_is_true:
@@ -103,7 +103,6 @@ models:
           compare_group_by: [-valor]
           row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
           compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
-          where: "1=1"
           where: "data between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
@@ -267,8 +266,8 @@ models:
           name: teto_pagamento_valor_subsidio_pago__sumario_servico_dia_pagamento
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-          - data
-          - servico
+            - data
+            - servico
           name: dbt_utils.unique_combination_of_columns__sumario_servico_dia_pagamento
       - dbt_utils.expression_is_true:
           expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0

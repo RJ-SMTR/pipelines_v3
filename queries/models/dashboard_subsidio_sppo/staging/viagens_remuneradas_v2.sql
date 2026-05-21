@@ -181,7 +181,7 @@ select
             )
         then true  -- Processo 000399006676/2026-28
         when
-            (v.data between date('2026-04-01') and date('2026-04-15'))
+            (v.data between date('2026-04-01') and date('2026-04-30'))
             and v.servico in (
                 "104",
                 "107",
@@ -212,7 +212,7 @@ select
                 "LECD136",
                 "LECD137",
                 "LECD138"
-            )  -- Processo n° 000300.014987/2026-11
+            )  -- Processo n° 000300.014987/2026-11 e Processo n° 000300.017825/2026-26
         then true
         when
             (v.data between date('2026-03-16') and date('2026-03-31'))
