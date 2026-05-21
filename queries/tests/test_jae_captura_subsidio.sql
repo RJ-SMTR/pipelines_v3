@@ -8,8 +8,8 @@ with
         from
             unnest(
                 generate_timestamp_array(
-                    timestamp("{{ var('date_range_start') }}"),
-                    timestamp("{{ var('date_range_end') }}"),
+                    timestamp("{{ var('date_range_start') }}", "America/Sao_Paulo"),
+                    timestamp("{{ var('date_range_end') }}", "America/Sao_Paulo"),
                     interval 1 minute
                 )
             ) timestamp_captura
