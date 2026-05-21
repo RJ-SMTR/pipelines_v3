@@ -34,6 +34,7 @@ def create_materialization_contexts(  # noqa: PLR0913
     test_scheduled_time: time,
     force_test_run: bool,
     snapshot_selector: Optional[DBTSelector] = None,
+    skip_pre_test: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -48,6 +49,7 @@ def create_materialization_contexts(  # noqa: PLR0913
         test_scheduled_time (time): Horário agendado para execução dos testes.
         force_test_run (bool): Força a execução dos testes.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
+        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
@@ -64,6 +66,7 @@ def create_materialization_contexts(  # noqa: PLR0913
             test_scheduled_time=test_scheduled_time,
             force_test_run=force_test_run,
             snapshot_selector=snapshot_selector,
+            skip_pre_test=skip_pre_test,
         )
         if ctx.should_run:
             contexts.append(ctx)
@@ -278,7 +281,9 @@ def task_dbt_selector_test_notify_discord(
 
 
 @task(cache_policy=NO_CACHE)
-def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializationContext]):
+def save_materialization_datetime_redis(
+    contexts: list[DBTSelectorMaterializationContext],
+):
     """
     Salva no Redis o datetime da última materialização do selector.
 
