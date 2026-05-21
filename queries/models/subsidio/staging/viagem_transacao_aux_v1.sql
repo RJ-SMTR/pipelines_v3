@@ -267,6 +267,7 @@ with
             e.longitude,
             v.servico,
             e.servico_jae,
+            v.datetime_partida
         from viagem as v
         left join
             estado_equipamento_aux as e
@@ -297,7 +298,8 @@ with
             (
                 countif(estado_equipamento = "ABERTO") / count(*) >= 0.8
                 or id_validador is null
-            ) as indicador_estado_equipamento_aberto
+            ) as indicador_estado_equipamento_aberto,
+            datetime_partida
         from gps_validador_viagem
         left join transacao_contagem as t using (data, id_viagem)
         left join transacao_riocard_contagem as tr using (data, id_viagem)
@@ -336,7 +338,9 @@ with
                                 or not indicador_estado_equipamento_aberto
                             )
                         )
+
                     )
+                    AND datetime_partida NOT BETWEEN "2024-10-06 06:00:00" AND "2024-10-06 20:00:00" --  Eleição (2024-10-06)
                 then 'Sem transação'
                 else 'Manter tipo viagem'
             end as tipo_viagem

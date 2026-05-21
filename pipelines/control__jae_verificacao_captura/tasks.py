@@ -66,6 +66,7 @@ def get_capture_gaps(
     table_id: str,
     timestamp_captura_start: datetime,
     timestamp_captura_end: datetime,
+    save_results: bool = True,
 ) -> list[str]:
     """
     Identifica timestamps com divergência entre os dados presentes
@@ -162,7 +163,8 @@ def get_capture_gaps(
         .tolist()
     )
 
-    save_capture_check_results(env=env, table_id=table_id, results=df_merge)
+    if save_results:
+        save_capture_check_results(env=env, table_id=table_id, results=df_merge)
 
     if len(timestamps) > 0:
         ts_log = [f'"{t}",' for t in timestamps]
