@@ -9,7 +9,10 @@ with
             unnest(
                 generate_timestamp_array(
                     timestamp("{{ var('date_range_start') }}", "America/Sao_Paulo"),
-                    timestamp("{{ var('date_range_end') }}", "America/Sao_Paulo"),
+                    timestamp_add(
+                        timestamp("{{ var('date_range_end') }}", "America/Sao_Paulo"),
+                        interval 7 day
+                    ),
                     interval 1 minute
                 )
             ) timestamp_captura
@@ -19,8 +22,8 @@ with
         select timestamp_captura, table_id, indicador_captura_correta
         from {{ source("source_jae", "resultado_verificacao_captura_jae") }}
         where
-            data between date("{{ var('date_range_start') }}") and date(
-                "{{ var('date_range_end') }}"
+            data between date("{{ var('date_range_start') }}") and date_add(
+                date("{{ var('date_range_end') }}"), interval 7 day
             )
             and table_id in ('transacao', 'transacao_riocard', 'gps_validador')
     )
