@@ -54,7 +54,7 @@ def get_jae_database_settings(database_name: str) -> dict:
     Returns:
         dict: Configuração definida nas constantes com o host tratado
     """
-    database = constants.JAE_DATABASE_SETTINGS[database_name]
+    database = constants.JAE_DATABASE_SETTINGS[database_name].copy()
     database["host"] = (
         f"{database_name.rsplit('_', maxsplit=1)[0].replace('_', '-')}-database-replica.internal"
         if is_running_locally()
