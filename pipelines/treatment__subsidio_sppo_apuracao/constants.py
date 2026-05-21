@@ -26,7 +26,7 @@ ADDITIONAL_VARS = {"tipo_teste": "subsidio"}
 PRE_TEST_SELECT = (
     "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
     " veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
-    " gps_validador test_completude__temperatura"
+    " gps_validador test_completude__temperatura test_jae_captura_subsidio"
 )
 PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
@@ -36,6 +36,12 @@ PRE_TEST_EXCLUDE = (
 )
 
 PRE_CHECKS_LIST = {
+    "test_jae_captura_subsidio": {
+        "description": (
+            "Captura da Jaé sem timestamps ausentes em `transacao`, `transacao_riocard`"
+            " e `gps_validador`"
+        )
+    },
     "sppo_realocacao": {
         "check_gps_capture__sppo_realocacao": {
             "description": "Todos os dados de realocação foram capturados"

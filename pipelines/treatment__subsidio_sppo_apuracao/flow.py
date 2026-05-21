@@ -17,7 +17,6 @@ from pipelines.common.treatment.default_treatment.flow import (
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
 from pipelines.treatment__subsidio_sppo_apuracao import constants
-from pipelines.treatment__subsidio_sppo_apuracao.utils import wait_jae_capture_gaps
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
@@ -31,18 +30,6 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
     skip_pre_test: bool = False,
     flags: Optional[list[str]] = None,
 ):
-    tasks_wait_for = None
-
-    if not skip_pre_test:
-        pre_test_jae = wait_jae_capture_gaps(
-            env=env,
-            datetime_start=datetime_start,
-            datetime_end=datetime_end,
-            table_ids=constants.TABLE_IDS_JAE,
-        )
-
-        tasks_wait_for = {"pre_tests": [pre_test_jae]}
-
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[
@@ -57,7 +44,6 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
         skip_source_check=skip_source_check,
         additional_vars={**constants.ADDITIONAL_VARS, **(additional_vars or {})},
         test_webhook_key=constants.WEBHOOK_KEY,
-        tasks_wait_for=tasks_wait_for,
         fallback_run=fallback_run,
         skip_pre_test=skip_pre_test,
         flags=flags,
