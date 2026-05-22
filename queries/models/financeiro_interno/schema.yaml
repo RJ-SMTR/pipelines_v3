@@ -57,10 +57,11 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: "'2024-08-15'"
-              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
-              strictly: true
               name: dbt_expectations.expect_column_values_to_be_between__data__subsidio_sumario_servico_dia_pagamento
+              arguments:
+                min_value: "'2024-08-15'"
+                max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+                strictly: true
       - name: tipo_dia
         description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
       - name: consorcio
