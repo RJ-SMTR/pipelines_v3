@@ -8,7 +8,7 @@ Schedule:
 - Diariamente às 1h00 (horário de São Paulo)
 - Depende de dados capturados pela Rio Ônibus
 
-DBT: 2026-05-15
+DBT: 2026-05-22
 """
 
 from pipelines.common.treatment.default_treatment.flow import (

@@ -174,6 +174,10 @@ with
                 then "Verão"  -- 000399.001668/2026-95 - Acionamento do Plano Verão
                 when data = date(2026, 03, 14)
                 then "Term_Marg"  -- 000399.003413/2026-67 - Inauguração do Terminal Margaridas
+                when data = date(2026, 05, 02)
+                then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
+                when data = date(2026, 05, 03)
+                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
             end as tipo_os
         from
             unnest(
