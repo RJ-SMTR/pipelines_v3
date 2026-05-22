@@ -56,7 +56,7 @@ jobs:
 
           echo "Mounting files from env..."
 
-          echo '${{ env.GCP_SA_KEY }}'> /tmp/credentials.json
+          echo '${{ secrets.GCP_SA_KEY }}'> /tmp/credentials.json
 
       - name: Add threads to dbt profiles
         run: |
