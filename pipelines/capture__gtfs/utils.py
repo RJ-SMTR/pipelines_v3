@@ -52,7 +52,9 @@ def get_upload_storage_blob(env: str, dataset_id: str, filename: str):
     bucket = client.bucket(bucket_name)
     blobs = list(bucket.list_blobs(prefix=f"upload/{dataset_id}/{filename}."))
     if not blobs:
-        raise FileNotFoundError(f"Nenhum blob encontrado em upload/{dataset_id}/{filename}")
+        raise FileNotFoundError(
+            f"Nenhum blob encontrado em upload/{dataset_id}/{filename}"
+        )
     return blobs[0]
 
 
@@ -89,7 +91,9 @@ def save_raw_local_func(
     return _filepath
 
 
-def create_bq_external_table(env: str, dataset_id: str, table_id: str, staging_filepath: str):
+def create_bq_external_table(
+    env: str, dataset_id: str, table_id: str, staging_filepath: str
+):
     """Cria uma tabela externa no BigQuery apontando para o GCS."""
     staging_dataset_id = f"{dataset_id}_staging"
     tb_obj = BQTable(env=env, dataset_id=staging_dataset_id, table_id=table_id)
@@ -251,15 +255,19 @@ def processa_ordem_servico(
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
+            raise ValueError(
+                f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}"
+            )
         tipo_os = match.group(1)
 
         quadro = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
         quadro = quadro.rename(columns=columns)
         quadro["servico"] = quadro["servico"].astype(str)
-        quadro["servico"] = quadro["servico"].str.extract(r"([A-Z]+)", expand=False).fillna(
+        quadro["servico"] = quadro["servico"].str.extract(
+            r"([A-Z]+)", expand=False
+        ).fillna("") + quadro["servico"].str.extract(r"([0-9]+)", expand=False).fillna(
             ""
-        ) + quadro["servico"].str.extract(r"([0-9]+)", expand=False).fillna("")
+        )
         quadro["tipo_os"] = tipo_os
         quadro = quadro[list(set(columns.values()))]
         quadro = quadro.replace("—", 0)
@@ -276,7 +284,9 @@ def processa_ordem_servico(
             if "km" in coluna or "viagens" in coluna or "partida" in coluna
         ]
         for col in cols:
-            quadro[col] = quadro[col].astype(str).apply(convert_to_float).astype(float).fillna(0)
+            quadro[col] = (
+                quadro[col].astype(str).apply(convert_to_float).astype(float).fillna(0)
+            )
 
         extensao_cols = ["extensao_ida", "extensao_volta"]
         quadro[extensao_cols] = quadro[extensao_cols].astype(str)
@@ -361,7 +371,9 @@ def processa_ordem_servico_trajeto_alternativo(  # noqa: PLR0913
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
+            raise ValueError(
+                f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}"
+            )
         tipo_os = match.group(1)
 
         df = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
@@ -385,11 +397,15 @@ def processa_ordem_servico_trajeto_alternativo(  # noqa: PLR0913
     )
 
     if not all_columns_present or not no_duplicate_columns:
-        raise Exception("Missing or duplicated columns in ordem_servico_trajeto_alternativo")
+        raise Exception(
+            "Missing or duplicated columns in ordem_servico_trajeto_alternativo"
+        )
 
     local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
     csv_data = ordem_servico_trajeto_alternativo.to_csv(index=False)
-    raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
+    raw_file_path = save_raw_local_func(
+        data=csv_data, filepath=local_file_path, filetype="csv"
+    )
     print(f"Saved file: {raw_file_path}")
     raw_filepaths.append(raw_file_path)
 
@@ -408,7 +424,9 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
         if not sheets:
             raise ValueError("Nenhuma aba 'ANEXO I' encontrada no arquivo.")
     else:
-        sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO III " in name]
+        sheets = [
+            (i, name) for i, name in enumerate(sheetnames) if "ANEXO III " in name
+        ]
         if not sheets:
             raise ValueError("Nenhuma aba 'ANEXO III' encontrada no arquivo.")
     sheets_data = []
@@ -515,9 +533,16 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
                 if metrica in ["Quilometragem", "KM"]
                 else (
                     "partidas"
-                    if (metrica == "Partidas" and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO)
+                    if (
+                        metrica == "Partidas"
+                        and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO
+                    )
                     or data_versao_gtfs >= constants.DATA_GTFS_V4_INICIO
-                    else ("partidas_ida" if metrica == "Partidas Ida" else "partidas_volta")
+                    else (
+                        "partidas_ida"
+                        if metrica == "Partidas Ida"
+                        else "partidas_volta"
+                    )
                 )
             )
             + f"_entre_{intervalo.replace(' ', '_').replace('(', '').replace(')', '').replace('-', '_')}_{dia.lower().replace(' ', '_')}"
@@ -548,12 +573,16 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
+            raise ValueError(
+                f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}"
+            )
         tipo_os = match.group(1)
 
         df = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
         df.columns = (
-            df.columns.str.replace("\n", " ").str.strip().str.replace(r"\s+", " ", regex=True)
+            df.columns.str.replace("\n", " ")
+            .str.strip()
+            .str.replace(r"\s+", " ", regex=True)
         )
         df = df.rename(columns=lambda x: x.replace("Dia Útil", "Dias Úteis"))
         df = df.rename(columns=columns)
@@ -572,7 +601,7 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
         df["tipo_os"] = tipo_os
 
-        columns_in_values = set(columns.values())
+        columns_in_values = set(list(columns.values()))
         aux_columns_in_dataframe = set(df.columns)
         aux_missing_columns = columns_in_values - aux_columns_in_dataframe
         for coluna in aux_missing_columns:
@@ -583,10 +612,11 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
     ordem_servico_faixa_horaria = pd.concat(sheets_data, ignore_index=True)
     columns_in_dataframe = set(ordem_servico_faixa_horaria.columns)
-    columns_in_values = set(columns.values())
     missing_columns = columns_in_values - columns_in_dataframe
     all_columns_present = columns_in_dataframe.issubset(columns_in_values)
-    no_duplicate_columns = len(columns_in_dataframe) == len(ordem_servico_faixa_horaria.columns)
+    no_duplicate_columns = len(columns_in_dataframe) == len(
+        ordem_servico_faixa_horaria.columns
+    )
 
     print(
         f"All columns present: {all_columns_present}\n"
@@ -601,6 +631,8 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
     local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
     csv_data = ordem_servico_faixa_horaria.to_csv(index=False)
-    raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
+    raw_file_path = save_raw_local_func(
+        data=csv_data, filepath=local_file_path, filetype="csv"
+    )
     print(f"Saved file: {raw_file_path}")
     raw_filepaths.append(raw_file_path)
