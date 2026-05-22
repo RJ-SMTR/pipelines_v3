@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import asyncpg
 from datetime import datetime, timedelta, timezone
 
 from prefect import task
@@ -83,3 +84,59 @@ async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
             await asyncio.sleep(0.5)
 
         print(f"Retention complete. Total deleted: {deleted_total}")
+
+
+@task(log_prints=True)
+async def optimize_database_if_needed(db_url: str, bloat_threshold: float = 30.0):
+    """
+    Verifica o nível de inchaço (bloat) das tabelas e roda VACUUM ANALYZE 
+    apenas naquelas que ultrapassarem o limite configurado (padrão 30%).
+    """
+    print(f"Verificando tabelas com mais de {bloat_threshold}% de bloat...")
+    
+    # Query adaptada da documentação oficial do Prefect para calcular o Bloat
+    bloat_query = """
+        SELECT
+            relname AS tablename,
+            CASE WHEN n_live_tup > 0
+                THEN round(100.0 * n_dead_tup / n_live_tup, 2)
+                ELSE 0
+            END AS bloat_percent
+        FROM pg_stat_user_tables
+        WHERE schemaname = 'public'
+          AND n_dead_tup > 1000
+    """
+
+    # Conecta em modo autocommit (necessário para rodar o VACUUM)
+    conn = await asyncpg.connect(db_url)
+    
+    try:
+        # Busca a situação de todas as tabelas
+        tables_stats = await conn.fetch(bloat_query)
+        
+        tables_to_vacuum = []
+        for row in tables_stats:
+            table_name = row['tablename']
+            bloat_pct = float(row['bloat_percent'])
+            
+            if bloat_pct > bloat_threshold:
+                tables_to_vacuum.append((table_name, bloat_pct))
+                
+        if not tables_to_vacuum:
+            print("Nenhuma tabela ultrapassou o limite de inchaço. Nenhuma ação necessária.")
+            return
+
+        # Executa o VACUUM ANALYZE dinamicamente nas tabelas afetadas
+        for table_name, bloat_pct in tables_to_vacuum:
+            print(f"Executando VACUUM ANALYZE na tabela '{table_name}' (Bloat: {bloat_pct}%)...")
+            # IMPORTANTE: Adicione ANALYZE para atualizar as estatísticas do Query Planner!
+            await conn.execute(f"VACUUM ANALYZE {table_name};")
+            
+        print("Manutenção do banco concluída com sucesso!")
+
+    except Exception as e:
+        print(f"Erro durante a verificação/manutenção do banco: {e}")
+    finally:
+        await conn.close()
+
+
