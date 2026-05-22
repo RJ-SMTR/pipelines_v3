@@ -105,18 +105,24 @@ def run_dbt_deps():
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_select(dbt_select: str, dbt_user: str = "botelho"):
+def run_dbt_select(dbt_select: str, dbt_user: str = "botelho", dbt_selector: str = ""):
     """
-    Executa `dbt run` (ou `dbt debug` se vazio) escrevendo no target `dev`.
+    Executa `dbt run` escrevendo no target `dev`.
+
+    Usa `--selector` quando `dbt_selector` é passado, `--select` quando `dbt_select`
+    é passado. Se ambos vazios, roda apenas `dbt debug`.
 
     Args:
-        dbt_select (str): Expressão `--select`. Se vazia, roda apenas `dbt debug`.
+        dbt_select (str): Expressão `--select`.
         dbt_user (str): Valor de `DBT_USER` usado pelo macro `generate_schema_name`
             para prefixar o schema em target `dev`.
+        dbt_selector (str): Nome do `--selector` definido em `selectors.yml`.
     """
     os.environ["DBT_USER"] = dbt_user
     print(f"DBT_USER={dbt_user}")
-    if dbt_select:
+    if dbt_selector:
+        invoke = ["run", "--selector", dbt_selector, "--target", "dev"]
+    elif dbt_select:
         invoke = ["run", "--select", dbt_select, "--target", "dev"]
     else:
         invoke = ["debug", "--target", "dev"]
