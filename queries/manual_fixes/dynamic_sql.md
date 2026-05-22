@@ -9,7 +9,7 @@ PIVOT(...) FOR column_name IN (ANY)
 
 ## SOLUTION
 
-The first option is always preferred and should be attempted first, if possible. 
+The first option is always preferred and should be attempted first, if possible.
 
 ### option 1: refactor
 

@@ -9,7 +9,7 @@ Any config key that's not a part of the new authoring layer will cause Fusion to
 
 ## SOLUTION
 1. First check whether it's a misspelled config key. Follow misspelled_config_keys.md
-2. If it's not a misspelled config key, move the custom config key under a `meta:` block. If the unsupported config key is in `dbt_projects.yml` it needs to be moved under a `+meta:` block. 
+2. If it's not a misspelled config key, move the custom config key under a `meta:` block. If the unsupported config key is in `dbt_projects.yml` it needs to be moved under a `+meta:` block.
 
 
 However, often a user project depends on these keys existing, especially in the case of:
