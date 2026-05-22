@@ -32,7 +32,7 @@ def control__profiling_dbt_runtime(
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
-    additional_vars: Optional[dict[str, str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     """
     Baixa queries em runtime, roda dbt deps e dbt, sempre escrevendo em `dev`.
