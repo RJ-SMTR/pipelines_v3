@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      # - staging/*
+      - staging/*
     paths:
       - 'queries/**'
       - '.github/workflows/cd_dbt_docs.yaml'
