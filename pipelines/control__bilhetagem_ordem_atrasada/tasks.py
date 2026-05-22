@@ -5,7 +5,7 @@ from datetime import datetime
 
 from prefect import task
 
-from pipelines.capture.jae.constants import constants as jae_constants
+from pipelines.common.capture.jae import constants as jae_constants
 
 
 @task

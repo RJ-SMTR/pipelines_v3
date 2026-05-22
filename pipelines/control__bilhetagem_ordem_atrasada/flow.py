@@ -8,6 +8,19 @@ from pipelines.capture.jae.flows import (
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
 )
+from pipelines.tasks import (
+    parse_timestamp_to_string,
+)
+from pipelines.treatment.bilhetagem.flows import (
+    INTEGRACAO_MATERIALIZACAO,
+    TRANSACAO_ORDEM_MATERIALIZACAO,
+)
+from pipelines.treatment.financeiro.flows import (
+    FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
+    ordem_pagamento_quality_check,
+)
+from prefect import runtime
+
 from pipelines.capture__jae_auxiliar import flow
 from pipelines.common.tasks import (
     get_run_env,
@@ -17,27 +30,15 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
-from pipelines.tasks import (
-    parse_timestamp_to_string,
-)
-from pipelines.treatment.bilhetagem.flows import (
-    INTEGRACAO_MATERIALIZACAO,
-    TRANSACAO_ORDEM_MATERIALIZACAO,
-)
-from pipelines.treatment.bilhetagem_processos_manuais.tasks import (
-    create_transacao_ordem_integracao_capture_params,
-)
-from pipelines.treatment.financeiro.flows import (
-    FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
-    ordem_pagamento_quality_check,
-)
 
 sources = jae_constants.sources
 
 
 @flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
 async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
-    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
+
+    deployment_name=runtime.deployment.name
+    env = get_run_env(env=env, deployment_name=deployment_name)
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env)
 
