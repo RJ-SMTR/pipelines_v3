@@ -177,7 +177,7 @@ with
                 when data = date(2026, 05, 02)
                 then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
                 when data = date(2026, 05, 03)
-                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026               
+                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
             end as tipo_os
         from
             unnest(
