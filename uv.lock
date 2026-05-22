@@ -21,9 +21,15 @@ members = [
     "capture-jae-transacao-ordem",
     "capture-jae-transacao-retificada",
     "capture-jae-transacao-riocard",
+    "capture-rioonibus-rdo-rho",
     "capture-rioonibus-viagem-informada",
     "capture-serpro-autuacao",
+    "capture-sonda-registros",
+    "capture-sonda-viagem-informada",
+    "capture-sppo-realocacao",
+    "capture-sppo-registros",
     "capture-stu-tabelas",
+    "capture-veiculo-fiscalizacao-lacre",
     "capture-veiculo-infracao",
     "capture-veiculo-licenciamento",
     "capture-veiculo-sppo-registro-agente-verao",
@@ -32,38 +38,52 @@ members = [
     "common",
     "control-jae-teste-ip",
     "control-jae-verificacao-captura",
+    "control-model-freshness",
     "control-set-redis-key",
     "control-source-freshness",
     "integration-previnity-negativacao",
     "integration-upload-transacao-cct",
+    "maintenance-db-retention",
+    "maintenance-janitor",
     "pipelines-v3",
     "quality-check-ordem-pagamento",
     "test-raise-for-sentry",
     "test-runner-deployment",
     "treatment-cadastro",
+    "treatment-cadastro-veiculo",
     "treatment-cliente-cpf",
+    "treatment-datario",
     "treatment-extrato-cliente-cartao",
     "treatment-financeiro-bilhetagem",
     "treatment-gps-15-minutos-cittati",
     "treatment-gps-15-minutos-conecta",
+    "treatment-gps-15-minutos-sppo",
     "treatment-gps-15-minutos-zirix",
     "treatment-gps-cittati",
     "treatment-gps-conecta",
+    "treatment-gps-sonda",
+    "treatment-gps-sppo",
     "treatment-gps-validador",
     "treatment-gps-zirix",
     "treatment-infraestrutura",
     "treatment-integracao",
     "treatment-matriz-integracao-smtr",
+    "treatment-monitoramento-temperatura",
+    "treatment-monitoramento-veiculo",
+    "treatment-operadora-cnpj",
     "treatment-pagamento-cct",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
+    "treatment-sppo-viagens",
     "treatment-transacao",
     "treatment-transacao-erro",
     "treatment-transacao-ordem",
     "treatment-transacao-valor-ordem",
     "treatment-transito-autuacao",
     "treatment-validacao-dados-jae",
+    "treatment-veiculo-dia",
     "treatment-viagem-informada",
+    "treatment-viagem-validacao",
 ]
 
 [[package]]
@@ -382,6 +402,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao_riocard" }
 
 [[package]]
+name = "capture-rioonibus-rdo-rho"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__rioonibus_rdo_rho" }
+
+[[package]]
 name = "capture-rioonibus-viagem-informada"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__rioonibus_viagem_informada" }
@@ -402,9 +427,34 @@ requires-dist = [
 ]
 
 [[package]]
+name = "capture-sonda-registros"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__sonda_registros" }
+
+[[package]]
+name = "capture-sonda-viagem-informada"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__sonda_viagem_informada" }
+
+[[package]]
+name = "capture-sppo-realocacao"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__sppo_realocacao" }
+
+[[package]]
+name = "capture-sppo-registros"
+version = "1.0.0"
+source = { virtual = "pipelines/capture__sppo_registros" }
+
+[[package]]
 name = "capture-stu-tabelas"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__stu_tabelas" }
+
+[[package]]
+name = "capture-veiculo-fiscalizacao-lacre"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__veiculo_fiscalizacao_lacre" }
 
 [[package]]
 name = "capture-veiculo-infracao"
@@ -536,6 +586,11 @@ source = { virtual = "pipelines/control__jae_teste_ip" }
 name = "control-jae-verificacao-captura"
 version = "0.1.0"
 source = { virtual = "pipelines/control__jae_verificacao_captura" }
+
+[[package]]
+name = "control-model-freshness"
+version = "0.1.0"
+source = { virtual = "pipelines/control__model_freshness" }
 
 [[package]]
 name = "control-set-redis-key"
@@ -1583,6 +1638,16 @@ sdist = { url = "https://files.pythonhosted.org/packages/ed/6e/48a05e2f7f62a616d
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a1/30/9ec597c962c5249ebd5c580386e4b5f2884cd943af42634291ee3b406415/leather-0.4.0-py2.py3-none-any.whl", hash = "sha256:18290bc93749ae39039af5e31e871fcfad74d26c4c3ea28ea4f681f4571b3a2b", size = 30256, upload-time = "2024-02-23T22:03:34.75Z" },
 ]
+
+[[package]]
+name = "maintenance-db-retention"
+version = "0.1.0"
+source = { virtual = "pipelines/maintenance__db_retention" }
+
+[[package]]
+name = "maintenance-janitor"
+version = "0.1.0"
+source = { virtual = "pipelines/maintenance__janitor" }
 
 [[package]]
 name = "mako"
@@ -2971,9 +3036,19 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__cadastro" }
 
 [[package]]
+name = "treatment-cadastro-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__cadastro_veiculo" }
+
+[[package]]
 name = "treatment-cliente-cpf"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__cliente_cpf" }
+
+[[package]]
+name = "treatment-datario"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__datario" }
 
 [[package]]
 name = "treatment-extrato-cliente-cartao"
@@ -2996,6 +3071,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_15_minutos_conecta" }
 
 [[package]]
+name = "treatment-gps-15-minutos-sppo"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_15_minutos_sppo" }
+
+[[package]]
 name = "treatment-gps-15-minutos-zirix"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_15_minutos_zirix" }
@@ -3009,6 +3089,16 @@ source = { virtual = "pipelines/treatment__gps_cittati" }
 name = "treatment-gps-conecta"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_conecta" }
+
+[[package]]
+name = "treatment-gps-sonda"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_sonda" }
+
+[[package]]
+name = "treatment-gps-sppo"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_sppo" }
 
 [[package]]
 name = "treatment-gps-validador"
@@ -3036,6 +3126,21 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__matriz_integracao_smtr" }
 
 [[package]]
+name = "treatment-monitoramento-temperatura"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__monitoramento_temperatura" }
+
+[[package]]
+name = "treatment-monitoramento-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__monitoramento_veiculo" }
+
+[[package]]
+name = "treatment-operadora-cnpj"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__operadora_cnpj" }
+
+[[package]]
 name = "treatment-pagamento-cct"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__pagamento_cct" }
@@ -3049,6 +3154,11 @@ source = { virtual = "pipelines/treatment__passageiro_hora" }
 name = "treatment-planejamento-diario"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__planejamento_diario" }
+
+[[package]]
+name = "treatment-sppo-viagens"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__sppo_viagens" }
 
 [[package]]
 name = "treatment-transacao"
@@ -3081,9 +3191,19 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__validacao_dados_jae" }
 
 [[package]]
+name = "treatment-veiculo-dia"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__veiculo_dia" }
+
+[[package]]
 name = "treatment-viagem-informada"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__viagem_informada" }
+
+[[package]]
+name = "treatment-viagem-validacao"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__viagem_validacao" }
 
 [[package]]
 name = "typer"

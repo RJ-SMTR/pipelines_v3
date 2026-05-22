@@ -170,11 +170,15 @@ with
             m.modo,
             dc.id_consorcio,
             dc.consorcio,
-            do.id_operadora,
+            coalesce(
+                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
             t.cd_operadora as id_operadora_jae,
-            do.operadora,
-            do.documento as documento_operadora,
-            do.tipo_documento as tipo_documento_operadora,
+            coalesce(
+                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
+            ifnull(do.documento, oh.documento) as documento_operadora,
+            ifnull(do.tipo_documento, oh.tipo_documento) as tipo_documento_operadora,
             s.id_servico_jae,
             s.servico_jae,
             s.descricao_servico_jae,
@@ -203,7 +207,20 @@ with
         from transacao_staging as t
         left join
             {{ ref("modos") }} m on t.id_tipo_modal = m.id_modo and m.fonte = "jae"
-        left join {{ ref("operadoras") }} do on t.cd_operadora = do.id_operadora_jae
+        left join
+            {{ ref("operadoras") }} do
+            on t.cd_operadora = do.id_operadora_jae
+            and date(t.data_transacao) < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            {{ ref("operadora_historico") }} oh
+            on t.cd_operadora = oh.id_operadora_jae
+            and date(t.data_transacao)
+            >= "{{ var('data_inicial_operadora_historico') }}"
+            and t.data_transacao >= oh.datetime_inicio_validade
+            and (
+                t.data_transacao < oh.datetime_fim_validade
+                or oh.datetime_fim_validade is null
+            )
         left join {{ ref("consorcios") }} dc on t.cd_consorcio = dc.id_consorcio_jae
         left join
             {{ ref("aux_servico_jae") }} s
@@ -214,7 +231,7 @@ with
                 or s.datetime_fim_validade is null
             )
         left join {{ ref("staging_produto") }} p on t.id_produto = p.cd_produto
-        left join {{ ref("cliente_jae") }} c using (id_cliente)
+        left join {{ ref("cliente_jae") }} c on t.id_cliente = c.id_cliente
         left join tipo_transacao tt on tt.id_tipo_transacao = t.tipo_transacao
         left join tipo_pagamento tp on t.id_tipo_midia = tp.id_tipo_pagamento
         left join

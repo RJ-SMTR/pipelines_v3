@@ -331,6 +331,7 @@ class DBTSelectorMaterializationContext:
         test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
+        skip_pre_test: bool = False,
     ):
         """
         Armazena o contexto completo necessário para materializar um selector do DBT.
@@ -345,6 +346,7 @@ class DBTSelectorMaterializationContext:
             test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
+            skip_pre_test (bool): Se True, ignora a execução do pre_test do selector.
         """
         self.env = env
         self.selector = selector
@@ -372,7 +374,9 @@ class DBTSelectorMaterializationContext:
             force_test_run or test_scheduled_time is None or timestamp.time() == test_scheduled_time
         ) and self.should_run
 
-        self.should_run_pre_test = selector.pre_test is not None and is_test_scheduled_time
+        self.should_run_pre_test = (
+            selector.pre_test is not None and is_test_scheduled_time and not skip_pre_test
+        )
 
         self.should_run_post_test = selector.post_test is not None and is_test_scheduled_time
 
@@ -494,6 +498,8 @@ class DBTSelectorMaterializationContext:
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
             "version": self.get_repo_version(),
+            "start_date": datetime_start.strftime("%Y-%m-%d"),
+            "end_date": datetime_end.strftime("%Y-%m-%d"),
         }
 
         if additional_vars:
@@ -529,7 +535,15 @@ def run_dbt(  # noqa: PLR0913
     flags = flags or []
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
 
-    flags = [*flags, "--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
+    flags = [
+        *flags,
+        "--log-path",
+        log_dir,
+        "--log-level-file",
+        "info",
+        "--log-format",
+        "json",
+    ]
     if is_running_locally():
         profiles_dir = project_dir / "dev"
     else:
@@ -608,6 +622,22 @@ def run_dbt_tests(
     return log, dbt_vars
 
 
+RELATION_RE = re.compile(r"`([^`]+)`\.`([^`]+)`\.`([^`]+)`")
+
+
+def extract_relation_from_query(query: Optional[str]) -> Optional[str]:
+    """
+    Extrai nome completo da tabela (`project.dataset.table`) da primeira referência
+    em uma query compilada do dbt.
+    """
+    if not query:
+        return None
+    match = RELATION_RE.search(query)
+    if not match:
+        return None
+    return ".".join(match.groups())
+
+
 def parse_dbt_test_output(dbt_logs: str) -> dict:
     """
     Processa os logs do DBT e extrai os resultados dos testes executados.
@@ -657,7 +687,7 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
         result = info["result"]
         log_message += f"Test: {test} Status: {result}\n"
 
-        if result == "FAIL":
+        if result in ("FAIL", "WARN"):
             log_message += "Query:\n"
             log_message += f"{info['query']}\n"
 
@@ -720,7 +750,8 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(test["result"] == "PASS" for test in checks_results.values())
+    test_check = all(test["result"] in ("PASS", "WARN") for test in checks_results.values())
+    has_warn = any(test["result"] == "WARN" for test in checks_results.values())
 
     keys = [
         ("date_range_start", "date_range_end"),
@@ -752,14 +783,19 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         else (start_date if start_date == end_date else f"{start_date} a {end_date}")
     )
 
+    status_circle = (
+        ":red_circle: "
+        if not test_check
+        else (":yellow_circle: " if has_warn else ":green_circle: ")
+    )
     if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
         formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
+            status_circle,
             f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
         ]
     else:
         formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
+            status_circle,
             f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
         ]
 
@@ -784,13 +820,22 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
         for test_id, test_result in tests:
             matched_description = None
-            for existing_table_id, test_configs in test_descriptions.items():
-                if table_name in existing_table_id:
-                    for existing_test_id, test_info in test_configs.items():
+
+            for key, value in test_descriptions.items():
+                # singular: {test_id: {"description": ...}}
+                if "description" in value:
+                    if key == test_id:
+                        matched_description = value["description"]
+                        break
+                    continue
+
+                # grupo por tabela: {table_name: {test_id: {"description": ...}}}
+                if table_name in key:
+                    for existing_test_id, test_info in value.items():
                         if existing_test_id in test_id:
+                            column = test_id.split("__")[1] if "__" in test_id else test_id
                             matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}",
-                                test_id.split("__")[1] if "__" in test_id else test_id,
+                                "{column_name}", column
                             )
                             break
                     if matched_description:
@@ -799,18 +844,23 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
             test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
             description = matched_description or f"Teste: {test_id}"
 
-            test_message = (
-                f"{':white_check_mark:' if test_result['result'] == 'PASS' else ':x:'} "
-                f"{description}\n"
-            )
+            result_icon = {
+                "PASS": ":white_check_mark:",
+                "WARN": ":warning:",
+            }.get(test_result["result"], ":x:")
+            test_message = f"{result_icon} {description}\n"
             formatted_messages.append(test_message)
 
     formatted_messages.append("\n")
-    formatted_messages.append(
-        ":tada: **Status:** Sucesso"
-        if test_check
-        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-    )
+    if not test_check:
+        status_message = (
+            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+        )
+    elif has_warn:
+        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
+    else:
+        status_message = ":tada: **Status:** Sucesso"
+    formatted_messages.append(status_message)
 
     if not test_check:
         formatted_messages.append(mention_tags)

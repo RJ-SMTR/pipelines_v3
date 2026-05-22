@@ -566,7 +566,7 @@ models:
               to: ref('autuacao_disciplinar_historico')
               field: id_auto_infracao
               to_condition: "data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
-              from_condition: "data_inicio_lacre <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
+              from_condition: "data_inicio_lacre <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day) and id_auto_infracao != 'D -00012506'"
               where: "1=1"
           - not_null:
               name: not_null__id_auto_infracao__veiculo_fiscalizacao_lacre
@@ -1028,6 +1028,14 @@ models:
           - not_null:
               name: not_null__datetime_captura__gps_validador
               where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: recent_data__datetime_captura__gps_validador
+              arguments:
+                datepart: hour
+                interval: 2
+              config:
+                tags: ["freshness_hourly"]
+                severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         tests:

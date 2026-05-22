@@ -1,5 +1,40 @@
 # Changelog - monitoramento
 
+## [2.1.0] - 2026-05-19
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-05-01` e `2026-05-18` com `data_processamento`entre `2026-05-01` e `2026-05-18` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/195)
+
+## [2.0.9] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+- Ajusta `test_completude_temperatura` para aceitar parâmetro `expected_qtd` (default 24) e define 96 para `temperatura_alertario`. Substitui lógica de `data_fim_ajustada` por `least(date_range_end, ontem)` em `test_completude_temperatura` e `test_completude_temperatura_inmet` para evitar falso negativo no dia corrente sem perder cobertura em reprocessamentos. (https://github.com/RJ-SMTR/pipelines_v3/pull/183)
+
+### Adicionado
+
+- Adiciona teste `recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
+
+## [2.0.8] - 2026-05-13
+
+### Alterado
+
+- Remove filtro da coluna `data` nas CTEs dos modelos `view_gps_brt_completo` e `view_gps_sppo_completo`, forçando a obrigatoriedade de um filtro de partição explícito por parte do usuário e evitando o consumo acidental de grandes volumes de dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/179)
+
+## [2.0.7] - 2026-05-11
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-16` e `2026-04-30` com `data_processamento`entre `2026-04-16` e `2026-05-11` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/175)
+
+## [2.0.6] - 2026-05-08
+
+### Adicionado
+
+- Adiciona teste de completude aos modelos `temperatura_inmet` e `temperatura_alertario` (https://github.com/RJ-SMTR/pipelines_v3/pull/167)
+
 ## [2.0.5] - 2026-05-06
 
 ### Adicionado

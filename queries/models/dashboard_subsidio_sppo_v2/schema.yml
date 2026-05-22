@@ -1,0 +1,396 @@
+version: 2
+
+models:
+  - name: sumario_faixa_servico_dia
+    description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia e faixa horária [Dados entre 2024-08-16 e 2025-01-05]"
+    tests:
+      - check_km_planejada:
+          name: check_km_planejada__sumario_faixa_servico_dia
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: "'2024-08-15'"
+              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+              strictly: true
+              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_faixa_servico_dia
+      - name: tipo_dia
+        description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: viagens_faixa
+        description: "{{ doc('viagens_faixa') }}"
+      - name: km_apurada_faixa
+        description: "{{ doc('km_apurada_faixa') }}"
+      - name: km_subsidiada_faixa
+        description: "Quilometragem subsidiada para o serviço por faixa horária (km)"
+      - name: km_planejada_faixa
+        description: "{{ doc('km_planejada_faixa') }}"
+      - name: pof
+        description: "{{ doc('pof') }}"
+      - name: km_apurada_registrado_com_ar_inoperante
+        description: "{{ doc('km_apurada_registrado_com_ar_inoperante') }}"
+      - name: km_apurada_n_licenciado
+        description: "{{ doc('km_apurada_n_licenciado') }}"
+      - name: km_apurada_autuado_ar_inoperante
+        description: "{{ doc('km_apurada_autuado_ar_inoperante') }}"
+      - name: km_apurada_autuado_seguranca
+        description: "{{ doc('km_apurada_autuado_seguranca') }}"
+      - name: km_apurada_autuado_limpezaequipamento
+        description: "{{ doc('km_apurada_autuado_limpezaequipamento') }}"
+      - name: km_apurada_licenciado_sem_ar_n_autuado
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }}"
+      - name: km_apurada_licenciado_com_ar_n_autuado
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }}"
+      - name: km_apurada_n_vistoriado
+        description: "{{ doc('km_apurada_n_vistoriado') }}"
+      - name: km_apurada_sem_transacao
+        description: "Quilometragem apurada de viagens realizadas sem passageiro registrado (km)"
+      - name: valor_apurado
+        description: "{{ doc('valor_apurado') }}"
+      - name: valor_acima_limite
+        description: "{{ doc('valor_acima_limite') }}"
+      - name: valor_total_sem_glosa
+        description: "{{ doc('valor_total_sem_glosa') }}"
+      - name: valor_judicial
+        description: "{{ doc('valor_judicial') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+  - name: sumario_faixa_servico_dia_pagamento
+    description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia e faixa horária"
+    tests:
+      - check_km_planejada:
+          name: check_km_planejada__sumario_faixa_servico_dia_pagamento
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          date_col: data
+          row_condition: "1=1"
+          test_start_date: "{{ var('date_range_start') }}"
+          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_faixa_servico_dia_pagamento
+          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - teto_pagamento_valor_subsidio_pago:
+          table_id: sumario_faixa_servico_dia_pagamento
+          expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_faixa+0.01,2)
+          name: teto_pagamento_valor_subsidio_pago__sumario_faixa_servico_dia_pagamento
+          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data
+            - servico
+            - faixa_horaria_inicio
+            - sentido
+          name: dbt_utils.unique_combination_of_columns__sumario_faixa_servico_dia_pagamento
+          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - dbt_utils.expression_is_true:
+          expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
+          name: expression_is_true__sumario_faixa_servico_dia_pagamento
+          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_faixa_servico_dia_pagamento
+          expression: count(distinct valor_penalidade)
+          compare_model: ref("valor_tipo_penalidade")
+          compare_expression: count(distinct valor)
+          group_by: [valor_penalidade]
+          compare_group_by: [-valor]
+          row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
+          compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
+          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__data__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: tipo_dia
+        description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
+        tests:
+          - not_null:
+              name: not_null__tipo_dia__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: faixa_horaria_inicio
+        description: "{{ doc('faixa_horaria_inicio') }}"
+      - name: faixa_horaria_fim
+        description: "{{ doc('faixa_horaria_fim') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        tests:
+          - not_null:
+              name: not_null__consorcio__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: viagens_faixa
+        description: "{{ doc('viagens_faixa') }}"
+        tests:
+          - not_null:
+              name: not_null__viagens_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__viagens_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: km_apurada_faixa
+        description: "{{ doc('km_apurada_faixa') }}"
+        tests:
+          - not_null:
+              name: not_null__km_apurada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__km_apurada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - sumario_servico_dia_tipo_soma_km:
+              name: sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: km_subsidiada_faixa
+        description: "Quilometragem subsidiada para o serviço por faixa horária (km)"
+        tests:
+          - not_null:
+              name: not_null__km_subsidiada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__km_subsidiada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: km_planejada_faixa
+        description: "{{ doc('km_planejada_faixa') }}"
+        tests:
+          - not_null:
+              name: not_null__km_planejada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+              name: dbt_utils.accepted_range__km_planejada_faixa__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: pof
+        description: "{{ doc('pof') }}"
+        tests:
+          - not_null:
+              name: not_null__pof__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__pof__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: km_apurada_autuado_alterar_itinerario
+        description: "Quilometragem apurada de viagens realizadas por veículos autuados disciplinarmente por alterar o itinerário aprovado de uma linha ou serviço (km)"
+      - name: km_apurada_autuado_ar_inoperante
+        description: "{{ doc('km_apurada_autuado_ar_inoperante') }}"
+      - name: km_apurada_autuado_iluminacao_insuficiente
+        description: "Quilometragem apurada de viagens realizadas por veículos autuados disciplinarmente por transitar com o veículo com ausência ou insuficiência na iluminação interna e/ou nos dispositivos internos ou externos de informação aos passageiros (km)"
+      - name: km_apurada_autuado_limpezaequipamento
+        description: "{{ doc('km_apurada_autuado_limpezaequipamento') }}"
+      - name: km_apurada_n_vistoriado
+        description: "{{ doc('km_apurada_n_vistoriado') }}"
+      - name: km_apurada_sem_transacao
+        description: "{{ doc('km_apurada_sem_transacao') }}"
+      - name: km_apurada_licenciado_sem_ar_n_autuado_mini
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }} com tecnologia MINI"
+      - name: km_apurada_licenciado_com_ar_n_autuado_mini
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }} com tecnologia MINI"
+      - name: km_apurada_licenciado_sem_ar_n_autuado_midi
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }} com tecnologia MIDI"
+      - name: km_apurada_licenciado_com_ar_n_autuado_midi
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }} com tecnologia MIDI"
+      - name: km_apurada_licenciado_sem_ar_n_autuado_basico
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }} com tecnologia BASICO"
+      - name: km_apurada_licenciado_com_ar_n_autuado_basico
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }} com tecnologia BASICO"
+      - name: km_apurada_licenciado_sem_ar_n_autuado_padron
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }} com tecnologia PADRON"
+      - name: km_apurada_licenciado_com_ar_n_autuado_padron
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }} com tecnologia PADRON"
+      - name: km_apurada_total_licenciado_sem_ar_n_autuado
+        description: "Quilometragem total apurada de viagens de veículos licenciados sem ar-condicionado e não enquadrados nas demais classificações"
+      - name: km_apurada_total_licenciado_com_ar_n_autuado
+        description: "Quilometragem total apurada de viagens de veículos com ar e não autuados"
+      - name: valor_a_pagar
+        description: "{{ doc('valor_a_pagar') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_a_pagar__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: valor_glosado_tecnologia
+        description: "{{ doc('valor_glosado_tecnologia') }}"
+      - name: valor_total_glosado
+        description: "{{ doc('valor_glosado') }}"
+      - name: valor_acima_limite
+        description: "{{ doc('valor_acima_limite') }}"
+      - name: valor_total_sem_glosa
+        description: "{{ doc('valor_total_sem_glosa') }}"
+      - name: valor_total_apurado
+        description: "{{ doc('valor_total_apurado') }}"
+      - name: valor_judicial
+        description: "{{ doc('valor_judicial') }}"
+      - name: valor_penalidade
+        description: "{{ doc('valor_penalidade') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_penalidade__sumario_faixa_servico_dia_pagamento
+              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+  - name: sumario_servico_dia_pagamento
+    description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia [Dados entre 2024-08-16 e 2025-01-05]"
+    tests:
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          date_col: data
+          row_condition: "1=1"
+          test_start_date: "{{ var('date_range_start') }}"
+          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia_pagamento
+      - teto_pagamento_valor_subsidio_pago:
+          table_id: sumario_servico_dia_pagamento
+          expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_dia+0.01,2)
+          name: teto_pagamento_valor_subsidio_pago__sumario_servico_dia_pagamento
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data
+            - servico
+          name: dbt_utils.unique_combination_of_columns__sumario_servico_dia_pagamento
+      - dbt_utils.expression_is_true:
+          expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
+          name: expression_is_true__sumario_servico_dia_pagamento
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_servico_dia_pagamento
+          expression: count(distinct valor_penalidade)
+          compare_model: ref("valor_tipo_penalidade")
+          compare_expression: count(distinct valor)
+          group_by: [valor_penalidade]
+          compare_group_by: [-valor]
+          row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
+          compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
+          where: "1=1"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__data__sumario_servico_dia_pagamento
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: "'2024-08-15'"
+              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+              strictly: true
+              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia_pagamento
+      - name: tipo_dia
+        description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
+        tests:
+          - not_null:
+              name: not_null__tipo_dia__sumario_servico_dia_pagamento
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        tests:
+          - not_null:
+              name: not_null__consorcio__sumario_servico_dia_pagamento
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__sumario_servico_dia_pagamento
+      - name: viagens_dia
+        description: "{{ doc('viagens_dia') }}"
+        tests:
+          - not_null:
+              name: not_null__viagens_dia__sumario_servico_dia_pagamento
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__viagens_dia__sumario_servico_dia_pagamento
+      - name: km_apurada_dia
+        description: "{{ doc('km_apurada') }}"
+        tests:
+          - not_null:
+              name: not_null__km_apurada_dia__sumario_servico_dia_pagamento
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__km_apurada_dia__sumario_servico_dia_pagamento
+          - sumario_servico_dia_tipo_soma_km:
+              name: sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento
+      - name: km_subsidiada_dia
+        description: "{{ doc('km_subsidiada_dia') }}"
+        tests:
+          - not_null:
+              name: not_null__km_subsidiada_dia__sumario_servico_dia_pagamento
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__km_subsidiada_dia__sumario_servico_dia_pagamento
+      - name: km_planejada_dia
+        description: "{{ doc('km_planejada_dia') }}"
+        tests:
+          - not_null:
+              name: not_null__km_planejada_dia__sumario_servico_dia_pagamento
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__km_planejada_dia__sumario_servico_dia_pagamento
+      - name: media_pof
+        description: "Média do indicador percentual de operação por faixa horária"
+        tests:
+          - not_null:
+              name: not_null__media_pof__sumario_servico_dia_pagamento
+          - dbt_utils.accepted_range:
+              min_value: 0
+              name: dbt_utils.accepted_range__media_pof__sumario_servico_dia_pagamento
+      - name: desvp_pof
+        description: "Desvio padrão do indicador percentual de operação por faixa horária"
+      - name: km_apurada_registrado_com_ar_inoperante
+        description: "{{ doc('km_apurada_registrado_com_ar_inoperante') }}"
+      - name: km_apurada_n_licenciado
+        description: "{{ doc('km_apurada_n_licenciado') }}"
+      - name: km_apurada_autuado_ar_inoperante
+        description: "{{ doc('km_apurada_autuado_ar_inoperante') }}"
+      - name: km_apurada_autuado_seguranca
+        description: "{{ doc('km_apurada_autuado_seguranca') }}"
+      - name: km_apurada_autuado_limpezaequipamento
+        description: "{{ doc('km_apurada_autuado_limpezaequipamento') }}"
+      - name: km_apurada_licenciado_sem_ar_n_autuado
+        description: "{{ doc('km_apurada_licenciado_sem_ar_n_autuado') }}"
+      - name: km_apurada_licenciado_com_ar_n_autuado
+        description: "{{ doc('km_apurada_licenciado_com_ar_n_autuado') }}"
+      - name: km_apurada_n_vistoriado
+        description: "{{ doc('km_apurada_n_vistoriado') }}"
+      - name: km_apurada_sem_transacao
+        description: "Quilometragem apurada de viagens realizadas sem passageiro registrado (km)"
+      - name: valor_a_pagar
+        description: "{{ doc('valor_a_pagar') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_a_pagar__sumario_servico_dia_pagamento
+      - name: valor_glosado
+        description: "{{ doc('valor_glosado') }}"
+      - name: valor_acima_limite
+        description: "{{ doc('valor_acima_limite') }}"
+      - name: valor_total_sem_glosa
+        description: "{{ doc('valor_total_sem_glosa') }}"
+      - name: valor_total_apurado
+        description: "{{ doc('valor_total_apurado') }}"
+      - name: valor_judicial
+        description: "{{ doc('valor_judicial') }}"
+      - name: valor_penalidade
+        description: "{{ doc('valor_penalidade') }}"
+        tests:
+          - not_null:
+              name: not_null__valor_penalidade__sumario_servico_dia_pagamento
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"

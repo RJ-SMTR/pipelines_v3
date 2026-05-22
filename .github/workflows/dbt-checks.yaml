@@ -28,7 +28,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           activate-environment: true
 
       - name: Install project dependencies
@@ -38,28 +38,12 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      # - name: Activate python venv
-      #   run: |
-      #     echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
-
-# echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV
-
-
       - name: Install sqlfmt
         run: pip install 'shandy-sqlfmt[jinjafmt]'
 
       - name: Get changed files
         id: files
         uses: tj-actions/changed-files@v34
-
-      # - name: Check sh script
-      #   run: |
-      #     ls /home/runner/work/_temp | grep .sh | cat
-      #     cat queries/setup_dbt_profiles.sh
-
-      # - name: Setup DBT profile
-      #   working-directory: queries
-      #   run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
 
       - name: Setup dbt profiles
         working-directory: queries
@@ -109,5 +93,3 @@ jobs:
         working-directory: queries
         run: |-
           uv run dbt compile --profiles-dir profiles
-
-#trigger
