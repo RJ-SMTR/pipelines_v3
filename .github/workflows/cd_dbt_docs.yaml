@@ -13,6 +13,7 @@ on:
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCS_BUCKET_NAME: rj-smtr-public
+  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
 jobs:
   generate-and-upload-docs:
@@ -42,8 +43,6 @@ jobs:
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v3
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         with:
           credentials_json: ${{ env.GCP_SA_KEY }}
 
@@ -54,8 +53,6 @@ jobs:
           version: "latest"
 
       - name: Setup credentials for dbt
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         run: |-
 
           echo "Mounting files from env..."
