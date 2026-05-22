@@ -5,7 +5,9 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Optional
 
+import yaml
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
@@ -105,7 +107,15 @@ def run_dbt_deps():
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_select(dbt_select: str, dbt_user: str = "botelho", dbt_selector: str = ""):
+def run_dbt_select(
+    dbt_select: str,
+    dbt_user: str = "botelho",
+    dbt_selector: str = "",
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+):
     """
     Executa `dbt run` escrevendo no target `dev`.
 
@@ -117,6 +127,10 @@ def run_dbt_select(dbt_select: str, dbt_user: str = "botelho", dbt_selector: str
         dbt_user (str): Valor de `DBT_USER` usado pelo macro `generate_schema_name`
             para prefixar o schema em target `dev`.
         dbt_selector (str): Nome do `--selector` definido em `selectors.yml`.
+        datetime_start (Optional[str]): Datetime inicial (ISO) passado como `--vars`.
+        datetime_end (Optional[str]): Datetime final (ISO) passado como `--vars`.
+        flags (Optional[list[str]]): Flags adicionais anexadas ao comando dbt.
+        additional_vars (Optional[dict]): Variáveis extras passadas via `--vars`.
     """
     os.environ["DBT_USER"] = dbt_user
     print(f"DBT_USER={dbt_user}")
@@ -126,6 +140,22 @@ def run_dbt_select(dbt_select: str, dbt_user: str = "botelho", dbt_selector: str
         invoke = ["run", "--select", dbt_select, "--target", "dev"]
     else:
         invoke = ["debug", "--target", "dev"]
+
+    dbt_vars: dict = {}
+    if datetime_start:
+        dbt_vars["date_range_start"] = datetime_start
+    if datetime_end:
+        dbt_vars["date_range_end"] = datetime_end
+    if additional_vars:
+        dbt_vars.update(additional_vars)
+
+    if dbt_vars and invoke[0] != "debug":
+        vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
+        invoke = [*invoke, "--vars", vars_yaml]
+
+    if flags:
+        invoke = [*invoke, *flags]
+
     print(f"dbt {' '.join(invoke)}")
     with profile_resources(f"dbt_{invoke[0]}"):
         _dbt_runner().invoke(invoke)
