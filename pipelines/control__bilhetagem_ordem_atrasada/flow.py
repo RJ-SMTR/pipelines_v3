@@ -3,11 +3,22 @@
 Flows de tratamento dos dados financeiros
 """
 
+from prefect import runtime
+
 from pipelines.capture.jae.flows import (
     CAPTURA_INTEGRACAO,
     CAPTURA_ORDEM_PAGAMENTO,
     CAPTURA_TRANSACAO_ORDEM,
 )
+from pipelines.capture__jae_auxiliar import flow
+from pipelines.common.tasks import (
+    get_run_env,
+    get_scheduled_timestamp,
+    initialize_sentry,
+    run_subflow,
+    setup_environment,
+)
+from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
 from pipelines.tasks import (
     parse_timestamp_to_string,
 )
@@ -19,25 +30,13 @@ from pipelines.treatment.financeiro.flows import (
     FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
     ordem_pagamento_quality_check,
 )
-from prefect import runtime
-
-from pipelines.capture__jae_auxiliar import flow
-from pipelines.common.tasks import (
-    get_run_env,
-    get_scheduled_timestamp,
-    initialize_sentry,
-    run_subflow,
-    setup_environment,
-)
-from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
 
 sources = jae_constants.sources
 
 
 @flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
 async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
-
-    deployment_name=runtime.deployment.name
+    deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env)
