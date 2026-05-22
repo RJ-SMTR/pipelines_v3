@@ -178,7 +178,7 @@ with
                 then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
                 when data = date(2026, 05, 03)
 <<<<<<< HEAD
-                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026               
+                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
 =======
                 then "Shakira_03-05"  --000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
 >>>>>>> a364bcc315e832e367176bc2e54fa404cc76f744
