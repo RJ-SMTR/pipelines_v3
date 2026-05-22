@@ -104,7 +104,7 @@ async def optimize_database_if_needed(db_url: str, bloat_threshold: float = 30.0
             END AS bloat_percent
         FROM pg_stat_user_tables
         WHERE schemaname = 'public'
-          AND n_dead_tup > 1000
+          AND n_dead_tup > 10
     """
 
     # Conecta em modo autocommit (necessário para rodar o VACUUM)
@@ -118,7 +118,7 @@ async def optimize_database_if_needed(db_url: str, bloat_threshold: float = 30.0
         for row in tables_stats:
             table_name = row["tablename"]
             bloat_pct = float(row["bloat_percent"])
-
+            print(f"Tabela '{table_name}' tem {bloat_pct}% de bloat.")
             if bloat_pct > bloat_threshold:
                 tables_to_vacuum.append((table_name, bloat_pct))
 
