@@ -181,6 +181,40 @@ select
             )
         then true  -- Processo 000399006676/2026-28
         when
+            (v.data between date('2026-05-01') and date('2026-05-15'))
+            and v.servico in (
+                "104",
+                "107",
+                "161",
+                "167",
+                "169",
+                "232",
+                "361",
+                "409",
+                "410",
+                "416",
+                "435",
+                "461",
+                "473",
+                "552",
+                "583",
+                "584",
+                "805",
+                "SP805",
+                "LECD127",
+                "LECD128",
+                "LECD129",
+                "LECD130",
+                "LECD131",
+                "LECD132",
+                "LECD133",
+                "LECD134",
+                "LECD135",
+                "LECD136",
+                "LECD138"
+            )  -- Processo n°  000300.019252/2026-75.
+        then true
+        when
             (v.data between date('2026-04-01') and date('2026-04-30'))
             and v.servico in (
                 "104",
