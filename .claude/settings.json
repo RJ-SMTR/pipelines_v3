@@ -37,7 +37,6 @@
       "Bash(git fetch *)",
       "Bash(git log:*)",
       "Bash(git pull:*)",
-      "Bash(git push:*)",
       "Bash(git stash:*)",
       "Bash(git status:*)",
       "Bash(grep:*)",
@@ -50,8 +49,7 @@
       "Bash(uv run:*)",
       "Bash(uv sync:*)",
       "Bash(uvx cookiecutter:*)",
-      "Bash(uvx dbt-autofix *)",
-      "Read(//tmp/**)"
+      "Bash(uvx dbt-autofix *)"
     ],
     "deny": [
       "Bash(git push --force:*)",
