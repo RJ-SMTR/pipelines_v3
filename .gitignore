@@ -8,6 +8,9 @@ prefect_rj_iplanrio.egg-info/
 .antigravity/
 .antigravitycli/
 
+# Claude local settings
+.claude/settings.local.json
+
 # Root build symlinks
 /target
 
