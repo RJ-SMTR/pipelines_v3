@@ -4,6 +4,13 @@ prefect_rj_iplanrio.egg-info/
 # Cursor files
 .cursor/
 
+# Antigravity
+.antigravity/
+.antigravitycli/
+
+# Root build symlinks
+/target
+
 #dbt
 queries/logs/*
 queries/target/*
