@@ -4,13 +4,12 @@ prefect_rj_iplanrio.egg-info/
 # Cursor files
 .cursor/
 
-# Antigravity
+# AGENTS settings
 .antigravity/
 .antigravitycli/
-
-# Claude local settings
 .claude/settings.local.json
 CLAUDE.local.md
+AGENTS.md
 
 # Root build symlinks
 /target
