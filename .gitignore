@@ -5,6 +5,16 @@ logs/*
 # Cursor files
 .cursor/
 
+# AGENTS settings
+.antigravity/
+.antigravitycli/
+.claude/settings.local.json
+CLAUDE.local.md
+AGENTS.md
+
+# Root build symlinks
+/target
+
 #dbt
 queries/logs/*
 queries/target/*
