@@ -51,7 +51,7 @@ models:
           - not_null:
               name: not_null__servico__viagem_planejada
       - name: vista
-        description: 'Itinerário do serviço [ex: Bananal ↔ Saens Peña]'
+        description: "Itinerário do serviço [ex: Bananal ↔ Saens Peña]"
         tests:
           - not_null:
               name: not_null__vista__viagem_planejada
@@ -61,7 +61,7 @@ models:
           - not_null:
               name: not_null__consorcio__viagem_planejada
       - name: sentido
-        description: 'Sentido planejado - categorias: I [ida], V [volta], C [circular]'
+        description: "Sentido planejado - categorias: I [ida], V [volta], C [circular]"
         tests:
           - not_null:
               name: not_null__sentido__viagem_planejada
@@ -156,7 +156,7 @@ models:
           - not_null:
               name: not_null__shape__viagem_planejada
       - name: sentido_shape
-        description: 'Sentido do shape [codificado no shape_id - categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [codificado no shape_id - categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null:
               name: not_null__sentido_shape__viagem_planejada
@@ -271,7 +271,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: 'Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -285,7 +285,7 @@ models:
       - name: end_pt
         description: "{{ doc('end_pt') }}"
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -322,7 +322,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: 'Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -334,7 +334,7 @@ models:
       - name: distancia_inicio_fim
         description: Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -394,7 +394,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: 'Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -406,7 +406,7 @@ models:
       - name: distancia_inicio_fim
         description: Soma da distância entre o ponto inicial do shape e o primeiro sinal de gps da viagem e a distância entre o ponto final do shape e o último sinal de gps da viagem (Km)
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -475,10 +475,6 @@ models:
         description: Outro serviço da empresa que o veículo pode estar operando
         tests:
           - not_null
-      - name: shape_id
-        description: 'Código identificador do shape [trajeto] do serviço realizado '
-        tests:
-          - not_null
       - name: distancia_planejada
         description: Distância do shape [trajeto] planejado
         tests:
@@ -493,7 +489,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: 'Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -503,7 +499,7 @@ models:
                   - V
                   - C
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -533,6 +529,8 @@ models:
           - not_null
       - name: shape_id
         description: "{{ doc('shape_id') }}"
+        tests:
+          - not_null
       - name: trip_id
         description: "{{ doc('trip_id') }} com ajustes"
       - name: shape_id_planejado
@@ -630,7 +628,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: 'Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -640,7 +638,7 @@ models:
                   - V
                   - C
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -783,7 +781,7 @@ models:
         tests:
           - not_null
       - name: sentido
-        description: 'Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]'
+        description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
           - not_null
           - accepted_values:
@@ -793,7 +791,7 @@ models:
                   - V
                   - C
       - name: id_viagem
-        description: 'Código identificador da viagem [ex: id_veiculo + servico + sentido + shape_id + datetime_partida]'
+        description: "Código identificador da viagem [ex: id_veiculo + servico + sentido + shape_id + datetime_partida]"
         tests:
           - not_null
           - unique
@@ -806,7 +804,7 @@ models:
         tests:
           - not_null
       - name: tipo_viagem
-        description: 'Tipo de viagem - categorias: Completa linha correta, Completa linha incorreta'
+        description: "Tipo de viagem - categorias: Completa linha correta, Completa linha incorreta"
         tests:
           - not_null
           - accepted_values:
