@@ -1,14 +1,16 @@
 {% test unique_relation(model, column_name, partition_column, relation_field) %}
-SELECT *
-FROM (
-    SELECT
-        {{ column_name }},
-        {{ partition_column}},
-        COUNT({{ relation_field }}) ct
-    FROM {{ model }}
-    WHERE
-        {{ partition_column }} = (select max({{ partition_column }}) from {{ model }})
-    GROUP BY 1, 2
-)
-WHERE ct != 1
+    select *
+    from
+        (
+            select
+                {{ column_name }},
+                {{ partition_column }},
+                count({{ relation_field }}) ct
+            from {{ model }}
+            where
+                {{ partition_column }}
+                = (select max({{ partition_column }}) from {{ model }})
+            group by 1, 2
+        )
+    where ct != 1
 {% endtest %}
