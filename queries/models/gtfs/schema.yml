@@ -563,7 +563,7 @@ models:
       - name: shape
         description: "{{ doc('shape') }}"
       - name: sentido_shape
-        description: "Sentido do shape - categorias: I (ida), V (volta)"
+        description: "{{ doc('sentido_shape') }}"
       - name: start_pt
         description: "{{ doc('start_pt') }}"
       - name: end_pt

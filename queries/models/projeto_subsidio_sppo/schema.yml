@@ -156,7 +156,7 @@ models:
           - not_null:
               name: not_null__shape__viagem_planejada
       - name: sentido_shape
-        description: "Sentido do shape [codificado no shape_id - categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null:
               name: not_null__sentido_shape__viagem_planejada
@@ -271,7 +271,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null
           - accepted_values:
@@ -322,7 +322,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null
           - accepted_values:
@@ -394,7 +394,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null
           - accepted_values:
@@ -489,7 +489,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null
           - accepted_values:
@@ -628,7 +628,7 @@ models:
         tests:
           - not_null
       - name: sentido_shape
-        description: "Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]"
+        description: "{{ doc('sentido_shape') }}"
         tests:
           - not_null
           - accepted_values:
