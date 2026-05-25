@@ -16,6 +16,7 @@ from pipelines.capture__jae_backup_billingpay.utils import (
     get_redis_last_backup,
 )
 from pipelines.common.capture.jae import constants as jae_constants
+from pipelines.common.capture.jae.utils import get_jae_database_settings
 from pipelines.common.treatment.default_treatment import (
     constants as treatment_constants,
 )
@@ -42,7 +43,7 @@ def get_jae_db_config(database_name: str) -> dict[str, str]:
         dict[str, str]: Dicionário com os argumentos para a função create_database_url
     """
     secrets = get_env_secret(jae_constants.JAE_SECRET_PATH)
-    settings = jae_constants.JAE_DATABASE_SETTINGS[database_name]
+    settings = get_jae_database_settings(database_name)
     return {
         "engine": settings["engine"],
         "host": settings["host"],
