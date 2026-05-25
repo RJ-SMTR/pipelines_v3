@@ -1,5 +1,11 @@
 # Changelog - control__jae_verificacao_captura
 
+## [1.0.3] - 2026-05-21
+
+### Alterado
+
+- Altera função `get_jae_timestamp_captura_count` para usar a nova função `get_jae_database_settings` (https://github.com/RJ-SMTR/pipelines_v3/pull/201)
+
 ## [1.0.2] - 2026-05-20
 
 ### Adicionado

@@ -4,7 +4,7 @@ Flow de captura de transações com erro da Jaé
 
 Executa a captura de dados de transações com erro no sistema Jaé.
 
-Common: 2026-03-19
+Common: 2026-05-20
 """
 
 from pipelines.capture__jae_transacao_erro import constants
