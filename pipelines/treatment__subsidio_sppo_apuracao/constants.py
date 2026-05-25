@@ -11,9 +11,9 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 
 TZ = ZoneInfo(smtr_constants.TIMEZONE)
 
-DATA_SUBSIDIO_V9_INICIO = datetime(2024, 8, 16, 0, 0, 0, tzinfo=TZ)
-DATA_SUBSIDIO_V14_INICIO = datetime(2025, 1, 5, 0, 0, 0, tzinfo=TZ)
-SUBSIDIO_INITIAL_DATETIME = datetime(2022, 6, 1, 0, 0, 0, tzinfo=TZ)
+DATA_SUBSIDIO_V9_INICIO = datetime(2024, 8, 16, 7, 5, 0, tzinfo=TZ)
+DATA_SUBSIDIO_V14_INICIO = datetime(2025, 1, 5, 7, 5, 0, tzinfo=TZ)
+SUBSIDIO_INITIAL_DATETIME = datetime(2022, 6, 1, 7, 5, 0, tzinfo=TZ)
 
 INCREMENTAL_DELAY_HOURS = 24 * 7  # D-7
 
