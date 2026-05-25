@@ -182,7 +182,8 @@ models:
         tests:
           - unique:
               name: unique__id_transacao__integracao_nao_realizada
-              where: data in ({partitions})
+              config:
+                where: data in ({partitions})
       - name: datetime_transacao
         description: "{{ doc('datetime_transacao') }}"
         data_type: datetime
