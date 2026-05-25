@@ -12,7 +12,7 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 PLANEJAMENTO_DIARIO_CHECKS_LIST = {
     "viagem_planejada_planejamento_dia": {
         "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia": {
-            "description": "Todos os registros são únicos."
+            "description": "Todos os registros de 'data' e 'id_viagem' são únicos."
         },
     },
 }
