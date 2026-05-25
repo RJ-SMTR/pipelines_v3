@@ -537,3 +537,9 @@ sources:
 
     tables:
       - name: pessoa_juridica
+
+  - name: bilhetagem_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: excecao_teste_transacao_valor_ordem
