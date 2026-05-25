@@ -53,43 +53,50 @@ models:
         description: "{{ doc('data_ordem') }} [partição]"
         tests:
           - dbt_expectations.expect_column_max_to_be_between:
-              min_value: "current_date('America/Sao_Paulo')"
-              strictly: false
-              where: "1=1"
               name: dbt_expectations.expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia
 
+              config:
+                where: "1=1"
+              arguments:
+                min_value: "current_date('America/Sao_Paulo')"
+                strictly: false
       - name: id_ordem_pagamento_consorcio_operador_dia
         description: "Identificador único do registro no banco de dados da Jaé"
         tests:
           - not_null:
-              where: "data_ordem in ({partitions})"
               name: not_null__id_ordem_pagamento_consorcio_operador_dia__bilhetagem_consorcio_operador_dia
+              config:
+                where: "data_ordem in ({partitions})"
       - name: id_consorcio
         description: "{{ doc('id_consorcio') }}"
         tests:
           - not_null:
-              where: "data_ordem in ({partitions})"
               name: not_null__id_consorcio__bilhetagem_consorcio_operador_dia
+              config:
+                where: "data_ordem in ({partitions})"
       - name: consorcio
         description: "{{ doc('nome_consorcio') }}"
         tests:
           - not_null:
-              where: "data_ordem in ({partitions})"
               name: not_null__consorcio__bilhetagem_consorcio_operador_dia
+              config:
+                where: "data_ordem in ({partitions})"
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         tests:
           - not_null:
-              where: "data_ordem in ({partitions})"
               name: not_null__id_operadora__bilhetagem_consorcio_operador_dia
+              config:
+                where: "data_ordem in ({partitions})"
       - name: operadora
         description: "{{ doc('operadora') }}"
       - name: id_ordem_pagamento
         description: "Identificador da ordem pagamento no banco de dados da Jaé"
         tests:
           - not_null:
-              where: "data_ordem in ({partitions})"
               name: not_null__id_ordem_pagamento__bilhetagem_consorcio_operador_dia
+              config:
+                where: "data_ordem in ({partitions})"
       - name: quantidade_transacao_debito
         description: "Quantidade de transações feitas na modalidade débito"
       - name: valor_debito

@@ -1,8 +1,19 @@
 test.py
 test/
 prefect_rj_iplanrio.egg-info/
+logs/*
 # Cursor files
 .cursor/
+
+# AGENTS settings
+.antigravity/
+.antigravitycli/
+.claude/settings.local.json
+CLAUDE.local.md
+AGENTS.md
+
+# Root build symlinks
+/target
 
 #dbt
 target
