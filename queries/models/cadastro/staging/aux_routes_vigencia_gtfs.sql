@@ -1,70 +1,65 @@
 {{
-  config(
-    materialized="ephemeral",
-  )
+    config(
+        materialized="ephemeral",
+    )
 }}
 
-WITH routes_rn AS (
-  SELECT
-    route_id AS id_servico,
-    route_short_name AS servico,
-    route_long_name AS descricao_servico,
-    feed_start_date AS inicio_vigencia,
-    feed_end_date AS fim_vigencia,
-    LAG(feed_end_date) OVER (PARTITION BY route_id ORDER BY feed_start_date) AS feed_end_date_anterior,
-    ROW_NUMBER() OVER (PARTITION BY route_id ORDER BY feed_start_date DESC) AS rn
-  FROM
-    {{ ref("routes_gtfs") }}
-),
-routes_agrupada AS (
-  SELECT
+with
+    routes_rn as (
+        select
+            route_id as id_servico,
+            route_short_name as servico,
+            route_long_name as descricao_servico,
+            feed_start_date as inicio_vigencia,
+            feed_end_date as fim_vigencia,
+            lag(feed_end_date) over (
+                partition by route_id order by feed_start_date
+            ) as feed_end_date_anterior,
+            row_number() over (
+                partition by route_id order by feed_start_date desc
+            ) as rn
+        from {{ ref("routes_gtfs") }}
+    ),
+    routes_agrupada as (
+        select
+            id_servico,
+            inicio_vigencia,
+            servico,
+            descricao_servico,
+            ifnull(fim_vigencia, current_date("America/Sao_Paulo")) as fim_vigencia,
+            sum(
+                case
+                    when
+                        feed_end_date_anterior is null
+                        or feed_end_date_anterior
+                        <> date_sub(inicio_vigencia, interval 1 day)
+                    then 1
+                    else 0
+                end
+            ) over (partition by id_servico order by inicio_vigencia) as group_id
+        from routes_rn
+    ),
+    vigencia as (
+        select
+            id_servico,
+            min(inicio_vigencia) as inicio_vigencia,
+            max(fim_vigencia) as fim_vigencia
+        from routes_agrupada
+        group by id_servico, group_id
+    )
+select
     id_servico,
-    inicio_vigencia,
-    servico,
-    descricao_servico,
-    IFNULL(fim_vigencia, CURRENT_DATE("America/Sao_Paulo")) as fim_vigencia,
-    SUM(
-      CASE
-        WHEN feed_end_date_anterior IS NULL OR feed_end_date_anterior <> DATE_SUB(inicio_vigencia, INTERVAL 1 DAY) THEN 1
-        ELSE 0
-      END
-    ) OVER (PARTITION BY id_servico ORDER BY inicio_vigencia) AS group_id
-  FROM
-    routes_rn
-),
-vigencia AS (
-  SELECT
-    id_servico,
-    MIN(inicio_vigencia) AS inicio_vigencia,
-    MAX(fim_vigencia) AS fim_vigencia
-  FROM
-    routes_agrupada
-  GROUP BY
-    id_servico,
-    group_id
-)
-SELECT
-  id_servico,
-  r.servico,
-  r.descricao_servico,
-  NULL AS latitude,
-  NULL AS longitude,
-  v.inicio_vigencia,
-  CASE
-    WHEN v.fim_vigencia != CURRENT_DATE("America/Sao_Paulo") THEN v.fim_vigencia
-  END AS fim_vigencia,
-  'routes' AS tabela_origem_gtfs,
-FROM
- vigencia v
-JOIN
-(
-  SELECT
-    id_servico,
-    servico,
-    descricao_servico
-  FROM
-    routes_rn
-  WHERE
-    rn = 1
-) r
-USING(id_servico)
+    r.servico,
+    r.descricao_servico,
+    null as latitude,
+    null as longitude,
+    v.inicio_vigencia,
+    case
+        when v.fim_vigencia != current_date("America/Sao_Paulo") then v.fim_vigencia
+    end as fim_vigencia,
+    'routes' as tabela_origem_gtfs,
+from vigencia v
+join
+    (
+        select id_servico, servico, descricao_servico from routes_rn where rn = 1
+    ) r using (id_servico)
