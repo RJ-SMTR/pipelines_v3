@@ -1,5 +1,11 @@
 # Changelog - bilhetagem
 
+## [3.3.8] - 2026-05-25
+
+### Adicionado
+
+- Adiciona tabela de exceções no teste `transacao_valor_ordem_completa` do modelo `transacao_valor_ordem.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/211)
+
 ## [3.3.8] - 2026-05-14
 
 ### Alterado
