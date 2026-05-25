@@ -32,8 +32,11 @@
                 var_replace, var_value
             ) %}
         {% endfor %}
-        {{ return("(select * from " ~ relation ~ " where " ~ final_where.value ~ ")") }}
-    {%- else -%}
-        {{ return(relation) }}
+        {{
+            return(
+                "(select * from " ~ relation ~ " where " ~ final_where.value ~ ")"
+            )
+        }}
+    {%- else -%} {{ return(relation) }}
     {%- endif -%}
 {%- endmacro %}
