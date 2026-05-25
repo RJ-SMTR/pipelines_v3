@@ -201,21 +201,16 @@ with
             t.direction_id,
             tas.tipo_os,
             array_agg(
-                if(
-                    tas.extensao is not null and tas.extensao != 0,
-                    struct(
-                        t.trip_id as trip_id,
-                        t.shape_id as shape_id,
-                        t.evento as evento,
-                        tas.extensao as extensao
-                    ),
-                    struct(
-                        cast(null as string) as trip_id,
-                        cast(null as string) as shape_id,
-                        cast(null as string) as evento,
-                        cast(null as float64) as extensao
-                    )
-                )
+                case
+                    when tas.extensao is not null and tas.extensao != 0
+                    then
+                        struct(
+                            t.trip_id as trip_id,
+                            t.shape_id as shape_id,
+                            t.evento as evento,
+                            tas.extensao as extensao
+                        )
+                end ignore nulls
             ) as trajetos_alternativos
         from trips t
         left join
