@@ -80,4 +80,7 @@ GTFS_DATA_CHECKS_LIST = {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
         },
     },
+    "viagem_planejada_planejamento": {
+        "unique": {"description": "Todos os registros são únicos."},
+    },
 }
