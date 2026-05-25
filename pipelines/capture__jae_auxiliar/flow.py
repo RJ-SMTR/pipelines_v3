@@ -4,7 +4,7 @@ Flow de captura de dados auxiliares da Jaé
 
 Executa a captura de dados da tabela auxiliar do sistema Jaé.
 
-Common: 2026-05-12
+Common: 2026-05-20
 """
 
 from pipelines.capture__jae_auxiliar import constants
