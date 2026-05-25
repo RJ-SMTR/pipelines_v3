@@ -38,14 +38,15 @@ GTFS_TABLE_CAPTURE_PARAMS = {
 }
 
 GTFS_DBT_EXCLUDE = (
-    "calendario aux_calendario_manual "
+    "calendario aux_calendario_manual viagem_planejada_planejamento_dia "
     "matriz_integracao tecnologia_servico aux_ordem_servico_faixa_horaria "
     "servico_planejado_faixa_horaria matriz_reparticao_tarifaria"
 )
 
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
-    "viagem_planejada viagens_remuneradas sumario_servico_dia_historico"
+    "viagem_planejada viagens_remuneradas sumario_servico_dia_historico "
+    "viagem_planejada_planejamento_dia"
 )
 
 GTFS_DATA_CHECKS_LIST = {
