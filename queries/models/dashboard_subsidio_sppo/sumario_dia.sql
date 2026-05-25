@@ -31,8 +31,7 @@ with
         from {{ ref("viagem_completa") }}
         -- `rj-smtr`.`projeto_subsidio_sppo`.`viagem_completa`
         where
-            data >= "2022-06-01"
-            and data < date("{{ var('DATA_SUBSIDIO_V2_INICIO') }}")
+            data >= "2022-06-01" and data < date("{{ var('DATA_SUBSIDIO_V2_INICIO') }}")
         group by 1, 2
     ),
     sumario as (
