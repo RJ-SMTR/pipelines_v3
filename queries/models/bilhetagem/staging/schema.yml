@@ -41,12 +41,14 @@ models:
     tests:
       - dbt_expectations.expect_table_row_count_to_be_between:
           name: dbt_expectations.expect_table_row_count_to_be_between__aux_gratuidade_info
-          min_value: 0
-          max_value: 1
-          group_by: [id_cliente]
-          row_condition: "datetime_fim_validade is null"
-          strictly: false
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            min_value: 0
+            max_value: 1
+            group_by: [id_cliente]
+            row_condition: "datetime_fim_validade is null"
+            strictly: false
     columns:
       - name: id_cliente
         policy_tags:

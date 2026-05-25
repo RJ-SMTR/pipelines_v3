@@ -1,6 +1,7 @@
 test.py
 test/
 prefect_rj_iplanrio.egg-info/
+logs/*
 # Cursor files
 .cursor/
 
