@@ -9,7 +9,13 @@
 
     {% if execute %}
         {% set model_str = model | string %}
-        {% set parts = (model_str | replace("`", "") | replace("(", "") | replace(")", "") | trim).split(".") %}
+        {% set parts = (
+            model_str
+            | replace("`", "")
+            | replace("(", "")
+            | replace(")", "")
+            | trim
+        ).split(".") %}
         {% set project = parts[0] if parts | length >= 3 else None %}
         {% set dataset = parts[1] if parts | length >= 3 else None %}
         {% set table = parts[2] if parts | length >= 3 else None %}

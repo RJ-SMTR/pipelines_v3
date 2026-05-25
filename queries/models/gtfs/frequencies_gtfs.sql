@@ -1,33 +1,35 @@
-{{config(
-    partition_by = { 'field' :'feed_start_date',
-    'data_type' :'date',
-    'granularity': 'day' },
-    unique_key = ['trip_id', 'start_time', 'feed_start_date'],
-    alias = 'frequencies'
-)}}
+{{
+    config(
+        partition_by={
+            "field": "feed_start_date",
+            "data_type": "date",
+            "granularity": "day",
+        },
+        unique_key=["trip_id", "start_time", "feed_start_date"],
+        alias="frequencies",
+    )
+}}
 
 {% if execute and is_incremental() %}
-  {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
+    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
 {% endif %}
 
-SELECT
-  fi.feed_version,
-  SAFE_CAST(f.data_versao AS DATE) as feed_start_date,
-  fi.feed_end_date,
-  SAFE_CAST(f.trip_id AS STRING) trip_id,
-  SAFE_CAST(f.start_time AS STRING) start_time,
-  SAFE_CAST(JSON_VALUE(f.content, '$.end_time') AS STRING) end_time,
-  SAFE_CAST(JSON_VALUE(f.content, '$.headway_secs') AS INT64) headway_secs,
-  SAFE_CAST(JSON_VALUE(f.content, '$.exact_times') AS STRING) exact_times,
-  '{{ var("version") }}' AS versao_modelo
-FROM
-  {{source('br_rj_riodejaneiro_gtfs_staging', 'frequencies')}} f
-JOIN
-  {{ ref('feed_info_gtfs') }} fi
-ON
-  f.data_versao = CAST(fi.feed_start_date AS STRING)
+select
+    fi.feed_version,
+    safe_cast(f.data_versao as date) as feed_start_date,
+    fi.feed_end_date,
+    safe_cast(f.trip_id as string) trip_id,
+    safe_cast(f.start_time as string) start_time,
+    safe_cast(json_value(f.content, '$.end_time') as string) end_time,
+    safe_cast(json_value(f.content, '$.headway_secs') as int64) headway_secs,
+    safe_cast(json_value(f.content, '$.exact_times') as string) exact_times,
+    '{{ var("version") }}' as versao_modelo
+from {{ source("br_rj_riodejaneiro_gtfs_staging", "frequencies") }} f
+join
+    {{ ref("feed_info_gtfs") }} fi on f.data_versao = cast(fi.feed_start_date as string)
 {% if is_incremental() -%}
-  WHERE
-    f.data_versao IN ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-    AND fi.feed_start_date IN ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+    where
+        f.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+        and fi.feed_start_date
+        in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
 {%- endif %}
