@@ -4,16 +4,15 @@
 
 ### Adicionado
 
-- Cria modelo `viagem_planejada_planejamento_dia` com viagens planejadas por dia (PK: `data`, `id_viagem`), alias `viagem_planejada_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelo `viagem_planejada_planejamento_dia` com viagens planejadas por dia (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 - Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
-- Adiciona testes de unicidade (`dbt_utils.unique_combination_of_columns`) nos modelos `viagem_planejada_planejamento` (`id_viagem`) e `viagem_planejada_planejamento_dia` (`data`, `id_viagem`) (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Adiciona testes de unicidade nos modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 
 ### Alterado
 
-- Refatora modelo `viagem_planejada_planejamento`: nova PK `id_viagem` sem `data` (inclui `service_id`, `tipo_os`, `tipo_dia`, `horario_partida`), partição alterada de `data` para `feed_start_date` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Refatora modelo `viagem_planejada_planejamento` removendo dependência da tabela `calendario` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 - Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 - Refatora modelo `aux_trips_dia` para utilizar trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
-- Exclui `service_id = 'EXCEP'` das viagens planejadas nos modelos `viagem_planejada_planejamento` (frequencies e stop_times) (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 
 ## [1.7.1] - 2026-05-22
 
