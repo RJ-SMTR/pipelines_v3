@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import getenv
 
-from tasks import delete_old_flow_runs, optimize_database_if_needed
+from tasks import delete_old_flow_runs, vacuum_tables, vacuum_index_bloat
 
 from pipelines.common.utils.prefect import flow
 
@@ -10,4 +10,5 @@ from pipelines.common.utils.prefect import flow
 async def maintenance__db_retention():
     db_url = getenv("PREFECT_DB_URL")
     await delete_old_flow_runs(days_to_keep=15, batch_size=200)
-    await optimize_database_if_needed(db_url=db_url, bloat_threshold=30.0)
+    await vacuum_tables(db_url=db_url, bloat_threshold=30.0)
+    await vacuum_index_bloat(db_url=db_url, bloat_threshold=30.0)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 from datetime import datetime, timedelta, timezone
+from os import getenv
 
 import asyncpg
 from prefect import task
@@ -84,10 +85,84 @@ async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
             await asyncio.sleep(0.5)
 
         print(f"Retention complete. Total deleted: {deleted_total}")
+        
+@task(log_prints=True)
+async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
+    """
+    Verifica o nível de inchaço (bloat) dos índices e roda REINDEX
+    apenas naqueles que ultrapassarem o limite configurado (padrão 30%).
+    """
+    print("Verificando índices com mais de 30% de bloat...")
+
+    # query = """
+    # SELECT 
+    #     schemaname,
+    #     relname AS tablename,
+    #     indexrelname AS indexname,
+    #     pg_size_pretty(pg_relation_size(indexrelid)) AS index_size,
+    #     idx_scan AS index_scans,
+    #     idx_tup_read AS tuples_read,
+    #     idx_tup_fetch AS tuples_fetched
+    # FROM pg_stat_user_indexes
+    # WHERE schemaname = 'public'
+    # ORDER BY pg_relation_size(indexrelid) DESC
+    # LIMIT 20;"""
+    # print("Verificando índices com maior bloat...")
+    # conn = await asyncpg.connect(getenv("PREFECT_DB_URL"))
+    # try:
+    #     index_stats = await conn.fetch(query)
+    #     for row in index_stats:
+    #         print(f"Índice '{row['indexname']}' na tabela '{row['tablename']}' tem tamanho {row['index_size']} e {row['index_scans']} scans.")
+    # except Exception as e:
+    #     print(f"Erro ao verificar índices: {e}")
+    # finally:        
+    #     await conn.close()
+
+    # Query adaptada da documentação oficial do Prefect para calcular o Bloat dos índices
+    bloat_query = """
+    SELECT
+        indexrelname AS indexname,
+        si.relname AS tablename,
+        CASE WHEN idx_scan > 0
+            THEN round(100.0 * idx_tup_read / idx_scan, 2)
+            ELSE 0
+        END AS bloat_percent
+    FROM pg_stat_user_indexes si
+    JOIN pg_index i ON i.indexrelid = si.indexrelid
+    JOIN pg_class c ON c.oid = i.indrelid
+    WHERE schemaname = 'public'
+    AND idx_scan > 10 
+    """
+    conn = await asyncpg.connect(db_url)
+    try:
+        indexes_stats = await conn.fetch(bloat_query)
+
+        indexes_to_reindex = []
+        for row in indexes_stats:
+            index_name = row["indexname"]
+            table_name = row["tablename"]
+            bloat_pct = float(row["bloat_percent"])
+            print(f"Índice '{index_name}' da tabela '{table_name}' tem {bloat_pct}% de bloat.")
+            if bloat_pct > bloat_threshold:
+                indexes_to_reindex.append((index_name, table_name, bloat_pct))
+
+        if not indexes_to_reindex:
+            print("Nenhum índice ultrapassou o limite de inchaço. Nenhuma ação necessária.")
+            return
+
+        for index_name, table_name, bloat_pct in indexes_to_reindex:
+            print(f"Executando REINDEX no índice '{index_name}' (Bloat: {bloat_pct}%)...")
+            await conn.execute(f"REINDEX INDEX CONCURRENTLY {index_name};")
+
+        print("Manutenção dos índices concluída com sucesso!")
+    except Exception as e:
+        print(f"Erro durante a verificação/manutenção dos índices: {e}")
+    finally:
+        await conn.close()
 
 
 @task(log_prints=True)
-async def optimize_database_if_needed(db_url: str, bloat_threshold: float = 30.0):
+async def vacuum_tables(db_url: str, bloat_threshold: float = 30.0):
     """
     Verifica o nível de inchaço (bloat) das tabelas e roda VACUUM ANALYZE
     apenas naquelas que ultrapassarem o limite configurado (padrão 30%).
