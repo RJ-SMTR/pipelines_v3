@@ -242,9 +242,9 @@ with
                 "_",
                 service_id,
                 "_",
-                coalesce(tipo_os, ''),
+                coalesce(tipo_os, 'NA'),
                 "_",
-                tipo_dia,
+                {{ normalize_text("tipo_dia", snake_case=true) }},
                 "_",
                 replace(horario_partida, ':', '')
             ) as id_viagem
