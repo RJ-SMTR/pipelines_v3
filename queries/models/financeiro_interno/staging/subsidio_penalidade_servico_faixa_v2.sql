@@ -65,7 +65,7 @@ select
             )
             or (s.servico in ("133", "607", "711") and s.data = "2026-03-19")
             or (s.servico in ("133", "607") and s.data = "2026-03-20")
-        then 0 --Processo SEI_000301.005390_2026_67
+        then 0  -- Processo SEI_000301.005390_2026_67
         else safe_cast(coalesce(pe.valor_penalidade, 0) as numeric)
     end as valor_penalidade,
     '{{ var("version") }}' as versao,

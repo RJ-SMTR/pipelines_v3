@@ -45,8 +45,7 @@
                         date('{{ var("run_date") }}'), interval 1 day
                     ) as data_operacao
                 {% endif %}
-            from
-                {{ ref("view_gps_sppo_completo") }} g
+            from {{ ref("view_gps_sppo_completo") }} g
             where
                 (
                     data between date_sub(
@@ -139,8 +138,7 @@
                 substr(id_veiculo, 2, 3) as id_empresa,
                 st_geogpoint(longitude, latitude) posicao_veiculo_geo,
                 date_sub(date('{{ var("run_date") }}'), interval 1 day) as data_operacao
-            from
-                {{ ref("view_gps_sppo_completo") }} g
+            from {{ ref("view_gps_sppo_completo") }} g
             where
                 (
                     data between date_sub(
