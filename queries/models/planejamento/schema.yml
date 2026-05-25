@@ -191,7 +191,8 @@ models:
         tests:
           - unique:
               name: unique__id_viagem__viagem_planejada_planejamento
-              where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: horario_partida
         description: "Horário de partida da viagem no formato HH:MM:SS"
         data_type: string
@@ -268,11 +269,13 @@ models:
     description: Tabela contendo as viagens planejadas por dia com base no GTFS e no calendário
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - data
-            - id_viagem
           name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
