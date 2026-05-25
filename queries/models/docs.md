@@ -1716,3 +1716,7 @@ Código de permissionário vindo do STU
 {% docs indicador_operador_ativo_jae %}
 Indicador de atividade do operador no sistema da Jaé
 {% enddocs %}
+
+{% docs sentido_shape %}
+Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
+{% enddocs %}
