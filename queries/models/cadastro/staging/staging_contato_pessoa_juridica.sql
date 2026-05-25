@@ -1,34 +1,42 @@
 {{
-  config(
-    alias='contato_pessoa_juridica',
-  )
+    config(
+        alias="contato_pessoa_juridica",
+    )
 }}
 
-WITH
-    contato_pessoa_juridica AS (
-        SELECT
+with
+    contato_pessoa_juridica as (
+        select
             data,
-            SAFE_CAST(NR_SEQ_CONTATO AS STRING) AS nr_seq_contato,
-            SAFE_CAST(CD_CLIENTE AS STRING) AS cd_cliente,
+            safe_cast(nr_seq_contato as string) as nr_seq_contato,
+            safe_cast(cd_cliente as string) as cd_cliente,
             timestamp_captura,
-            DATETIME(PARSE_TIMESTAMP('%Y-%m-%dT%H:%M:%S%Ez', SAFE_CAST(JSON_VALUE(content, '$.DT_INCLUSAO') AS STRING)), "America/Sao_Paulo") AS datetime_inclusao,
-            SAFE_CAST(JSON_VALUE(content, '$.NM_CONTATO') AS STRING) AS nm_contato,
-            SAFE_CAST(JSON_VALUE(content, '$.NR_RAMAL') AS STRING) AS nr_ramal,
-            SAFE_CAST(JSON_VALUE(content, '$.NR_TELEFONE') AS STRING) AS nr_telefone,
-            SAFE_CAST(JSON_VALUE(content, '$.TX_EMAIL') AS STRING) AS tx_email,
-        FROM
-            {{ source("br_rj_riodejaneiro_bilhetagem_staging", "contato_pessoa_juridica") }}
+            datetime(
+                parse_timestamp(
+                    '%Y-%m-%dT%H:%M:%S%Ez',
+                    safe_cast(json_value(content, '$.DT_INCLUSAO') as string)
+                ),
+                "America/Sao_Paulo"
+            ) as datetime_inclusao,
+            safe_cast(json_value(content, '$.NM_CONTATO') as string) as nm_contato,
+            safe_cast(json_value(content, '$.NR_RAMAL') as string) as nr_ramal,
+            safe_cast(json_value(content, '$.NR_TELEFONE') as string) as nr_telefone,
+            safe_cast(json_value(content, '$.TX_EMAIL') as string) as tx_email,
+        from
+            {{
+                source(
+                    "br_rj_riodejaneiro_bilhetagem_staging", "contato_pessoa_juridica"
+                )
+            }}
     ),
-    contato_pessoa_juridica_rn AS (
-        SELECT
+    contato_pessoa_juridica_rn as (
+        select
             *,
-            ROW_NUMBER() OVER (PARTITION BY nr_seq_contato, cd_cliente ORDER BY timestamp_captura DESC) AS rn
-        FROM
-            contato_pessoa_juridica
+            row_number() over (
+                partition by nr_seq_contato, cd_cliente order by timestamp_captura desc
+            ) as rn
+        from contato_pessoa_juridica
     )
-SELECT
-  * EXCEPT(rn)
-FROM
-  contato_pessoa_juridica_rn
-WHERE
-  rn = 1
+select * except (rn)
+from contato_pessoa_juridica_rn
+where rn = 1

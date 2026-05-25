@@ -340,7 +340,8 @@ with
                         )
 
                     )
-                    AND datetime_partida NOT BETWEEN "2024-10-06 06:00:00" AND "2024-10-06 20:00:00" --  Eleição (2024-10-06)
+                    and datetime_partida not between "2024-10-06 06:00:00"
+                    and "2024-10-06 20:00:00"  -- Eleição (2024-10-06)
                 then 'Sem transação'
                 else 'Manter tipo viagem'
             end as tipo_viagem
