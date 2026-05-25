@@ -4,10 +4,9 @@
         {% set re = modules.re %}
         {% set final_where = namespace(value=where) %}
 
-        {% set matches = re.finditer("\{([^}]+)\}", where) %}
+        {% set matches = re.findall("\{([^}]+)\}", where) %}
 
-        {% for match in matches %}
-            {% set var_name = match.group(1) %}
+        {% for var_name in matches %}
             {% set var_replace = "{" ~ var_name ~ "}" %}
             {% if var_name == "partitions" and var(var_name) == "" %}
                 {% set partition_query %}
@@ -33,7 +32,8 @@
                 var_replace, var_value
             ) %}
         {% endfor %}
-        (select * from {{ relation }} where {{ final_where.value }})
-    {%- else -%} {{ relation }}
+        {{ return("(select * from " ~ relation ~ " where " ~ final_where.value ~ ")") }}
+    {%- else -%}
+        {{ return(relation) }}
     {%- endif -%}
 {%- endmacro %}
