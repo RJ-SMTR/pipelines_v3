@@ -11,7 +11,7 @@
         incremental_strategy="insert_overwrite",
     )
 }}
-{% if  execute %}
+{% if execute %}
     {% set run_date_str = "'" ~ var("run_date") ~ "'" %}
     {% set query = (
         "SELECT COALESCE(data_versao_shapes, feed_start_date) FROM "
@@ -35,7 +35,7 @@ with
             safe_cast(shape_pt_sequence as int64) shape_pt_sequence,
             date(data_versao) as data_versao
         from {{ var("subsidio_shapes") }} s
-            where data_versao in ("{{ data_versao_shapes | join('", "') }}")
+        where data_versao in ("{{ data_versao_shapes | join('", "') }}")
     ),
     pts as (
         select
