@@ -4,7 +4,7 @@ Flow de captura da transação riocard da Jaé
 
 Executa a captura de dados de transação riocard do sistema Jaé.
 
-Common: 2026-05-12
+Common: 2026-05-20
 """
 
 from pipelines.capture__jae_transacao_riocard import constants

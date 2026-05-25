@@ -1,5 +1,11 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.1.2] - 2026-05-21
+
+### Alterado
+
+- Altera task `get_jae_db_config` para usar a nova função `get_jae_database_settings` (https://github.com/RJ-SMTR/pipelines_v3/pull/201)
+
 ## [1.1.1] - 2026-03-17
 
 ### Adicionado
