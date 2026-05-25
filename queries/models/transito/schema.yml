@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: autuacao_citran
+  - name: view_autuacao_citran
     description: "Tabela com dados de autuações fornecidos pelo sistema CITRAN/IplanRio"
     columns:
       - name: data
@@ -59,7 +59,7 @@ models:
       - name: status_sne
         description: "Indicador de adesão do veículo ao SNE"
 
-  - name: autuacao_serpro
+  - name: view_autuacao_serpro
     description: "Tabela com dados de autuações fornecidos pelo sistema SERPRO"
     columns:
       - name: data
@@ -223,7 +223,7 @@ models:
       - name: id_auto_infracao
         description: "Código do auto de infração [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: fonte
         description: "Origem dos dados"
       - name: datetime_ultima_atualizacao
@@ -239,7 +239,7 @@ models:
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }} [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: datetime_autuacao
         description: "Data e hora da autuação"
       - name: data_limite_defesa_previa
@@ -267,7 +267,7 @@ models:
       - name: placa_veiculo
         description: "{{ doc('placa') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: ano_fabricacao_veiculo
         description: "{{ doc('ano_fabricacao') }}"
       - name: ano_modelo_veiculo
@@ -283,37 +283,37 @@ models:
       - name: nome_proprietario
         description: "Nome do proprietário"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: documento_proprietario
         description: "Documento do proprietário do veículo"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: cnh_proprietario
         description: "Número da CNH do proprietário do veículo"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: uf_proprietario
         description: "{{ doc('uf_proprietario') }}"
       - name: cep_proprietario
         description: "{{ doc('cep_proprietario') }} [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: nome_possuidor_veiculo
         description: "Nome do possuidor do veículo [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: documento_possuidor_veiculo
         description: "Documento do possuidor do veículo [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: cnh_possuidor_veiculo
         description: "CNH do possuidor do veículo [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: endereco_possuidor_veiculo
         description: "Endereço do possuidor do veículo [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: bairro_possuidor_veiculo
         description: "Bairro do possuidor do veículo"
       - name: municipio_possuidor_veiculo
@@ -321,7 +321,7 @@ models:
       - name: cep_possuidor_veiculo
         description: "CEP do possuidor do veículo [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: uf_possuidor_veiculo
         description: "UF do possuidor do veículo"
       - name: valor_infracao
@@ -343,7 +343,7 @@ models:
       - name: endereco_autuacao
         description: "Endereço da autuação [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169'
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
       - name: tile_autuacao
         description: "Hexágono da autuação"
       - name: processo_defesa_autuacao

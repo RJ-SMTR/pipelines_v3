@@ -7,14 +7,16 @@ profile: "queries"
 model-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
-seed-paths: ["data"]
+seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-
-target-path: "target"
 clean-targets:
   - "target"
   - "dbt_modules"
+
+dispatch:
+  - macro_namespace: dbt
+    search_order: ["dbt_project_evaluator", "dbt"]
 
 vars:
   "dbt_date:time_zone": "America/Sao_Paulo"
@@ -298,14 +300,13 @@ query-comment: "{{ query_comment(node) }}"
 
 tests:
   rj_smtr:
-    where: "data between date('{date_range_start}') and date('{date_range_end}')"
     dashboard_subsidio_sppo:
-      where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V9_INICIO}')"
+      +where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V9_INICIO}')"
     dashboard_subsidio_sppo_v2:
-      where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V14_INICIO}')"
+      +where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V14_INICIO}')"
     bilhetagem:
-      where: "data in ({partitions})"
-
+      +where: "data in ({partitions})"
+    +where: "data between date('{date_range_start}') and date('{date_range_end}')"
 snapshots:
   +persist_docs:
     relation: true
@@ -601,3 +602,9 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+flags:
+  require_generic_test_arguments_property: true
+  warn_error_options:
+    silence:
+      - UnusedResourceConfigPath
+      - NoNodeForYamlKey
