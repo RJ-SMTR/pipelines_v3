@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
 from datetime import datetime, timedelta, timezone
-from os import getenv
 
 import asyncpg
 from prefect import task
@@ -85,7 +84,8 @@ async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
             await asyncio.sleep(0.5)
 
         print(f"Retention complete. Total deleted: {deleted_total}")
-        
+
+
 @task(log_prints=True)
 async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
     """
@@ -95,7 +95,7 @@ async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
     print("Verificando índices com mais de 30% de bloat...")
 
     # query = """
-    # SELECT 
+    # SELECT
     #     schemaname,
     #     relname AS tablename,
     #     indexrelname AS indexname,
@@ -115,7 +115,7 @@ async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
     #         print(f"Índice '{row['indexname']}' na tabela '{row['tablename']}' tem tamanho {row['index_size']} e {row['index_scans']} scans.")
     # except Exception as e:
     #     print(f"Erro ao verificar índices: {e}")
-    # finally:        
+    # finally:
     #     await conn.close()
 
     # Query adaptada da documentação oficial do Prefect para calcular o Bloat dos índices
@@ -131,7 +131,7 @@ async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
     JOIN pg_index i ON i.indexrelid = si.indexrelid
     JOIN pg_class c ON c.oid = i.indrelid
     WHERE schemaname = 'public'
-    AND idx_scan > 10 
+    AND idx_scan > 10
     """
     conn = await asyncpg.connect(db_url)
     try:
