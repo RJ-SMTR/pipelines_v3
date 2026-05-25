@@ -14,71 +14,71 @@ JAE_SOURCE_NAME = "jae"
 JAE_DATABASE_SETTINGS = {
     "principal_db": {
         "engine": "mysql",
-        "host": "10.5.113.9",
+        "host": "10.128.0.119",
     },
     "tarifa_db": {
         "engine": "postgresql",
-        "host": "10.5.113.254",
+        "host": "10.128.0.59",
     },
     "transacao_db": {
         "engine": "postgresql",
-        "host": "10.5.114.38",
+        "host": "10.128.0.62",
     },
     "tracking_db": {
         "engine": "postgresql",
-        "host": "10.5.12.106",
+        "host": "10.128.15.195",
     },
     "ressarcimento_db": {
         "engine": "postgresql",
-        "host": "10.5.12.50",
+        "host": "10.128.15.246",
     },
     "gratuidade_db": {
         "engine": "postgresql",
-        "host": "10.5.14.19",
+        "host": "10.128.15.247",
     },
     "fiscalizacao_db": {
         "engine": "postgresql",
-        "host": "10.5.115.29",
+        "host": "10.128.15.248",
     },
     "atm_gateway_db": {
         "engine": "postgresql",
-        "host": "10.5.15.127",
+        "host": "10.128.15.249",
     },
     "device_db": {
         "engine": "postgresql",
-        "host": "10.5.114.114",
+        "host": "10.128.15.250",
     },
     "erp_integracao_db": {
         "engine": "postgresql",
-        "host": "10.5.12.105",
+        "host": "10.128.15.251",
     },
     "financeiro_db": {
         "engine": "postgresql",
-        "host": "10.5.12.109",
+        "host": "10.128.15.252",
     },
     "midia_db": {
         "engine": "postgresql",
-        "host": "10.5.12.52",
+        "host": "10.128.15.253",
     },
     "processador_transacao_db": {
         "engine": "postgresql",
-        "host": "10.5.14.59",
+        "host": "10.128.0.64",
     },
     "atendimento_db": {
         "engine": "postgresql",
-        "host": "10.5.14.170",
+        "host": "10.128.0.65",
     },
     "gateway_pagamento_db": {
         "engine": "postgresql",
-        "host": "10.5.113.130",
+        "host": "10.128.0.66",
     },
     # "iam_db": {
     #     "engine": "mysql",
-    #     "host": "10.5.13.201",
+    #     "host": "10.128.0.120",
     # },
     "vendas_db": {
         "engine": "postgresql",
-        "host": "10.5.114.15",
+        "host": "10.128.0.31",
     },
 }
 
