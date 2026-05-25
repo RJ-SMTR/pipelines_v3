@@ -7,6 +7,7 @@ from prefect import task
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.jae import constants
+from pipelines.common.capture.jae.utils import get_jae_database_settings
 from pipelines.common.utils.database import test_database_connection
 from pipelines.common.utils.secret import get_env_secret
 
@@ -22,7 +23,8 @@ def test_jae_databases_connections() -> tuple[bool, list[str]]:
     """
     credentials = get_env_secret(constants.JAE_SECRET_PATH)
     failed_connections = []
-    for database_name, database in constants.JAE_DATABASE_SETTINGS.items():
+    for database_name in constants.JAE_DATABASE_SETTINGS.keys():
+        database = get_jae_database_settings(database_name)
         success, _ = test_database_connection(
             engine=database["engine"],
             host=database["host"],
