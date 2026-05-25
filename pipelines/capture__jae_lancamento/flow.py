@@ -4,7 +4,7 @@ Flow de captura de lançamentos da Jaé
 
 Executa a captura de dados de lançamentos financeiros do sistema Jaé.
 
-Common: 2026-03-18
+Common: 2026-05-20
 """
 
 from pipelines.capture__jae_lancamento import constants
