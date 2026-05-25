@@ -6,14 +6,16 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
-          expression: count(distinct tipo_os)
-          compare_model: ref("ordem_servico_gtfs")
-          compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
+          config:
+            where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
+          arguments:
+            expression: count(distinct tipo_os)
+            compare_model: ref("ordem_servico_gtfs")
+            compare_expression: count(distinct tipo_os)
+            group_by: [feed_start_date, tipo_os]
+            compare_group_by: [feed_start_date, tipo_os]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
       - name: feed_version
         description: "{{ doc('feed_version') }}"
@@ -396,11 +398,13 @@ models:
     description: "Tabela auxiliar de tecnologias permitidas por serviço"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - inicio_vigencia
-            - servico
           name: dbt_utils.unique_combination_of_columns__tecnologia_servico
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - inicio_vigencia
+              - servico
     columns:
       - name: inicio_vigencia
         description: "Data de inicio da vigência"
@@ -408,7 +412,8 @@ models:
         tests:
           - not_null:
               name: not_null__inicio_vigencia__tecnologia_servico
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: fim_vigencia
         description: "Data de fim da vigência"
         data_type: date
@@ -424,21 +429,24 @@ models:
         tests:
           - not_null:
               name: not_null__codigo_tecnologia__tecnologia_servico
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: maior_tecnologia_permitida
         description: "Maior tipo de tecnologia permitida para o veículo"
         data_type: string
         tests:
           - not_null_for_planned_services:
               name: not_null__maior_tecnologia_permitida__tecnologia_servico
-              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+              config:
+                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
       - name: menor_tecnologia_permitida
         description: "Menor tipo de tecnologia permitida para o veículo"
         data_type: string
         tests:
           - not_null_for_planned_services:
               name: not_null__menor_tecnologia_permitida__tecnologia_servico
-              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+              config:
+                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
   - name: servico_planejado_faixa_horaria
     description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
     columns:
@@ -605,14 +613,16 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
-          expression: count(distinct tipo_os)
-          compare_model: ref("ordem_servico_faixa_horaria_sentido")
-          compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          config:
+            where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: count(distinct tipo_os)
+            compare_model: ref("ordem_servico_faixa_horaria_sentido")
+            compare_expression: count(distinct tipo_os)
+            group_by: [feed_start_date, tipo_os]
+            compare_group_by: [feed_start_date, tipo_os]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -692,4 +702,3 @@ models:
         description: Decreto que alterou o valor da tarifa
         data_type: string
         quote: true
-
