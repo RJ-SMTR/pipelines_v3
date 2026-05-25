@@ -48,14 +48,16 @@ models:
     tests:
       - date_overlap_tipo_viagem:
           name: date_overlap_tipo_viagem__valor_km_tipo_viagem
-          where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: status
         description: "{{ doc('tipo_viagem_status') }}"
         tests:
           - not_null:
               name: not_null__status__valor_km_tipo_viagem
-              where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
       - name: tecnologia
         description: "{{ doc('tecnologia') }}"
       - name: subsidio_km
@@ -63,19 +65,22 @@ models:
         tests:
           - not_null:
               name: not_null__subsidio_km__valor_km_tipo_viagem
-              where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
       - name: irk
         description: "{{ doc('irk') }}"
         tests:
           - not_null:
               name: not_null__irk__valor_km_tipo_viagem
-              where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
       - name: data_inicio
         description: "{{ doc('data_inicio_parametros') }}"
         tests:
           - not_null:
               name: not_null__data_inicio__valor_km_tipo_viagem
-              where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
       - name: data_fim
         description: "{{ doc('data_fim') }}"
       - name: indicador_penalidade_judicial
@@ -122,34 +127,40 @@ models:
     description: "Tabela com classificação de viagens de ônibus [SPPO] baseado no status do veículo e autuações"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-          - data
-          - id_viagem
-          - id_veiculo
           name: dbt_utils.unique_combination_of_columns__viagem_classificada
-          where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
+              - id_veiculo
       - test_check_tecnologia_minima:
           name: test_check_tecnologia_minima__viagem_classificada
-          where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V16_INICIO}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V16_INICIO}')"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         tests:
           - not_null:
               name: not_null__data__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         tests:
           - not_null:
               name: not_null__id_veiculo__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
       - name: datetime_chegada
@@ -161,31 +172,36 @@ models:
         tests:
           - not_null:
               name: not_null__placa__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
       - name: ano_fabricacao
         description: "{{ doc('ano_fabricacao') }} [chassi]"
         tests:
           - not_null:
               name: not_null__ano_fabricacao__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
       - name: tecnologia_apurada
         description: "{{ doc('tecnologia') }}"
         tests:
           - not_null:
               name: not_null__tecnologia_apurada__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem != 'Não licenciado'"
       - name: tecnologia_remunerada
         description: "{{ doc('tecnologia_remunerada') }}"
         tests:
           - not_null:
               name: not_null__tecnologia_remunerada__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem not in ('Não autorizado por capacidade', 'Não licenciado', 'Não vistoriado', 'Lacrado', 'Não autorizado por ausência de ar-condicionado')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}') and tipo_viagem not in ('Não autorizado por capacidade', 'Não licenciado', 'Não vistoriado', 'Lacrado', 'Não autorizado por ausência de ar-condicionado')"
       - name: tipo_viagem
         description: "{{ doc('tipo_viagem_status') }}"
         tests:
           - not_null:
               name: not_null__tipo_viagem__viagem_classificada
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
       - name: indicadores
         description: "{{ doc('indicadores_veiculo') }}"
       - name: servico
@@ -204,55 +220,66 @@ models:
     description: "Tabela com classificação de viagens considerando regularidade da temperatura do ar condicionado"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-          - data
-          - id_viagem
-          - id_veiculo
           name: dbt_utils.unique_combination_of_columns__viagem_regularidade_temperatura
-          where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
+              - id_veiculo
       - test_check_regularidade_temperatura:
           name: test_check_regularidade_temperatura__viagem_regularidade_temperatura
-          where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - test_consistencia_indicadores_temperatura:
           name: test_consistencia_indicadores_temperatura__viagem_regularidade_temperatura
-          where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         tests:
           - not_null:
               name: not_null__data__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
           - dbt_utils.relationships_where:
               name: dbt_utils.relationships_where__id_viagem__viagem_regularidade_temperatura
-              to: ref('viagem_classificada')
-              field: id_viagem
-              to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}') and data >= date('{{ var('DATA_SUBSIDIO_V17_INICIO') }}')"
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              arguments:
+                to: ref('viagem_classificada')
+                field: id_viagem
+                to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}') and data >= date('{{ var('DATA_SUBSIDIO_V17_INICIO') }}')"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         tests:
           - not_null:
               name: not_null__id_veiculo__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         tests:
           - not_null:
               name: not_null__datetime_partida__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         tests:
           - not_null:
               name: not_null__datetime_chegada__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: modo
         description: "{{ doc('modo') }}"
       - name: ano_fabricacao
@@ -260,49 +287,57 @@ models:
         tests:
           - not_null:
               name: not_null__ano_fabricacao__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem != 'Não licenciado'"
       - name: tecnologia_apurada
         description: "{{ doc('tecnologia') }}"
         tests:
           - not_null:
               name: not_null__tecnologia_apurada__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem != 'Não licenciado'"
       - name: tecnologia_remunerada
         description: "{{ doc('tecnologia_remunerada') }}"
         tests:
           - not_null:
               name: not_null__tecnologia_remunerada__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem not in ('Não autorizado por capacidade', 'Não licenciado', 'Não vistoriado', 'Lacrado', 'Não autorizado por ausência de ar-condicionado')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}') and tipo_viagem not in ('Não autorizado por capacidade', 'Não licenciado', 'Não vistoriado', 'Lacrado', 'Não autorizado por ausência de ar-condicionado')"
       - name: tipo_viagem
         description: "{{ doc('tipo_viagem_status') }}"
         tests:
           - not_null:
               name: not_null__tipo_viagem__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: indicadores
         description: "{{ doc('indicadores_viagem') }}"
         tests:
           - not_null:
               name: not_null__indicadores__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: servico
         description: "{{ doc('servico') }}"
         tests:
           - not_null:
               name: not_null__servico__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: sentido
         description: "{{ doc('sentido') }}"
         tests:
           - not_null:
               name: not_null__sentido__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         tests:
           - not_null:
               name: not_null__distancia_planejada__viagem_regularidade_temperatura
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: versao

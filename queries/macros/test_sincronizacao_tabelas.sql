@@ -7,11 +7,13 @@
     filtro_particao_modificada=False
 ) %}
 
-    {% set pattern = "`([^`]+)`\.`([^`]+)`\.`([^`]+)`" %}
-    {% set match = modules.re.search(pattern, model) %}
-    {% set project = match[1] %}
-    {% set dataset = match[2] %}
-    {% set table = match[3] %}
+    {% if execute %}
+        {% set model_str = model | string %}
+        {% set parts = (model_str | replace("`", "") | replace("(", "") | replace(")", "") | trim).split(".") %}
+        {% set project = parts[0] if parts | length >= 3 else None %}
+        {% set dataset = parts[1] if parts | length >= 3 else None %}
+        {% set table = parts[2] if parts | length >= 3 else None %}
+    {% endif %}
 
     {% if execute and filtro_particao_modificada %}
         {% set data_partitions_query %}
@@ -27,29 +29,32 @@
         {% set partitions = run_query(data_partitions_query).columns[0].values() %}
     {% endif %}
 
-    {% set relation = adapter.get_relation(
-        database=project, schema=dataset, identifier=table
-    ) %}
-    {% set columns = adapter.get_columns_in_relation(relation) %}
-    {% set column_names = (
-        columns
-        | map(attribute="name")
-        | reject(
-            "equalto",
-            join_key,
-        )
-        | list
-    ) %}
-
-    {% if excluir_colunas %}
+    {% set column_names = [] %}
+    {% if execute %}
+        {% set relation = adapter.get_relation(
+            database=project, schema=dataset, identifier=table
+        ) %}
+        {% set columns = adapter.get_columns_in_relation(relation) %}
         {% set column_names = (
-            column_names
+            columns
+            | map(attribute="name")
             | reject(
-                "in",
-                excluir_colunas,
+                "equalto",
+                join_key,
             )
             | list
         ) %}
+
+        {% if excluir_colunas %}
+            {% set column_names = (
+                column_names
+                | reject(
+                    "in",
+                    excluir_colunas,
+                )
+                | list
+            ) %}
+        {% endif %}
     {% endif %}
 
     {% set select_columns = column_names | join(", ") %}

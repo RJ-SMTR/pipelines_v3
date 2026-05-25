@@ -3,7 +3,8 @@ version: 2
 models:
   - name: aux_segmento_shape
     config:
-      buffer_segmento_metros: "{{ var('buffer_segmento_metros') }}"
-      comprimento_shape: "{{ var('comprimento_shape') }}"
-      projecao_sirgas_2000: "{{ var('projecao_sirgas_2000') }}"
-      projecao_wgs_84: "{{ var('projecao_wgs_84') }}"
+      meta:
+        buffer_segmento_metros: "{{ var('buffer_segmento_metros') }}"
+        comprimento_shape: "{{ var('comprimento_shape') }}"
+        projecao_sirgas_2000: "{{ var('projecao_sirgas_2000') }}"
+        projecao_wgs_84: "{{ var('projecao_wgs_84') }}"
