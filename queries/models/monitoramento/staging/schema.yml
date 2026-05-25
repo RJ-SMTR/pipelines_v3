@@ -5,9 +5,10 @@ models:
     description: "Tabela com todos os registros de GPS da API {{ var('fonte_gps') }}"
     tests:
       - check_gps_capture:
-          table_id: registros
-          interval: 1
           name: check_gps_capture__staging_gps
+          arguments:
+            table_id: registros
+            interval: 1
     columns:
       - name: data
         description: "{{ doc('data_captura') }}"
@@ -45,9 +46,10 @@ models:
     description: "Tabela com todas as realocações de linha informadas pela API {{ var('fonte_gps') }}"
     tests:
       - check_gps_capture:
-          table_id: realocacao
-          interval: 10
           name: check_gps_capture__staging_realocacao
+          arguments:
+            table_id: realocacao
+            interval: 10
     columns:
       - name: data
         description: "{{ doc('data_captura') }}"
@@ -120,8 +122,9 @@ models:
     tests:
       - test_completude_temperatura_inmet:
           name: test_completude__temperatura_inmet
-          severity: warn
-          where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 1 day)"
+          config:
+            severity: warn
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 1 day)"
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
@@ -151,9 +154,11 @@ models:
     tests:
       - test_completude_temperatura:
           name: test_completude__temperatura_alertario
-          severity: warn
-          expected_qtd: 96
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            severity: warn
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            expected_qtd: 96
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"

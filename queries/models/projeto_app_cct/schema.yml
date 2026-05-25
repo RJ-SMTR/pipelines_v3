@@ -29,9 +29,11 @@ models:
     description: "Tabela para testar a sincronia entre as transações do BigQuery e as transações salvas no DB do App CCT."
     tests:
       - dbt_utils.expression_is_true:
-          expression: "(SELECT COUNT(*) FROM {{ ref('teste_sincronizacao_transacao_cct') }}) = 0"
-          where: "true"
           name: dbt_utils.expression_is_true__teste_sincronizacao_transacao_cct
+          config:
+            where: "true"
+          arguments:
+            expression: "(SELECT COUNT(*) FROM {{ ref('teste_sincronizacao_transacao_cct') }}) = 0"
     columns:
       - name: data
         description: "{{ doc('data_transacao') }}, prioritariamente o valor do BigQuery [particao]"
