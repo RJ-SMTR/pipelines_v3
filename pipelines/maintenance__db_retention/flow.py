@@ -2,7 +2,7 @@
 import asyncio
 from os import getenv
 
-from tasks import delete_old_flow_runs, vacuum_tables, vacuum_index_bloat
+from tasks import delete_old_flow_runs, vacuum_index_bloat, vacuum_tables
 
 from pipelines.common.utils.prefect import flow
 

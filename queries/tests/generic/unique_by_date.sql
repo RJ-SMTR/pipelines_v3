@@ -1,16 +1,18 @@
 {% test unique_by_date(model, column_name, date_column_name) %}
-SELECT
-    *
-FROM (
-    SELECT
-        {{ column_name }},
-        {{ date_column_name }},
-        ROW_NUMBER() over (partition by {{ column_name }}, {{ date_column_name }}) rn
-    FROM
-        {{ model }}
-    WHERE
-        {{ date_column_name }} = (select max({{ date_column_name }}) from {{ model }})
-)
+    select *
+    from
+        (
+            select
+                {{ column_name }},
+                {{ date_column_name }},
+                row_number() over (
+                    partition by {{ column_name }}, {{ date_column_name }}
+                ) rn
+            from {{ model }}
+            where
+                {{ date_column_name }}
+                = (select max({{ date_column_name }}) from {{ model }})
+        )
 
-WHERE rn>1
+    where rn > 1
 {% endtest %}
