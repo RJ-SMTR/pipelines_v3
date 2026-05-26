@@ -55,7 +55,7 @@ VEICULO_DIA_SELECTOR = DBTSelector(
     data_sources=[
         wait_monitoramento_veiculo,
         wait_cadastro_veiculo,
-        veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
+        *veiculo_sppo_registro_agente_verao_constants.SPPO_REGISTRO_AGENTE_VERAO_SOURCES,
     ],
 )
 
