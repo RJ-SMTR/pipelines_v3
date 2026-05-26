@@ -60,27 +60,23 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
         parameters=[
             {
                 "table_id": s.table_id,
-                "timestamp": parse_timestamp_to_string(
-                    timestamp=timestamp, pattern="%Y-%m-%d %H:%M:%S"
-                ),
+                "timestamp": timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                 "recapture": False,
             }
             for s in sources
         ],
         maximum_parallelism=3,
-        wait_for=[run_recapture],
     )
 
     run_materializacao_financeiro_bilhetagem = await run_subflow(
-        flow_name=FINANCEIRO_BILHETAGEM_MATERIALIZACAO, wait_for=[run_capture]
+        flow_name=FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
     )
 
     run_ordem_quality_check = await run_subflow(
         flow_name=ordem_pagamento_quality_check,
-        wait_for=[run_materializacao_financeiro_bilhetagem],
     )
 
-    integracao_capture_params = await create_transacao_ordem_integracao_capture_params(
+    integracao_capture_params = create_transacao_ordem_integracao_capture_params(
         timestamp=timestamp,
         table_id=jae_constants.INTEGRACAO_TABLE_ID,
         wait_for=[run_ordem_quality_check],
@@ -96,7 +92,7 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
         wait_for=[run_captura_integracao],
     )
 
-    transacao_ordem_capture_params = await create_transacao_ordem_integracao_capture_params(
+    transacao_ordem_capture_params = create_transacao_ordem_integracao_capture_params(
         timestamp=timestamp,
         table_id=jae_constants.TRANSACAO_ORDEM_TABLE_ID,
         wait_for=[run_materializacao_integracao],
@@ -109,5 +105,4 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
 
     run_materializacao_transacao_ordem = await run_subflow(
         flow_name=TRANSACAO_ORDEM_MATERIALIZACAO,
-        wait_for=[run_captura_transacao_ordem],
     )
