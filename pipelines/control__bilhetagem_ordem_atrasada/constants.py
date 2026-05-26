@@ -3,6 +3,6 @@
 Valores constantes para os processos manuais de bilhetagem
 """
 
-from pipelines.capture.jae.constants import constants as jae_constants
+# from pipelines.capture__jae_ordem_pagamento import constants as jae_constants
 
-sources = jae_constants.ORDEM_PAGAMENTO_SOURCES
+# sources = jae_constants.JAE_ORDEM_PAGAMENTO_SOURCES
