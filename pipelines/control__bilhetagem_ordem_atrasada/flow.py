@@ -19,9 +19,6 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.control__bilhetagem_ordem_atrasada import constants as jae_constants
-from pipelines.tasks import (
-    parse_timestamp_to_string,
-)
 from pipelines.treatment.bilhetagem.flows import (
     INTEGRACAO_MATERIALIZACAO,
     TRANSACAO_ORDEM_MATERIALIZACAO,
