@@ -19,6 +19,7 @@ AGENTS.md
 queries/logs/*
 queries/target/*
 queries/target-base/*
+queries/target-base-fusion/*
 queries/profiles/*
 queries/dev/*
 queries/dbt_packages/*
