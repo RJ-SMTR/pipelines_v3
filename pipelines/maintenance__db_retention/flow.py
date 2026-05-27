@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from os import getenv, environ
+from os import getenv
 
 from tasks import delete_old_flow_runs, vacuum_index_bloat, vacuum_tables
 
