@@ -38,7 +38,7 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
 
     timestamp = get_scheduled_timestamp(wait_for=[sentry, setup_env])
 
-    run_recapture = await run_subflow(
+    await run_subflow(
         flow=capture__jae_ordem_pagamento,
         parameters=[
             {
@@ -50,7 +50,7 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         maximum_parallelism=3,
     )
 
-    run_capture = await run_subflow(
+    await run_subflow(
         flow=capture__jae_ordem_pagamento,
         parameters=[
             {
@@ -63,7 +63,7 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         maximum_parallelism=3,
     )
 
-    run_materializacao_financeiro_bilhetagem = await run_subflow(
+    await run_subflow(
         flow=treatment__financeiro_bilhetagem,
     )
 
@@ -77,7 +77,7 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         wait_for=[run_ordem_quality_check],
     )
 
-    run_captura_integracao = await run_subflow(
+    await run_subflow(
         flow=capture__jae_integracao,
         parameters=integracao_capture_params,
     )
@@ -92,7 +92,7 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         wait_for=[run_materializacao_integracao],
     )
 
-    run_captura_transacao_ordem = await run_subflow(
+    await run_subflow(
         flow=capture__jae_transacao_ordem,
         parameters=transacao_ordem_capture_params,
     )
