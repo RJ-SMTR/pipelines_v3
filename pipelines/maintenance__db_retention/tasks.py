@@ -19,7 +19,7 @@ from prefect.exceptions import ObjectNotFound
 async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 100):
     """Delete completed flow runs older than specified days."""
     # logger = get_run_logger()
-    print(f'Running with batch size: {batch_size} and days to keep: {days_to_keep}')
+    print(f"Running with batch size: {batch_size} and days to keep: {days_to_keep}")
     async with get_client() as client:
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
