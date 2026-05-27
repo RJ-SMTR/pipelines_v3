@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona webhook `chat_pr_app_cct` para enviar uma cópia das notificações para o canal da CCT
+- Adiciona webhook `chat_pr_app_cct` para enviar uma cópia das notificações para o canal da CCT (https://github.com/RJ-SMTR/pipelines_v3/pull/215)
 
 ## [1.0.0] - 2026-03-26
 

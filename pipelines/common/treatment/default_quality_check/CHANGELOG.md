@@ -4,7 +4,7 @@
 
 ### Alterado
 
--  Altera parâmetro webhook_key para aceitar string ou lista de strings
+-  Altera parâmetro webhook_key para aceitar string ou lista de strings (https://github.com/RJ-SMTR/pipelines_v3/pull/215)
 
 ## [1.0.0] - 2026-03-26
 
