@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Optional
+from typing import Optional, Union
 
 from prefect import runtime
 from prefect.tasks import Task
@@ -26,7 +26,7 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
     datetime_start: Optional[str],
     datetime_end: Optional[str],
     partitions: Optional[list[str]],
-    webhook_key: str = "dataplex",
+    webhook_key: Union[str, list[str]] = "dataplex",
     additional_mentions: Optional[list[str]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
 ):
@@ -39,7 +39,8 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         datetime_start (Optional[str]): Data/hora inicial para recorte dos dados.
         datetime_end (Optional[str]): Data/hora final para recorte dos dados.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
-        webhook_key (str): Chave do webhook para notificações dos testes no Discord.
+        webhook_key (str): Chave ou lista de chaves do(s) webhook(s) para enviar notificações
+            dos testes no Discord.
         additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
             nas notificações dos testes no Discord.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
