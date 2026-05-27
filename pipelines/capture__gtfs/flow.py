@@ -30,8 +30,10 @@ from pipelines.common.tasks import (
     setup_environment,
     task_send_discord_message,
 )
-from pipelines.common.treatment.default_quality_check.tasks import (
-    task_dbt_test_notify_discord,
+from pipelines.common.treatment.default_quality_check.tasks import task_dbt_test_notify_discord
+from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
+    setup_dbt_queries,
 )
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
@@ -49,9 +51,11 @@ def capture__gtfs(  # noqa: PLR0915
     """Flow de captura e tratamento dos dados do GTFS."""
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
-    setup_environment(env=env)
+    setup_env = setup_environment(env=env)
     initialize_sentry(env=env)
     timestamp = get_scheduled_timestamp()
+    queries = setup_dbt_queries(wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     last_captured_os = None
     if data_versao_gtfs is None:
@@ -152,7 +156,7 @@ def capture__gtfs(  # noqa: PLR0915
 
     dbt_success = True
     try:
-        run_dbt_gtfs(data_versao_gtfs=data_versao_gtfs_final)
+        run_dbt_gtfs(data_versao_gtfs=data_versao_gtfs_final, wait_for=[dbt_deps])
     except Exception as e:
         dbt_success = False
         print(f"Falha na materialização do GTFS: {e}")

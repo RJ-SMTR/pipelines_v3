@@ -16,8 +16,10 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
     run_dbt_selectors,
     run_dbt_snapshots,
+    setup_dbt_queries,
     test_fallback_run,
     wait_data_sources,
 )
@@ -39,8 +41,10 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     skip_source_check: bool = False,
 ):
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
-    setup_environment(env=env)
+    setup_env = setup_environment(env=env)
     sentry_task = initialize_sentry(env=env)
+    queries = setup_dbt_queries(wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp(wait_for=[sentry_task])
 
@@ -63,14 +67,14 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             skip=unmapped(skip_source_check),
         ).result()
 
-        run_dbt_selectors(
+        run_dbt = run_dbt_selectors(
             contexts=contexts,
             flags=None,
-            wait_for=[wait_sources],
+            wait_for=[wait_sources, dbt_deps],
         )
 
         run_dbt_snapshots(
             contexts=contexts,
             flags=None,
-            wait_for=[wait_sources],
+            wait_for=[run_dbt],
         )

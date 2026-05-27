@@ -10,8 +10,10 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
 )
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
@@ -43,7 +45,9 @@ def integration__upload_transacao_cct(
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
-    setup_environment(env=env, wait_for=[sentry])
+    setup_env = setup_environment(env=env, wait_for=[sentry])
+    queries = setup_dbt_queries(wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp()
 
@@ -96,7 +100,7 @@ def integration__upload_transacao_cct(
     run_sincronizacao_model = run_dbt_selectors(
         contexts=contexts,
         flags=None,
-        wait_for=[upload_test_bq],
+        wait_for=[upload_test_bq, dbt_deps],
     )
 
     run_sincronizacao_test = run_dbt_selector_tests(

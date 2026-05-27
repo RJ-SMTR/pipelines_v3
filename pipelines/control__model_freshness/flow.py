@@ -18,6 +18,10 @@ from pipelines.common.tasks import (
     initialize_sentry,
     setup_environment,
 )
+from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
+    setup_dbt_queries,
+)
 from pipelines.common.treatment.default_treatment.utils import DBTTest, run_dbt_tests
 from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.control__model_freshness.tasks import (
@@ -43,8 +47,10 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"
             Ex.: "tag:freshness_daily", "tag:freshness_hourly".
     """
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
-    setup_environment(env=env)
+    setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env)
+    queries = setup_dbt_queries(wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     dbt_test = DBTTest(test_select=test_select)
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
@@ -52,6 +58,7 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"
         dbt_test=dbt_test,
         datetime_start=timestamp - timedelta(hours=2),
         datetime_end=timestamp,
+        wait_for=[dbt_deps],
     )
 
     has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)

@@ -29,9 +29,11 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
     save_materialization_datetime_redis,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
 )
 from pipelines.common.utils.prefect import flow
@@ -57,6 +59,8 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
 
     # initialize sentry for error capturing
     initialize_sentry(env)
+    queries = setup_dbt_queries(wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 
@@ -140,6 +144,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         run_dbt_future = run_dbt_selectors(
             contexts=materialization_contexts,
             flags=flags,
+            wait_for=[dbt_deps],
         )
 
         run_tests_future = run_dbt_selector_tests(
