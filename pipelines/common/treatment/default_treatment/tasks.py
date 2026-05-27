@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+from pathlib import Path
 from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
@@ -13,8 +14,10 @@ from pipelines.common.treatment.default_treatment.utils import (
     DBTSelectorMaterializationContext,
     DBTTest,
     IncompleteDataError,
+    clone_queries_from_github,
     dbt_test_notify_discord,
     run_dbt,
+    run_dbt_deps,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
@@ -294,3 +297,27 @@ def save_materialization_datetime_redis(
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end
         )
+
+
+@task(cache_policy=NO_CACHE)
+def setup_dbt_queries() -> Path:
+    """
+    Clona a pasta queries/ do repositório GitHub via sparse-checkout.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Returns:
+        Path: Caminho para a pasta queries/.
+    """
+    return clone_queries_from_github()
+
+
+@task(cache_policy=NO_CACHE)
+def install_dbt_packages() -> None:
+    """
+    Executa dbt deps para instalar pacotes do dbt.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    run_dbt_deps()
+

@@ -3,6 +3,9 @@ import inspect
 import json
 import os
 import re
+import shutil
+import subprocess
+import tempfile
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Optional, Union
@@ -873,3 +876,72 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     if not test_check and raise_check_error:
         raise DBTTestFailedError()
+
+
+def clone_queries_from_github() -> Path:
+    """
+    Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Returns:
+        Path: Caminho para a pasta queries/ no projeto.
+    """
+    root_path = get_project_root_path()
+    queries_path = root_path / "queries"
+
+    if is_running_locally():
+        print(f"Local: usando queries/ existente em {queries_path}")
+        return queries_path
+
+    repo_url = (
+        f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
+    )
+    print(f"Clonando queries/ de {repo_url}...")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "--depth",
+                "1",
+                "--filter=blob:none",
+                "--no-checkout",
+                repo_url,
+                tmpdir,
+            ],
+            check=True,
+        )
+        subprocess.run(["git", "sparse-checkout", "init", "--cone"], cwd=tmpdir, check=True)
+        subprocess.run(["git", "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True)
+        subprocess.run(["git", "checkout"], cwd=tmpdir, check=True)
+        if queries_path.exists():
+            shutil.rmtree(queries_path)
+        shutil.copytree(Path(tmpdir) / "queries", queries_path)
+
+    print(f"queries/ clonado em {queries_path}")
+    return queries_path
+
+
+def run_dbt_deps() -> None:
+    """
+    Executa dbt deps para instalar pacotes.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+
+    if is_running_locally() and (project_dir / "dbt_packages").exists():
+        print("Local: dbt_packages/ já existe, pulando dbt deps.")
+        return
+
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    print("Executando dbt deps...")
+    PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+        ),
+        raise_on_failure=True,
+    ).invoke(["deps"])
