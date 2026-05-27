@@ -50,7 +50,7 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env)
     queries = setup_dbt_queries(wait_for=[setup_env])
-    dbt_deps = install_dbt_packages(wait_for=[queries])
+    install_dbt_packages(wait_for=[queries])
 
     dbt_test = DBTTest(test_select=test_select)
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
