@@ -143,13 +143,15 @@ def task_dbt_test_notify_discord(  # noqa: PLR0913
 
     webhook_key = webhook_key if isinstance(webhook_key, list) else [webhook_key]
 
-    for key in webhook_key:
+    webhook_list_last_idx = len(webhook_key) - 1
+
+    for idx, key in enumerate(webhook_key):
         dbt_test_notify_discord(
             dbt_test=dbt_test,
             dbt_vars=dbt_vars,
             dbt_logs=dbt_logs,
             webhook_key=key,
-            raise_check_error=raise_check_error,
+            raise_check_error=raise_check_error if idx == webhook_list_last_idx else False,
             additional_mentions=additional_mentions,
         )
 
