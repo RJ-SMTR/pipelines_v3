@@ -31,7 +31,7 @@ sources = ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-async def control__bilhetagem_ordem_atrasada( env: str | None = None):
+async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
     sentry = initialize_sentry(env=env)
