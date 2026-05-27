@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Flows de tratamento dos dados financeiros
+Flow para os processos manuais de ordem atrasada da bilhetagem
 """
 
 from prefect import runtime
 
-# from pipelines.capture__jae_auxiliar import flow
 from pipelines.capture__jae_integracao import flow as capture__jae_integracao
 from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
 from pipelines.capture__jae_ordem_pagamento.flow import capture__jae_ordem_pagamento
@@ -18,6 +17,7 @@ from pipelines.common.tasks import (
     run_subflow,
     setup_environment,
 )
+from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
@@ -30,8 +30,8 @@ from pipelines.treatment__transacao_ordem.flow import treatment__transacao_ordem
 sources = ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES
 
 
-@flow(name="financeiro_bilhetagem: ordem atrasada - captura e tratamento")
-async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
+@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+async def control__bilhetagem_ordem_atrasada( env: str | None = None):
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
     sentry = initialize_sentry(env=env)
@@ -66,11 +66,11 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
     )
 
     run_materializacao_financeiro_bilhetagem = await run_subflow(
-        flow=treatment__financeiro_bilhetagem, wait_for=[run_capture]
+        flow=treatment__financeiro_bilhetagem,
     )
 
     run_ordem_quality_check = await run_subflow(
-        flow=quality_check__ordem_pagamento, wait_for=[run_materializacao_financeiro_bilhetagem]
+        flow=quality_check__ordem_pagamento,
     )
 
     integracao_capture_params = create_transacao_ordem_integracao_capture_params(
@@ -86,7 +86,6 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
 
     run_materializacao_integracao = await run_subflow(
         flow=treatment__integracao,
-        wait_for=[run_captura_integracao],
     )
 
     transacao_ordem_capture_params = create_transacao_ordem_integracao_capture_params(
@@ -101,5 +100,5 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
     )
 
     run_materializacao_transacao_ordem = await run_subflow(  # noqa: F841
-        flow=treatment__transacao_ordem, wait_for=[run_captura_transacao_ordem]
+        flow=treatment__transacao_ordem,
     )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tasks para os processos manuais de bilhetagem"""
+"""Tasks para os processos manuais de ordem atrasada da bilhetagem"""
 
 from datetime import datetime
 
