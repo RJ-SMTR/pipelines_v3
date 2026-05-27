@@ -5,7 +5,6 @@ Flows de tratamento dos dados financeiros
 
 from prefect import runtime
 
-# from pipelines.capture__jae_auxiliar import flow
 from pipelines.capture__jae_integracao import flow as capture__jae_integracao
 from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
 from pipelines.capture__jae_ordem_pagamento.flow import capture__jae_ordem_pagamento
@@ -18,6 +17,9 @@ from pipelines.common.tasks import (
     run_subflow,
     setup_environment,
 )
+
+# from pipelines.capture__jae_auxiliar import flow
+from pipelines.common.utils.prefect import flow
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
 )
