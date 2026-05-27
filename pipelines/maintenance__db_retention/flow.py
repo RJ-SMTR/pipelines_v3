@@ -7,7 +7,7 @@ from tasks import delete_old_flow_runs, vacuum_index_bloat, vacuum_tables
 from pipelines.common.utils.prefect import flow
 
 
-@flow(log_prints=True)
+@flow(log_prints=True, timeout_seconds=7200)
 async def maintenance__db_retention(
     days_to_keep: int = 25, batch_size: int = 100, bloat_threshold: float = 30.0
 ):
