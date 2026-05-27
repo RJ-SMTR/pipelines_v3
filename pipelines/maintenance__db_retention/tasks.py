@@ -16,7 +16,7 @@ from prefect.exceptions import ObjectNotFound
 
 
 @task(log_prints=True)
-async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 200):
+async def delete_old_flow_runs(days_to_keep: int = 25, batch_size: int = 100):
     """Delete completed flow runs older than specified days."""
     # logger = get_run_logger()
 
@@ -150,7 +150,7 @@ async def vacuum_index_bloat(db_url: str, bloat_threshold: float = 30.0):
             print("Nenhum índice ultrapassou o limite de inchaço. Nenhuma ação necessária.")
             return
 
-        for index_name, table_name, bloat_pct in indexes_to_reindex:
+        for index_name, _table_name, bloat_pct in indexes_to_reindex:
             print(f"Executando REINDEX no índice '{index_name}' (Bloat: {bloat_pct}%)...")
             await conn.execute(f"REINDEX INDEX CONCURRENTLY {index_name};")
 
