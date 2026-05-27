@@ -584,6 +584,7 @@ def run_dbt(  # noqa: PLR0913
     os.environ["DBT_PROJECT_DIR"] = str(project_dir)
     os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
     os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
 
     PrefectDbtRunner(
         settings=PrefectDbtSettings(
