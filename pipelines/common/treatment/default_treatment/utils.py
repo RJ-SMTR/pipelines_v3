@@ -891,8 +891,14 @@ def clone_queries_from_github() -> Path:
     queries_path = root_path / "queries"
 
     if is_running_locally():
+        if not queries_path.is_dir():
+            raise FileNotFoundError(f"Pasta queries/ não encontrada: {queries_path}")
         print(f"Local: usando queries/ existente em {queries_path}")
         return queries_path
+
+    git_bin = shutil.which("git")
+    if git_bin is None:
+        raise RuntimeError("Executável git não encontrado no ambiente.")
 
     repo_url = (
         f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
@@ -901,7 +907,7 @@ def clone_queries_from_github() -> Path:
     with tempfile.TemporaryDirectory() as tmpdir:
         subprocess.run(
             [
-                "git",
+                git_bin,
                 "clone",
                 "--depth",
                 "1",
@@ -911,10 +917,15 @@ def clone_queries_from_github() -> Path:
                 tmpdir,
             ],
             check=True,
+            timeout=120,
         )
-        subprocess.run(["git", "sparse-checkout", "init", "--cone"], cwd=tmpdir, check=True)
-        subprocess.run(["git", "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True)
-        subprocess.run(["git", "checkout"], cwd=tmpdir, check=True)
+        subprocess.run(
+            [git_bin, "sparse-checkout", "init", "--cone"], cwd=tmpdir, check=True, timeout=30
+        )
+        subprocess.run(
+            [git_bin, "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True, timeout=30
+        )
+        subprocess.run([git_bin, "checkout"], cwd=tmpdir, check=True, timeout=60)
         if queries_path.exists():
             shutil.rmtree(queries_path)
         shutil.copytree(Path(tmpdir) / "queries", queries_path)
