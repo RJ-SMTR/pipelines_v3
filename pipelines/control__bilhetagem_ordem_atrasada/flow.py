@@ -61,14 +61,17 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
             for s in sources
         ],
         maximum_parallelism=3,
+        wait_for=[run_recapture]
     )
 
     run_materializacao_financeiro_bilhetagem = await run_subflow(
         flow=treatment__financeiro_bilhetagem,
+        wait_for=[run_capture]
     )
 
     run_ordem_quality_check = await run_subflow(
         flow=quality_check__ordem_pagamento,
+        wait_for=[run_materializacao_financeiro_bilhetagem]
     )
 
     integracao_capture_params = create_transacao_ordem_integracao_capture_params(
@@ -98,6 +101,7 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
         parameters=transacao_ordem_capture_params,
     )
 
-    run_materializacao_transacao_ordem = await run_subflow(
-        flow=treatment__transacao_ordem,
+    run_materializacao_transacao_ordem = await run_subflow( # noqa: F841
+        flow=treatment__transacao_ordem, 
+        wait_for=[run_captura_transacao_ordem]
     )
