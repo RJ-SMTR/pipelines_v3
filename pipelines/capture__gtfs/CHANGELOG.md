@@ -2,7 +2,7 @@
 
 ## [1.0.2] - 2026-05-27
 
-### Adicionado 
+### Adicionado
 
 - Adiciona o teste `dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/206)
 ### Alterado
