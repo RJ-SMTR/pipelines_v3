@@ -96,7 +96,7 @@ def capture__gtfs(  # noqa: PLR0915
 
         local_filepaths = [
             f"{data_root}/{{mode}}/{constants.GTFS_DATASET_ID}/{table_id}"
-            f"/{partition}/{data_versao_gtfs_final}.{{filetype}}"
+            f"/{partition}/{data_versao_gtfs_final}-00-00-00.{{filetype}}"
             for table_id in table_ids
         ]
 
