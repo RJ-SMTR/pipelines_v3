@@ -3,28 +3,11 @@
 Flows de tratamento dos dados financeiros
 """
 
-# from pipelines.capture.jae.flows import (
-#     CAPTURA_INTEGRACAO,
-#     CAPTURA_ORDEM_PAGAMENTO,
-#     CAPTURA_TRANSACAO_ORDEM,
-# )
-
-# from pipelines.treatment.financeiro.flows import (
-#     FINANCEIRO_BILHETAGEM_MATERIALIZACAO,
-#     ordem_pagamento_quality_check,
-# )
 from prefect import runtime
 
 from pipelines.capture__jae_auxiliar import flow
-
-# from pipelines.capture__jae_integracao.flow import capture__jae_integracao
 from pipelines.capture__jae_integracao import flow as capture__jae_integracao
 from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
-
-# from pipelines.treatment.bilhetagem.flows import (
-#     INTEGRACAO_MATERIALIZACAO,
-#     TRANSACAO_ORDEM_MATERIALIZACAO,
-# )
 from pipelines.capture__jae_ordem_pagamento.flow import capture__jae_ordem_pagamento
 from pipelines.capture__jae_transacao_ordem.flow import capture__jae_transacao_ordem
 from pipelines.common.capture.jae import constants as jae_constants
@@ -38,6 +21,7 @@ from pipelines.common.tasks import (
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
 )
+from pipelines.quality_check__ordem_pagamento.flow import quality_check__ordem_pagamento
 from pipelines.treatment__financeiro_bilhetagem.flow import treatment__financeiro_bilhetagem
 from pipelines.treatment__integracao.flow import treatment__integracao
 from pipelines.treatment__transacao_ordem.flow import treatment__transacao_ordem
@@ -84,7 +68,7 @@ async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
     )
 
     run_ordem_quality_check = await run_subflow(
-        flow=ordem_pagamento_quality_check,
+        flow=quality_check__ordem_pagamento,
     )
 
     integracao_capture_params = create_transacao_ordem_integracao_capture_params(
