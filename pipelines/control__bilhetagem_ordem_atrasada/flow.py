@@ -5,6 +5,7 @@ Flows de tratamento dos dados financeiros
 
 from prefect import runtime
 
+# from pipelines.capture__jae_auxiliar import flow
 from pipelines.capture__jae_integracao import flow as capture__jae_integracao
 from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
 from pipelines.capture__jae_ordem_pagamento.flow import capture__jae_ordem_pagamento
@@ -17,8 +18,6 @@ from pipelines.common.tasks import (
     run_subflow,
     setup_environment,
 )
-
-# from pipelines.capture__jae_auxiliar import flow
 from pipelines.common.utils.prefect import flow
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
@@ -31,7 +30,7 @@ from pipelines.treatment__transacao_ordem.flow import treatment__transacao_ordem
 sources = ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES
 
 
-@flow(name="financeiro_bilhetagem: ordem atrasada - captura/tratamento")
+@flow(name="financeiro_bilhetagem: ordem atrasada - captura e tratamento")
 async def ordem_atrasada(timestamp: str | None = None, env: str | None = None):
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
