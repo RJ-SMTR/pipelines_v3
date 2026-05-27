@@ -7,7 +7,6 @@ on:
       - devops/*
     paths:
       - pipelines/**
-      - queries/**
       - .github/**
   workflow_dispatch:
     inputs:

@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - pipelines/**
-      - queries/**
   workflow_dispatch:
     inputs:
       force_deploy:
