@@ -18,7 +18,7 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.prefect import flow
+from pipelines.common.utils.prefect import flow, rename_flow_run
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
 )
@@ -30,7 +30,7 @@ from pipelines.treatment__transacao_ordem.flow import treatment__transacao_ordem
 sources = ordem_pagamento_constants.JAE_ORDEM_PAGAMENTO_SOURCES
 
 
-@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+@flow(log_prints=True, flow_run_name=rename_flow_run)
 async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
