@@ -572,7 +572,7 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
         df["tipo_os"] = tipo_os
 
-        columns_in_values = set(list(columns.values()))
+        columns_in_values = set(columns.values())
         aux_columns_in_dataframe = set(df.columns)
         aux_missing_columns = columns_in_values - aux_columns_in_dataframe
         for coluna in aux_missing_columns:
@@ -583,6 +583,7 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
     ordem_servico_faixa_horaria = pd.concat(sheets_data, ignore_index=True)
     columns_in_dataframe = set(ordem_servico_faixa_horaria.columns)
+    columns_in_values = set(columns.values())
     missing_columns = columns_in_values - columns_in_dataframe
     all_columns_present = columns_in_dataframe.issubset(columns_in_values)
     no_duplicate_columns = len(columns_in_dataframe) == len(ordem_servico_faixa_horaria.columns)
