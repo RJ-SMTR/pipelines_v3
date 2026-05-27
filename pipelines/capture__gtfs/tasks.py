@@ -293,7 +293,7 @@ def upload_staging_data_to_gcs(
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_gtfs(data_versao_gtfs: str) -> None:
+def run_dbt_gtfs(data_versao_gtfs: str, env: str) -> None:
     """Executa os modelos dbt do GTFS e planejamento."""
     root_path = get_project_root_path()
     project_dir = root_path / "queries"
@@ -323,6 +323,8 @@ def run_dbt_gtfs(data_versao_gtfs: str) -> None:
         constants.GTFS_DBT_EXCLUDE,
         "--vars",
         vars_yaml,
+        "--target",
+        "prod" if env == "prod" else "dev",
         *flags,
     ]
 
@@ -344,7 +346,7 @@ def run_dbt_gtfs(data_versao_gtfs: str) -> None:
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_tests_gtfs(data_versao_gtfs: str) -> str:
+def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str) -> str:
     """Executa os testes dbt do GTFS e planejamento, retornando os logs."""
     root_path = get_project_root_path()
     project_dir = root_path / "queries"
@@ -374,6 +376,8 @@ def run_dbt_tests_gtfs(data_versao_gtfs: str) -> str:
         constants.GTFS_DBT_TEST_EXCLUDE,
         "--vars",
         vars_yaml,
+        "--target",
+        "prod" if env == "prod" else "dev",
         *flags,
     ]
 

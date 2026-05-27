@@ -46,7 +46,7 @@ def control__source_freshness(env=None, flags=None):
     queries = setup_dbt_queries(wait_for=[setup_env])
     install_dbt_packages(wait_for=[queries])
 
-    dbt_output = run_dbt(dbt_command="source freshness", flags=flags)
+    dbt_output = run_dbt(dbt_command="source freshness", flags=flags, env=env)
 
     has_issues, failed_sources = parse_source_freshness_output(dbt_output=dbt_output)
 

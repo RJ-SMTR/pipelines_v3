@@ -59,6 +59,7 @@ def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"
         dbt_test=dbt_test,
         datetime_start=timestamp - timedelta(hours=2),
         datetime_end=timestamp,
+        env=env,
     )
 
     has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)

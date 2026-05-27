@@ -109,6 +109,7 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         datetime_start=tasks["datetime_start"],
         datetime_end=tasks["datetime_end"],
         partitions=partitions,
+        env=tasks["env"],
         wait_for=[
             tasks["install_dbt_packages"],
             *tasks_wait_for.get("run_dbt_tests", []),

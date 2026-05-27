@@ -156,7 +156,7 @@ def capture__gtfs(  # noqa: PLR0915
 
     dbt_success = True
     try:
-        run_dbt_gtfs(data_versao_gtfs=data_versao_gtfs_final, wait_for=[dbt_deps])
+        run_dbt_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env, wait_for=[dbt_deps])
     except Exception as e:
         dbt_success = False
         print(f"Falha na materialização do GTFS: {e}")
@@ -176,7 +176,7 @@ def capture__gtfs(  # noqa: PLR0915
             exclude=constants.GTFS_DBT_TEST_EXCLUDE,
             test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
         )
-        dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final)
+        dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env)
         task_dbt_test_notify_discord(
             dbt_test=dbt_test,
             dbt_vars={"data_versao_gtfs": data_versao_gtfs_final},

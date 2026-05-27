@@ -518,6 +518,7 @@ def run_dbt(  # noqa: PLR0913
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
     is_snapshot: bool = False,
+    env: Optional[str] = None,
 ):
     """
     Executa comandos do DBT e retorna os logs gerados.
@@ -529,6 +530,7 @@ def run_dbt(  # noqa: PLR0913
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
         is_snapshot (bool): Se True, executa 'dbt snapshot' ao invés de 'dbt run'.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Conteúdo do arquivo de log do DBT.
@@ -536,6 +538,7 @@ def run_dbt(  # noqa: PLR0913
     root_path = get_project_root_path()
     project_dir = root_path / "queries"
     flags = flags or []
+    has_target_flag = "--target" in flags
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
 
     flags = [
@@ -573,6 +576,9 @@ def run_dbt(  # noqa: PLR0913
     vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
     invoke = [*invoke, "--vars", vars_yaml]
 
+    if env is not None and not has_target_flag:
+        invoke = [*invoke, "--target", "prod" if env == "prod" else "dev"]
+
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
     os.environ["DBT_PROJECT_DIR"] = str(project_dir)
@@ -597,6 +603,7 @@ def run_dbt_tests(
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
+    env: Optional[str] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -606,6 +613,7 @@ def run_dbt_tests(
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Logs da execução do DBT.
@@ -620,7 +628,7 @@ def run_dbt_tests(
         datetime_end=datetime_end,
         partitions=partitions,
     )
-    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 
     return log, dbt_vars
 
