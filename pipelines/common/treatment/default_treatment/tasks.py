@@ -320,4 +320,3 @@ def install_dbt_packages() -> None:
     Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
     """
     run_dbt_deps()
-
