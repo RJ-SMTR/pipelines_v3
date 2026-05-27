@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from prefect import task
 from prefect.cache_policies import NO_CACHE
@@ -125,7 +125,7 @@ def task_dbt_test_notify_discord(  # noqa: PLR0913
     dbt_test: DBTTest,
     dbt_vars: dict,
     dbt_logs: str,
-    webhook_key: str = "dataplex",
+    webhook_key: Union[str, list[str]] = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
 ):
@@ -136,18 +136,22 @@ def task_dbt_test_notify_discord(  # noqa: PLR0913
         dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
-        webhook_key (str): Chave do webhook do Discord.
+        webhook_key (Union[str, list[str]]): Chave ou lista de chaves do(s) webhook(s) do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
     """
-    dbt_test_notify_discord(
-        dbt_test=dbt_test,
-        dbt_vars=dbt_vars,
-        dbt_logs=dbt_logs,
-        webhook_key=webhook_key,
-        raise_check_error=raise_check_error,
-        additional_mentions=additional_mentions,
-    )
+
+    webhook_key = webhook_key if isinstance(webhook_key, list) else [webhook_key]
+
+    for key in webhook_key:
+        dbt_test_notify_discord(
+            dbt_test=dbt_test,
+            dbt_vars=dbt_vars,
+            dbt_logs=dbt_logs,
+            webhook_key=key,
+            raise_check_error=raise_check_error,
+            additional_mentions=additional_mentions,
+        )
 
 
 @task(cache_policy=NO_CACHE)
