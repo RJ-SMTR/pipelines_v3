@@ -17,7 +17,6 @@ from pipelines.common.tasks import (
     run_subflow,
     setup_environment,
 )
-from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow, rename_flow_run
 from pipelines.control__bilhetagem_ordem_atrasada.tasks import (
     create_transacao_ordem_integracao_capture_params,
