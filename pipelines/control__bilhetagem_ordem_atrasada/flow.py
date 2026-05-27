@@ -61,7 +61,6 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
             for s in sources
         ],
         maximum_parallelism=3,
-        wait_for=[run_recapture],
     )
 
     run_materializacao_financeiro_bilhetagem = await run_subflow(
@@ -98,6 +97,6 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         parameters=transacao_ordem_capture_params,
     )
 
-    run_materializacao_transacao_ordem = await run_subflow(  # noqa: F841
+    await run_subflow(
         flow=treatment__transacao_ordem,
     )
