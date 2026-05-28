@@ -2,6 +2,12 @@ version: 2
 
 models:
   - name: aux_segmento_shape
+    description: |
+      Uma linha por segmento de shape, cortado em intervalos regulares.
+      Contém geometria transformada para SIRGAS 2000 com buffer aplicado.
+      Use shape_id + id_segmento + feed_start_date para joins.
+      Fonte: aux_shapes_geom_filtrada (dados GTFS).
+      Segmentos criados com comprimento padrão e buffer configuráveis.
     config:
       buffer_segmento_metros: "{{ var('buffer_segmento_metros') }}"
       comprimento_shape: "{{ var('comprimento_shape') }}"
