@@ -1,5 +1,14 @@
 # Changelog - capture__gtfs
 
+## [1.0.2] - 2026-05-27
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/206)
+### Alterado
+
+- Altera o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido` do flow `capture__gtfs` para rodar apenas após `2025-12-21` (https://github.com/RJ-SMTR/pipelines_v3/pull/206)
+
 ## [1.0.1] - 2026-05-04
 
 ### Alterado
