@@ -541,6 +541,13 @@ models:
       - name: partidas_total_planejada
         description: "{{ doc('partidas') }}"
       - name: distancia_planejada
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              name: dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                min_value: 1
         description: "Distância planejada de uma viagem do serviço (km)"
       - name: distancia_total_planejada
         description: "{{ doc('distancia_total_planejada') }}"
