@@ -14,8 +14,8 @@ def model(dbt, session):  # noqa: ARG001
         materialized="table",
     )
     df = dbt.ref("aux_shapes_geom_filtrada")
-    bq_projection = pyproj.CRS(dbt.config.meta_get("projecao_wgs_84"))
-    shapely_projection = pyproj.CRS(dbt.config.meta_get("projecao_sirgas_2000"))
+    bq_projection = pyproj.CRS(dbt.config.get("projecao_wgs_84"))
+    shapely_projection = pyproj.CRS(dbt.config.get("projecao_sirgas_2000"))
 
     def transform_projection(shape, from_shapely=False):
         if from_shapely:
@@ -66,8 +66,8 @@ def model(dbt, session):  # noqa: ARG001
         "shape_lists",
         cut_udf(
             col("wkt_shape"),
-            lit(dbt.config.meta_get("comprimento_shape")),
-            lit(dbt.config.meta_get("buffer_segmento_metros")),
+            lit(dbt.config.get("comprimento_shape")),
+            lit(dbt.config.get("buffer_segmento_metros")),
         ),
     )
 
