@@ -46,13 +46,10 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
         flow=capture__jae_ordem_pagamento,
         parameters=[
             {
-                "table_id": s.table_id,
                 "timestamp": timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                 "recapture": False,
             }
-            for s in sources
         ],
-        maximum_parallelism=3,
     )
 
     await run_subflow(
