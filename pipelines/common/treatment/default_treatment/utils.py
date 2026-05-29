@@ -511,9 +511,24 @@ class DBTSelectorMaterializationContext:
         return dbt_vars
 
 
+def get_dbt_target(env: str) -> str:
+    """
+    Retorna o target do dbt com base no ambiente e no contexto de execução.
+
+    Args:
+        env (str): Ambiente de execução ("prod" ou "dev").
+
+    Returns:
+        str: "prod" se env for prod; "dev" se rodando localmente; "hmg" caso contrário.
+    """
+    if env == "prod":
+        return "prod"
+    return "dev" if is_running_locally() else "hmg"
+
+
 def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
-    dbt_command: Optional[str] = None,
+    dbt_command: Optional[Union[str, list[str]]] = None,
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
@@ -525,7 +540,9 @@ def run_dbt(  # noqa: PLR0913
 
     Args:
         dbt_obj (Optional[Union[DBTSelector, DBTTest]]): Objeto DBT a ser executado.
-        dbt_command (Optional[str]): Comando customizado (ex: "source freshness").
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado. String para
+            atalhos conhecidos (ex: "source freshness") ou lista para invocações livres
+            (ex: ["run", "--select", "model", "--exclude", "other"]).
         dbt_vars (Optional[dict]): Variáveis para execução do DBT.
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
@@ -558,7 +575,9 @@ def run_dbt(  # noqa: PLR0913
     target_path = project_dir / "target"
 
     invoke = []
-    if dbt_command == "source freshness":
+    if isinstance(dbt_command, list):
+        invoke = dbt_command
+    elif dbt_command == "source freshness":
         invoke = ["source", "freshness"]
     elif dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
@@ -577,7 +596,7 @@ def run_dbt(  # noqa: PLR0913
     invoke = [*invoke, "--vars", vars_yaml]
 
     if env is not None and not has_target_flag:
-        invoke = [*invoke, "--target", "prod" if env == "prod" else "dev"]
+        invoke = [*invoke, "--target", get_dbt_target(env)]
 
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")

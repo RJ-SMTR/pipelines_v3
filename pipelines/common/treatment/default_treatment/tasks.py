@@ -192,6 +192,13 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
+        if context.env == "dev":
+            run_dbt(
+                dbt_obj=context.selector,
+                dbt_vars=context.dbt_vars,
+                flags=[*(flags or []), "--empty"],
+                env=context.env,
+            )
         run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts
