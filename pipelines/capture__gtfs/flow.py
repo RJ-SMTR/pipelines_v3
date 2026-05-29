@@ -8,6 +8,8 @@ transforma em estrutura aninhada e materializa via dbt.
 Common: 2026-05-15
 """
 
+from typing import Optional
+
 from prefect import runtime
 
 from pipelines.capture__gtfs import constants
@@ -41,12 +43,13 @@ from pipelines.common.utils.prefect import flow, rename_flow_run
 
 
 @flow(log_prints=True, flow_run_name=rename_flow_run)
-def capture__gtfs(  # noqa: PLR0915
-    env=None,
-    upload_from_gcs=False,
-    materialize_only=False,
-    regular_sheet_index=None,
-    data_versao_gtfs=None,
+def capture__gtfs(  # noqa: PLR0913, PLR0915
+    env: Optional[str] = None,
+    upload_from_gcs: bool = False,
+    materialize_only: bool = False,
+    regular_sheet_index: Optional[int] = None,
+    data_versao_gtfs: Optional[str] = None,
+    flags: Optional[list[str]] = None,
 ):
     """Flow de captura e tratamento dos dados do GTFS."""
     deployment_name = runtime.deployment.name
@@ -156,7 +159,9 @@ def capture__gtfs(  # noqa: PLR0915
 
     dbt_success = True
     try:
-        run_dbt_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env, wait_for=[dbt_deps])
+        run_dbt_gtfs(
+            data_versao_gtfs=data_versao_gtfs_final, env=env, flags=flags, wait_for=[dbt_deps]
+        )
     except Exception as e:
         dbt_success = False
         print(f"Falha na materialização do GTFS: {e}")
@@ -176,7 +181,7 @@ def capture__gtfs(  # noqa: PLR0915
             exclude=constants.GTFS_DBT_TEST_EXCLUDE,
             test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
         )
-        dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env)
+        dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env, flags=flags)
         task_dbt_test_notify_discord(
             dbt_test=dbt_test,
             dbt_vars={"data_versao_gtfs": data_versao_gtfs_final},
