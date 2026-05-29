@@ -36,6 +36,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     fallback_run: bool = False,
     skip_source_check: bool = False,
@@ -69,12 +70,12 @@ def treatment__sppo_viagens(  # noqa: PLR0913
 
         run_dbt = run_dbt_selectors(
             contexts=contexts,
-            flags=None,
+            flags=flags,
             wait_for=[wait_sources, dbt_deps],
         )
 
         run_dbt_snapshots(
             contexts=contexts,
-            flags=None,
+            flags=flags,
             wait_for=[run_dbt],
         )

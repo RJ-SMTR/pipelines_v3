@@ -36,12 +36,13 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
     timeout_seconds=18000,
 )
-def integration__upload_transacao_cct(
+def integration__upload_transacao_cct(  # noqa: PLR0913
     env: Optional[str] = None,
     full_refresh: bool = False,
     data_ordem_start: Optional[str] = None,
     data_ordem_end: Optional[str] = None,
     param_test_dates: Optional[list[str]] = None,
+    flags: Optional[list[str]] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
@@ -99,7 +100,7 @@ def integration__upload_transacao_cct(
 
     run_sincronizacao_model = run_dbt_selectors(
         contexts=contexts,
-        flags=None,
+        flags=flags,
         wait_for=[upload_test_bq, dbt_deps],
     )
 

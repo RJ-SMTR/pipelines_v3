@@ -9,6 +9,9 @@ Schedule:
 DBT: 2026-03-23
 """
 
+from datetime import datetime
+from typing import Optional
+
 import pandas as pd
 from prefect import runtime
 from prefect.utilities.annotations import unmapped
@@ -47,12 +50,12 @@ from pipelines.integration__previnity_negativacao.tasks import (
 
 @flow(log_prints=True, timeout_seconds=10800)
 async def integration__previnity_negativacao(  # noqa: PLR0913
-    timestamp=None,
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+    timestamp: Optional[datetime] = None,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
