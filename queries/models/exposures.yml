@@ -1,0 +1,15 @@
+exposures:
+
+  - name: painel_gestao_frota
+    label: FROTA
+    type: dashboard
+    url: https://app.powerbi.com/view?r=eyJrIjoiNDJiOWE4YjItNjA5Mi00Mzk5LWEwY2MtOGJlYmVjYjZmMDljIiwidCI6IjkwNzI2YWVlLWQwMmMtNDlmZS05ODlmLTQ1ZGVmM2QwNjlkYyJ9
+    description: >
+      Monitoramento da distribuição da frota operante do SPPO e subsídio a ações de fiscalização conduzidas pela SMTR
+
+    depends_on:
+      - ref('view_veiculo_operadora')
+
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
