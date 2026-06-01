@@ -1,13 +1,12 @@
 version: 2
 
 exposures:
-  - name: sistema_ia_processamento_documentos_transito
-    label: Solução tecnológica de processamento inteligente de documentos de trânsito
+  - name: sistema_ia_processamento_documento_transito
     type: application
-
+    maturity: low
     description: >
       Solução tecnológica com a finalidade de promover o processamento inteligente de
-      documentos digitais relacionados a multas por infração de trânsito, executando
+      documentos digitais relacionados a multas de trânsito, executando
       triagem e análise voltadas à otimização dos fluxos administrativos, com extração
       de informações necessárias à identificação e classificação por tipo de solicitação.
 
@@ -17,3 +16,18 @@ exposures:
 
     depends_on:
       - ref('autuacao')
+
+    config:
+      meta:
+        data_product_name: "Solução tecnológica de processamento inteligente de documentos de trânsito"
+        data_criticality: "Alta"
+        business_value: >
+          Viabilizar a conferência e validação automática de dados extraídos via IA em
+          processos administrativos de recursos de autuação de trânsito, otimizando o fluxo da SMTR.
+        data_contract: "TED_007-26_DTDI/SUBG"
+        business_data_steward:
+          email: "leandrorodrigues@prefeitura.rio"
+          unit: "TR/SUBG"
+
+        technical_data_steward:
+          unit: "Inovação"

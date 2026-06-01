@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Cria exposure `sistema_ia_processamento_documentos_transito` referente ao acesso da tabela `transito.autuacao` pela solução de IA da I3 Soluções Ltda. (Contrato SMTR nº 10/2026), conforme TED_007-26_DTDI-SUBG — Processo SEI nº 000300.013844/2026-83 (https://github.com/RJ-SMTR/pipelines_v3/pull/213)
+- Cria exposure `sistema_ia_processamento_documento_transito` referente ao acesso da tabela `transito.autuacao` pela solução de IA da I3 Soluções Ltda. (Contrato SMTR nº 10/2026), conforme TED_007-26_DTDI-SUBG — Processo SEI nº 000300.013844/2026-83 (https://github.com/RJ-SMTR/pipelines_v3/pull/213)
 
 ## [1.1.3] - 2026-05-06
 
