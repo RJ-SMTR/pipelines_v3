@@ -1,5 +1,11 @@
 # Changelog - treatment__gps_15_minutos_cittati
 
+## [1.0.1] - 2026-06-01
+
+### Adicionado
+
+- Adiciona `collision_strategy: CANCEL_NEW` (https://github.com/RJ-SMTR/pipelines_v3/pull/221)
+
 ## [1.0.0] - 2026-03-16
 
 ### Adicionado
