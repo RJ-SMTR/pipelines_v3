@@ -43,6 +43,7 @@ deployments:
     schedules:
       - cron: "6 * * * *"
         timezone: "America/Sao_Paulo"
+        active: false
     work_pool:
       name: smtr-pool
       work_queue_name: default
@@ -52,3 +53,4 @@ deployments:
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
     concurrency_limit: 1
+    collision_strategy: CANCEL_NEW

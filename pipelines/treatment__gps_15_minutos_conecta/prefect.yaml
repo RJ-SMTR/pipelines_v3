@@ -53,3 +53,4 @@ deployments:
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
     concurrency_limit: 1
+    collision_strategy: CANCEL_NEW
