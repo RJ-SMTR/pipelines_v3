@@ -3,7 +3,7 @@
         materialized="ephemeral",
     )
 }}
--- 1. 
+-- 1.
 select
     *,
     lead(datetime_partida) over (
