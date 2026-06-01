@@ -16,10 +16,10 @@ from pipelines.common.treatment.default_treatment.tasks import (
     install_dbt_packages,
     setup_dbt_queries,
 )
-from pipelines.common.treatment.default_treatment.utils import run_dbt
 from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.control__source_freshness.tasks import (
     parse_source_freshness_output,
+    run_source_freshness,
     source_freshness_notify_discord,
 )
 
@@ -44,9 +44,9 @@ def control__source_freshness(env=None, flags=None):
     setup_env = setup_environment(env=env)
     initialize_sentry(env)
     queries = setup_dbt_queries(wait_for=[setup_env])
-    install_dbt_packages(wait_for=[queries])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
-    dbt_output = run_dbt(dbt_command="source freshness", flags=flags, env=env)
+    dbt_output = run_source_freshness(flags=flags, env=env, wait_for=[dbt_deps])
 
     has_issues, failed_sources = parse_source_freshness_output(dbt_output=dbt_output)
 
