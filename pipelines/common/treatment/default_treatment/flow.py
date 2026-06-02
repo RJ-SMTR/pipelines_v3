@@ -106,6 +106,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         force_test_run=force_test_run,
         snapshot_selector=snapshot_selector,
         skip_pre_test=skip_pre_test,
+        test_only=test_only,
         wait_for=[
             tasks["setup_enviroment"],
             *tasks_wait_for.get("contexts", []),
