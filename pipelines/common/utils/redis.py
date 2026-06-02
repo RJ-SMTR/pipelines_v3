@@ -2,7 +2,6 @@
 from typing import Optional
 
 from pipelines.common.utils.redis_pal import RedisPal
-
 from pipelines.common.utils.utils import is_running_locally
 
 
