@@ -12,7 +12,8 @@ def flow(*args, timeout_seconds=constants.DEFAULT_FLOW_TIMEOUT, **kwargs):
     """_summary_
 
     Args:
-        timeout_seconds (_type_, optional): _description_. Defaults to constants.DEFAULT_FLOW_TIMEOUT.
+        timeout_seconds (_type_, optional): Max seconds before flow times out.
+        Defaults to constants.DEFAULT_FLOW_TIMEOUT.
 
     Returns:
         _type_: _description_
@@ -31,8 +32,12 @@ def handler_notify_failure(webhook: str):
     """
 
     def handler(flow, flow_run, state):  # noqa: ARG001
-        webhook_url = get_env_secret(secret_path=constants.WEBHOOKS_SECRET_PATH)[webhook]
-        mentions_tag = f" - <@&{constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
+        webhook_url = get_env_secret(secret_path=constants.WEBHOOKS_SECRET_PATH)[
+            webhook
+        ]
+        mentions_tag = (
+            f" - <@&{constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
+        )
         header = f":red_circle: **Erro no flow {flow.name}**"
         header = f"{header} {mentions_tag}\n\n"
 
@@ -40,7 +45,9 @@ def handler_notify_failure(webhook: str):
         flow_run_url = f"https://prefect.mobilidade.rio/runs/flow-run/{flow_run.id}"
 
         formatted_messages.append(f"**URL da execução:** {flow_run_url}")
-        format_send_discord_message(formatted_messages=formatted_messages, webhook_url=webhook_url)
+        format_send_discord_message(
+            formatted_messages=formatted_messages, webhook_url=webhook_url
+        )
 
     return handler
 
@@ -52,9 +59,9 @@ def rename_flow_run() -> str:
     Returns:
         str: Nome para execução do flow.
     """
-    scheduled_start_time = convert_timezone(runtime.flow_run.scheduled_start_time).strftime(
-        "%Y-%m-%d %H-%M-%S"
-    )
+    scheduled_start_time = convert_timezone(
+        runtime.flow_run.scheduled_start_time
+    ).strftime("%Y-%m-%d %H-%M-%S")
 
     flow_name = runtime.flow_run.flow_name
     return f"[{scheduled_start_time}] {flow_name}"
