@@ -272,8 +272,7 @@ def task_dbt_selector_test_notify_discord(
     test: DBTTest = context.selector[f"{mode}_test"]
     dbt_vars: dict = context[f"{mode}_test_dbt_vars"]
     dbt_logs: str = context[f"{mode}_test_log"]
-    print(f"notificando discord: mode = {mode}")
-    return
+
     dbt_test_notify_discord(
         dbt_test=test,
         dbt_vars=dbt_vars,
