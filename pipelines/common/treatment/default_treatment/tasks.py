@@ -38,6 +38,7 @@ def create_materialization_contexts(  # noqa: PLR0913
     force_test_run: bool,
     snapshot_selector: Optional[DBTSelector] = None,
     skip_pre_test: bool = False,
+    test_only: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -53,11 +54,13 @@ def create_materialization_contexts(  # noqa: PLR0913
         force_test_run (bool): Força a execução dos testes.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
     """
     contexts = []
+    force_test_run = True if test_only else force_test_run
     for s in selectors:
         ctx = DBTSelectorMaterializationContext(
             env=env,

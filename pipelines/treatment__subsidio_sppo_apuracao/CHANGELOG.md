@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.2] - 2026-06-02
+
+### Adicionado
+
+- Adiciona parâmetro `test_only` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
 ## [1.0.1] - 2026-05-22
 
 ### Corrigido

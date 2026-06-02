@@ -1,10 +1,20 @@
 # Changelog - default_treatment
 
-## [1.3.0] - 2026-05-27
+## [1.3.0] - 2026-06-02
 
 ### Adicionado
 
 - Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` ao flow genérico de materialização para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
+## [1.2.2] - 2026-06-02
+
+### Adicionado
+
+- Adiciona parâmetro `test_only` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
+### Corrigido
+
+- Altera should_run da classe `DBTSelectorMaterializationContext` para `self.datetime_start >= selector.final_datetime` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
 
 ## [1.2.1] - 2026-05-11
 
