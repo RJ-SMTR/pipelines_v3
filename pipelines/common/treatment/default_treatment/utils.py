@@ -365,7 +365,7 @@ class DBTSelectorMaterializationContext:
             False
             if (
                 selector.final_datetime is not None
-                and self.datetime_start > selector.final_datetime
+                and self.datetime_start >= selector.final_datetime
             )
             else True
         )
