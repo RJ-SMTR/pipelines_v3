@@ -29,6 +29,7 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
     skip_source_check: bool = False,
     skip_pre_test: bool = False,
     flags: Optional[list[str]] = None,
+    test_only: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -47,4 +48,5 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
         fallback_run=fallback_run,
         skip_pre_test=skip_pre_test,
         flags=flags,
+        test_only=test_only,
     )

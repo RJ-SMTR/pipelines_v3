@@ -1,5 +1,15 @@
 # Changelog - default_treatment
 
+## [1.2.2] - 2026-06-02
+
+### Adicionado
+
+- Adiciona parâmetro `test_only` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
+### Corrigido
+
+- Altera should_run da classe `DBTSelectorMaterializationContext` para `self.datetime_start >= selector.final_datetime` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
 ## [1.2.1] - 2026-05-11
 
 ### Alterado
