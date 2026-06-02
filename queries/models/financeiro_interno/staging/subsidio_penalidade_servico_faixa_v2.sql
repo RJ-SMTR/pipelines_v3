@@ -72,7 +72,8 @@ with
             e.data_inicio as data_inicio_excecao,
             e.faixa_horaria_inicio as faixa_horaria_inicio_excecao,
             e.faixa_horaria_fim as faixa_horaria_fim_excecao,
-            e.servico as servico_excecao
+            e.servico as servico_excecao,
+            e.priority
         from subsidio_valor_penalidade v
         left join
             {{ ref("aux_subsidio_penalidade_servico_faixa_excecao") }} e
@@ -93,7 +94,8 @@ with
                 data_inicio_excecao,
                 faixa_horaria_inicio_excecao,
                 faixa_horaria_fim_excecao,
-                servico_excecao
+                servico_excecao,
+                priority
             )
         from subsidio_valor_penalidade_ajustado
         qualify
@@ -105,11 +107,7 @@ with
                     sentido,
                     faixa_horaria_inicio,
                     faixa_horaria_fim
-                order by
-                    servico_excecao desc,
-                    faixa_horaria_inicio_excecao desc,
-                    faixa_horaria_fim_excecao desc,
-                    data_inicio_excecao desc
+                order by priority nulls last
             )
             = 1
     )

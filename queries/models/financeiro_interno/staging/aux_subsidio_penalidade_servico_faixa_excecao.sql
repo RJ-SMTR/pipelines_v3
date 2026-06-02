@@ -47,6 +47,8 @@ with
                     )
                 ]
             )
+        with
+        offset as priority
     )
 select
     date(data_inicio) as data_inicio,
@@ -54,6 +56,7 @@ select
     datetime(faixa_horaria_inicio) as faixa_horaria_inicio,
     datetime(faixa_horaria_fim) as faixa_horaria_fim,
     servico,
-    valor_penalidade
+    valor_penalidade,
+    priority
 from dados_manuais
 left join unnest(servicos) as servico

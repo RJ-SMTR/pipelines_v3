@@ -238,7 +238,8 @@ with
             e.data_inicio as data_inicio_excecao,
             e.faixa_horaria_inicio as faixa_horaria_inicio_excecao,
             e.faixa_horaria_fim as faixa_horaria_fim_excecao,
-            e.servico as servico_excecao
+            e.servico as servico_excecao,
+            e.priority
         from viagem_indicador_dentro_limite v
         left join
             {{ ref("aux_viagem_remunerada_excecao") }} e
@@ -259,19 +260,12 @@ with
                 data_inicio_excecao,
                 faixa_horaria_inicio_excecao,
                 faixa_horaria_fim_excecao,
-                servico_excecao
+                servico_excecao,
+                priority
             )
         from viagem_indicador_ajustado
         qualify
-            row_number() over (
-                partition by id_viagem
-                order by
-                    servico_excecao desc,
-                    faixa_horaria_inicio_excecao desc,
-                    faixa_horaria_fim_excecao desc,
-                    data_inicio_excecao desc
-            )
-            = 1
+            row_number() over (partition by id_viagem order by priority nulls last) = 1
     )
 select
     *,
