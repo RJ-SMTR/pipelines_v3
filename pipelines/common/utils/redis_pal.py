@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import pickle
 from time import time
 from typing import Union
+
 import dill
 import redis
 
@@ -90,24 +92,16 @@ class RedisPal(redis.Redis):
         if result is False:
             return False
 
-        timestamp_kwargs = {
-            k: v for k, v in kwargs.items() if k not in ("nx", "xx", "get")
-        }
-        _b = super(RedisPal, self).set(
-            name=timestamp_key, value=time(), *args, **timestamp_kwargs
-        )
+        timestamp_kwargs = {k: v for k, v in kwargs.items() if k not in ("nx", "xx", "get")}
+        _b = super(RedisPal, self).set(name=timestamp_key, value=time(), *args, **timestamp_kwargs)
         return bool(_b)
 
     def get(self, key, *args, **kwargs) -> object:
         return self._deserialize(super(RedisPal, self).get(name=key, *args, **kwargs))
 
     def get_with_timestamp(self, key, *args, **kwargs) -> dict:
-        last_modified = super(RedisPal, self).get(
-            name="{}_timestamp".format(key), *args, **kwargs
-        )
+        last_modified = super(RedisPal, self).get(name="{}_timestamp".format(key), *args, **kwargs)
         return {
-            "value": self._deserialize(
-                super(RedisPal, self).get(name=key, *args, **kwargs)
-            ),
+            "value": self._deserialize(super(RedisPal, self).get(name=key, *args, **kwargs)),
             "last_modified": float(last_modified) if last_modified else 0,
         }
