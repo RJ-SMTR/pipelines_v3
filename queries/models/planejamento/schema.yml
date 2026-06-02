@@ -183,16 +183,20 @@ models:
         quote: true
   - name: viagem_planejada_planejamento
     description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento
+          config:
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          arguments:
+            combination_of_columns:
+              - feed_start_date
+              - id_viagem
     columns:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
         quote: true
-        tests:
-          - unique:
-              name: unique__id_viagem__viagem_planejada_planejamento
-              config:
-                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: horario_partida
         description: "Horário de partida da viagem no formato HH:MM:SS"
         data_type: string

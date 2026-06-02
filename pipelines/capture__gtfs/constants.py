@@ -85,6 +85,8 @@ GTFS_DATA_CHECKS_LIST = {
         },
     },
     "viagem_planejada_planejamento": {
-        "unique": {"description": "Todos os registros são únicos."},
+        "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento": {
+            "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
+        },
     },
 }

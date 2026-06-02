@@ -188,11 +188,6 @@ with
         where
             data is not null
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
-        qualify
-            row_number() over (
-                partition by data, id_viagem order by data_referencia desc
-            )
-            = 1
     ),
     {% if is_incremental() %}
         dados_atuais as (select * from {{ this }} where {{ incremental_filter }}),

@@ -6,6 +6,7 @@
 
 - Cria modelo `viagem_planejada_planejamento_dia` com viagens planejadas por dia (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 - Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelos `aux_trajeto_alternativo_sentido_v1` e `aux_trajeto_alternativo_sentido_v2` para separar lógica de tratamento do anexo de trajeto alternativo por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 - Adiciona testes de unicidade nos modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
 
 ### Alterado

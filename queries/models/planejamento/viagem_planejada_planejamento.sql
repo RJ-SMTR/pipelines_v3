@@ -188,10 +188,7 @@ with
             on ose.feed_start_date = v.feed_start_date
             and ose.servico = v.servico
             and ose.sentido = v.sentido
-            and (
-                ose.tipo_dia = v.tipo_dia
-                or (ose.tipo_dia = 'Ponto Facultativo' and v.tipo_dia = 'Dia Útil')
-            )
+            and {{ ordem_servico_excecoes_join("ose", "v") }}
     ),
     trips_alternativas as (
         select
@@ -232,7 +229,6 @@ with
     ),
     viagem_planejada_id as (
         select
-            * except (direction_id),
             concat(
                 servico,
                 "_",
@@ -247,15 +243,11 @@ with
                 {{ normalize_text("tipo_dia", snake_case=true) }},
                 "_",
                 replace(horario_partida, ':', '')
-            ) as id_viagem
+            ) as id_viagem,
+            * except (direction_id)
         from viagem_planejada_completa
     ),
-    dados_novos as (
-        select id_viagem, * except (id_viagem)
-        from viagem_planejada_id
-        qualify
-            row_number() over (partition by id_viagem order by feed_start_date desc) = 1
-    ),
+    dados_novos as (select * from viagem_planejada_id),
     {% if is_incremental() %}
         dados_atuais as (select * from {{ this }} where {{ feed_filter }}),
     {% endif %}
