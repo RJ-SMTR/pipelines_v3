@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.7.2] - 2026-06-02
+
+### Alterado
+
+- Alterado o tratamento de dia seguinte no modelo `ordem_servico_faixa_horaria_sentido` para considerar tbm `diaseguinte` (https://github.com/RJ-SMTR/pipelines_v3/pull/226)
+
 ## [1.7.1] - 2026-05-22
 
 ### Alterado
