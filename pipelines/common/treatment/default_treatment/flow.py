@@ -40,6 +40,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     snapshot_selector: Optional[DBTSelector] = None,
     fallback_run: bool = False,
     skip_pre_test: bool = False,
+    test_only: bool = False,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -62,6 +63,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
         skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -151,14 +153,15 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
 
-        tasks["run_dbt"] = run_dbt_selectors(
-            contexts=contexts,
-            flags=flags,
-            wait_for=[
-                tasks["pre_tests_notify_discord"],
-                *tasks_wait_for.get("run_dbt", []),
-            ],
-        )
+        if not test_only:
+            tasks["run_dbt"] = run_dbt_selectors(
+                contexts=contexts,
+                flags=flags,
+                wait_for=[
+                    tasks["pre_tests_notify_discord"],
+                    *tasks_wait_for.get("run_dbt", []),
+                ],
+            )
 
         tasks["post_tests"] = run_dbt_selector_tests(
             contexts=contexts,

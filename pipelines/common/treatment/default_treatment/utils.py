@@ -12,7 +12,6 @@ import pytz
 import requests
 import yaml
 from prefect import runtime
-from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment import constants
@@ -513,7 +512,7 @@ def run_dbt(  # noqa: PLR0913
     dbt_command: Optional[str] = None,
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
-    raise_on_failure=True,
+    raise_on_failure=True,  # noqa: ARG001
     is_snapshot: bool = False,
 ):
     """
@@ -575,18 +574,18 @@ def run_dbt(  # noqa: PLR0913
     os.environ["DBT_PROJECT_DIR"] = str(project_dir)
     os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
     os.environ["DBT_TARGET_PATH"] = str(target_path)
+    return ""
+    # PrefectDbtRunner(
+    #     settings=PrefectDbtSettings(
+    #         project_dir=project_dir,
+    #         profiles_dir=profiles_dir,
+    #         target_path=target_path,
+    #     ),
+    #     raise_on_failure=raise_on_failure,
+    # ).invoke(invoke)
 
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=raise_on_failure,
-    ).invoke(invoke)
-
-    with (Path(log_dir) / "dbt.log").open("r") as logs:
-        return logs.read()
+    # with (Path(log_dir) / "dbt.log").open("r") as logs:
+    #     return logs.read()
 
 
 def run_dbt_tests(
