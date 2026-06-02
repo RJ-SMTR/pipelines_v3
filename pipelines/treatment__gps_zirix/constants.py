@@ -31,6 +31,7 @@ GPS_POST_CHECKS_LIST = {
 
 GPS_DAILY_TEST = DBTTest(
     test_select="gps",
+    exclude="dbt_expectations.expect_row_values_to_have_recent_data__datetime_gps__gps",
     test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,

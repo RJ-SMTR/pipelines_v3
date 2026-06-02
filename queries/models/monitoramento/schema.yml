@@ -409,6 +409,14 @@ models:
         tests:
           - not_null:
               name: not_null__datetime_gps__gps
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_gps__gps
+              arguments:
+                datepart: hour
+                interval: 2
+              config:
+                tags: ["freshness_hourly"]
+                severity: warn
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         tests:
