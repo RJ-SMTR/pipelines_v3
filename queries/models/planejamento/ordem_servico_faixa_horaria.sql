@@ -100,30 +100,54 @@ with
                         as {{ "quilometragem_entre_" ~ intervalo.inicio ~ "h_e_" ~ intervalo.fim ~ "h_" ~ dia | lower }},
                     {% else %}
                         safe_cast(
-                            json_value(
-                                content,
-                                "$.partidas_ida_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                            coalesce(
+                                json_value(
+                                    content,
+                                    "$.partidas_ida_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                                ),
+                                json_value(
+                                    content,
+                                    "$.partidas_ida_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte_{{ dia|lower }}"
+                                )
                             ) as string
                         )
                         as {{ "partidas_ida_entre_" ~ intervalo.inicio ~ "h_e_" ~ intervalo.fim ~ "h_dia_seguinte_" ~ dia | lower }},
                         safe_cast(
-                            json_value(
-                                content,
-                                "$.partidas_volta_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                            coalesce(
+                                json_value(
+                                    content,
+                                    "$.partidas_volta_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                                ),
+                                json_value(
+                                    content,
+                                    "$.partidas_volta_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte_{{ dia|lower }}"
+                                )
                             ) as string
                         )
                         as {{ "partidas_volta_entre_" ~ intervalo.inicio ~ "h_e_" ~ intervalo.fim ~ "h_dia_seguinte_" ~ dia | lower }},
                         safe_cast(
-                            json_value(
-                                content,
-                                "$.partidas_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                            coalesce(
+                                json_value(
+                                    content,
+                                    "$.partidas_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                                ),
+                                json_value(
+                                    content,
+                                    "$.partidas_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte_{{ dia|lower }}"
+                                )
                             ) as string
                         )
                         as {{ "partidas_entre_" ~ intervalo.inicio ~ "h_e_" ~ intervalo.fim ~ "h_dia_seguinte_" ~ dia | lower }},
                         safe_cast(
-                            json_value(
-                                content,
-                                "$.quilometragem_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                            coalesce(
+                                json_value(
+                                    content,
+                                    "$.quilometragem_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte_{{ dia|lower }}"
+                                ),
+                                json_value(
+                                    content,
+                                    "$.quilometragem_entre_{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte_{{ dia|lower }}"
+                                )
                             ) as string
                         )
                         as {{ "quilometragem_entre_" ~ intervalo.inicio ~ "h_e_" ~ intervalo.fim ~ "h_dia_seguinte_" ~ dia | lower }},
@@ -242,8 +266,14 @@ with
                         then '{{ intervalo.inicio }}:00:00'
                     {% else %}
                         when
-                            column_name
-                            like '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte%'
+                            (
+                                column_name
+                                like
+                                '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte%'
+                                or column_name
+                                like
+                                '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte%'
+                            )
                         then '{{ intervalo.inicio }}:00:00'
                     {% endif %}
                 {% endfor %}
@@ -257,8 +287,14 @@ with
                         then '{{ "%02d"|format(intervalo.fim|int - 1) }}:59:59'
                     {% else %}
                         when
-                            column_name
-                            like '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte%'
+                            (
+                                column_name
+                                like
+                                '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_dia_seguinte%'
+                                or column_name
+                                like
+                                '%{{ intervalo.inicio }}h_e_{{ intervalo.fim }}h_diaseguinte%'
+                            )
                         then '26:59:59'
                     {% endif %}
                 {% endfor %}
