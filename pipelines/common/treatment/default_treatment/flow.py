@@ -162,6 +162,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                     *tasks_wait_for.get("run_dbt", []),
                 ],
             )
+        else:
+            tasks["run_dbt"] = None
 
         tasks["post_tests"] = run_dbt_selector_tests(
             contexts=contexts,
@@ -187,18 +189,19 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
 
-        tasks["run_dbt_snapshots"] = run_dbt_snapshots(
-            contexts=contexts,
-            flags=flags,
-            wait_for=[
-                tasks["post_tests_notify_discord"],
-                *tasks_wait_for.get("run_dbt_snapshots", []),
-            ],
-        )
+        if not test_only:
+            tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+                contexts=contexts,
+                flags=flags,
+                wait_for=[
+                    tasks["post_tests_notify_discord"],
+                    *tasks_wait_for.get("run_dbt_snapshots", []),
+                ],
+            )
 
-        tasks["save_redis"] = save_materialization_datetime_redis(
-            contexts=contexts,
-            wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
-        )
+            tasks["save_redis"] = save_materialization_datetime_redis(
+                contexts=contexts,
+                wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
+            )
 
     return tasks
