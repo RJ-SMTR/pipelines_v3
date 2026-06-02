@@ -47,34 +47,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Set build dependencies
-      #   run: |
-      #     sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-      #       ca-certificates \
-      #       curl \
-      #       wget \
-      #       gnupg \
-      #       lsb-release \
-      #       apt-transport-https \
-      #       software-properties-common \
-      #       build-essential \
-      #       git \
-      #       sudo \
-      #       jq \
-      #       unzip \
-      #       zip \
-      #       python3 \
-      #       python3-pip \
-      #       openjdk-11-jdk \
-      #       golang-go \
-      #       ruby-full \
-      #       make \
-      #       docker.io \
-      #       && sudo rm -rf /var/lib/apt/lists/*
-
-      # - name: 🔧 Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-
       - name: Deploy Prefect flows
         env:
           PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
