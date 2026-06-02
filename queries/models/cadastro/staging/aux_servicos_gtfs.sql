@@ -1,10 +1,10 @@
 {{
-  config(
-    materialized="ephemeral",
-  )
+    config(
+        materialized="ephemeral",
+    )
 }}
 
-SELECT
+select
     id_servico,
     servico,
     descricao_servico,
@@ -14,12 +14,11 @@ SELECT
     fim_vigencia,
     tabela_origem_gtfs,
     '{{ var("version") }}' as versao
-FROM
-    {{ ref('aux_routes_vigencia_gtfs') }}
+from {{ ref("aux_routes_vigencia_gtfs") }}
 
-UNION ALL
+union all
 
-SELECT
+select
     id_servico,
     servico,
     descricao_servico,
@@ -29,6 +28,4 @@ SELECT
     fim_vigencia,
     tabela_origem_gtfs,
     '{{ var("version") }}' as versao
-FROM
-    {{ ref('aux_stops_vigencia_gtfs') }}
-
+from {{ ref("aux_stops_vigencia_gtfs") }}

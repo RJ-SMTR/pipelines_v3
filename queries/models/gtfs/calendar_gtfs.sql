@@ -1,40 +1,44 @@
-{{config(
-    partition_by = { 'field' :'feed_start_date',
-    'data_type' :'date',
-    'granularity': 'day' },
-    unique_key = ['service_id', 'feed_start_date'],
-    alias = 'calendar'
-)}}
+{{
+    config(
+        partition_by={
+            "field": "feed_start_date",
+            "data_type": "date",
+            "granularity": "day",
+        },
+        unique_key=["service_id", "feed_start_date"],
+        alias="calendar",
+    )
+}}
 
 {% if execute and is_incremental() %}
-  {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
+    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
 {% endif %}
 
-SELECT
-  fi.feed_version,
-  SAFE_CAST(c.data_versao AS DATE) feed_start_date,
-  fi.feed_end_date,
-  SAFE_CAST(c.service_id AS STRING) service_id,
-  SAFE_CAST(JSON_VALUE(c.content, '$.monday') AS STRING) monday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.tuesday') AS STRING) tuesday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.wednesday') AS STRING) wednesday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.thursday') AS STRING) thursday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.friday') AS STRING) friday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.saturday') AS STRING) saturday,
-  SAFE_CAST(JSON_VALUE(c.content, '$.sunday') AS STRING) sunday,
-  PARSE_DATE('%Y%m%d', SAFE_CAST(JSON_VALUE(c.content, '$.start_date') AS STRING)) start_date,
-  PARSE_DATE('%Y%m%d', SAFE_CAST(JSON_VALUE(c.content, '$.end_date') AS STRING)) end_date,
-  '{{ var("version") }}' AS versao_modelo
- FROM {{ source(
-            'br_rj_riodejaneiro_gtfs_staging',
-            'calendar'
-        ) }} c
-JOIN
-  {{ ref('feed_info_gtfs') }} fi
-ON
-  c.data_versao = CAST(fi.feed_start_date AS STRING)
+select
+    fi.feed_version,
+    safe_cast(c.data_versao as date) feed_start_date,
+    fi.feed_end_date,
+    safe_cast(c.service_id as string) service_id,
+    safe_cast(json_value(c.content, '$.monday') as string) monday,
+    safe_cast(json_value(c.content, '$.tuesday') as string) tuesday,
+    safe_cast(json_value(c.content, '$.wednesday') as string) wednesday,
+    safe_cast(json_value(c.content, '$.thursday') as string) thursday,
+    safe_cast(json_value(c.content, '$.friday') as string) friday,
+    safe_cast(json_value(c.content, '$.saturday') as string) saturday,
+    safe_cast(json_value(c.content, '$.sunday') as string) sunday,
+    parse_date(
+        '%Y%m%d', safe_cast(json_value(c.content, '$.start_date') as string)
+    ) start_date,
+    parse_date(
+        '%Y%m%d', safe_cast(json_value(c.content, '$.end_date') as string)
+    ) end_date,
+    '{{ var("version") }}' as versao_modelo
+from {{ source("br_rj_riodejaneiro_gtfs_staging", "calendar") }} c
+join
+    {{ ref("feed_info_gtfs") }} fi on c.data_versao = cast(fi.feed_start_date as string)
 {% if is_incremental() -%}
-  WHERE
-    c.data_versao IN ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-    AND fi.feed_start_date IN ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+    where
+        c.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+        and fi.feed_start_date
+        in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
 {%- endif %}

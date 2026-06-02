@@ -11,10 +11,11 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: "'2024-08-15'"
-              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
-              strictly: true
               name: dbt_expectations.expect_column_values_to_be_between__data__sumario_faixa_servico_dia
+              arguments:
+                min_value: "'2024-08-15'"
+                max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+                strictly: true
       - name: tipo_dia
         description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
       - name: faixa_horaria_inicio
@@ -71,53 +72,64 @@ models:
       - check_km_planejada:
           name: check_km_planejada__sumario_faixa_servico_dia_pagamento
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          date_col: data
-          row_condition: "1=1"
-          test_start_date: "{{ var('date_range_start') }}"
-          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_faixa_servico_dia_pagamento
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            date_col: data
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
       - teto_pagamento_valor_subsidio_pago:
-          table_id: sumario_faixa_servico_dia_pagamento
-          expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_faixa+0.01,2)
           name: teto_pagamento_valor_subsidio_pago__sumario_faixa_servico_dia_pagamento
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            table_id: sumario_faixa_servico_dia_pagamento
+            expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_faixa+0.01,2)
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-          - data
-          - servico
-          - faixa_horaria_inicio
-          - sentido
           name: dbt_utils.unique_combination_of_columns__sumario_faixa_servico_dia_pagamento
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            combination_of_columns:
+              - data
+              - servico
+              - faixa_horaria_inicio
+              - sentido
       - dbt_utils.expression_is_true:
-          expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
           name: expression_is_true__sumario_faixa_servico_dia_pagamento
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_faixa_servico_dia_pagamento
-          expression: count(distinct valor_penalidade)
-          compare_model: ref("valor_tipo_penalidade")
-          compare_expression: count(distinct valor)
-          group_by: [valor_penalidade]
-          compare_group_by: [-valor]
-          row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
-          compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
-          where: "1=1"
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            expression: count(distinct valor_penalidade)
+            compare_model: ref("valor_tipo_penalidade")
+            compare_expression: count(distinct valor)
+            group_by: [valor_penalidade]
+            compare_group_by: [-valor]
+            row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
+            compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
         tests:
           - not_null:
               name: not_null__data__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: tipo_dia
         description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
         tests:
           - not_null:
               name: not_null__tipo_dia__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: faixa_horaria_inicio
         description: "{{ doc('faixa_horaria_inicio') }}"
       - name: faixa_horaria_fim
@@ -127,67 +139,85 @@ models:
         tests:
           - not_null:
               name: not_null__consorcio__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: servico
         description: "{{ doc('servico') }}"
         tests:
           - not_null:
               name: not_null__servico__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: viagens_faixa
         description: "{{ doc('viagens_faixa') }}"
         tests:
           - not_null:
               name: not_null__viagens_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__viagens_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                min_value: 0
       - name: km_apurada_faixa
         description: "{{ doc('km_apurada_faixa') }}"
         tests:
           - not_null:
               name: not_null__km_apurada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__km_apurada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                min_value: 0
           - sumario_servico_dia_tipo_soma_km:
               name: sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: km_subsidiada_faixa
         description: "Quilometragem subsidiada para o serviço por faixa horária (km)"
         tests:
           - not_null:
               name: not_null__km_subsidiada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__km_subsidiada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                min_value: 0
       - name: km_planejada_faixa
         description: "{{ doc('km_planejada_faixa') }}"
         tests:
           - not_null:
               name: not_null__km_planejada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: false
               name: dbt_utils.accepted_range__km_planejada_faixa__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                min_value: 0
+                inclusive: false
       - name: pof
         description: "{{ doc('pof') }}"
         tests:
           - not_null:
               name: not_null__pof__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__pof__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                min_value: 0
       - name: km_apurada_autuado_alterar_itinerario
         description: "Quilometragem apurada de viagens realizadas por veículos autuados disciplinarmente por alterar o itinerário aprovado de uma linha ou serviço (km)"
       - name: km_apurada_autuado_ar_inoperante
@@ -225,7 +255,8 @@ models:
         tests:
           - not_null:
               name: not_null__valor_a_pagar__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: valor_glosado_tecnologia
         description: "{{ doc('valor_glosado_tecnologia') }}"
       - name: valor_total_glosado
@@ -243,7 +274,8 @@ models:
         tests:
           - not_null:
               name: not_null__valor_penalidade__sumario_faixa_servico_dia_pagamento
-              where: "data between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
@@ -256,33 +288,39 @@ models:
     description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia [Dados entre 2024-08-16 e 2025-01-05]"
     tests:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          date_col: data
-          row_condition: "1=1"
-          test_start_date: "{{ var('date_range_start') }}"
-          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia_pagamento
+          arguments:
+            date_col: data
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
       - teto_pagamento_valor_subsidio_pago:
-          table_id: sumario_servico_dia_pagamento
-          expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_dia+0.01,2)
           name: teto_pagamento_valor_subsidio_pago__sumario_servico_dia_pagamento
+          arguments:
+            table_id: sumario_servico_dia_pagamento
+            expression: ROUND((valor_a_pagar - valor_penalidade)/subsidio_km_teto,2) <= ROUND(km_apurada_dia+0.01,2)
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-          - data
-          - servico
           name: dbt_utils.unique_combination_of_columns__sumario_servico_dia_pagamento
+          arguments:
+            combination_of_columns:
+              - data
+              - servico
       - dbt_utils.expression_is_true:
-          expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
           name: expression_is_true__sumario_servico_dia_pagamento
+          arguments:
+            expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_servico_dia_pagamento
-          expression: count(distinct valor_penalidade)
-          compare_model: ref("valor_tipo_penalidade")
-          compare_expression: count(distinct valor)
-          group_by: [valor_penalidade]
-          compare_group_by: [-valor]
-          row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
-          compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            expression: count(distinct valor_penalidade)
+            compare_model: ref("valor_tipo_penalidade")
+            compare_expression: count(distinct valor)
+            group_by: [valor_penalidade]
+            compare_group_by: [-valor]
+            row_condition: "DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}') AND valor_penalidade IS NOT null AND valor_penalidade != 0"
+            compare_row_condition: "valor IS NOT null AND valor != 0 and data_fim >= DATE('{{ var('date_range_start') }}') and data_inicio <= DATE('{{ var('date_range_end') }}')"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -290,10 +328,11 @@ models:
           - not_null:
               name: not_null__data__sumario_servico_dia_pagamento
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: "'2024-08-15'"
-              max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
-              strictly: true
               name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia_pagamento
+              arguments:
+                min_value: "'2024-08-15'"
+                max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"
+                strictly: true
       - name: tipo_dia
         description: "Dia da semana considerado para o cálculo da distância planejada - categorias: Dia Útil, Sabado, Domingo"
         tests:
@@ -315,16 +354,18 @@ models:
           - not_null:
               name: not_null__viagens_dia__sumario_servico_dia_pagamento
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__viagens_dia__sumario_servico_dia_pagamento
+              arguments:
+                min_value: 0
       - name: km_apurada_dia
         description: "{{ doc('km_apurada') }}"
         tests:
           - not_null:
               name: not_null__km_apurada_dia__sumario_servico_dia_pagamento
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__km_apurada_dia__sumario_servico_dia_pagamento
+              arguments:
+                min_value: 0
           - sumario_servico_dia_tipo_soma_km:
               name: sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento
       - name: km_subsidiada_dia
@@ -333,24 +374,27 @@ models:
           - not_null:
               name: not_null__km_subsidiada_dia__sumario_servico_dia_pagamento
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__km_subsidiada_dia__sumario_servico_dia_pagamento
+              arguments:
+                min_value: 0
       - name: km_planejada_dia
         description: "{{ doc('km_planejada_dia') }}"
         tests:
           - not_null:
               name: not_null__km_planejada_dia__sumario_servico_dia_pagamento
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__km_planejada_dia__sumario_servico_dia_pagamento
+              arguments:
+                min_value: 0
       - name: media_pof
         description: "Média do indicador percentual de operação por faixa horária"
         tests:
           - not_null:
               name: not_null__media_pof__sumario_servico_dia_pagamento
           - dbt_utils.accepted_range:
-              min_value: 0
               name: dbt_utils.accepted_range__media_pof__sumario_servico_dia_pagamento
+              arguments:
+                min_value: 0
       - name: desvp_pof
         description: "Desvio padrão do indicador percentual de operação por faixa horária"
       - name: km_apurada_registrado_com_ar_inoperante

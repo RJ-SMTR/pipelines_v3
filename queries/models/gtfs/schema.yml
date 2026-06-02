@@ -1,13 +1,11 @@
 version: 2
-sources:
-  - name: gtfs
 
 models:
   - name: agency_gtfs
     description: "Agência de transporte público com serviços representados neste conjunto de dados"
     columns:
       - name: agency_id
-        description:  "Identifica uma marca de transporte público que geralmente é sinônimo de agência de transporte público"
+        description: "Identifica uma marca de transporte público que geralmente é sinônimo de agência de transporte público"
       - name: agency_name
         description: "Nome completo da agência de transporte público"
       - name: agency_url
@@ -33,8 +31,10 @@ models:
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs
-              regex: "^([USD]_|EXCEP)"
-              where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: "^([USD]_|EXCEP)"
       - name: monday
         description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
       - name: tuesday
@@ -362,7 +362,8 @@ models:
         tests:
           - test_shape_id_gtfs:
               name: test_shape_id_gtfs__trips_gtfs
-              where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
         description: "Indica acessibilidade para cadeiras de rodas"
       - name: bikes_allowed
@@ -419,14 +420,16 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs
-          expression: count(distinct tipo_os)
-          compare_model: ref("ordem_servico_faixa_horaria") if var('data_versao_gtfs') < var('DATA_GTFS_V4_INICIO') else ref("ordem_servico_faixa_horaria_sentido")
-          compare_expression: count(distinct tipo_os)
-          group_by: [feed_start_date, tipo_os]
-          compare_group_by: [feed_start_date, tipo_os]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date < '{{ var('DATA_GTFS_V5_INICIO') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date < '{{ var('DATA_GTFS_V5_INICIO') }}'"
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            expression: count(distinct tipo_os)
+            compare_model: ref("ordem_servico_faixa_horaria") if var('data_versao_gtfs') < var('DATA_GTFS_V4_INICIO') else ref("ordem_servico_faixa_horaria_sentido")
+            compare_expression: count(distinct tipo_os)
+            group_by: [feed_start_date, tipo_os]
+            compare_group_by: [feed_start_date, tipo_os]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date < '{{ var('DATA_GTFS_V5_INICIO') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date < '{{ var('DATA_GTFS_V5_INICIO') }}'"
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -463,33 +466,61 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs
-          expression: count(distinct feed_start_date)
-          compare_model: ref("ordem_servico_faixa_horaria") if var('data_versao_gtfs') < var('DATA_GTFS_V4_INICIO') else ref("ordem_servico_faixa_horaria_sentido")
-          compare_expression: count(distinct feed_start_date)
-          group_by: [feed_start_date, tipo_os, tipo_dia, servico, faixa_horaria_inicio]
-          compare_group_by: [feed_start_date, tipo_os, tipo_dia, servico, faixa_horaria_inicio]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND (quilometragem != 0 AND (partidas != 0 OR partidas IS NULL))"
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            expression: count(distinct feed_start_date)
+            compare_model: ref("ordem_servico_faixa_horaria") if var('data_versao_gtfs') < var('DATA_GTFS_V4_INICIO') else ref("ordem_servico_faixa_horaria_sentido")
+            compare_expression: count(distinct feed_start_date)
+            group_by:
+              [
+                feed_start_date,
+                tipo_os,
+                tipo_dia,
+                servico,
+                faixa_horaria_inicio,
+              ]
+            compare_group_by:
+              [
+                feed_start_date,
+                tipo_os,
+                tipo_dia,
+                servico,
+                faixa_horaria_inicio,
+              ]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND (quilometragem != 0 AND (partidas != 0 OR partidas IS NULL))"
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
-          combination_of_columns:
-            - feed_start_date
-            - tipo_dia
-            - tipo_os
-            - servico
-            - sentido
-            - faixa_horaria_inicio
-            - shape_id
-          where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          config:
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          arguments:
+            combination_of_columns:
+              - feed_start_date
+              - tipo_dia
+              - tipo_os
+              - servico
+              - sentido
+              - faixa_horaria_inicio
+              - shape_id
       - dbt_expectations.expect_table_row_count_to_be_between:
           name: dbt_expectations.expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs
-          min_value: 1
-          max_value: 2
-          group_by: [feed_start_date, tipo_dia, tipo_os, servico, faixa_horaria_inicio, shape_id]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          strictly: false
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            min_value: 1
+            max_value: 2
+            group_by:
+              [
+                feed_start_date,
+                tipo_dia,
+                tipo_os,
+                servico,
+                faixa_horaria_inicio,
+                shape_id,
+              ]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+            strictly: false
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -510,6 +541,13 @@ models:
       - name: partidas_total_planejada
         description: "{{ doc('partidas') }}"
       - name: distancia_planejada
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              name: dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                min_value: 1
         description: "Distância planejada de uma viagem do serviço (km)"
       - name: distancia_total_planejada
         description: "{{ doc('distancia_total_planejada') }}"
@@ -532,7 +570,7 @@ models:
       - name: shape
         description: "{{ doc('shape') }}"
       - name: sentido_shape
-        description: "Sentido do shape - categorias: I (ida), V (volta)"
+        description: "{{ doc('sentido_shape') }}"
       - name: start_pt
         description: "{{ doc('start_pt') }}"
       - name: end_pt

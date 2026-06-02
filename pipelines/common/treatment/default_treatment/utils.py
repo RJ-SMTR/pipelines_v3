@@ -331,6 +331,7 @@ class DBTSelectorMaterializationContext:
         test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
+        skip_pre_test: bool = False,
     ):
         """
         Armazena o contexto completo necessário para materializar um selector do DBT.
@@ -345,6 +346,7 @@ class DBTSelectorMaterializationContext:
             test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
+            skip_pre_test (bool): Se True, ignora a execução do pre_test do selector.
         """
         self.env = env
         self.selector = selector
@@ -372,7 +374,9 @@ class DBTSelectorMaterializationContext:
             force_test_run or test_scheduled_time is None or timestamp.time() == test_scheduled_time
         ) and self.should_run
 
-        self.should_run_pre_test = selector.pre_test is not None and is_test_scheduled_time
+        self.should_run_pre_test = (
+            selector.pre_test is not None and is_test_scheduled_time and not skip_pre_test
+        )
 
         self.should_run_post_test = selector.post_test is not None and is_test_scheduled_time
 
@@ -494,6 +498,8 @@ class DBTSelectorMaterializationContext:
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
             "version": self.get_repo_version(),
+            "start_date": datetime_start.strftime("%Y-%m-%d"),
+            "end_date": datetime_end.strftime("%Y-%m-%d"),
         }
 
         if additional_vars:
@@ -529,7 +535,15 @@ def run_dbt(  # noqa: PLR0913
     flags = flags or []
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
 
-    flags = [*flags, "--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
+    flags = [
+        *flags,
+        "--log-path",
+        log_dir,
+        "--log-level-file",
+        "info",
+        "--log-format",
+        "json",
+    ]
     if is_running_locally():
         profiles_dir = project_dir / "dev"
     else:

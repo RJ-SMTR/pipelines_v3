@@ -246,6 +246,7 @@ def processa_ordem_servico(
         "KM Ponto Facultativo": "km_pf",
         "tipo_os": "tipo_os",
     }
+    columns_in_values = set(columns.values())
 
     for _, sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
@@ -261,9 +262,9 @@ def processa_ordem_servico(
             ""
         ) + quadro["servico"].str.extract(r"([0-9]+)", expand=False).fillna("")
         quadro["tipo_os"] = tipo_os
-        quadro = quadro[list(set(columns.values()))]
+        quadro = quadro[list(columns_in_values)]
         quadro = quadro.replace("—", 0)
-        quadro = quadro.reindex(columns=list(set(columns.values())))
+        quadro = quadro.reindex(columns=list(columns_in_values))
 
         hora_cols = [coluna for coluna in quadro.columns if "horario" in coluna]
         quadro[hora_cols] = quadro[hora_cols].astype(str)
@@ -291,7 +292,6 @@ def processa_ordem_servico(
     quadro_geral = pd.concat(sheets_data, ignore_index=True)
 
     columns_in_dataframe = set(quadro_geral.columns)
-    columns_in_values = set(columns.values())
     all_columns_present = columns_in_dataframe.issubset(columns_in_values)
     no_duplicate_columns = len(columns_in_dataframe) == len(quadro_geral.columns)
     missing_columns = columns_in_values - columns_in_dataframe
@@ -544,6 +544,8 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
         fh_columns["tipo_os"] = "tipo_os"
         columns = fh_columns.copy()
 
+    columns_in_values = set(columns.values())
+
     for _, sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
@@ -572,7 +574,6 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
         df["tipo_os"] = tipo_os
 
-        columns_in_values = set(columns.values())
         aux_columns_in_dataframe = set(df.columns)
         aux_missing_columns = columns_in_values - aux_columns_in_dataframe
         for coluna in aux_missing_columns:
@@ -583,7 +584,6 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
     ordem_servico_faixa_horaria = pd.concat(sheets_data, ignore_index=True)
     columns_in_dataframe = set(ordem_servico_faixa_horaria.columns)
-    columns_in_values = set(columns.values())
     missing_columns = columns_in_values - columns_in_dataframe
     all_columns_present = columns_in_dataframe.issubset(columns_in_values)
     no_duplicate_columns = len(columns_in_dataframe) == len(ordem_servico_faixa_horaria.columns)

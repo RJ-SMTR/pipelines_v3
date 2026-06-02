@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.7.1] - 2026-05-22
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para o dia `2026-05-02` -> `Shakira_02-05` e para o dia `2026-05-03` -> `Shakira_03-05` conforme Processo SEI 000399.009326/2026-13 (https://github.com/RJ-SMTR/pipelines_v3/pull/204)
+
 ## [1.7.0] - 2026-05-04
 
 ### Alterado

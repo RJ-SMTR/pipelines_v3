@@ -38,6 +38,16 @@
                     + quantidade_transacao_rateio_credito
                     + quantidade_transacao_rateio_debito
                     > 0
+                    and id_ordem_pagamento_consorcio_operador_dia not in (
+                        select id_ordem_pagamento_consorcio_operador_dia
+                        from
+                            {{
+                                source(
+                                    "bilhetagem_staging",
+                                    "excecao_teste_transacao_valor_ordem",
+                                )
+                            }}
+                    )
                 {% else %} false
                 {% endif %}
         )
