@@ -46,6 +46,10 @@
 {% endif %}
 
 with
+    /*
+    Trips do GTFS já tratadas, filtradas a partir do feed inicial
+    configurado e, em execução incremental, restritas aos feeds afetados.
+    */
     trips as (
         select *
         from {{ ref("aux_trips") }}
@@ -53,6 +57,10 @@ with
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
+    /*
+    Frequencies do GTFS com horários já tratados (janelas de operação e
+    headway por trip), usadas para gerar viagens baseadas em frequência.
+    */
     frequencies_tratada as (
         select *
         from {{ ref("aux_frequencies_horario_tratado") }}
@@ -60,11 +68,18 @@ with
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
+    /*
+    Cruza cada trip com sua frequência, anexando início, fim e headway da
+    janela de operação. Só restam trips que possuem frequência definida.
+    */
     trips_frequencies as (
         select t.*, f.start_seconds, f.end_seconds, f.headway_secs
         from trips t
         join frequencies_tratada f using (feed_start_date, trip_id)
     ),
+    /*
+    Trajetos alternativos por serviço/sentido/evento, com a extensão de cada alternativa.
+    */
     trajeto_alternativo_sentido as (
         select *
         from {{ ref("aux_trajeto_alternativo_sentido") }}
@@ -72,6 +87,10 @@ with
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
+    /*
+    Materializa as viagens das trips baseadas em frequência: expande cada
+    janela em horários de partida discretos (start..end-1 a cada headway).
+    */
     viagens_frequencies as (
         select
             tf.trip_id,
@@ -91,6 +110,11 @@ with
                 generate_array(tf.start_seconds, tf.end_seconds - 1, tf.headway_secs)
             ) as partida_seconds
     ),
+    /*
+    Viagens das trips SEM frequência: usa o horário de partida do primeiro
+    ponto (stop_sequence = 0) do stop_times. O left join + f.trip_id is null
+    garante que só entram trips ausentes de frequencies_tratada.
+    */
     viagens_stop_times as (
         select
             t.trip_id,
@@ -112,6 +136,10 @@ with
         left join frequencies_tratada f using (feed_start_date, trip_id)
         where st.stop_sequence = 0 and f.trip_id is null
     ),
+    /*
+    Une os dois tipos de viagem (frequência + stop_times) num só conjunto,
+    descartando o service_id 'EXCEP' (trajetos alternativos).
+    */
     viagens_unidas as (
         select *
         from viagens_frequencies
@@ -121,6 +149,10 @@ with
         from viagens_stop_times
         where service_id != 'EXCEP'
     ),
+    /*
+    Ordem de Serviço diária: extensão planejada por serviço, sentido, tipo de
+    dia e tipo de OS. Fonte do tipo_dia e da extensão da viagem.
+    */
     ordem_servico_extensao as (
         select
             feed_start_date, feed_version, servico, tipo_os, tipo_dia, sentido, extensao
@@ -129,6 +161,10 @@ with
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
             {% if is_incremental() %} and {{ feed_filter }} {% endif %}
     ),
+    /*
+    Identifica os shapes circulares (ponto inicial ≈ ponto final, via macro
+    is_shape_circular). Usado para classificar o sentido como "C".
+    */
     servico_circular as (
         select feed_start_date, shape_id
         from {{ ref("shapes_geom_planejamento") }}
@@ -138,6 +174,11 @@ with
             and
             {{ is_shape_circular("start_pt", "end_pt", "feed_start_date", "shape_id") }}
     ),
+    /*
+    Monta a base da viagem planejada: converte partida_seconds em horário
+    HH:MM:SS, deriva tipo_dia do service_id (Útil/Sábado/Domingo) e o sentido
+    (C = circular, I = ida quando direction_id 0, V = volta caso contrário).
+    */
     viagem_planejada_base as (
         select
             concat(
@@ -176,6 +217,13 @@ with
         from viagens_unidas v
         left join servico_circular c using (shape_id, feed_start_date)
     ),
+    /*
+    Enriquece a base com dados da Ordem de Serviço (tipo_os e extensão),
+    unindo por feed/serviço/sentido. O tipo_dia é resolvido pela
+    macro ordem_servico_excecoes_join, que trata o caso padrão (mesmo tipo_dia)
+    e as exceções de calendário (Ponto Facultativo, ENEM, Verão, Réveillon
+    etc.). O tipo_dia da OS prevalece quando há correspondência.
+    */
     viagem_planejada_os as (
         select
             v.* except (tipo_dia),
@@ -190,6 +238,10 @@ with
             and ose.sentido = v.sentido
             and {{ ordem_servico_excecoes_join("ose", "v") }}
     ),
+    /*
+    Constrói o array de trajetos alternativos (trip, shape, evento e extensão)
+    por serviço/sentido/tipo_os, ignorando alternativas sem extensão válida.
+    */
     trips_alternativas as (
         select
             t.feed_start_date,
@@ -219,6 +271,9 @@ with
         where t.trip_id not in (select trip_id from frequencies_tratada)
         group by 1, 2, 3, 4, 5
     ),
+    /*
+    Une o array de trajetos alternativos a cada viagem planejada.
+    */
     viagem_planejada_completa as (
         select v.*, ta.trajetos_alternativos
         from viagem_planejada_os v
@@ -227,6 +282,11 @@ with
                 feed_start_date, servico, direction_id, tipo_os
             )
     ),
+    /*
+    Constrói o identificador único da viagem (id_viagem) concatenando
+    serviço, sentido, shape, service_id, tipo_os, tipo_dia normalizado e
+    horário de partida.
+    */
     viagem_planejada_id as (
         select
             concat(
@@ -247,10 +307,22 @@ with
             * except (direction_id)
         from viagem_planejada_completa
     ),
+    /*
+    Dados novos para materialização.
+    */
     dados_novos as (select * from viagem_planejada_id),
+    /*
+    Em execução incremental, lê os registros já existentes na tabela para os
+    feeds afetados, base para comparação de mudanças.
+    */
     {% if is_incremental() %}
         dados_atuais as (select * from {{ this }} where {{ feed_filter }}),
     {% endif %}
+    /*
+    Calcula o hash (sha256) de cada registro atual e guarda os metadados de
+    controle (datetime de atualização e id de execução). No full-refresh
+    devolve nulos para que tudo seja tratado como dado novo.
+    */
     sha_dados_atuais as (
         {% if is_incremental() %}
             select
@@ -267,11 +339,20 @@ with
                 cast(null as string) as id_execucao_dbt_atual
         {% endif %}
     ),
+    /*
+    Junta cada dado novo com seu hash e o hash do dado atual correspondente,
+    para depois detectar se houve mudança de conteúdo.
+    */
     sha_dados_completos as (
         select n.*, {{ sha_column }} as sha_dado_novo, a.* except (id_viagem)
         from dados_novos n
         left join sha_dados_atuais a using (id_viagem)
     ),
+    /*
+    Define as colunas de controle: versão, datetime_ultima_atualizacao e
+    id_execucao_dbt só são renovados quando o hash mudou (ou é registro
+    novo); caso contrário preserva os valores atuais.
+    */
     colunas_controle as (
         select
             * except (
