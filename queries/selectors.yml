@@ -34,9 +34,13 @@ selectors:
             - method: fqn
               value: aux_viagem_temperatura
         - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
           value: viagens_remuneradas
         - method: fqn
           value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
         - method: fqn
           value: subsidio_penalidade_servico_faixa
         - method: fqn
@@ -64,9 +68,13 @@ selectors:
             - method: fqn
               value: aux_viagem_temperatura
         - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
           value: viagens_remuneradas
         - method: fqn
           value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
         - method: fqn
           value: subsidio_penalidade_servico_faixa
         - method: fqn
