@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.4] - 2026-06-02
+
+### Adicionado
+
+- Adiciona teste `dbt_expectations.expect_row_values_to_have_recent_data` na coluna `datetime_gps` do modelo `gps`, com tag `freshness_hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
 ## [1.1.3] - 2026-05-06
 
 ### Adicionado
