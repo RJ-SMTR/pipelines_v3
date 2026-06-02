@@ -1,5 +1,15 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.2.2] - 2026-06-01
+
+### Adicionado
+
+- Cria modelo `aux_viagem_remunerada_excecao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+### Alterado
+
+- Altera lógica das exceções do modelo `viagens_remuneradas_v2.sql`, removendo da query e consultando o modelo auxiliar (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
 ## [8.2.1] - 2026-05-22
 
 ### Alterado
