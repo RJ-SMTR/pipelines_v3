@@ -89,7 +89,7 @@ class RedisPal(redis.Redis):
         timestamp_key = "{}_timestamp".format(key)
 
         result = super(RedisPal, self).set(name=key, value=_ser, *args, **kwargs)
-        if result is False:
+        if not result and not kwargs.get("get", False):
             return False
 
         timestamp_kwargs = {k: v for k, v in kwargs.items() if k not in ("nx", "xx", "get")}
