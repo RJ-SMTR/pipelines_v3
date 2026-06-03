@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Cria os modelos `aux_ida_volta_circular.sql`,`aux_ida_volta_circular_v1.sql` e `aux_ida_volta_circular_v2.sql` ao refatorar o modelo `aux_viagem_circular` para incluir a partir de `2026-05-16` o sentido_shape na chave primária (https://github.com/RJ-SMTR/pipelines_v3/pull/222)
+- Cria os modelos `aux_ida_volta_circular.sql`,`aux_ida_volta_circular_v1.sql` e `aux_ida_volta_circular_v2.sql` ao refatorar o modelo `aux_viagem_circular` para incluir a partir de `2026-05-16` o shape_id_planejado na chave primária (https://github.com/RJ-SMTR/pipelines_v3/pull/222)
 
 ### Alterado
 

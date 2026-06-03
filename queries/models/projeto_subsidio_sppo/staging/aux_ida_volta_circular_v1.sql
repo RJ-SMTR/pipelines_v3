@@ -3,7 +3,7 @@
         materialized="ephemeral",
     )
 }}
--- 1.
+
 select
     *,
     lead(datetime_partida) over (
@@ -22,6 +22,6 @@ select
         partition by id_veiculo, servico_realizado
         order by id_veiculo, servico_realizado, datetime_partida, sentido_shape
     )
-    = "V" as flag_proximo_volta  -- possui volta
+    = "V" as flag_proximo_volta
 from {{ ref("aux_viagem_inicio_fim") }} v
 where sentido = "C" and data < date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
