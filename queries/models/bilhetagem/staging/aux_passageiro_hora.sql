@@ -33,6 +33,7 @@ where
     and tipo_transacao is not null
     and meio_pagamento is not null
     and produto is not null
+    and tipo_usuario is not null
 
 union all
 
