@@ -506,7 +506,10 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
   - name: view_gps_onibus
-    description: "Visão unificada dos dados de GPS de ônibus de todos os fornecedores (sppo, zirix, cittati, conecta), com coluna `fonte_gps` para identificação. Filtra para os últimos 2 dias. Usada para monitoramento de freshness por fornecedor."
+    description: |
+      View que consolida dados de GPS de todos os fornecedores.
+      Fonte: tabelas de GPS tratadas de cada fornecedor.
+      Usada para validar atualização de dados por fornecedor via testes de freshness agrupados.
     tests:
       - dbt_expectations.expect_grouped_row_values_to_have_recent_data:
           name: dbt_expectations.expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
