@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from redis_pal import RedisPal
-
+from pipelines.common.utils.redis_pal import RedisPal
 from pipelines.common.utils.utils import is_running_locally
 
 
