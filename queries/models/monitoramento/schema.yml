@@ -415,7 +415,7 @@ models:
                 datepart: hour
                 interval: 2
               config:
-                tags: ["freshness_hourly"]
+                tags: ["hourly"]
                 severity: warn
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
@@ -1068,7 +1068,7 @@ models:
                 datepart: hour
                 interval: 2
               config:
-                tags: ["freshness_hourly"]
+                tags: ["hourly"]
                 severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
