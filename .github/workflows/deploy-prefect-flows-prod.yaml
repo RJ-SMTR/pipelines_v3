@@ -58,7 +58,7 @@ jobs:
         with:
           environment: prod
           pipelines_path: ./pipelines
-          prefect_api_url: ${{ secrets.PREFECT_WEB_API_URL }}
+          prefect_api_url: ${{ secrets.PREFECT_V3_WEB_API_URL }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           # force_deploy: ${{ github.event.inputs.force_deploy == 'true' && '1' || '0' }}
           force_deploy: "1"
