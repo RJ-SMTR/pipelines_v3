@@ -63,14 +63,14 @@ class RedisPal(redis.Redis):
     @classmethod
     def _serialize(cls, o: object) -> bytes:
         try:
-                return pickle.dumps(o)
-            except Exception:
-                try:
-                    return dill.dumps(o)
-                except Exception as err:
-                    raise SerializationError(
-                        "Failed to serialize object {} of type {}".format(o, type(o))
-                    ) from err
+            return pickle.dumps(o)
+        except Exception:
+            try:
+                return dill.dumps(o)
+            except Exception as err:
+                raise SerializationError(
+                    "Failed to serialize object {} of type {}".format(o, type(o))
+                ) from err
 
     @classmethod
     def _deserialize(cls, e: Union[str, int, float, bytes]) -> object:
@@ -88,20 +88,20 @@ class RedisPal(redis.Redis):
         _ser = self._serialize(value)
         timestamp_key = "{}_timestamp".format(key)
 
-        result = super(RedisPal, self).set(name=key, value=_ser, *args, **kwargs)
+        result = super(RedisPal, self).set(*args, name=key, value=_ser, **kwargs)
         if not result and not kwargs.get("get", False):
             return False
 
         timestamp_kwargs = {k: v for k, v in kwargs.items() if k not in ("nx", "xx", "get")}
-        _b = super(RedisPal, self).set(name=timestamp_key, value=time(), *args, **timestamp_kwargs)
+        _b = super(RedisPal, self).set(*args, name=timestamp_key, value=time(), **timestamp_kwargs)
         return bool(_b)
 
     def get(self, key, *args, **kwargs) -> object:
-        return self._deserialize(super(RedisPal, self).get(name=key, *args, **kwargs))
+        return self._deserialize(super(RedisPal, self).get(*args, name=key, **kwargs))
 
     def get_with_timestamp(self, key, *args, **kwargs) -> dict:
-        last_modified = super(RedisPal, self).get(name="{}_timestamp".format(key), *args, **kwargs)
+        last_modified = super(RedisPal, self).get(*args, name="{}_timestamp".format(key), **kwargs)
         return {
-            "value": self._deserialize(super(RedisPal, self).get(name=key, *args, **kwargs)),
+            "value": self._deserialize(super(RedisPal, self).get(*args, name=key, **kwargs)),
             "last_modified": float(last_modified) if last_modified else 0,
         }
