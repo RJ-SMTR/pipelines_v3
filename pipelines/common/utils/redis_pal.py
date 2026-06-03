@@ -78,11 +78,11 @@ class RedisPal(redis.Redis):
             return None
         try:
             return pickle.loads(e)
-        except:
+        except Exception:
             try:
                 return dill.loads(e)
-            except:
-                raise DeserializationError("Failed to deserialize {}".format(e))
+            except Exception as err:
+                raise DeserializationError("Failed to deserialize {}".format(e)) from err
 
     def set(self, key, value, *args, **kwargs) -> bool:
         _ser = self._serialize(value)
