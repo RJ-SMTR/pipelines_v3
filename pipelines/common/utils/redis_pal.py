@@ -63,14 +63,14 @@ class RedisPal(redis.Redis):
     @classmethod
     def _serialize(cls, o: object) -> bytes:
         try:
-            return pickle.dumps(o)
-        except Exception:
-            try:
-                return dill.dumps(o)
-            except:
-                raise SerializationError(
-                    "Failed to serialize object {} of type {}".format(o, type(o))
-                )
+                return pickle.dumps(o)
+            except Exception:
+                try:
+                    return dill.dumps(o)
+                except Exception as err:
+                    raise SerializationError(
+                        "Failed to serialize object {} of type {}".format(o, type(o))
+                    ) from err
 
     @classmethod
     def _deserialize(cls, e: Union[str, int, float, bytes]) -> object:
