@@ -40,6 +40,8 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: staging
           force_deploy: "1"
@@ -63,6 +65,8 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: prod
           force_deploy: "1"
