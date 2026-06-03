@@ -148,6 +148,7 @@ with
             viagem_planejada vp
             on c.feed_start_date = vp.feed_start_date
             and vp.service_id in unnest(c.service_ids)
+            and vp.tipo_dia = c.tipo_dia
             and (
                 vp.tipo_os = c.tipo_os
                 or vp.modo != 'Ônibus'
