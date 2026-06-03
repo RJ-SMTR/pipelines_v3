@@ -5,6 +5,7 @@
 ### Adicionado
 
 - Adiciona tratamento de transações PIX no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+- Adiciona tratamento para `meio_pagamento` e `produto` nulos no modelo `aux_passageiro_hora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
 
 ### Corrigido
 
