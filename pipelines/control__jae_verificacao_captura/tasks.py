@@ -209,7 +209,7 @@ Foram encontradas {timestamps_len} timestamps com dados faltantes
         message = f":red_circle: {message}"
         message += (
             "\n"
-            + f"https://prefect.mobilidade.rio/runs/flow-run/{runtime.flow_run.id}"
+            + f"https://prefect-v3.mobilidade.rio/runs/flow-run/{runtime.flow_run.id}"
             + "\n"
             + mentions_tag
         )
