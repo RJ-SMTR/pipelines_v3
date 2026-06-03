@@ -34,3 +34,4 @@ select
     p.valor_total_transacao
 from {{ ref("passageiro_hora") }} p
 left join servicos s using (id_servico_jae)
+where p.meio_pagamento is not null and p.produto is not null

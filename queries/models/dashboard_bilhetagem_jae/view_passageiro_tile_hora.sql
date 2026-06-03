@@ -31,3 +31,4 @@ select
     p.quantidade_passageiros
 from {{ ref("passageiro_tile_hora") }} p
 left join servicos s using (id_servico_jae)
+where p.meio_pagamento is not null and p.produto is not null
