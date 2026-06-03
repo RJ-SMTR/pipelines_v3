@@ -1,5 +1,16 @@
 # Changelog - bilhetagem
 
+## [3.3.9] - 2026-06-03
+
+### Adicionado
+
+- Adiciona tratamento de transações PIX no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+
+### Corrigido
+
+- Altera fonte da coluna `id_servico_jae` no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+
+
 ## [3.3.8] - 2026-05-25
 
 ### Adicionado

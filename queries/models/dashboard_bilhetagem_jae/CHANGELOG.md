@@ -1,5 +1,11 @@
 # Changelog - dashboard_bilhetagem_jae
 
+## [2.0.4] - 2026-06-03
+
+### Adicionado
+
+- Adiciona tratamento para `meio_pagamento` e `produto` nulos nos modelos `view_passageiro_hora.sql` e `view_passageiro_tile_hora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+
 ## [2.0.3] - 2025-09-23
 
 ### Adicionado
