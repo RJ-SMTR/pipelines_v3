@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+      - staging/update_prefect_version
     paths:
       - pipelines/**
       - queries/**
+      - .github/workflows/deploy-prefect-flows-prod.yaml
   workflow_dispatch:
     inputs:
       force_deploy:
@@ -58,7 +60,8 @@ jobs:
           pipelines_path: ./pipelines
           prefect_api_url: ${{ secrets.PREFECT_WEB_API_URL }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          force_deploy: ${{ github.event.inputs.force_deploy == 'true' && '1' || '0' }}
+          # force_deploy: ${{ github.event.inputs.force_deploy == 'true' && '1' || '0' }}
+          force_deploy: "1"
           debug: ${{ github.event.inputs.debug }}
           batch_size: ${{ github.event.inputs.batch_size || '3' }}
           cleanup_docker: ${{ github.event.inputs.cleanup_docker || 'true' }}
