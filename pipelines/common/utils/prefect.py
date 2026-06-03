@@ -9,14 +9,8 @@ from pipelines.common.utils.utils import convert_timezone
 
 
 def flow(*args, timeout_seconds=constants.DEFAULT_FLOW_TIMEOUT, **kwargs):
-    """_summary_
-
-    Args:
-        timeout_seconds (_type_, optional): Max seconds before flow times out.
-        Defaults to constants.DEFAULT_FLOW_TIMEOUT.
-
-    Returns:
-        _type_: _description_
+    """
+    Substitui o @flow do Prefect aplicando timeout padrão em todos os flows.
     """
     return prefect_flow(*args, timeout_seconds=timeout_seconds, **kwargs)
 
