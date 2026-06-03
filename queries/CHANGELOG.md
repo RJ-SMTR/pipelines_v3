@@ -4,7 +4,12 @@
 
 ### Adicionado
 
-- Adiciona teste `dbt_expectations.expect_row_values_to_have_recent_data` na coluna `datetime_gps` do modelo `gps`, com tag `freshness_hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+- Cria view `view_gps_onibus` unindo os dados de GPS dos fornecedores `sppo`, `zirix`, `cittati` e `conecta` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+- Adiciona teste `dbt_expectations.expect_grouped_row_values_to_have_recent_data` na coluna `datetime_gps` da view `view_gps_onibus`, com tag `hourly`, verificando freshness por fornecedor (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
+### Alterado
+
+- Altera tag do teste de freshness `recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
 
 ## [1.1.3] - 2026-05-06
 
