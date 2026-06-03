@@ -32,7 +32,7 @@ def handler_notify_failure(webhook: str):
         header = f"{header} {mentions_tag}\n\n"
 
         formatted_messages = [header]
-        flow_run_url = f"https://prefect.mobilidade.rio/runs/flow-run/{flow_run.id}"
+        flow_run_url = f"https://prefect-v3.mobilidade.rio/runs/flow-run/{flow_run.id}"
 
         formatted_messages.append(f"**URL da execução:** {flow_run_url}")
         format_send_discord_message(formatted_messages=formatted_messages, webhook_url=webhook_url)
