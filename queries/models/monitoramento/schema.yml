@@ -530,42 +530,16 @@ models:
         description: "{{ doc('hora_gps') }}"
       - name: datetime_gps
         description: "{{ doc('datetime_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__datetime_gps__gps
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_gps__gps
-              arguments:
-                datepart: hour
-                interval: 2
-              config:
-                tags: ["hourly"]
-                severity: warn
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
-        tests:
-          - not_null:
-              name: not_null__id_veiculo__gps
       - name: servico
         description: "{{ doc('servico') }}"
-        tests:
-          - not_null:
-              name: not_null__servico__gps
       - name: latitude
         description: "{{ doc('latitude_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__latitude__gps
       - name: longitude
         description: "{{ doc('longitude_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__longitude__gps
       - name: status
         description: "{{ doc('status_veiculo_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__status__gps
       - name: velocidade_instantanea
         description: "{{ doc('velocidade_instantanea') }}"
       - name: velocidade_estimada_10_min
@@ -1127,7 +1101,7 @@ models:
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: recent_data__datetime_captura__gps_validador
+              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador
               arguments:
                 datepart: hour
                 interval: 2

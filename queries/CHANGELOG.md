@@ -9,7 +9,7 @@
 
 ### Alterado
 
-- Altera tag do teste de freshness `recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+- Altera tag do teste de freshness `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
 
 ## [1.1.4] - 2026-05-26
 
