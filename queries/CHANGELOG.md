@@ -1,6 +1,6 @@
 # Changelog - queries
 
-## [1.1.4] - 2026-06-02
+## [1.1.5] - 2026-06-02
 
 ### Adicionado
 
@@ -10,6 +10,12 @@
 ### Alterado
 
 - Altera tag do teste de freshness `recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
+## [1.1.4] - 2026-05-26
+
+### Adicionado
+
+- Cria exposure `sistema_ia_processamento_documento_transito` referente ao acesso da tabela `transito.autuacao` pela solução de IA da I3 Soluções Ltda. (Contrato SMTR nº 10/2026), conforme TED_007-26_DTDI-SUBG — Processo SEI nº 000300.013844/2026-83 (https://github.com/RJ-SMTR/pipelines_v3/pull/213)
 
 ## [1.1.3] - 2026-05-06
 
