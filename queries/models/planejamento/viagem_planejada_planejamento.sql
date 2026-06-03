@@ -326,6 +326,7 @@ with
     sha_dados_atuais as (
         {% if is_incremental() %}
             select
+                feed_start_date,
                 id_viagem,
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
@@ -333,6 +334,7 @@ with
             from dados_atuais
         {% else %}
             select
+                cast(null as date) as feed_start_date,
                 cast(null as string) as id_viagem,
                 cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
@@ -344,9 +346,12 @@ with
     para depois detectar se houve mudança de conteúdo.
     */
     sha_dados_completos as (
-        select n.*, {{ sha_column }} as sha_dado_novo, a.* except (id_viagem)
+        select
+            n.*,
+            {{ sha_column }} as sha_dado_novo,
+            a.* except (feed_start_date, id_viagem)
         from dados_novos n
-        left join sha_dados_atuais a using (id_viagem)
+        left join sha_dados_atuais a using (feed_start_date, id_viagem)
     ),
     /*
     Define as colunas de controle: versão, datetime_ultima_atualizacao e
