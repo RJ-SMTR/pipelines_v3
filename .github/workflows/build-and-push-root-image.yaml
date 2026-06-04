@@ -42,7 +42,6 @@ jobs:
         uses: ./.github/actions/deploy-prefect-flows
         env:
           PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
-          DEPLOYMENT_TIMEOUT: "1800"
         with:
           environment: staging
           force_deploy: "1"
@@ -68,7 +67,6 @@ jobs:
         uses: ./.github/actions/deploy-prefect-flows
         env:
           PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
-          DEPLOYMENT_TIMEOUT: "1800"
         with:
           environment: prod
           force_deploy: "1"
