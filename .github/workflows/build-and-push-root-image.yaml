@@ -29,7 +29,7 @@ jobs:
   deploy-prefect-flows-staging:
     name: Deploy Prefect staging flows
     needs: build-and-push-root-image
-    runs-on: k8s
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,11 +38,13 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: staging
           force_deploy: "1"
           pipelines_path: ./pipelines
-          prefect_api_url: ${{ secrets.PREFECT_API_URL }}
+          prefect_api_url: ${{ secrets.PREFECT_V3_WEB_API_URL }}
           # ts_tags: tag:prefect-cicd
           # ts_oauth_client_id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           # ts_oauth_secret: ${{ secrets.TS_OAUTH_SECRET }}
@@ -52,7 +54,7 @@ jobs:
   deploy-prefect-flows-prod:
     name: Deploy Prefect prod flows
     needs: build-and-push-root-image
-    runs-on: k8s
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,11 +63,13 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: prod
           force_deploy: "1"
           pipelines_path: ./pipelines
-          prefect_api_url: ${{ secrets.PREFECT_API_URL }}
+          prefect_api_url: ${{ secrets.PREFECT_V3_WEB_API_URL }}
           # ts_tags: tag:prefect-cicd
           # ts_oauth_client_id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           # ts_oauth_secret: ${{ secrets.TS_OAUTH_SECRET }}
