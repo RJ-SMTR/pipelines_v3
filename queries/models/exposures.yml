@@ -23,7 +23,7 @@ exposures:
         data_product_name: View de gestão da frota de ônibus
         data_usage_frequency: daily
         business_value: >
-          Transformar dados operacionais em informações consolidadas e prontas para consumo no painel 
+          Transformar dados operacionais em informações consolidadas e prontas para consumo no painel
           de gestão de frota, apoiando a tomada de decisão e o monitoramento da operação.
         data_contract: TED_005-26_DTDI/SUBTT-SUBTOP/CGR
         technical_data_steward:
