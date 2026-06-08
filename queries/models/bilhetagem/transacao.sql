@@ -179,7 +179,7 @@ with
             ) as operadora,
             ifnull(do.documento, oh.documento) as documento_operadora,
             ifnull(do.tipo_documento, oh.tipo_documento) as tipo_documento_operadora,
-            s.id_servico_jae,
+            t.cd_linha as id_servico_jae,
             s.servico_jae,
             s.descricao_servico_jae,
             sentido,
@@ -376,7 +376,11 @@ with
                 then "Integração"
                 when
                     t.tipo_transacao_jae in (
-                        "Débito", "Débito EMV", "Débito EMV emissor externo", "Botoeira"
+                        "Débito",
+                        "Débito EMV",
+                        "Débito EMV emissor externo",
+                        "Botoeira",
+                        "Débito PIX a bordo"
                     )
                 then "Integral"
                 when t.tipo_transacao_jae = "Transferência EMV"
@@ -437,6 +441,8 @@ with
                 then "Dinheiro (Botoeira)"
                 when tipo_transacao_jae like "Gratuidade operador%"
                 then "Gratuidade Operadora"
+                when t.meio_pagamento_jae = "PIX"
+                then "PIX"
             end as produto,
             case
                 when t.produto_jae = "Conta Jaé Gratuidade"
