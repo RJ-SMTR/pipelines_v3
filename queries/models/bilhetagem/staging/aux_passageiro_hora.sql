@@ -1,5 +1,5 @@
 {{ config(materialized="ephemeral") }}
--- comment
+
 select
     data,
     hora,
@@ -82,5 +82,3 @@ where
         or (modo = "Metrô" and consorcio = "METRÔ" and data >= date("2025-08-02"))
         or modo is null
     )
-    and meio_pagamento is not null
-    and produto is not null
