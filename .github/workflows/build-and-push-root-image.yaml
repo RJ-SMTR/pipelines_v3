@@ -31,7 +31,7 @@ jobs:
   deploy-prefect-flows-staging:
     name: Deploy Prefect staging flows
     needs: build-and-push-root-image
-    runs-on: k8s
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,6 +40,8 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: staging
           force_deploy: "1"
@@ -54,7 +56,7 @@ jobs:
   deploy-prefect-flows-prod:
     name: Deploy Prefect prod flows
     needs: build-and-push-root-image
-    runs-on: k8s
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -63,6 +65,8 @@ jobs:
 
       - name: Deploy Prefect flows
         uses: ./.github/actions/deploy-prefect-flows
+        env:
+          PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
         with:
           environment: prod
           force_deploy: "1"
