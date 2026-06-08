@@ -1,5 +1,5 @@
 {{ config(materialized="ephemeral") }}
-
+-- comment
 select
     data,
     hora,
