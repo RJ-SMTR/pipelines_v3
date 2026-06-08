@@ -64,7 +64,7 @@ with
                 when cod_veiculo between 115 and 119
                 then '220115003'
                 when cod_veiculo between 120 and 124
-                then '220120000'
+                then '32'
                 when cod_veiculo between 125 and 129
                 then '220125004'
                 when ((cod_veiculo between 130 and 139) and (cod_veiculo != 134))
@@ -78,7 +78,7 @@ with
                 when cod_veiculo between 270 and 274
                 then '220270003'
                 when cod_veiculo between 275 and 279
-                then '220275008'
+                then '24'
                 when cod_veiculo between 285 and 289
                 then '220285009'
                 when cod_veiculo between 290 and 299
@@ -119,7 +119,7 @@ with
                 then '220860006'
                 when cod_veiculo between 870 and 879
                 then '220870007'
-                else null
+                else "DESCONHECIDA"
             end as id_operadora
 
         from dados_consolidados d
@@ -136,7 +136,7 @@ select
     c.placa,
     c.tipo_veiculo,
     c.cod_veiculo,
-    o.operadora
+    coalesce(o.operadora, 'DESCONHECIDA') as operadora
 
 from classificacao_operadora c
 
