@@ -2,7 +2,7 @@
     config(
         materialized="view",
     )
-}}Expand commentComment on lines R1 to R5Resolved
+}}
 
 with
     dados_consolidados as (
@@ -22,8 +22,7 @@ with
         where
             permissao in ("22.100002-3", "22.100003-2", "22.100001-4", "22.100004-1")
             and data < date('{{ var("DATA_SUBSIDIO_V15_INICIO") }}')
-            and lower(tipo_veiculo) not like "%rod%"Expand commentComment on lines R22 to R25Resolved
-
+            and lower(tipo_veiculo) not like "%rod%"
         union all
 
         select
@@ -45,16 +44,14 @@ with
         qualify
             row_number() over (
                 partition by data, id_veiculo order by data_processamento desc
-            )
-            = 1Expand commentComment on lines R27 to R49Resolved
+            ) = 1
     ),
 
     operadoras_onibus as (
         select distinct id_operadora, operadora
         from {{ ref("operadoras") }}
         where modo = "Ônibus"
-    ),Expand commentComment on lines R52 to R56Resolved
-
+    ),
     classificacao_operadora as (
         select
             d.*,

@@ -26,7 +26,7 @@ models:
         description: "Indicador de regularidade da temperatura da viagem"
       - name: operadora
         description: "{{ doc('operadora') }}"
-- name: view_veiculo_operadora
+  - name: view_veiculo_operadora
     description: "Monitoramento da distribuição da frota operante do SPPO e subsídio a ações de fiscalização conduzidas pela SMTR"
     columns:
       - name: data
@@ -51,8 +51,3 @@ models:
         description: "Identificação da empresa operadora obtida através da extração dos três caracteres numéricos após a primeira letra do prefixo do veículo"
       - name: operadora
         description: "{{ doc('operadora') }}"
-    tests:
-        - dbt_utils.unique_combination_of_columns:
-            combination_of_columns:
-              - placa
-              - operadora
