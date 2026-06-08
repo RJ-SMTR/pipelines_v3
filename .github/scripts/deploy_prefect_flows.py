@@ -464,12 +464,14 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
         if is_retryable_error(stderr_text):
             raise RuntimeError(f"Network error deploying `{package}`: {stderr_text}")
 
+        stdout_text = stdout.decode().strip()
         logging.error(f"Failed to deploy `{package}` to {environment} environment.")
-        logging.error(f"Non-retryable error for `{package}`: {stderr_text}")
+        if stderr_text:
+            logging.error(f"STDERR: {stderr_text}")
+        if stdout_text:
+            logging.error(f"STDOUT: {stdout_text}")
         logging.debug(f"Command: `{' '.join(command)}`")
         logging.debug(f"Exit code: {process.returncode}")
-        logging.debug(f"STDOUT: {stdout.decode().strip()}")
-        logging.debug(f"STDERR: {stderr.decode().strip()}")
 
         deployment_results["failed"].append(package)
 
