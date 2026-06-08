@@ -36,7 +36,7 @@ with
     ),
     autuacao_disciplinar as (
         select data, datetime_autuacao, id_infracao, servico, placa
-        from {{ ref("autuacao_disciplinar_historico") }}
+        from `rj-smtr-dev`.`monitoramento`.`autuacao_disciplinar_historico`
         where
             (
                 data_inclusao_datalake <= date_add(data, interval 7 day)
@@ -49,8 +49,8 @@ with
     ),
     ordem_status as (
         select distinct data_inicio, data_fim, status, ordem
-        from {{ ref("valor_km_tipo_viagem") }}
-    -- from `rj-smtr.subsidio.valor_km_tipo_viagem`
+        -- from {{ ref("valor_km_tipo_viagem") }}
+    from `rj-smtr.subsidio.valor_km_tipo_viagem`
     ),
     tecnologias as (
         select
@@ -60,7 +60,7 @@ with
             codigo_tecnologia,
             maior_tecnologia_permitida,
             menor_tecnologia_permitida
-        from {{ ref("tecnologia_servico") }}
+        from `rj-smtr.planejamento.tecnologia_servico`
     ),
     prioridade_tecnologia as (select * from {{ ref("tecnologia_prioridade") }}),
     veiculo_autuacao as (
