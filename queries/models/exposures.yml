@@ -23,11 +23,8 @@ exposures:
         data_product_name: View de gestão da frota de ônibus
         data_usage_frequency: daily
         business_value: >
-          Unificar os registos de duas arquiteturas distintas de licenciamento de frota (tabela
-          antiga até 31/03/2025 e tabela nova a partir de 01/04/2025). Além dos dados originais do
-          veículo (como ano de fabricação, carroceria, chassi e indicador de ar-condicionado), a view
-          enriquece a base ao associar o prefixo do veículo (id_veiculo) à sua respectiva empresa
-          operadora, criando os campos cod_veiculo e operadora.
+          Transformar dados operacionais em informações consolidadas e prontas para consumo no painel 
+          de gestão de frota, apoiando a tomada de decisão e o monitoramento da operação.
         data_contract: TED_005-26_DTDI/SUBTT-SUBTOP/CGR
         technical_data_steward:
           email: janaina.duarte@prefeitura.rio
