@@ -10,7 +10,7 @@ on:
       - .github/workflows/cd_automations.yaml
 
 env:
-  PREFECT_API_URL: ${{ secrets.PREFECT_WEB_API_URL }}
+  PREFECT_API_URL: ${{ secrets.PREFECT_V3_WEB_API_URL }}
   PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
 
 jobs:
