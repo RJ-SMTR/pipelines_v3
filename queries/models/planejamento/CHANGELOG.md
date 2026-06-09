@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Alterado o tratamento de dia seguinte no modelo `ordem_servico_faixa_horaria_sentido` para considerar tbm `diaseguinte` (https://github.com/RJ-SMTR/pipelines_v3/pull/226)
+- Altera o tratamento dos campos do intervalo 24h-03h no modelo `ordem_servico_faixa_horaria` para suportar as variações `dia_seguinte` e `diaseguinte` (https://github.com/RJ-SMTR/pipelines_v3/pull/226)
 
 ## [1.7.1] - 2026-05-22
 
