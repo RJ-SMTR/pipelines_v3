@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 
-ORDEM_PAGAMENTO_ALERT_WEBHOOK = "alertas_bilhetagem_ordem_pagamento"
+ORDEM_PAGAMENTO_ALERT_WEBHOOKS = ["alertas_bilhetagem_ordem_pagamento", "chat_pr_app_cct"]
 
 
 ORDEM_PAGAMENTO_DBT_TEST = DBTTest(

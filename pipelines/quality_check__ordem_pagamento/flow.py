@@ -26,6 +26,6 @@ def quality_check__ordem_pagamento(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
-        webhook_key=constants.ORDEM_PAGAMENTO_ALERT_WEBHOOK,
+        webhook_key=constants.ORDEM_PAGAMENTO_ALERT_WEBHOOKS,
         additional_mentions=["devs_smtr"],
     )
