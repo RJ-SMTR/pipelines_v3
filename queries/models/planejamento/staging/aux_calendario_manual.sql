@@ -74,6 +74,10 @@ with
                 then "Domingo"  -- Feriado sexta-feira da Paixão
                 when data = date(2026, 04, 24)
                 then "Ponto Facultativo"  -- DECRETO RIO Nº 57867 DE 13 DE ABRIL DE 2026
+                when data = date(2026, 06, 04)
+                then "Domingo"  -- Feriado de Corpus Christi
+                when data = date(2026, 06, 05)
+                then "Ponto Facultativo"  -- DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026
             end as tipo_dia,
             case
                 when data between date(2024, 09, 14) and date(2024, 09, 15)
@@ -178,6 +182,8 @@ with
                 then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
                 when data = date(2026, 05, 03)
                 then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
+                when data = date(2026, 05, 17)
+                then "Oper_634"  -- 000399.011715/2026-17 - Inauguração 634
             end as tipo_os
         from
             unnest(
