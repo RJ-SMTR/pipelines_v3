@@ -20,5 +20,4 @@ automations:
     actions:
       - type: change-flow-run-state
         state: CRASHED
-        message: "Flow run has not sent a heartbeat in over 5 minutes, marking as
-          CRASHED."
+        message: "Flow run has not sent a heartbeat in over 5 minutes, marking as CRASHED."
