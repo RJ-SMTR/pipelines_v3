@@ -21,3 +21,26 @@ automations:
       - type: change-flow-run-state
         state: CRASHED
         message: "Flow run has not sent a heartbeat in over 5 minutes, marking as CRASHED."
+
+  - name: maintenance__crash_stale_pending_runs
+    description: Crash pending flows that have been pending for too long
+    enabled: true
+    trigger:
+      type: event
+      posture: Proactive
+      after:
+        - prefect.flow-run.Created
+      expect:
+        - prefect.flow-run.Started
+        - prefect.flow-run.Completed
+        - prefect.flow-run.Failed
+        - prefect.flow-run.Cancelled
+        - prefect.flow-run.Crashed
+      threshold: 1
+      within: 3600 # 1 hour
+      for_each:
+        - prefect.flow-run.id
+    actions:
+      - type: change-flow-run-state
+        state: CRASHED
+        message: "Flow run has been pending for over 1 hour without starting, marking as CRASHED."
