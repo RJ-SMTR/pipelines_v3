@@ -89,4 +89,12 @@ select distinct
     '{{ var("version") }}' as versao_modelo,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from viagem v
-inner join {{ ref("aux_viagem_registros") }} d on v.id_viagem = d.id_viagem
+inner join {{ ref("aux_viagem_registros") }} d on v.id_viagem = d.id_viagem 
+where (
+    data < date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+    or (
+        data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+        and extract(date from datetime_partida)
+            = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+    )
+)
