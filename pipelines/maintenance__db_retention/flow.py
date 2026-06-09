@@ -12,6 +12,7 @@ async def maintenance__db_retention(
     days_to_keep: int = 25, batch_size: int = 100, bloat_threshold: float = 30.0
 ):
     db_url = getenv("PREFECT_DB_URL")
+    print(f"Starting maintenance__db_retention")
     await delete_old_flow_runs(days_to_keep=days_to_keep, batch_size=batch_size)
     await vacuum_tables(db_url=db_url, bloat_threshold=bloat_threshold)
     await vacuum_index_bloat(db_url=db_url, bloat_threshold=bloat_threshold)
