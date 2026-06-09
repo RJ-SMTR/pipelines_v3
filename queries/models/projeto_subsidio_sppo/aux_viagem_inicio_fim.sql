@@ -105,7 +105,7 @@ from inicio_fim
                 or extract(date from datetime_partida)
                     = date_sub(date('{{ var("run_date") }}'), interval 1 day)
             )
-             
+
             {% endif %}
         {% endif %}
 
