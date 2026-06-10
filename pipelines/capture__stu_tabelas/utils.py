@@ -203,25 +203,26 @@ def extract_stu_data(
 
     filepath = raw_filepath.format(page=0)
 
-    # Encontra a data anterior mais recente apenas pelos nomes dos arquivos
+    # Datas disponíveis nos nomes dos arquivos do bucket
     dates = {
         "_".join(b.name.split("/")[-1].split("_")[:3]) for b in blobs if b.name.endswith(".csv")
     }
 
-    data_anterior_str = None
+    # Procura o dia anterior mais recente com dados válidos e gera seus hashes,
+    # liberando o DataFrame antes de carregar o dia de hoje. Dias vazios/corrompidos
+    # são pulados, continuando a busca mais para trás.
+    hashes_anteriores, colunas_anteriores = set(), []
     if not first_run:
         max_days_back = 30
         for days_back in range(1, max_days_back + 1):
             aux = (hoje - timedelta(days=days_back)).strftime("%Y_%m_%d")
-            if aux in dates:
-                data_anterior_str = aux
-                break
+            if aux not in dates:
+                continue
 
-    # Gera os hashes do dia anterior e libera o DataFrame antes de carregar hoje
-    hashes_anteriores, colunas_anteriores = set(), []
-    if data_anterior_str is not None:
-        print(f"Gerando hashes do dia anterior: {data_anterior_str}")
-        hashes_anteriores, colunas_anteriores = gera_hashes(blobs, data_anterior_str)
+            print(f"Gerando hashes do dia anterior: {aux}")
+            hashes_anteriores, colunas_anteriores = gera_hashes(blobs, aux)
+            if hashes_anteriores:
+                break
 
     df_hoje = processa_dados(blobs, hoje_str)
     print(f"Registros de hoje: {len(df_hoje)}")
