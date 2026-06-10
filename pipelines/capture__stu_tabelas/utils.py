@@ -180,16 +180,12 @@ def extract_stu_data(
     Returns:
         list[str]: Lista com os caminhos dos arquivos salvos localmente
     """
-    # ==== TESTE TEMPORÁRIO - REVERTER ANTES DO MERGE ====
-    # Lê o ingestion de PROD mesmo rodando em dev, para validar o consumo de
-    # memória das tabelas grandes. A saída (raw/source) continua em dev.
     st = Storage(
-        env="prod",
+        env=source.env,
         dataset_id=source.dataset_id,
         table_id=source.table_id,
         bucket_names=constants.STU_PRIVATE_BUCKET_NAMES,
     )
-    # ==== FIM TESTE TEMPORÁRIO ====
 
     hoje = timestamp
     hoje_str = hoje.strftime("%Y_%m_%d")
@@ -245,12 +241,9 @@ def extract_stu_data(
 
     print(f"Total de registros novos/alterados: {len(novos_registros)}")
 
-    # ==== TESTE TEMPORÁRIO - REVERTER ANTES DO MERGE ====
-    # Delete desativado: lendo ingestion de PROD, não pode apagar arquivos de prod.
-    # if not first_run:
-    #     print("Iniciando limpeza de arquivos antigos...")
-    #     remove_arquivos(blobs=blobs, date=hoje, days=30)
-    # ==== FIM TESTE TEMPORÁRIO ====
+    if not first_run:
+        print("Iniciando limpeza de arquivos antigos...")
+        remove_arquivos(blobs=blobs, date=hoje, days=30)
 
     save_local_file(filepath=filepath, filetype="csv", data=novos_registros)
     return [filepath]
