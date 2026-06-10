@@ -114,33 +114,51 @@ def processa_dados(blobs: list, date_str: str) -> pd.DataFrame:
     return result
 
 
-def compara_dataframes(df_hoje: pd.DataFrame, df_ontem: pd.DataFrame) -> pd.DataFrame:
+def gera_hashes(blobs: list, date_str: str) -> tuple[set, list]:
     """
-    Compara dois DataFrames e retorna apenas registros novos ou alterados.
+    Carrega os dados de uma data e os reduz a um conjunto de hashes por linha.
+
+    Args:
+        blobs: Lista de blobs disponíveis no bucket
+        date_str: Data no formato YYYY_MM_DD
+
+    Returns:
+        tuple[set, list]: Conjunto de hashes por linha e lista ordenada de colunas
+    """
+    df = processa_dados(blobs, date_str)
+
+    if df.empty:
+        return set(), []
+
+    colunas = sorted(df.columns)
+    hashes = set(pd.util.hash_pandas_object(df[colunas], index=False))
+
+    print(f"Gerados {len(hashes)} hashes para {date_str}")
+
+    return hashes, colunas
+
+
+def filtra_novos_registros(
+    df_hoje: pd.DataFrame, hashes_anteriores: set, colunas_anteriores: list
+) -> pd.DataFrame:
+    """
+    Retorna apenas os registros de hoje novos ou alterados em relação ao dia anterior.
 
     Args:
         df_hoje: DataFrame com dados de hoje
-        df_ontem: DataFrame com dados de ontem
+        hashes_anteriores: Conjunto de hashes por linha do dia anterior
+        colunas_anteriores: Lista ordenada de colunas usada para gerar os hashes
 
     Returns:
         pd.DataFrame: Registros que são novos ou foram alterados
     """
-    new_columns = set(df_hoje.columns) - set(df_ontem.columns)
-
-    if new_columns:
-        print(f"Novas colunas detectadas: {new_columns} - retornando todos os registros")
+    if sorted(df_hoje.columns) != colunas_anteriores:
+        print("Conjunto de colunas mudou - retornando todos os registros")
         return df_hoje
 
-    common_columns = [col for col in df_hoje.columns if col in df_ontem.columns]
-    if not common_columns:
-        print("Nenhuma coluna em comum entre hoje e ontem - retornando todos os registros")
-        return df_hoje
+    hashes_hoje = pd.util.hash_pandas_object(df_hoje[colunas_anteriores], index=False)
 
-    merged = df_hoje.merge(df_ontem, how="left", indicator=True)
-
-    new_records = merged[merged["_merge"] == "left_only"].drop("_merge", axis=1)
-
-    return new_records
+    return df_hoje[~hashes_hoje.isin(hashes_anteriores)]
 
 
 def extract_stu_data(
@@ -162,12 +180,16 @@ def extract_stu_data(
     Returns:
         list[str]: Lista com os caminhos dos arquivos salvos localmente
     """
+    # ==== TESTE TEMPORÁRIO - REVERTER ANTES DO MERGE ====
+    # Lê o ingestion de PROD mesmo rodando em dev, para validar o consumo de
+    # memória das tabelas grandes. A saída (raw/source) continua em dev.
     st = Storage(
-        env=source.env,
+        env="prod",
         dataset_id=source.dataset_id,
         table_id=source.table_id,
         bucket_names=constants.STU_PRIVATE_BUCKET_NAMES,
     )
+    # ==== FIM TESTE TEMPORÁRIO ====
 
     hoje = timestamp
     hoje_str = hoje.strftime("%Y_%m_%d")
@@ -183,55 +205,52 @@ def extract_stu_data(
 
     print(f"Total de {len(blobs)} blobs encontrados no prefixo {prefix}")
 
+    filepath = raw_filepath.format(page=0)
+
+    # Encontra a data anterior mais recente apenas pelos nomes dos arquivos
+    dates = {
+        "_".join(b.name.split("/")[-1].split("_")[:3]) for b in blobs if b.name.endswith(".csv")
+    }
+
+    data_anterior_str = None
+    if not first_run:
+        max_days_back = 30
+        for days_back in range(1, max_days_back + 1):
+            aux = (hoje - timedelta(days=days_back)).strftime("%Y_%m_%d")
+            if aux in dates:
+                data_anterior_str = aux
+                break
+
+    # Gera os hashes do dia anterior e libera o DataFrame antes de carregar hoje
+    hashes_anteriores, colunas_anteriores = set(), []
+    if data_anterior_str is not None:
+        print(f"Gerando hashes do dia anterior: {data_anterior_str}")
+        hashes_anteriores, colunas_anteriores = gera_hashes(blobs, data_anterior_str)
+
     df_hoje = processa_dados(blobs, hoje_str)
     print(f"Registros de hoje: {len(df_hoje)}")
-
-    filepath = raw_filepath.format(page=0)
 
     if df_hoje.empty:
         print("Nenhum dado encontrado para hoje")
         save_local_file(filepath=filepath, filetype="csv", data=pd.DataFrame())
         return [filepath]
 
-    if first_run:
-        save_local_file(filepath=filepath, filetype="csv", data=df_hoje)
-        return [filepath]
-
-    max_days_back = 30
-    df_anterior = pd.DataFrame()
-
-    dates = {
-        "_".join(b.name.split("/")[-1].split("_")[:3]) for b in blobs if b.name.endswith(".csv")
-    }
-
-    for days_back in range(1, max_days_back + 1):
-        data_anterior = hoje - timedelta(days=days_back)
-        data_anterior_str = data_anterior.strftime("%Y_%m_%d")
-
-        if data_anterior_str not in dates:
-            continue
-
-        print(f"Buscando dados de {data_anterior_str} ({days_back} dia(s) atrás)")
-        df_anterior = processa_dados(blobs, data_anterior_str)
-
-        if not df_anterior.empty:
-            print(f"Encontrados {len(df_anterior)} registros em {data_anterior_str}")
-            break
-
-    if df_anterior.empty:
-        print(
-            f"Sem dados nos últimos {max_days_back} dias - "
-            "todos os registros são considerados novos"
-        )
-        new_records = df_hoje
+    if first_run or not hashes_anteriores:
+        if not first_run:
+            print("Sem dados no dia anterior - todos os registros são considerados novos")
+        novos_registros = df_hoje
     else:
-        print("Comparando dados de hoje vs dia anterior encontrado...")
-        new_records = compara_dataframes(df_hoje, df_anterior)
+        print("Comparando dados de hoje vs dia anterior...")
+        novos_registros = filtra_novos_registros(df_hoje, hashes_anteriores, colunas_anteriores)
 
-    print(f"Total de registros novos/alterados: {len(new_records)}")
+    print(f"Total de registros novos/alterados: {len(novos_registros)}")
 
-    print("Iniciando limpeza de arquivos antigos...")
-    remove_arquivos(blobs=blobs, date=hoje, days=30)
+    # ==== TESTE TEMPORÁRIO - REVERTER ANTES DO MERGE ====
+    # Delete desativado: lendo ingestion de PROD, não pode apagar arquivos de prod.
+    # if not first_run:
+    #     print("Iniciando limpeza de arquivos antigos...")
+    #     remove_arquivos(blobs=blobs, date=hoje, days=30)
+    # ==== FIM TESTE TEMPORÁRIO ====
 
-    save_local_file(filepath=filepath, filetype="csv", data=new_records)
+    save_local_file(filepath=filepath, filetype="csv", data=novos_registros)
     return [filepath]
