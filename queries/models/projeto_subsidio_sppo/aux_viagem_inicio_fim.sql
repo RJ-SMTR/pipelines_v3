@@ -101,11 +101,10 @@ from inicio_fim
             {% if var("run_date") != "2024-05-05" %}
                 -- Apuração "Madonna · The Celebration Tour in Rio"
                  and (
-                data < date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
-                or extract(date from datetime_partida)
-                    = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-            )
-
+            data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+            or extract(date from datetime_partida)
+                = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+        )
             {% endif %}
         {% endif %}
 
