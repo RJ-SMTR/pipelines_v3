@@ -10,6 +10,5 @@ COPY ./pipelines/control__model_freshness ./pipelines/control__model_freshness/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
