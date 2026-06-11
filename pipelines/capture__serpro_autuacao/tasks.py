@@ -55,10 +55,8 @@ def _get_serpro_connection():
         )
     except Exception as e:
         inner = getattr(e, "inner", None) or getattr(e, "__cause__", None)
-        print(f"Erro ao conectar: {type(e).__name__}: {e}")
-        if inner:
-            print(f"Inner exception: {type(inner).__name__}: {inner}")
-        raise
+        detail = f"{type(inner).__name__}: {inner}" if inner else "sem inner exception"
+        raise RuntimeError(f"SERPRO connect failed. Inner: {detail}") from e
     return conn
 
 
