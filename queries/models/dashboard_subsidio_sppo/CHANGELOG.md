@@ -1,4 +1,6 @@
-# Changelog - dashboard_subsidio_sppo## [8.0.9] - 2026-01-08
+# Changelog - dashboard_subsidio_sppo
+
+## [8.2.3] - 2026-06-11
 
 ### Alterado
 
