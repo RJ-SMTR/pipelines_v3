@@ -31,7 +31,7 @@ with
             * except (horario_inicio, horario_fim),
             horario_inicio as inicio_periodo,
             horario_fim as fim_periodo
-        from {{ ref("aux_ordem_servico_diaria") }}
+        from {{ ref("aux_ordem_servico_diaria_subsidio") }}
     ),
     ordem_servico_sentido as (
         select *
