@@ -17,6 +17,10 @@ from pipelines.common.treatment.default_quality_check.tasks import (
     task_dbt_test_notify_discord,
     task_run_dbt_tests,
 )
+from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
+    setup_dbt_queries,
+)
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 
 
@@ -69,6 +73,14 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         ],
     )
 
+    tasks["setup_dbt_queries"] = setup_dbt_queries(
+        wait_for=[tasks["setup_enviroment"]],
+    )
+
+    tasks["install_dbt_packages"] = install_dbt_packages(
+        wait_for=[tasks["setup_dbt_queries"]],
+    )
+
     tasks["timestamp"] = get_scheduled_timestamp(
         wait_for=[
             tasks["initialize_sentry"],
@@ -97,7 +109,11 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
         datetime_start=tasks["datetime_start"],
         datetime_end=tasks["datetime_end"],
         partitions=partitions,
-        wait_for=tasks_wait_for.get("run_dbt_tests"),
+        env=tasks["env"],
+        wait_for=[
+            tasks["install_dbt_packages"],
+            *tasks_wait_for.get("run_dbt_tests", []),
+        ],
     )
 
     tasks["notify_discord"] = task_dbt_test_notify_discord(
