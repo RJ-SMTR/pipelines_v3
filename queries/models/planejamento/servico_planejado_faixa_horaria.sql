@@ -48,7 +48,7 @@ with
             case
                 when evento is not null then true else false
             end as indicador_trajeto_alternativo
-        from {{ ref("viagem_planejada_planejamento") }}
+        from {{ ref("viagem_planejada_planejamento_dia") }}
         {# from `rj-smtr.planejamento.viagem_planejada` #}
         where
             {{ incremental_filter }}
