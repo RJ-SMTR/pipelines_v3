@@ -1,4 +1,8 @@
-# Changelog - dashboard_subsidio_sppo
+# Changelog - dashboard_subsidio_sppo## [8.0.9] - 2026-01-08
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar uma exceção para o limite de viagens de servicos especificados no Processo nº 000300.021698/2026-60. (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
 
 ## [8.2.2] - 2026-06-01
 
