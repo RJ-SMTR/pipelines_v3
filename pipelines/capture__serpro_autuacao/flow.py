@@ -7,7 +7,9 @@ Executa a captura de dados de autuações do sistema SERPRO.
 Common: 2026-03-06
 """
 
-from pipelines.capture__serpro_autuacao.constants import AUTUACAO_TABLE_ID, SERPRO_SOURCES
+from typing import Optional
+
+from pipelines.capture__serpro_autuacao.constants import SERPRO_SOURCES
 from pipelines.capture__serpro_autuacao.tasks import create_serpro_extractor
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
@@ -15,18 +17,16 @@ from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run, timeout_seconds=10800)
-def capture__serpro_autuacao(  # noqa: PLR0913
-    env=None,
-    source_table_ids=(AUTUACAO_TABLE_ID,),
-    timestamp=None,
-    recapture=True,
-    recapture_days=2,
-    recapture_timestamps=None,
-) -> list[str]:
+def capture__serpro_autuacao(
+    env: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
+) -> None:
     create_capture_flows_default_tasks(
         env=env,
         sources=SERPRO_SOURCES,
-        source_table_ids=source_table_ids,
         timestamp=timestamp,
         create_extractor_task=create_serpro_extractor,
         recapture=recapture,
