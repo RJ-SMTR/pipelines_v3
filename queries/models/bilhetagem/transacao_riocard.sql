@@ -52,7 +52,7 @@ with
             coalesce(
                 do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
             ) as operadora,
-            l.id_servico_jae,
+            t.cd_linha as id_servico_jae,
             l.servico_jae,
             l.descricao_servico_jae,
             t.sentido,
