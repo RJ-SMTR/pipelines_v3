@@ -7,6 +7,8 @@ Executa o selector DBT 'transacao_erro' para materializar dados no BigQuery.
 DBT: 2026-05-14
 """
 
+from typing import Optional
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -16,12 +18,13 @@ from pipelines.treatment__transacao_erro import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__transacao_erro(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+def treatment__transacao_erro(  # noqa: PLR0913
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -30,4 +33,5 @@ def treatment__transacao_erro(
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
+        skip_source_check=skip_source_check,
     )

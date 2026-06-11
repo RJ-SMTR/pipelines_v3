@@ -14,6 +14,5 @@ COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
 
 COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
