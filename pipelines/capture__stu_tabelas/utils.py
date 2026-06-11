@@ -3,6 +3,7 @@
 Funções auxiliares para o flow de captura de dados do STU.
 """
 
+import csv
 import json
 from datetime import datetime, timedelta
 
@@ -134,7 +135,15 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[dict, l
             hashes_linha = pd.util.hash_pandas_object(data, index=False)
             hashes_por_chave.update(zip(hashes_chave, hashes_linha, strict=True))
 
-        except Exception as e:
+        except (
+            UnicodeDecodeError,
+            csv.Error,
+            pd.errors.ParserError,
+            json.JSONDecodeError,
+            ValueError,
+            KeyError,
+            OSError,
+        ) as e:
             print(f"Erro ao gerar hashes do arquivo {file.name}: {str(e)}")  # noqa: RUF010
             continue
 
@@ -236,7 +245,15 @@ def processa_arquivos_hoje(  # noqa: PLR0913
             wrote_file = True
             total_novos_registros += len(novos_registros)
 
-        except Exception as e:
+        except (
+            UnicodeDecodeError,
+            csv.Error,
+            pd.errors.ParserError,
+            json.JSONDecodeError,
+            ValueError,
+            KeyError,
+            OSError,
+        ) as e:
             print(f"Erro ao processar arquivo de hoje {file.name}: {str(e)}")  # noqa: RUF010
             continue
 
