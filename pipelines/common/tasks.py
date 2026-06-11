@@ -253,7 +253,7 @@ async def run_subflow(
     runs = await asyncio.gather(*coroutines)
 
     fail_message = "Os seguintes execuções falharam:\n"
-    flow_run_base_url = "https://prefect.mobilidade.rio/runs/flow-run"
+    flow_run_base_url = "https://prefect-v3.mobilidade.rio/runs/flow-run"
     raise_error = False
     for run in runs:
         if not run.state.is_completed():

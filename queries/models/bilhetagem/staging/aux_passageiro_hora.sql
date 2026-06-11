@@ -31,6 +31,9 @@ where
         or (modo = "Metrô" and consorcio = "METRÔ" and data >= date("2025-08-02"))
     )
     and tipo_transacao is not null
+    and meio_pagamento is not null
+    and produto is not null
+    and tipo_usuario is not null
 
 union all
 

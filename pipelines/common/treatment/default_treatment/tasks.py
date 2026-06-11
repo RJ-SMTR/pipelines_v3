@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+from pathlib import Path
 from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
@@ -13,8 +14,10 @@ from pipelines.common.treatment.default_treatment.utils import (
     DBTSelectorMaterializationContext,
     DBTTest,
     IncompleteDataError,
+    clone_queries_from_github,
     dbt_test_notify_discord,
     run_dbt,
+    run_dbt_deps,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
@@ -35,6 +38,7 @@ def create_materialization_contexts(  # noqa: PLR0913
     force_test_run: bool,
     snapshot_selector: Optional[DBTSelector] = None,
     skip_pre_test: bool = False,
+    test_only: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -50,11 +54,13 @@ def create_materialization_contexts(  # noqa: PLR0913
         force_test_run (bool): Força a execução dos testes.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
     """
     contexts = []
+    force_test_run = True if test_only else force_test_run
     for s in selectors:
         ctx = DBTSelectorMaterializationContext(
             env=env,
@@ -189,7 +195,14 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
-        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags)
+        if context.env == "dev":
+            run_dbt(
+                dbt_obj=context.selector,
+                dbt_vars=context.dbt_vars,
+                flags=[*(flags or []), "--empty"],
+                env=context.env,
+            )
+        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts
 
@@ -214,6 +227,7 @@ def run_dbt_snapshots(
             dbt_vars=context.dbt_vars,
             flags=flags,
             is_snapshot=True,
+            env=context.env,
         )
 
     return contexts
@@ -242,6 +256,7 @@ def run_dbt_selector_tests(
                 dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
+                env=context.env,
             )
         context[f"{mode}_test_log"] = log
 
@@ -294,3 +309,26 @@ def save_materialization_datetime_redis(
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end
         )
+
+
+@task(cache_policy=NO_CACHE)
+def setup_dbt_queries() -> Path:
+    """
+    Clona a pasta queries/ do repositório GitHub via sparse-checkout.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Returns:
+        Path: Caminho para a pasta queries/.
+    """
+    return clone_queries_from_github()
+
+
+@task(cache_policy=NO_CACHE)
+def install_dbt_packages() -> None:
+    """
+    Executa dbt deps para instalar pacotes do dbt.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    run_dbt_deps()

@@ -40,6 +40,7 @@ members = [
     "capture-zirix-realocacao",
     "capture-zirix-registros",
     "common",
+    "control-bilhetagem-ordem-atrasada",
     "control-jae-teste-ip",
     "control-jae-verificacao-captura",
     "control-model-freshness",
@@ -620,6 +621,11 @@ wheels = [
 name = "common"
 version = "0.1.0"
 source = { virtual = "pipelines/common" }
+
+[[package]]
+name = "control-bilhetagem-ordem-atrasada"
+version = "0.1.0"
+source = { virtual = "pipelines/control__bilhetagem_ordem_atrasada" }
 
 [[package]]
 name = "control-jae-teste-ip"

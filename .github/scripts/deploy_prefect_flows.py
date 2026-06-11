@@ -171,12 +171,8 @@ def get_prefect_yaml_files(
 
 
 async def get_changed_directories(package_dir: Path, sha: str) -> list[Path]:
-    """Get directories that have changed since the specified commit SHA.
-
-    If changes occur in the `queries/` directory, identify all pipelines
-    that depend on dbt by checking for `queries` in their Dockerfiles.
-    """
-    command = ["git", "diff", "--name-only", f"{sha}^", sha]
+    """Get directories that have changed since the specified commit SHA."""
+    command = ["git", "diff", "--name-only", f"{sha}^", sha, "--", package_dir.as_posix()]
 
     try:
         process = await run_subprocess(command)
@@ -190,29 +186,7 @@ async def get_changed_directories(package_dir: Path, sha: str) -> list[Path]:
         logging.debug(f"Command: `{' '.join(command)}`")
         logging.debug(f"STDOUT: {parsed_stdout}")
 
-        changed_paths = [Path(f) for f in parsed_stdout]
-        changed_dirs = {p.parent for p in changed_paths if package_dir in p.parents}
-
-        # Check if any changed file is in the queries directory
-        if any(Path("queries") in p.parents for p in changed_paths):
-            logging.info(
-                "Changes detected in `queries/` directory. Identifying dbt-dependent pipelines..."
-            )
-            dbt_pipelines = []
-            for pipeline_dir in package_dir.iterdir():
-                if not pipeline_dir.is_dir():
-                    continue
-                dockerfile = pipeline_dir / "Dockerfile"
-                if dockerfile.exists() and "queries" in dockerfile.read_text():
-                    dbt_pipelines.append(pipeline_dir)
-
-            if dbt_pipelines:
-                logging.info(
-                    f"Adding {len(dbt_pipelines)} dbt-dependent pipelines to deployment list."
-                )
-                changed_dirs.update(dbt_pipelines)
-
-        return list(changed_dirs)
+        return list({Path(f).parent for f in parsed_stdout if f.strip()})
     except Exception as e:
         logging.error(f"Failed to get changed directories: {e}")
         return []
@@ -464,12 +438,14 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
         if is_retryable_error(stderr_text):
             raise RuntimeError(f"Network error deploying `{package}`: {stderr_text}")
 
+        stdout_text = stdout.decode().strip()
         logging.error(f"Failed to deploy `{package}` to {environment} environment.")
-        logging.error(f"Non-retryable error for `{package}`: {stderr_text}")
+        if stderr_text:
+            logging.error(f"STDERR: {stderr_text}")
+        if stdout_text:
+            logging.error(f"STDOUT: {stdout_text}")
         logging.debug(f"Command: `{' '.join(command)}`")
         logging.debug(f"Exit code: {process.returncode}")
-        logging.debug(f"STDOUT: {stdout.decode().strip()}")
-        logging.debug(f"STDERR: {stderr.decode().strip()}")
 
         deployment_results["failed"].append(package)
 

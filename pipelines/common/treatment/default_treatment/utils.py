@@ -3,6 +3,9 @@ import inspect
 import json
 import os
 import re
+import shutil
+import subprocess
+import tempfile
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Optional, Union
@@ -365,7 +368,7 @@ class DBTSelectorMaterializationContext:
             False
             if (
                 selector.final_datetime is not None
-                and self.datetime_start > selector.final_datetime
+                and self.datetime_start >= selector.final_datetime
             )
             else True
         )
@@ -508,24 +511,43 @@ class DBTSelectorMaterializationContext:
         return dbt_vars
 
 
+def get_dbt_target(env: str) -> str:
+    """
+    Retorna o target do dbt com base no ambiente e no contexto de execução.
+
+    Args:
+        env (str): Ambiente de execução ("prod" ou "dev").
+
+    Returns:
+        str: "prod" se env for prod; "dev" se rodando localmente; "hmg" caso contrário.
+    """
+    if env == "prod":
+        return "prod"
+    return "dev" if is_running_locally() else "hmg"
+
+
 def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
-    dbt_command: Optional[str] = None,
+    dbt_command: Optional[Union[str, list[str]]] = None,
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
     is_snapshot: bool = False,
+    env: Optional[str] = None,
 ):
     """
     Executa comandos do DBT e retorna os logs gerados.
 
     Args:
         dbt_obj (Optional[Union[DBTSelector, DBTTest]]): Objeto DBT a ser executado.
-        dbt_command (Optional[str]): Comando customizado (ex: "source freshness").
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado. String para
+            atalhos conhecidos (ex: "source freshness") ou lista para invocações livres
+            (ex: ["run", "--select", "model", "--exclude", "other"]).
         dbt_vars (Optional[dict]): Variáveis para execução do DBT.
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
         is_snapshot (bool): Se True, executa 'dbt snapshot' ao invés de 'dbt run'.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Conteúdo do arquivo de log do DBT.
@@ -533,6 +555,7 @@ def run_dbt(  # noqa: PLR0913
     root_path = get_project_root_path()
     project_dir = root_path / "queries"
     flags = flags or []
+    has_target_flag = "--target" in flags
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
 
     flags = [
@@ -552,7 +575,9 @@ def run_dbt(  # noqa: PLR0913
     target_path = project_dir / "target"
 
     invoke = []
-    if dbt_command == "source freshness":
+    if isinstance(dbt_command, list):
+        invoke = dbt_command
+    elif dbt_command == "source freshness":
         invoke = ["source", "freshness"]
     elif dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
@@ -570,11 +595,15 @@ def run_dbt(  # noqa: PLR0913
     vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
     invoke = [*invoke, "--vars", vars_yaml]
 
+    if env is not None and not has_target_flag:
+        invoke = [*invoke, "--target", get_dbt_target(env)]
+
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
     os.environ["DBT_PROJECT_DIR"] = str(project_dir)
     os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
     os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
 
     PrefectDbtRunner(
         settings=PrefectDbtSettings(
@@ -594,6 +623,7 @@ def run_dbt_tests(
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
+    env: Optional[str] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -603,6 +633,7 @@ def run_dbt_tests(
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Logs da execução do DBT.
@@ -617,7 +648,7 @@ def run_dbt_tests(
         datetime_end=datetime_end,
         partitions=partitions,
     )
-    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 
     return log, dbt_vars
 
@@ -873,3 +904,83 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     if not test_check and raise_check_error:
         raise DBTTestFailedError()
+
+
+def clone_queries_from_github() -> Path:
+    """
+    Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Returns:
+        Path: Caminho para a pasta queries/ no projeto.
+    """
+    root_path = get_project_root_path()
+    queries_path = root_path / "queries"
+
+    if is_running_locally():
+        if not queries_path.is_dir():
+            raise FileNotFoundError(f"Pasta queries/ não encontrada: {queries_path}")
+        print(f"Local: usando queries/ existente em {queries_path}")
+        return queries_path
+
+    git_bin = shutil.which("git")
+    if git_bin is None:
+        raise RuntimeError("Executável git não encontrado no ambiente.")
+
+    repo_url = (
+        f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
+    )
+    print(f"Clonando queries/ de {repo_url}...")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.run(
+            [
+                git_bin,
+                "clone",
+                "--depth",
+                "1",
+                "--filter=blob:none",
+                "--no-checkout",
+                repo_url,
+                tmpdir,
+            ],
+            check=True,
+            timeout=120,
+        )
+        subprocess.run(
+            [git_bin, "sparse-checkout", "init", "--cone"], cwd=tmpdir, check=True, timeout=30
+        )
+        subprocess.run(
+            [git_bin, "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True, timeout=30
+        )
+        subprocess.run([git_bin, "checkout"], cwd=tmpdir, check=True, timeout=60)
+        if queries_path.exists():
+            shutil.rmtree(queries_path)
+        shutil.copytree(Path(tmpdir) / "queries", queries_path)
+
+    print(f"queries/ clonado em {queries_path}")
+    return queries_path
+
+
+def run_dbt_deps() -> None:
+    """
+    Executa dbt deps para instalar pacotes.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+
+    if is_running_locally() and (project_dir / "dbt_packages").exists():
+        print("Local: dbt_packages/ já existe, pulando dbt deps.")
+        return
+
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    print("Executando dbt deps...")
+    PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+        ),
+        raise_on_failure=True,
+    ).invoke(["deps"])

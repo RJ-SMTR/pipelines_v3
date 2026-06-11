@@ -1,5 +1,15 @@
 # Changelog - financeiro_interno
 
+## [1.0.3] - 2026-06-01
+
+### Adicionado
+
+- Cria modelo `aux_subsidio_penalidade_servico_faixa_excecao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+### Alterado
+
+- Altera lógica das exceções do modelo `subsidio_penalidade_servico_faixa_v2.sql`, removendo da query e consultando o modelo auxiliar (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
 ## [1.0.2] - 2026-04-10
 
 ### Alterado

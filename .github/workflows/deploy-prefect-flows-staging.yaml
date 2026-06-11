@@ -7,7 +7,6 @@ on:
       - devops/*
     paths:
       - pipelines/**
-      - queries/**
       - .github/**
   workflow_dispatch:
     inputs:
@@ -36,6 +35,10 @@ on:
         required: false
         type: number
         default: 2
+      pipeline:
+        description: "Deploy only a specific pipeline (e.g. treatment__sppo_viagens)"
+        required: false
+        type: string
 
 jobs:
   deploy-prefect-staging-flows:
@@ -47,34 +50,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Set build dependencies
-      #   run: |
-      #     sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-      #       ca-certificates \
-      #       curl \
-      #       wget \
-      #       gnupg \
-      #       lsb-release \
-      #       apt-transport-https \
-      #       software-properties-common \
-      #       build-essential \
-      #       git \
-      #       sudo \
-      #       jq \
-      #       unzip \
-      #       zip \
-      #       python3 \
-      #       python3-pip \
-      #       openjdk-11-jdk \
-      #       golang-go \
-      #       ruby-full \
-      #       make \
-      #       docker.io \
-      #       && sudo rm -rf /var/lib/apt/lists/*
-
-      # - name: 🔧 Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-
       - name: Deploy Prefect flows
         env:
           PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
@@ -82,10 +57,11 @@ jobs:
         with:
           environment: staging
           pipelines_path: ./pipelines
-          prefect_api_url: ${{ secrets.PREFECT_WEB_API_URL }}
+          prefect_api_url: ${{ secrets.PREFECT_V3_WEB_API_URL }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           force_deploy: ${{ github.event.inputs.force_deploy == 'true' && '1' || '0' }}
           debug: ${{ github.event.inputs.debug }}
           batch_size: ${{ github.event.inputs.batch_size || '3' }}
           cleanup_docker: ${{ github.event.inputs.cleanup_docker || 'true' }}
           max_retries: ${{ github.event.inputs.max_retries || '2' }}
+          pipeline: ${{ github.event.inputs.pipeline }}
