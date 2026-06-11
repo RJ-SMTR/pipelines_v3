@@ -95,6 +95,7 @@ def task_run_dbt_tests(
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]],
+    env: Optional[str] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -104,6 +105,7 @@ def task_run_dbt_tests(
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Logs da execução do DBT.
@@ -115,6 +117,7 @@ def task_run_dbt_tests(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
+        env=env,
     )
 
     return log, dbt_vars

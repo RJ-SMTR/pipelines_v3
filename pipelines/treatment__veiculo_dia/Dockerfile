@@ -17,6 +17,5 @@ COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veicul
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
