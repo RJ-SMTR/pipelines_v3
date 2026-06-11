@@ -10,12 +10,22 @@ import os
 from impala.dbapi import connect
 
 from pipelines.capture__serpro_autuacao.constants import SERPRO_CAPTURE_PARAMS
-from pipelines.capture__serpro_autuacao.tasks import _setup_serpro_certificate
+from pipelines.capture__serpro_autuacao.tasks import _write_serpro_certificate
 
 PAGE_SIZE = SERPRO_CAPTURE_PARAMS["page_size"]
 
 
 def q(sql: str, page_size: int = PAGE_SIZE):
+    """
+    Executa uma query no SERPRO e imprime até page_size linhas.
+
+    Args:
+        sql: Query SQL a ser executada
+        page_size: Quantidade máxima de linhas a retornar
+
+    Returns:
+        list: Linhas retornadas pela query
+    """
     cur.execute(sql)
     rows = cur.fetchmany(page_size)
     if cur.description:
@@ -28,9 +38,9 @@ def q(sql: str, page_size: int = PAGE_SIZE):
     return rows
 
 
-_crt_path = _setup_serpro_certificate()
+_crt_path = _write_serpro_certificate(os.environ["radar_serpro_v2_crt"])
 
-conn = connect(
+with connect(
     host=os.environ["radar_serpro_v2_host"],
     port=int(os.environ["radar_serpro_v2_port"]),
     user=os.environ["radar_serpro_v2_user"],
@@ -39,19 +49,15 @@ conn = connect(
     use_ssl=True,
     ca_cert=_crt_path,
     database=os.environ["radar_serpro_v2_database"],
-)
-cur = conn.cursor()
+) as conn:
+    with conn.cursor() as cur:
+        print(f"""
+        Conectado ao SERPRO. (page_size={PAGE_SIZE})
 
-print(f"""
-Conectado ao SERPRO. (page_size={PAGE_SIZE})
+          q('SELECT ...')                    — executa e retorna até {PAGE_SIZE} rows
+          q('SELECT ...', page_size=10)      — page_size customizado
+          cur.execute('SELECT ...') + cur.fetchall()  — acesso direto ao cursor
+          conn.close()                       — encerra a conexão
+        """)
 
-  q('SELECT ...')                    — executa e retorna até {PAGE_SIZE} rows
-  q('SELECT ...', page_size=10)      — page_size customizado
-  cur.execute('SELECT ...') + cur.fetchall()  — acesso direto ao cursor
-  conn.close()                       — encerra a conexão
-""")
-
-code.interact(local={"conn": conn, "cur": cur, "q": q})
-
-cur.close()
-conn.close()
+        code.interact(local={"conn": conn, "cur": cur, "q": q})

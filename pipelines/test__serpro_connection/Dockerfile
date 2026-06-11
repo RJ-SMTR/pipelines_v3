@@ -8,6 +8,7 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/test__serpro_connection ./pipelines/test__serpro_connection/
 COPY ./pipelines/test__serpro_connection/utils.py ./utils.py
+COPY ./pipelines/capture__serpro_autuacao ./pipelines/capture__serpro_autuacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
