@@ -42,16 +42,23 @@ def _get_serpro_connection():
     """
     crt_local_path = _setup_serpro_certificate()
 
-    conn = connect(
-        host=os.environ["radar_serpro_v2_host"],
-        port=int(os.environ["radar_serpro_v2_port"]),
-        user=os.environ["radar_serpro_v2_user"],
-        password=os.environ["radar_serpro_v2_password"],
-        auth_mechanism="LDAP",
-        use_ssl=True,
-        ca_cert=crt_local_path,
-        database=os.environ["radar_serpro_v2_database"],
-    )
+    try:
+        conn = connect(
+            host=os.environ["radar_serpro_v2_host"],
+            port=int(os.environ["radar_serpro_v2_port"]),
+            user=os.environ["radar_serpro_v2_user"],
+            password=os.environ["radar_serpro_v2_password"],
+            auth_mechanism="LDAP",
+            use_ssl=True,
+            ca_cert=crt_local_path,
+            database=os.environ["radar_serpro_v2_database"],
+        )
+    except Exception as e:
+        inner = getattr(e, "inner", None) or getattr(e, "__cause__", None)
+        print(f"Erro ao conectar: {type(e).__name__}: {e}")
+        if inner:
+            print(f"Inner exception: {type(inner).__name__}: {inner}")
+        raise
     return conn
 
 
