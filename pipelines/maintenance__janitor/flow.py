@@ -3,7 +3,7 @@
 from tasks import delete_stale_pending_runs
 
 from pipelines.common.utils.prefect import flow
-import pipelines.common as common
+import pipelines.common as c
 
 
 @flow(log_prints=True)
