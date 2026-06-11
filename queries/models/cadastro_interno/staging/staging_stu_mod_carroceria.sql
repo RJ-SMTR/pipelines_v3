@@ -12,7 +12,7 @@ select
             safe_cast(json_value(content, '$.cod_fab_carroceria') as string), '.0', ''
         ) as string
     ) as id_fabricante,
-    safe_cast(json_value(content, '$.des_mod_carroceria') as string) as descricao,
+    trim(safe_cast(json_value(content, '$.des_mod_carroceria') as string)) as descricao,
     datetime(
         parse_timestamp(
             '%Y-%m-%d %H:%M:%S%Ez',
