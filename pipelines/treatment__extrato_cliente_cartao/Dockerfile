@@ -18,6 +18,5 @@ COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
