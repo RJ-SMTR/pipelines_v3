@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__matriz_integracao_smtr ./pipelines/treatment__matriz
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
