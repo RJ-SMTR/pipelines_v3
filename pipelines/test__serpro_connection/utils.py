@@ -30,7 +30,7 @@ def q(sql: str, page_size: int = PAGE_SIZE):
 
 _crt_path = os.environ["radar_serpro_v2_crt_local_path"]
 Path(_crt_path).parent.mkdir(parents=True, exist_ok=True)
-Path(_crt_path).write_text(os.environ["radar_serpro_v2_crt"])
+Path(_crt_path).write_text(os.environ["radar_serpro_cert"].replace("\\n", "\n"))
 
 conn = connect(
     host=os.environ["radar_serpro_v2_host"],

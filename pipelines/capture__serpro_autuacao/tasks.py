@@ -27,7 +27,8 @@ def _setup_serpro_certificate() -> str:
     """
     crt_local_path = os.environ["radar_serpro_v2_crt_local_path"]
     Path(crt_local_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(crt_local_path).write_text(os.environ["radar_serpro_v2_crt"])
+    content = os.environ["radar_serpro_cert"].replace("\\n", "\n")
+    Path(crt_local_path).write_text(content)
     print(f"Certificado gravado em {crt_local_path}")
     return crt_local_path
 
