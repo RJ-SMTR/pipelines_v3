@@ -28,6 +28,5 @@ COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

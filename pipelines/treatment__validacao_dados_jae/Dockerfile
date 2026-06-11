@@ -30,6 +30,5 @@ COPY ./pipelines/treatment__validacao_dados_jae ./pipelines/treatment__validacao
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
