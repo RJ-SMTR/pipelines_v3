@@ -14,6 +14,5 @@ COPY ./pipelines/capture__serpro_autuacao ./pipelines/capture__serpro_autuacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
