@@ -10,6 +10,5 @@ COPY ./pipelines/capture__gtfs ./pipelines/capture__gtfs/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
