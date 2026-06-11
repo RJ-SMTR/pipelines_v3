@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__sppo_viagens ./pipelines/treatment__sppo_viagens/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
