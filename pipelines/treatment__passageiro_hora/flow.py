@@ -6,6 +6,7 @@ DBT: 2026-05-08
 """
 
 from datetime import time
+from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
@@ -17,12 +18,12 @@ from pipelines.treatment__passageiro_hora import constants
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__passageiro_hora(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__transito_autuacao ./pipelines/treatment__transito_au
 
 COPY ./pipelines/common/ ./pipelines/common/
 COPY ./pipelines/capture__serpro_autuacao/ ./pipelines/capture__serpro_autuacao/
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

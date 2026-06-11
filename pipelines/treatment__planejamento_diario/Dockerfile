@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages
