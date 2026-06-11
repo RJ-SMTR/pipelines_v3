@@ -4,6 +4,8 @@ Tasks para captura de dados do SERPRO
 """
 
 import os
+import socket as _socket
+import ssl as _ssl
 from datetime import datetime
 from functools import partial
 from pathlib import Path
@@ -40,23 +42,39 @@ def _get_serpro_connection():
     Returns:
         Connection: Objeto de conexão com o banco
     """
+    host = os.environ["radar_serpro_v2_host"]
+    port = int(os.environ["radar_serpro_v2_port"])
     crt_local_path = _setup_serpro_certificate()
 
+    # TCP diagnostic
     try:
-        conn = connect(
-            host=os.environ["radar_serpro_v2_host"],
-            port=int(os.environ["radar_serpro_v2_port"]),
-            user=os.environ["radar_serpro_v2_user"],
-            password=os.environ["radar_serpro_v2_password"],
-            auth_mechanism="LDAP",
-            use_ssl=True,
-            ca_cert=crt_local_path,
-            database=os.environ["radar_serpro_v2_database"],
-        )
+        s = _socket.create_connection((host, port), timeout=10)
+        print(f"TCP OK: {host}:{port}")
+        s.close()
     except Exception as e:
-        inner = getattr(e, "inner", None) or getattr(e, "__cause__", None)
-        detail = f"{type(inner).__name__}: {inner}" if inner else "sem inner exception"
-        raise RuntimeError(f"SERPRO connect failed. Inner: {detail}") from e
+        raise RuntimeError(f"TCP falhou: {type(e).__name__}: {e}") from e
+
+    # SSL diagnostic
+    try:
+        ctx = _ssl.SSLContext(_ssl.PROTOCOL_TLS_CLIENT)
+        ctx.load_verify_locations(crt_local_path)
+        s = _socket.create_connection((host, port), timeout=10)
+        ss = ctx.wrap_socket(s, server_hostname=host)
+        print(f"SSL OK: {ss.version()}, cert={ss.getpeercert()}")
+        ss.close()
+    except Exception as e:
+        raise RuntimeError(f"SSL falhou: {type(e).__name__}: {e}") from e
+
+    conn = connect(
+        host=host,
+        port=port,
+        user=os.environ["radar_serpro_v2_user"],
+        password=os.environ["radar_serpro_v2_password"],
+        auth_mechanism="LDAP",
+        use_ssl=True,
+        ca_cert=crt_local_path,
+        database=os.environ["radar_serpro_v2_database"],
+    )
     return conn
 
 
