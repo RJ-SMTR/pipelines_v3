@@ -12,7 +12,6 @@ RUN mkdir -p /opt/prefect/pipelines_v3
 COPY --from=get-instant-client-step /tmp/instantclient_21_18 /opt/oracle/instantclient
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY ./openssl.cnf /etc/ssl/openssl.cnf
-COPY ./queries /opt/prefect/pipelines_v3/queries
 
 ENV RUNNING_IN_DOCKER=1
 
@@ -32,7 +31,3 @@ WORKDIR /opt/prefect/pipelines_v3
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 RUN uv sync --all-packages
-
-WORKDIR /opt/prefect/pipelines_v3/queries
-
-RUN uv run dbt deps

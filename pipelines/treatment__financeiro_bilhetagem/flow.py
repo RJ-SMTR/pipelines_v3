@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -13,12 +15,13 @@ from pipelines.treatment__financeiro_bilhetagem import constants
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
-def treatment__financeiro_bilhetagem(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+def treatment__financeiro_bilhetagem(  # noqa: PLR0913
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -28,4 +31,5 @@ def treatment__financeiro_bilhetagem(
         flags=flags,
         additional_vars=additional_vars,
         test_scheduled_time=None,
+        skip_source_check=skip_source_check,
     )

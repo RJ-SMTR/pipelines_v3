@@ -13,10 +13,12 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
     run_dbt_snapshots,
     save_materialization_datetime_redis,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
     test_fallback_run,
     wait_data_sources,
@@ -85,6 +87,14 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         wait_for=tasks_wait_for.get("setup_enviroment"),
     )
 
+    tasks["setup_dbt_queries"] = setup_dbt_queries(
+        wait_for=[tasks["setup_enviroment"]],
+    )
+
+    tasks["install_dbt_packages"] = install_dbt_packages(
+        wait_for=[tasks["setup_dbt_queries"]],
+    )
+
     # initialize sentry for error capturing
     tasks["initialize_sentry"] = initialize_sentry(env=env)
 
@@ -108,7 +118,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         skip_pre_test=skip_pre_test,
         test_only=test_only,
         wait_for=[
-            tasks["setup_enviroment"],
+            tasks["install_dbt_packages"],
             *tasks_wait_for.get("contexts", []),
         ],
     )
