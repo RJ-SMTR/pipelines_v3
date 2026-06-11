@@ -16,6 +16,7 @@ AGENTS.md
 /target
 
 #dbt
+target
 queries/logs/*
 queries/target/*
 queries/target-base/*
