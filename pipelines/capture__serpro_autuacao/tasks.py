@@ -6,6 +6,7 @@ Tasks para captura de dados do SERPRO
 import os
 from datetime import datetime
 from functools import partial
+from pathlib import Path
 
 import pandas as pd
 from impala.dbapi import connect
@@ -17,6 +18,20 @@ from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.fs import save_local_file
 
 
+def _setup_serpro_certificate() -> str:
+    """
+    Baixa o certificado SSL do SERPRO e retorna o caminho local.
+
+    Returns:
+        str: Caminho local do certificado
+    """
+    crt_local_path = os.environ["radar_serpro_v2_crt_local_path"]
+    Path(crt_local_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(crt_local_path).write_text(os.environ["radar_serpro_v2_crt"])
+    print(f"Certificado gravado em {crt_local_path}")
+    return crt_local_path
+
+
 def _get_serpro_connection():
     """
     Cria conexão com o banco de dados SERPRO via Impala.
@@ -24,6 +39,7 @@ def _get_serpro_connection():
     Returns:
         Connection: Objeto de conexão com o banco
     """
+    crt_local_path = _setup_serpro_certificate()
 
     conn = connect(
         host=os.environ["radar_serpro_v2_host"],
@@ -32,7 +48,7 @@ def _get_serpro_connection():
         password=os.environ["radar_serpro_v2_password"],
         auth_mechanism="LDAP",
         use_ssl=True,
-        ca_cert=os.environ["radar_serpro_v2_crt"],
+        ca_cert=crt_local_path,
         database=os.environ["radar_serpro_v2_database"],
     )
     return conn

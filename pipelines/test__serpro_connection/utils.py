@@ -6,6 +6,7 @@ Uso dentro do pod: uv run python3 utils.py
 
 import code
 import os
+from pathlib import Path
 
 from impala.dbapi import connect
 
@@ -27,6 +28,10 @@ def q(sql: str, page_size: int = PAGE_SIZE):
     return rows
 
 
+_crt_path = os.environ["radar_serpro_v2_crt_local_path"]
+Path(_crt_path).parent.mkdir(parents=True, exist_ok=True)
+Path(_crt_path).write_text(os.environ["radar_serpro_v2_crt"])
+
 conn = connect(
     host=os.environ["radar_serpro_v2_host"],
     port=int(os.environ["radar_serpro_v2_port"]),
@@ -34,7 +39,7 @@ conn = connect(
     password=os.environ["radar_serpro_v2_password"],
     auth_mechanism="LDAP",
     use_ssl=True,
-    ca_cert=os.environ["radar_serpro_v2_crt"],
+    ca_cert=_crt_path,
     database=os.environ["radar_serpro_v2_database"],
 )
 cur = conn.cursor()
