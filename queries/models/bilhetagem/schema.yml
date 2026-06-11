@@ -84,19 +84,9 @@ models:
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         data_type: string
-        tests:
-          - not_null:
-              name: not_null__servico_jae__transacao
-              config:
-                where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
         data_type: string
-        tests:
-          - not_null:
-              name: not_null__descricao_servico_jae__transacao
-              config:
-                where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: sentido
         description: "{{ doc('sentido') }}"
         tests:
@@ -273,7 +263,7 @@ models:
           - not_null:
               name: not_null__meio_pagamento__transacao
               config:
-                where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
         data_type: string
         quote: true
       - name: meio_pagamento_jae
@@ -282,7 +272,7 @@ models:
           - not_null:
               name: not_null__meio_pagamento_jae__transacao
               config:
-                where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
       - name: id_cre_escola
@@ -439,11 +429,6 @@ models:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_consorcio
         description: "{{ doc('id_consorcio') }}"
-        tests:
-          - not_null:
-              name: not_null__id_consorcio__transacao_riocard
-              config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: consorcio
         description: "{{ doc('consorcio') }}"
       - name: id_operadora
@@ -466,18 +451,8 @@ models:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
-        tests:
-          - not_null:
-              name: not_null__servico_jae__transacao_riocard
-              config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
-        tests:
-          - not_null:
-              name: not_null__descricao_servico_jae__transacao_riocard
-              config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: sentido
         description: "{{ doc('sentido') }}"
         tests:

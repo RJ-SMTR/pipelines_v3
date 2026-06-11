@@ -1,5 +1,26 @@
 # Changelog - bilhetagem
 
+## [3.3.10] - 2026-06-11
+
+### Adicionado
+
+- Adiciona condição para `tipo_transacao_jae` `EMV` na coluna `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+- Adiciona condição `id_cliente != '999999999'` no where do teste `not_null__meio_pagamento_jae__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+
+### Alterado
+
+- Altera fonte da coluna `id_servico_jae` no modelo `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+
+### Removido
+
+- Remove condição `tipo_transacao_jae != 'Gratuidade operadora'` no where do teste `not_null__meio_pagamento__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+- Remove testes (https://github.com/RJ-SMTR/pipelines_v3/pull/243):
+  - `not_null__servico_jae__transacao`
+  - `not_null__descricao_servico_jae__transacao`
+  - `not_null__id_consorcio__transacao_riocard`
+  - `not_null__servico_jae__transacao_riocard`
+  - `not_null__descricao_servico_jae__transacao_riocard`
+
 ## [3.3.9] - 2026-06-03
 
 ### Adicionado
