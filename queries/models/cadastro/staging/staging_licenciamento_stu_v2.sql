@@ -109,9 +109,9 @@ select
     extract(year from vi.data_vistoria) as ano_ultima_vistoria
 from vistoria vi
 left join veiculo_ativo va
-on va.tptran = vi.tptran 
-    and va.tpperm = vi.tpperm 
-    and va.termo = vi.termo 
+on va.tptran = vi.tptran
+    and va.tpperm = vi.tpperm
+    and va.termo = vi.termo
     and va.placa = vi.placa
 left join
     permissao p
@@ -120,7 +120,7 @@ left join
     and coalesce(vi.termo, va.termo) = cast(p.termo as string)
 left join tipo_transporte t on coalesce(vi.tptran, va.tptran) = t.id_tipo_transporte
 left join veiculo ve on coalesce(vi.placa, va.placa) = ve.placa
-left join planta pl on ve.id_planta = pl.id_planta 
+left join planta pl on ve.id_planta = pl.id_planta
 and ve.id_tipo_veiculo = pl.id_tipo_veiculo
 left join mod_carroceria mc on pl.id_modelo_carroceria = mc.id_modelo_carroceria
 left join mod_chassi mch on pl.id_modelo_chassi = mch.id_modelo_chassi
