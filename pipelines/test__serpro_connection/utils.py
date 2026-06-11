@@ -6,11 +6,11 @@ Uso dentro do pod: uv run python3 utils.py
 
 import code
 import os
-from pathlib import Path
 
 from impala.dbapi import connect
 
 from pipelines.capture__serpro_autuacao.constants import SERPRO_CAPTURE_PARAMS
+from pipelines.capture__serpro_autuacao.tasks import _setup_serpro_certificate
 
 PAGE_SIZE = SERPRO_CAPTURE_PARAMS["page_size"]
 
@@ -28,9 +28,7 @@ def q(sql: str, page_size: int = PAGE_SIZE):
     return rows
 
 
-_crt_path = os.environ["radar_serpro_v2_crt_local_path"]
-Path(_crt_path).parent.mkdir(parents=True, exist_ok=True)
-Path(_crt_path).write_text(os.environ["radar_serpro_cert"].replace("\\n", "\n"))
+_crt_path = _setup_serpro_certificate()
 
 conn = connect(
     host=os.environ["radar_serpro_v2_host"],
