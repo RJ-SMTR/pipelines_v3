@@ -13,6 +13,7 @@ from pathlib import Path
 import pandas as pd
 from impala.dbapi import connect
 from prefect import task
+from prefect.artifacts import create_markdown_artifact
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.capture__serpro_autuacao.constants import SERPRO_CAPTURE_PARAMS
@@ -20,21 +21,105 @@ from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.fs import save_local_file
 
 
-def _setup_serpro_certificate() -> str:
+def _write_serpro_certificate(content: str) -> str:
     """
-    Baixa o certificado SSL do SERPRO e retorna o caminho local.
+    Grava o conteúdo do certificado SSL do SERPRO em arquivo local.
+
+    Args:
+        content: Conteúdo PEM do certificado ou cadeia de certificados
 
     Returns:
-        str: Caminho local do certificado
+        str: Caminho local do certificado gravado
     """
     crt_local_path = os.environ["radar_serpro_v2_crt_local_path"]
     Path(crt_local_path).parent.mkdir(parents=True, exist_ok=True)
-    content = os.environ["radar_serpro_v2_crt"].replace("\\n", "\n").strip() + "\n"
+    content = content.replace("\\n", "\n").strip() + "\n"
     Path(crt_local_path).write_text(content)
-    print(
-        "Certificado gravado em "
-        f"{crt_local_path} ({content.count('-----BEGIN CERTIFICATE-----')} certs)"
-    )
+    print(f"Certificado baixado em {crt_local_path}")
+    return crt_local_path
+
+
+def _certificate_to_pem(certificate) -> str:
+    """
+    Converte um certificado retornado pelo socket SSL para PEM.
+
+    Args:
+        certificate: Certificado em DER ou objeto de certificado do Python
+
+    Returns:
+        str: Certificado no formato PEM
+    """
+    if isinstance(certificate, bytes):
+        return _ssl.DER_cert_to_PEM_cert(certificate)
+
+    pem = certificate.public_bytes()
+    return pem.decode() if isinstance(pem, bytes) else pem
+
+
+def _fetch_serpro_certificate_chain(host: str, port: int) -> str:
+    """
+    Recupera a cadeia de certificados apresentada pelo servidor SERPRO.
+
+    Args:
+        host: Host do servidor SERPRO
+        port: Porta do servidor SERPRO
+
+    Returns:
+        str: Cadeia de certificados no formato PEM
+    """
+    context = _ssl._create_unverified_context()
+    with _socket.create_connection((host, port), timeout=10) as sock:
+        with context.wrap_socket(sock, server_hostname=host) as ssl_sock:
+            certificates = ssl_sock.get_unverified_chain()
+
+    return "\n".join(_certificate_to_pem(certificate).strip() for certificate in certificates)
+
+
+def _create_serpro_certificate_artifact(content: str) -> None:
+    """
+    Cria um artefato no Prefect com a cadeia de certificados recuperada.
+
+    Args:
+        content: Conteúdo PEM da cadeia de certificados recuperada
+    """
+    try:
+        create_markdown_artifact(
+            key="serpro-certificate-chain",
+            description="Nova cadeia de certificados do SERPRO para atualizar no Infisical",
+            markdown=f"""# Nova cadeia de certificados do SERPRO
+
+Atualize o secret `radar_serpro_v2_crt` no Infisical com o conteúdo abaixo.
+
+```pem
+{content.strip()}
+```
+""",
+        )
+    except Exception as e:
+        print(f"Falha ao criar artefato de certificado SERPRO: {type(e).__name__}: {e}")
+
+
+def _recover_serpro_certificate(host: str, port: int) -> str:
+    """
+    Recupera, valida e grava a cadeia atual de certificados do SERPRO.
+
+    Args:
+        host: Host do servidor SERPRO
+        port: Porta do servidor SERPRO
+
+    Returns:
+        str: Caminho local do certificado recuperado e validado
+    """
+    content = _fetch_serpro_certificate_chain(host, port)
+    crt_local_path = _write_serpro_certificate(content)
+
+    context = _ssl.SSLContext(_ssl.PROTOCOL_TLS_CLIENT)
+    context.load_verify_locations(crt_local_path)
+    with _socket.create_connection((host, port), timeout=10) as sock:
+        with context.wrap_socket(sock, server_hostname=host):
+            pass
+
+    _create_serpro_certificate_artifact(content)
     return crt_local_path
 
 
@@ -47,7 +132,7 @@ def _get_serpro_connection():
     """
     host = os.environ["radar_serpro_v2_host"]
     port = int(os.environ["radar_serpro_v2_port"])
-    crt_local_path = _setup_serpro_certificate()
+    crt_local_path = _write_serpro_certificate(os.environ["radar_serpro_v2_crt"])
 
     # TCP diagnostic
     try:
@@ -65,6 +150,10 @@ def _get_serpro_connection():
         ss = ctx.wrap_socket(s, server_hostname=host)
         print(f"SSL OK: {ss.version()}, cert={ss.getpeercert()}")
         ss.close()
+    except _ssl.SSLCertVerificationError as e:
+        print(f"SSL falhou por certificado: {e}. Recuperando cadeia atual do SERPRO...")
+        crt_local_path = _recover_serpro_certificate(host, port)
+        print("SSL OK com cadeia recuperada do SERPRO")
     except Exception as e:
         raise RuntimeError(f"SSL falhou: {type(e).__name__}: {e}") from e
 
