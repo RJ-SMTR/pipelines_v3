@@ -22,7 +22,7 @@ from pipelines.common.utils.prefect import flow
 @flow(
     log_prints=True,
     flow_run_name=rename_capture_flow_run,
-    task_runner=ThreadPoolTaskRunner(max_workers=1),
+    task_runner=ThreadPoolTaskRunner(max_workers=2),
 )
 def capture__stu_tabelas(  # noqa: PLR0913
     env: Optional[str] = None,
