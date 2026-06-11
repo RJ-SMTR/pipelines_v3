@@ -35,7 +35,7 @@ def _write_serpro_certificate(content: str) -> str:
     Path(crt_local_path).parent.mkdir(parents=True, exist_ok=True)
     content = content.replace("\\n", "\n").strip() + "\n"
     Path(crt_local_path).write_text(content)
-    print(f"Certificado baixado em {crt_local_path}")
+    print(f"Certificado gravado em {crt_local_path}")
     return crt_local_path
 
 
@@ -67,6 +67,8 @@ def _fetch_serpro_certificate_chain(host: str, port: int) -> str:
     Returns:
         str: Cadeia de certificados no formato PEM
     """
+    # Contexto sem verificação usado apenas para recuperar a cadeia pública
+    # apresentada pelo servidor. Não usar para conexões confiáveis de produção.
     context = _ssl._create_unverified_context()
     with _socket.create_connection((host, port), timeout=10) as sock:
         with context.wrap_socket(sock, server_hostname=host) as ssl_sock:
@@ -146,10 +148,9 @@ def _get_serpro_connection():
     try:
         ctx = _ssl.SSLContext(_ssl.PROTOCOL_TLS_CLIENT)
         ctx.load_verify_locations(crt_local_path)
-        s = _socket.create_connection((host, port), timeout=10)
-        ss = ctx.wrap_socket(s, server_hostname=host)
-        print(f"SSL OK: {ss.version()}, cert={ss.getpeercert()}")
-        ss.close()
+        with _socket.create_connection((host, port), timeout=10) as s:
+            with ctx.wrap_socket(s, server_hostname=host) as ss:
+                print(f"SSL OK: {ss.version()}, cert={ss.getpeercert()}")
     except _ssl.SSLCertVerificationError as e:
         print(f"SSL falhou por certificado: {e}. Recuperando cadeia atual do SERPRO...")
         crt_local_path = _recover_serpro_certificate(host, port)

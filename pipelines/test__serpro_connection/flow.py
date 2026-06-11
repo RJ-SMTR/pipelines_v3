@@ -5,6 +5,7 @@ from time import sleep
 
 from pipelines.common.tasks import setup_environment
 from pipelines.common.utils.prefect import flow
+from pipelines.test__serpro_connection.constants import DEFAULT_SLEEP_SECONDS
 
 
 def _get_kubectl_exec_cmd() -> str:
@@ -17,7 +18,7 @@ def _get_kubectl_exec_cmd() -> str:
 
 
 @flow(log_prints=True)
-def test__serpro_connection(sleep_seconds: int = 14400):  # noqa: PT028
+def test__serpro_connection(sleep_seconds: int = DEFAULT_SLEEP_SECONDS):  # noqa: PT028
     setup_environment(env="dev")
     print(f"Acesse o pod com:\n\n    {_get_kubectl_exec_cmd()}\n")
     print("""Dentro do pod:
