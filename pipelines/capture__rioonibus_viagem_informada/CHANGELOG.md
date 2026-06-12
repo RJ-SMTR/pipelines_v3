@@ -1,5 +1,11 @@
 # Changelog - capture\_\_rioonibus_viagem_informada
 
+## [1.0.2] - 2026-06-12
+
+### Alterado
+
+- Aumenta timeout da API para 300s para suportar dias com alto volume de viagens (https://github.com/RJ-SMTR/pipelines_v3/pull/246)
+
 ## [1.0.1] - 2026-06-10
 
 ### Alterado
