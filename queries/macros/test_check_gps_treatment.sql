@@ -37,7 +37,7 @@
                 ) as timestamp_array
         ),
         gps_data as (
-            select data, {{ timestamp }}, latitude, longitude
+            select data, {{ timestamp }}
             from {{ registros }}
             where
                 (
@@ -75,13 +75,10 @@
                 -- `rj-smtr.br_rj_riodejaneiro_onibus_gps.sppo_aux_registros_filtrada`
                 {{ aux_filtrada }}
             where
-                {% if model.identifier == "gps_sppo" %}
-                    data between date("{{ var('date_range_start') }}") and date(
-                        "{{ add_to_datetime(var('date_range_end'), seconds=1) }}"
-                    )
-                    and
-                {% endif %}
-                {{ timestamp }}
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ add_to_datetime(var('date_range_end'), seconds=1) }}"
+                )
+                and {{ timestamp }}
                 between datetime("{{ var('date_range_start') }}") and datetime(
                     "{{ var('date_range_end') }}"
                 )
