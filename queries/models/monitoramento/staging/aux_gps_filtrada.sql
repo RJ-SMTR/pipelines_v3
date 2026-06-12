@@ -1,4 +1,30 @@
-{{ config(materialized="ephemeral") }}
+{{
+    config(
+        materialized=("ephemeral" if var("15_minutos") else "incremental"),
+        incremental_strategy="insert_overwrite",
+        partition_by={"field": "data", "data_type": "date", "granularity": "day"},
+        cluster_by=["datetime_gps"],
+        alias=this.name ~ "_" ~ var("modo_gps") ~ "_" ~ var("fonte_gps"),
+        tags=["geolocalizacao"],
+        require_partition_filter=true,
+    )
+}}
+
+{% set staging_gps = ref("staging_gps") %}
+{% if execute and is_incremental() %}
+    {% set gps_partitions_query %}
+    select distinct concat("'", date(data), "'") as data
+    from {{ staging_gps }}
+    where
+        {{
+            generate_date_hour_partition_filter(
+                var("date_range_start"), var("date_range_end")
+            )
+        }}
+    {% endset %}
+
+    {% set gps_partitions = run_query(gps_partitions_query).columns[0].values() %}
+{% endif %}
 
 with
     box as (
@@ -32,6 +58,19 @@ with
                 max_longitude,
                 max_latitude
             )
+    ),
+    particoes_completas as (
+        select *, 0 as priority
+        from filtrada
+
+        {% if is_incremental() and gps_partitions | length > 0 %}
+            union all
+
+            select *, 1 as priority
+            from {{ this }}
+            where data in ({{ gps_partitions | join(", ") }})
+        {% endif %}
     )
-select *
-from filtrada
+select * except (priority)
+from particoes_completas
+qualify row_number() over (partition by id_veiculo, datetime_gps order by priority) = 1

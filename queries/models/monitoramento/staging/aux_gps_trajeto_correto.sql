@@ -4,6 +4,14 @@ with
     registros as (
         select id_veiculo, servico, data, posicao_veiculo_geo, datetime_gps
         from {{ ref("aux_gps_filtrada") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and datetime_gps
+            between datetime('{{ var("date_range_start") }}') and datetime(
+                '{{ var("date_range_end") }}'
+            )
     ),
     servico_planejado as (
         select data, feed_start_date, servico, sentido, trip_info, trajetos_alternativos
