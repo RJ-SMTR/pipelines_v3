@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2026-06-12
+
+### Adicionado
+
+- Adiciona type hints nos parâmetros do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/247)
+
 ## [1.1.0] - 2026-05-27
 
 ### Adicionado
@@ -8,7 +14,7 @@
 
 ## [1.0.1] - 2026-05-21
 
-### Alterado
+### Adicionado
 
 - Substitui `datetime.now()` por `get_scheduled_timestamp()` e amplia janela de teste de 1h para 2h para evitar race condition com captura na virada do dia (https://github.com/RJ-SMTR/pipelines_v3/pull/202)
 
