@@ -42,7 +42,7 @@ deployments:
       - cron: "10 * * * *"
         timezone: "America/Sao_Paulo"
         parameters:
-          test_select: "tag:freshness_hourly"
+          test_select: "tag:hourly"
       - cron: "30 12 * * *"
         timezone: "America/Sao_Paulo"
         active: false
