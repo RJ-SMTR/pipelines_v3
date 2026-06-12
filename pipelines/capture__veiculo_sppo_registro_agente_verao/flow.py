@@ -8,6 +8,8 @@ o período de verão.
 Common: 2026-04-17
 """
 
+from typing import Optional
+
 from pipelines.capture__veiculo_sppo_registro_agente_verao import constants
 from pipelines.capture__veiculo_sppo_registro_agente_verao.tasks import (
     create_sppo_agentes_verao_extractor,
@@ -21,11 +23,11 @@ from pipelines.common.utils.prefect import flow
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__veiculo_sppo_registro_agente_verao(
-    env=None,
-    timestamp=None,
-    recapture=True,
-    recapture_days=2,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,
