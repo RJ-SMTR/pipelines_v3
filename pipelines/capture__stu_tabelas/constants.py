@@ -29,7 +29,7 @@ STU_TABLE_CAPTURE_PARAMS = {
         "primary_keys": ["cod_mod_carroceria"],
     },
     "mod_chassi": {
-        "primary_keys": ["cod_fab_chassi"],
+        "primary_keys": ["cod_mod_chassi"],
     },
     "multa": {
         "primary_keys": ["serie", "cm"],
