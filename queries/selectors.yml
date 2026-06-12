@@ -496,6 +496,7 @@ selectors:
           value: staging_veiculo_fiscalizacao_lacre
         - method: fqn
           value: staging_infracao
+          parents: true
         - method: fqn
           value: veiculo_fiscalizacao_lacre
         - method: fqn
@@ -510,6 +511,7 @@ selectors:
       union:
         - method: fqn
           value: staging_licenciamento_stu
+          parents: true
         - method: fqn
           value: veiculo_licenciamento_dia
 
