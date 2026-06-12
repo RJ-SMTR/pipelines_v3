@@ -30,6 +30,7 @@ def initialize_sentry(env):
     if is_running_locally():
         return
     print("Inicializando Sentry SDK")
+    print(f"Ambiente: {env}")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
     sentry_sdk.init(
