@@ -31,6 +31,9 @@ dependencies = [
 members = ["pipelines/*"]
 exclude = ["pipelines/__pycache__"]
 
+[tool.uv]
+exclude-newer = "2026-05-31T00:00:00Z"
+
 [dependency-groups]
 dev = [
     "prefect-docker>=0.6.5",
