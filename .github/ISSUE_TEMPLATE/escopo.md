@@ -15,8 +15,8 @@ type: "\U0001F528 Escopo"
 ## 🕵️‍♂️ Discovered Tasks (Checklist de Implementação)
 <!-- NÃO preencha isso tudo no dia 1. Adicione as tarefas reais (dbt, Prefect, BigQuery) à medida que você esbarra nelas durante a execução. O Escopo deve cruzar do ingest até o data warehouse. -->
 - [ ] Configurar conexão/secret da fonte no Prefect.
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
 
 ## ⚖️ Nice-to-Haves (Candidatos ao Scope Hammering)
 <!-- Tarefas que melhorariam o código/entrega, mas NÃO são impeditivas para a funcionalidade principal. Se o tempo apertar, elas serão sumariamente cortadas. Marque com um til (~). -->
