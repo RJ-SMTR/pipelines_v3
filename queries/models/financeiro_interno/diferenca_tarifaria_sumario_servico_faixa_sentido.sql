@@ -142,9 +142,9 @@ select
         0
     )
     + valor_penalidade as delta_tr_c1,
-    
+
     -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
-    
+
     if(
         pof >= 80,
         (km_conforme_faixa * s.subsidio_km) + (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa,
