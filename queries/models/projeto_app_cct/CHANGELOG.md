@@ -1,5 +1,11 @@
 # Changelog - projeto_app_cct
 
+## [1.1.1] - 2026-06-09
+
+### Removido
+
+- Remove condicional `valor_pagamento > 0` do filtro do modelo `transacao_cct.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/232)
+
 ## [1.1.0] - 2025-10-27
 
 ### Adicionado

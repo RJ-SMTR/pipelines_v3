@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.3.9] - 2026-06-11
+
+### Adicionado
+
+- Adiciona tratamento ao modelo `aux_viagem_inicio_fim` para viagens circulares com partida em um dia e chegada no dia subsequente. (https://github.com/RJ-SMTR/pipelines_v3/pull/240)
+
 ## [9.3.8] - 2026-06-02
 
 ### Adicionado

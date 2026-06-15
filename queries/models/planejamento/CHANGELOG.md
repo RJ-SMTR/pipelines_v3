@@ -1,5 +1,32 @@
 # Changelog - planejamento
 
+## [1.7.3] - 2026-06-11
+
+### Adicionado
+
+- Cria modelo `viagem_planejada_planejamento_dia` com viagens planejadas por dia (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelos `aux_trajeto_alternativo_sentido`, `aux_trajeto_alternativo_sentido_v1` e `aux_trajeto_alternativo_sentido_v2` para separar lógica de tratamento do anexo de trajeto alternativo por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelo `aux_trips` em substituição ao `aux_trips_dia`, com trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Adiciona testes de unicidade nos modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `viagem_planejada_planejamento` para ser particionado por `feed_start_date` (quadro horário por tipo de dia), removendo a coluna `data` e a dependência da tabela `calendario`, e adicionando a coluna `trajetos_alternativos` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Altera modelos `aux_frequencies_horario_tratado` (`start_time`/`end_time` -> `start_seconds`/`end_seconds`) e `aux_stop_times_horario_tratado` (`arrival_time` -> `arrival_seconds`) para representar horários em segundos (int64) ao invés de `interval` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Altera modelo `servico_planejado_faixa_horaria` para utilizar `viagem_planejada_planejamento_dia` como fonte (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Removido
+
+- Remove modelo `aux_trips_dia`, substituído por `aux_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+## [1.7.2] - 2026-06-09
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para o dia `2026-05-17` -> `Oper_634`, conforme Processo SEi 000399.011715/2026-17, e `tipo_dia` para o dia `2026-06-04` -> `Domingo` devido ao feriado de Corpus Christi e `2026-06-05` -> `Ponto Facultativo` conforme DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/234)
+
 ## [1.7.1] - 2026-05-22
 
 ### Alterado

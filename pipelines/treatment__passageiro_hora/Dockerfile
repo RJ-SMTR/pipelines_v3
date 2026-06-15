@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__passageiro_hora ./pipelines/treatment__passageiro_ho
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

@@ -7,6 +7,8 @@ Executa o selector DBT 'extrato_cliente_cartao' para materializar dados no BigQu
 DBT: 2026-03-06
 """
 
+from typing import Optional
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -17,13 +19,13 @@ from pipelines.treatment__extrato_cliente_cartao import constants
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__extrato_cliente_cartao(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
