@@ -9,6 +9,8 @@ Schedule: Horário (cron: "0 * * * *")
 Common: 2026-04-20
 """
 
+from typing import Optional
+
 from prefect import runtime
 
 from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
@@ -28,7 +30,7 @@ from pipelines.control__source_freshness.tasks import (
     log_prints=True,
     on_failure=[handler_notify_failure(webhook="dataplex")],
 )
-def control__source_freshness(env=None, flags=None):
+def control__source_freshness(env: Optional[str] = None, flags: Optional[list[str]] = None):
     """
     Verifica a atualização de fontes dbt e notifica Discord se houver problemas.
 
