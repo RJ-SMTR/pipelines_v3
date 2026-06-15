@@ -6,9 +6,13 @@
 
 - Aumenta timeout da API para 300s para suportar dias com alto volume de viagens (https://github.com/RJ-SMTR/pipelines_v3/pull/246)
 
+### Adicionado
+
+- Adiciona type hints nos parâmetros do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/247)
+
 ## [1.0.1] - 2026-06-10
 
-### Alterado
+### Adicionado
 
 - Atualiza endpoint da API da Rio Ônibus (https://github.com/RJ-SMTR/pipelines_v3/pull/237)
 
