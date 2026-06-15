@@ -18,6 +18,5 @@ COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
 
 COPY ./pipelines/capture__jae_transacao_erro ./pipelines/capture__jae_transacao_erro/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

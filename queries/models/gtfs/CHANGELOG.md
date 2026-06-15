@@ -1,5 +1,16 @@
 # Changelog - gtfs
 
+## [1.3.9] - 2026-06-11
+
+### Adicionado
+
+- Cria macros `is_shape_circular`, `normalize_text` e `ordem_servico_excecoes_join` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `shapes_geom_gtfs` para utilizar a macro `is_shape_circular` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Refatora modelo `ordem_servico_trips_shapes_gtfs_v2` para utilizar a macro `ordem_servico_excecoes_join` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
 ## [1.3.8] - 2026-05-15
 
 ### Alterado

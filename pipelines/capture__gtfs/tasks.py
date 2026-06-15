@@ -2,16 +2,14 @@
 """Tasks para captura e tratamento do GTFS"""
 
 import io
-import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
-import yaml
-from prefect import runtime, task
+from prefect import task
 from prefect.cache_policies import NO_CACHE
-from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
 from pipelines.capture__gtfs import constants
 from pipelines.capture__gtfs.utils import (
@@ -28,7 +26,7 @@ from pipelines.capture__gtfs.utils import (
     save_raw_local_func,
     xl_load_workbook_sheetnames,
 )
-from pipelines.common.utils.fs import get_project_root_path
+from pipelines.common.treatment.default_treatment.utils import run_dbt
 from pipelines.common.utils.gcp.bigquery import BQTable
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
@@ -36,7 +34,6 @@ from pipelines.common.utils.pretreatment import (
     transform_to_nested_structure,
 )
 from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.utils import is_running_locally
 
 
 @task(cache_policy=NO_CACHE)
@@ -293,104 +290,31 @@ def upload_staging_data_to_gcs(
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_gtfs(data_versao_gtfs: str) -> None:
+def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = None) -> None:
     """Executa os modelos dbt do GTFS e planejamento."""
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
-    log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
-
-    flags = ["--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
-
-    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
-    target_path = project_dir / "target"
-
-    dbt_vars = {
-        "data_versao_gtfs": data_versao_gtfs,
-        "flow_name": runtime.flow_run.flow_name,
-    }
-    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
-
     select = (
         f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
-
-    invoke = [
-        "run",
-        "--select",
-        select,
-        "--exclude",
-        constants.GTFS_DBT_EXCLUDE,
-        "--vars",
-        vars_yaml,
-        *flags,
-    ]
-
-    print(f"Running DBT Command:\n{' '.join(invoke)}")
-    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
-    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
-    os.environ["DBT_TARGET_PATH"] = str(target_path)
-
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=True,
-    ).invoke(invoke)
-
-    print("DBT run finalizado com sucesso!")
+    run_dbt(
+        dbt_command=["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE],
+        dbt_vars={"data_versao_gtfs": data_versao_gtfs},
+        flags=flags,
+        env=env,
+    )
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_tests_gtfs(data_versao_gtfs: str) -> str:
+def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = None) -> str:
     """Executa os testes dbt do GTFS e planejamento, retornando os logs."""
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
-    log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
-
-    flags = ["--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
-
-    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
-    target_path = project_dir / "target"
-
-    dbt_vars = {
-        "data_versao_gtfs": data_versao_gtfs,
-        "flow_name": runtime.flow_run.flow_name,
-    }
-    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
-
     select = (
         f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
-
-    invoke = [
-        "test",
-        "--select",
-        select,
-        "--exclude",
-        constants.GTFS_DBT_TEST_EXCLUDE,
-        "--vars",
-        vars_yaml,
-        *flags,
-    ]
-
-    print(f"Running DBT Tests:\n{' '.join(invoke)}")
-    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
-    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
-    os.environ["DBT_TARGET_PATH"] = str(target_path)
-
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
+    return run_dbt(
+        dbt_command=["test", "--select", select, "--exclude", constants.GTFS_DBT_TEST_EXCLUDE],
+        dbt_vars={"data_versao_gtfs": data_versao_gtfs},
+        flags=flags,
         raise_on_failure=False,
-    ).invoke(invoke)
-
-    print("DBT tests finalizados!")
-    with (Path(log_dir) / "dbt.log").open("r") as logs:
-        return logs.read()
+        env=env,
+    )
