@@ -9,6 +9,7 @@ Schedule: Horário (cron: "0 * * * *")
 """
 
 from datetime import timedelta
+from typing import Optional
 
 from prefect import runtime
 
@@ -35,7 +36,7 @@ from pipelines.control__model_freshness.tasks import (
     flow_run_name="control__model_freshness - {test_select}",
     on_failure=[handler_notify_failure(webhook="dataplex")],
 )
-def control__model_freshness(env=None, test_select: str = "tag:freshness_hourly"):
+def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:freshness_hourly"):
     """
     Roda testes de freshness em modelos dbt (selecionados por tag) e notifica
     Discord caso haja falhas.
