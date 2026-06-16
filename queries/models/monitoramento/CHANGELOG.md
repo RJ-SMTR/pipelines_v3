@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.1.1] - 2026-06-16
+
+### Corrigido
+
+- Corrige o teste `dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico` para adicionar tolerância entre o teste das tabelas `veiculo_fiscalizacao_lacre` e `autuacao_disciplinar_historico` (https://github.com/RJ-SMTR/pipelines_v3/pull/265)
+
 ## [2.1.0] - 2026-05-19
 
 ### Alterado
