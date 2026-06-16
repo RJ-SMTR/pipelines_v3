@@ -84,7 +84,7 @@
                 )
             group by 1, 2
         ),
-        gps_sppo as (
+        gps_tratado as (
             select
                 data,
                 extract(hour from {{ timestamp }}) as hora,
@@ -126,7 +126,7 @@
             from data_hora
             left join gps_raw using (data, hora)
             left join gps_filtrada using (data, hora)
-            left join gps_sppo using (data, hora)
+            left join gps_tratado using (data, hora)
         )
     select *
     from gps_join
