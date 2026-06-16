@@ -1,5 +1,11 @@
 # Changelog - default_capture
 
+## [1.0.2] - 2026-06-12
+
+### Alterado
+
+- Adiciona parâmetro `timeout` configurável em `get_api_data` e `get_raw_api_list` (https://github.com/RJ-SMTR/pipelines_v3/pull/246)
+
 ## [1.0.1] - 2026-02-24
 
 ### Alterado
