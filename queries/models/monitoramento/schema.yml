@@ -676,7 +676,7 @@ models:
                     '026.XIII',
                     '026.XIV'
                   )
-                  and modo = 'ONIBUS'
+                  and modo = 'ONIBUS' and data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)
                 field: id_auto_infracao
         data_type: string
         quote: true
