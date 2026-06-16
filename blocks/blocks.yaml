@@ -1,0 +1,4 @@
+blocks:
+  - type: discord-webhook
+    name: discord-concurrency-alert
+    url_env: DISCORD_WEBHOOK_URL_DATAPLEX

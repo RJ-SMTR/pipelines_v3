@@ -1,4 +1,32 @@
 automations:
+  - name: concurrency__notify_awaiting_slot
+    description: Notify Discord when flow run awaits concurrency slot for over 2 hours
+    enabled: true
+    trigger:
+      type: event
+      match:
+        prefect.resource.id: "prefect.flow-run.*"
+      match_related:
+        prefect.resource.role: deployment
+      posture: Proactive
+      after:
+        - prefect.flow-run.AwaitingConcurrencySlot
+      expect:
+        - prefect.flow-run.Running
+        - prefect.flow-run.Cancelled
+        - prefect.flow-run.Crashed
+        - prefect.flow-run.Failed
+        - prefect.flow-run.Completed
+      for_each:
+        - "related:deployment:prefect.resource.id"
+      threshold: 1
+      within: 7200 # 2 hours
+    actions:
+      - type: send-notification
+        block_document_id: "$block:discord-webhook/discord-concurrency-alert"
+        subject: "Flow travado em AwaitingConcurrencySlot"
+        body: ":warning: Flow travado em AwaitingConcurrencySlot - <@&1056928259700445245>\nO Flow {{ flow_run.name }} possui execuções aguardando slot de concorrência há mais de 2 horas."
+
   - name: maintenance__crash_zombie_flows
     description: Crash flows without heartbeats
     enabled: true
