@@ -30,6 +30,7 @@ STU_TABLE_CAPTURE_PARAMS = {
     },
     "mod_chassi": {
         "primary_keys": ["cod_mod_chassi"],
+        "first_timestamp": datetime(2026, 6, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
     "multa": {
         "primary_keys": ["serie", "cm"],
