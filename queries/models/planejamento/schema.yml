@@ -275,7 +275,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
           config:
-            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
           arguments:
             combination_of_columns:
               - data
