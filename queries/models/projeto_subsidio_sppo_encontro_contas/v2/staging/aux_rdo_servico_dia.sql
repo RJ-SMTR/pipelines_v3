@@ -1,6 +1,6 @@
 -- Referências
-{# {% set rdo40_registros = ref("rdo40_registros") %} #}
-{% set rdo40_registros = "rj-smtr.br_rj_riodejaneiro_rdo.rdo40_registros" %}
+{% set rdo40_registros = ref("rdo40_registros") %}
+{# {% set rdo40_registros = "rj-smtr.br_rj_riodejaneiro_rdo.rdo40_registros" %} #}
 with
     -- 1. Lista pares data-serviço com correção do serviço (serviço corrigido é o
     -- serviço correto que deve ser utilizado no encontro de contas)
