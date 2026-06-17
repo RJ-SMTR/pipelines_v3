@@ -6,8 +6,10 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 import pandas as pd
+import pandas_gbq
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
@@ -26,6 +28,7 @@ from pipelines.capture__gtfs.utils import (
     save_raw_local_func,
     xl_load_workbook_sheetnames,
 )
+from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import run_dbt
 from pipelines.common.utils.gcp.bigquery import BQTable
 from pipelines.common.utils.gcp.storage import Storage
@@ -318,3 +321,41 @@ def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str
         raise_on_failure=False,
         env=env,
     )
+
+
+@task(cache_policy=NO_CACHE)
+def get_planejamento_materialization_window(data_versao_gtfs: str, env: str) -> tuple[str, str]:
+    """Calcula a janela de materialização do planejamento diário para o GTFS capturado.
+
+    Consulta o feed_end_date calculado no modelo feed_info:
+    - retificação de feed antigo: materializa de feed_start_date até feed_end_date;
+    - feed mais recente: materializa de feed_start_date até o maior valor
+      entre a data atual e feed_start_date (o feed pode ter vigência futura).
+    """
+
+    project_id = {"prod": "rj-smtr", "dev": "rj-smtr-dev"}[env]
+    query = f"""
+        select feed_end_date
+        from `{project_id}.{constants.GTFS_MATERIALIZACAO_DATASET_ID}.feed_info`
+        where feed_start_date = '{data_versao_gtfs}'
+    """
+    result = pandas_gbq.read_gbq(query, project_id=project_id)
+
+    datetime_start = data_versao_gtfs
+    feed_end_date = result["feed_end_date"].iloc[0]
+
+    if feed_end_date is None or pd.isna(feed_end_date):
+        today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
+        datetime_end = max(today, data_versao_gtfs)
+        print(
+            f"Feed {data_versao_gtfs} é o mais recente: materializando planejamento de "
+            f"{datetime_start} até {datetime_end}"
+        )
+    else:
+        datetime_end = feed_end_date.strftime("%Y-%m-%d")
+        print(
+            f"Retificação do feed {data_versao_gtfs}: materializando planejamento de "
+            f"{datetime_start} até {datetime_end}"
+        )
+
+    return datetime_start, datetime_end

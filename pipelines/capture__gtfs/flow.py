@@ -17,6 +17,7 @@ from pipelines.capture__gtfs.tasks import (
     filter_gtfs_table_ids,
     get_last_capture_os,
     get_os_info,
+    get_planejamento_materialization_window,
     get_raw_gtfs_files,
     run_dbt_gtfs,
     run_dbt_tests_gtfs,
@@ -29,6 +30,7 @@ from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
     initialize_sentry,
+    run_subflow,
     setup_environment,
     task_send_discord_message,
 )
@@ -40,10 +42,11 @@ from pipelines.common.treatment.default_treatment.tasks import (
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.prefect import flow, rename_flow_run
+from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
 
 @flow(log_prints=True, flow_run_name=rename_flow_run)
-def capture__gtfs(  # noqa: PLR0913, PLR0915
+async def capture__gtfs(  # noqa: PLR0913, PLR0915
     env: Optional[str] = None,
     upload_from_gcs: bool = False,
     materialize_only: bool = False,
@@ -195,6 +198,23 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
                 data_index=data_index,
                 mode=env,
             )
+
+        datetime_start, datetime_end = get_planejamento_materialization_window(
+            data_versao_gtfs=data_versao_gtfs_final,
+            env=env,
+        )
+        await run_subflow(
+            env=env,
+            flow=treatment__planejamento_diario,
+            parameters=[
+                {
+                    "env": env,
+                    "datetime_start": datetime_start,
+                    "datetime_end": datetime_end,
+                }
+            ],
+            wait_for_completion=False,
+        )
     else:
         task_send_discord_message(
             message=f"Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",
