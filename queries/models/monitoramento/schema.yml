@@ -519,7 +519,7 @@ models:
             datepart: hour
             interval: 2
           config:
-            tags: ["hourly"]
+            tags: ["freshness", "hourly"]
             severity: warn
     columns:
       - name: fonte_gps
@@ -1106,7 +1106,7 @@ models:
                 datepart: hour
                 interval: 2
               config:
-                tags: ["hourly"]
+                tags: ["freshness", "hourly"]
                 severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"

@@ -47,7 +47,7 @@ deployments:
         timezone: "America/Sao_Paulo"
         active: false
         parameters:
-          test_select: "tag:freshness_daily"
+          test_select: "tag:daily"
     work_pool:
       name: smtr-pool
       work_queue_name: default

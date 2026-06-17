@@ -45,7 +45,7 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
         env (Optional[str]): Ambiente de execução (prod ou dev). Se não informado, será detectado
             automaticamente baseado no deployment ou será 'dev' se executando localmente.
         test_select (str): Selector dbt usado para filtrar os testes executados.
-            Ex.: "tag:daily", "tag:hourly".
+            Ex.: "tag:daily", "tag:hourly", "tag:hourly tag:daily".
     """
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
@@ -53,7 +53,9 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
     queries = setup_dbt_queries(wait_for=[setup_env])
     install_dbt_packages(wait_for=[queries])
 
-    dbt_test = DBTTest(test_select=test_select)
+    dbt_test = DBTTest(
+        test_select=" ".join(f"tag:freshness,{selector}" for selector in test_select.split())
+    )
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
 
     dbt_logs, _ = run_dbt_tests(
