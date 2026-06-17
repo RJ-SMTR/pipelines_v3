@@ -16,7 +16,11 @@
 {% set calendario_manual = ref("aux_calendario_manual") %}
 
 {% set date_range_end_extended %}
-    last_day(date_add(date("{{ var('date_range_end') }}"), interval 1 month))
+    {% if var("materializar_periodo_exato", false) %}
+        date("{{ var('date_range_end') }}")
+    {% else %}
+        last_day(date_add(date("{{ var('date_range_end') }}"), interval 1 month))
+    {% endif %}
 {% endset %}
 
 {# {% set feed_info_gtfs = "rj-smtr.gtfs.feed_info" %} #}

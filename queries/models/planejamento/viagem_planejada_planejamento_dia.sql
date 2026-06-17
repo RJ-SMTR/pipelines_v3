@@ -11,7 +11,10 @@
 }}
 
 {% set date_range_end_extended %}
-    date_add(date("{{ var('date_range_end') }}"), interval 2 day)
+    {% if var("materializar_periodo_exato", false) %}
+        date("{{ var('date_range_end') }}")
+    {% else %} date_add(date("{{ var('date_range_end') }}"), interval 2 day)
+    {% endif %}
 {% endset %}
 
 {% set incremental_filter %}

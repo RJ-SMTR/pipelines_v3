@@ -199,7 +199,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
                 mode=env,
             )
 
-        datetime_start, datetime_end = get_planejamento_materialization_window(
+        datetime_start, datetime_end, additional_vars = get_planejamento_materialization_window(
             data_versao_gtfs=data_versao_gtfs_final,
             env=env,
         )
@@ -211,6 +211,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
                     "env": env,
                     "datetime_start": datetime_start,
                     "datetime_end": datetime_end,
+                    "additional_vars": additional_vars,
                 }
             ],
             wait_for_completion=False,

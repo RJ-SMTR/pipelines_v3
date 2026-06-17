@@ -324,13 +324,19 @@ def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str
 
 
 @task(cache_policy=NO_CACHE)
-def get_planejamento_materialization_window(data_versao_gtfs: str, env: str) -> tuple[str, str]:
+def get_planejamento_materialization_window(
+    data_versao_gtfs: str, env: str
+) -> tuple[str, str, dict]:
     """Calcula a janela de materialização do planejamento diário para o GTFS capturado.
 
     Consulta o feed_end_date calculado no modelo feed_info:
-    - retificação de feed antigo: materializa de feed_start_date até feed_end_date;
-    - feed mais recente: materializa de feed_start_date até o maior valor
-      entre a data atual e feed_start_date (o feed pode ter vigência futura).
+    - retificação de feed antigo: materializa exatamente de feed_start_date até feed_end_date,
+      sem estender o intervalo final;
+    - feed mais recente: materializa de feed_start_date até o maior valor entre a data atual e
+      feed_start_date (o feed pode ter vigência futura).
+
+    Returns:
+        tuple[str, str, dict]: datetime_start, datetime_end e additional_vars para o dbt.
     """
 
     project_id = {"prod": "rj-smtr", "dev": "rj-smtr-dev"}[env]
@@ -347,15 +353,17 @@ def get_planejamento_materialization_window(data_versao_gtfs: str, env: str) -> 
     if feed_end_date is None or pd.isna(feed_end_date):
         today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
         datetime_end = max(today, data_versao_gtfs)
+        additional_vars = {}
         print(
             f"Feed {data_versao_gtfs} é o mais recente: materializando planejamento de "
             f"{datetime_start} até {datetime_end}"
         )
     else:
         datetime_end = feed_end_date.strftime("%Y-%m-%d")
+        additional_vars = {"materializar_periodo_exato": True}
         print(
             f"Retificação do feed {data_versao_gtfs}: materializando planejamento de "
             f"{datetime_start} até {datetime_end}"
         )
 
-    return datetime_start, datetime_end
+    return datetime_start, datetime_end, additional_vars
