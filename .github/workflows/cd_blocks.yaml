@@ -1,4 +1,4 @@
-name: Automations CD
+name: Blocks CD
 on:
   push:
     branches:
@@ -6,16 +6,17 @@ on:
       - devops/*
       - master
     paths:
-      - automations/**
-      - .github/workflows/cd_automations.yaml
+      - blocks/**
+      - .github/workflows/cd_blocks.yaml
 
 env:
   PREFECT_API_URL: ${{ secrets.PREFECT_V3_WEB_API_URL }}
   PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
+  DISCORD_WEBHOOK_URL_DATAPLEX: ${{ secrets.DISCORD_WEBHOOK_URL_DATAPLEX }}
 
 jobs:
-  create-automations:
-    name: Create automations
+  deploy-blocks:
+    name: Deploy blocks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -38,6 +39,6 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      - name: Deploy automations
+      - name: Deploy blocks
         run: |
-          uv run automations/deploy_automations.py automations/automations.yaml
+          uv run blocks/deploy_blocks.py

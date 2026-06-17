@@ -1,6 +1,6 @@
 # Changelog - monitoramento
 
-## [2.2.0] - 2026-06-12
+## [2.2.0] - 2026-06-17
 
 ### Alterado
 
@@ -8,6 +8,12 @@
 - Adiciona filtro de partição nas leituras de `aux_gps_filtrada` nos modelos `gps`, `gps_15_minutos`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
 - Remove colunas não utilizadas e torna incondicional o filtro de partição na CTE `gps_filtrada` do teste `check_gps_treatment` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
 - Adiciona `aux_gps_filtrada` ao seletor `gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+
+## [2.1.1] - 2026-06-16
+
+### Corrigido
+
+- Corrige o teste `dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico` para adicionar tolerância entre o teste das tabelas `veiculo_fiscalizacao_lacre` e `autuacao_disciplinar_historico` (https://github.com/RJ-SMTR/pipelines_v3/pull/265)
 
 ## [2.1.0] - 2026-05-19
 
