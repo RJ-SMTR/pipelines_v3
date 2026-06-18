@@ -18,7 +18,7 @@ dependencies = [
     "pendulum>=3.1.0",
     "pre-commit>=4.4.0",
     "prefect==3.7.1",
-    "prefect-dbt==0.7.9",
+    "prefect-dbt==0.7.10",
     "psycopg2-binary>=2.9.10",
     "pydantic>=2.0,<3.0",
     "pymysql>=1.1.1",
