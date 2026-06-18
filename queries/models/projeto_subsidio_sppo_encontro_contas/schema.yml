@@ -2,6 +2,7 @@ version: 2
 
 models:
   - name: balanco_consorcio_ano
+    description: "Balanço da receita aferida e esperada por consórcio e ano para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     latest_version: 2
     versions:
       - v: 1
@@ -64,6 +65,7 @@ models:
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
   - name: balanco_consorcio_dia
+    description: "Balanço da receita aferida e esperada por consórcio e dia para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     latest_version: 2
     versions:
       - v: 1
@@ -104,6 +106,7 @@ models:
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
   - name: balanco_servico_ano
+    description: "Balanço da receita aferida e esperada por serviço e ano para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     latest_version: 2
     versions:
       - v: 1
@@ -148,6 +151,7 @@ models:
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
   - name: balanco_servico_dia
+    description: "Balanço da receita aferida e esperada por servico e dia para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     latest_version: 2
     versions:
       - v: 1
@@ -228,6 +232,7 @@ models:
       - name: saldo
         description: "{{ doc('saldo') }}"
   - name: balanco_servico_quinzena
+    description: "Balanço da receita aferida e esperada por serviço e quinzena para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     latest_version: 2
     versions:
       - v: 1
