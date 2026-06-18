@@ -371,12 +371,20 @@ def get_planejamento_materialization_window(
     if target == "dev":
         dataset_id = f"{os.environ.get('DBT_USER', 'prefect')}__{dataset_id}"
 
+    feed_info_relation = f"{project_id}.{dataset_id}.feed_info"
     query = f"""
         select feed_end_date
-        from `{project_id}.{dataset_id}.feed_info`
+        from `{feed_info_relation}`
         where feed_start_date = '{data_versao_gtfs}'
     """
     result = pandas_gbq.read_gbq(query, project_id=project_id)
+
+    if result.empty:
+        raise ValueError(
+            f"Feed {data_versao_gtfs} não encontrado em {feed_info_relation} "
+            f"(target={target}). Verifique se o modelo feed_info_gtfs materializou "
+            "a versão solicitada antes de executar o planejamento diário."
+        )
 
     datetime_start = data_versao_gtfs
     feed_end_date = result["feed_end_date"].iloc[0]
