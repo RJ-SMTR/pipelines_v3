@@ -29,7 +29,10 @@ from pipelines.capture__gtfs.utils import (
     xl_load_workbook_sheetnames,
 )
 from pipelines.common import constants as smtr_constants
-from pipelines.common.treatment.default_treatment.utils import run_dbt
+from pipelines.common.treatment.default_treatment.utils import (
+    run_dbt,
+    run_dbt_empty_for_missing_relations,
+)
 from pipelines.common.utils.gcp.bigquery import BQTable
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
@@ -302,13 +305,12 @@ def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = N
     dbt_command = ["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE]
     dbt_vars = {"data_versao_gtfs": data_versao_gtfs}
 
-    if env == "dev":
-        run_dbt(
-            dbt_command=dbt_command,
-            dbt_vars=dbt_vars,
-            flags=[*(flags or []), "--empty"],
-            env=env,
-        )
+    run_dbt_empty_for_missing_relations(
+        dbt_command=dbt_command,
+        dbt_vars=dbt_vars,
+        flags=flags,
+        env=env,
+    )
 
     run_dbt(
         dbt_command=dbt_command,

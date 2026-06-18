@@ -18,6 +18,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     dbt_test_notify_discord,
     run_dbt,
     run_dbt_deps,
+    run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
@@ -195,13 +196,12 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
-        if context.env == "dev":
-            run_dbt(
-                dbt_obj=context.selector,
-                dbt_vars=context.dbt_vars,
-                flags=[*(flags or []), "--empty"],
-                env=context.env,
-            )
+        run_dbt_empty_for_missing_relations(
+            dbt_obj=context.selector,
+            dbt_vars=context.dbt_vars,
+            flags=flags,
+            env=context.env,
+        )
         run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts

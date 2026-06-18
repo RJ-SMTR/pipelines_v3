@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Optional, Union
@@ -14,6 +15,8 @@ from zoneinfo import ZoneInfo
 import pytz
 import requests
 import yaml
+from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
 from prefect import runtime
 from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
@@ -526,6 +529,176 @@ def get_dbt_target(env: str) -> str:
     return "dev" if is_running_locally() else "hmg"
 
 
+def get_dbt_paths() -> tuple[Path, Path, Path]:
+    """
+    Resolve os diretórios padrão do projeto dbt.
+
+    Returns:
+        tuple[Path, Path, Path]: ``project_dir`` (pasta ``queries``), ``profiles_dir``
+        (``queries/dev`` localmente, ``queries`` em deploy) e ``target_path``
+        (``queries/target``).
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    target_path = project_dir / "target"
+    return project_dir, profiles_dir, target_path
+
+
+def get_dbt_selection_args(
+    dbt_obj: Optional[DBTSelector],
+    dbt_command: Optional[Union[str, list[str]]],
+) -> list[str]:
+    """
+    Extrai os argumentos de seleção dbt (``--select``/``--exclude``/``--selector``).
+
+    Reutiliza a seleção da materialização normal para reaproveitá-la no ``dbt ls``.
+
+    Args:
+        dbt_obj (Optional[DBTSelector]): Selector usado quando a materialização roda via objeto.
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado; quando for uma lista
+            iniciada por ``run``, os argumentos após ``run`` são a seleção.
+
+    Returns:
+        list[str]: Argumentos de seleção, ou lista vazia quando não há seleção aplicável.
+    """
+    if isinstance(dbt_command, list) and dbt_command and dbt_command[0] == "run":
+        return dbt_command[1:]
+    if isinstance(dbt_obj, DBTSelector):
+        return ["--selector", dbt_obj.name]
+    return []
+
+
+def get_missing_dbt_relations(nodes: list[dict]) -> list[dict]:
+    """
+    Filtra os nós dbt cuja relação ainda não existe no BigQuery.
+
+    Considera apenas materializações que geram relação (incremental, materialized_view,
+    table, view) e consulta as tabelas existentes por dataset (``database.schema``),
+    comparando pelo ``alias`` de cada nó.
+
+    Args:
+        nodes (list[dict]): Nós retornados por ``dbt ls --output json`` (com ``database``,
+            ``schema``, ``alias`` e ``config``).
+
+    Returns:
+        list[dict]: Subconjunto de ``nodes`` cujas relações não existem no target.
+    """
+    relation_nodes = [
+        node
+        for node in nodes
+        if node.get("config", {}).get("materialized")
+        in {"incremental", "materialized_view", "table", "view"}
+    ]
+    nodes_by_dataset = defaultdict(list)
+    for node in relation_nodes:
+        nodes_by_dataset[(node["database"], node["schema"])].append(node)
+
+    missing_nodes = []
+    for (database, schema), dataset_nodes in nodes_by_dataset.items():
+        client = bigquery.Client(project=database)
+        try:
+            existing_relations = {
+                table.table_id for table in client.list_tables(f"{database}.{schema}")
+            }
+        except NotFound:
+            existing_relations = set()
+
+        missing_nodes.extend(
+            node for node in dataset_nodes if node["alias"] not in existing_relations
+        )
+
+    return missing_nodes
+
+
+def run_dbt_empty_for_missing_relations(
+    dbt_obj: Optional[DBTSelector] = None,
+    dbt_command: Optional[list[str]] = None,
+    dbt_vars: Optional[dict] = None,
+    flags: Optional[list[str]] = None,
+    env: Optional[str] = None,
+) -> None:
+    """
+    Cria relações dbt ausentes com ``--empty`` antes da materialização normal.
+
+    O ``--empty`` é executado somente para modelos selecionados cuja materialização
+    gera uma relação (incremental, table ou view) e que ainda não existem no target.
+    Relações existentes não são executadas, evitando que lógica incremental consulte
+    entradas vazias durante o pre-run.
+    """
+    if env != "dev":
+        return
+
+    selection_args = get_dbt_selection_args(dbt_obj=dbt_obj, dbt_command=dbt_command)
+    if not selection_args:
+        return
+
+    flags = [flag for flag in (flags or []) if flag != "--empty"]
+    has_target_flag = "--target" in flags
+    target = flags[flags.index("--target") + 1] if has_target_flag else get_dbt_target(env)
+    if target == "prod":
+        return
+
+    project_dir, profiles_dir, target_path = get_dbt_paths()
+
+    final_dbt_vars = dict(dbt_vars or {})
+    final_dbt_vars["flow_name"] = runtime.flow_run.flow_name
+    vars_yaml = yaml.safe_dump(final_dbt_vars, default_flow_style=True)
+
+    invoke = [
+        "ls",
+        *selection_args,
+        "--resource-type",
+        "model",
+        "--output",
+        "json",
+        "--output-keys",
+        "unique_id",
+        "fqn",
+        "database",
+        "schema",
+        "alias",
+        "config",
+        "--vars",
+        vars_yaml,
+    ]
+    if not has_target_flag:
+        invoke.extend(["--target", target])
+    invoke.extend(flags)
+
+    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
+    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
+    os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
+
+    result = PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+            target_path=target_path,
+        ),
+        raise_on_failure=False,
+    ).invoke(invoke)
+    if not result.success:
+        raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
+
+    nodes = [json.loads(line) for line in result.result]
+    missing_nodes = get_missing_dbt_relations(nodes)
+
+    if not missing_nodes:
+        print("Nenhuma relação dbt ausente encontrada. Pulando pre-run com --empty.")
+        return
+
+    missing_selectors = [".".join(node["fqn"]) for node in missing_nodes]
+    print(f"Relações dbt ausentes: {', '.join(missing_selectors)}")
+    run_dbt(
+        dbt_command=["run", "--select", *missing_selectors],
+        dbt_vars=dbt_vars,
+        flags=[*flags, "--empty"],
+        env=env,
+    )
+
+
 def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
     dbt_command: Optional[Union[str, list[str]]] = None,
@@ -552,8 +725,7 @@ def run_dbt(  # noqa: PLR0913
     Returns:
         str: Conteúdo do arquivo de log do DBT.
     """
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
+    project_dir, profiles_dir, target_path = get_dbt_paths()
     flags = flags or []
     has_target_flag = "--target" in flags
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
@@ -567,13 +739,6 @@ def run_dbt(  # noqa: PLR0913
         "--log-format",
         "json",
     ]
-    if is_running_locally():
-        profiles_dir = project_dir / "dev"
-    else:
-        profiles_dir = project_dir
-
-    target_path = project_dir / "target"
-
     invoke = []
     if isinstance(dbt_command, list):
         invoke = dbt_command
