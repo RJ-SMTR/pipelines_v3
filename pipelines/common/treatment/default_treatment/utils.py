@@ -695,7 +695,10 @@ def run_dbt_empty_for_missing_relations(
         return
 
     missing_selectors = [".".join(node["fqn"]) for node in missing_nodes]
-    print(f"Relações dbt ausentes: {', '.join(missing_selectors)}")
+    missing_relations = [
+        f"{node['database']}.{node['schema']}.{node['alias']}" for node in missing_nodes
+    ]
+    print(f"Relações dbt ausentes no target {target}: {', '.join(missing_relations)}")
     run_dbt(
         dbt_command=["run", "--select", *missing_selectors],
         dbt_vars=dbt_vars,
