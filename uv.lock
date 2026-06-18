@@ -2122,7 +2122,7 @@ requires-dist = [
     { name = "pendulum", specifier = ">=3.1.0" },
     { name = "pre-commit", specifier = ">=4.4.0" },
     { name = "prefect", specifier = "==3.7.1" },
-    { name = "prefect-dbt", specifier = "==0.7.5" },
+    { name = "prefect-dbt", specifier = "==0.7.9" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
     { name = "pydantic", specifier = ">=2.0,<3.0" },
     { name = "pymysql", specifier = ">=1.1.1" },
@@ -2239,7 +2239,7 @@ wheels = [
 
 [[package]]
 name = "prefect-dbt"
-version = "0.7.5"
+version = "0.7.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dbt-core" },
@@ -2247,9 +2247,9 @@ dependencies = [
     { name = "prefect-shell" },
     { name = "sgqlc" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/80/05/510c960574a7f133005f0eef3fa6d4019d683484e1df4dc5ee72a71379f6/prefect_dbt-0.7.5.tar.gz", hash = "sha256:0719b27aa3696bc60406d51fd3dfda0aa7b9bd2814b43daedec50bd0cdb832a2", size = 73495, upload-time = "2025-07-23T21:04:42.162Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/5e/0627aaa43e3caad6bfa3675f0d20bf0e45ee1c6816fb1680d22700d4571e/prefect_dbt-0.7.9.tar.gz", hash = "sha256:f832ee7345240bc824e5518fe52ea1ffe51ae8276e51f43c37416835ed2d4ea3", size = 79568, upload-time = "2025-11-20T19:31:09.873Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/12/44908d3affe37ca9dbf049382a8c6cd61c546528ef1ee91354931687115d/prefect_dbt-0.7.5-py3-none-any.whl", hash = "sha256:f4e01e585c794696e4a824727b7d0b5c6162f1d5d6c2bb1a2c2a0ed36a5ba015", size = 54840, upload-time = "2025-07-23T21:04:40.369Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/ca/30ee0d444fd9c65ddf5b49a11eb2a35aa5a656981ac4693ea7937945d299/prefect_dbt-0.7.9-py3-none-any.whl", hash = "sha256:321006303a32087890973094dcbde2667af9bb57ac2655305339c00c711e9313", size = 59635, upload-time = "2025-11-20T19:31:07.106Z" },
 ]
 
 [[package]]

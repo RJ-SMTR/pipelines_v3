@@ -683,6 +683,7 @@ def run_dbt_empty_for_missing_relations(
                 target_path=target_path,
             ),
             raise_on_failure=False,
+            _disable_callbacks=True,
         ).invoke(invoke)
     if not result.success:
         raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
