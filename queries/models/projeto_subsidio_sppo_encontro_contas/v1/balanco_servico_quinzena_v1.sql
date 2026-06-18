@@ -1,66 +1,55 @@
-{% if var("start_date") >= var("DATA_SUBSIDIO_V9_INICIO") %}
-{{ config(enabled=false) }}
-{% else %}
-{{ config(alias=this.name ~ var('encontro_contas_modo')) }}
+{% if var("start_date") >= var("DATA_SUBSIDIO_V9_INICIO") %} {{ config(enabled=false) }}
+{% else %} {{ config(alias=this.name ~ var("encontro_contas_modo")) }}
 {% endif %}
 
-WITH
-  q1 AS (
-  SELECT
-    FORMAT_DATE('%Y-%m-Q1', date) AS quinzena,
-    date AS data_inicial_quinzena,
-    DATE_ADD(date, INTERVAL 14 DAY) AS data_final_quinzena
-  FROM
-    UNNEST(GENERATE_DATE_ARRAY('2022-06-01', '2023-12-31', INTERVAL 1 MONTH)) AS date ),
-  q2 AS (
-  SELECT
-    FORMAT_DATE('%Y-%m-Q2', date) AS quinzena,
-    DATE_ADD(date, INTERVAL 15 DAY) AS data_inicial_quinzena,
-    LAST_DAY(date) AS data_final_quinzena
-  FROM
-    UNNEST(GENERATE_DATE_ARRAY('2022-06-01', '2023-12-31', INTERVAL 1 MONTH)) AS date ),
-  quinzenas AS (
-  SELECT
-    *
-  FROM
-    q1
-  UNION ALL
-  SELECT
-    *
-  FROM
-    q2
-  ORDER BY
-    data_inicial_quinzena )
-SELECT
-  quinzena,
-  data_inicial_quinzena,
-  data_final_quinzena,
-  consorcio,
-  servico,
-  COUNT(DATA) AS quantidade_dias_subsidiado,
-  SUM(km_subsidiada) AS km_subsidiada,
-  SUM(receita_total_esperada) AS receita_total_esperada,
-  SUM(receita_tarifaria_esperada) AS receita_tarifaria_esperada,
-  SUM(subsidio_esperado) AS subsidio_esperado,
-  SUM(subsidio_glosado) AS subsidio_glosado,
-  SUM(receita_total_aferida) AS receita_total_aferida,
-  SUM(receita_tarifaria_aferida) AS receita_tarifaria_aferida,
-  SUM(subsidio_pago) AS subsidio_pago,
-  SUM(saldo) AS saldo
-FROM
-  quinzenas qz
-LEFT JOIN
-  {{ ref("balanco_servico_dia" ~ var('encontro_contas_modo'), v=1) }} bs
-ON
-  bs.data BETWEEN qz.data_inicial_quinzena
-  AND qz.data_final_quinzena
-GROUP BY
-  quinzena,
-  data_inicial_quinzena,
-  data_final_quinzena,
-  consorcio,
-  servico
-ORDER BY
-  data_inicial_quinzena,
-  consorcio,
-  servico
+with
+    q1 as (
+        select
+            format_date('%Y-%m-Q1', date) as quinzena,
+            date as data_inicial_quinzena,
+            date_add(date, interval 14 day) as data_final_quinzena
+        from
+            unnest(
+                generate_date_array('2022-06-01', '2023-12-31', interval 1 month)
+            ) as date
+    ),
+    q2 as (
+        select
+            format_date('%Y-%m-Q2', date) as quinzena,
+            date_add(date, interval 15 day) as data_inicial_quinzena,
+            last_day(date) as data_final_quinzena
+        from
+            unnest(
+                generate_date_array('2022-06-01', '2023-12-31', interval 1 month)
+            ) as date
+    ),
+    quinzenas as (
+        select *
+        from q1
+        union all
+        select *
+        from q2
+        order by data_inicial_quinzena
+    )
+select
+    quinzena,
+    data_inicial_quinzena,
+    data_final_quinzena,
+    consorcio,
+    servico,
+    count(data) as quantidade_dias_subsidiado,
+    sum(km_subsidiada) as km_subsidiada,
+    sum(receita_total_esperada) as receita_total_esperada,
+    sum(receita_tarifaria_esperada) as receita_tarifaria_esperada,
+    sum(subsidio_esperado) as subsidio_esperado,
+    sum(subsidio_glosado) as subsidio_glosado,
+    sum(receita_total_aferida) as receita_total_aferida,
+    sum(receita_tarifaria_aferida) as receita_tarifaria_aferida,
+    sum(subsidio_pago) as subsidio_pago,
+    sum(saldo) as saldo
+from quinzenas qz
+left join
+    {{ ref("balanco_servico_dia" ~ var("encontro_contas_modo"), v=1) }} bs
+    on bs.data between qz.data_inicial_quinzena and qz.data_final_quinzena
+group by quinzena, data_inicial_quinzena, data_final_quinzena, consorcio, servico
+order by data_inicial_quinzena, consorcio, servico
