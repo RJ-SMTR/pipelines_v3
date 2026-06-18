@@ -203,6 +203,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
         datetime_start, datetime_end, additional_vars = get_planejamento_materialization_window(
             data_versao_gtfs=data_versao_gtfs_final,
             env=env,
+            flags=flags,
         )
         await run_subflow(
             env=env,
@@ -212,6 +213,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
                     "env": env,
                     "datetime_start": datetime_start,
                     "datetime_end": datetime_end,
+                    "flags": flags,
                     "additional_vars": additional_vars,
                 }
             ],

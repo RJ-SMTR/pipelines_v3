@@ -2,6 +2,7 @@
 """Tasks para captura e tratamento do GTFS"""
 
 import io
+import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -30,6 +31,7 @@ from pipelines.capture__gtfs.utils import (
 )
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import (
+    get_dbt_target,
     run_dbt,
     run_dbt_empty_for_missing_relations,
 )
@@ -338,7 +340,9 @@ def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str
 
 @task(cache_policy=NO_CACHE)
 def get_planejamento_materialization_window(
-    data_versao_gtfs: str, env: str
+    data_versao_gtfs: str,
+    env: str,
+    flags: Optional[list[str]] = None,
 ) -> tuple[str, str, dict]:
     """Calcula a janela de materialização do planejamento diário para o GTFS capturado.
 
@@ -350,12 +354,26 @@ def get_planejamento_materialization_window(
 
     Returns:
         tuple[str, str, dict]: datetime_start, datetime_end e additional_vars para o dbt.
+
+    Args:
+        data_versao_gtfs: Data inicial do feed GTFS.
+        env: Ambiente lógico do flow (prod ou dev).
+        flags: Flags do dbt usadas para resolver o target efetivo.
     """
 
-    project_id = {"prod": "rj-smtr", "dev": "rj-smtr-dev"}[env]
+    flags = flags or []
+    target = flags[flags.index("--target") + 1] if "--target" in flags else None
+    if target is None:
+        target = get_dbt_target(env)
+
+    project_id = "rj-smtr" if target == "prod" else "rj-smtr-dev"
+    dataset_id = constants.GTFS_MATERIALIZACAO_DATASET_ID
+    if target == "dev":
+        dataset_id = f"{os.environ.get('DBT_USER', 'prefect')}__{dataset_id}"
+
     query = f"""
         select feed_end_date
-        from `{project_id}.{constants.GTFS_MATERIALIZACAO_DATASET_ID}.feed_info`
+        from `{project_id}.{dataset_id}.feed_info`
         where feed_start_date = '{data_versao_gtfs}'
     """
     result = pandas_gbq.read_gbq(query, project_id=project_id)
