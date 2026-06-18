@@ -1,6 +1,11 @@
 name: DBT Checks
 
 on:
+  pull_request:
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - .github/workflows/dbt-checks.yaml
   push:
     branches:
       - master
