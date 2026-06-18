@@ -57,6 +57,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
     """Flow de captura e tratamento dos dados do GTFS."""
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
+    dev_prefix = "[DEV] " if env == "dev" else ""
     setup_env = setup_environment(env=env)
     initialize_sentry(env=env)
     timestamp = get_scheduled_timestamp()
@@ -86,7 +87,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
         data_versao_gtfs_final = data_versao_gtfs_task
 
         task_send_discord_message(
-            message=f"Captura do GTFS {data_versao_gtfs_final} iniciada",
+            message=f"{dev_prefix}Captura do GTFS {data_versao_gtfs_final} iniciada",
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
 
@@ -149,7 +150,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
 
         if upload_failed:
             task_send_discord_message(
-                message=f"Falha na subida dos dados do GTFS {data_versao_gtfs_final}",
+                message=f"{dev_prefix}Falha na subida dos dados do GTFS {data_versao_gtfs_final}",
                 webhook=constants.GTFS_DISCORD_WEBHOOK,
             )
             raise RuntimeError(
@@ -172,7 +173,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
     if dbt_success:
         task_send_discord_message(
             message=(
-                f"Captura e materialização do GTFS {data_versao_gtfs_final} finalizada com sucesso!"
+                f"{dev_prefix}Captura e materialização do GTFS {data_versao_gtfs_final} finalizada com sucesso!"
             ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
@@ -218,7 +219,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
         )
     else:
         task_send_discord_message(
-            message=f"Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",
+            message=f"{dev_prefix}Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
         raise RuntimeError(f"DBT run falhou para GTFS {data_versao_gtfs_final}")
