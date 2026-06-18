@@ -299,9 +299,20 @@ def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = N
         f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
+    dbt_command = ["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE]
+    dbt_vars = {"data_versao_gtfs": data_versao_gtfs}
+
+    if env == "dev":
+        run_dbt(
+            dbt_command=dbt_command,
+            dbt_vars=dbt_vars,
+            flags=[*(flags or []), "--empty"],
+            env=env,
+        )
+
     run_dbt(
-        dbt_command=["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE],
-        dbt_vars={"data_versao_gtfs": data_versao_gtfs},
+        dbt_command=dbt_command,
+        dbt_vars=dbt_vars,
         flags=flags,
         env=env,
     )
