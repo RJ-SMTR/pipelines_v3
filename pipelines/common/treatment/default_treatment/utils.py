@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import contextlib
 import inspect
+import io
 import json
 import os
 import re
@@ -671,14 +673,17 @@ def run_dbt_empty_for_missing_relations(
     os.environ["DBT_TARGET_PATH"] = str(target_path)
     os.environ.setdefault("DBT_USER", "prefect")
 
-    result = PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=False,
-    ).invoke(invoke)
+    # O `dbt ls` imprime cada nó (JSON) no stdout; lemos de result.result, então
+    # suprimimos esse output para não poluir os logs do flow (log_prints=True).
+    with contextlib.redirect_stdout(io.StringIO()):
+        result = PrefectDbtRunner(
+            settings=PrefectDbtSettings(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                target_path=target_path,
+            ),
+            raise_on_failure=False,
+        ).invoke(invoke)
     if not result.success:
         raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
 
