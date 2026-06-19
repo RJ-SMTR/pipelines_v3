@@ -4,7 +4,7 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 import httpx
 import pandas as pd
@@ -273,3 +273,56 @@ async def run_subflow(  # noqa: PLR0913
         raise FailedSubFlowError(fail_message)
 
     return runs
+
+
+async def trigger_materialization(  # noqa: PLR0913
+    env: str,
+    flow: Flow,
+    window_fn: Callable[..., tuple[str, str, dict]],
+    flags: Optional[list[str]] = None,
+    wait_for: Optional[list] = None,
+    wait_for_completion: bool = False,
+    extra_params: Optional[dict] = None,
+) -> list[FlowRun]:
+    """
+    Dispara a materialização de um flow de tratamento como subflow.
+
+    Peça genérica para o padrão "captura → calcula janela → dispara materialização", reutilizável
+    por qualquer flow de captura. A particularidade de cada pipeline vive no `window_fn`; a
+    ordenação após a captura vem do `wait_for`. Monta o dict de parâmetros no contrato padrão dos
+    flows de tratamento (`env`, `datetime_start`, `datetime_end`, `flags`, `additional_vars`),
+    com `extra_params` como escape hatch para flows fora do padrão.
+
+    Args:
+        env (str): Prod ou dev.
+        flow (Flow): Flow de tratamento a ser materializado (ex.: treatment__planejamento_diario).
+        window_fn (Callable): Task (geralmente um `functools.partial` com os args do pipeline já
+            amarrados) que retorna `(datetime_start, datetime_end, additional_vars)`. Recebe
+            `wait_for` injetado por esta função para ordenar a janela após a captura.
+        flags (Optional[list[str]]): Flags do dbt repassadas ao flow de tratamento.
+        wait_for (Optional[list]): Tasks que devem concluir antes de calcular a janela e disparar
+            a materialização (tipicamente `[tasks["upload_source"]]`).
+        wait_for_completion (bool): Se False (padrão), dispara fire-and-forget (falha do tratamento
+            não derruba a captura). Se True, aguarda a conclusão e propaga falha via run_subflow.
+        extra_params (Optional[dict]): Parâmetros extras mesclados no dict do subflow, para flows
+            de tratamento fora do contrato padrão.
+
+    Returns:
+        list[FlowRun]: FlowRuns disparados.
+    """
+    datetime_start, datetime_end, additional_vars = window_fn(wait_for=wait_for)
+    return await run_subflow(
+        env=env,
+        flow=flow,
+        parameters=[
+            {
+                "env": env,
+                "datetime_start": datetime_start,
+                "datetime_end": datetime_end,
+                "flags": flags,
+                "additional_vars": additional_vars,
+                **(extra_params or {}),
+            }
+        ],
+        wait_for_completion=wait_for_completion,
+    )
