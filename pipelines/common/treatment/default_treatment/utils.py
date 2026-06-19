@@ -327,6 +327,21 @@ class DBTSelector:
             redis_client.set(redis_key, content)
 
 
+def get_repo_version() -> str:
+    """
+    Retorna o SHA do último commit do repositório no GitHub.
+
+    Returns:
+        str: SHA do último commit do repositório.
+    """
+    response = requests.get(
+        f"{constants.REPO_URL}/commits",
+        timeout=60,
+    )
+    response.raise_for_status()
+    return response.json()[0]["sha"]
+
+
 class DBTSelectorMaterializationContext:
     def __init__(  # noqa: PLR0913
         self,
@@ -465,22 +480,6 @@ class DBTSelectorMaterializationContext:
 
         return datetime_end
 
-    def get_repo_version(self) -> str:
-        """
-        Retorna o SHA do último commit do repositório no GITHUB
-
-        Returns:
-            str: SHA do último commit do repositório no GITHUB
-        """
-        response = requests.get(
-            f"{constants.REPO_URL}/commits",
-            timeout=60,
-        )
-
-        response.raise_for_status()
-
-        return response.json()[0]["sha"]
-
     def get_dbt_vars(
         self,
         datetime_start: datetime,
@@ -505,7 +504,7 @@ class DBTSelectorMaterializationContext:
         dbt_vars = {
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
-            "version": self.get_repo_version(),
+            "version": get_repo_version(),
             "start_date": datetime_start.strftime("%Y-%m-%d"),
             "end_date": datetime_end.strftime("%Y-%m-%d"),
         }

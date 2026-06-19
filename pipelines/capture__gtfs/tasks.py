@@ -32,6 +32,7 @@ from pipelines.capture__gtfs.utils import (
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import (
     get_dbt_target,
+    get_repo_version,
     run_dbt,
     run_dbt_empty_for_missing_relations,
 )
@@ -305,7 +306,10 @@ def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = N
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
     dbt_command = ["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE]
-    dbt_vars = {"data_versao_gtfs": data_versao_gtfs}
+    dbt_vars = {
+        "data_versao_gtfs": data_versao_gtfs,
+        "version": get_repo_version(),
+    }
 
     run_dbt_empty_for_missing_relations(
         dbt_command=dbt_command,
