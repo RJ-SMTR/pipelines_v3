@@ -351,8 +351,8 @@ def get_planejamento_materialization_window(
     """Calcula a janela de materialização do planejamento diário para o GTFS capturado.
 
     Consulta o feed_end_date calculado no modelo feed_info:
-    - retificação de feed antigo: materializa exatamente de feed_start_date até feed_end_date,
-      sem estender o intervalo final;
+    - retificação de feed antigo: limita o calendário exatamente à vigência do feed, enquanto
+      o planejamento diário estende o fim em dois dias;
     - feed mais recente: materializa de feed_start_date até o maior valor entre a data atual e
       feed_start_date (o feed pode ter vigência futura).
 
@@ -405,8 +405,8 @@ def get_planejamento_materialization_window(
         datetime_end = feed_end_date.strftime("%Y-%m-%d")
         additional_vars = {"materializar_periodo_exato": True}
         print(
-            f"Retificação do feed {data_versao_gtfs}: materializando planejamento de "
-            f"{datetime_start} até {datetime_end}"
+            f"Retificação do feed {data_versao_gtfs}: materializando calendário de "
+            f"{datetime_start} até {datetime_end} e planejamento diário até D+2"
         )
 
     return datetime_start, datetime_end, additional_vars
