@@ -2,6 +2,8 @@ name: DBT Checks
 
 on:
   pull_request:
+    branches:
+      - master
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
@@ -9,8 +11,6 @@ on:
   push:
     branches:
       - master
-      - staging/*
-      - fix/*
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
