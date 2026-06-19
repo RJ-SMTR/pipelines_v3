@@ -312,16 +312,19 @@ def save_materialization_datetime_redis(
 
 
 @task(cache_policy=NO_CACHE)
-def setup_dbt_queries() -> Path:
+def setup_dbt_queries(env: str) -> Path:
     """
     Clona a pasta queries/ do repositório GitHub via sparse-checkout.
 
     Se estiver rodando localmente, retorna o caminho existente sem clonar.
 
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
+
     Returns:
         Path: Caminho para a pasta queries/.
     """
-    return clone_queries_from_github()
+    return clone_queries_from_github(env=env)
 
 
 @task(cache_policy=NO_CACHE)

@@ -1109,13 +1109,17 @@ def get_deployment_commit_sha() -> Optional[str]:
         return None
 
 
-def clone_queries_from_github() -> Path:
+def clone_queries_from_github(env: str) -> Path:
     """
     Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
 
-    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em deploy,
-    fixa o ``queries/`` no commit que gerou o deployment (mesmo código da imagem) quando
-    o SHA é resolvível; caso contrário, usa a branch default do repositório.
+    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em deploy
+    de dev, fixa o ``queries/`` no commit que gerou o deployment (mesmo código da
+    imagem) quando o SHA é resolvível. Em prod, usa a versão mais recente da branch
+    default do repositório, permitindo atualizar queries sem redeploy dos flows.
+
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
 
     Returns:
         Path: Caminho para a pasta queries/ no projeto.
@@ -1136,7 +1140,7 @@ def clone_queries_from_github() -> Path:
     repo_url = (
         f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
     )
-    commit_sha = get_deployment_commit_sha()
+    commit_sha = get_deployment_commit_sha() if env == "dev" else None
     print(f"Clonando queries/ de {repo_url}...")
     with tempfile.TemporaryDirectory() as tmpdir:
         subprocess.run(
@@ -1167,7 +1171,7 @@ def clone_queries_from_github() -> Path:
                 check=True,
                 timeout=120,
             )
-        checkout_cmd = [git_bin, "checkout", *([commit_sha] if commit_sha else [])]
+        checkout_cmd = [git_bin, "checkout", commit_sha or "HEAD"]
         subprocess.run(checkout_cmd, cwd=tmpdir, check=True, timeout=60)
         if queries_path.exists():
             shutil.rmtree(queries_path)

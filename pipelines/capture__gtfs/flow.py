@@ -61,7 +61,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
     setup_env = setup_environment(env=env)
     initialize_sentry(env=env)
     timestamp = get_scheduled_timestamp()
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     last_captured_os = None
