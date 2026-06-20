@@ -15,6 +15,8 @@ CALENDARIO_MANUAL_TABLE_ID = "calendario_manual"
 CALENDARIO_MANUAL_SHEET_ID = "1Jn7fmaDOhuHMdMqHo5SGWHCRuerXNWJRmhRjnHxJ9O4"
 CALENDARIO_MANUAL_SHEET_NAME = "Dias Atípicos"
 
+CALENDARIO_MANUAL_CUTOVER_DATE = "2026-07-01"
+
 CALENDARIO_MANUAL_RENAME_MAPPING = {
     "dia": "data",
     "despacho_observacao": "observacao",
