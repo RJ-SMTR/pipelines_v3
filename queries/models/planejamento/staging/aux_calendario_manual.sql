@@ -11,7 +11,29 @@
 }}
 
 with
-    datas as (
+    planilha_source as (
+        select safe.parse_date('%d/%m/%Y', data) as data, tipo_dia, subtipo_dia, tipo_os
+        from {{ source("source_smtr", "calendario_manual") }}
+    ),
+    planilha as (
+        /* A partir da data de corte, o calendário manual vem da planilha (source). */
+        select
+            data,
+            date(null) as feed_start_date,
+            nullif(trim(tipo_dia), '') as tipo_dia,
+            nullif(trim(subtipo_dia), '') as subtipo_dia,
+            nullif(trim(tipo_os), '') as tipo_os
+        from planilha_source
+        where
+            data >= date("{{ var('data_inicio_calendario_sheets') }}")
+            {% if is_incremental() %}
+                and data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% endif %}
+    ),
+    historico as (
+        /* Antes da data de corte, o histórico permanece congelado no hardcoded. */
         select
             data,
             date(null) as feed_start_date,
@@ -79,6 +101,7 @@ with
                 when data = date(2026, 06, 05)
                 then "Ponto Facultativo"  -- DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026
             end as tipo_dia,
+            cast(null as string) as subtipo_dia,
             case
                 when data between date(2024, 09, 14) and date(2024, 09, 15)
                 then "Verão + Rock in Rio"
@@ -195,7 +218,24 @@ with
                     {% endif %}
                 )
             ) as data
+        where data < date("{{ var('data_inicio_calendario_sheets') }}")
+    ),
+    datas as (
+        select data, feed_start_date, tipo_dia, subtipo_dia, tipo_os
+        from planilha
+
+        union all
+
+        select data, feed_start_date, tipo_dia, subtipo_dia, tipo_os
+        from historico
     )
 select *
 from datas
-where feed_start_date is not null or tipo_dia is not null or tipo_os is not null
+where
+    data is not null
+    and (
+        feed_start_date is not null
+        or tipo_dia is not null
+        or subtipo_dia is not null
+        or tipo_os is not null
+    )
