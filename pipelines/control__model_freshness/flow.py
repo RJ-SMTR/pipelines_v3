@@ -36,7 +36,7 @@ from pipelines.control__model_freshness.tasks import (
     flow_run_name="control__model_freshness - {test_select}",
     on_failure=[handler_notify_failure(webhook="dataplex")],
 )
-def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:freshness_hourly"):
+def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:hourly"):
     """
     Roda testes de freshness em modelos dbt (selecionados por tag) e notifica
     Discord caso haja falhas.
@@ -45,7 +45,7 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
         env (Optional[str]): Ambiente de execução (prod ou dev). Se não informado, será detectado
             automaticamente baseado no deployment ou será 'dev' se executando localmente.
         test_select (str): Selector dbt usado para filtrar os testes executados.
-            Ex.: "tag:freshness_daily", "tag:freshness_hourly".
+            Ex.: "tag:daily", "tag:hourly", "tag:hourly tag:daily".
     """
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
@@ -53,7 +53,9 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
     queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     install_dbt_packages(wait_for=[queries])
 
-    dbt_test = DBTTest(test_select=test_select)
+    dbt_test = DBTTest(
+        test_select=" ".join(f"tag:freshness,{selector}" for selector in test_select.split())
+    )
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
 
     dbt_logs, _ = run_dbt_tests(
