@@ -42,12 +42,12 @@ deployments:
       - cron: "10 * * * *"
         timezone: "America/Sao_Paulo"
         parameters:
-          test_select: "tag:freshness_hourly"
+          test_select: "tag:hourly"
       - cron: "30 12 * * *"
         timezone: "America/Sao_Paulo"
         active: false
         parameters:
-          test_select: "tag:freshness_daily"
+          test_select: "tag:daily"
     work_pool:
       name: smtr-pool
       work_queue_name: default
