@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.7.4] - 2026-06-22
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para os dias `2026-06-13` -> `Copa_13_Junho`, `2026-06-19` -> `Copa_19_Junho`, `2026-06-24` -> `Copa_24_Junho`,  conforme Processo SEI 000399.016030/2026-59. (https://github.com/RJ-SMTR/pipelines_v3/pull/307)
+
 ## [1.7.3] - 2026-06-11
 
 ### Adicionado
