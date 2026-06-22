@@ -30,7 +30,7 @@
 
 ### Adicionado
 
-- Adiciona teste `recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
+- Adiciona teste `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
 
 ## [2.0.8] - 2026-05-13
 
