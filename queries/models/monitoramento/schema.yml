@@ -505,6 +505,52 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
+  - name: view_gps_onibus
+    description: |
+      View que consolida dados de GPS de todos os fornecedores.
+      Fonte: tabelas de GPS tratadas de cada fornecedor.
+      Usada para validar atualização de dados por fornecedor via testes de freshness agrupados.
+    tests:
+      - dbt_expectations.expect_grouped_row_values_to_have_recent_data:
+          name: dbt_expectations.expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
+          arguments:
+            group_by: ["fonte_gps"]
+            timestamp_column: datetime_gps
+            datepart: hour
+            interval: 2
+          config:
+            tags: ["freshness", "hourly"]
+            severity: warn
+    columns:
+      - name: fonte_gps
+        description: "Identificador do fornecedor de GPS"
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
   - name: veiculo_fiscalizacao_lacre
     description: Tabela com as informações do controle do lacre e deslacre de veículos
     tests:
@@ -1055,12 +1101,12 @@ models:
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: recent_data__datetime_captura__gps_validador
+              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador
               arguments:
                 datepart: hour
                 interval: 2
               config:
-                tags: ["freshness_hourly"]
+                tags: ["freshness", "hourly"]
                 severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
