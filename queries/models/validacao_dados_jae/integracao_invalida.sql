@@ -108,7 +108,28 @@ with
         */
         select
             i.*,
-            case
+            ifnull(
+                sm.modos,
+                case
+                    when i.modo = 'Van'
+                    then [consorcio]
+                    when
+                        i.modo = 'Ônibus'
+                        and not (
+                            length(ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), ''))
+                            = 4
+                            and ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
+                            like '2%'
+                        )
+                    then ['SPPO']
+                    when
+                        i.modo = 'BRT'
+                        and ifnull(l.tarifa_ida, l.tarifa_volta) > tp.valor_tarifa
+                    then ['BRT ESP']
+                    else [i.modo]
+                end
+            ) as modos
+        {# case
                 when
                     modo = 'Ônibus'
                     and array_length(regexp_extract_all(servico_jae, r'[0-9]')) = 3
@@ -116,9 +137,18 @@ with
                 when modo = 'Van'
                 then consorcio
                 else modo
-            end as modo_tratado
+            end as modo_tratado #}
         from {{ integracao_table }} i
         left join integracao_particao_modificada pm on i.data = pm.particao
+        left join {{ ref("aux_matriz_servico_modo") }} sm using (id_servico_jae)
+        left join
+            {{ ref("aux_linha_tarifa") }} l
+            on i.id_servico_jae = l.cd_linha
+            and i.datetime_transacao >= l.dt_inicio_validade
+            and (
+                l.data_fim_validade is null
+                or i.datetime_transacao < l.data_fim_validade
+            )
         where
         {% if is_incremental() %}
                 {% if partitions | length > 0 %}
@@ -140,10 +170,10 @@ with
             lead(data) over (win) as data_lead,
             id_integracao,
             sequencia_integracao,
-            modo_tratado as modo_origem,
+            modos as modos_origem,
             id_servico_jae as id_servico_jae_origem,
             servico_jae as servico_jae_origem,
-            lead(modo_tratado) over (win) as modo_destino,
+            lead(modos) over (win) as modos_destino,
             lead(id_servico_jae) over (win) as id_servico_jae_destino,
             lead(servico_jae) over (win) as servico_jae_destino,
             datetime_transacao as datetime_transacao_origem,
