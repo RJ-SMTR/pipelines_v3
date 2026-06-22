@@ -50,6 +50,7 @@ async def capture__calendario_manual(  # noqa: PLR0913
             env=tasks["env"],
             flow=treatment__planejamento_diario,
             window_fn=get_calendario_materialization_window,
+            flags=["--target", "dev"],
         )
         update_calendario_hash(
             env=tasks["env"],
