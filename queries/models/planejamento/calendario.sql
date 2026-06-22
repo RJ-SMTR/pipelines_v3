@@ -185,7 +185,7 @@ with
         group by 1, 2, 3, 4
     )
 select
-    data,
+    c.data,
     case
         when c.tipo_dia is not null
         then c.tipo_dia
@@ -204,10 +204,10 @@ select
             when c.tipo_os like "%Madonna%"
             then "Madonna"
             when
-                data between date(2025, 05, 03) and date(2025, 05, 04)
+                c.data between date(2025, 05, 03) and date(2025, 05, 04)
                 and c.tipo_os = "Dia Atípico"
             then "Lady Gaga"  -- Processo.Rio MTR-PRO-2025/04520 [Operação Especial "Todo Mundo no Rio" - Lady Gaga]
-            when data = date(2025, 05, 24) and c.tipo_os = "Dia Atípico"
+            when c.data = date(2025, 05, 24) and c.tipo_os = "Dia Atípico"
             then "Marcha para Jesus"  -- [processo] [Operação especial evento "Marcha para Jesus"]
             when c.tipo_os = "Regular"
             then null
@@ -222,4 +222,4 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from service_id_agg c
 join {{ feed_info_gtfs }} i using (feed_start_date)
-left join {{ calendario_manual }} mm on c.data = mm.data
+left join {{ calendario_manual }} mm using (data)
