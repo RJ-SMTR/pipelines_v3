@@ -791,12 +791,13 @@ def run_dbt(  # noqa: PLR0913
         return logs.read()
 
 
-def run_dbt_tests(
+def run_dbt_tests(  # noqa: PLR0913
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
     env: Optional[str] = None,
+    flags: Optional[list[str]] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -807,13 +808,14 @@ def run_dbt_tests(
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
         env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
 
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
     """
 
-    flags = []
+    flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     if dbt_test.exclude is not None:
         flags += ["--exclude", dbt_test.exclude]
     dbt_vars = dbt_test.get_test_vars(
