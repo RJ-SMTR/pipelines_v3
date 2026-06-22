@@ -12,8 +12,15 @@
 
 with
     planilha_source as (
-        select safe.parse_date('%d/%m/%Y', data) as data, tipo_dia, subtipo_dia, tipo_os
+        /* A captura aninha as colunas em `content` (JSON) e mantém uma linha por captura;
+           extraímos os campos e deduplicamos para a captura mais recente por `dia`. */
+        select
+            safe.parse_date('%d/%m/%Y', dia) as data,
+            safe_cast(json_value(content, '$.tipo_dia') as string) as tipo_dia,
+            safe_cast(json_value(content, '$.subtipo_dia') as string) as subtipo_dia,
+            safe_cast(json_value(content, '$.tipo_os') as string) as tipo_os
         from {{ source("source_smtr", "calendario_manual") }}
+        qualify row_number() over (partition by dia order by timestamp_captura desc) = 1
     ),
     planilha as (
         /* A partir da data de corte, o calendário manual vem da planilha (source). */

@@ -16,7 +16,7 @@ from pipelines.common.capture.default_capture.utils import ShouldCapture, Source
 from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 from pipelines.common.utils.redis import get_redis_client
 
-RELEVANT_COLUMNS = ["data", "tipo_dia", "subtipo_dia", "tipo_os", "observacao"]
+RELEVANT_COLUMNS = ["dia", "tipo_dia", "subtipo_dia", "tipo_os", "despacho_observacao"]
 
 
 def get_calendario_redis_key(env: str) -> str:
@@ -35,19 +35,18 @@ def get_calendario_sheet_df() -> pd.DataFrame:
     df = get_google_sheet_xlsx(
         spread_sheet_id=constants.CALENDARIO_MANUAL_SHEET_ID,
         sheet_name=constants.CALENDARIO_MANUAL_SHEET_NAME,
-        rename_mapping=constants.CALENDARIO_MANUAL_RENAME_MAPPING,
     )
 
     missing_columns = set(RELEVANT_COLUMNS) - set(df.columns)
     if missing_columns:
         raise ValueError(f"Colunas ausentes na planilha: {sorted(missing_columns)}")
 
-    df["data"] = pd.to_datetime(df["data"], format="%d/%m/%Y", errors="coerce")
+    df["dia"] = pd.to_datetime(df["dia"], format="%d/%m/%Y", errors="coerce")
     cutover = pd.Timestamp(constants.CALENDARIO_MANUAL_CUTOVER_DATE)
-    df = df[df["data"].notna() & (df["data"] >= cutover)]
-    df = df.sort_values("data").reset_index(drop=True)
+    df = df[df["dia"].notna() & (df["dia"] >= cutover)]
+    df = df.sort_values("dia").reset_index(drop=True)
 
-    duplicated_dates = df.loc[df["data"].duplicated(keep=False), "data"]
+    duplicated_dates = df.loc[df["dia"].duplicated(keep=False), "dia"]
     if not duplicated_dates.empty:
         dates = sorted(duplicated_dates.dt.strftime("%Y-%m-%d").unique())
         raise ValueError(f"Datas duplicadas na planilha: {dates}")
@@ -63,7 +62,6 @@ def create_calendario_manual_extractor(context: SourceCaptureContext):
         spread_sheet_id=constants.CALENDARIO_MANUAL_SHEET_ID,
         sheet_name=constants.CALENDARIO_MANUAL_SHEET_NAME,
         raw_filepath=context.raw_filepath,
-        rename_mapping=constants.CALENDARIO_MANUAL_RENAME_MAPPING,
     )
 
 
@@ -104,7 +102,7 @@ def get_calendario_materialization_window() -> tuple[str, str, dict]:
     """
     df = get_calendario_sheet_df()
     today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
-    max_date = df["data"].max().strftime("%Y-%m-%d") if not df.empty else today
+    max_date = df["dia"].max().strftime("%Y-%m-%d") if not df.empty else today
 
     datetime_start = constants.CALENDARIO_MANUAL_CUTOVER_DATE
     datetime_end = max(today, max_date, datetime_start)
