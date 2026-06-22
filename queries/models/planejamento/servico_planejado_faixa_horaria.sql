@@ -16,6 +16,7 @@
 
 {% set calendario = ref("calendario") %}
 {# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
+{% set gtfs_feeds = [] %}
 {% if execute %}
     {% set gtfs_feeds_query %}
             select distinct concat("'", feed_start_date, "'") as feed_start_date
@@ -24,6 +25,12 @@
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
 {% endif %}
+{% set feed_filter %}
+    {% if gtfs_feeds | length > 0 %}
+        feed_start_date in ({{ gtfs_feeds | join(", ") }})
+    {% else %} 1 = 0
+    {% endif %}
+{% endset %}
 
 with
     os_sppo as (
@@ -31,7 +38,7 @@ with
         from {{ ref("aux_os_sppo_faixa_horaria_sentido_dia") }}
         where
             {{ incremental_filter }}
-            and feed_start_date in ({{ gtfs_feeds | join(", ") }})
+            and {{ feed_filter }}
     ),
     viagens_planejadas as (
         select
@@ -52,7 +59,7 @@ with
         {# from `rj-smtr.planejamento.viagem_planejada` #}
         where
             {{ incremental_filter }}
-            and feed_start_date in ({{ gtfs_feeds | join(", ") }})
+            and {{ feed_filter }}
     ),
     viagens_na_faixa as (
         select
