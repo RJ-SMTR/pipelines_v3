@@ -13,7 +13,7 @@ from pipelines.treatment__cadastro import constants as cadastro_constants
 
 GPS_VALIDADOR_POST_TEST = DBTTest(
     test_select="gps_validador gps_validador_van",
-    exclude="recent_data__datetime_captura__gps_validador",
+    exclude="dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador",
     test_descriptions={
         "gps_validador": {
             "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
