@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: aux_calendario_manual
+    description: >
+      Uma linha por data com alguma modificação manual do calendário operacional. Mantém o
+      histórico das regras aplicadas, não sendo um snapshot do estado atual. Use `data` como
+      chave de join com os modelos de calendário e planejamento; não há exceções de
+      granularidade. Fonte: regras históricas congeladas no próprio modelo antes de var('data_inicio_calendario_sheets')
+      e `source_smtr.calendario_manual` a partir dessa data. Datas sem `feed_start_date`,
+      `tipo_dia`, `subtipo_dia` ou `tipo_os` são excluídas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__aux_calendario_manual
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - data
+    columns:
+      - name: data
+        description: "Data do dia atípico"
+        data_type: date
+        tests:
+          - not_null:
+              name: not_null__data__aux_calendario_manual
+              config:
+                where: "1=1"
+      - name: feed_start_date
+        description: "Data de início do feed GTFS associado (nulo por padrão)"
+        data_type: date
+      - name: tipo_dia
+        description: "Tipo de dia (Domingo, Sabado, Dia Útil, Ponto Facultativo, ...)"
+        data_type: string
+      - name: subtipo_dia
+        description: "Subtipo de dia / rótulo de operação especial (vindo da planilha)"
+        data_type: string
+      - name: tipo_os
+        description: "Tipo de ordem de serviço / operação especial"
+        data_type: string
