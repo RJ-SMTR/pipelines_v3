@@ -296,9 +296,9 @@ async def trigger_materialization(  # noqa: PLR0913
     Args:
         env (str): Prod ou dev.
         flow (Flow): Flow de tratamento a ser materializado (ex.: treatment__planejamento_diario).
-        window_fn (Callable): Task (geralmente um `functools.partial` com os args do pipeline já
-            amarrados) que retorna `(datetime_start, datetime_end, additional_vars)`. Recebe
-            `wait_for` injetado por esta função para ordenar a janela após a captura.
+        window_fn (Callable): Task que recebe `env` e retorna
+            `(datetime_start, datetime_end, additional_vars)`. Recebe também `wait_for` injetado
+            por esta função para ordenar a janela após a captura.
         flags (Optional[list[str]]): Flags do dbt repassadas ao flow de tratamento.
         wait_for (Optional[list]): Tasks que devem concluir antes de calcular a janela e disparar
             a materialização (tipicamente `[tasks["upload_source"]]`).
@@ -310,7 +310,10 @@ async def trigger_materialization(  # noqa: PLR0913
     Returns:
         list[FlowRun]: FlowRuns disparados.
     """
-    datetime_start, datetime_end, additional_vars = window_fn(wait_for=wait_for)
+    datetime_start, datetime_end, additional_vars = window_fn(
+        env=env,
+        wait_for=wait_for,
+    )
     return await run_subflow(
         env=env,
         flow=flow,
