@@ -5,7 +5,9 @@ with
         select *
         from {{ ref("staging_stu_veiculo_ativo") }}
         qualify
-            row_number() over (partition by placa, tptran, tpperm, termo order by data desc)
+            row_number() over (
+                partition by placa, tptran, tpperm, termo order by data desc
+            )
             = 1
     ),
 
@@ -27,7 +29,11 @@ with
     vistoria as (
         select *
         from {{ ref("staging_stu_vistoria") }}
-        qualify row_number() over (partition by placa, tptran, tpperm, termo order by data_vistoria desc) = 1
+        qualify
+            row_number() over (
+                partition by placa, tptran, tpperm, termo order by data_vistoria desc
+            )
+            = 1
     ),
 
     veiculo as (
@@ -39,7 +45,11 @@ with
     planta as (
         select *
         from {{ ref("staging_stu_planta") }}
-        qualify row_number() over (partition by id_planta,  order by data desc) = 1
+        qualify
+            row_number() over (
+                partition by id_planta, id_tipo_veiculo order by data desc
+            )
+            = 1
     ),
 
     mod_carroceria as (
@@ -101,15 +111,19 @@ select
     'Licenciado' as status,
     date(va.datetime_ativo) as data_inicio_vinculo,
     case
-        when coalesce(va.situacao, vi.situacao) = 'N' then 'Normal'
-        when coalesce(va.situacao, vi.situacao) = 'S' then 'Suspenso'
-        when coalesce(va.situacao, vi.situacao) = 'C' then 'Cancelado'
+        when coalesce(va.situacao, vi.situacao) = 'N'
+        then 'Normal'
+        when coalesce(va.situacao, vi.situacao) = 'S'
+        then 'Suspenso'
+        when coalesce(va.situacao, vi.situacao) = 'C'
+        then 'Cancelado'
         else coalesce(va.situacao, vi.situacao)
     end as ultima_situacao,
     extract(year from vi.data_vistoria) as ano_ultima_vistoria
 from vistoria vi
-left join veiculo_ativo va
-on va.tptran = vi.tptran
+left join
+    veiculo_ativo va
+    on va.tptran = vi.tptran
     and va.tpperm = vi.tpperm
     and va.termo = vi.termo
     and va.placa = vi.placa
@@ -120,8 +134,8 @@ left join
     and coalesce(vi.termo, va.termo) = cast(p.termo as string)
 left join tipo_transporte t on coalesce(vi.tptran, va.tptran) = t.id_tipo_transporte
 left join veiculo ve on coalesce(vi.placa, va.placa) = ve.placa
-left join planta pl on ve.id_planta = pl.id_planta
-and ve.id_tipo_veiculo = pl.id_tipo_veiculo
+left join
+    planta pl on ve.id_planta = pl.id_planta and ve.id_tipo_veiculo = pl.id_tipo_veiculo
 left join mod_carroceria mc on pl.id_modelo_carroceria = mc.id_modelo_carroceria
 left join mod_chassi mch on pl.id_modelo_chassi = mch.id_modelo_chassi
 left join combustivel cb on ve.id_combustivel = cb.id_combustivel
