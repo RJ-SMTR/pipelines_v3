@@ -1,5 +1,16 @@
 # Changelog - capture__gtfs
 
+## [1.2.0] - 2026-06-23
+
+### Adicionado
+
+- Dispara a materialização do `treatment__planejamento_diario` após a captura e materialização do GTFS, usando janela derivada da vigência do feed capturado. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Adiciona pré-materialização com `--empty` para relações dbt ausentes em ambiente dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+### Alterado
+
+- Prefixa mensagens de Discord do GTFS com `[DEV]` em execuções de desenvolvimento. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
 ## [1.1.0] - 2026-05-28
 
 ### Adicionado
