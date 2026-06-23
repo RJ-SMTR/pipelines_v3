@@ -173,7 +173,8 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
     if dbt_success:
         task_send_discord_message(
             message=(
-                f"{dev_prefix}Captura e materialização do GTFS {data_versao_gtfs_final} finalizada com sucesso!"
+                f"{dev_prefix}Captura e materialização do GTFS {data_versao_gtfs_final} "
+                "finalizada com sucesso!"
             ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
@@ -193,13 +194,6 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             webhook_key=constants.GTFS_DISCORD_WEBHOOK,
             raise_check_error=False,
         )
-        if data_index is not None:
-            update_last_captured_os(
-                dataset_id=constants.GTFS_DATASET_ID,
-                data_index=data_index,
-                mode=env,
-            )
-
         datetime_start, datetime_end, additional_vars = get_planejamento_materialization_window(
             data_versao_gtfs=data_versao_gtfs_final,
             env=env,
@@ -219,9 +213,17 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             ],
             wait_for_completion=False,
         )
+        if data_index is not None:
+            update_last_captured_os(
+                dataset_id=constants.GTFS_DATASET_ID,
+                data_index=data_index,
+                mode=env,
+            )
     else:
         task_send_discord_message(
-            message=f"{dev_prefix}Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",
+            message=(
+                f"{dev_prefix}Falha na materialização dos dados do GTFS {data_versao_gtfs_final}"
+            ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
         raise RuntimeError(f"DBT run falhou para GTFS {data_versao_gtfs_final}")

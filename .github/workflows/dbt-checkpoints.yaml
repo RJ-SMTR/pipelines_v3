@@ -7,12 +7,14 @@ on:
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
+      - "queries/**/*.yaml"
   push:
     branches:
       - master
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
+      - "queries/**/*.yaml"
 
 jobs:
   check-files:
