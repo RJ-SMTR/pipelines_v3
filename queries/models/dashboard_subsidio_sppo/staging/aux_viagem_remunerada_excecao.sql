@@ -53,7 +53,6 @@ with
                             "LECD133",
                             "LECD134",
                             "LECD136",
-                            "LECD137",
                             "LECD138"
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
