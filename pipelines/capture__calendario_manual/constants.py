@@ -22,12 +22,12 @@ CALENDARIO_MANUAL_COLUMNS = [
     "despacho_observacao",
 ]
 
-CALENDARIO_MANUAL_CUTOVER_DATE = "2026-06-01"
+CALENDARIO_MANUAL_CUTOVER_DATE = "2026-07-01"
 
 CALENDARIO_MANUAL_SOURCE = SourceTable(
     source_name=CALENDARIO_MANUAL_SOURCE_NAME,
     table_id=CALENDARIO_MANUAL_TABLE_ID,
-    first_timestamp=datetime(2026, 6, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    first_timestamp=datetime(2026, 7, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__calendario_manual",
     partition_date_only=True,
     max_recaptures=5,
