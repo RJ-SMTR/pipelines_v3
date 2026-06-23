@@ -544,7 +544,7 @@ selectors:
           - method: fqn
             value: staging_temperatura_inmet
           - method: fqn
-            value: temperatura_inmet 
+            value: temperatura_inmet
         - method: fqn
           value: temperatura
         - method: fqn
