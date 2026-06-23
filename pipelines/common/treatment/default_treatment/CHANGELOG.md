@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.3.1] - 2026-06-23
+
+### Alterado
+
+- Propaga `flags` para testes dbt pré e pós-materialização. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
 ## [1.3.0] - 2026-06-02
 
 ### Adicionado

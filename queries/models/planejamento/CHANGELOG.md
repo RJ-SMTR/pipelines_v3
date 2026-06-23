@@ -1,5 +1,16 @@
 # Changelog - planejamento
 
+## [1.8.0] - 2026-06-23
+
+### Adicionado
+
+- Adiciona leitura do calendário manual pela tabela `source_smtr.calendario_manual` a partir de `data_inicio_calendario_sheets`, preservando o histórico hardcoded antes da data de corte. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+- Adiciona a coluna `subtipo_dia` ao calendário manual e passa a priorizá-la no modelo `calendario`. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+### Alterado
+
+- Ajusta filtros de `servico_planejado_faixa_horaria` para não materializar dados quando não há feeds GTFS no intervalo incremental. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
 ## [1.7.4] - 2026-06-22
 
 ### Alterado
