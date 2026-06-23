@@ -3,6 +3,7 @@
 
 from datetime import datetime
 from functools import partial
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 from prefect import task
@@ -83,17 +84,19 @@ def update_calendario_hashes_by_date(env: str, hashes_by_date: dict[str, str]) -
 
 
 @task(cache_policy=NO_CACHE)
-def get_calendario_materialization_window(env: str) -> tuple[str, str, dict]:
+def get_calendario_materialization_window(env: str) -> Optional[tuple[str, str, dict]]:
     """
     Calcula a janela de materialização a partir das datas alteradas.
 
-    Sem estado anterior de hashes por data, usa a janela conservadora para inicializar o estado.
+    Sem estado anterior de hashes por data, usa a data atual como piso da janela para não
+    rematerializar histórico.
 
     Args:
         env: Ambiente usado para recuperar o estado anterior no Redis.
 
     Returns:
-        Data inicial, data final e variáveis adicionais da materialização.
+        Data inicial, data final e variáveis adicionais da materialização. Retorna ``None``
+        quando só há datas alteradas anteriores à data atual.
     """
     df = get_calendario_sheet_df()
     hashes_by_date = get_calendario_hashes_by_date(df)
@@ -106,11 +109,16 @@ def get_calendario_materialization_window(env: str) -> tuple[str, str, dict]:
 
     today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
     if changed_dates:
-        datetime_start = min(changed_dates)
-        datetime_end = max(today, *changed_dates)
+        future_changed_dates = [date for date in changed_dates if date >= today]
+        if not future_changed_dates:
+            print("Materialização não disparada: sem datas futuras alteradas")
+            return None
+
+        datetime_start = min(future_changed_dates)
+        datetime_end = max(today, *future_changed_dates)
     else:
         max_date = df["dia"].max().strftime("%Y-%m-%d") if not df.empty else today
-        datetime_start = constants.CALENDARIO_MANUAL_CUTOVER_DATE
+        datetime_start = max(today, constants.CALENDARIO_MANUAL_CUTOVER_DATE)
         datetime_end = max(today, max_date, datetime_start)
 
     print(f"Janela de materialização: {datetime_start} → {datetime_end}")
