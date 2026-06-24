@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.6] - 2026-06-24
+
+### Alterado
+
+- Amplia para 3h a tolerância dos testes hourly de freshness de `view_gps_onibus` e `gps_validador`
+
 ## [1.1.5] - 2026-06-02
 
 ### Adicionado

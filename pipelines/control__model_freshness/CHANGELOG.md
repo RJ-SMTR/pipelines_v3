@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-06-24
+
+### Alterado
+
+- Altera para o minuto 30 o agendamento hourly do flow em produção
+
 ## [1.1.1] - 2026-06-12
 
 ### Adicionado
