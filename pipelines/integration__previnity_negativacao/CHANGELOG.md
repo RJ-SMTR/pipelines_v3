@@ -1,5 +1,11 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.2.1] - 2026-06-23
+
+### Alterado
+
+- Passa o ambiente resolvido para `setup_dbt_queries`, mantendo o checkout de `queries/` consistente com a regra de deploy de dev/prod. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
 ## [1.2.0] - 2026-05-27
 
 ### Adicionado

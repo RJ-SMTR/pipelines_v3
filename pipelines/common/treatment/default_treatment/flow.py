@@ -88,6 +88,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["setup_dbt_queries"] = setup_dbt_queries(
+        env=tasks["env"],
         wait_for=[tasks["setup_enviroment"]],
     )
 
