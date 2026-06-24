@@ -67,6 +67,7 @@ with
             id_veiculo,
             servico_gps,
             servico,
+            consorcio,
             case
                 when r.route_type = '200'
                 then 'Ônibus Executivo'

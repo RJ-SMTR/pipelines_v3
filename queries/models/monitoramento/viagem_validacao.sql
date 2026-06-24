@@ -191,6 +191,7 @@ with
         select
             data,
             servico,
+            consorcio,
             sentido,
             extensao,
             quilometragem,
@@ -210,6 +211,7 @@ with
         select distinct
             sp.data,
             sp.servico,
+            sp.consorcio,
             sp.sentido,
             sp.extensao,
             sp.quilometragem,
@@ -226,6 +228,7 @@ with
     servicos_planejados_os as (
         select
             spg.*,
+            spu.consorcio,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
@@ -345,6 +348,7 @@ with
             vm.route_id,
             vm.shape_id,
             vm.servico,
+            vm.consorcio,
             vm.sentido,
             vm.distancia_planejada,
             vm.velocidade_media,
@@ -471,6 +475,7 @@ select
     route_id,
     shape_id,
     servico,
+    consorcio,
     sentido,
     distancia_planejada,
     velocidade_media,
