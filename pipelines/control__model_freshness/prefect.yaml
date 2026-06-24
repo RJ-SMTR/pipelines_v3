@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/control__model_freshness/flow.py:control__model_freshness
     schedules:
-      - cron: "10 * * * *"
+      - cron: "30 * * * *"
         timezone: "America/Sao_Paulo"
         parameters:
           test_select: "tag:hourly"
