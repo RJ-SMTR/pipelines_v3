@@ -18,6 +18,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     dbt_test_notify_discord,
     run_dbt,
     run_dbt_deps,
+    run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
@@ -195,13 +196,12 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
-        if context.env == "dev":
-            run_dbt(
-                dbt_obj=context.selector,
-                dbt_vars=context.dbt_vars,
-                flags=[*(flags or []), "--empty"],
-                env=context.env,
-            )
+        run_dbt_empty_for_missing_relations(
+            dbt_obj=context.selector,
+            dbt_vars=context.dbt_vars,
+            flags=flags,
+            env=context.env,
+        )
         run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts
@@ -312,16 +312,19 @@ def save_materialization_datetime_redis(
 
 
 @task(cache_policy=NO_CACHE)
-def setup_dbt_queries() -> Path:
+def setup_dbt_queries(env: str) -> Path:
     """
     Clona a pasta queries/ do repositório GitHub via sparse-checkout.
 
     Se estiver rodando localmente, retorna o caminho existente sem clonar.
 
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
+
     Returns:
         Path: Caminho para a pasta queries/.
     """
-    return clone_queries_from_github()
+    return clone_queries_from_github(env=env)
 
 
 @task(cache_policy=NO_CACHE)

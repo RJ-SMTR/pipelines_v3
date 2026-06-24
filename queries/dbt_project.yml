@@ -174,7 +174,7 @@ vars:
   DATA_SUBSIDIO_V22_INICIO: "2026-03-01"
   # Processo.SEI 006400.000323/2026-14 - Temperatura máxima e ajuste de horário no INMET
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
- # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
+  # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
@@ -276,10 +276,10 @@ vars:
   ### Viagens 2.0 ###
 
   limite_reducao_area_buffer: 0.5
-  limite_validacao_inicio_fim_minutos: 10
+  limite_validacao_inicio_fim_minutos: 30
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
-  buffer_validacao_inicio_fim_metros: 500
+  buffer_validacao_inicio_fim_metros: 100
   buffer_tunel_metros: 50
   parametro_validacao: 0.9
   comprimento_shape: 1000

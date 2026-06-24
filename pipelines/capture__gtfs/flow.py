@@ -17,6 +17,7 @@ from pipelines.capture__gtfs.tasks import (
     filter_gtfs_table_ids,
     get_last_capture_os,
     get_os_info,
+    get_planejamento_materialization_window,
     get_raw_gtfs_files,
     run_dbt_gtfs,
     run_dbt_tests_gtfs,
@@ -29,6 +30,7 @@ from pipelines.common.tasks import (
     get_run_env,
     get_scheduled_timestamp,
     initialize_sentry,
+    run_subflow,
     setup_environment,
     task_send_discord_message,
 )
@@ -40,10 +42,11 @@ from pipelines.common.treatment.default_treatment.tasks import (
 from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.prefect import flow, rename_flow_run
+from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
 
 @flow(log_prints=True, flow_run_name=rename_flow_run)
-def capture__gtfs(  # noqa: PLR0913, PLR0915
+async def capture__gtfs(  # noqa: PLR0913, PLR0915
     env: Optional[str] = None,
     upload_from_gcs: bool = False,
     materialize_only: bool = False,
@@ -54,10 +57,11 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
     """Flow de captura e tratamento dos dados do GTFS."""
     deployment_name = runtime.deployment.name
     env = get_run_env(env=env, deployment_name=deployment_name)
+    dev_prefix = "[DEV] " if env == "dev" else ""
     setup_env = setup_environment(env=env)
     initialize_sentry(env=env)
     timestamp = get_scheduled_timestamp()
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     last_captured_os = None
@@ -83,7 +87,7 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
         data_versao_gtfs_final = data_versao_gtfs_task
 
         task_send_discord_message(
-            message=f"Captura do GTFS {data_versao_gtfs_final} iniciada",
+            message=f"{dev_prefix}Captura do GTFS {data_versao_gtfs_final} iniciada",
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
 
@@ -146,7 +150,7 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
 
         if upload_failed:
             task_send_discord_message(
-                message=f"Falha na subida dos dados do GTFS {data_versao_gtfs_final}",
+                message=f"{dev_prefix}Falha na subida dos dados do GTFS {data_versao_gtfs_final}",
                 webhook=constants.GTFS_DISCORD_WEBHOOK,
             )
             raise RuntimeError(
@@ -169,7 +173,8 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
     if dbt_success:
         task_send_discord_message(
             message=(
-                f"Captura e materialização do GTFS {data_versao_gtfs_final} finalizada com sucesso!"
+                f"{dev_prefix}Captura e materialização do GTFS {data_versao_gtfs_final} "
+                "finalizada com sucesso!"
             ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
@@ -189,6 +194,25 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
             webhook_key=constants.GTFS_DISCORD_WEBHOOK,
             raise_check_error=False,
         )
+        datetime_start, datetime_end, additional_vars = get_planejamento_materialization_window(
+            data_versao_gtfs=data_versao_gtfs_final,
+            env=env,
+            flags=flags,
+        )
+        await run_subflow(
+            env=env,
+            flow=treatment__planejamento_diario,
+            parameters=[
+                {
+                    "env": env,
+                    "datetime_start": datetime_start,
+                    "datetime_end": datetime_end,
+                    "flags": flags,
+                    "additional_vars": additional_vars,
+                }
+            ],
+            wait_for_completion=False,
+        )
         if data_index is not None:
             update_last_captured_os(
                 dataset_id=constants.GTFS_DATASET_ID,
@@ -197,7 +221,9 @@ def capture__gtfs(  # noqa: PLR0913, PLR0915
             )
     else:
         task_send_discord_message(
-            message=f"Falha na materialização dos dados do GTFS {data_versao_gtfs_final}",
+            message=(
+                f"{dev_prefix}Falha na materialização dos dados do GTFS {data_versao_gtfs_final}"
+            ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
         raise RuntimeError(f"DBT run falhou para GTFS {data_versao_gtfs_final}")
