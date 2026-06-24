@@ -1,6 +1,6 @@
 # Changelog - planejamento
 
-## [1.8.0] - 2026-06-23
+## [1.8.1] - 2026-06-24
 
 ### Adicionado
 
@@ -10,6 +10,11 @@
 ### Alterado
 
 - Ajusta filtros de `servico_planejado_faixa_horaria` para não materializar dados quando não há feeds GTFS no intervalo incremental. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+## [1.7.5] - 2026-06-23
+
+### Alterado
+
 - Estende a materialização incremental do modelo `calendario` até o fim do mês seguinte por padrão, mantendo materialização exata apenas quando `materializar_periodo_exato=true`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
 - Estende a janela de `viagem_planejada_planejamento_dia` até D+2. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
 
