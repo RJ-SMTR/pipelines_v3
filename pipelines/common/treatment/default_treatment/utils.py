@@ -632,6 +632,7 @@ def run_dbt_empty_for_missing_relations(
     if not selection_args:
         return
 
+    flags = [flag for flag in (flags or []) if flag != "--full-refresh"]
     has_target_flag = "--target" in flags
     target = flags[flags.index("--target") + 1] if has_target_flag else get_dbt_target(env)
     if target == "prod":
