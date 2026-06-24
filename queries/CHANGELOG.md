@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Amplia para 3h a tolerância dos testes hourly de freshness de `view_gps_onibus` e `gps_validador`
+- Amplia para 3h a tolerância dos testes hourly de freshness de `view_gps_onibus` e `gps_validador` (https://github.com/RJ-SMTR/pipelines_v3/pull/310)
 
 ## [1.1.5] - 2026-06-02
 

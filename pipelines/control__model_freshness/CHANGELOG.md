@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera para o minuto 30 o agendamento hourly do flow em produção
+- Altera para o minuto 30 o agendamento hourly do flow em produção (https://github.com/RJ-SMTR/pipelines_v3/pull/310)
 
 ## [1.1.1] - 2026-06-12
 
