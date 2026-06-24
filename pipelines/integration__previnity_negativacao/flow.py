@@ -62,7 +62,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
 
     # initialize sentry for error capturing
     initialize_sentry(env)
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])

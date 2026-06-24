@@ -164,10 +164,11 @@ models:
           description: "Balanço da receita aferida e esperada por servico e dia para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - data
-            - servico
           name: dbt_utils.unique_combination_of_columns__data_servico__balanco_servico_dia
+          arguments:
+            combination_of_columns:
+              - data
+              - servico
     columns:
       - name: data
         description: "{{ doc('data') }}"

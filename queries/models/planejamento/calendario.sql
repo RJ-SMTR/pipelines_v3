@@ -15,6 +15,14 @@
 {% set calendar_dates_gtfs = ref("calendar_dates_gtfs") %}
 {% set calendario_manual = ref("aux_calendario_manual") %}
 
+{% set date_range_end_extended %}
+    {% if var("materializar_periodo_exato", false) %}
+        date("{{ var('date_range_end') }}")
+    {% else %}
+        last_day(date_add(date("{{ var('date_range_end') }}"), interval 1 month))
+    {% endif %}
+{% endset %}
+
 {# {% set feed_info_gtfs = "rj-smtr.gtfs.feed_info" %} #}
 {# {% set calendar_gtfs = "rj-smtr.gtfs.calendar" %} #}
 {# {% set calendar_dates_gtfs = "rj-smtr.gtfs.calendar_dates" %} #}
@@ -25,7 +33,7 @@
             select concat("'", feed_start_date, "'") as feed_start_date
             from {{ feed_info_gtfs }}
             where
-                feed_start_date <= date("{{ var('date_range_end') }}")
+                feed_start_date <= {{ date_range_end_extended }}
                 and (feed_end_date IS NULL OR feed_end_date >= date("{{ var('date_range_start') }}"))
 
             union distinct
@@ -34,7 +42,7 @@
             from {{ calendario_manual }}
             where
                 data between date("{{ var('date_range_start') }}")
-                and date("{{ var('date_range_end') }}")
+                and {{ date_range_end_extended }}
                 and feed_start_date is not null
         {% endset %}
 
@@ -58,7 +66,7 @@ with
                 generate_date_array(
                     {% if is_incremental() %}
                         date("{{ var('date_range_start') }}"),
-                        date("{{ var('date_range_end') }}")
+                        {{ date_range_end_extended }}
                     {% else %}date("2024-10-01"), current_date("America/Sao_Paulo")
                     {% endif %}
                 )
@@ -107,9 +115,9 @@ with
         where
             {% if is_incremental() %}
                 cd.feed_start_date in ({{ gtfs_feeds | join(", ") }})
-                and cd.date between date("{{ var('date_range_start') }}") and date(
-                    "{{ var('date_range_end') }}"
-                )
+                and cd.date between date(
+                    "{{ var('date_range_start') }}"
+                ) and {{ date_range_end_extended }}
             {% else %} date <= current_date("America/Sao_Paulo")
             {% endif %}
     ),

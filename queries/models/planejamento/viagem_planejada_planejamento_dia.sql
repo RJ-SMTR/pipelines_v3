@@ -10,16 +10,20 @@
     )
 }}
 
+{% set date_range_end_extended %}
+    date_add(date("{{ var('date_range_end') }}"), interval 2 day)
+{% endset %}
+
 {% set incremental_filter %}
     data between
         date('{{ var("date_range_start") }}')
-        and date('{{ var("date_range_end") }}')
+        and {{ date_range_end_extended }}
 {% endset %}
 
 {% set source_filter %}
     data between
         date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
-        and date('{{ var("date_range_end") }}')
+        and {{ date_range_end_extended }}
 {% endset %}
 
 {% set calendario = ref("calendario") %}
