@@ -1,9 +1,10 @@
 # Changelog
 
-## [1.1.2] - 2026-06-23
+## [1.1.2] - 2026-06-24
 
 ### Alterado
 
+- Altera para o minuto 30 o agendamento hourly do flow em produção (https://github.com/RJ-SMTR/pipelines_v3/pull/310)
 - Passa o ambiente resolvido para `setup_dbt_queries`, mantendo o checkout de `queries/` consistente com a regra de deploy de dev/prod. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
 
 ## [1.1.1] - 2026-06-12
