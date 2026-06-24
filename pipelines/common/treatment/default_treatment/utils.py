@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Optional, Union
@@ -14,6 +15,8 @@ from zoneinfo import ZoneInfo
 import pytz
 import requests
 import yaml
+from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
 from prefect import runtime
 from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
@@ -322,6 +325,21 @@ class DBTSelector:
             redis_client.set(redis_key, content)
 
 
+def get_repo_version() -> str:
+    """
+    Retorna o SHA do último commit do repositório no GitHub.
+
+    Returns:
+        str: SHA do último commit do repositório.
+    """
+    response = requests.get(
+        f"{constants.REPO_URL}/commits",
+        timeout=60,
+    )
+    response.raise_for_status()
+    return response.json()[0]["sha"]
+
+
 class DBTSelectorMaterializationContext:
     def __init__(  # noqa: PLR0913
         self,
@@ -460,22 +478,6 @@ class DBTSelectorMaterializationContext:
 
         return datetime_end
 
-    def get_repo_version(self) -> str:
-        """
-        Retorna o SHA do último commit do repositório no GITHUB
-
-        Returns:
-            str: SHA do último commit do repositório no GITHUB
-        """
-        response = requests.get(
-            f"{constants.REPO_URL}/commits",
-            timeout=60,
-        )
-
-        response.raise_for_status()
-
-        return response.json()[0]["sha"]
-
     def get_dbt_vars(
         self,
         datetime_start: datetime,
@@ -500,7 +502,7 @@ class DBTSelectorMaterializationContext:
         dbt_vars = {
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
-            "version": self.get_repo_version(),
+            "version": get_repo_version(),
             "start_date": datetime_start.strftime("%Y-%m-%d"),
             "end_date": datetime_end.strftime("%Y-%m-%d"),
         }
@@ -524,6 +526,180 @@ def get_dbt_target(env: str) -> str:
     if env == "prod":
         return "prod"
     return "dev" if is_running_locally() else "hmg"
+
+
+def get_dbt_paths() -> tuple[Path, Path, Path]:
+    """
+    Resolve os diretórios padrão do projeto dbt.
+
+    Returns:
+        tuple[Path, Path, Path]: ``project_dir`` (pasta ``queries``), ``profiles_dir``
+        (``queries/dev`` localmente, ``queries`` em deploy) e ``target_path``
+        (``queries/target``).
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    target_path = project_dir / "target"
+    return project_dir, profiles_dir, target_path
+
+
+def get_dbt_selection_args(
+    dbt_obj: Optional[DBTSelector],
+    dbt_command: Optional[Union[str, list[str]]],
+) -> list[str]:
+    """
+    Extrai os argumentos de seleção dbt (``--select``/``--exclude``/``--selector``).
+
+    Reutiliza a seleção da materialização normal para reaproveitá-la no ``dbt ls``.
+
+    Args:
+        dbt_obj (Optional[DBTSelector]): Selector usado quando a materialização roda via objeto.
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado; quando for uma lista
+            iniciada por ``run``, os argumentos após ``run`` são a seleção.
+
+    Returns:
+        list[str]: Argumentos de seleção, ou lista vazia quando não há seleção aplicável.
+    """
+    if isinstance(dbt_command, list) and dbt_command and dbt_command[0] == "run":
+        return dbt_command[1:]
+    if isinstance(dbt_obj, DBTSelector):
+        return ["--selector", dbt_obj.name]
+    return []
+
+
+def get_missing_dbt_relations(nodes: list[dict]) -> list[dict]:
+    """
+    Filtra os nós dbt cuja relação ainda não existe no BigQuery.
+
+    Considera apenas materializações que geram relação (incremental, materialized_view,
+    table, view) e consulta as tabelas existentes por dataset (``database.schema``),
+    comparando pelo ``alias`` de cada nó.
+
+    Args:
+        nodes (list[dict]): Nós retornados por ``dbt ls --output json`` (com ``database``,
+            ``schema``, ``alias`` e ``config``).
+
+    Returns:
+        list[dict]: Subconjunto de ``nodes`` cujas relações não existem no target.
+    """
+    relation_nodes = [
+        node
+        for node in nodes
+        if node.get("config", {}).get("materialized")
+        in {"incremental", "materialized_view", "table", "view"}
+    ]
+    nodes_by_dataset = defaultdict(list)
+    for node in relation_nodes:
+        nodes_by_dataset[(node["database"], node["schema"])].append(node)
+
+    missing_nodes = []
+    for (database, schema), dataset_nodes in nodes_by_dataset.items():
+        client = bigquery.Client(project=database)
+        try:
+            existing_relations = {
+                table.table_id for table in client.list_tables(f"{database}.{schema}")
+            }
+        except NotFound:
+            existing_relations = set()
+
+        missing_nodes.extend(
+            node for node in dataset_nodes if node["alias"] not in existing_relations
+        )
+
+    return missing_nodes
+
+
+def run_dbt_empty_for_missing_relations(
+    dbt_obj: Optional[DBTSelector] = None,
+    dbt_command: Optional[list[str]] = None,
+    dbt_vars: Optional[dict] = None,
+    flags: Optional[list[str]] = None,
+    env: Optional[str] = None,
+) -> None:
+    """
+    Cria relações dbt ausentes com ``--empty`` antes da materialização normal.
+
+    O ``--empty`` é executado somente para modelos selecionados cuja materialização
+    gera uma relação (incremental, table ou view) e que ainda não existem no target.
+    Relações existentes não são executadas, evitando que lógica incremental consulte
+    entradas vazias durante o pre-run.
+    """
+    if env != "dev":
+        return
+
+    selection_args = get_dbt_selection_args(dbt_obj=dbt_obj, dbt_command=dbt_command)
+    if not selection_args:
+        return
+
+    flags = [flag for flag in (flags or []) if flag != "--full-refresh"]
+    has_target_flag = "--target" in flags
+    target = flags[flags.index("--target") + 1] if has_target_flag else get_dbt_target(env)
+    if target == "prod":
+        return
+
+    project_dir, profiles_dir, target_path = get_dbt_paths()
+
+    dbt_vars = dbt_vars or {}
+    dbt_vars["flow_name"] = runtime.flow_run.flow_name
+    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
+
+    invoke = [
+        "ls",
+        *selection_args,
+        "--resource-type",
+        "model",
+        "--output",
+        "json",
+        "--output-keys",
+        "unique_id",
+        "fqn",
+        "database",
+        "schema",
+        "alias",
+        "config",
+        "--vars",
+        vars_yaml,
+    ]
+    if not has_target_flag:
+        invoke.extend(["--target", target])
+    invoke.extend(flags)
+
+    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
+    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
+    os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
+
+    result = PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+            target_path=target_path,
+        ),
+        raise_on_failure=False,
+        _disable_callbacks=True,  # suprime o print de cada nó JSON no stdout
+    ).invoke(invoke)
+    if not result.success:
+        raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
+
+    nodes = [json.loads(line) for line in result.result]
+    missing_nodes = get_missing_dbt_relations(nodes)
+
+    if not missing_nodes:
+        print("Nenhuma relação dbt ausente encontrada. Pulando pre-run com --empty.")
+        return
+
+    missing_selectors = [".".join(node["fqn"]) for node in missing_nodes]
+    missing_relations = [
+        f"{node['database']}.{node['schema']}.{node['alias']}" for node in missing_nodes
+    ]
+    print(f"Relações dbt ausentes no target {target}: {', '.join(missing_relations)}")
+    run_dbt(
+        dbt_command=["run", "--select", *missing_selectors],
+        dbt_vars=dbt_vars,
+        flags=[*flags, "--empty"],
+        env=env,
+    )
 
 
 def run_dbt(  # noqa: PLR0913
@@ -552,8 +728,7 @@ def run_dbt(  # noqa: PLR0913
     Returns:
         str: Conteúdo do arquivo de log do DBT.
     """
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
+    project_dir, profiles_dir, target_path = get_dbt_paths()
     flags = flags or []
     has_target_flag = "--target" in flags
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
@@ -567,13 +742,6 @@ def run_dbt(  # noqa: PLR0913
         "--log-format",
         "json",
     ]
-    if is_running_locally():
-        profiles_dir = project_dir / "dev"
-    else:
-        profiles_dir = project_dir
-
-    target_path = project_dir / "target"
-
     invoke = []
     if isinstance(dbt_command, list):
         invoke = dbt_command
@@ -906,11 +1074,47 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         raise DBTTestFailedError()
 
 
-def clone_queries_from_github() -> Path:
+def get_deployment_commit_sha() -> Optional[str]:
+    """
+    Resolve o SHA completo do commit que gerou o deployment em execução.
+
+    Usa ``runtime.deployment.version`` (que, por convenção dos ``prefect.yaml``, termina
+    no short hash do commit do build) e resolve para o SHA completo via API pública do
+    GitHub.
+
+    Returns:
+        Optional[str]: SHA completo do commit do deploy, ou None se não houver deployment
+        em contexto ou se a resolução falhar (cai no comportamento padrão de clonar a
+        branch default).
+    """
+    try:
+        version = runtime.deployment.version
+    except AttributeError:
+        version = None
+    if not version:
+        return None
+
+    short_sha = version.rsplit("-", 1)[-1]
+    try:
+        response = requests.get(f"{constants.REPO_URL}/commits/{short_sha}", timeout=60)
+        response.raise_for_status()
+        return response.json()["sha"]
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        print(f"Não foi possível resolver o SHA do deployment '{version}': {exc}")
+        return None
+
+
+def clone_queries_from_github(env: str) -> Path:
     """
     Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
 
-    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em deploy
+    de dev, fixa o ``queries/`` no commit que gerou o deployment (mesmo código da
+    imagem) quando o SHA é resolvível. Em prod, usa a versão mais recente da branch
+    default do repositório, permitindo atualizar queries sem redeploy dos flows.
+
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
 
     Returns:
         Path: Caminho para a pasta queries/ no projeto.
@@ -931,6 +1135,7 @@ def clone_queries_from_github() -> Path:
     repo_url = (
         f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
     )
+    commit_sha = get_deployment_commit_sha() if env == "dev" else None
     print(f"Clonando queries/ de {repo_url}...")
     with tempfile.TemporaryDirectory() as tmpdir:
         subprocess.run(
@@ -953,7 +1158,16 @@ def clone_queries_from_github() -> Path:
         subprocess.run(
             [git_bin, "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True, timeout=30
         )
-        subprocess.run([git_bin, "checkout"], cwd=tmpdir, check=True, timeout=60)
+        if commit_sha:
+            print(f"Fixando queries/ no commit do deploy: {commit_sha}")
+            subprocess.run(
+                [git_bin, "fetch", "--depth", "1", "--filter=blob:none", "origin", commit_sha],
+                cwd=tmpdir,
+                check=True,
+                timeout=120,
+            )
+        checkout_cmd = [git_bin, "checkout", commit_sha or "HEAD"]
+        subprocess.run(checkout_cmd, cwd=tmpdir, check=True, timeout=60)
         if queries_path.exists():
             shutil.rmtree(queries_path)
         shutil.copytree(Path(tmpdir) / "queries", queries_path)
