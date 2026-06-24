@@ -47,7 +47,7 @@ def integration__upload_transacao_cct(  # noqa: PLR0913
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env, wait_for=[sentry])
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp()

@@ -50,7 +50,7 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env)
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     install_dbt_packages(wait_for=[queries])
 
     dbt_test = DBTTest(
