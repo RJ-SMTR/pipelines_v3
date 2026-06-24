@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import contextlib
 import inspect
-import io
 import json
 import os
 import re
@@ -634,7 +632,6 @@ def run_dbt_empty_for_missing_relations(
     if not selection_args:
         return
 
-    flags = [flag for flag in (flags or []) if flag != "--empty"]
     has_target_flag = "--target" in flags
     target = flags[flags.index("--target") + 1] if has_target_flag else get_dbt_target(env)
     if target == "prod":
@@ -642,9 +639,9 @@ def run_dbt_empty_for_missing_relations(
 
     project_dir, profiles_dir, target_path = get_dbt_paths()
 
-    final_dbt_vars = dict(dbt_vars or {})
-    final_dbt_vars["flow_name"] = runtime.flow_run.flow_name
-    vars_yaml = yaml.safe_dump(final_dbt_vars, default_flow_style=True)
+    dbt_vars = dbt_vars or {}
+    dbt_vars["flow_name"] = runtime.flow_run.flow_name
+    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
 
     invoke = [
         "ls",
@@ -672,18 +669,15 @@ def run_dbt_empty_for_missing_relations(
     os.environ["DBT_TARGET_PATH"] = str(target_path)
     os.environ.setdefault("DBT_USER", "prefect")
 
-    # O `dbt ls` imprime cada nó (JSON) no stdout; lemos de result.result, então
-    # suprimimos esse output para não poluir os logs do flow (log_prints=True).
-    with contextlib.redirect_stdout(io.StringIO()):
-        result = PrefectDbtRunner(
-            settings=PrefectDbtSettings(
-                project_dir=project_dir,
-                profiles_dir=profiles_dir,
-                target_path=target_path,
-            ),
-            raise_on_failure=False,
-            _disable_callbacks=True,
-        ).invoke(invoke)
+    result = PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+            target_path=target_path,
+        ),
+        raise_on_failure=False,
+        _disable_callbacks=True,  # suprime o print de cada nó JSON no stdout
+    ).invoke(invoke)
     if not result.success:
         raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
 
