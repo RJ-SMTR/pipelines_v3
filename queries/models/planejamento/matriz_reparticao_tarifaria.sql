@@ -51,7 +51,7 @@ with
             / 100 as porcentagem_quarta_perna,
             cast(tempo_integracao_minutos as float64) as tempo_integracao_minutos,
             tipo_bilhete_unico
-        from {{ source("source_smtr_dev", "matriz_reparticao_tarifaria") }}
+        from {{ source("source_smtr", "matriz_reparticao_tarifaria") }}
     ),
     matriz as (
         select

@@ -98,7 +98,7 @@ with
             tipo_integracao,
             tipo_bilhete_unico,
             cast(indicador_integracao as bool) as indicador_integracao
-        from {{ source("source_smtr_dev", "matriz_integracao_excecao") }}
+        from {{ source("source_smtr", "matriz_integracao_excecao") }}
     ),
     integracoes_regulares as (
         select
