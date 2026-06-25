@@ -8,6 +8,7 @@ Lê a aba "Dias Atípicos" da planilha de planejamento e, quando há alteração
 Common: 2026-06-19
 """
 
+from functools import partial
 from typing import Optional
 
 from pipelines.capture__calendario_manual import constants
@@ -46,12 +47,16 @@ async def capture__calendario_manual(  # noqa: PLR0913
     )
 
     if tasks["should_capture"]:
+        payload = tasks["should_capture_result"].payload
         await trigger_materialization(
             env=tasks["env"],
             flow=treatment__planejamento_diario,
-            window_fn=get_calendario_materialization_window,
+            window_fn=partial(
+                get_calendario_materialization_window,
+                changed_dates=payload["changed_dates"],
+            ),
         )
         update_calendario_hashes_by_date(
             env=tasks["env"],
-            hashes_by_date=tasks["should_capture_result"].metadata["hashes_by_date"],
+            hashes_by_date=payload["hashes_by_date"],
         )

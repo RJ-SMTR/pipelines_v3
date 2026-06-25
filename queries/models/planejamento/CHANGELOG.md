@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona leitura do calendário manual pela tabela `source_smtr.calendario_manual` a partir de `data_inicio_calendario_sheets`, preservando o histórico hardcoded antes da data de corte. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+- Adiciona leitura do calendário manual pela tabela `source_smtr.calendario_manual` a partir de `data_inicio_calendario_sheets` no modelo `aux_calendario_manual`, preservando o histórico hardcoded antes da data de corte. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
 - Adiciona a coluna `subtipo_dia` ao calendário manual e passa a priorizá-la no modelo `calendario`. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
 
 ### Alterado

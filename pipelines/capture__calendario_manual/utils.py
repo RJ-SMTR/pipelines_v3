@@ -35,19 +35,17 @@ def get_calendario_hashes_by_date(df: pd.DataFrame) -> dict[str, str]:
 
 def get_changed_dates(previous_hashes: dict[str, str], current_hashes: dict[str, str]) -> list[str]:
     """
-    Identifica datas incluídas, alteradas ou removidas entre dois estados.
+    Identifica datas novas ou modificadas no conjunto atual.
 
     Args:
         previous_hashes: Hashes por data persistidos após a captura anterior.
         current_hashes: Hashes por data calculados da planilha atual.
 
     Returns:
-        Datas alteradas em ordem crescente, no formato ISO.
+        Datas novas ou modificadas em ordem crescente, no formato ISO.
     """
     return sorted(
-        date
-        for date in previous_hashes.keys() | current_hashes.keys()
-        if previous_hashes.get(date) != current_hashes.get(date)
+        date for date in current_hashes if current_hashes[date] != previous_hashes.get(date)
     )
 
 
@@ -74,7 +72,7 @@ def get_calendario_sheet_df() -> pd.DataFrame:
     """
     Lê e valida os dados relevantes da planilha do calendário manual.
 
-    Linhas sem data válida ou anteriores à data de corte são descartadas.
+    Linhas sem data válida, anteriores à data de corte ou não submetidas são descartadas.
 
     Returns:
         DataFrame ordenado por ``dia``, com uma linha por data.
@@ -85,15 +83,19 @@ def get_calendario_sheet_df() -> pd.DataFrame:
     df = get_google_sheet_xlsx(
         spread_sheet_id=constants.CALENDARIO_MANUAL_SHEET_ID,
         sheet_name=constants.CALENDARIO_MANUAL_SHEET_NAME,
+        dtypes=str,
+        parse_dates=constants.CALENDARIO_MANUAL_PARSE_DATES,
+        filter_expr=constants.CALENDARIO_MANUAL_FILTER_EXPR,
     )
 
-    missing_columns = set(constants.CALENDARIO_MANUAL_COLUMNS) - set(df.columns)
+    required_columns = {
+        *constants.CALENDARIO_MANUAL_COLUMNS,
+        constants.CALENDARIO_MANUAL_SUBMIT_COLUMN,
+    }
+    missing_columns = required_columns - set(df.columns)
     if missing_columns:
         raise ValueError(f"Colunas ausentes na planilha: {sorted(missing_columns)}")
 
-    df["dia"] = pd.to_datetime(df["dia"], format="%d/%m/%Y", errors="coerce")
-    cutover = pd.Timestamp(constants.CALENDARIO_MANUAL_CUTOVER_DATE)
-    df = df[df["dia"].notna() & (df["dia"] >= cutover)]
     df = df.sort_values("dia").reset_index(drop=True)
 
     duplicated_dates = df.loc[df["dia"].duplicated(keep=False), "dia"]

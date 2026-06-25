@@ -37,6 +37,9 @@ def create_calendario_manual_extractor(context: SourceCaptureContext):
         get_google_sheet_xlsx,
         spread_sheet_id=constants.CALENDARIO_MANUAL_SHEET_ID,
         sheet_name=constants.CALENDARIO_MANUAL_SHEET_NAME,
+        dtypes=str,
+        parse_dates=constants.CALENDARIO_MANUAL_PARSE_DATES,
+        filter_expr=constants.CALENDARIO_MANUAL_FILTER_EXPR,
         raw_filepath=context.raw_filepath,
     )
 
@@ -50,21 +53,25 @@ def detect_calendario_change(env: str) -> ShouldCapture:
         env: Ambiente usado para selecionar a chave Redis.
 
     Returns:
-        Decisão de captura e hashes atuais por data no metadata.
+        Decisão de captura e, no payload, o estado já calculado da planilha.
     """
-    hashes_by_date = get_calendario_hashes_by_date(get_calendario_sheet_df())
+    df = get_calendario_sheet_df()
+    hashes_by_date = get_calendario_hashes_by_date(df)
 
     previous_hashes_by_date = get_redis_client().get(get_calendario_redis_key(env))
-    changed = hashes_by_date != previous_hashes_by_date
-    changed_dates = (
-        get_changed_dates(previous_hashes_by_date, hashes_by_date)
-        if previous_hashes_by_date is not None
-        else None
-    )
+    if previous_hashes_by_date is None:
+        changed_dates = sorted(hashes_by_date)
+    else:
+        changed_dates = get_changed_dates(previous_hashes_by_date, hashes_by_date)
+    changed = bool(changed_dates)
+
     print(f"Datas alteradas: {changed_dates} | mudou: {changed}")
     return ShouldCapture(
         value=changed,
-        metadata={"hashes_by_date": hashes_by_date},
+        payload={
+            "hashes_by_date": hashes_by_date,
+            "changed_dates": changed_dates,
+        },
     )
 
 
@@ -84,42 +91,29 @@ def update_calendario_hashes_by_date(env: str, hashes_by_date: dict[str, str]) -
 
 
 @task(cache_policy=NO_CACHE)
-def get_calendario_materialization_window(env: str) -> Optional[tuple[str, str, dict]]:
+def get_calendario_materialization_window(
+    env: str,  # noqa: ARG001
+    changed_dates: list[str],
+) -> Optional[tuple[str, str, dict]]:
     """
-    Calcula a janela de materialização a partir das datas alteradas.
-
-    Sem estado anterior de hashes por data, usa a data atual como piso da janela para não
-    rematerializar histórico.
+    Calcula a janela de materialização a partir do estado apurado em `detect_calendario_change`.
 
     Args:
-        env: Ambiente usado para recuperar o estado anterior no Redis.
+        env: Ambiente de execução.
+        changed_dates: Datas novas ou alteradas calculadas em `detect_calendario_change`.
 
     Returns:
         Data inicial, data final e variáveis adicionais da materialização. Retorna ``None``
         quando só há datas alteradas anteriores à data atual.
     """
-    df = get_calendario_sheet_df()
-    hashes_by_date = get_calendario_hashes_by_date(df)
-    previous_hashes_by_date = get_redis_client().get(get_calendario_redis_key(env))
-    changed_dates = (
-        get_changed_dates(previous_hashes_by_date, hashes_by_date)
-        if previous_hashes_by_date is not None
-        else None
-    )
-
     today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
-    if changed_dates:
-        future_changed_dates = [date for date in changed_dates if date >= today]
-        if not future_changed_dates:
-            print("Materialização não disparada: sem datas futuras alteradas")
-            return None
+    future_changed_dates = [date for date in changed_dates if date >= today]
+    if not future_changed_dates:
+        print("Materialização não disparada: sem datas futuras alteradas")
+        return None
 
-        datetime_start = min(future_changed_dates)
-        datetime_end = max(today, *future_changed_dates)
-    else:
-        max_date = df["dia"].max().strftime("%Y-%m-%d") if not df.empty else today
-        datetime_start = max(today, constants.CALENDARIO_MANUAL_CUTOVER_DATE)
-        datetime_end = max(today, max_date, datetime_start)
+    datetime_start = min(future_changed_dates)
+    datetime_end = max(future_changed_dates)
 
     print(f"Janela de materialização: {datetime_start} → {datetime_end}")
     return datetime_start, datetime_end, {}
