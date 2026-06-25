@@ -8,6 +8,8 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/capture__gtfs ./pipelines/capture__gtfs/
 
+COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 

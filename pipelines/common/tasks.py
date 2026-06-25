@@ -30,6 +30,7 @@ def initialize_sentry(env):
     if is_running_locally():
         return
     print("Inicializando Sentry SDK")
+    print(f"Ambiente: {env}")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
     sentry_sdk.init(
@@ -202,12 +203,13 @@ def task_send_discord_message(message: Union[str, list[str]], webhook: str):
 
 
 @task(cache_policy=NO_CACHE)
-async def run_subflow(
+async def run_subflow(  # noqa: PLR0913
     env: str,
     flow: Flow,
     parameters: list[dict] | None = None,
     maximum_parallelism: int = 1,
     deployment_name: str | None = None,
+    wait_for_completion: bool = True,
 ) -> list[FlowRun]:
     """
     Executa um deployment como subflow.
@@ -219,6 +221,9 @@ async def run_subflow(
             execução do deployment. Se não informado, executa uma única vez com parâmetros vazios.
         maximum_parallelism (int): Número máximo de execuções simultâneas do deployment.
         deployment_name (Optional[str]): Nome do deployment
+        wait_for_completion (bool): Se True (padrão), aguarda o término das execuções e levanta
+            FailedSubFlowError caso alguma não finalize com sucesso. Se False, apenas dispara as
+            execuções (fire-and-forget) e retorna imediatamente, sem propagar falhas.
 
     Returns:
         list[FlowRun]: Lista contendo os objetos `FlowRun` retornados pelo `run_deployment`.
@@ -246,10 +251,14 @@ async def run_subflow(
             return await run_deployment(
                 name=deployment_name,
                 parameters=params,
+                timeout=None if wait_for_completion else 0,
             )
 
     coroutines = [_run(params) for params in parameters]
     runs = await asyncio.gather(*coroutines)
+
+    if not wait_for_completion:
+        return runs
 
     fail_message = "Os seguintes execuções falharam:\n"
     flow_run_base_url = "https://prefect-v3.mobilidade.rio/runs/flow-run"

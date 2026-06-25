@@ -1,6 +1,6 @@
 # Changelog - planejamento
 
-## [1.7.4] - 2026-06-25
+## [1.8.1] - 2026-06-25
 
 ### Adicionado
 
@@ -8,6 +8,19 @@
 - Adiciona transferências BUM no modelo `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
 - Adiciona tratamento das colunas de quarta perna no modelo `matriz_reparticao_tarifaria.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
 - Cria modelo `matriz_integracao_servico_modo.sql`
+
+## [1.8.0] - 2026-06-23
+
+### Alterado
+
+- Estende a materialização incremental do modelo `calendario` até o fim do mês seguinte por padrão, mantendo materialização exata apenas quando `materializar_periodo_exato=true`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Estende a janela de `viagem_planejada_planejamento_dia` até D+2. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.7.4] - 2026-06-22
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para os dias `2026-06-13` -> `Copa_13_Junho`, `2026-06-19` -> `Copa_19_Junho`, `2026-06-24` -> `Copa_24_Junho`,  conforme Processo SEI 000399.016030/2026-59. (https://github.com/RJ-SMTR/pipelines_v3/pull/307)
 
 ## [1.7.3] - 2026-06-11
 

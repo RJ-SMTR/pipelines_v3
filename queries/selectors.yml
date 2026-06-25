@@ -437,6 +437,8 @@ selectors:
         - method: fqn
           value: staging_garagens
         - method: fqn
+          value: aux_gps_filtrada
+        - method: fqn
           value: gps
 
   - name: gps_15_minutos

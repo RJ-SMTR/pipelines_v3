@@ -7,6 +7,8 @@ Executa a captura de dados de lançamentos financeiros do sistema Jaé.
 Common: 2026-05-20
 """
 
+from typing import Optional
+
 from pipelines.capture__jae_lancamento import constants
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
@@ -18,11 +20,11 @@ from pipelines.common.utils.prefect import flow
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__jae_lancamento(
-    env=None,
-    timestamp=None,
-    recapture=False,
-    recapture_days=2,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = False,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,

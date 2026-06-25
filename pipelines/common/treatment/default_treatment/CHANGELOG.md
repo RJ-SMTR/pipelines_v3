@@ -1,5 +1,12 @@
 # Changelog - default_treatment
 
+## [1.4.0] - 2026-06-23
+
+### Adicionado
+
+- Adiciona criação seletiva de relações dbt ausentes com `--empty` antes da materialização normal em ambiente dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Adiciona resolução do SHA do deployment para clonar `queries/` no mesmo commit da imagem em deploys de dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
 ## [1.3.0] - 2026-06-02
 
 ### Adicionado
