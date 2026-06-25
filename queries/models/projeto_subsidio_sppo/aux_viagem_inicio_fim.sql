@@ -108,7 +108,7 @@ where
             )
             or (
                 date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                >= date('{{var("DATA_SUBSIDIO_V24_INICIO")}}')
+                >= date('{{var("DATA_SUBSIDIO_V24_INICIO")}}') or (data between date("2025-04-01") and date("2025-04-30"))
                 and sentido = "C"
                 and sentido_shape = "V"
                 and extract(date from datetime_partida) = date('{{ var("run_date") }}')

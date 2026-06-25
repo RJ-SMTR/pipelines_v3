@@ -54,6 +54,10 @@ with
                     }}
                 )
                 or (
+                    data between "2025-04-01" and "2025-07-30"  -- Exceção para reprocessamento abril/2025
+                    and data_processamento between "2025-04-01" and "2026-06-11"
+                )
+                or (
                     data between "2025-07-16" and "2025-07-31"  -- Exceção para lacres adicionados após o prazo em 2025-07-Q2
                     and data_processamento between "2025-07-16" and "2025-08-13"
                 )
@@ -109,7 +113,7 @@ with
     ),
     autuacao_disciplinar as (
         select *
-        from {{ ref("autuacao_disciplinar_historico") }}
+        from  `rj-smtr`.`monitoramento`.`autuacao_disciplinar_historico`
         where
             (
                 data_inclusao_datalake <= date_add(data, interval 7 day)
