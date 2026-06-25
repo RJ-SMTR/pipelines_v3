@@ -78,7 +78,7 @@ join
     {{ ref("tarifa_publica") }} tp
     on t.data >= tp.data_inicio
     and (t.data <= tp.data_fim or tp.data_fim is null)
-left join {{ ref("aux_matriz_servico_modo") }} sm using (id_servico_jae)
+left join {{ ref("matriz_integracao_servico_modo") }} sm using (id_servico_jae)
 where
     t.tipo_transacao != 'Gratuidade'
     and t.tipo_transacao_jae != 'Botoeira'

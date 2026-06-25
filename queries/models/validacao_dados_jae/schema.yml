@@ -68,6 +68,10 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
+      - name: integracao_realizada_regex
+        description: Expressão regular que representa a integração
+        data_type: string
+        quote: true
   - name: transacao_invalida
     description: "Tabela para validação dos dados de transação da Jaé"
     columns:

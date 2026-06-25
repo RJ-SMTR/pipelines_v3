@@ -40,7 +40,7 @@ with
             tempo_integracao_minutos,
             valor_integracao,
             tipo_integracao,
-            "BUC" as tipo_bilhete_unico
+            "BUC" as tipo_bilhete_unico,
             indicador_integracao
         from {{ ref("aux_matriz_transferencia") }}
 
@@ -61,7 +61,7 @@ with
             tempo_integracao_minutos,
             valor_integracao,
             tipo_integracao,
-            "BUM" as tipo_bilhete_unico
+            "BUM" as tipo_bilhete_unico,
             indicador_integracao
         from {{ ref("aux_matriz_transferencia") }}
         where modo_origem = 'VLT' and (data_fim is null or data_fim >= "2026-04-29")
@@ -156,6 +156,7 @@ select
     m.tempo_integracao_minutos,
     m.valor_integracao,
     m.tipo_integracao,
+    m.tipo_bilhete_unico,
     m.indicador_integracao,
     '{{ var("version") }}' as versao
 from matriz_completa m
