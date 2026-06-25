@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.2] - 2026-06-25
+
+### Adicionado
+
+- Adiciona a coluna `consorcio` nos modelos `aux_monitoramento_registros_status_trajeto` e `viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+
 ## [1.0.1] - 2025-11-17
 
 ### Adicionado
