@@ -39,15 +39,15 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/control__model_freshness/flow.py:control__model_freshness
     schedules:
-      - cron: "10 * * * *"
+      - cron: "30 * * * *"
         timezone: "America/Sao_Paulo"
         parameters:
-          test_select: "tag:freshness_hourly"
+          test_select: "tag:hourly"
       - cron: "30 12 * * *"
         timezone: "America/Sao_Paulo"
         active: false
         parameters:
-          test_select: "tag:freshness_daily"
+          test_select: "tag:daily"
     work_pool:
       name: smtr-pool
       work_queue_name: default

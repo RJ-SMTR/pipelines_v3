@@ -2,6 +2,9 @@ version = 1
 revision = 3
 requires-python = "==3.13.*"
 
+[options]
+exclude-newer = "2026-05-31T00:00:00Z"
+
 [manifest]
 members = [
     "capture-cct-pagamento",
@@ -895,14 +898,14 @@ wheels = [
 
 [[package]]
 name = "dbt-protos"
-version = "1.0.498"
+version = "1.0.514"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a9/dd/304bc262358b6317eeaf06338a00d848576e016c90f9f6fb54b5dd6fde58/dbt_protos-1.0.498.tar.gz", hash = "sha256:0b7ff2aa1f15bef6ae00c5e3c2983c92740899e6c5ab1bf310338db4be9e923d", size = 150746, upload-time = "2026-05-13T17:49:23.279Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/42/95900473fad036d813da7785c33a27d5ccca9f0eae1065364cabbc1e40d1/dbt_protos-1.0.514.tar.gz", hash = "sha256:4429a8b0675140467206aaaf9d9468e619a9697f443e4b3921f297d01e4a77a0", size = 166219, upload-time = "2026-05-28T23:43:10.215Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/d4/b747b9738d1788911be5bd9b28e522525f151badafe5f4e962b0b643afe7/dbt_protos-1.0.498-py3-none-any.whl", hash = "sha256:7edc54ea1c1a2fb19cd4027c9e4d7eac9c89e57f6f406534b7256af146119f2e", size = 226269, upload-time = "2026-05-13T17:49:21.549Z" },
+    { url = "https://files.pythonhosted.org/packages/37/38/f56efc438ebbed7a3030c2b120f64ab40ca00185d0ae77c9adff88663555/dbt_protos-1.0.514-py3-none-any.whl", hash = "sha256:824c442f3be40d1048ac3969bda04564906c7103e20a0f3991a52e7b7d8b87cc", size = 238730, upload-time = "2026-05-28T23:43:08.76Z" },
 ]
 
 [[package]]
@@ -2119,7 +2122,7 @@ requires-dist = [
     { name = "pendulum", specifier = ">=3.1.0" },
     { name = "pre-commit", specifier = ">=4.4.0" },
     { name = "prefect", specifier = "==3.7.1" },
-    { name = "prefect-dbt", specifier = "==0.7.5" },
+    { name = "prefect-dbt", specifier = "==0.7.21" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
     { name = "pydantic", specifier = ">=2.0,<3.0" },
     { name = "pymysql", specifier = ">=1.1.1" },
@@ -2236,7 +2239,7 @@ wheels = [
 
 [[package]]
 name = "prefect-dbt"
-version = "0.7.5"
+version = "0.7.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dbt-core" },
@@ -2244,9 +2247,9 @@ dependencies = [
     { name = "prefect-shell" },
     { name = "sgqlc" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/80/05/510c960574a7f133005f0eef3fa6d4019d683484e1df4dc5ee72a71379f6/prefect_dbt-0.7.5.tar.gz", hash = "sha256:0719b27aa3696bc60406d51fd3dfda0aa7b9bd2814b43daedec50bd0cdb832a2", size = 73495, upload-time = "2025-07-23T21:04:42.162Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/7c/40f71ad223cb4965a934fa1a4eaa0e508c1fa2de65b6f38a82e2e587adbe/prefect_dbt-0.7.21.tar.gz", hash = "sha256:7f803d0eee0bb51384a1a10c5179191a554f6d78fd9e34b132682854d3dec723", size = 210854, upload-time = "2026-04-15T13:16:39.797Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/12/44908d3affe37ca9dbf049382a8c6cd61c546528ef1ee91354931687115d/prefect_dbt-0.7.5-py3-none-any.whl", hash = "sha256:f4e01e585c794696e4a824727b7d0b5c6162f1d5d6c2bb1a2c2a0ed36a5ba015", size = 54840, upload-time = "2025-07-23T21:04:40.369Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/f7/12aeb90e69c1337c71f82f4c3c78635b52f55d7c592d7b18a22d0428eda3/prefect_dbt-0.7.21-py3-none-any.whl", hash = "sha256:dc979ad23c44868bb1e6f4a0195c1ec77220d3fe6e4e3f367d16938124852e0a", size = 109685, upload-time = "2026-04-15T13:16:38.408Z" },
 ]
 
 [[package]]

@@ -184,6 +184,12 @@ with
                 then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
                 when data = date(2026, 05, 17)
                 then "Oper_634"  -- 000399.011715/2026-17 - Inauguração 634
+                when data = date(2026, 06, 13)
+                then "Copa_13_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 19)
+                then "Copa_19_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 24)
+                then "Copa_24_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
             end as tipo_os
         from
             unnest(

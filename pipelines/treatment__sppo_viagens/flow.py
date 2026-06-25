@@ -44,7 +44,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env_task)
     sentry_task = initialize_sentry(env=env_task)
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env_task, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp(wait_for=[sentry_task])

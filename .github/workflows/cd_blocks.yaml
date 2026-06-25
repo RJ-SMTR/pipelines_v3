@@ -1,0 +1,44 @@
+name: Blocks CD
+on:
+  push:
+    branches:
+      - staging/*
+      - devops/*
+      - master
+    paths:
+      - blocks/**
+      - .github/workflows/cd_blocks.yaml
+
+env:
+  PREFECT_API_URL: ${{ secrets.PREFECT_V3_WEB_API_URL }}
+  PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
+  DISCORD_WEBHOOK_URL_DATAPLEX: ${{ secrets.DISCORD_WEBHOOK_URL_DATAPLEX }}
+
+jobs:
+  deploy-blocks:
+    name: Deploy blocks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          uv sync --all-packages
+
+      - name: Deploy blocks
+        run: |
+          uv run blocks/deploy_blocks.py

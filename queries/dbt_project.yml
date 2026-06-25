@@ -162,6 +162,8 @@ vars:
   DATA_SUBSIDIO_V17_INICIO: "2025-07-16"
   # Feature validadores e transações Jaé [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629), RESOLUÇÃO SMTR 3843/2025 e RESOLUÇÃO SMTR 3858/2025]
   DATA_SUBSIDIO_V18_INICIO: "2025-08-01"
+  # Início da operação exclusiva com SBD Jaé
+  DATA_SUBSIDIO_V18A_INICIO: "2025-08-02"
   # Feature Não pagamento de viagens licenciadas sem ar condicionado [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629) e RESOLUÇÃO SMTR 3843/2025]
   DATA_SUBSIDIO_V19_INICIO: "2025-11-01"
   # Feature Inciso IV Climatização
@@ -172,7 +174,7 @@ vars:
   DATA_SUBSIDIO_V22_INICIO: "2026-03-01"
   # Processo.SEI 006400.000323/2026-14 - Temperatura máxima e ajuste de horário no INMET
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
- # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
+  # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
@@ -274,10 +276,10 @@ vars:
   ### Viagens 2.0 ###
 
   limite_reducao_area_buffer: 0.5
-  limite_validacao_inicio_fim_minutos: 10
+  limite_validacao_inicio_fim_minutos: 30
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
-  buffer_validacao_inicio_fim_metros: 500
+  buffer_validacao_inicio_fim_metros: 100
   buffer_tunel_metros: 50
   parametro_validacao: 0.9
   comprimento_shape: 1000
