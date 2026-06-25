@@ -28,6 +28,10 @@ models:
         description: "{{ doc('servico') }}"
         data_type: string
         quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
