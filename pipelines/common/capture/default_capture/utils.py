@@ -18,12 +18,12 @@ class ShouldCapture(NamedTuple):
 
     Attributes:
         value (bool): Se True, o builder prossegue com a captura; se False, retorna cedo.
-        metadata (Optional[dict]): Payload livre do pipeline (ex.: hash da fonte) usado após a
-            captura.
+        payload (Optional[dict]): Payload livre do pipeline (ex.: hash da fonte) propagada para
+            os passos seguintes do flow (janela de materialização, persistência de estado etc.).
     """
 
     value: bool
-    metadata: Optional[dict] = None
+    payload: Optional[dict] = None
 
 
 class SourceCaptureContext:
