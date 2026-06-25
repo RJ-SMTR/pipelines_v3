@@ -1,10 +1,16 @@
 # Changelog - monitoramento
 
-## [2.2.1] - 2026-06-25
+## [2.2.2] - 2026-06-25
 
 ### Adicionado
 
 - Adiciona a coluna `consorcio` nos modelos `viagem_validacao` e `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+
+## [2.2.1] - 2026-06-23
+
+### Alterado
+
+- Adiciona tolerância de 5 minutos na regra de sobreposição de viagens do modelo `viagem_validacao`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
 
 ## [2.2.0] - 2026-06-17
 

@@ -45,7 +45,7 @@ def control__source_freshness(env: Optional[str] = None, flags: Optional[list[st
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     initialize_sentry(env)
-    queries = setup_dbt_queries(wait_for=[setup_env])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     dbt_output = run_source_freshness(flags=flags, env=env, wait_for=[dbt_deps])

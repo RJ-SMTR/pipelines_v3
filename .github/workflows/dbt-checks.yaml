@@ -1,14 +1,21 @@
 name: DBT Checks
 
 on:
-  push:
+  pull_request:
     branches:
       - master
-      - staging/*
-      - fix/*
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
+      - "queries/**/*.yaml"
+      - .github/workflows/dbt-checks.yaml
+  push:
+    branches:
+      - master
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
       - .github/workflows/dbt-checks.yaml
 
 env:

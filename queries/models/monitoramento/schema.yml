@@ -521,7 +521,7 @@ models:
             group_by: ["fonte_gps"]
             timestamp_column: datetime_gps
             datepart: hour
-            interval: 2
+            interval: 3
           config:
             tags: ["freshness", "hourly"]
             severity: warn
@@ -1108,7 +1108,7 @@ models:
               name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador
               arguments:
                 datepart: hour
-                interval: 2
+                interval: 3
               config:
                 tags: ["freshness", "hourly"]
                 severity: warn

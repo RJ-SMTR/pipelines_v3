@@ -270,12 +270,12 @@ models:
         data_type: string
         quote: true
   - name: viagem_planejada_planejamento_dia
-    description: Tabela contendo as viagens planejadas por dia com base no GTFS e no calendário
+    description: Uma linha por viagem planejada por dia. Representa o planejamento derivado do GTFS e do calendário operacional para a janela de materialização, incluindo extensão de 2 dias além de `date_range_end`. Use `(data, id_viagem)` como chave de join; a seleção considera o calendário e os feeds GTFS disponíveis para o período.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
           config:
-            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
           arguments:
             combination_of_columns:
               - data
