@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.1] - 2026-06-25
+
+### Adicionado
+
+- Adiciona a coluna `consorcio` nos modelos `viagem_validacao` e `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+
 ## [2.2.0] - 2026-06-17
 
 ### Alterado
