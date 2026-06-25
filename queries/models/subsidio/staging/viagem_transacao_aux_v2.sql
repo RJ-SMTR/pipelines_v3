@@ -76,11 +76,23 @@ with
             --fmt:off
             left outer union all by name
              --fmt:on
-            select id_veiculo, datetime_partida, datetime_chegada
-            from {{ ref("viagem_completa") }}
-            where
-                data = date_sub(date({{ date_range_start }}), interval 1 day)
-                and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            (
+                select id_veiculo, datetime_partida, datetime_chegada
+                from {{ ref("viagem_completa") }}
+                where
+                    data = date_sub(date({{ date_range_start }}), interval 1 day)
+                    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+                    and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+                union all by name
+
+                select id_veiculo, datetime_partida, datetime_chegada
+                -- from {{ ref("viagem_valida") }}
+                from `rj-smtr.monitoramento.viagem_valida`
+                where
+                    data = date_sub(date({{ date_range_start }}), interval 1 day)
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            )
         {% endif %}
     ),
     -- Viagem, para fins de contagem de passageiros, com tolerância de 30 minutos,

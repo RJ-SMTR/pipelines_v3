@@ -176,6 +176,8 @@ vars:
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
   # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Feature uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-06-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
