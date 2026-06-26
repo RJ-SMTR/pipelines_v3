@@ -137,6 +137,10 @@ models:
         description: "{{ doc('servico') }}"
         data_type: string
         quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
@@ -1345,6 +1349,10 @@ models:
         quote: true
       - name: servico
         description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
         data_type: string
         quote: true
       - name: sentido
