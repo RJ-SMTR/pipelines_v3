@@ -5,6 +5,7 @@
 ### Adicionado
 
 - Adiciona validação de integrações BUM no modelo `integracao_invalida.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona filtro de clientes não cadastrados no modelo `aux_transacao_filtro_integracao_calculada.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
 
 ### Alterado
 

@@ -84,6 +84,7 @@ where
     t.tipo_transacao != 'Gratuidade'
     and t.tipo_transacao_jae != 'Botoeira'
     and date(t.datetime_processamento) < current_date('America/Sao_Paulo')
+    and (t.data < "2026-06-28" or t.cadastro_cliente = "Cadastrado")
     {% if not flags.FULL_REFRESH %}
         {% if partitions | length > 0 %} and t.data in ({{ partitions | join(", ") }})
         {% else %} and data = "2000-01-01"
