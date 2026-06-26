@@ -4,11 +4,7 @@ with
     multa as (
         select *
         from {{ ref("staging_stu_multa") }}
-        qualify
-            row_number() over (
-                partition by serie, cm order by data desc
-            )
-            = 1
+        qualify row_number() over (partition by serie, cm order by data desc) = 1
     ),
 
     permissao as (
@@ -51,14 +47,23 @@ select
     m.datetime_infracao,
     m.descricao_infracao as infracao,
     m.valor,
-    case when m.situacao = 'A' then 'Em Aberto'
-        when m.situacao = 'C' then 'Cancelada'
-        when m.situacao = 'PG' then 'Pago'
-        when m.situacao = 'E' then 'Em Parcelamento'
-        when m.situacao = 'PR' then 'Prescrita'
-        when m.situacao = 'T' then 'Transferida'
-        when m.situacao = 'PD' then 'Decurso de Prazo'
-     else m.situacao end as status,
+    case
+        when m.situacao = 'A'
+        then 'Em Aberto'
+        when m.situacao = 'C'
+        then 'Cancelada'
+        when m.situacao = 'PG'
+        then 'Pago'
+        when m.situacao = 'E'
+        then 'Em Parcelamento'
+        when m.situacao = 'PR'
+        then 'Prescrita'
+        when m.situacao = 'T'
+        then 'Transferida'
+        when m.situacao = 'PD'
+        then 'Decurso de Prazo'
+        else m.situacao
+    end as status,
     d.data_pagamento,
     m.datetime_captura as timestamp_captura
 from multa m

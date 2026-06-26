@@ -10,12 +10,8 @@ select
     safe_cast(json_value(content, '$.situac') as string) as situacao,
     safe_cast(json_value(content, '$.tpperm') as string) as tpperm,
     safe_cast(json_value(content, '$.tptran') as string) as tptran,
-    datetime(
-            safe_cast(json_value(content, '$.dt_ativo') as string)
-    ) as datetime_ativo,
-    datetime(
-            safe_cast(json_value(content, '$.dt_prazo') as string)
-    ) as datetime_prazo,
+    datetime(safe_cast(json_value(content, '$.dt_ativo') as string)) as datetime_ativo,
+    datetime(safe_cast(json_value(content, '$.dt_prazo') as string)) as datetime_prazo,
     datetime(
         parse_timestamp(
             '%Y-%m-%d %H:%M:%S%Ez',

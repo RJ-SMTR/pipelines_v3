@@ -55,7 +55,8 @@ select
         safe_cast(json_value(content, '$.DtNotificacaoAutuacao') as string)
     ) as datetime_notificacao_autuacao,
     datetime(
-        safe_cast(json_value(content, '$._datetime_execucao_flow') as string)
+        safe_cast(json_value(content, '$._datetime_execucao_flow') as timestamp),
+        'America/Sao_Paulo'
     ) as datetime_execucao_flow,
     safe_cast(timestamp_captura as datetime) as datetime_captura
 from {{ source("source_stu", "multa") }}

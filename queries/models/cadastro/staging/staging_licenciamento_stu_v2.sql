@@ -78,7 +78,7 @@ with
     )
 
 select
-    coalesce(vi.data, va.data) as data,
+    coalesce(date(va.datetime_captura), vi.data) as data,
     va.datetime_captura as timestamp_captura,
     t.descricao as modo,
     trim(coalesce(vi.ordem, va.ordem)) as id_veiculo,

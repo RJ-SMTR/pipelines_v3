@@ -20,13 +20,9 @@ select
     replace(safe_cast(json_value(content, '$.ratr') as string), '.0', '') as ratr,
     safe_cast(json_value(content, '$.visobrig') as string) as vistoria_obrigatoria,
     safe_cast(json_value(content, '$.num_vistoria') as string) as numero_vistoria,
-    date(
-            safe_cast(json_value(content, '$.dt_vistoria') as string)
-    ) as data_vistoria,
+    date(safe_cast(json_value(content, '$.dt_vistoria') as string)) as data_vistoria,
     safe_cast(json_value(content, '$.matr_usuario') as string) as matricula_usuario,
-    date(
-            safe_cast(json_value(content, '$.data_usuario') as string)
-    ) as data_usuario,
+    date(safe_cast(json_value(content, '$.data_usuario') as string)) as data_usuario,
     safe_cast(json_value(content, '$.situac') as string) as situacao,
     safe_cast(json_value(content, '$.codrec') as string) as codrec,
     safe_cast(json_value(content, '$.Emissao') as string) as emissao,

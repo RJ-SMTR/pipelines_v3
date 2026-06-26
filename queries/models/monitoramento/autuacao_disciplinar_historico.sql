@@ -28,13 +28,11 @@ with
             current_date("America/Sao_Paulo") as data_inclusao_datalake,
             timestamp_captura
         from {{ ref("staging_infracao") }}
-        {% if is_incremental() %}
             where
                 date(data) between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
 
-        {% endif %}
     ),
     aux_data_inclusao as (
         select
@@ -42,16 +40,13 @@ with
             min(data_inclusao_stu) as data_inclusao_stu,
             min(data_inclusao_datalake) as data_inclusao_datalake
         from
-            {% if is_incremental() %}
                 (
                     select id_auto_infracao, data_inclusao_stu, data_inclusao_datalake
-                    from {{ this }}
+                    from rj-smtr.monitoramento.autuacao_disciplinar_historico
                     union all
                     select id_auto_infracao, data_inclusao_stu, data_inclusao_datalake
                     from autuacao_disciplinar_staging
                 )
-            {% else %} autuacao_disciplinar_staging
-            {% endif %}
         group by 1
     ),
     dados_novos as (
@@ -70,11 +65,10 @@ with
             )
             = 1
     )
-{% if is_incremental() %}
         ,
         dados_completos as (
             select *, 'tratada' as fonte, 0 as ordem
-            from {{ this }}
+            from rj-smtr.monitoramento.autuacao_disciplinar_historico
             union all by name
             select *, 'staging' as fonte, 1 as ordem
             from dados_novos
@@ -122,5 +116,4 @@ with
             )
         )
     window win as (partition by id_auto_infracao order by ordem)
-{% else %} select * from dados_novos
-{% endif %}
+

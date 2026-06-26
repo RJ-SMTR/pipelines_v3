@@ -7,11 +7,9 @@ select
     termo,
     dv,
     safe_cast(json_value(content, '$.proaut') as string) as processo_autorizacao,
-    date(safe_cast(json_value(content, '$.dtauto') as string)
-    ) as data_autorizacao,
+    date(safe_cast(json_value(content, '$.dtauto') as string)) as data_autorizacao,
     safe_cast(json_value(content, '$.procanc') as string) as processo_cancelamento,
-    date(safe_cast(json_value(content, '$.dtcanc') as string)
-    ) as data_cancelamento,
+    date(safe_cast(json_value(content, '$.dtcanc') as string)) as data_cancelamento,
     safe_cast(json_value(content, '$.situac') as string) as situacao,
     safe_cast(json_value(content, '$.motivo') as string) as motivo,
     safe_cast(json_value(content, '$.sorteio') as boolean) as sorteio,
