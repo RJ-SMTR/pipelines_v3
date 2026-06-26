@@ -1720,3 +1720,7 @@ Indicador de atividade do operador no sistema da Jaé
 {% docs sentido_shape %}
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 {% enddocs %}
+
+{% docs tipo_bilhete_unico %}
+Tipo do bilhete único [BUM ou BUC]
+{% enddocs %}

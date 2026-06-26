@@ -13,7 +13,8 @@ with
             row_number() over (partition by integracao) as idx_modo,
             integracao,
             modo,
-            tempo_integracao_minutos
+            tempo_integracao_minutos,
+            tipo_bilhete_unico
         from {{ ref("matriz_reparticao_tarifaria") }}, unnest(sequencia_modo) as modo
         where integracao not like "%Metrô%"
 
@@ -29,7 +30,8 @@ with
                 partition by integracao order by idx_modo
             ) as integracao_origem,
             lead(modo) over (partition by integracao order by idx_modo) as modo_destino,
-            tempo_integracao_minutos
+            tempo_integracao_minutos,
+            tipo_bilhete_unico
         from reparticao_unnest
     ),
 
@@ -48,6 +50,7 @@ with
             cast(null as string) as tabela_gtfs_destino,
             tempo_integracao_minutos,
             'Integração' as tipo_integracao,
+            tipo_bilhete_unico,
             true as indicador_integracao
         from modos_origem_destino
         where modo_destino is not null
@@ -77,6 +80,7 @@ select
     m.tempo_integracao_minutos,
     t.valor_tarifa as valor_integracao,
     m.tipo_integracao,
+    m.tipo_bilhete_unico,
     m.indicador_integracao
 from matriz m
 left join

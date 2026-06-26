@@ -49,27 +49,26 @@ select
     (
         t.cadastro_cliente = 'Não Cadastrado', t.hash_cartao, t.id_cliente
     ) as cliente_cartao,
-    case
-        when t.id_servico_jae = '1358'
-        then 'Ônibus BUM'
-        when
-            t.id_servico_jae in (
-                "483", "1106", "486", "484", "307", "485", "492", "1301", "1350", "1354"
-            )
-        then 'SPPO MNS'
-        when modo = 'Van'
-        then consorcio
-        when
-            modo = 'Ônibus'
-            and not (
-                length(ifnull(regexp_extract(servico_jae, r'[0-9]+'), '')) = 4
-                and ifnull(regexp_extract(servico_jae, r'[0-9]+'), '') like '2%'
-            )
-        then 'SPPO'
-        when t.modo = 'BRT' and ifnull(l.tarifa_ida, l.tarifa_volta) > tp.valor_tarifa
-        then 'BRT ESP'
-        else t.modo
-    end as modo_join
+    ifnull(
+        sm.modos,
+        case
+            when modo = 'Van'
+            then [consorcio]
+            when
+                modo = 'Ônibus'
+                and not (
+                    length(ifnull(regexp_extract(servico_jae, r'[0-9]+'), '')) = 4
+                    and ifnull(regexp_extract(servico_jae, r'[0-9]+'), '') like '2%'
+                    and length(ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')) = 2
+                )
+            then ['SPPO']
+            when
+                t.modo = 'BRT'
+                and ifnull(l.tarifa_ida, l.tarifa_volta) > tp.valor_tarifa
+            then ['BRT ESP']
+            else [t.modo]
+        end
+    ) as modos
 from {{ ref("transacao") }} t
 left join
     {{ ref("aux_linha_tarifa") }} l
@@ -80,10 +79,12 @@ join
     {{ ref("tarifa_publica") }} tp
     on t.data >= tp.data_inicio
     and (t.data <= tp.data_fim or tp.data_fim is null)
+left join {{ ref("matriz_integracao_servico_modo") }} sm using (id_servico_jae)
 where
     t.tipo_transacao != 'Gratuidade'
     and t.tipo_transacao_jae != 'Botoeira'
     and date(t.datetime_processamento) < current_date('America/Sao_Paulo')
+    and (t.data < "2026-06-28" or t.cadastro_cliente = "Cadastrado")
     {% if not flags.FULL_REFRESH %}
         {% if partitions | length > 0 %} and t.data in ({{ partitions | join(", ") }})
         {% else %} and data = "2000-01-01"

@@ -21,7 +21,6 @@ with
                         partition by id_servico_jae order by data_inicio_vigencia
                     ) as rn
                 from {{ ref("servicos") }}
-            {# from `rj-smtr.cadastro.servicos` #}
             )
         where rn = 1
     ),
@@ -41,8 +40,31 @@ with
             tempo_integracao_minutos,
             valor_integracao,
             tipo_integracao,
+            "BUC" as tipo_bilhete_unico,
             indicador_integracao
         from {{ ref("aux_matriz_transferencia") }}
+
+        union all
+
+        select
+            date("2026-04-29") as data_inicio,
+            data_fim,
+            modo_origem,
+            id_servico_jae_origem,
+            id_servico_gtfs_origem,
+            tabela_gtfs_origem,
+            integracao_origem,
+            modo_destino,
+            id_servico_jae_destino,
+            id_servico_gtfs_destino,
+            tabela_gtfs_destino,
+            tempo_integracao_minutos,
+            valor_integracao,
+            tipo_integracao,
+            "BUM" as tipo_bilhete_unico,
+            indicador_integracao
+        from {{ ref("aux_matriz_transferencia") }}
+        where modo_origem = 'VLT' and (data_fim is null or data_fim >= "2026-04-29")
     ),
     excecoes as (
         select
@@ -74,6 +96,7 @@ with
             cast(tempo_integracao_minutos as float64) as tempo_integracao_minutos,
             cast(valor_integracao as numeric) as valor_integracao,
             tipo_integracao,
+            tipo_bilhete_unico,
             cast(indicador_integracao as bool) as indicador_integracao
         from {{ source("source_smtr", "matriz_integracao_excecao") }}
     ),
@@ -93,6 +116,7 @@ with
             tempo_integracao_minutos,
             valor_integracao,
             tipo_integracao,
+            tipo_bilhete_unico,
             indicador_integracao
         from {{ ref("aux_matriz_integracao_modo") }}
     ),
@@ -132,6 +156,7 @@ select
     m.tempo_integracao_minutos,
     m.valor_integracao,
     m.tipo_integracao,
+    m.tipo_bilhete_unico,
     m.indicador_integracao,
     '{{ var("version") }}' as versao
 from matriz_completa m
