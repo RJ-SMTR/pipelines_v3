@@ -19,4 +19,4 @@ COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
 COPY ./pipelines/capture__jae_transacao_erro ./pipelines/capture__jae_transacao_erro/
 
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock

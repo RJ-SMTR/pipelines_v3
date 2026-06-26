@@ -10,4 +10,4 @@ COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__riooni
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
