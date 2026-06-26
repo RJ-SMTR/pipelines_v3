@@ -120,6 +120,10 @@ with
                             = 4
                             and ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
                             like '2%'
+                            and length(
+                                ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
+                            )
+                            = 2
                         )
                     then ['SPPO']
                     when
