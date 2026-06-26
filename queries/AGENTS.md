@@ -1,72 +1,73 @@
-# `AGENTS.md`
+# queries/ — dbt Project
 
-## Goals
+## Structure
 
-1. Make a pre-existing dbt project compatible with the new authoring layer, so it can parse and compile successfully on the Fusion engine.
-2. Preserve existing functionality as much as possible.
-3. Flag when the dbt project is using functionality that's not yet supported in Fusion, and ask users so they can choose whether to wait for feature support or remove use of unsupported features.
+```
+queries/
+  dbt_project.yml        # Config + vars (date_range_start/end, datetime_start/end, flow_name)
+  selectors.yml          # Named selectors for `dbt build --selector <name>`
+  packages.yml           # dbt package dependencies
+  dev/profiles.yml       # Local connection profile — use with --profiles-dir ./dev
+  models/
+    <domain>/            # e.g., transito, cadastro, bilhetagem
+      staging/           # Raw → structured (stg_*, aux_*)
+      *.sql              # Transformation models
+      schema.yml         # Column docs + tests
+  macros/                # Reusable SQL functions
+  snapshots/<domain>/    # SCD Type 2 snapshots
+  seeds/                 # Static CSV data
+  tests/                 # Data quality tests
+  manual_fixes/          # dbt Fusion migration kit (see fusion_migration.md)
+```
 
+## Commands
 
-## Migrating to the new authoring layer and the dbt Fusion engine
+**ALWAYS pass `--profiles-dir ./dev` when running dbt locally.**
 
-if a user says "migrate my dbt project to the new authoring layer" or "make my dbt project compatible with the Fusion engine" do the following steps and the migration is only successfully completed once `dbtf compile` finishes with 0 errors. Create a changes_made.md file documenting and summarizing all of the code changes made in the user's dbt project, including what the error was, the fix applied, and a summary of why the fix was chosen.
+```bash
+cd queries
 
-Before you begin, please read and understand the resources section below. You should strictly use the resources below to update the project.
+dbt deps                                                    # Install packages
+dbt build --selector <selector_name> --profiles-dir ./dev  # Build models by selector
+dbt build --select tag:daily --profiles-dir ./dev          # Build by tag
+dbt compile --select <model> --profiles-dir ./dev          # See generated SQL (debug)
+dbt parse --profiles-dir ./dev                             # Check for parse errors
+dbt test --profiles-dir ./dev                              # Run data quality tests
+dbt source freshness --profiles-dir ./dev                  # Check source freshness
+```
 
-1. Run `dbtf debug` in the terminal to check their data platform connections. Proceed to step 2 if there are no errors. If there are errors, please summarize the error succinctly so the user knows how to debug on their own.
-2. Run `dbtf parse --show-all-deprecations` in the terminal to check for compatibility errors in their current project. Summarize the log output by specifying how many errors were found and group the errors in a way that's easily understandable.
-3. Install [dbt-autofix](https://github.com/dbt-labs/dbt-autofix) and run autofix to try to fix errors. Prefer uv/uvx to install (`uv tool install dbt-autofix`) and run the package (`uvx dbt-autofix deprecations`), but fall back to pip and other methods if needed. Summarize the results of the autofix run and include how many errors were resolved. Run `dbtf parse` again to check for remaining errors and summarize with how many errors were found and a brief summary of the types of errors.
-4. For remaining errors, please ONLY use the resources below to attempt to resolve them. If you can't figure out a fix from the resources below, notify the user and break out of the flow. Attempt the fixes error by error, grouping similar errors based on the error code and message. You should also summarize which error you're working on in the chat to give users context.
+## Key Variables (dbt_project.yml)
 
-   **Special handling for common unsupported features:**
-   - **Python model errors**: Disable with `{{ config(enabled=false) }}` at the top of the file.
+- `date_range_start`, `date_range_end` — Date filtering
+- `datetime_start`, `datetime_end` — DateTime filtering
+- `flow_name` — Current flow identifier
+- Domain-specific vars: `brt_terminais`, `sppo_registros_staging`, etc.
 
-   Run `dbtf parse` throughout this step to check for progress towards completing the migration. Once `dbtf parse` finishes successfully with 0 errors, proceed to step 5.
-5. Run `dbtf compile` in the terminal and check if it finishes with 0 errors. If it finishes with 0 errors, you have successfully completed the migration. If there are unresolved errors, try step 4 again. Except this time, use `dbtf compile` to check for progress towards completing the migration.
+## Formatting Rule
 
-## Don't Do These Things
-1. At any point, if you run into a feature that's not yet supported on Fusion (not a deprecation!), please let the user know instead of trying to resolve it. Give the user the choice of removing the feature or manually addressing it themselves.
+**ALWAYS run `sqlfmt <file>.sql` after editing any SQL model.** This is mandatory before committing.
 
-## Handling Unsupported Features
+## Test Naming
 
-When you encounter unsupported features in Fusion, follow this decision tree:
+Named tests in `schema.yml` must use the full package prefix in the `name:` field:
 
-### For Unsupported Model Types (Python models, etc.)
-- **Python models**: Disable with `{{ config(enabled=false) }}` at the top of the file
-- **Materialized views/Dynamic tables**: Disable with `{{ config(enabled=false) }}` at the top of the file
+```yaml
+- dbt_expectations.expect_row_values_to_have_recent_data:
+    name: dbt_expectations.expect_row_values_to_have_recent_data__<column>__<table>
+```
 
-### For Unsupported Config Keys
-- **Custom configs**: Move to `meta` block in model files (see [`custom_configuration.md`](https://github.com/dbt-labs/dbt-autofix/blob/main/manual_fixes/custom_configuration.md))
-- **Deprecated configs**: Follow misspelled_config_keys.md guidance
+## DBTSelector (Python side)
 
-### For Dependency Issues
-- If a model depends on an unsupported feature, disable the dependent model as well
-- Update exposure dependencies to remove references to disabled models
+Treatment pipelines use `DBTSelector` from `pipelines.common.treatment.default_treatment.utils`:
 
-## Resources
+```python
+from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
-### Common problems that cannot be addressed with deterministic dbt-autofix
-Use the files in the `manual_fixes/` directory as the context for resolving these common problems:
-- Each file outlines one problem and the solution you should use.
-- Only follow what's specified in the file. If you need more context, use the dbt docs section below as a resource.
+SELECTOR = DBTSelector(
+    name="<selector_name>",            # Must match selectors.yml
+    initial_datetime=datetime(..., tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__<name>",
+)
+```
 
-Unsupported features and blockers to Fusion compatibility. These pages outline the supported and unsupported features of the Fusion engine:
-- https://docs.getdbt.com/docs/fusion/supported-features
-- Unsupported features on Fusion: https://docs.getdbt.com/docs/fusion/supported-features#limitations
-- https://docs.getdbt.com/docs/dbt-versions/core-upgrade/upgrading-to-fusion
-- If a model type is unsupported on Fusion (e.g. python models), you can disable it with this jinja macro `{{ config(enabled=false) }}` at the top of the file to disable the model.
-
-Config keys that Fusion should recognize:
-You can find the latest schema file using this template: `https://public.cdn.getdbt.com/fs/schemas/fs-schema-{RESOURCE}-{VERSION}.json`
-- `RESOURCE` is either `dbt-yaml-files` or `dbt-project`
-- `VERSION` is the fusion version (e.g. `v2.0.0-beta.34`, but `https://public.cdn.getdbt.com/fs/latest.json` gives you the latest version)
-- Example file: https://public.cdn.getdbt.com/fs/schemas/fs-schema-dbt-yaml-files-v2.0.0-beta.34.json
-
-### dbt docs
-
-https://docs.getdbt.com/reference/deprecations#list-of-deprecation-warnings
-https://github.com/dbt-labs/dbt-fusion/discussions/401
-https://docs.getdbt.com/docs/fusion/supported-features
-https://docs.getdbt.com/docs/fusion/new-concepts
-
-
+When reusing/combining a `DBTSelector` from another pipeline's `constants.py`, wrap it in `deepcopy()` to avoid mutating the shared object.
