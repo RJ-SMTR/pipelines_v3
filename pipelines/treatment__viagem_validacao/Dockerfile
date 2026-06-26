@@ -35,4 +35,4 @@ COPY ./pipelines/capture__zirix_realocacao ./pipelines/capture__zirix_realocacao
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
