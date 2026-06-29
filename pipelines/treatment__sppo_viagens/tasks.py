@@ -38,6 +38,7 @@ def prepare_sppo_viagens_contexts(  # noqa: PLR0913
     selector = constants.VIAGENS_SPPO_D0_SELECTOR if is_d0_run and not force_current_day else constants.VIAGENS_SPPO_SELECTOR
     snapshot_selector = None if is_d0_run and not force_current_day else constants.VIAGENS_SPPO_SNAPSHOT_SELECTOR
 
+
     if datetime_start and datetime_end:
         start = datetime.fromisoformat(datetime_start).date()
         end = datetime.fromisoformat(datetime_end).date()
