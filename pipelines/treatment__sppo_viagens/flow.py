@@ -40,6 +40,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     additional_vars: Optional[dict] = None,
     fallback_run: bool = False,
     skip_source_check: bool = False,
+    force_current_day: bool = False,
 ):
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env_task)
@@ -55,6 +56,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         datetime_end=datetime_end,
         additional_vars=additional_vars,
         timestamp=timestamp,
+        force_current_day=force_current_day,
     )
 
     contexts, should_run = test_fallback_run(
