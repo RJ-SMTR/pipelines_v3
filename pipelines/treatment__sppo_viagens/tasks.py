@@ -26,11 +26,8 @@ def prepare_sppo_viagens_contexts(
     force_current_day: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """Prepara contextos para materialização SPPO com lógica D0."""
-    is_d0_run = (
-        force_current_day
-        or (timestamp.hour >= D0_HOUR_THRESHOLD
-        and datetime_start is None
-        and datetime_end is None)
+    is_d0_run = force_current_day or (
+        timestamp.hour >= D0_HOUR_THRESHOLD and datetime_start is None and datetime_end is None
     )
 
     if is_d0_run:
@@ -38,9 +35,7 @@ def prepare_sppo_viagens_contexts(
         datetime_start = f"{d1}T00:00:00"
         datetime_end = f"{d1}T23:59:59"
 
-    selector = (
-        constants.VIAGENS_SPPO_D0_SELECTOR if is_d0_run else constants.VIAGENS_SPPO_SELECTOR
-    )
+    selector = constants.VIAGENS_SPPO_D0_SELECTOR if is_d0_run else constants.VIAGENS_SPPO_SELECTOR
     snapshot_selector = None if is_d0_run else constants.VIAGENS_SPPO_SNAPSHOT_SELECTOR
 
     if datetime_start and datetime_end:
