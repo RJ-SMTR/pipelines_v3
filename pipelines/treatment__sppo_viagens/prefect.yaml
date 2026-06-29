@@ -39,10 +39,19 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__sppo_viagens/flow.py:treatment__sppo_viagens
     schedules:
+      # Modo normal
       - cron: "0 5 * * *"
         timezone: "America/Sao_Paulo"
+        active: false
       - cron: "0 14 * * *"
         timezone: "America/Sao_Paulo"
+        active: false
+      # Modo acompanhamento D0 (a cada 3h, dia atual)
+      - cron: "0 */3 * * *"
+        timezone: "America/Sao_Paulo"
+        active: true
+        parameters:
+          force_current_day: true
     work_pool:
       name: smtr-pool
       work_queue_name: default
