@@ -17,7 +17,7 @@ D0_HOUR_THRESHOLD = 14
 
 
 @task(cache_policy=NO_CACHE)
-def prepare_sppo_viagens_contexts( # noqa: PLR0913
+def prepare_sppo_viagens_contexts(  # noqa: PLR0913
     env: Optional[str],
     datetime_start: Optional[str],
     datetime_end: Optional[str],
