@@ -42,12 +42,12 @@ deployments:
       # Modo normal
       - cron: "0 5 * * *"
         timezone: "America/Sao_Paulo"
-        active: false
+        active: true
       - cron: "0 14 * * *"
         timezone: "America/Sao_Paulo"
         active: false
       # Modo acompanhamento D0 (a cada 3h, dia atual)
-      - cron: "0 */3 * * *"
+      - cron: "59 2-23/3 * * *"
         timezone: "America/Sao_Paulo"
         active: true
         parameters:
