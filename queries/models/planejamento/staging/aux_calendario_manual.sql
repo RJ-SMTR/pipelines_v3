@@ -74,6 +74,10 @@ with
                 then "Domingo"  -- Feriado sexta-feira da Paixão
                 when data = date(2026, 04, 24)
                 then "Ponto Facultativo"  -- DECRETO RIO Nº 57867 DE 13 DE ABRIL DE 2026
+                when data = date(2026, 06, 04)
+                then "Domingo"  -- Feriado de Corpus Christi
+                when data = date(2026, 06, 05)
+                then "Ponto Facultativo"  -- DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026
             end as tipo_dia,
             case
                 when data between date(2024, 09, 14) and date(2024, 09, 15)
@@ -174,6 +178,18 @@ with
                 then "Verão"  -- 000399.001668/2026-95 - Acionamento do Plano Verão
                 when data = date(2026, 03, 14)
                 then "Term_Marg"  -- 000399.003413/2026-67 - Inauguração do Terminal Margaridas
+                when data = date(2026, 05, 02)
+                then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
+                when data = date(2026, 05, 03)
+                then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
+                when data = date(2026, 05, 17)
+                then "Oper_634"  -- 000399.011715/2026-17 - Inauguração 634
+                when data = date(2026, 06, 13)
+                then "Copa_13_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 19)
+                then "Copa_19_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 24)
+                then "Copa_24_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
             end as tipo_os
         from
             unnest(

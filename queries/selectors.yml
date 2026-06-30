@@ -34,9 +34,47 @@ selectors:
             - method: fqn
               value: aux_viagem_temperatura
         - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
           value: viagens_remuneradas
         - method: fqn
           value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
+        - method: fqn
+          value: subsidio_penalidade_servico_faixa
+        - method: fqn
+          value: subsidio_sumario_servico_dia_pagamento
+        - method: path
+          value: models/dashboard_subsidio_sppo_v2
+        - method: fqn
+          value: dicionario_dashboard_subsidio_sppo
+
+  - name: apuracao_subsidio_v14
+    description: Apuração com faixa horária e classificação de viagens (V14+)
+    definition:
+      union:
+        - method: path
+          value: models/dashboard_subsidio_sppo_staging
+        - method: fqn
+          value: valor_tipo_penalidade
+        - method: fqn
+          value: staging_tecnologia_servico
+        - method: fqn
+          value: tecnologia_servico
+        - method: path
+          value: models/subsidio
+        - exclude:
+            - method: fqn
+              value: aux_viagem_temperatura
+        - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
+          value: viagens_remuneradas
+        - method: fqn
+          value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
         - method: fqn
           value: subsidio_penalidade_servico_faixa
         - method: fqn
@@ -84,7 +122,7 @@ selectors:
         - method: fqn
           value: servico_planejado_faixa_horaria
         - method: fqn
-          value: viagem_planejada_planejamento
+          value: viagem_planejada_planejamento_dia
 
   - name: transacao_ordem
     description: Materialização da tabela auxiliar de relacionamento entre as ordens de pagamento e as transações
@@ -394,6 +432,8 @@ selectors:
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
+        - method: fqn
+          value: aux_gps_filtrada
         - method: fqn
           value: gps
 

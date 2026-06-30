@@ -12,11 +12,15 @@ import pandas_gbq
 import sentry_sdk
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
+from prefect.client.schemas import FlowRun
+from prefect.deployments import run_deployment
+from prefect.flows import Flow
 
 from pipelines.common import constants
 from pipelines.common.utils.discord import send_discord_message
 from pipelines.common.utils.env import inject_bd_credentials
 from pipelines.common.utils.fs import save_local_file
+from pipelines.common.utils.prefect import FailedSubFlowError
 from pipelines.common.utils.secret import get_env_secret, set_local_secrets
 from pipelines.common.utils.utils import async_post_request, convert_timezone, is_running_locally
 
@@ -26,6 +30,7 @@ def initialize_sentry(env):
     if is_running_locally():
         return
     print("Inicializando Sentry SDK")
+    print(f"Ambiente: {env}")
     sentry_dsn = get_env_secret("sentry", "dsn")["dsn"]
     environment = env
     sentry_sdk.init(
@@ -195,3 +200,76 @@ def task_send_discord_message(message: Union[str, list[str]], webhook: str):
         final_message = "[DEV] " + m if is_running_locally() else m
 
         send_discord_message(message=final_message, webhook_url=webhook_url)
+
+
+@task(cache_policy=NO_CACHE)
+async def run_subflow(  # noqa: PLR0913
+    env: str,
+    flow: Flow,
+    parameters: list[dict] | None = None,
+    maximum_parallelism: int = 1,
+    deployment_name: str | None = None,
+    wait_for_completion: bool = True,
+) -> list[FlowRun]:
+    """
+    Executa um deployment como subflow.
+
+    Args:
+        env (str): Prod ou dev.
+        flow (Flow): Flow do prefect para ser executado.
+        parameters (Optional[list[dict]]): Lista de dicionários contendo os parâmetros de cada
+            execução do deployment. Se não informado, executa uma única vez com parâmetros vazios.
+        maximum_parallelism (int): Número máximo de execuções simultâneas do deployment.
+        deployment_name (Optional[str]): Nome do deployment
+        wait_for_completion (bool): Se True (padrão), aguarda o término das execuções e levanta
+            FailedSubFlowError caso alguma não finalize com sucesso. Se False, apenas dispara as
+            execuções (fire-and-forget) e retorna imediatamente, sem propagar falhas.
+
+    Returns:
+        list[FlowRun]: Lista contendo os objetos `FlowRun` retornados pelo `run_deployment`.
+    """
+
+    if maximum_parallelism <= 0:
+        raise ValueError("maximum_parallelism deve ser maior que 0.")
+
+    parameters = parameters or [{}]
+
+    flow_name = flow.name
+    flow_type, pipeline = flow_name.split("--", maxsplit=1)
+
+    flow_env = "prod" if env == "prod" else "staging"
+
+    deployment_name = deployment_name or f"rj-{flow_type}--{pipeline.replace('-', '_')}--{flow_env}"
+
+    deployment_name = f"{flow_name}/{deployment_name}"
+
+    semaphore = asyncio.Semaphore(maximum_parallelism)
+
+    async def _run(params):
+        async with semaphore:
+            print(f"Executando o deployment {deployment_name} com os parâmetros:\n{params}")
+            return await run_deployment(
+                name=deployment_name,
+                parameters=params,
+                timeout=None if wait_for_completion else 0,
+            )
+
+    coroutines = [_run(params) for params in parameters]
+    runs = await asyncio.gather(*coroutines)
+
+    if not wait_for_completion:
+        return runs
+
+    fail_message = "Os seguintes execuções falharam:\n"
+    flow_run_base_url = "https://prefect-v3.mobilidade.rio/runs/flow-run"
+    raise_error = False
+    for run in runs:
+        if not run.state.is_completed():
+            fail_message += (
+                f"\n{flow_run_base_url}/{run.id} finalizou com o estado: {run.state_name}"
+            )
+            raise_error = True
+    if raise_error:
+        raise FailedSubFlowError(fail_message)
+
+    return runs

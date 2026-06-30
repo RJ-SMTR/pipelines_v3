@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -14,13 +16,13 @@ from pipelines.treatment__transacao_ordem import constants
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
 def treatment__transacao_ordem(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    fallback_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    fallback_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

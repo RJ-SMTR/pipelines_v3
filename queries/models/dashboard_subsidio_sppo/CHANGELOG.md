@@ -1,5 +1,39 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.2.4] - 2026-06-22
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar uma exceção para o limite de viagens de servicos especificados no Processo nº 000300.021698/2026-60. (https://github.com/RJ-SMTR/pipelines_v3/pull/307)
+
+## [8.2.3] - 2026-06-11
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar uma exceção para o limite de viagens de servicos especificados no Processo nº 000300.021698/2026-60. (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+## [8.2.2] - 2026-06-01
+
+### Adicionado
+
+- Cria modelo `aux_viagem_remunerada_excecao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+### Alterado
+
+- Altera lógica das exceções do modelo `viagens_remuneradas_v2.sql`, removendo da query e consultando o modelo auxiliar (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+## [8.2.1] - 2026-05-22
+
+### Alterado
+
+- Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000300.019252/2026-75 no período entre `2026-05-01` e `2026-05-15` (https://github.com/RJ-SMTR/pipelines_v3/pull/204)
+
+## [8.2.0] - 2026-05-08
+
+### Alterado
+
+- Alterado o modelo `viagens_remuneradas_v2` para adicionar exceção no limite de viagens em serviços especificados no Processo SEI: 000300.017825/2026-26 no período entre `2026-04-16` e `2026-04-30` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1446)
+
 ## [8.1.9] - 2026-04-22
 
 ### Alterado

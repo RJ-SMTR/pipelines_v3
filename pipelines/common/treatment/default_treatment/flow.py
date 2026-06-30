@@ -13,10 +13,12 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
     run_dbt_snapshots,
     save_materialization_datetime_redis,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
     test_fallback_run,
     wait_data_sources,
@@ -39,6 +41,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     snapshot_selector: Optional[DBTSelector] = None,
     fallback_run: bool = False,
+    skip_pre_test: bool = False,
+    test_only: bool = False,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -60,6 +64,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
             argumento wait_for das tasks retornadas por esta função.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
+        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -79,6 +85,15 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     tasks["setup_enviroment"] = setup_environment(
         env=env,
         wait_for=tasks_wait_for.get("setup_enviroment"),
+    )
+
+    tasks["setup_dbt_queries"] = setup_dbt_queries(
+        env=tasks["env"],
+        wait_for=[tasks["setup_enviroment"]],
+    )
+
+    tasks["install_dbt_packages"] = install_dbt_packages(
+        wait_for=[tasks["setup_dbt_queries"]],
     )
 
     # initialize sentry for error capturing
@@ -101,8 +116,10 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         test_scheduled_time=test_scheduled_time,
         force_test_run=force_test_run,
         snapshot_selector=snapshot_selector,
+        skip_pre_test=skip_pre_test,
+        test_only=test_only,
         wait_for=[
-            tasks["setup_enviroment"],
+            tasks["install_dbt_packages"],
             *tasks_wait_for.get("contexts", []),
         ],
     )
@@ -148,14 +165,17 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
 
-        tasks["run_dbt"] = run_dbt_selectors(
-            contexts=contexts,
-            flags=flags,
-            wait_for=[
-                tasks["pre_tests_notify_discord"],
-                *tasks_wait_for.get("run_dbt", []),
-            ],
-        )
+        if not test_only:
+            tasks["run_dbt"] = run_dbt_selectors(
+                contexts=contexts,
+                flags=flags,
+                wait_for=[
+                    tasks["pre_tests_notify_discord"],
+                    *tasks_wait_for.get("run_dbt", []),
+                ],
+            )
+        else:
+            tasks["run_dbt"] = None
 
         tasks["post_tests"] = run_dbt_selector_tests(
             contexts=contexts,
@@ -181,18 +201,19 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
 
-        tasks["run_dbt_snapshots"] = run_dbt_snapshots(
-            contexts=contexts,
-            flags=flags,
-            wait_for=[
-                tasks["post_tests_notify_discord"],
-                *tasks_wait_for.get("run_dbt_snapshots", []),
-            ],
-        )
+        if not test_only:
+            tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+                contexts=contexts,
+                flags=flags,
+                wait_for=[
+                    tasks["post_tests_notify_discord"],
+                    *tasks_wait_for.get("run_dbt_snapshots", []),
+                ],
+            )
 
-        tasks["save_redis"] = save_materialization_datetime_redis(
-            contexts=contexts,
-            wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
-        )
+            tasks["save_redis"] = save_materialization_datetime_redis(
+                contexts=contexts,
+                wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
+            )
 
     return tasks

@@ -13,7 +13,7 @@ queries:
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
-      gcs_bucket: rj-smtr
+      gcs_bucket: rj-smtr-dev
       dataproc_region: us-central1
       submission_method: serverless
       dataproc_batch:
@@ -39,7 +39,7 @@ queries:
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
-      gcs_bucket: rj-smtr
+      gcs_bucket: rj-smtr-dev
       dataproc_region: us-central1
       submission_method: serverless
       dataproc_batch:

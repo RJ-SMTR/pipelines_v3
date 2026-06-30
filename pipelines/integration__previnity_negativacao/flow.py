@@ -9,6 +9,9 @@ Schedule:
 DBT: 2026-03-23
 """
 
+from datetime import datetime
+from typing import Optional
+
 import pandas as pd
 from prefect import runtime
 from prefect.utilities.annotations import unmapped
@@ -29,9 +32,11 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
     save_materialization_datetime_redis,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
 )
 from pipelines.common.utils.prefect import flow
@@ -45,18 +50,20 @@ from pipelines.integration__previnity_negativacao.tasks import (
 
 @flow(log_prints=True, timeout_seconds=10800)
 async def integration__previnity_negativacao(  # noqa: PLR0913
-    timestamp=None,
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+    timestamp: Optional[datetime] = None,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
     # initialize sentry for error capturing
     initialize_sentry(env)
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 
@@ -140,6 +147,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         run_dbt_future = run_dbt_selectors(
             contexts=materialization_contexts,
             flags=flags,
+            wait_for=[dbt_deps],
         )
 
         run_tests_future = run_dbt_selector_tests(

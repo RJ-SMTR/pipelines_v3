@@ -10,7 +10,7 @@ on:
       - .github/workflows/cd_automations.yaml
 
 env:
-  PREFECT_API_URL: ${{ secrets.PREFECT_WEB_API_URL }}
+  PREFECT_API_URL: ${{ secrets.PREFECT_V3_WEB_API_URL }}
   PREFECT_CLIENT_CUSTOM_HEADERS: ${{ secrets.AUTH_HEADERS }}
 
 jobs:
@@ -38,14 +38,6 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      # - name: Get Changed Files
-      #   id: files
-      #   uses: tj-actions/changed-files@v34
-      #   with:
-      #     files: |
-      #       automations/**/*.yaml
-
-      - name: Create automations
-        # if: steps.files.outputs.any_changed == 'true'
+      - name: Deploy automations
         run: |
           uv run automations/deploy_automations.py automations/automations.yaml

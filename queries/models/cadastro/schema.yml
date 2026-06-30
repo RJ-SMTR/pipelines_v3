@@ -110,11 +110,8 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-      - name: id_operadora
-        description: "Identificador único do operador, podendo ser o código de permissionário ou código da Jaé"
-        data_type: string
-      - name: operadora
-        description: "Nome do operador [mascarado quando o operador é pessoa física]"
+      - name: id_operadora_jae
+        description: "{{ doc('id_operadora_jae') }}"
         data_type: string
       - name: servico
         description: "Nome do serviço consolidado. Para linhas, é o nome curto da linha [ex: 010, 011SN]. E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé. [Caso o registro não exista no GTFS, busca o serviço na base de dados da Jaé]"
@@ -164,11 +161,12 @@ models:
     description: Tabela histórica de dados cadastrais dos veículos que operam o sistema de transporte rodoviário, considerando tanto os licenciados no Sistema de Transporte Urbano [STU] quanto as solicitações válidas em andamento para ingresso no sistema [contém dados a partir de 2025-04-01]
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-          - data
-          - id_veiculo
-          - data_processamento
           name: dbt_utils.unique_combination_of_columns__veiculo_licenciamento_dia
+          arguments:
+            combination_of_columns:
+              - data
+              - id_veiculo
+              - data_processamento
       - test_check_data_arquivo_licenciamento:
           name: test_check_data_arquivo_licenciamento__veiculo_licenciamento_dia
     columns:
@@ -271,7 +269,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_ultima_vistoria__veiculo_licenciamento_dia
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo not like '%ROD%' and tipo_veiculo not like '%BRT%' and extract(year from data_inicio_vinculo) != extract(year from current_date())"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo not like '%ROD%' and tipo_veiculo not like '%BRT%' and extract(year from data_inicio_vinculo) != extract(year from current_date())"
       - name: ano_ultima_vistoria
         description: "{{ doc('ano_ultima_vistoria_atualizado') }}"
         data_type: int64
@@ -279,7 +278,8 @@ models:
         tests:
           - not_null:
               name: not_null__ano_ultima_vistoria__veiculo_licenciamento_dia
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo not like '%ROD%' and tipo_veiculo not like '%BRT%' and extract(year from data_inicio_vinculo) != extract(year from current_date())"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo not like '%ROD%' and tipo_veiculo not like '%BRT%' and extract(year from data_inicio_vinculo) != extract(year from current_date())"
       - name: ultima_situacao
         description: Última situação do veículo na data atual
         data_type: string
@@ -375,22 +375,8 @@ models:
     columns:
       - name: id_device_operadora
         description: "Identificador do relacionamento entre o validador da Jaé e a operadora de transporte"
-      - name: modo
-        description: "{{ doc('modo_operadora') }}"
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
-      - name: operadora
-        description: "{{ doc('nome_operadora') }} [mascarado quando o operador é pessoa física]"
-      - name: operadora_completo
-        description: "{{ doc('nome_operadora') }} [protegido]"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
-      - name: tipo_documento
-        description: "{{ doc('tipo_documento_operadora') }}"
-      - name: documento
-        description: "{{ doc('documento_operadora') }}"
-        policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
       - name: datetime_inicio_validade
         description: "Data e hora do início da vinculação entre a operadora de transporte e o validador da Jaé"
       - name: datetime_fim_validade

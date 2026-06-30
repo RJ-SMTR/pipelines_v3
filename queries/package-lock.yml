@@ -14,7 +14,10 @@ packages:
   - name: elementary
     package: elementary-data/elementary
     version: 0.23.0
+  - name: dbt_project_evaluator
+    package: dbt-labs/dbt_project_evaluator
+    version: 1.3.0
   - name: dbt_date
     package: godatadriven/dbt_date
-    version: 0.17.2
-sha1_hash: 00d6b3e7a4b9f909e95c9005d549b4f675efb992
+    version: 0.18.0
+sha1_hash: 0d7427e29e4c8b27f657cc680418c9dddc9ce1e2

@@ -9,7 +9,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 
 RIO_ONIBUS_SOURCE_NAME = "rioonibus"
 RIO_ONIBUS_SECRET_PATH = "rioonibus_api"
-VIAGEM_INFORMADA_BASE_URL = "https://us-east1-papo-tec.cloudfunctions.net/viagem_informada_smtr"
+VIAGEM_INFORMADA_BASE_URL = "https://smtr.draxo.com.br/viagem_informada_smtr"
 VIAGEM_INFORMADA_TABLE_ID = "viagem_informada"
 
 VIAGEM_INFORMADA_SOURCE = SourceTable(

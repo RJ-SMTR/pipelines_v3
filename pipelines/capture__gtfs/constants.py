@@ -38,14 +38,15 @@ GTFS_TABLE_CAPTURE_PARAMS = {
 }
 
 GTFS_DBT_EXCLUDE = (
-    "calendario aux_calendario_manual viagem_planejada_planejamento "
+    "calendario aux_calendario_manual viagem_planejada_planejamento_dia "
     "matriz_integracao tecnologia_servico aux_ordem_servico_faixa_horaria "
-    "servico_planejado_faixa_horaria matriz_reparticao_tarifaria aux_segmento_shape "
+    "servico_planejado_faixa_horaria matriz_reparticao_tarifaria"
 )
 
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
-    "viagem_planejada viagens_remuneradas sumario_servico_dia_historico"
+    "viagem_planejada viagens_remuneradas sumario_servico_dia_historico "
+    "viagem_planejada_planejamento_dia"
 )
 
 GTFS_DATA_CHECKS_LIST = {
@@ -74,10 +75,18 @@ GTFS_DATA_CHECKS_LIST = {
         "dbt_expectations.expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs": {
             "description": "A quantidade de registros de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'faixa_horaria_inicio' e 'shape_id' está dentro do intervalo esperado."
         },
+        "dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs": {
+            "description": "Todos os valores de 'distancia_planejada' são maiores que zero"
+        },
     },
     "trips_gtfs": {
         "test_shape_id_gtfs__trips_gtfs": {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
+        },
+    },
+    "viagem_planejada_planejamento": {
+        "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento": {
+            "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
         },
     },
 }

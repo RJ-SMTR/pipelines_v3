@@ -137,6 +137,10 @@ models:
         description: "{{ doc('servico') }}"
         data_type: string
         quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
@@ -393,11 +397,12 @@ models:
           name: check_gps_treatment__gps
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__gps
-          combination_of_columns:
-            - datetime_gps
-            - id_veiculo
-            - latitude
-            - longitude
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -474,9 +479,55 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
-  - name: gps_onibus_sppo_completo
+  - name: view_gps_sppo_completo
     description: "Visão unificada dos dados de GPS do SPPO, combinando o histórico legado de `br_rj_riodejaneiro_veiculos.gps_sppo` com o novo `gps_onibus_sppo`. O corte é controlado pela variável `datetime_gps_sppo_2` em `dbt_project.yml`. Schema segue o do novo modelo."
     columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: view_gps_onibus
+    description: |
+      View que consolida dados de GPS de todos os fornecedores.
+      Fonte: tabelas de GPS tratadas de cada fornecedor.
+      Usada para validar atualização de dados por fornecedor via testes de freshness agrupados.
+    tests:
+      - dbt_expectations.expect_grouped_row_values_to_have_recent_data:
+          name: dbt_expectations.expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
+          arguments:
+            group_by: ["fonte_gps"]
+            timestamp_column: datetime_gps
+            datepart: hour
+            interval: 3
+          config:
+            tags: ["freshness", "hourly"]
+            severity: warn
+    columns:
+      - name: fonte_gps
+        description: "Identificador do fornecedor de GPS"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
@@ -508,19 +559,23 @@ models:
     description: Tabela com as informações do controle do lacre e deslacre de veículos
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - id_veiculo
-            - data_inicio_lacre
-            - id_auto_infracao
           name: dbt_utils.unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - id_veiculo
+              - data_inicio_lacre
+              - id_auto_infracao
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - placa
-            - data_inicio_lacre
-            - id_auto_infracao
           name: dbt_utils.unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - placa
+              - data_inicio_lacre
+              - id_auto_infracao
     columns:
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
@@ -529,7 +584,8 @@ models:
         tests:
           - not_null:
               name: not_null__id_veiculo__veiculo_fiscalizacao_lacre
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: placa
         description: "{{ doc('placa') }}"
         data_type: string
@@ -537,7 +593,8 @@ models:
         tests:
           - not_null:
               name: not_null__placa__veiculo_fiscalizacao_lacre
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: data_inicio_lacre
         description: Data de inicio do lacre [partição]
         data_type: date
@@ -545,7 +602,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_inicio_lacre__veiculo_fiscalizacao_lacre
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: data_fim_lacre
         description: Data de fim do lacre
         data_type: date
@@ -563,14 +621,17 @@ models:
         tests:
           - dbt_utils.relationships_where:
               name: dbt_utils.relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre
-              to: ref('autuacao_disciplinar_historico')
-              field: id_auto_infracao
-              to_condition: "data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
-              from_condition: "data_inicio_lacre <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day) and id_auto_infracao != 'D -00012506'"
-              where: "1=1"
+              config:
+                where: "1=1"
+              arguments:
+                to: ref('autuacao_disciplinar_historico')
+                field: id_auto_infracao
+                to_condition: "data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)"
+                from_condition: "data_inicio_lacre <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day) and id_auto_infracao != 'D -00012506'"
           - not_null:
               name: not_null__id_auto_infracao__veiculo_fiscalizacao_lacre
-              where: "1=1"
+              config:
+                where: "1=1"
         data_type: string
         quote: true
       - name: datetime_ultima_atualizacao_fonte
@@ -603,68 +664,70 @@ models:
         tests:
           - not_null:
               name: not_null__datetime_autuacao__autuacao_disciplinar_historico
-              where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }}"
         tests:
           - dbt_utils.relationships_where:
               name: dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico
-              to: ref('veiculo_fiscalizacao_lacre')
-              from_condition: |
-                id_infracao in (
-                  '016.II',
-                  '016.III',
-                  '016.IV',
-                  '016.V',
-                  '016.VI',
-                  '017.IV',
-                  '017.IV',
-                  '019.I',
-                  '019.II',
-                  '019.III',
-                  '023.VII',
-                  '024.VIII',
-                  '024.IX',
-                  '024.XI',
-                  '024.XII',
-                  '024.XIII',
-                  '024.XIV',
-                  '024.XV',
-                  '024.XVI',
-                  '024.XVII',
-                  '024.XXII',
-                  '025.I',
-                  '025.II',
-                  '025.III',
-                  '025.V',
-                  '025.VII',
-                  '025.X',
-                  '025.XI',
-                  '025.XII',
-                  '025.XIII',
-                  '025.XIV',
-                  '025.XV',
-                  '025.XVI',
-                  '026.I',
-                  '026.II',
-                  '026.III',
-                  '026.IV',
-                  '026.V',
-                  '026.VI',
-                  '026.VII',
-                  '026.VIII',
-                  '026.IX',
-                  '026.X',
-                  '026.XI',
-                  '026.XII',
-                  '026.XIII',
-                  '026.XIV'
-                )
-                and modo = 'ONIBUS'
-              field: id_auto_infracao
-              where: |
-                data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
-                and data between date('{date_range_start}') and date('{date_range_end}')
+              config:
+                where: |
+                  data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
+                  and data between date('{date_range_start}') and date('{date_range_end}')
+              arguments:
+                to: ref('veiculo_fiscalizacao_lacre')
+                from_condition: |
+                  id_infracao in (
+                    '016.II',
+                    '016.III',
+                    '016.IV',
+                    '016.V',
+                    '016.VI',
+                    '017.IV',
+                    '019.I',
+                    '019.II',
+                    '019.III',
+                    '023.VII',
+                    '024.VIII',
+                    '024.IX',
+                    '024.XI',
+                    '024.XII',
+                    '024.XIII',
+                    '024.XIV',
+                    '024.XV',
+                    '024.XVI',
+                    '024.XVII',
+                    '024.XXII',
+                    '025.I',
+                    '025.II',
+                    '025.III',
+                    '025.V',
+                    '025.VII',
+                    '025.X',
+                    '025.XI',
+                    '025.XII',
+                    '025.XIII',
+                    '025.XIV',
+                    '025.XV',
+                    '025.XVI',
+                    '026.I',
+                    '026.II',
+                    '026.III',
+                    '026.IV',
+                    '026.V',
+                    '026.VI',
+                    '026.VII',
+                    '026.VIII',
+                    '026.IX',
+                    '026.X',
+                    '026.XI',
+                    '026.XII',
+                    '026.XIII',
+                    '026.XIV'
+                  )
+                  and modo = 'ONIBUS' and data <= date_sub(current_date('America/Sao_Paulo'), interval {{ var('tolerancia_teste_lacre') }} day)
+                field: id_auto_infracao
         data_type: string
         quote: true
       - name: id_infracao
@@ -674,7 +737,8 @@ models:
         tests:
           - not_null:
               name: not_null__id_infracao__autuacao_disciplinar_historico
-              where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
       - name: modo
         description: "{{ doc('modo_onibus') }}"
         data_type: string
@@ -694,49 +758,50 @@ models:
         tests:
           - not_null:
               name: not_null__placa__autuacao_disciplinar_historico
-              where: |
-                data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
-                and id_infracao in (
-                  "016.VI",
-                  "023.VII",
-                  "024.II",
-                  "024.III",
-                  "024.IV",
-                  "024.V",
-                  "024.VI",
-                  "024.VII",
-                  "024.VIII",
-                  "024.IX",
-                  "024.XII",
-                  "024.XIV",
-                  "024.XV",
-                  "025.II",
-                  "025.XII",
-                  "025.XIII",
-                  "025.XIV",
-                  "026.X",
-                  "023.II",
-                  "023.IV",
-                  "023.V",
-                  "023.VI",
-                  "023.VIII",
-                  "024.XIII",
-                  "024.XI",
-                  "024.XVIII",
-                  "024.XXI",
-                  "025.III",
-                  "025.IV",
-                  "025.V",
-                  "025.VI",
-                  "025.VII",
-                  "025.VIII",
-                  "025.IX",
-                  "025.X",
-                  "025.XI",
-                  "023.IX",
-                  "024.X"
-                )
-                and modo = 'ONIBUS'
+              config:
+                where: |
+                  data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
+                  and id_infracao in (
+                    "016.VI",
+                    "023.VII",
+                    "024.II",
+                    "024.III",
+                    "024.IV",
+                    "024.V",
+                    "024.VI",
+                    "024.VII",
+                    "024.VIII",
+                    "024.IX",
+                    "024.XII",
+                    "024.XIV",
+                    "024.XV",
+                    "025.II",
+                    "025.XII",
+                    "025.XIII",
+                    "025.XIV",
+                    "026.X",
+                    "023.II",
+                    "023.IV",
+                    "023.V",
+                    "023.VI",
+                    "023.VIII",
+                    "024.XIII",
+                    "024.XI",
+                    "024.XVIII",
+                    "024.XXI",
+                    "025.III",
+                    "025.IV",
+                    "025.V",
+                    "025.VI",
+                    "025.VII",
+                    "025.VIII",
+                    "025.IX",
+                    "025.X",
+                    "025.XI",
+                    "023.IX",
+                    "024.X"
+                  )
+                  and modo = 'ONIBUS'
       - name: valor
         description: "{{ doc('valor') }}"
         data_type: float64
@@ -756,7 +821,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_inclusao_stu__autuacao_disciplinar_historico
-              where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
       - name: data_inclusao_datalake
         description: Data de inclusão da autuação no datalake
         data_type: date
@@ -764,7 +830,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_inclusao_datalake__autuacao_disciplinar_historico
-              where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
+              config:
+                where: "data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')"
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
@@ -781,18 +848,20 @@ models:
     description: Tabela resumo dos veículos e seus respectivos indicadores [contém dados a partir de 2025-04-01]
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - data
-            - id_veiculo
           name: dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia
+          arguments:
+            combination_of_columns:
+              - data
+              - id_veiculo
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          date_col: data
-          row_condition: "1=1"
-          test_start_date: "{{ var('date_range_start') }}"
-          test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
-          exclusion_condition: |
-            date_day >= date('{{ var("data_final_veiculo_arquitetura_1") }}')
           name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia
+          arguments:
+            date_col: data
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+            exclusion_condition: |
+              date_day >= date('{{ var("data_final_veiculo_arquitetura_1") }}')
       - test_check_veiculo_lacre:
           name: test_check_veiculo_lacre__veiculo_dia
     columns:
@@ -817,7 +886,8 @@ models:
         tests:
           - not_null:
               name: not_null__placa__veiculo_dia
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and status != 'Não licenciado'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and status != 'Não licenciado'"
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
@@ -829,7 +899,8 @@ models:
         tests:
           - not_null:
               name: not_null__tecnologia__veiculo_dia
-              where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo NOT LIKE '%ROD%'"
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_veiculo NOT LIKE '%ROD%'"
       - name: tipo_veiculo
         description: "{{ doc('tipo_veiculo') }}"
       - name: status
@@ -913,7 +984,8 @@ models:
     tests:
       - test_completude_temperatura:
           name: test_completude__temperatura
-          where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
@@ -937,10 +1009,11 @@ models:
     description: "Tabela com indicadores de regularidade de temperatura por veículo por dia"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - data
-            - id_veiculo
           name: dbt_utils.unique_combination_of_columns__veiculo_regularidade_temperatura_dia
+          arguments:
+            combination_of_columns:
+              - data
+              - id_veiculo
     columns:
       - name: data
         description: "{{ doc('data') }}"
@@ -1011,7 +1084,8 @@ models:
         tests:
           - not_null:
               name: not_null__modo__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: data
         description: "{{ doc('data_recebimento_gps') }} (partição)"
       - name: hora
@@ -1021,19 +1095,30 @@ models:
         tests:
           - not_null:
               name: not_null__datetime_gps__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
         tests:
           - not_null:
               name: not_null__datetime_captura__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador
+              arguments:
+                datepart: hour
+                interval: 3
+              config:
+                tags: ["freshness", "hourly"]
+                severity: warn
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         tests:
           - not_null:
               name: not_null__id_operadora__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_operadora_jae
         description: "{{ doc('id_operadora_jae') }}"
       - name: operadora
@@ -1041,19 +1126,22 @@ models:
         tests:
           - not_null:
               name: not_null__operadora__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_servico_jae
         description: "{{ doc('id_servico_jae') }}"
         tests:
           - not_null:
               name: not_null__id_servico_jae__gps_validador
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
+              config:
+                where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         tests:
           - not_null:
               name: not_null__servico_jae__gps_validador
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
+              config:
+                where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
       - name: id_validador
@@ -1061,16 +1149,19 @@ models:
         tests:
           - not_null:
               name: not_null__id_validador__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: id_transmissao_gps
         description: "{{ doc('id_transmissao_gps') }}"
         tests:
           - not_null:
               name: not_null__id_transmissao_gps__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
           - unique:
               name: unique__id_transmissao_gps__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: latitude
         description: "Latitude do validador no momento da transmissão"
       - name: longitude
@@ -1082,13 +1173,15 @@ models:
         tests:
           - not_null:
               name: not_null__sentido__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: estado_equipamento
         description: "Validador aberto ou fechado no momento da transmissão"
         tests:
           - not_null:
               name: not_null__estado_equipamento__gps_validador
-              where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+              config:
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: temperatura
         description: "{{ doc('temperatura_validador') }}"
       - name: versao_app
@@ -1136,13 +1229,15 @@ models:
         tests:
           - not_null:
               name: not_null__id_servico_jae__gps_validador_van
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
+              config:
+                where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         tests:
           - not_null:
               name: not_null__servico_jae__gps_validador_van
-              where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
+              config:
+                where: "data in ({partitions}) and estado_equipamento != 'FECHADO'"
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
       - name: id_validador
@@ -1254,6 +1349,10 @@ models:
         quote: true
       - name: servico
         description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
         data_type: string
         quote: true
       - name: sentido

@@ -6,12 +6,13 @@ import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
+from zoneinfo import ZoneInfo
 
 import pandas as pd
-import yaml
-from prefect import runtime, task
+import pandas_gbq
+from prefect import task
 from prefect.cache_policies import NO_CACHE
-from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
 from pipelines.capture__gtfs import constants
 from pipelines.capture__gtfs.utils import (
@@ -28,7 +29,13 @@ from pipelines.capture__gtfs.utils import (
     save_raw_local_func,
     xl_load_workbook_sheetnames,
 )
-from pipelines.common.utils.fs import get_project_root_path
+from pipelines.common import constants as smtr_constants
+from pipelines.common.treatment.default_treatment.utils import (
+    get_dbt_target,
+    get_repo_version,
+    run_dbt,
+    run_dbt_empty_for_missing_relations,
+)
 from pipelines.common.utils.gcp.bigquery import BQTable
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
@@ -36,7 +43,6 @@ from pipelines.common.utils.pretreatment import (
     transform_to_nested_structure,
 )
 from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.utils import is_running_locally
 
 
 @task(cache_policy=NO_CACHE)
@@ -293,104 +299,114 @@ def upload_staging_data_to_gcs(
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_gtfs(data_versao_gtfs: str) -> None:
+def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = None) -> None:
     """Executa os modelos dbt do GTFS e planejamento."""
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
-    log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
-
-    flags = ["--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
-
-    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
-    target_path = project_dir / "target"
-
-    dbt_vars = {
-        "data_versao_gtfs": data_versao_gtfs,
-        "flow_name": runtime.flow_run.flow_name,
-    }
-    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
-
     select = (
         f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
+    dbt_command = ["run", "--select", select, "--exclude", constants.GTFS_DBT_EXCLUDE]
+    dbt_vars = {
+        "data_versao_gtfs": data_versao_gtfs,
+        "version": get_repo_version(),
+    }
 
-    invoke = [
-        "run",
-        "--select",
-        select,
-        "--exclude",
-        constants.GTFS_DBT_EXCLUDE,
-        "--vars",
-        vars_yaml,
-        *flags,
-    ]
+    run_dbt_empty_for_missing_relations(
+        dbt_command=dbt_command,
+        dbt_vars=dbt_vars,
+        flags=flags,
+        env=env,
+    )
 
-    print(f"Running DBT Command:\n{' '.join(invoke)}")
-    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
-    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
-    os.environ["DBT_TARGET_PATH"] = str(target_path)
-
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=True,
-    ).invoke(invoke)
-
-    print("DBT run finalizado com sucesso!")
+    run_dbt(
+        dbt_command=dbt_command,
+        dbt_vars=dbt_vars,
+        flags=flags,
+        env=env,
+    )
 
 
 @task(cache_policy=NO_CACHE)
-def run_dbt_tests_gtfs(data_versao_gtfs: str) -> str:
+def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = None) -> str:
     """Executa os testes dbt do GTFS e planejamento, retornando os logs."""
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
-    log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
-
-    flags = ["--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
-
-    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
-    target_path = project_dir / "target"
-
-    dbt_vars = {
-        "data_versao_gtfs": data_versao_gtfs,
-        "flow_name": runtime.flow_run.flow_name,
-    }
-    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
-
     select = (
         f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
         f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
     )
-
-    invoke = [
-        "test",
-        "--select",
-        select,
-        "--exclude",
-        constants.GTFS_DBT_TEST_EXCLUDE,
-        "--vars",
-        vars_yaml,
-        *flags,
-    ]
-
-    print(f"Running DBT Tests:\n{' '.join(invoke)}")
-    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
-    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
-    os.environ["DBT_TARGET_PATH"] = str(target_path)
-
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
+    return run_dbt(
+        dbt_command=["test", "--select", select, "--exclude", constants.GTFS_DBT_TEST_EXCLUDE],
+        dbt_vars={"data_versao_gtfs": data_versao_gtfs},
+        flags=flags,
         raise_on_failure=False,
-    ).invoke(invoke)
+        env=env,
+    )
 
-    print("DBT tests finalizados!")
-    with (Path(log_dir) / "dbt.log").open("r") as logs:
-        return logs.read()
+
+@task(cache_policy=NO_CACHE)
+def get_planejamento_materialization_window(
+    data_versao_gtfs: str,
+    env: str,
+    flags: Optional[list[str]] = None,
+) -> tuple[str, str, dict]:
+    """Calcula a janela de materialização do planejamento diário para o GTFS capturado.
+
+    Consulta o feed_end_date calculado no modelo feed_info:
+    - retificação de feed antigo: limita o calendário exatamente à vigência do feed, enquanto
+      o planejamento diário estende o fim em dois dias;
+    - feed mais recente: materializa de feed_start_date até o maior valor entre a data atual e
+      feed_start_date (o feed pode ter vigência futura).
+
+    Returns:
+        tuple[str, str, dict]: datetime_start, datetime_end e additional_vars para o dbt.
+
+    Args:
+        data_versao_gtfs: Data inicial do feed GTFS.
+        env: Ambiente lógico do flow (prod ou dev).
+        flags: Flags do dbt usadas para resolver o target efetivo.
+    """
+
+    flags = flags or []
+    target = flags[flags.index("--target") + 1] if "--target" in flags else None
+    if target is None:
+        target = get_dbt_target(env)
+
+    project_id = "rj-smtr" if target == "prod" else "rj-smtr-dev"
+    dataset_id = constants.GTFS_MATERIALIZACAO_DATASET_ID
+    if target == "dev":
+        dataset_id = f"{os.environ.get('DBT_USER', 'prefect')}__{dataset_id}"
+
+    feed_info_relation = f"{project_id}.{dataset_id}.feed_info"
+    query = f"""
+        select feed_end_date
+        from `{feed_info_relation}`
+        where feed_start_date = '{data_versao_gtfs}'
+    """
+    result = pandas_gbq.read_gbq(query, project_id=project_id)
+
+    if result.empty:
+        raise ValueError(
+            f"Feed {data_versao_gtfs} não encontrado em {feed_info_relation} "
+            f"(target={target}). Verifique se o modelo feed_info_gtfs materializou "
+            "a versão solicitada antes de executar o planejamento diário."
+        )
+
+    datetime_start = data_versao_gtfs
+    feed_end_date = result["feed_end_date"].iloc[0]
+
+    if feed_end_date is None or pd.isna(feed_end_date):
+        today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
+        datetime_end = max(today, data_versao_gtfs)
+        additional_vars = {}
+        print(
+            f"Feed {data_versao_gtfs} é o mais recente: materializando planejamento de "
+            f"{datetime_start} até {datetime_end}"
+        )
+    else:
+        datetime_end = feed_end_date.strftime("%Y-%m-%d")
+        additional_vars = {"materializar_periodo_exato": True}
+        print(
+            f"Retificação do feed {data_versao_gtfs}: materializando calendário de "
+            f"{datetime_start} até {datetime_end} e planejamento diário até D+2"
+        )
+
+    return datetime_start, datetime_end, additional_vars

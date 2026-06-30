@@ -10,8 +10,10 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
+    setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
 )
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
@@ -34,16 +36,19 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
     timeout_seconds=18000,
 )
-def integration__upload_transacao_cct(
+def integration__upload_transacao_cct(  # noqa: PLR0913
     env: Optional[str] = None,
     full_refresh: bool = False,
     data_ordem_start: Optional[str] = None,
     data_ordem_end: Optional[str] = None,
     param_test_dates: Optional[list[str]] = None,
+    flags: Optional[list[str]] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
-    setup_environment(env=env, wait_for=[sentry])
+    setup_env = setup_environment(env=env, wait_for=[sentry])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp()
 
@@ -95,8 +100,8 @@ def integration__upload_transacao_cct(
 
     run_sincronizacao_model = run_dbt_selectors(
         contexts=contexts,
-        flags=None,
-        wait_for=[upload_test_bq],
+        flags=flags,
+        wait_for=[upload_test_bq, dbt_deps],
     )
 
     run_sincronizacao_test = run_dbt_selector_tests(

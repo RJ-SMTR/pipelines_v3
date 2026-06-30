@@ -21,6 +21,14 @@ with
             latitude,
             longitude,
         from {{ ref("aux_gps_filtrada") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and datetime_gps
+            between datetime('{{ var("date_range_start") }}') and datetime(
+                '{{ var("date_range_end") }}'
+            )
     ),
     velocidades as (
         -- 2. velocidades

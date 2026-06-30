@@ -1,5 +1,50 @@
 # Changelog - bilhetagem
 
+## [3.3.10] - 2026-06-11
+
+### Adicionado
+
+- Adiciona condição para `tipo_transacao_jae` `EMV` na coluna `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+- Adiciona condição `id_cliente != '999999999'` no where do teste `not_null__meio_pagamento_jae__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+
+### Alterado
+
+- Altera fonte da coluna `id_servico_jae` no modelo `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+
+### Removido
+
+- Remove condição `tipo_transacao_jae != 'Gratuidade operadora'` no where do teste `not_null__meio_pagamento__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
+- Remove testes (https://github.com/RJ-SMTR/pipelines_v3/pull/243):
+  - `not_null__servico_jae__transacao`
+  - `not_null__descricao_servico_jae__transacao`
+  - `not_null__id_consorcio__transacao_riocard`
+  - `not_null__servico_jae__transacao_riocard`
+  - `not_null__descricao_servico_jae__transacao_riocard`
+
+## [3.3.9] - 2026-06-03
+
+### Adicionado
+
+- Adiciona tratamento de transações PIX no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+- Adiciona tratamento para `meio_pagamento`, `produto` e `tipo_usuario` nulos no modelo `aux_passageiro_hora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+
+### Corrigido
+
+- Altera fonte da coluna `id_servico_jae` no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/228)
+
+
+## [3.3.8] - 2026-05-25
+
+### Adicionado
+
+- Adiciona tabela de exceções no teste `transacao_valor_ordem_completa` do modelo `transacao_valor_ordem.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/211)
+
+## [3.3.8] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` nos modelos `integracao.sql`, `transacao.sql` e `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [3.3.7] - 2026-03-23
 
 ### Alterado

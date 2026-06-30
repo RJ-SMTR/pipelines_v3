@@ -6,14 +6,16 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
-          expression: count(distinct tipo_os)
-          compare_model: ref("ordem_servico_gtfs")
-          compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
+          config:
+            where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
+          arguments:
+            expression: count(distinct tipo_os)
+            compare_model: ref("ordem_servico_gtfs")
+            compare_expression: count(distinct tipo_os)
+            group_by: [feed_start_date, tipo_os]
+            compare_group_by: [feed_start_date, tipo_os]
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
       - name: feed_version
         description: "{{ doc('feed_version') }}"
@@ -180,7 +182,104 @@ models:
         data_type: geography
         quote: true
   - name: viagem_planejada_planejamento
-    description: Tabela contendo as viagens planejadas para o dia com base no GTFS
+    description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento
+          config:
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
+          arguments:
+            combination_of_columns:
+              - feed_start_date
+              - id_viagem
+    columns:
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        data_type: string
+        quote: true
+      - name: horario_partida
+        description: "Horário de partida da viagem no formato HH:MM:SS"
+        data_type: string
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: service_id
+        description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+        data_type: string
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        quote: true
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        quote: true
+      - name: shape_id
+        description: Identificador de um shape da tabela shapes do GTFS
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: evento
+        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
+        data_type: string
+        quote: true
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: float64
+        quote: true
+      - name: trajetos_alternativos
+        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido, tipo_os)"
+        data_type: record
+        quote: true
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+        quote: true
+      - name: feed_start_date
+        description: "Data inicial do feed do GTFS (versão). [partição]"
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: viagem_planejada_planejamento_dia
+    description: Uma linha por viagem planejada por dia. Representa o planejamento derivado do GTFS e do calendário operacional para a janela de materialização, incluindo extensão de 2 dias além de `date_range_end`. Use `(data, id_viagem)` como chave de join; a seleção considera o calendário e os feeds GTFS disponíveis para o período.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
+          config:
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -396,11 +495,13 @@ models:
     description: "Tabela auxiliar de tecnologias permitidas por serviço"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - inicio_vigencia
-            - servico
           name: dbt_utils.unique_combination_of_columns__tecnologia_servico
-          where: "1=1"
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - inicio_vigencia
+              - servico
     columns:
       - name: inicio_vigencia
         description: "Data de inicio da vigência"
@@ -408,7 +509,8 @@ models:
         tests:
           - not_null:
               name: not_null__inicio_vigencia__tecnologia_servico
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: fim_vigencia
         description: "Data de fim da vigência"
         data_type: date
@@ -424,21 +526,24 @@ models:
         tests:
           - not_null:
               name: not_null__codigo_tecnologia__tecnologia_servico
-              where: "1=1"
+              config:
+                where: "1=1"
       - name: maior_tecnologia_permitida
         description: "Maior tipo de tecnologia permitida para o veículo"
         data_type: string
         tests:
           - not_null_for_planned_services:
               name: not_null__maior_tecnologia_permitida__tecnologia_servico
-              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+              config:
+                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
       - name: menor_tecnologia_permitida
         description: "Menor tipo de tecnologia permitida para o veículo"
         data_type: string
         tests:
           - not_null_for_planned_services:
               name: not_null__menor_tecnologia_permitida__tecnologia_servico
-              where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+              config:
+                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
   - name: servico_planejado_faixa_horaria
     description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
     columns:
@@ -605,14 +710,16 @@ models:
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
-          expression: count(distinct tipo_os)
-          compare_model: ref("ordem_servico_faixa_horaria_sentido")
-          compare_expression: count(distinct tipo_os)
-          group_by: [ feed_start_date, tipo_os ]
-          compare_group_by: [ feed_start_date, tipo_os ]
-          row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-          where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          config:
+            where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: count(distinct tipo_os)
+            compare_model: ref("ordem_servico_faixa_horaria_sentido")
+            compare_expression: count(distinct tipo_os)
+            group_by: [feed_start_date, tipo_os]
+            compare_group_by: [feed_start_date, tipo_os]
+            row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
+            compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -692,4 +799,3 @@ models:
         description: Decreto que alterou o valor da tarifa
         data_type: string
         quote: true
-

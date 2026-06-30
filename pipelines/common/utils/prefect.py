@@ -9,6 +9,9 @@ from pipelines.common.utils.utils import convert_timezone
 
 
 def flow(*args, timeout_seconds=constants.DEFAULT_FLOW_TIMEOUT, **kwargs):
+    """
+    Substitui o @flow do Prefect aplicando timeout padrão em todos os flows.
+    """
     return prefect_flow(*args, timeout_seconds=timeout_seconds, **kwargs)
 
 
@@ -29,7 +32,7 @@ def handler_notify_failure(webhook: str):
         header = f"{header} {mentions_tag}\n\n"
 
         formatted_messages = [header]
-        flow_run_url = f"https://prefect.mobilidade.rio/runs/flow-run/{flow_run.id}"
+        flow_run_url = f"https://prefect-v3.mobilidade.rio/runs/flow-run/{flow_run.id}"
 
         formatted_messages.append(f"**URL da execução:** {flow_run_url}")
         format_send_discord_message(formatted_messages=formatted_messages, webhook_url=webhook_url)
@@ -50,3 +53,7 @@ def rename_flow_run() -> str:
 
     flow_name = runtime.flow_run.flow_name
     return f"[{scheduled_start_time}] {flow_name}"
+
+
+class FailedSubFlowError(Exception):
+    """Erro para ser usado quando um subflow falha"""

@@ -1,5 +1,28 @@
 # Changelog - queries
 
+## [1.1.6] - 2026-06-24
+
+### Alterado
+
+- Amplia para 3h a tolerância dos testes hourly de freshness de `view_gps_onibus` e `gps_validador` (https://github.com/RJ-SMTR/pipelines_v3/pull/310)
+
+## [1.1.5] - 2026-06-02
+
+### Adicionado
+
+- Cria view `view_gps_onibus` unindo os dados de GPS dos fornecedores `sppo`, `zirix`, `cittati` e `conecta` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+- Adiciona teste `dbt_expectations.expect_grouped_row_values_to_have_recent_data` na coluna `datetime_gps` da view `view_gps_onibus`, com tags `freshness` e `hourly`, verificando freshness por fornecedor (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
+### Alterado
+
+- Altera tags do teste de freshness `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `freshness` e `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
+## [1.1.4] - 2026-05-26
+
+### Adicionado
+
+- Cria exposure `sistema_ia_processamento_documento_transito` referente ao acesso da tabela `transito.autuacao` pela solução de IA da I3 Soluções Ltda. (Contrato SMTR nº 10/2026), conforme TED_007-26_DTDI-SUBG — Processo SEI nº 000300.013844/2026-83 (https://github.com/RJ-SMTR/pipelines_v3/pull/213)
+
 ## [1.1.3] - 2026-05-06
 
 ### Adicionado

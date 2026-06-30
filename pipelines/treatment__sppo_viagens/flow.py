@@ -2,7 +2,7 @@
 """
 Flow de materialização das viagens do SPPO
 
-Common: 2026-05-11
+Common 2026-05-22
 """
 
 from typing import Optional
@@ -16,8 +16,10 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    install_dbt_packages,
     run_dbt_selectors,
     run_dbt_snapshots,
+    setup_dbt_queries,
     test_fallback_run,
     wait_data_sources,
 )
@@ -34,13 +36,17 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     fallback_run: bool = False,
     skip_source_check: bool = False,
+    force_current_day: bool = False,
 ):
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
-    setup_environment(env=env)
-    sentry_task = initialize_sentry(env=env)
+    setup_env = setup_environment(env=env_task)
+    sentry_task = initialize_sentry(env=env_task)
+    queries = setup_dbt_queries(env=env_task, wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp(wait_for=[sentry_task])
 
@@ -50,6 +56,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         datetime_end=datetime_end,
         additional_vars=additional_vars,
         timestamp=timestamp,
+        force_current_day=force_current_day,
     )
 
     contexts, should_run = test_fallback_run(
@@ -63,14 +70,14 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             skip=unmapped(skip_source_check),
         ).result()
 
-        run_dbt_selectors(
+        run_dbt = run_dbt_selectors(
             contexts=contexts,
-            flags=None,
-            wait_for=[wait_sources],
+            flags=flags,
+            wait_for=[wait_sources, dbt_deps],
         )
 
         run_dbt_snapshots(
             contexts=contexts,
-            flags=None,
-            wait_for=[wait_sources],
+            flags=flags,
+            wait_for=[run_dbt],
         )
