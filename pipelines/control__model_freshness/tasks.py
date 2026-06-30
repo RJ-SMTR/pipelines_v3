@@ -40,12 +40,12 @@ def model_freshness_notify_discord(failed_results: dict, test_select: str):
 
     Args:
         failed_results (dict): Resultados retornados por `parse_model_freshness_output`.
-        test_select (str): Selector dbt usado na execução (ex.: "tag:freshness_hourly").
+        test_select (str): Selector dbt usado na execução (ex.: "tag:hourly").
     """
     webhook_url = get_env_secret(secret_path=common_constants.WEBHOOKS_SECRET_PATH)["dataplex"]
     mention_id = common_constants.OWNERS_DISCORD_MENTIONS["dados_smtr"]["user_id"]
     mentions_tag = f" - <@&{mention_id}>\n"
-    tag_label = test_select.removeprefix("tag:")
+    tag_label = ", ".join(selector.removeprefix("tag:") for selector in test_select.split())
     formatted_messages = [f":warning: **Tabelas desatualizadas** [`{tag_label}`]{mentions_tag}"]
 
     for test_name, info in failed_results.items():
