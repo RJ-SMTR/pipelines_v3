@@ -1,6 +1,75 @@
 version: 2
 
 models:
+  - name: staging_licenciamento_stu
+    description: |
+      Dados de licenciamento de veículos STU unificados de duas arquiteturas.
+
+      **Padrão v1/v2:** Este modelo combina dois períodos via UNION ALL:
+      - **v1 (até 2026-06-23):** Histórico completo de `staging_licenciamento_stu_v1` (múltiplos registros por veículo/data)
+      - **v2 (após 2026-06-23):** Snapshots finais de `staging_licenciamento_stu_v2` (última versão apenas, sem histórico intermediário)
+
+      **Importante:** Lacunas esperadas em v2 entre snapshots. Para histórico completo dia-a-dia após 2026-06-23, consulte `veiculo_licenciamento_dia`, que reconstrói o histórico via fill-forward de valores anteriores.
+
+      **Caso de uso:** Camada staging que alimenta modelos como `veiculo_licenciamento_dia`, `licenciamento` e `licenciamento_data_versao_efetiva`.
+    columns:
+      - name: data
+        description: Data do evento/captura do veículo na fonte
+      - name: timestamp_captura
+        description: Timestamp da captura na fonte (originalmente em string, convertido para datetime)
+      - name: id_veiculo
+        description: Identificador único do veículo (ex. D17039, B27055)
+      - name: placa
+        description: Placa do veículo
+      - name: modo
+        description: Modo/tipo de transporte do veículo
+      - name: permissao
+        description: Permissão do veículo (concatenação de tptran, tpperm, termo, dv)
+      - name: status
+        description: Status do licenciamento (ex. Licenciado)
+      - name: ultima_situacao
+        description: Situação atual do veículo (Normal, Suspenso, Cancelado)
+      - name: data_inicio_vinculo
+        description: Data de início do vínculo/licenciamento
+      - name: data_ultima_vistoria
+        description: Data da última vistoria realizada
+      - name: ano_ultima_vistoria
+        description: Ano da última vistoria
+      - name: tipo_veiculo
+        description: Tipo de veículo (ex. MIDI, ARTICULADO)
+      - name: carroceria
+        description: Tipo de carroceria
+      - name: tipo_combustivel
+        description: Tipo de combustível do veículo
+
+  - name: staging_licenciamento_stu_v1
+    description: |
+      Histórico completo de licenciamento até 2026-06-23.
+
+      Dados originários de duas fontes conforme data:
+      - Antes de 2026-04-30 (var: data_inicio_source_veiculo): `veiculo_staging.licenciamento_stu`
+      - A partir de 2026-04-30: `source_veiculo.licenciamento_stu`
+
+      Estrutura ephemeral que alimenta `staging_licenciamento_stu` via UNION ALL.
+    columns:
+      - name: data
+        description: Data do evento no formato original
+
+  - name: staging_licenciamento_stu_v2
+    description: |
+      Snapshots finais de licenciamento STU a partir de 2026-06-23.
+
+      Estrutura: Combina múltiplas staging internas (veiculo_ativo, permissao, vistoria, etc.)
+      com QUALIFY row_number() = 1 para manter apenas a versão mais recente de cada campo.
+
+      **Importante:** Contém apenas o último estado de cada veículo. Para dados diários ou histórico
+      entre snapshots, use `veiculo_licenciamento_dia` que reconstrói via fill-forward.
+
+      Estrutura ephemeral que alimenta `staging_licenciamento_stu` via UNION ALL.
+    columns:
+      - name: data
+        description: Data do snapshot (data de captura da última versão)
+
   - name: aux_operadora_jae_cliente_historico
     columns:
       - name: nome

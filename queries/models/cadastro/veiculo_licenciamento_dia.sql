@@ -10,14 +10,16 @@
     )
 }}
 
-{% set staging_licenciamento_stu = ref("staging_licenciamento_stu") %}
+{% set staging_licenciamento_stu = (
+    "rj-smtr-dev.victor__cadastro_staging.licenciamento_stu"
+) %}
 {% set staging_veiculo_fiscalizacao_lacre = ref("staging_veiculo_fiscalizacao_lacre") %}
 
 {% if execute and is_incremental() %}
     {% set licenciamento_previous_file_query %}
         select concat("'", ifnull(max(data_arquivo_fonte), date("{{ var('date_range_start') }}")), "'") as data
-        from {{ this }}
-        where data = date_sub(date("{{ var('date_range_start') }}"), interval 1 day)
+        from rj-smtr.cadastro.veiculo_licenciamento_dia
+        where date(data) = date_sub(date("{{ var('date_range_start') }}"), interval 1 day)
 
     {% endset %}
 
@@ -583,7 +585,7 @@ with
                 {% endif %}
             ) as data
         full outer join licenciamento_chassi l using (data)
-        where data > '{{ var("data_final_veiculo_arquitetura_1") }}'
+        where date(data) > '{{ var("data_final_veiculo_arquitetura_1") }}'
     ),
     licenciamento_datas_preenchidas as (
         select df.data, l.* except (data)
@@ -625,21 +627,21 @@ with
     {% if is_incremental() %}
         dados_atuais as (
             select *
-            from {{ this }}
+            from `rj-smtr.cadastro.veiculo_licenciamento_dia`
             where
-                data between date("{{ var('date_range_start') }}") and date(
+                date(data) between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
                 {% if lacre_partitions | length > 0 %}
-                    or data in ({{ lacre_partitions | join(", ") }})
+                    or date(data) in ({{ lacre_partitions | join(", ") }})
 
                 {% endif %}
                 {% if inicio_vinculo_partitions | length > 0 %}
-                    or data in ({{ inicio_vinculo_partitions | join(", ") }})
+                    or date(data) in ({{ inicio_vinculo_partitions | join(", ") }})
 
                 {% endif %}
                 {% if vistoria_partitions | length > 0 %}
-                    or data in ({{ vistoria_partitions | join(", ") }})
+                    or date(data) in ({{ vistoria_partitions | join(", ") }})
 
                 {% endif %}
         ),
@@ -669,11 +671,11 @@ with
                 where
                     (
                         {% if lacre_partitions | length > 0 %}
-                            data in ({{ lacre_partitions | join(", ") }})
+                            date(data) in ({{ lacre_partitions | join(", ") }})
                         {% else %}data = '2000-01-01'
                         {% endif %}
                         or {% if vistoria_partitions | length > 0 %}
-                            data in ({{ vistoria_partitions | join(", ") }})
+                            date(data) in ({{ vistoria_partitions | join(", ") }})
                         {% else %} data = '2000-01-01'
                         {% endif %}
                     )
