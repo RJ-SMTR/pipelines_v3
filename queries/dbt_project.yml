@@ -26,7 +26,7 @@ vars:
   disable_tests_results: false #"{{ target.name != 'prod' }}"
   disable_dbt_artifacts_autoupload: true #"{{ target.name != 'prod' }}"
   disable_dbt_invocation_autoupload: true #"{{ target.name != 'prod' }}"
-  
+
   ### Date default variables ###
   "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
