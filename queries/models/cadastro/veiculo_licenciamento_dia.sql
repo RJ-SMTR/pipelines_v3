@@ -10,15 +10,13 @@
     )
 }}
 
-{% set staging_licenciamento_stu = (
-    "rj-smtr-dev.victor__cadastro_staging.licenciamento_stu"
-) %}
+{% set staging_licenciamento_stu = ref("staging_licenciamento_stu") %}
 {% set staging_veiculo_fiscalizacao_lacre = ref("staging_veiculo_fiscalizacao_lacre") %}
 
 {% if execute and is_incremental() %}
     {% set licenciamento_previous_file_query %}
         select concat("'", ifnull(max(data_arquivo_fonte), date("{{ var('date_range_start') }}")), "'") as data
-        from rj-smtr.cadastro.veiculo_licenciamento_dia
+        from {{ this }}
         where date(data) = date_sub(date("{{ var('date_range_start') }}"), interval 1 day)
 
     {% endset %}
@@ -627,7 +625,7 @@ with
     {% if is_incremental() %}
         dados_atuais as (
             select *
-            from `rj-smtr.cadastro.veiculo_licenciamento_dia`
+            from {{ this }}
             where
                 date(data) between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
