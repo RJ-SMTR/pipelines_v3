@@ -79,18 +79,3 @@ queries:
             spark.driver.memory: 4g
             spark.driver.memoryOverhead: 1g
   target: prod
-
-elementary:
-  target: prod
-  outputs:
-    prod:
-      type: bigquery
-      method: service-account
-      project: rj-smtr
-      dataset: elementary
-      keyfile: /tmp/credentials.json
-      location: us
-      priority: interactive
-      threads: 1
-      job_retries: 1
-      job_execution_timeout_seconds: 14400

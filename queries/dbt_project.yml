@@ -22,10 +22,10 @@ vars:
   ### Elementary ###
   # Sample of failing rows persisted by elementary in elementary.elementary_test_result_rows.
   test_sample_row_count: 100
-  disable_run_results: true #"{{ target.name != 'prod' }}"
-  disable_tests_results: false #"{{ target.name != 'prod' }}"
-  disable_dbt_artifacts_autoupload: true #"{{ target.name != 'prod' }}"
-  disable_dbt_invocation_autoupload: true #"{{ target.name != 'prod' }}"
+  disable_run_results: true
+  disable_tests_results: "{{ target.name != 'prod' }}"
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
 
   ### Date default variables ###
   "dbt_date:time_zone": "America/Sao_Paulo"
