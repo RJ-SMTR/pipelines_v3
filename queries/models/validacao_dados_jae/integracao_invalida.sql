@@ -139,7 +139,11 @@ with
             {{ ref("tarifa_publica") }} tp
             on i.data >= tp.data_inicio
             and (i.data <= tp.data_fim or tp.data_fim is null)
-        left join {{ ref("matriz_integracao_servico_modo") }} sm using (id_servico_jae)
+        left join
+            {{ ref("matriz_integracao_servico_modo") }} sm
+            on i.id_servico_jae = sm.id_servico_jae
+            and i.data >= sm.data_inicio_validade
+            and (i.data < sm.data_fim_validade or sm.data_fim_validadeis is null)
         left join
             {{ ref("aux_linha_tarifa") }} l
             on i.id_servico_jae = l.cd_linha
