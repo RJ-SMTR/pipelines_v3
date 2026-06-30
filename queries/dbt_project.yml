@@ -329,7 +329,7 @@ models:
     columns: true
   elementary:
     +schema: elementary
-    #+enabled: "{{ target.name in ['prod'] }}"
+    +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     projeto_subsidio_sppo:
       +materialized: view
