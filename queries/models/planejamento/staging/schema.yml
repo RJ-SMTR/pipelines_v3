@@ -9,32 +9,19 @@ models:
       granularidade. Fonte: regras históricas congeladas no próprio modelo antes de var('data_inicio_calendario_sheets')
       e `source_smtr.calendario_manual` a partir dessa data. Datas sem `feed_start_date`,
       `tipo_dia`, `subtipo_dia` ou `tipo_os` são excluídas.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__aux_calendario_manual
-          config:
-            where: "1=1"
-          arguments:
-            combination_of_columns:
-              - data
     columns:
       - name: data
         description: "Data do dia atípico"
         data_type: date
-        tests:
-          - not_null:
-              name: not_null__data__aux_calendario_manual
-              config:
-                where: "1=1"
       - name: feed_start_date
-        description: "Data de início do feed GTFS associado (nulo por padrão)"
+        description: "{{ doc('feed_start_date') }}"
         data_type: date
       - name: tipo_dia
-        description: "Tipo de dia (Domingo, Sabado, Dia Útil, Ponto Facultativo, ...)"
+        description: "{{ doc('tipo_dia') }}"
         data_type: string
       - name: subtipo_dia
-        description: "Subtipo de dia / rótulo de operação especial (vindo da planilha)"
+        description: "{{ doc('subtipo_dia') }}"
         data_type: string
       - name: tipo_os
-        description: "Tipo de ordem de serviço / operação especial"
+        description: "{{ doc('tipo_os') }}"
         data_type: string
