@@ -19,4 +19,4 @@ COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
