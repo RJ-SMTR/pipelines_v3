@@ -10,4 +10,4 @@ COPY ./pipelines/capture__stu_tabelas ./pipelines/capture__stu_tabelas/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages

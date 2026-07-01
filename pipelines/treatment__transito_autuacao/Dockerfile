@@ -11,4 +11,4 @@ COPY ./pipelines/treatment__transito_autuacao ./pipelines/treatment__transito_au
 COPY ./pipelines/common/ ./pipelines/common/
 COPY ./pipelines/capture__serpro_autuacao/ ./pipelines/capture__serpro_autuacao/
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages

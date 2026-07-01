@@ -10,4 +10,4 @@ COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realoc
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
