@@ -69,8 +69,12 @@ with
         select *
         from source_data
         where
-            datetime_diff(datetime_envio, datetime_gps, second) >= -20
-            and datetime_diff(datetime_envio, datetime_gps, minute) <= 60
+            /*
+            Tolerância negativa para pequenas divergências técnicas de clock
+            (clock skew) entre envio e servidor
+            */
+            datetime_diff(datetime_servidor, datetime_envio, second) >= -20
+            and datetime_diff(datetime_servidor, datetime_envio, second) <= 3600
     )
 select
     data,
