@@ -15,4 +15,4 @@ COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veicul
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages

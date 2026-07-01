@@ -29,4 +29,4 @@ COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
