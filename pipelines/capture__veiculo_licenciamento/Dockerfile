@@ -10,4 +10,4 @@ COPY ./pipelines/capture__veiculo_licenciamento ./pipelines/capture__veiculo_lic
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock

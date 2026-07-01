@@ -10,4 +10,4 @@ COPY ./pipelines/capture__conecta_registros ./pipelines/capture__conecta_registr
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
