@@ -11,4 +11,4 @@ COPY ./pipelines/treatment__datario ./pipelines/treatment__datario/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
