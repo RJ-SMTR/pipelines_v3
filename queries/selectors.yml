@@ -405,9 +405,9 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: autuacao_citran
+          value: view_autuacao_citran
         - method: fqn
-          value: autuacao_serpro
+          value: view_autuacao_serpro
         - method: fqn
           value: aux_autuacao_id
         - method: fqn
