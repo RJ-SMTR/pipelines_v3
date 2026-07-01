@@ -15,4 +15,4 @@ COPY ./queries ./queries
 
 {%- endif %}
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock

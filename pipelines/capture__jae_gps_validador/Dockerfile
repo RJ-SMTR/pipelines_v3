@@ -10,4 +10,4 @@ COPY ./pipelines/capture__jae_gps_validador ./pipelines/capture__jae_gps_validad
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
