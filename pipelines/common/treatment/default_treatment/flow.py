@@ -144,6 +144,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         tasks["pre_tests"] = run_dbt_selector_tests(
             contexts=contexts,
             mode="pre",
+            flags=flags,
             wait_for=[
                 tasks["wait_data_sources"],
                 *tasks_wait_for.get("pre_tests", []),
@@ -180,6 +181,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         tasks["post_tests"] = run_dbt_selector_tests(
             contexts=contexts,
             mode="post",
+            flags=flags,
             wait_for=[
                 tasks["run_dbt"],
                 *tasks_wait_for.get("post_tests", []),
