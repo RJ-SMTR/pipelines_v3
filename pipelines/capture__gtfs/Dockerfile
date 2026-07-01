@@ -13,4 +13,4 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
