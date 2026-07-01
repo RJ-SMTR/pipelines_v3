@@ -13,4 +13,4 @@ COPY ./pipelines/treatment__pagamento_cct ./pipelines/treatment__pagamento_cct/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
