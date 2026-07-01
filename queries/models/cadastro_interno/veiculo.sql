@@ -1,5 +1,14 @@
-{{ config(alias="veiculo") }}
-
+{{
+    config(
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partition_by={
+            "field": "data",
+            "data_type": "date",
+            "granularity": "day",
+        },
+    )
+}}
 select
     data,
     placa,
@@ -74,3 +83,9 @@ select
     ) as datetime_execucao_flow,
     timestamp_captura
 from {{ source("source_stu", "veiculo") }}
+{% if is_incremental() %}
+    where
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+{% endif %}

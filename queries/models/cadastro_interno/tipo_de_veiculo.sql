@@ -1,5 +1,14 @@
-{{ config(alias="tipo_de_veiculo") }}
-
+{{
+    config(
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partition_by={
+            "field": "data",
+            "data_type": "date",
+            "granularity": "day",
+        },
+    )
+}}
 select
     data,
     safe_cast(tpveic as string) as id_tipo_veiculo,
@@ -13,3 +22,9 @@ select
     ) as datetime_execucao_flow,
     safe_cast(timestamp_captura as datetime) as datetime_captura
 from {{ source("source_stu", "tipo_de_veiculo") }}
+{% if is_incremental() %}
+    where
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+{% endif %}

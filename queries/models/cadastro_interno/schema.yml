@@ -303,3 +303,231 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
+
+  - name: veiculo_ativo
+    description: |
+      Uma linha por veículo ativo (placa + permissão) por data de captura. Log de
+      versões — deduplicar por (placa, tptran, tpperm, termo) pegando a `data` mais
+      recente antes de qualquer join. Representa o vínculo ativo veículo↔permissão.
+      Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.veiculo_ativo.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: placa
+        description: Placa do veículo
+      - name: ordem
+        description: Ordem/identificador operacional do veículo
+      - name: tptran
+        description: Tipo de transporte (compõe a permissão)
+      - name: tpperm
+        description: Tipo de permissão (compõe a permissão)
+      - name: termo
+        description: Termo (compõe a permissão)
+      - name: situacao
+        description: Situação do vínculo na fonte
+      - name: datetime_ativo
+        description: Datetime de início do vínculo ativo
+
+  - name: vistoria
+    description: |
+      Uma linha por vistoria por data de captura. Log de eventos de vistoria —
+      deduplicar por (placa, tptran, tpperm, termo) pela `data_vistoria` mais recente.
+      Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.vistoria.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_vistoria
+        description: Identificador da vistoria
+      - name: placa
+        description: Placa do veículo
+      - name: tptran
+        description: Tipo de transporte
+      - name: tpperm
+        description: Tipo de permissão
+      - name: termo
+        description: Termo
+      - name: data_vistoria
+        description: Data em que a vistoria foi realizada
+
+  - name: veiculo
+    description: |
+      Uma linha por veículo (placa) por data de captura. Cadastro do veículo (planta,
+      combustível, tipo). Log de versões — deduplicar por placa pela `data` mais
+      recente. Chave de join: placa. Source: source_stu.veiculo.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: placa
+        description: Placa do veículo
+      - name: id_planta
+        description: Chave para planta (características físicas)
+      - name: id_combustivel
+        description: Chave para combustivel
+      - name: id_tipo_veiculo
+        description: Chave para tipo_de_veiculo
+
+  - name: planta
+    description: |
+      Uma linha por planta (id_planta) por data de captura. Características físicas do
+      veículo (lotação, carroceria, chassi, tipo). Log de versões — deduplicar por
+      (id_planta, id_tipo_veiculo) pela `data` mais recente. Chave de join:
+      id_planta (+ id_tipo_veiculo). Source: source_stu.planta.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_planta
+        description: Identificador da planta
+      - name: id_tipo_veiculo
+        description: Chave para tipo_de_veiculo
+      - name: id_modelo_carroceria
+        description: Chave para mod_carroceria
+      - name: id_modelo_chassi
+        description: Chave para mod_chassi
+      - name: id_tipo_transporte
+        description: Chave para tipo_de_transporte
+
+  - name: permissao
+    description: |
+      Uma linha por permissão (tptran+tpperm+termo) por data de captura. Log de
+      versões — deduplicar por (tptran, tpperm, termo) pela `data` mais recente.
+      Chave de join: (tptran, tpperm, termo); `dv` compõe o número exibido.
+      Source: source_stu.permissao.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: tptran
+        description: Tipo de transporte
+      - name: tpperm
+        description: Tipo de permissão
+      - name: termo
+        description: Termo
+      - name: dv
+        description: Dígito verificador
+      - name: situacao
+        description: Situação da permissão na fonte
+
+  - name: tipo_de_transporte
+    description: |
+      Uma linha por tipo de transporte por data de captura. Dimensão descritiva —
+      deduplicar por id_tipo_transporte pela `data` mais recente. Chave de join:
+      id_tipo_transporte. Source: source_stu.tipo_de_transporte.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_tipo_transporte
+        description: Identificador do tipo de transporte
+      - name: descricao
+        description: Descrição do tipo de transporte
+
+  - name: tipo_de_veiculo
+    description: |
+      Uma linha por tipo de veículo por data de captura. Dimensão descritiva —
+      deduplicar por id_tipo_veiculo pela `data` mais recente. Chave de join:
+      id_tipo_veiculo. Source: source_stu.tipo_de_veiculo.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_tipo_veiculo
+        description: Identificador do tipo de veículo
+      - name: descricao
+        description: Descrição do tipo de veículo
+
+  - name: mod_carroceria
+    description: |
+      Uma linha por modelo de carroceria por data de captura. Dimensão descritiva —
+      deduplicar por id_modelo_carroceria pela `data` mais recente. Chave de join:
+      id_modelo_carroceria. Source: source_stu.mod_carroceria.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_modelo_carroceria
+        description: Identificador do modelo de carroceria
+      - name: id_fabricante
+        description: Identificador do fabricante da carroceria
+      - name: descricao
+        description: Descrição do modelo de carroceria
+
+  - name: mod_chassi
+    description: |
+      Uma linha por modelo de chassi por data de captura. Dimensão descritiva —
+      deduplicar por id_modelo_chassi pela `data` mais recente. Chave de join:
+      id_modelo_chassi. Source: source_stu.mod_chassi.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_modelo_chassi
+        description: Identificador do modelo de chassi
+      - name: id_fabricante
+        description: Identificador do fabricante do chassi
+      - name: descricao
+        description: Descrição do modelo de chassi
+
+  - name: combustivel
+    description: |
+      Uma linha por combustível por data de captura. Dimensão descritiva —
+      deduplicar por id_combustivel pela `data` mais recente. Chave de join:
+      id_combustivel. Source: source_stu.combustivel.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_combustivel
+        description: Identificador do combustível
+      - name: descricao
+        description: Descrição do combustível
+
+  - name: darm_apropriacao
+    description: |
+      Uma linha por apropriação de DARM por data de captura. Log de pagamentos
+      apropriados de multas. Chave de join com `multa`: darm (= multa.cm).
+      Source: source_stu.darm_apropriacao.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: id_receita
+        description: Código da receita
+      - name: darm
+        description: Número do DARM (join com multa.cm)
+      - name: data_pagamento
+        description: Data do pagamento
+
+  - name: pessoa_fisica
+    description: |
+      Uma linha por pessoa física (ratr) por data de captura. Cadastro de pessoa
+      física do STU. Chave: ratr / cpf. Source: source_stu.pessoa_fisica.
+      ATENÇÃO: contém dados sensíveis (CPF, CNH, identidade) — avaliar policy_tags.
+      Sem consumidor no momento.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: ratr
+        description: Identificador da pessoa física
+      - name: cpf
+        description: CPF (dado sensível)
+      - name: nome
+        description: Nome (dado sensível)
+
+  - name: pessoa_juridica
+    description: |
+      Uma linha por pessoa jurídica (cgc) por data de captura. Cadastro de pessoa
+      jurídica do STU. Chave: cgc. Source: source_stu.pessoa_juridica.
+      Sem consumidor no momento.
+    columns:
+      - name: data
+        description: Data de captura (partição)
+        tests: [not_null]
+      - name: cgc
+        description: CNPJ/CGC da pessoa jurídica
+      - name: razao_social
+        description: Razão social

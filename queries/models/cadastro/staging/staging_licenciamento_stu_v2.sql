@@ -3,7 +3,7 @@
 with
     veiculo_ativo as (
         select *
-        from {{ ref("staging_stu_veiculo_ativo") }}
+        from {{ ref("veiculo_ativo") }}
         qualify
             row_number() over (
                 partition by placa, tptran, tpperm, termo order by data desc
@@ -13,7 +13,7 @@ with
 
     permissao as (
         select tptran, tpperm, termo, dv
-        from {{ ref("staging_stu_permissao") }}
+        from {{ ref("permissao") }}
         qualify
             row_number() over (partition by tptran, tpperm, termo order by data desc)
             = 1
@@ -21,14 +21,14 @@ with
 
     tipo_transporte as (
         select *
-        from {{ ref("staging_stu_tipo_de_transporte") }}
+        from {{ ref("tipo_de_transporte") }}
         qualify
             row_number() over (partition by id_tipo_transporte order by data desc) = 1
     ),
 
     vistoria as (
         select *
-        from {{ ref("staging_stu_vistoria") }}
+        from {{ ref("vistoria") }}
         qualify
             row_number() over (
                 partition by placa, tptran, tpperm, termo order by data_vistoria desc
@@ -38,13 +38,13 @@ with
 
     veiculo as (
         select *
-        from {{ ref("staging_stu_veiculo") }}
+        from {{ ref("veiculo") }}
         qualify row_number() over (partition by placa order by data desc) = 1
     ),
 
     planta as (
         select *
-        from {{ ref("staging_stu_planta") }}
+        from {{ ref("planta") }}
         qualify
             row_number() over (
                 partition by id_planta, id_tipo_veiculo order by data desc
@@ -54,26 +54,26 @@ with
 
     mod_carroceria as (
         select *
-        from {{ ref("staging_stu_mod_carroceria") }}
+        from {{ ref("mod_carroceria") }}
         qualify
             row_number() over (partition by id_modelo_carroceria order by data desc) = 1
     ),
 
     mod_chassi as (
         select *
-        from {{ ref("staging_stu_mod_chassi") }}
+        from {{ ref("mod_chassi") }}
         qualify row_number() over (partition by id_modelo_chassi order by data desc) = 1
     ),
 
     combustivel as (
         select *
-        from {{ ref("staging_stu_combustivel") }}
+        from {{ ref("combustivel") }}
         qualify row_number() over (partition by id_combustivel order by data desc) = 1
     ),
 
     tipo_veiculo as (
         select *
-        from {{ ref("staging_stu_tipo_de_veiculo") }}
+        from {{ ref("tipo_de_veiculo") }}
         qualify row_number() over (partition by id_tipo_veiculo order by data desc) = 1
     )
 

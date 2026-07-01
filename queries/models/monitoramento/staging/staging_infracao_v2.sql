@@ -3,13 +3,13 @@
 with
     multa as (
         select *
-        from {{ ref("staging_stu_multa") }}
+        from {{ ref("multa") }}
         qualify row_number() over (partition by serie, cm order by data desc) = 1
     ),
 
     permissao as (
         select tptran, tpperm, termo, dv
-        from {{ ref("staging_stu_permissao") }}
+        from {{ ref("permissao") }}
         qualify
             row_number() over (partition by tptran, tpperm, termo order by data desc)
             = 1
@@ -17,14 +17,14 @@ with
 
     tipo_transporte as (
         select *
-        from {{ ref("staging_stu_tipo_de_transporte") }}
+        from {{ ref("tipo_de_transporte") }}
         qualify
             row_number() over (partition by id_tipo_transporte order by data desc) = 1
     ),
 
     darm as (
         select *
-        from {{ ref("staging_stu_darm_apropriacao") }}
+        from {{ ref("darm_apropriacao") }}
         qualify row_number() over (partition by darm, data order by data desc) = 1
     )
 
