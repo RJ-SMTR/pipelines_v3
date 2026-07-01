@@ -358,6 +358,15 @@ models:
         description: "Origem dos dados"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__autuacao
+              arguments:
+                datepart: day
+                interval: 1
+              config:
+                tags: ["freshness", "daily"]
+                severity: warn
       - name: versao
         description: "{{ doc('versao') }}"
       - name: id_execucao_dbt
