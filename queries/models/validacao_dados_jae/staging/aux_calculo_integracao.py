@@ -20,8 +20,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
     df_matriz_transferencia = df_matriz[df_matriz["tipo_integracao"] == "Transferência"]
 
     def is_integracao(  # noqa: PLR0913
-        integracao_origem,
-        modo_destino,
+        integracoes_origem,
+        modos_destino,
         servico_origem,
         servico_destino,
         data_transacao,
@@ -40,8 +40,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                     (df_matriz_integracao["data_fim"] >= data_transacao)
                     | (df_matriz_integracao["data_fim"].isna())
                 )
-                & (df_matriz_integracao["modo_integracao_origem"] == integracao_origem)
-                & (df_matriz_integracao["modo_destino"] == modo_destino)
+                & (df_matriz_integracao["modo_integracao_origem"].isin(integracoes_origem))
+                & (df_matriz_integracao["modo_destino"].isin(modos_destino))
                 & (
                     (df_matriz_integracao["id_servico_jae_origem"] == servico_origem)
                     | (df_matriz_integracao["id_servico_jae_origem"].isna())
@@ -56,8 +56,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
         )
 
     def is_transferencia(  # noqa: PLR0913
-        modo_origem,
-        modo_destino,
+        modos_origem,
+        modos_destino,
         servico_origem,
         servico_destino,
         datetime_inicio_transferencia,
@@ -80,8 +80,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                     (df_matriz_transferencia["data_fim"] >= data_transacao)
                     | (df_matriz_transferencia["data_fim"].isna())
                 )
-                & (df_matriz_transferencia["modo_origem"] == modo_origem)
-                & (df_matriz_transferencia["modo_destino"] == modo_destino)
+                & (df_matriz_transferencia["modo_origem"].isin(modos_origem))
+                & (df_matriz_transferencia["modo_destino"].isin(modos_destino))
                 & (
                     (df_matriz_transferencia["id_servico_jae_origem"] == servico_origem)
                     | (df_matriz_transferencia["id_servico_jae_origem"].isna())
@@ -96,8 +96,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
         )
 
     def itera_transacao(partition):  # noqa: PLR0915
-        integracao_origem = ""
-        modo_origem = ""
+        integracoes_origem = []
+        modos_origem = []
         servico_origem = ""
         id_integracao = ""
         sequencia_integracao_origem = 0
@@ -107,7 +107,7 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
         flag_transferencia = False
         for row in partition:
             novo_row = list(row)
-            if integracao_origem == "":
+            if len(integracoes_origem) == 0:
                 id_integracao = row.id_transacao
                 sequencia_integracao = sequencia_integracao_origem + 1
                 datetime_inicio_integracao = row.datetime_transacao
@@ -117,11 +117,11 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                 novo_row.append("Primeira perna")
                 novo_row.append(datetime_inicio_integracao)
 
-                integracao_origem = row.modo_join
+                integracoes_origem = row.modos
 
             elif is_transferencia(
-                modo_origem=modo_origem,
-                modo_destino=row.modo_join,
+                modos_origem=modos_origem,
+                modos_destino=row.modos,
                 servico_origem=servico_origem,
                 servico_destino=row.id_servico_jae,
                 data_transacao=row.data,
@@ -141,8 +141,8 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                 flag_transferencia = True
 
             elif is_integracao(
-                integracao_origem=integracao_origem,
-                modo_destino=row.modo_join,
+                integracoes_origem=integracoes_origem,
+                modos_destino=row.modos,
                 servico_origem=servico_origem,
                 servico_destino=row.id_servico_jae,
                 data_transacao=row.data,
@@ -155,7 +155,7 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                 novo_row.append("Integração")
                 novo_row.append(datetime_inicio_integracao)
 
-                integracao_origem += f"-{row.modo_join}"
+                integracoes_origem = [f"{a}-{b}" for a in integracoes_origem for b in row.modos]
 
                 flag_transferencia = False
                 datetime_inicio_transferencia = None
@@ -164,7 +164,7 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                 sequencia_integracao = 1
                 id_integracao = row.id_transacao
                 datetime_inicio_integracao = row.datetime_transacao
-                integracao_origem = row.modo_join
+                integracoes_origem = row.modos
                 novo_row.append(id_integracao)
                 novo_row.append(sequencia_integracao)
                 novo_row.append("Primeira perna")
@@ -174,7 +174,7 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
                 datetime_inicio_transferencia = None
 
             sequencia_integracao_origem = sequencia_integracao
-            modo_origem = row.modo_join
+            modos_origem = row.modos
             servico_origem = row.id_servico_jae
             datetime_transacao_anterior = row.datetime_transacao
 
@@ -199,5 +199,13 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
     )
 
     df_integracao = spark.createDataFrame(rdd_integracao, schema=schema_integracao)  # noqa
+
+    print("CHEGUEI AQUI")
+
+    print("Quantidade:", df_integracao.count())
+
+    df_integracao.printSchema()
+
+    print("FIM")
 
     return df_integracao

@@ -42,7 +42,15 @@ with
                 ) as numeric
             )
             / 100 as porcentagem_terceira_perna,
-            cast(tempo_integracao_minutos as float64) as tempo_integracao_minutos
+            quarta_perna,
+            cast(
+                if(
+                    trim(porcentagem_quarta_perna) = '', null, porcentagem_quarta_perna
+                ) as numeric
+            )
+            / 100 as porcentagem_quarta_perna,
+            cast(tempo_integracao_minutos as float64) as tempo_integracao_minutos,
+            tipo_bilhete_unico
         from {{ source("source_smtr", "matriz_reparticao_tarifaria") }}
     ),
     matriz as (
@@ -51,11 +59,27 @@ with
             mi.data_fim_matriz,
             mi.id_tipo_integracao as id_matriz_integracao,
             case
+                when mi.quarta_perna is not null and trim(mi.quarta_perna) != ''
+                then
+                    [
+                        mi.primeira_perna,
+                        mi.segunda_perna,
+                        mi.terceira_perna,
+                        mi.quarta_perna
+                    ]
                 when mi.terceira_perna is not null and trim(mi.terceira_perna) != ''
                 then [mi.primeira_perna, mi.segunda_perna, mi.terceira_perna]
                 else [mi.primeira_perna, mi.segunda_perna]
             end as sequencia_modo,
             case
+                when mi.porcentagem_quarta_perna is not null
+                then
+                    [
+                        mi.porcentagem_primeira_perna,
+                        mi.porcentagem_segunda_perna,
+                        mi.porcentagem_terceira_perna,
+                        mi.porcentagem_quarta_perna
+                    ]
                 when mi.porcentagem_terceira_perna is not null
                 then
                     [
@@ -65,7 +89,8 @@ with
                     ]
                 else [mi.porcentagem_primeira_perna, mi.porcentagem_segunda_perna]
             end as sequencia_rateio,
-            mi.tempo_integracao_minutos
+            mi.tempo_integracao_minutos,
+            mi.tipo_bilhete_unico
         from matriz_staging mi
     )
 select
@@ -75,5 +100,6 @@ select
     sequencia_modo,
     sequencia_rateio,
     tempo_integracao_minutos,
+    tipo_bilhete_unico,
     '{{ var("version") }}' as versao
 from matriz

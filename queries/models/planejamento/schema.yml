@@ -12,8 +12,8 @@ models:
             expression: count(distinct tipo_os)
             compare_model: ref("ordem_servico_gtfs")
             compare_expression: count(distinct tipo_os)
-            group_by: [feed_start_date, tipo_os]
-            compare_group_by: [feed_start_date, tipo_os]
+            group_by: [ feed_start_date, tipo_os ]
+            compare_group_by: [ feed_start_date, tipo_os ]
             row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
             compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
     columns:
@@ -491,6 +491,14 @@ models:
         description: Se deve ocorrer a integração ou não para a combinação de origem e destino
         data_type: boolean
         quote: true
+      - name: tipo_bilhete_unico
+        description: "{{ doc('tipo_bilhete_unico') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
   - name: tecnologia_servico
     description: "Tabela auxiliar de tecnologias permitidas por serviço"
     tests:
@@ -650,6 +658,10 @@ models:
         description: "{{ doc('versao') }}"
         data_type: string
         quote: true
+      - name: tipo_bilhete_unico
+        description: "{{ doc('tipo_bilhete_unico') }}"
+        data_type: string
+        quote: true
   - name: tuneis
     description: "Tabela contendo os túneis do município do Rio de Janeiro"
     columns:
@@ -716,8 +728,8 @@ models:
             expression: count(distinct tipo_os)
             compare_model: ref("ordem_servico_faixa_horaria_sentido")
             compare_expression: count(distinct tipo_os)
-            group_by: [feed_start_date, tipo_os]
-            compare_group_by: [feed_start_date, tipo_os]
+            group_by: [ feed_start_date, tipo_os ]
+            compare_group_by: [ feed_start_date, tipo_os ]
             row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
             compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
     columns:
@@ -797,5 +809,31 @@ models:
         quote: true
       - name: legislacao
         description: Decreto que alterou o valor da tarifa
+        data_type: string
+        quote: true
+  - name: matriz_integracao_servico_modo
+    description: "Tabela com a relação entre serviço e modos para serem usados em conjunto com a matriz de integração. Somente para os serviços que possuem mais de um modo [Ex.: SPPO/SPPO MNS]"
+    columns:
+      - name: data_inicio_validade
+        description: Data de início de validade do relacionamento entre serviço e modos
+        data_type: date
+        quote: true
+      - name: data_fim_validade
+        description: Data de fim de validade do relacionamento entre serviço e modos
+        data_type: date
+      - name: id_servico_jae
+        description: "{{ doc('id_servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: servico_jae
+        description: "{{ doc('servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: descricao_servico_jae
+        description: "{{ doc('descricao_servico_jae') }}"
+        data_type: string
+        quote: true
+      - name: modos
+        description: Array com os modos do serviço
         data_type: string
         quote: true
