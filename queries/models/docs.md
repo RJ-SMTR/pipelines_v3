@@ -186,6 +186,10 @@ Tipo de pagamento utilizado
 Dia da semana - categorias: Dia Útil, Sábado, Domingo e Ponto Facultativo
 {% enddocs %}
 
+{% docs subtipo_dia %}
+Subtipo de dia [ex: 'Verão']
+{% enddocs %}
+
 {% docs faixa_horaria_inicio %}
 Horário inicial da faixa horária
 {% enddocs %}
