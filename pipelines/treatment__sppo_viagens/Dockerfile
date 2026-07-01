@@ -11,4 +11,4 @@ COPY ./pipelines/treatment__sppo_viagens ./pipelines/treatment__sppo_viagens/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock

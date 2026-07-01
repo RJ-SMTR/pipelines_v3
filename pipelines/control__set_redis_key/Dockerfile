@@ -10,4 +10,4 @@ COPY ./pipelines/control__set_redis_key ./pipelines/control__set_redis_key/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
