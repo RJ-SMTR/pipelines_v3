@@ -538,12 +538,13 @@ selectors:
   - name: monitoramento_temperatura
     definition:
       union:
-        - method: fqn
-          value: staging_temperatura_inmet
-        - method: fqn
-          value: temperatura_inmet
-        - method: fqn
-          value: temperatura_alertario
+        - exclude:
+            - method: fqn
+              value: staging_temperatura_inmet
+            - method: fqn
+              value: temperatura_inmet
+            - method: fqn
+              value: temperatura_alertario
         - method: fqn
           value: temperatura
         - method: fqn
