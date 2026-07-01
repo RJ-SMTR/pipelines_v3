@@ -15,4 +15,4 @@ COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
 COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
 
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
