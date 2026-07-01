@@ -120,9 +120,9 @@ select
         else coalesce(va.situacao, vi.situacao)
     end as ultima_situacao,
     extract(year from vi.data_vistoria) as ano_ultima_vistoria
-from vistoria vi
+from veiculo_ativo va
 left join
-    veiculo_ativo va
+    vistoria vi
     on va.tptran = vi.tptran
     and va.tpperm = vi.tpperm
     and va.termo = vi.termo

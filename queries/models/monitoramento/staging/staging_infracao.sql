@@ -11,10 +11,15 @@
     )
 }}
 
-select * except (data), date(data) as data
+select * replace(date(data) as data)
 from {{ ref("staging_infracao_v1") }}
 where
-    date(data) <= date("2026-06-23")
+    date(data) <= date("{{ var('data_inicio_dbstu') }}")
+    {% if is_incremental() %}
+        and date(data) between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+    {% endif %}
     {% if is_incremental() %}
         and date(data) between date("{{ var('date_range_start') }}") and date(
             "{{ var('date_range_end') }}"
@@ -26,7 +31,7 @@ union all by name
 select *
 from {{ ref("staging_infracao_v2") }}
 where
-    data > "2026-06-23"
+    data > "{{ var('data_inicio_dbstu') }}"
     {% if is_incremental() %}
         and data between date("{{ var('date_range_start') }}") and date(
             "{{ var('date_range_end') }}"
