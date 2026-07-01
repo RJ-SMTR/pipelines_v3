@@ -304,230 +304,242 @@ models:
         data_type: string
         quote: true
 
+
   - name: veiculo_ativo
     description: |
-      Uma linha por veículo ativo (placa + permissão) por data de captura. Log de
-      versões — deduplicar por (placa, tptran, tpperm, termo) pegando a `data` mais
-      recente antes de qualquer join. Representa o vínculo ativo veículo↔permissão.
-      Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.veiculo_ativo.
+      Estado atual: 1 linha por (placa, tptran, tpperm, termo), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_veiculo_ativo`. Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.veiculo_ativo.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: placa
-        description: Placa do veículo
-      - name: ordem
-        description: Ordem/identificador operacional do veículo
+        description: Componente da chave de join
       - name: tptran
-        description: Tipo de transporte (compõe a permissão)
+        description: Componente da chave de join
       - name: tpperm
-        description: Tipo de permissão (compõe a permissão)
+        description: Componente da chave de join
       - name: termo
-        description: Termo (compõe a permissão)
-      - name: situacao
-        description: Situação do vínculo na fonte
-      - name: datetime_ativo
-        description: Datetime de início do vínculo ativo
+        description: Componente da chave de join
+
+  - name: staging_stu_veiculo_ativo
+    description: |
+      Parse fino (1:1) de source_stu.veiculo_ativo — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `veiculo_ativo` (estado atual).
 
   - name: vistoria
     description: |
-      Uma linha por vistoria por data de captura. Log de eventos de vistoria —
-      deduplicar por (placa, tptran, tpperm, termo) pela `data_vistoria` mais recente.
-      Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.vistoria.
+      Estado atual: 1 linha por (placa, tptran, tpperm, termo), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_vistoria`. Chave de join: (placa, tptran, tpperm, termo). Source: source_stu.vistoria.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
-      - name: id_vistoria
-        description: Identificador da vistoria
       - name: placa
-        description: Placa do veículo
+        description: Componente da chave de join
       - name: tptran
-        description: Tipo de transporte
+        description: Componente da chave de join
       - name: tpperm
-        description: Tipo de permissão
+        description: Componente da chave de join
       - name: termo
-        description: Termo
-      - name: data_vistoria
-        description: Data em que a vistoria foi realizada
+        description: Componente da chave de join
+
+  - name: staging_stu_vistoria
+    description: |
+      Parse fino (1:1) de source_stu.vistoria — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `vistoria` (estado atual).
 
   - name: veiculo
     description: |
-      Uma linha por veículo (placa) por data de captura. Cadastro do veículo (planta,
-      combustível, tipo). Log de versões — deduplicar por placa pela `data` mais
-      recente. Chave de join: placa. Source: source_stu.veiculo.
+      Estado atual: 1 linha por (placa), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_veiculo`. Chave de join: (placa). Source: source_stu.veiculo.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: placa
-        description: Placa do veículo
-      - name: id_planta
-        description: Chave para planta (características físicas)
-      - name: id_combustivel
-        description: Chave para combustivel
-      - name: id_tipo_veiculo
-        description: Chave para tipo_de_veiculo
+        description: Componente da chave de join
+
+  - name: staging_stu_veiculo
+    description: |
+      Parse fino (1:1) de source_stu.veiculo — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `veiculo` (estado atual).
 
   - name: planta
     description: |
-      Uma linha por planta (id_planta) por data de captura. Características físicas do
-      veículo (lotação, carroceria, chassi, tipo). Log de versões — deduplicar por
-      (id_planta, id_tipo_veiculo) pela `data` mais recente. Chave de join:
-      id_planta (+ id_tipo_veiculo). Source: source_stu.planta.
+      Estado atual: 1 linha por (id_planta, id_tipo_veiculo), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_planta`. Chave de join: (id_planta, id_tipo_veiculo). Source: source_stu.planta.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_planta
-        description: Identificador da planta
+        description: Componente da chave de join
       - name: id_tipo_veiculo
-        description: Chave para tipo_de_veiculo
-      - name: id_modelo_carroceria
-        description: Chave para mod_carroceria
-      - name: id_modelo_chassi
-        description: Chave para mod_chassi
-      - name: id_tipo_transporte
-        description: Chave para tipo_de_transporte
+        description: Componente da chave de join
+
+  - name: staging_stu_planta
+    description: |
+      Parse fino (1:1) de source_stu.planta — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `planta` (estado atual).
 
   - name: permissao
     description: |
-      Uma linha por permissão (tptran+tpperm+termo) por data de captura. Log de
-      versões — deduplicar por (tptran, tpperm, termo) pela `data` mais recente.
-      Chave de join: (tptran, tpperm, termo); `dv` compõe o número exibido.
-      Source: source_stu.permissao.
+      Estado atual: 1 linha por (tptran, tpperm, termo), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_permissao`. Chave de join: (tptran, tpperm, termo). Source: source_stu.permissao.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: tptran
-        description: Tipo de transporte
+        description: Componente da chave de join
       - name: tpperm
-        description: Tipo de permissão
+        description: Componente da chave de join
       - name: termo
-        description: Termo
-      - name: dv
-        description: Dígito verificador
-      - name: situacao
-        description: Situação da permissão na fonte
+        description: Componente da chave de join
+
+  - name: staging_stu_permissao
+    description: |
+      Parse fino (1:1) de source_stu.permissao — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `permissao` (estado atual).
 
   - name: tipo_de_transporte
     description: |
-      Uma linha por tipo de transporte por data de captura. Dimensão descritiva —
-      deduplicar por id_tipo_transporte pela `data` mais recente. Chave de join:
-      id_tipo_transporte. Source: source_stu.tipo_de_transporte.
+      Estado atual: 1 linha por (id_tipo_transporte), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_tipo_de_transporte`. Chave de join: (id_tipo_transporte). Source: source_stu.tipo_de_transporte.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_tipo_transporte
-        description: Identificador do tipo de transporte
-      - name: descricao
-        description: Descrição do tipo de transporte
+        description: Componente da chave de join
+
+  - name: staging_stu_tipo_de_transporte
+    description: |
+      Parse fino (1:1) de source_stu.tipo_de_transporte — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `tipo_de_transporte` (estado atual).
 
   - name: tipo_de_veiculo
     description: |
-      Uma linha por tipo de veículo por data de captura. Dimensão descritiva —
-      deduplicar por id_tipo_veiculo pela `data` mais recente. Chave de join:
-      id_tipo_veiculo. Source: source_stu.tipo_de_veiculo.
+      Estado atual: 1 linha por (id_tipo_veiculo), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_tipo_de_veiculo`. Chave de join: (id_tipo_veiculo). Source: source_stu.tipo_de_veiculo.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_tipo_veiculo
-        description: Identificador do tipo de veículo
-      - name: descricao
-        description: Descrição do tipo de veículo
+        description: Componente da chave de join
+
+  - name: staging_stu_tipo_de_veiculo
+    description: |
+      Parse fino (1:1) de source_stu.tipo_de_veiculo — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `tipo_de_veiculo` (estado atual).
 
   - name: mod_carroceria
     description: |
-      Uma linha por modelo de carroceria por data de captura. Dimensão descritiva —
-      deduplicar por id_modelo_carroceria pela `data` mais recente. Chave de join:
-      id_modelo_carroceria. Source: source_stu.mod_carroceria.
+      Estado atual: 1 linha por (id_modelo_carroceria), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_mod_carroceria`. Chave de join: (id_modelo_carroceria). Source: source_stu.mod_carroceria.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_modelo_carroceria
-        description: Identificador do modelo de carroceria
-      - name: id_fabricante
-        description: Identificador do fabricante da carroceria
-      - name: descricao
-        description: Descrição do modelo de carroceria
+        description: Componente da chave de join
+
+  - name: staging_stu_mod_carroceria
+    description: |
+      Parse fino (1:1) de source_stu.mod_carroceria — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `mod_carroceria` (estado atual).
 
   - name: mod_chassi
     description: |
-      Uma linha por modelo de chassi por data de captura. Dimensão descritiva —
-      deduplicar por id_modelo_chassi pela `data` mais recente. Chave de join:
-      id_modelo_chassi. Source: source_stu.mod_chassi.
+      Estado atual: 1 linha por (id_modelo_chassi), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_mod_chassi`. Chave de join: (id_modelo_chassi). Source: source_stu.mod_chassi.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_modelo_chassi
-        description: Identificador do modelo de chassi
-      - name: id_fabricante
-        description: Identificador do fabricante do chassi
-      - name: descricao
-        description: Descrição do modelo de chassi
+        description: Componente da chave de join
+
+  - name: staging_stu_mod_chassi
+    description: |
+      Parse fino (1:1) de source_stu.mod_chassi — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `mod_chassi` (estado atual).
 
   - name: combustivel
     description: |
-      Uma linha por combustível por data de captura. Dimensão descritiva —
-      deduplicar por id_combustivel pela `data` mais recente. Chave de join:
-      id_combustivel. Source: source_stu.combustivel.
+      Estado atual: 1 linha por (id_combustivel), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_combustivel`. Chave de join: (id_combustivel). Source: source_stu.combustivel.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: id_combustivel
-        description: Identificador do combustível
-      - name: descricao
-        description: Descrição do combustível
+        description: Componente da chave de join
+
+  - name: staging_stu_combustivel
+    description: |
+      Parse fino (1:1) de source_stu.combustivel — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `combustivel` (estado atual).
 
   - name: darm_apropriacao
     description: |
-      Uma linha por apropriação de DARM por data de captura. Log de pagamentos
-      apropriados de multas. Chave de join com `multa`: darm (= multa.cm).
-      Source: source_stu.darm_apropriacao.
+      Estado atual: 1 linha por (darm), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_darm_apropriacao`. Chave de join: (darm). Source: source_stu.darm_apropriacao.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
-      - name: id_receita
-        description: Código da receita
       - name: darm
-        description: Número do DARM (join com multa.cm)
-      - name: data_pagamento
-        description: Data do pagamento
+        description: Componente da chave de join
+
+  - name: staging_stu_darm_apropriacao
+    description: |
+      Parse fino (1:1) de source_stu.darm_apropriacao — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `darm_apropriacao` (estado atual).
 
   - name: pessoa_fisica
     description: |
-      Uma linha por pessoa física (ratr) por data de captura. Cadastro de pessoa
-      física do STU. Chave: ratr / cpf. Source: source_stu.pessoa_fisica.
-      ATENÇÃO: contém dados sensíveis (CPF, CNH, identidade) — avaliar policy_tags.
-      Sem consumidor no momento.
+      Estado atual: 1 linha por (ratr), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_pessoa_fisica`. Chave de join: (ratr). Source: source_stu.pessoa_fisica.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: ratr
-        description: Identificador da pessoa física
-      - name: cpf
-        description: CPF (dado sensível)
-      - name: nome
-        description: Nome (dado sensível)
+        description: Componente da chave de join
+
+  - name: staging_stu_pessoa_fisica
+    description: |
+      Parse fino (1:1) de source_stu.pessoa_fisica — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `pessoa_fisica` (estado atual).
 
   - name: pessoa_juridica
     description: |
-      Uma linha por pessoa jurídica (cgc) por data de captura. Cadastro de pessoa
-      jurídica do STU. Chave: cgc. Source: source_stu.pessoa_juridica.
-      Sem consumidor no momento.
+      Estado atual: 1 linha por (cgc), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_pessoa_juridica`. Chave de join: (cgc). Source: source_stu.pessoa_juridica.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: cgc
-        description: CNPJ/CGC da pessoa jurídica
-      - name: razao_social
-        description: Razão social
+        description: Componente da chave de join
+
+  - name: staging_stu_pessoa_juridica
+    description: |
+      Parse fino (1:1) de source_stu.pessoa_juridica — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `pessoa_juridica` (estado atual).

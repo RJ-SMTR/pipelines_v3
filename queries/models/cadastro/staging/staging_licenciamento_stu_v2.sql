@@ -1,81 +1,25 @@
 {{ config(materialized="ephemeral") }}
 
 with
-    veiculo_ativo as (
-        select *
-        from {{ ref("veiculo_ativo") }}
-        qualify
-            row_number() over (
-                partition by placa, tptran, tpperm, termo order by data desc
-            )
-            = 1
-    ),
+    veiculo_ativo as (select * from {{ ref("veiculo_ativo") }}),
 
-    permissao as (
-        select tptran, tpperm, termo, dv
-        from {{ ref("permissao") }}
-        qualify
-            row_number() over (partition by tptran, tpperm, termo order by data desc)
-            = 1
-    ),
+    permissao as (select tptran, tpperm, termo, dv from {{ ref("permissao") }}),
 
-    tipo_transporte as (
-        select *
-        from {{ ref("tipo_de_transporte") }}
-        qualify
-            row_number() over (partition by id_tipo_transporte order by data desc) = 1
-    ),
+    tipo_transporte as (select * from {{ ref("tipo_de_transporte") }}),
 
-    vistoria as (
-        select *
-        from {{ ref("vistoria") }}
-        qualify
-            row_number() over (
-                partition by placa, tptran, tpperm, termo order by data_vistoria desc
-            )
-            = 1
-    ),
+    vistoria as (select * from {{ ref("vistoria") }}),
 
-    veiculo as (
-        select *
-        from {{ ref("veiculo") }}
-        qualify row_number() over (partition by placa order by data desc) = 1
-    ),
+    veiculo as (select * from {{ ref("veiculo") }}),
 
-    planta as (
-        select *
-        from {{ ref("planta") }}
-        qualify
-            row_number() over (
-                partition by id_planta, id_tipo_veiculo order by data desc
-            )
-            = 1
-    ),
+    planta as (select * from {{ ref("planta") }}),
 
-    mod_carroceria as (
-        select *
-        from {{ ref("mod_carroceria") }}
-        qualify
-            row_number() over (partition by id_modelo_carroceria order by data desc) = 1
-    ),
+    mod_carroceria as (select * from {{ ref("mod_carroceria") }}),
 
-    mod_chassi as (
-        select *
-        from {{ ref("mod_chassi") }}
-        qualify row_number() over (partition by id_modelo_chassi order by data desc) = 1
-    ),
+    mod_chassi as (select * from {{ ref("mod_chassi") }}),
 
-    combustivel as (
-        select *
-        from {{ ref("combustivel") }}
-        qualify row_number() over (partition by id_combustivel order by data desc) = 1
-    ),
+    combustivel as (select * from {{ ref("combustivel") }}),
 
-    tipo_veiculo as (
-        select *
-        from {{ ref("tipo_de_veiculo") }}
-        qualify row_number() over (partition by id_tipo_veiculo order by data desc) = 1
-    )
+    tipo_veiculo as (select * from {{ ref("tipo_de_veiculo") }})
 
 select
     coalesce(date(va.datetime_captura), vi.data) as data,

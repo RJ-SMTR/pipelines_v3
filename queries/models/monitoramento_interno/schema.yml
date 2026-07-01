@@ -116,32 +116,22 @@ models:
         description: "Viagens realizadas"
       - name: km_apurada
         description: "{{ doc('km_apurada') }}"
+
   - name: multa
     description: |
-      Uma linha por auto de infração (serie + cm) por data de captura. Log de multas
-      de trânsito do STU — deduplicar por (serie, cm) pela `data` mais recente antes
-      de join. Chave de join: (serie, cm); junta com darm_apropriacao por cm = darm e
-      com permissao por (tptran, tpperm, termo). Source: source_stu.multa.
-      Alimenta staging_infracao_v2.
+      Estado atual: 1 linha por (serie, cm), última versão mantida via `merge`
+      incremental sobre a janela recente. Histórico bruto (todas as capturas)
+      em `staging_stu_multa`. Chave de join: (serie, cm). Source: source_stu.multa.
     columns:
       - name: data
-        description: Data de captura (partição)
+        description: Data de captura da versão vigente
         tests: [not_null]
       - name: serie
-        description: Série do auto de infração (compõe id_auto_infracao)
+        description: Componente da chave de join
       - name: cm
-        description: Número do auto (compõe id_auto_infracao; join com darm)
-      - name: id_infracao
-        description: Código da infração
-      - name: placa
-        description: Placa do veículo autuado
-      - name: tptran
-        description: Tipo de transporte
-      - name: tpperm
-        description: Tipo de permissão
-      - name: termo
-        description: Termo
-      - name: situacao
-        description: Situação/status da multa na fonte
-      - name: datetime_infracao
-        description: Datetime da infração
+        description: Componente da chave de join
+
+  - name: staging_stu_multa
+    description: |
+      Parse fino (1:1) de source_stu.multa — todas as capturas (delta diário por
+      `data`). View que preserva o histórico bruto e alimenta `multa` (estado atual).

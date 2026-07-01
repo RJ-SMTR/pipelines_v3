@@ -1,32 +1,13 @@
 {{ config(materialized="ephemeral") }}
 
 with
-    multa as (
-        select *
-        from {{ ref("multa") }}
-        qualify row_number() over (partition by serie, cm order by data desc) = 1
-    ),
+    multa as (select * from {{ ref("multa") }}),
 
-    permissao as (
-        select tptran, tpperm, termo, dv
-        from {{ ref("permissao") }}
-        qualify
-            row_number() over (partition by tptran, tpperm, termo order by data desc)
-            = 1
-    ),
+    permissao as (select tptran, tpperm, termo, dv from {{ ref("permissao") }}),
 
-    tipo_transporte as (
-        select *
-        from {{ ref("tipo_de_transporte") }}
-        qualify
-            row_number() over (partition by id_tipo_transporte order by data desc) = 1
-    ),
+    tipo_transporte as (select * from {{ ref("tipo_de_transporte") }}),
 
-    darm as (
-        select *
-        from {{ ref("darm_apropriacao") }}
-        qualify row_number() over (partition by darm, data order by data desc) = 1
-    )
+    darm as (select * from {{ ref("darm_apropriacao") }})
 
 select
     m.data,
@@ -73,4 +54,4 @@ left join
     and m.tpperm = cast(p.tpperm as string)
     and m.termo = cast(p.termo as string)
 left join tipo_transporte t on m.tptran = t.id_tipo_transporte
-left join darm d on m.cm = d.darm and m.data = d.data
+left join darm d on m.cm = d.darm
