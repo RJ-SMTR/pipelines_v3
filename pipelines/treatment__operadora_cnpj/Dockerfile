@@ -11,4 +11,4 @@ COPY ./pipelines/treatment__operadora_cnpj ./pipelines/treatment__operadora_cnpj
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock

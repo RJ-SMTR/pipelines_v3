@@ -11,4 +11,4 @@ COPY ./pipelines/treatment__cliente_cpf ./pipelines/treatment__cliente_cpf/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages
+RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
