@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3] - 2026-06-26
+
+### Alterado
+
+- Ativa o schedule daily do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/317)
+
 ## [1.1.2] - 2026-06-24
 
 ### Alterado
