@@ -10,4 +10,4 @@ COPY ./pipelines/capture__sonda_viagem_informada ./pipelines/capture__sonda_viag
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN uv sync --all-packages && rm -f pyproject.toml uv.lock
+RUN uv sync --all-packages
