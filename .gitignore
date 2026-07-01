@@ -10,7 +10,7 @@ logs/*
 .antigravitycli/
 .claude/settings.local.json
 CLAUDE.local.md
-AGENTS.md
+AGENTS.local.md
 
 # Root build symlinks
 /target
