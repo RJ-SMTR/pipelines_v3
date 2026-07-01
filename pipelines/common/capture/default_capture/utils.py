@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from typing import Optional
+from typing import NamedTuple, Optional
 
 import pytz
 from prefect import runtime
@@ -10,6 +10,20 @@ from pipelines.common.capture.default_capture import constants
 from pipelines.common.utils.fs import create_partition, get_data_folder_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.utils import convert_timezone
+
+
+class ShouldCapture(NamedTuple):
+    """
+    Resultado de um `should_capture_task`.
+
+    Attributes:
+        value (bool): Se True, o builder prossegue com a captura; se False, retorna cedo.
+        payload (Optional[dict]): Payload livre do pipeline (ex.: hash da fonte) propagada para
+            os passos seguintes do flow (janela de materialização, persistência de estado etc.).
+    """
+
+    value: bool
+    payload: Optional[dict] = None
 
 
 class SourceCaptureContext:
