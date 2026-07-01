@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.3] - 2026-06-26
+
+### Corrigido
+
+- Corrige o filtro de validade dos registros de GPS no modelo `staging_gps` para considerar o atraso entre `datetime_envio` e `datetime_servidor` (https://github.com/RJ-SMTR/pipelines_v3/pull/314)
+
 ## [2.2.2] - 2026-06-25
 
 ### Adicionado
