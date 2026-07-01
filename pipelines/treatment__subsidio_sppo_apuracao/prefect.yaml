@@ -27,6 +27,15 @@ deployments:
   - name: rj-treatment--subsidio_sppo_apuracao--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/treatment__subsidio_sppo_apuracao/flow.py:treatment__subsidio_sppo_apuracao
+    schedules:
+      - cron: "5 7 * * *"
+        timezone: "America/Sao_Paulo"
+        active: false
+    parameters:
+      env: dev
+      flags:
+        - --target
+        - dev
     work_pool:
       name: smtr-pool
       work_queue_name: default
