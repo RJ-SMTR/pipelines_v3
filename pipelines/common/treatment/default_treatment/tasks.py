@@ -237,13 +237,15 @@ def run_dbt_snapshots(
 def run_dbt_selector_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
+    flags: Optional[list[str]] = None,
 ):
     """
     Executa os testes do dbt para cada contexto de materialização.
 
     Args:
-        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        contexts (list[DBTSelectorMaterializationContext]): Contextos de materialização.
         mode (str): Modo de execução do teste (pre ou post).
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
     """
     for context in contexts:
         if not context[f"should_run_{mode}_test"]:
@@ -257,6 +259,7 @@ def run_dbt_selector_tests(
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
                 env=context.env,
+                flags=flags,
             )
         context[f"{mode}_test_log"] = log
 
