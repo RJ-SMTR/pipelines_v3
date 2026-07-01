@@ -89,7 +89,7 @@ def get_changed_dates_by_last_row_state(
                 f"anterior={previous_last_index}, atual={current_last_index}"
             )
 
-    return sorted(changed_df["dia"].dt.strftime("%Y-%m-%d").unique())
+    return sorted(changed_df["dia"].dt.strftime("%Y-%m-%d").tolist())
 
 
 def get_calendario_redis_key(env: str) -> str:

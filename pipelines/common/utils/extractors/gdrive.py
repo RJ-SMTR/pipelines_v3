@@ -99,7 +99,6 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
 
     if parse_dates:
         for column, kwargs in parse_dates.items():
-            kwargs.setdefault("errors", "coerce")
             df[column] = pd.to_datetime(df[column], **kwargs)
 
     if filter_expr:

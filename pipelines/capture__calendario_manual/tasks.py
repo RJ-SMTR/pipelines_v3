@@ -93,19 +93,17 @@ def update_calendario_last_row_state(env: str, last_row_state: dict[str, int | s
 
 @task(cache_policy=NO_CACHE)
 def get_calendario_materialization_window(
-    env: str,  # noqa: ARG001
     changed_dates: list[str],
-) -> Optional[tuple[str, str, dict]]:
+) -> Optional[tuple[str, str]]:
     """
     Calcula a janela de materialização a partir do estado apurado em `detect_calendario_change`.
 
     Args:
-        env: Ambiente de execução.
         changed_dates: Datas novas ou alteradas calculadas em `detect_calendario_change`.
 
     Returns:
-        Data inicial, data final e variáveis adicionais da materialização. Retorna ``None``
-        quando só há datas alteradas anteriores à data atual.
+        Data inicial e data final da janela de materialização. Retorna ``None`` quando só há datas
+        alteradas anteriores à data atual.
     """
     today = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE)).strftime("%Y-%m-%d")
     future_changed_dates = [date for date in changed_dates if date >= today]
@@ -117,4 +115,4 @@ def get_calendario_materialization_window(
     datetime_end = max(future_changed_dates)
 
     print(f"Janela de materialização: {datetime_start} → {datetime_end}")
-    return datetime_start, datetime_end, {}
+    return datetime_start, datetime_end

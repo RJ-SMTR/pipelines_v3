@@ -8,7 +8,6 @@ Lê a aba "Dias Atípicos" da planilha de planejamento e, quando há alteração
 Common: 2026-06-19
 """
 
-from functools import partial
 from typing import Optional
 
 from pipelines.capture__calendario_manual import constants
@@ -20,7 +19,7 @@ from pipelines.capture__calendario_manual.tasks import (
 )
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
-from pipelines.common.tasks import trigger_materialization
+from pipelines.common.tasks import run_subflow
 from pipelines.common.utils.prefect import flow
 from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
@@ -48,14 +47,23 @@ async def capture__calendario_manual(  # noqa: PLR0913
 
     if tasks["should_capture"]:
         payload = tasks["should_capture_result"].payload
-        await trigger_materialization(
-            env=tasks["env"],
-            flow=treatment__planejamento_diario,
-            window_fn=partial(
-                get_calendario_materialization_window,
-                changed_dates=payload["changed_dates"],
-            ),
+        window = get_calendario_materialization_window(
+            changed_dates=payload["changed_dates"],
         )
+        if window is not None:
+            datetime_start, datetime_end = window
+            await run_subflow(
+                env=tasks["env"],
+                flow=treatment__planejamento_diario,
+                parameters=[
+                    {
+                        "env": tasks["env"],
+                        "datetime_start": datetime_start,
+                        "datetime_end": datetime_end,
+                    }
+                ],
+                wait_for_completion=False,
+            )
         update_calendario_last_row_state(
             env=tasks["env"],
             last_row_state=payload["last_row_state"],
