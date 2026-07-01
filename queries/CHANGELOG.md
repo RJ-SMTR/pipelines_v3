@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.7] - 2026-06-26
+
+### Corrigido
+
+- Corrige nomes dos modelos `autuacao_citran` e `autuacao_serpro` para `view_autuacao_citran` e `view_autuacao_serpro` no selector `transito_autuacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/317)
+
 ## [1.1.6] - 2026-06-24
 
 ### Alterado
