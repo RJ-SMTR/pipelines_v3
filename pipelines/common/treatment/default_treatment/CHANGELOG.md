@@ -2,6 +2,10 @@
 
 ## [1.4.0] - 2026-06-23
 
+### Alterado
+
+- Propaga `flags` para testes dbt pré e pós-materialização. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
 ### Adicionado
 
 - Adiciona criação seletiva de relações dbt ausentes com `--empty` antes da materialização normal em ambiente dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
