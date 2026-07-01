@@ -1,0 +1,4 @@
+[project]
+name = "capture__calendario_manual"
+version = "0.1.0"
+description = "Pipeline de captura do calendário manual (datas atípicas) da secretaria rj-smtr"
