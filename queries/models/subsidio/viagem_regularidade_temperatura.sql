@@ -84,7 +84,7 @@ with
             indicadores.indicador_falha_recorrente.valor as indicador_falha_recorrente,
             indicadores.indicador_falha_recorrente.data_verificacao_falha
             as data_verificacao_falha
-        from {{ ref("veiculo_regularidade_temperatura_dia") }}
+        from `rj-smtr`.`monitoramento`.`veiculo_regularidade_temperatura_dia`
         where {{ incremental_filter }}
     ),
     regularidade_temperatura as (
