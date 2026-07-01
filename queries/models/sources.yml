@@ -326,6 +326,7 @@ sources:
       - name: matriz_transferencia
       - name: matriz_integracao_excecao
       - name: dicionario_subsidio
+      - name: calendario_manual
 
   - name: planejamento_staging
     database: rj-smtr-staging
