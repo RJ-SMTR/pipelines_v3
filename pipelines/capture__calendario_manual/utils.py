@@ -9,44 +9,87 @@ from pipelines.capture__calendario_manual import constants
 from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 
 
-def get_calendario_hashes_by_date(df: pd.DataFrame) -> dict[str, str]:
+def get_calendario_row_hash(row: pd.Series) -> str:
     """
-    Calcula um hash SHA-256 para cada data do calendário manual.
+    Calcula um hash SHA-256 para uma linha do calendário manual.
 
     Args:
-        df: Dados validados da planilha, com uma linha por data.
+        row: Linha validada da planilha.
 
     Returns:
-        Dicionário no formato ``data ISO -> hash da linha``.
+        Hash da linha considerando as colunas de conteúdo do calendário manual.
     """
-    content_df = df[constants.CALENDARIO_MANUAL_COLUMNS].copy()
-    content_df["dia"] = content_df["dia"].dt.strftime("%Y-%m-%d")
-    content_df = content_df.fillna("").astype(str)
+    row_df = pd.DataFrame([row[constants.CALENDARIO_MANUAL_COLUMNS]])
+    row_df["dia"] = row_df["dia"].dt.strftime("%Y-%m-%d")
+    row_df = row_df.fillna("").astype(str)
+    return hashlib.sha256(row_df.to_csv(index=False, header=False).encode("utf-8")).hexdigest()
 
+
+def get_calendario_last_row_state(df: pd.DataFrame) -> dict[str, int | str] | None:
+    """
+    Calcula o estado compacto da última linha submetida da planilha.
+
+    Args:
+        df: Dados validados da planilha, mantendo o índice original das linhas.
+
+    Returns:
+        Dicionário com o índice original da última linha e o hash do seu conteúdo, ou ``None``
+        quando não há linhas submetidas.
+    """
+    if df.empty:
+        return None
+
+    last_index = int(df.index.max())
     return {
-        row["dia"]: hashlib.sha256(
-            pd.DataFrame([row], columns=constants.CALENDARIO_MANUAL_COLUMNS)
-            .to_csv(index=False, header=False)
-            .encode("utf-8")
-        ).hexdigest()
-        for row in content_df.to_dict(orient="records")
+        "last_index": last_index,
+        "last_hash": get_calendario_row_hash(df.loc[last_index]),
     }
 
 
-def get_changed_dates(previous_hashes: dict[str, str], current_hashes: dict[str, str]) -> list[str]:
+def get_changed_dates_by_last_row_state(
+    df: pd.DataFrame,
+    previous_state: dict[str, int | str] | None,
+    current_state: dict[str, int | str] | None,
+) -> list[str]:
     """
-    Identifica datas novas ou modificadas no conjunto atual.
+    Identifica datas a materializar comparando apenas o estado da última linha submetida.
+
+    A planilha é tratada como append-only: novas linhas no fim avançam o índice, e uma edição na
+    última linha muda seu hash. Alterações em linhas anteriores não disparam captura.
 
     Args:
-        previous_hashes: Hashes por data persistidos após a captura anterior.
-        current_hashes: Hashes por data calculados da planilha atual.
+        df: Dados validados da planilha, mantendo o índice original das linhas.
+        previous_state: Estado persistido no Redis após a captura anterior.
+        current_state: Estado atual calculado da última linha submetida.
 
     Returns:
-        Datas novas ou modificadas em ordem crescente, no formato ISO.
+        Datas das novas linhas, ou da última linha quando apenas o hash dela mudou.
     """
-    return sorted(
-        date for date in current_hashes if current_hashes[date] != previous_hashes.get(date)
-    )
+    if df.empty:
+        return []
+
+    if current_state is None:
+        raise ValueError("Estado atual da última linha não foi calculado para planilha não vazia")
+
+    if not previous_state:
+        changed_df = df
+    else:
+        previous_last_index = int(previous_state["last_index"])
+        current_last_index = int(current_state["last_index"])
+
+        if current_last_index == previous_last_index:
+            if current_state["last_hash"] == previous_state["last_hash"]:
+                return []
+            changed_df = df.loc[[current_last_index]]
+        elif current_last_index > previous_last_index:
+            changed_df = df.loc[(df.index > previous_last_index) & (df.index <= current_last_index)]
+        else:
+            raise ValueError(
+                "Índice da última linha submetida diminuiu: "
+                f"anterior={previous_last_index}, atual={current_last_index}"
+            )
+
+    return sorted(changed_df["dia"].dt.strftime("%Y-%m-%d").unique())
 
 
 def get_calendario_redis_key(env: str) -> str:
@@ -61,7 +104,7 @@ def get_calendario_redis_key(env: str) -> str:
     """
     key = (
         f"source_{constants.CALENDARIO_MANUAL_SOURCE_NAME}."
-        f"{constants.CALENDARIO_MANUAL_TABLE_ID}.last_hashes_by_date"
+        f"{constants.CALENDARIO_MANUAL_TABLE_ID}.last_row_state"
     )
     if env != "prod":
         key = f"{env}.{key}"
@@ -75,7 +118,7 @@ def get_calendario_sheet_df() -> pd.DataFrame:
     Linhas sem data válida, anteriores à data de corte ou não submetidas são descartadas.
 
     Returns:
-        DataFrame ordenado por ``dia``, com uma linha por data.
+        DataFrame com uma linha por data, mantendo o índice original das linhas na planilha.
 
     Raises:
         ValueError: Se faltarem colunas obrigatórias ou houver datas duplicadas.
@@ -95,8 +138,6 @@ def get_calendario_sheet_df() -> pd.DataFrame:
     missing_columns = required_columns - set(df.columns)
     if missing_columns:
         raise ValueError(f"Colunas ausentes na planilha: {sorted(missing_columns)}")
-
-    df = df.sort_values("dia").reset_index(drop=True)
 
     duplicated_dates = df.loc[df["dia"].duplicated(keep=False), "dia"]
     if not duplicated_dates.empty:

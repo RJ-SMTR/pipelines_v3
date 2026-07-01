@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Optional
+from typing import Any, Optional
 
 from prefect import runtime, unmapped
 from prefect.tasks import Task
@@ -33,7 +33,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
-):
+) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
 
@@ -56,7 +56,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     Returns:
         dict: Dicionário com o retorno das tasks. Sempre inclui `should_capture` (bool) e
-            `should_capture_result` (ShouldCapture | None).
+            `should_capture_result` (ShouldCapture | None). Quando o gate retorna False, o
+            dicionário é retornado antes da criação de `timestamp`, `contexts` e tasks de upload.
     """
     tasks = {}
     tasks_wait_for = tasks_wait_for or {}

@@ -11,10 +11,10 @@ from prefect.cache_policies import NO_CACHE
 
 from pipelines.capture__calendario_manual import constants
 from pipelines.capture__calendario_manual.utils import (
-    get_calendario_hashes_by_date,
+    get_calendario_last_row_state,
     get_calendario_redis_key,
     get_calendario_sheet_df,
-    get_changed_dates,
+    get_changed_dates_by_last_row_state,
 )
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import ShouldCapture, SourceCaptureContext
@@ -56,38 +56,39 @@ def detect_calendario_change(env: str) -> ShouldCapture:
         Decisão de captura e, no payload, o estado já calculado da planilha.
     """
     df = get_calendario_sheet_df()
-    hashes_by_date = get_calendario_hashes_by_date(df)
+    current_state = get_calendario_last_row_state(df)
 
-    previous_hashes_by_date = get_redis_client().get(get_calendario_redis_key(env))
-    if previous_hashes_by_date is None:
-        changed_dates = sorted(hashes_by_date)
-    else:
-        changed_dates = get_changed_dates(previous_hashes_by_date, hashes_by_date)
+    previous_state = get_redis_client().get(get_calendario_redis_key(env))
+    changed_dates = get_changed_dates_by_last_row_state(
+        df=df,
+        previous_state=previous_state,
+        current_state=current_state,
+    )
     changed = bool(changed_dates)
 
     print(f"Datas alteradas: {changed_dates} | mudou: {changed}")
     return ShouldCapture(
         value=changed,
         payload={
-            "hashes_by_date": hashes_by_date,
+            "last_row_state": current_state,
             "changed_dates": changed_dates,
         },
     )
 
 
 @task(cache_policy=NO_CACHE)
-def update_calendario_hashes_by_date(env: str, hashes_by_date: dict[str, str]) -> None:
+def update_calendario_last_row_state(env: str, last_row_state: dict[str, int | str]) -> None:
     """
-    Persiste no Redis os hashes da planilha processada.
+    Persiste no Redis o estado da última linha submetida da planilha.
 
     Args:
         env: Ambiente usado para selecionar a chave Redis.
-        hashes_by_date: Estado atual no formato ``data ISO -> hash da linha``.
+        last_row_state: Estado atual com ``last_index`` e ``last_hash``.
     """
     client = get_redis_client()
     key = get_calendario_redis_key(env)
-    client.set(key, hashes_by_date)
-    print(f"Hashes por data atualizados no Redis: {len(hashes_by_date)} datas")
+    client.set(key, last_row_state)
+    print(f"Estado da última linha atualizado no Redis: {last_row_state}")
 
 
 @task(cache_policy=NO_CACHE)

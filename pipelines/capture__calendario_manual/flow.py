@@ -16,7 +16,7 @@ from pipelines.capture__calendario_manual.tasks import (
     create_calendario_manual_extractor,
     detect_calendario_change,
     get_calendario_materialization_window,
-    update_calendario_hashes_by_date,
+    update_calendario_last_row_state,
 )
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
@@ -56,7 +56,7 @@ async def capture__calendario_manual(  # noqa: PLR0913
                 changed_dates=payload["changed_dates"],
             ),
         )
-        update_calendario_hashes_by_date(
+        update_calendario_last_row_state(
             env=tasks["env"],
-            hashes_by_date=payload["hashes_by_date"],
+            last_row_state=payload["last_row_state"],
         )
