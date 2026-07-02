@@ -1,6 +1,20 @@
 version: 2
 
 models:
+  - name: staging_infracao_v2
+    description: |
+      Uma linha por auto de infração por dia, a partir de `data_inicio_dbstu + 1`.
+      Snapshot diário derivado de deltas do banco STU e do estado persistido da partição
+      anterior. Use `(data, id_auto_infracao)` para joins. Fonte: views `staging_stu_*`
+      derivadas de `source_stu`, substituindo a captura FTP v1 após o corte
+      `data_inicio_dbstu`. Na primeira carga, faz full scan do banco STU e salva o
+      estado inicial em `data_inicio_dbstu + 1`; nas cargas incrementais, combina a
+      partição anterior persistida com os deltas da janela
+      (`date_range_start`/`date_range_end`).
+    columns:
+      - name: data
+        description: "{{ doc('data') }}"
+
   - name: staging_gps
     description: "Tabela com todos os registros de GPS da API {{ var('fonte_gps') }}"
     tests:

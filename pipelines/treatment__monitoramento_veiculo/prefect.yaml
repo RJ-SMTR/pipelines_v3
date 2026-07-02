@@ -40,7 +40,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__monitoramento_veiculo/flow.py:treatment__monitoramento_veiculo
     schedules:
-      - cron: "45 5 * * *"
+      - cron: "40 6 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool

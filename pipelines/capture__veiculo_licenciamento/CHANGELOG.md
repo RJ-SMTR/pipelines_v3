@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-05-04
+
+### Alterado
+
+- Alterada a task `get_raw_from_gcs` para salvar corretamente os dados (https://github.com/RJ-SMTR/pipelines_v3/pull/169)
+
 ## [1.0.1] - 2026-06-12
 
 ### Adicionado
