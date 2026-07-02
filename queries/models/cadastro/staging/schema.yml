@@ -7,9 +7,7 @@ models:
 
       **Padrão v1/v2:** Este modelo combina dois períodos via UNION ALL:
       - **v1 (até 2026-06-23):** Histórico completo de `staging_licenciamento_stu_v1` (múltiplos registros por veículo/data)
-      - **v2 (após 2026-06-23):** Snapshots finais de `staging_licenciamento_stu_v2` (última versão apenas, sem histórico intermediário)
-
-      **Importante:** Lacunas esperadas em v2 entre snapshots. Para histórico completo dia-a-dia após 2026-06-23, consulte `veiculo_licenciamento_dia`, que reconstrói o histórico via fill-forward de valores anteriores.
+      - **v2 (após 2026-06-23):** Snapshot diário de `staging_licenciamento_stu_v2`, derivado dos deltas do banco STU e do estado persistido da partição anterior
 
       **Caso de uso:** Camada staging que alimenta modelos como `veiculo_licenciamento_dia`, `licenciamento` e `licenciamento_data_versao_efetiva`.
     columns:
@@ -57,18 +55,17 @@ models:
 
   - name: staging_licenciamento_stu_v2
     description: |
-      Snapshots finais de licenciamento STU a partir de 2026-06-23.
-
-      Estrutura: Combina múltiplas staging internas (veiculo_ativo, permissao, vistoria, etc.)
-      com QUALIFY row_number() = 1 para manter apenas a versão mais recente de cada campo.
-
-      **Importante:** Contém apenas o último estado de cada veículo. Para dados diários ou histórico
-      entre snapshots, use `veiculo_licenciamento_dia` que reconstrói via fill-forward.
-
-      Estrutura ephemeral que alimenta `staging_licenciamento_stu` via UNION ALL.
+      Uma linha por veículo licenciado por dia, a partir de `data_inicio_dbstu + 1`.
+      Snapshot diário derivado de deltas do banco STU e do estado persistido da partição
+      anterior. Use `(data, id_veiculo)` para joins. Fonte: views `staging_stu_*`
+      derivadas de `source_stu`, substituindo a captura FTP v1 após o corte
+      `data_inicio_dbstu`. Na primeira carga, faz full scan do banco STU e salva o
+      estado inicial em `data_inicio_dbstu + 1`; nas cargas incrementais, combina a
+      partição anterior persistida com os deltas da janela
+      (`date_range_start`/`date_range_end`).
     columns:
       - name: data
-        description: Data do snapshot (data de captura da última versão)
+        description: "{{ doc('data') }}"
 
   - name: aux_operadora_jae_cliente_historico
     columns:

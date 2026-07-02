@@ -66,7 +66,7 @@
         ),
         veiculo_chassi as (
             select distinct placa, trim(chassi) as chassi
-            from {{ ref("veiculo") }}
+            from {{ ref("staging_stu_veiculo") }}
             where chassi is not null
         ),
         licenciamento_chassi as (
@@ -525,7 +525,7 @@ with
     ),
     veiculo_chassi as (
         select distinct placa, trim(chassi) as chassi
-        from {{ ref("veiculo") }}
+        from {{ ref("staging_stu_veiculo") }}
         where chassi is not null
     ),
     licenciamento_chassi as (

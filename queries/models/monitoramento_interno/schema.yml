@@ -117,21 +117,85 @@ models:
       - name: km_apurada
         description: "{{ doc('km_apurada') }}"
 
-  - name: multa
-    description: |
-      Estado atual: 1 linha por (serie, cm), última versão mantida via `merge`
-      incremental sobre a janela recente. Histórico bruto (todas as capturas)
-      em `staging_stu_multa`. Chave de join: (serie, cm). Source: source_stu.multa.
-    columns:
-      - name: data
-        description: Data de captura da versão vigente
-        tests: [not_null]
-      - name: serie
-        description: Componente da chave de join
-      - name: cm
-        description: Componente da chave de join
 
   - name: staging_stu_multa
-    description: |
-      Parse fino (1:1) de source_stu.multa — todas as capturas (delta diário por
-      `data`). View que preserva o histórico bruto e alimenta `multa` (estado atual).
+    description: View para os dados capturados em staging de source_stu.multa.
+    columns:
+      - name: data
+        description: data
+      - name: serie
+        description: serie
+      - name: cm
+        description: cm
+      - name: ta
+        description: ta
+      - name: ratr
+        description: ratr
+      - name: linha
+        description: linha
+      - name: ordem
+        description: ordem
+      - name: placa
+        description: placa
+      - name: termo
+        description: termo
+      - name: valor
+        description: valor
+      - name: id_ap
+        description: id_ap
+      - name: pontos
+        description: pontos
+      - name: situacao
+        description: situacao
+      - name: tpperm
+        description: tpperm
+      - name: tptran
+        description: tptran
+      - name: emissao
+        description: emissao
+      - name: sentido
+        description: sentido
+      - name: apreensao
+        description: apreensao
+      - name: datetime_calculo
+        description: datetime_calculo
+      - name: datetime_ciencia
+        description: datetime_ciencia
+      - name: datetime_usuario
+        description: datetime_usuario
+      - name: logradouro
+        description: logradouro
+      - name: valor_historico
+        description: valor_historico
+      - name: complemento
+        description: complemento
+      - name: data_recred
+        description: data_recred
+      - name: datetime_infracao
+        description: datetime_infracao
+      - name: id_infracao
+        description: id_infracao
+      - name: descricao_infracao
+        description: descricao_infracao
+      - name: datetime_alteracao
+        description: datetime_alteracao
+      - name: matricula_usuario
+        description: matricula_usuario
+      - name: reincidencia
+        description: reincidencia
+      - name: real_infrator
+        description: real_infrator
+      - name: id_tipo_moeda
+        description: id_tipo_moeda
+      - name: credito_recred
+        description: credito_recred
+      - name: grupo_infracao
+        description: grupo_infracao
+      - name: matricula_alteracao
+        description: matricula_alteracao
+      - name: datetime_notificacao_autuacao
+        description: datetime_notificacao_autuacao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura

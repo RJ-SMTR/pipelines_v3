@@ -28,7 +28,7 @@ where
 
 union all by name
 
-select *
+select * except (versao, datetime_ultima_atualizacao, id_execucao_dbt)
 from {{ ref("staging_infracao_v2") }}
 where
     data > "{{ var('data_inicio_dbstu') }}"
