@@ -4,7 +4,7 @@ with
     ida_volta_circular as (
         select t.*
 
-                from {{ ref("aux_ida_volta_circular") }} t
+        from {{ ref("aux_ida_volta_circular") }} t
         where
             flag_proximo_volta = true
             and sentido_shape = "I"
@@ -37,7 +37,10 @@ with
                     ida_volta_circular c
                     on c.id_veiculo = v.id_veiculo
                     and c.servico_realizado = v.servico_realizado
-                    and c.sentido = v.sentido
+                    and c.sentido = v.sentido 
+                    {% if var("run_date") >= var("DATA_SUBSIDIO_V25_INICIO")%}
+                    and c.shape_id_planejado = v.shape_id_planejado
+                    {% endif %}
             ) v
         where id_viagem is not null
     )
