@@ -289,7 +289,7 @@ vars:
 
   ### Planejamento ###
   feed_inicial_viagem_planejada: "2024-09-29"
-  data_inicio_calendario_sheets: "2026-07-01"
+  data_inicio_calendario_sheets: "2026-06-29"
 
   ### Infraestrutura ###
   data_inicial_logs_bigquery: "2024-09-30"
