@@ -336,13 +336,16 @@ async def discover_yaml_files(pipelines: Path, pipeline_filter: str | None) -> l
 
         return yamls
 
+    if CONFIG.force_deploy:
+        return get_prefect_yaml_files(pipelines.iterdir())
+
     changed_pipelines = await get_changed_directories(pipelines, CONFIG.sha)
 
-    if not changed_pipelines and not CONFIG.force_deploy:
+    if not changed_pipelines:
         logging.info("No changes detected, skipping deployment.")
         sys.exit(0)
 
-    return get_prefect_yaml_files(changed_pipelines if changed_pipelines else pipelines.iterdir())
+    return get_prefect_yaml_files(changed_pipelines)
 
 
 async def execute_deployments(yamls: list[Path]) -> list[Path]:
