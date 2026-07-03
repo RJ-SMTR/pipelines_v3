@@ -328,10 +328,6 @@ class SourceTable(BQTable):
                 if ".csv" in b.name and len(b.name.split("/")[-1]) == file_length
             ]
 
-        if self.partition_date_only:
-            captured_dates = {f.date() for f in files}
-            return [d for d in full_range if d.date() not in captured_dates][: self.max_recaptures]
-
         return [d for d in full_range if d not in files][: self.max_recaptures]
 
     def upload_raw_file(self, raw_filepath: str, partition: str, if_exists: str = "replace"):
