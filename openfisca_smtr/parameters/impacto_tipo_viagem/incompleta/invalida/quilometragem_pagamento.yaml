@@ -1,0 +1,6 @@
+description: Viagem incompleta e invalida nao conta para quilometragem de pagamento.
+metadata:
+  reference: Anexo I.8 - Remuneracao pelo Servico da Concessionaria, Tabela 2
+values:
+  2026-08-01:
+    value: false

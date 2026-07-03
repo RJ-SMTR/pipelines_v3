@@ -1,0 +1,6 @@
+description: Desconto por operacao precaria moderada.
+metadata:
+  reference: Anexo I.8 - Remuneracao pelo Servico da Concessionaria, item 6.2
+values:
+  2026-08-01:
+    value: 600.0

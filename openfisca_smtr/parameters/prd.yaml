@@ -1,0 +1,34 @@
+description: Faixas de reducao por desempenho por IDT conforme Anexo I.8.
+metadata:
+  reference: Anexo I.8 - Remuneracao pelo Servico da Concessionaria, item 7
+brackets:
+  - threshold:
+      2026-08-01:
+        value: 0.0
+    amount:
+      2026-08-01:
+        value: 0.0
+  - threshold:
+      2026-08-01:
+        value: 2.5
+    amount:
+      2026-08-01:
+        value: 0.02
+  - threshold:
+      2026-08-01:
+        value: 7.5
+    amount:
+      2026-08-01:
+        value: 0.04
+  - threshold:
+      2026-08-01:
+        value: 12.5
+    amount:
+      2026-08-01:
+        value: 0.06
+  - threshold:
+      2026-08-01:
+        value: 17.5
+    amount:
+      2026-08-01:
+        value: 0.08

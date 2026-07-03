@@ -1,0 +1,28 @@
+description: Faixas do indicador de percentual de atendimento conforme Anexo I.8.
+metadata:
+  reference: Anexo I.8 - Remuneracao pelo Servico da Concessionaria, item 6.1
+brackets:
+  - threshold:
+      2026-08-01:
+        value: 0.0
+    amount:
+      2026-08-01:
+        value: 0.0
+  - threshold:
+      2026-08-01:
+        value: 0.6
+    amount:
+      2026-08-01:
+        value: 0.6
+  - threshold:
+      2026-08-01:
+        value: 0.8
+    amount:
+      2026-08-01:
+        value: 0.9
+  - threshold:
+      2026-08-01:
+        value: 0.9
+    amount:
+      2026-08-01:
+        value: 1.0
