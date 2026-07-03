@@ -211,9 +211,13 @@ def create_transacao_valor_ordem_params(gaps: dict) -> tuple[bool, dict]:
     """
     transacao_gaps = gaps[jae_constants.TRANSACAO_TABLE_ID]
 
-    return transacao_gaps["flag_has_gaps"], {
-        "datetime_start": f"{sorted(set(transacao_gaps['timestamps']))[0][:10]} 00:00:00"
-    }
+    params = (
+        {"datetime_start": f"{sorted(set(transacao_gaps['timestamps']))[0][:10]} 00:00:00"}
+        if transacao_gaps["flag_has_gaps"]
+        else None
+    )
+
+    return transacao_gaps["flag_has_gaps"], params
 
 
 @task

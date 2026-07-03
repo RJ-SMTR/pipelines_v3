@@ -3,6 +3,7 @@ from typing import Optional
 
 from prefect import runtime
 
+from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.tasks import get_run_env, initialize_sentry, run_subflow, setup_environment
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
@@ -59,7 +60,15 @@ async def treatment__jae_timestamps_divergentes(
 
     sql_treatment = run_updates(env=env, gaps=gaps)
 
-    await run_subflow(env=env, flow=treatment__passageiro_hora, wait_for=[sql_treatment])
+    if (
+        gaps[jae_constants.TRANSACAO_TABLE_ID]["flag_has_gaps"]
+        or gaps[jae_constants.TRANSACAO_RIOCARD_TABLE_ID]["flag_has_gaps"]
+        or gaps[jae_constants.CLIENTE_TABLE_ID]["flag_has_gaps"]
+        or gaps[jae_constants.GRATUIDADE_TABLE_ID]["flag_has_gaps"]
+        or gaps[jae_constants.ESTUDANTE_TABLE_ID]["flag_has_gaps"]
+        or gaps[jae_constants.LAUDO_PCD_TABLE_ID]["flag_has_gaps"]
+    ):
+        await run_subflow(env=env, flow=treatment__passageiro_hora, wait_for=[sql_treatment])
 
     run_transacao_valor_ordem, params = create_transacao_valor_ordem_params(gaps=gaps)
 
