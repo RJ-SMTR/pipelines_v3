@@ -24,7 +24,7 @@ CALENDARIO_MANUAL_COLUMNS = [
 
 CALENDARIO_MANUAL_SUBMIT_COLUMN = "submeter_mudancas_para_dados"
 
-CALENDARIO_MANUAL_CUTOVER_DATE = "2026-07-01"
+CALENDARIO_MANUAL_CUTOVER_DATE = "2026-06-29"
 CALENDARIO_MANUAL_PARSE_DATES = {"dia": {"format": "%d/%m/%Y", "errors": "coerce"}}
 CALENDARIO_MANUAL_FILTER_EXPR = (
     f"dia >= '{CALENDARIO_MANUAL_CUTOVER_DATE}' and {CALENDARIO_MANUAL_SUBMIT_COLUMN} == 'TRUE'"
@@ -33,7 +33,7 @@ CALENDARIO_MANUAL_FILTER_EXPR = (
 CALENDARIO_MANUAL_SOURCE = SourceTable(
     source_name=CALENDARIO_MANUAL_SOURCE_NAME,
     table_id=CALENDARIO_MANUAL_TABLE_ID,
-    first_timestamp=datetime(2026, 7, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    first_timestamp=datetime(2026, 6, 29, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__calendario_manual",
     partition_date_only=True,
     max_recaptures=5,
