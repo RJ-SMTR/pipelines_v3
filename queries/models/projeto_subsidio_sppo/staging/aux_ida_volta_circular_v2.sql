@@ -24,4 +24,9 @@ select
     )
     = "V" as flag_proximo_volta
 from {{ ref("aux_viagem_inicio_fim") }} v
-where sentido = "C" and data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+where
+    sentido = "C"
+    and (
+        data between date("2025-06-01") and date("2025-06-30")
+        or data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+    )
