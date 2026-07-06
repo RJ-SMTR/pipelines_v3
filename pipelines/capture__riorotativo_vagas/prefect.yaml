@@ -38,6 +38,9 @@ deployments:
   - name: rj-capture--riorotativo_vagas--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__riorotativo_vagas/flow.py:capture__riorotativo_vagas
+    schedules:
+      - cron: "0 7 * * *"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
