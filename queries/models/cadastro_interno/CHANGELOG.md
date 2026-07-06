@@ -1,5 +1,11 @@
 # Changelog - cadastro_interno
 
+## [1.3.0] - 2026-07-06
+
+### Adicionado
+
+- Cria modelos `agente_credenciado_riorotativo.sql`, `agente_credenciado_riorotativo_historico.sql`, `vaga_riorotativo.sql`, `perfil_funcionamento_riorotativo.sql` e `perfil_funcionamento_historico.sql`
+
 ## [1.2.1] - 2025-09-17
 
 ### Alterado

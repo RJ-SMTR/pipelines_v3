@@ -7,25 +7,25 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome_social
         description: "{{ doc('nome_social_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_pessoa
         description: Pessoa física ou jurídica
         data_type: string
@@ -39,31 +39,27 @@ models:
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: documento_alternativo
         description: Número do documento alternativo do cliente [protegido]
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: email
         description: Email do cliente [protegido]
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: datetime_cadastro
         description: "{{ doc('datetime_cadastro_cliente') }}"
-        data_type: datetime
-        quote: true
-      - name: datetime_captura
-        description: "{{ doc('datetime_captura') }}"
         data_type: datetime
         quote: true
       - name: versao
@@ -86,31 +82,31 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: cpf
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: datetime_cadastro
         description: "{{ doc('datetime_cadastro_cliente') }}"
         data_type: datetime
@@ -139,25 +135,25 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente_sequencia
         description: "{{ doc('id_cliente_sequencia') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: numero_sequencia_endereco
         description: "{{ doc('numero_sequencia_endereco_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_endereco
         description: "{{ doc('tipo_endereco_cliente') }}"
         data_type: string
@@ -222,31 +218,31 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: cpf
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: id_cliente_sequencia
         description: "{{ doc('id_cliente_sequencia') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: numero_sequencia_endereco
         description: "{{ doc('numero_sequencia_endereco_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: tipo_endereco
         description: "{{ doc('tipo_endereco_cliente') }}"
         data_type: string
@@ -290,6 +286,229 @@ models:
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
         data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: agente_credenciado_riorotativo
+    description: Tabela consolidada dos agentes credenciados no Rio Rotativo, com identificação do documento e do CNPJ da entidade credenciadora de origem.
+    columns:
+      - name: documento
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+      - name: tipo_documento
+        description: Tipo do documento do agente credenciado
+        data_type: string
+        quote: true
+      - name: nome
+        description: Nome do agente credenciado, quando informado na planilha de origem
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: agente_credenciado_riorotativo_historico
+    description: Histórico de status dos agentes credenciados no Rio Rotativo, combinando credenciamento ativo e bloqueios informados em planilha.
+    columns:
+      - name: id_agente_credenciado_historico
+        description: Identificador único do registro de histórico do agente credenciado
+        data_type: string
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }}"
+        data_type: string
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+      - name: status
+        description: Status vigente ou histórico do agente credenciado
+        data_type: string
+        quote: true
+      - name: motivo_bloqueio
+        description: Motivo do bloqueio
+        data_type: string
+        quote: true
+      - name: decisao_bloqueio
+        description: Processo administrativo ou judicial que culminou no bloqueio
+        data_type: string
+        quote: true
+      - name: data_inicio
+        description: "{{ doc('data_inicio_riorotativo') }}"
+        data_type: date
+        quote: true
+      - name: data_fim
+        description: "{{ doc('data_fim_riorotativo') }}"
+        data_type: date
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: vaga_riorotativo
+    description: Tabela consolidada das áreas de estacionamento do Rio Rotativo, com quantidades de vagas, geometria e período de vigência.
+    columns:
+      - name: id_area
+        description: Código único da área de estacionamento
+        data_type: string
+        quote: true
+      - name: nome
+        description: Nome legível da área de estacionamento, exibido ao usuário
+        data_type: string
+        quote: true
+      - name: logradouro
+        description: Nome oficial do logradouro ao qual a área de estacionamento se encontra
+        data_type: string
+        quote: true
+      - name: endereco_referencia
+        description: Endereço oficial do logradouro ao qual a área de estacionamento se encontra, usado no Auto de Infração de Trânsito
+        data_type: string
+        quote: true
+      - name: geometry_wkt
+        description: Polígono WKT que representa a área de estacionamento no sistema de referência WGS84
+        data_type: string
+        quote: true
+      - name: geometry
+        description: Geometria da área de estacionamento no sistema de referência WGS84
+        data_type: geography
+        quote: true
+      - name: observacao
+        description: Observação sobre a área de estacionamento para uso interno
+        data_type: string
+        quote: true
+      - name: quantidade_vaga_total
+        description: Quantidade total de vagas
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_moto
+        description: Quantidade de vagas regulamentadas para motocicletas
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_idoso
+        description: Quantidade de vagas regulamentadas para idosos
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_pcd
+        description: Quantidade de vagas regulamentadas para Pessoas com Deficiência (PcD)
+        data_type: int64
+        quote: true
+      - name: tempo_permanencia_hora
+        description: Tempo de permanência em horas
+        data_type: int64
+        quote: true
+      - name: id_perfil_funcionamento
+        description: Lista de perfis de funcionamento da área de estacionamento
+        data_type: string
+        quote: true
+      - name: data_inicio_vigencia
+        description: Data de início de vigência da área de estacionamento
+        data_type: date
+        quote: true
+      - name: data_fim_vigencia
+        description: Data de fim de vigência da área de estacionamento
+        data_type: date
+        quote: true
+  - name: perfil_funcionamento_riorotativo
+    description: Tabela consolidada dos perfis de funcionamento do Rio Rotativo, com dias da semana e horários aplicáveis.
+    columns:
+      - name: id_perfil_funcionamento
+        description: Código de referência do perfil de funcionamento
+        data_type: string
+        quote: true
+      - name: nome
+        description: Nome do perfil de funcionamento disponibilizado aos usuários
+        data_type: string
+        quote: true
+      - name: dias_semana
+        description: Lista de dias da semana em que o perfil está vigente, considerando 1 como domingo
+        data_type: array
+        quote: true
+      - name: horario_inicio
+        description: Horário de início do funcionamento do perfil
+        data_type: string
+        quote: true
+      - name: horario_fim
+        description: Horário de fim do funcionamento do perfil
+        data_type: string
+        quote: true
+  - name: perfil_funcionamento_historico
+    description: Histórico de exceções nos perfis de funcionamento do Rio Rotativo por área e período.
+    columns:
+      - name: id_perfil_funcionamento_historico
+        description: Identificador único do registro de histórico do perfil de funcionamento
+        data_type: string
+        quote: true
+      - name: id_perfil_funcionamento
+        description: Perfil de funcionamento sujeito à exceção
+        data_type: string
+        quote: true
+      - name: id_area
+        description: Área de estacionamento sujeita à exceção
+        data_type: string
+        quote: true
+      - name: data_inicio
+        description: Data inicial de vigência da exceção
+        data_type: date
+        quote: true
+      - name: data_fim
+        description: Data final de vigência da exceção
+        data_type: date
+        quote: true
+      - name: horario_inicio
+        description: Horário inicial de vigência da exceção
+        data_type: string
+        quote: true
+      - name: horario_fim
+        description: Horário final de vigência da exceção
+        data_type: string
+        quote: true
+      - name: motivo
+        description: Motivo da exceção que poderá ser exibido para o agente verificador ou usuário
+        data_type: string
+        quote: true
+      - name: decisao
+        description: Processo administrativo, judicial, portaria ou decreto que culminou na exceção
+        data_type: string
         quote: true
       - name: versao
         description: "{{ doc('versao') }}"

@@ -1724,3 +1724,15 @@ Indicador de atividade do operador no sistema da Jaé
 {% docs sentido_shape %}
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 {% enddocs %}
+
+{% docs cnpj_entidade_credenciadora_riorotativo %}
+CNPJ da entidade credenciadora associada ao agente do Rio Rotativo
+{% enddocs %}
+
+{% docs data_inicio_riorotativo %}
+Data de início do período informado para o cadastro do Rio Rotativo
+{% enddocs %}
+
+{% docs data_fim_riorotativo %}
+Data de fim do período informado para o cadastro do Rio Rotativo
+{% enddocs %}
