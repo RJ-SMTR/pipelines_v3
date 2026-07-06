@@ -84,7 +84,18 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         .execute()
     )["values"]
 
-    df = pd.DataFrame(file[1:], columns=file[0])
+    columns = file[0]
+    rows = []
+    for row_number, row in enumerate(file[1:], start=2):
+        if len(row) > len(columns):
+            raise ValueError(
+                f"A linha {row_number} da aba {sheet_name} tem {len(row)} valores, "
+                f"mas o cabeçalho tem {len(columns)} colunas"
+            )
+
+        rows.append([*row, *([None] * (len(columns) - len(row)))])
+
+    df = pd.DataFrame(rows, columns=columns)
 
     df.columns = [
         normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True)
