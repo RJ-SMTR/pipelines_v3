@@ -16,6 +16,36 @@ RIOROTATIVO_PRIVATE_BUCKET_NAMES = {
     "dev": "rj-smtr-dev-private",
 }
 
+RIOROTATIVO_RENAME_MAPPING = {
+    "areacodigo": "area_codigo",
+    "areanome": "area_nome",
+    "arealogradourologradouro": "area_logradouro_logradouro",
+    "areaenderecoreferencia": "area_endereco_referencia",
+    "areapoligono": "area_poligono",
+    "areaobservacao": "area_observacao",
+    "areavagatotal": "area_vaga_total",
+    "areavagamoto": "area_vaga_moto",
+    "areavagaidoso": "area_vaga_idoso",
+    "areavagapcd": "area_vaga_pcd",
+    "areatempopermanenciahora": "area_tempo_permanencia_hora",
+    "areaperfilfuncionamento": "area_perfil_funcionamento",
+    "datainiciovigencia": "data_inicio_vigencia",
+    "datafimvigencia": "data_fim_vigencia",
+    "perfilfuncionamentocodigo": "perfil_funcionamento_codigo",
+    "perfilfuncionamentonome": "perfil_funcionamento_nome",
+    "perfilfuncionamentodiasemana": "perfil_funcionamento_dia_semana",
+    "perfilfuncionamentohorarioinicio": "perfil_funcionamento_horario_inicio",
+    "perfilfuncionamentohorariofim": "perfil_funcionamento_horario_fim",
+    "perfilfuncionamentoexcecaodatainicio": "perfil_funcionamento_excecao_data_inicio",
+    "perfilfuncionamentoexcecaodatafim": "perfil_funcionamento_excecao_data_fim",
+    "perfilfuncionamentoexcecaohorarioinicio": "perfil_funcionamento_excecao_horario_inicio",
+    "perfilfuncionamentoexcecaohorariofim": "perfil_funcionamento_excecao_horario_fim",
+    "perfilfuncionamentoexcecaomotivo": "perfil_funcionamento_excecao_motivo",
+    "perfilfuncionamentoexcecaodecisao": "perfil_funcionamento_excecao_decisao",
+    "ultimoeditor": "ultimo_editor",
+    "ultimaatualizacao": "ultima_atualizacao",
+}
+
 RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS = {
     "area_estacionamento": {
         "sheet_name": "area_estacionamento",
@@ -25,10 +55,10 @@ RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS = {
         "sheet_name": "perfil_funcionamento",
         "primary_keys": ["perfil_funcionamento_codigo"],
     },
-    "perfil_funcionamento_excecao": {
-        "sheet_name": "perfil_funcionamento_excecao",
-        "primary_keys": ["area_codigo", "perfil_funcionamento_codigo"],
-    },
+    # "perfil_funcionamento_excecao": {
+    #     "sheet_name": "perfil_funcionamento_excecao",
+    #     "primary_keys": ["area_codigo", "perfil_funcionamento_codigo"],
+    # },
 }
 
 RIOROTATIVO_VAGAS_SOURCES = [
@@ -59,7 +89,7 @@ RIOROTATIVO_VAGAS_EXTRA_PARAMETERS = {
         ),
         "sheet_name": params["sheet_name"],
         "filter_expr": params.get("filter_expr"),
-        "rename_mapping": params.get("rename_mapping"),
+        "rename_mapping": params.get("rename_mapping", RIOROTATIVO_RENAME_MAPPING),
         "dtypes": params.get("dtypes"),
         "parse_dates": params.get("parse_dates"),
     }

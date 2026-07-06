@@ -16,15 +16,24 @@ RIOROTATIVO_PRIVATE_BUCKET_NAMES = {
     "dev": "rj-smtr-dev-private",
 }
 
+RIOROTATIVO_RENAME_MAPPING = {
+    "motivobloqueio": "motivo_bloqueio",
+    "decisaobloqueio": "decisao_bloqueio",
+    "datainiciobloqueio": "data_inicio_bloqueio",
+    "datafimbloqueio": "data_fim_bloqueio",
+    "ultimoeditor": "ultimo_editor",
+    "ultimaatualizacao": "ultima_atualizacao",
+}
+
 RIOROTATIVO_CREDENCIADOS_TABLE_CAPTURE_PARAMS = {
     "entidade_42498733000148": {
         "sheet_name": "42498733000148",
         "primary_keys": ["cpf"],
     },
-    "lista_bloqueio": {
-        "sheet_name": "lista_bloqueio",
-        "primary_keys": ["cpf"],
-    },
+    # "lista_bloqueio": {
+    #     "sheet_name": "lista_bloqueio",
+    #     "primary_keys": ["cpf"],
+    # },
 }
 
 RIOROTATIVO_CREDENCIADOS_SOURCES = [
@@ -55,7 +64,7 @@ RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = {
         ),
         "sheet_name": params["sheet_name"],
         "filter_expr": params.get("filter_expr"),
-        "rename_mapping": params.get("rename_mapping"),
+        "rename_mapping": params.get("rename_mapping", RIOROTATIVO_RENAME_MAPPING),
         "dtypes": params.get("dtypes"),
         "parse_dates": params.get("parse_dates"),
     }
