@@ -353,6 +353,9 @@ select
 from dados_agregados
 left join shapes as s using (shape_id)
 {% if var("run_date") == "2024-05-05" %}
-    -- Apuração "Madonna · The Celebration Tour in Rio"
+    -- Apuração Madonna
     where servico != "SE001"
+{% elif var("run_date") in ("2025-05-04", "2025-05-05") %}
+    -- Lady Gaga: 583 só com trajeto alternativo [reveillon] (shape iz18)
+    where not (servico = "583" and id_tipo_trajeto = 0)
 {% endif %}
