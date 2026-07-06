@@ -38,7 +38,7 @@ with
                     on c.id_veiculo = v.id_veiculo
                     and c.servico_realizado = v.servico_realizado
                     and c.sentido = v.sentido
-                    {% if var("run_date") >= var("DATA_SUBSIDIO_V25_INICIO") %}
+                    {% if var("run_date") >= var("DATA_SUBSIDIO_V24_INICIO") %}
                         and c.shape_id_planejado = v.shape_id_planejado
                     {% endif %}
             ) v
