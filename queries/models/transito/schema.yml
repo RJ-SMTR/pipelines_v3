@@ -363,7 +363,7 @@ models:
               name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__autuacao
               arguments:
                 datepart: day
-                interval: 1
+                interval: 2
               config:
                 tags: ["freshness", "daily"]
                 severity: warn
