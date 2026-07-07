@@ -14,7 +14,7 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 
 COPY ./pipelines/treatment__gps_conecta ./pipelines/treatment__gps_conecta/
 
-COPY ./pipelines/treatment__gps_cittati ./pipelines/treatment__gps_cittati/
+# COPY ./pipelines/treatment__gps_cittati ./pipelines/treatment__gps_cittati/
 
 COPY ./pipelines/treatment__gps_zirix ./pipelines/treatment__gps_zirix/
 
@@ -24,9 +24,9 @@ COPY ./pipelines/capture__conecta_registros ./pipelines/capture__conecta_registr
 
 COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realocacao/
 
-COPY ./pipelines/capture__cittati_registros ./pipelines/capture__cittati_registros/
+# COPY ./pipelines/capture__cittati_registros ./pipelines/capture__cittati_registros/
 
-COPY ./pipelines/capture__cittati_realocacao ./pipelines/capture__cittati_realocacao/
+# COPY ./pipelines/capture__cittati_realocacao ./pipelines/capture__cittati_realocacao/
 
 COPY ./pipelines/capture__zirix_registros ./pipelines/capture__zirix_registros/
 
