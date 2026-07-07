@@ -300,12 +300,14 @@ models:
         data_type: string
         quote: true
   - name: agente_credenciado_riorotativo
-    description: Tabela consolidada dos agentes credenciados no Rio Rotativo, com identificação do documento e do CNPJ da entidade credenciadora de origem.
+    description: Tabela consolidada dos agentes credenciados no Rio Rotativo Digital, com identificação do documento e do CNPJ da entidade credenciada
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: tipo_documento
         description: Tipo do documento do agente credenciado
         data_type: string
@@ -314,12 +316,14 @@ models:
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
   - name: agente_credenciado_riorotativo_historico
-    description: Histórico de status dos agentes credenciados no Rio Rotativo, combinando credenciamento ativo e bloqueios informados em planilha.
+    description: Histórico de status dos agentes credenciados no Rio Rotativo, combinando credenciamento ativo e bloqueios informados em planilha
     columns:
       - name: id_agente_credenciado_historico
         description: Identificador único do registro de histórico do agente credenciado
@@ -333,10 +337,14 @@ models:
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: status
         description: Status vigente ou histórico do agente credenciado
         data_type: string

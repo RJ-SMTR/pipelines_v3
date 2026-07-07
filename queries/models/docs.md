@@ -1726,7 +1726,7 @@ Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 {% enddocs %}
 
 {% docs cnpj_entidade_credenciadora_riorotativo %}
-CNPJ da entidade credenciadora associada ao agente do Rio Rotativo
+CNPJ da entidade credenciada associada ao agente
 {% enddocs %}
 
 {% docs data_inicio_riorotativo %}
