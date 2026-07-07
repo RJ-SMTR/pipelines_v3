@@ -10,6 +10,7 @@ import pandas_gbq
 from google.cloud import bigquery
 from prefect import task
 
+from pipelines.capture__jae_auxiliar.flow import capture__jae_auxiliar
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.control__jae_verificacao_captura import constants as verificacao_captura_constants
