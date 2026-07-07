@@ -12,9 +12,7 @@ with
                 data,
                 safe_cast(cpf as string) as documento,
                 "CPF" as tipo_documento,
-                cast(null as string) as nome,
                 "{{ entidade.cnpj }}" as cnpj,
-                safe_cast(cpf as string) as id_cliente,
                 datetime(
                     parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
                     "America/Sao_Paulo"

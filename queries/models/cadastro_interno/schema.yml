@@ -310,28 +310,12 @@ models:
         description: Tipo do documento do agente credenciado
         data_type: string
         quote: true
-      - name: nome
-        description: Nome do agente credenciado, quando informado na planilha de origem
-        data_type: string
-        quote: true
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
-        data_type: string
-        quote: true
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
-        quote: true
-      - name: datetime_ultima_atualizacao
-        description: "{{ doc('datetime_ultima_atualizacao') }}"
-        data_type: datetime
-        quote: true
-      - name: id_execucao_dbt
-        description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
   - name: agente_credenciado_riorotativo_historico
