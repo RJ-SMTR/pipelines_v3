@@ -10,6 +10,7 @@ import pandas_gbq
 from google.cloud import bigquery
 from prefect import task
 
+from pipelines.capture__jae_auxiliar.flow import capture__jae_auxiliar
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.control__jae_verificacao_captura import constants as verificacao_captura_constants
@@ -95,25 +96,27 @@ def create_recapture_subflows_params(gaps: dict) -> list[dict]:
                 flows[flow.name]["params"]["recapture_timestamps"] = list(
                     {*flows[flow.name]["params"]["recapture_timestamps"], *result["timestamps"]}
                 )
-                flows[flow.name]["params"]["table_ids"].append(table_id)
+                if flow == capture__jae_auxiliar:
+                    flows[flow.name]["params"]["source_table_ids"].append(table_id)
 
             else:
+                params = {"recapture_timestamps": result["timestamps"]}
+                if flow == capture__jae_auxiliar:
+                    params["source_table_ids"] = [table_id]
                 flows[flow.name] = {
                     "flow": flow,
-                    "params": {
-                        "recapture_timestamps": result["timestamps"],
-                        "table_ids": [table_id],
-                    },
+                    "params": params,
                 }
 
     for flow_name, value in flows.items():
         timestamps = value["params"]["recapture_timestamps"]
+        source_table_ids = value["params"].get("source_table_ids")
 
         flows[flow_name]["params"] = [
             {
-                "table_ids": value["params"]["table_ids"],
                 "recapture": True,
                 "recapture_timestamps": timestamps[i : i + 20],
+                **({"source_table_ids": source_table_ids} if source_table_ids else {}),
             }
             for i in range(0, len(timestamps), 20)
         ]
