@@ -28,6 +28,7 @@ RIOROTATIVO_RENAME_MAPPING = {
 RIOROTATIVO_CREDENCIADOS_TABLE_CAPTURE_PARAMS = {
     "entidade_42498733000148": {
         "sheet_name": "42498733000148",
+        "dtypes": str,
         "primary_keys": ["cpf"],
     },
     # "lista_bloqueio": {
