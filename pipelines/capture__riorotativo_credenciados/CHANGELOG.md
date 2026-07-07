@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__riorotativo_credenciados`
+- Cria flow `capture__riorotativo_credenciados` (https://github.com/RJ-SMTR/pipelines_v3/pull/352)

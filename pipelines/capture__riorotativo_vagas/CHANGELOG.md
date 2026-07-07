@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__riorotativo_vagas`
+- Cria flow `capture__riorotativo_vagas` (https://github.com/RJ-SMTR/pipelines_v3/pull/352)
