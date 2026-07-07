@@ -8,7 +8,8 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
-from pipelines.treatment__gps_cittati import constants as gps_cittati_constants
+
+# from pipelines.treatment__gps_cittati import constants as gps_cittati_constants
 from pipelines.treatment__gps_conecta import constants as gps_conecta_constants
 from pipelines.treatment__gps_zirix import constants as gps_zirix_constants
 from pipelines.treatment__planejamento_diario import constants as planejamento_constants
@@ -31,7 +32,7 @@ VIAGEM_VALIDACAO_SELECTOR = DBTSelector(
         WAIT_VIAGEM_INFORMADA_SELECTOR,
         planejamento_constants.PLANEJAMENTO_DIARIO_SELECTOR,
         gps_conecta_constants.GPS_CONECTA_SELECTOR,
-        gps_cittati_constants.GPS_CITTATI_SELECTOR,
+        # gps_cittati_constants.GPS_CITTATI_SELECTOR,
         gps_zirix_constants.GPS_ZIRIX_SELECTOR,
     ],
 )
