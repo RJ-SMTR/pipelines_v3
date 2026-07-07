@@ -21,7 +21,7 @@ from pipelines.treatment__passageiro_hora.flow import treatment__passageiro_hora
 from pipelines.treatment__transacao_valor_ordem.flow import treatment__transacao_valor_ordem
 
 
-@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+@flow(log_prints=True, flow_run_name=rename_treatment_flow_run, timeout_seconds=18000)
 async def treatment__jae_timestamps_divergentes(
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
