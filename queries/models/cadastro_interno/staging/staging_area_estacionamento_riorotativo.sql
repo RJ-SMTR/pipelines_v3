@@ -28,9 +28,26 @@ select
     safe_cast(
         json_value(content, '$.area_tempo_permanencia_hora') as int64
     ) as area_tempo_permanencia_hora,
-    safe_cast(
-        json_value(content, '$.area_perfil_funcionamento') as string
-    ) as area_perfil_funcionamento,
+    case
+        when json_value(content, '$.area_perfil_funcionamento') is null
+        then null
+        else
+            array(
+                select trim(perfil)
+                from
+                    unnest(
+                        split(
+                            regexp_replace(
+                                json_value(content, '$.area_perfil_funcionamento'),
+                                r'^\[|\]$',
+                                ''
+                            ),
+                            ','
+                        )
+                    ) as perfil
+                where trim(perfil) != ''
+            )
+    end as area_perfil_funcionamento,
     safe.parse_date(
         '%d/%m/%Y', safe_cast(json_value(content, '$.data_inicio_vigencia') as string)
     ) as data_inicio_vigencia,
@@ -48,4 +65,6 @@ select
         parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura), "America/Sao_Paulo"
     ) as datetime_captura
 from {{ source("source_riorotativo", "area_estacionamento") }}
-qualify row_number() over (partition by area_codigo order by datetime_captura desc) = 1
+qualify
+    row_number() over (partition by data, area_codigo order by datetime_captura desc)
+    = 1

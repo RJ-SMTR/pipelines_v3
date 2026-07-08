@@ -1,4 +1,4 @@
-{{ config(alias="riorotativo_credenciado") }}
+{{ config(alias="agente_credenciado_riorotativo") }}
 
 {% set entidades = [
     {"cnpj": "42498733000148", "source": "entidade_42498733000148"},
@@ -10,7 +10,7 @@ with
         {% for entidade in entidades %}
             select
                 data,
-                safe_cast(cpf as string) as documento,
+                lpad(safe_cast(cpf as string), 11, '0') as documento,
                 "CPF" as tipo_documento,
                 "{{ entidade.cnpj }}" as cnpj,
                 datetime(
@@ -28,4 +28,7 @@ with
 select *
 from dados
 qualify
-    row_number() over (partition by cnpj, documento order by datetime_captura desc) = 1
+    row_number() over (
+        partition by data, cnpj, documento order by datetime_captura desc
+    )
+    = 1

@@ -35,6 +35,6 @@ select
 from {{ source("source_riorotativo", "perfil_funcionamento") }}
 qualify
     row_number() over (
-        partition by perfil_funcionamento_codigo order by datetime_captura desc
+        partition by data, perfil_funcionamento_codigo order by datetime_captura desc
     )
     = 1

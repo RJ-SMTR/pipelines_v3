@@ -3,8 +3,14 @@
 
 select
     data,
-    safe_cast(area_codigo as string) as area_codigo,
-    safe_cast(perfil_funcionamento_codigo as string) as perfil_funcionamento_codigo,
+    /*
+    a exceção se aplica a uma área OU a um perfil: a pk não preenchida
+    pode chegar como string vazia na external table, normaliza para null
+    */
+    nullif(safe_cast(area_codigo as string), '') as area_codigo,
+    nullif(
+        safe_cast(perfil_funcionamento_codigo as string), ''
+    ) as perfil_funcionamento_codigo,
     safe.parse_date(
         '%d/%m/%Y',
         safe_cast(
@@ -26,8 +32,8 @@ select
     safe_cast(
         json_value(content, '$.perfil_funcionamento_excecao_motivo') as string
     ) as perfil_funcionamento_excecao_motivo,
-    safe_cast(
-        json_value(content, '$.perfil_funcionamento_excecao_decisao') as string
+    nullif(
+        safe_cast(perfil_funcionamento_excecao_decisao as string), ''
     ) as perfil_funcionamento_excecao_decisao,
     safe_cast(json_value(content, '$.ultimo_editor') as string) as ultimo_editor,
     datetime(
@@ -43,6 +49,7 @@ from {{ source("source_riorotativo", "perfil_funcionamento_excecao") }}
 qualify
     row_number() over (
         partition by
+            data,
             area_codigo,
             perfil_funcionamento_codigo,
             perfil_funcionamento_excecao_decisao
