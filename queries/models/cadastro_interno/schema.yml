@@ -322,15 +322,47 @@ models:
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
-  - name: agente_credenciado_riorotativo_historico
-    description: Histórico de status dos agentes credenciados no Rio Rotativo, combinando credenciamento ativo e bloqueios informados em planilha
-    columns:
-      - name: id_agente_credenciado_historico
-        description: Identificador único do registro de histórico do agente credenciado
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: email
+        description: Email do agente credenciado [protegido]
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: razao_social
+        description: Razão social no cadastro do CNPJ da entidade credenciadora
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
+        data_type: string
+        quote: true
+  - name: agente_credenciado_riorotativo_status
+    description: View intermediária com o status vigente do agente credenciado (ativo ou bloqueado), combinando credenciamento e bloqueios informados em planilha. Alimenta snapshot_agente_credenciado_riorotativo.
+    columns:
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }}"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: tipo_documento
+        description: Tipo do documento do agente credenciado
         data_type: string
         quote: true
       - name: id_cliente
@@ -339,14 +371,16 @@ models:
         quote: true
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
-      - name: documento
-        description: "{{ doc('documento_cliente') }}"
+      - name: razao_social
+        description: Razão social no cadastro do CNPJ da entidade credenciadora
         data_type: string
         quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: nome_fantasia
+        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
+        data_type: string
+        quote: true
       - name: status
-        description: Status vigente ou histórico do agente credenciado
+        description: Status vigente do agente credenciado, combinando credenciamento ativo e bloqueios informados em planilha
         data_type: string
         quote: true
       - name: motivo_bloqueio
@@ -357,27 +391,7 @@ models:
         description: Processo administrativo ou judicial que culminou no bloqueio
         data_type: string
         quote: true
-      - name: data_inicio
-        description: "{{ doc('data_inicio_riorotativo') }}"
-        data_type: date
-        quote: true
-      - name: data_fim
-        description: "{{ doc('data_fim_riorotativo') }}"
-        data_type: date
-        quote: true
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
-        quote: true
-      - name: datetime_ultima_atualizacao
-        description: "{{ doc('datetime_ultima_atualizacao') }}"
-        data_type: datetime
-        quote: true
-      - name: id_execucao_dbt
-        description: "{{ doc('id_execucao_dbt') }}"
-        data_type: string
-        quote: true
-  - name: vaga_riorotativo
+  - name: area_estacionamento_riorotativo
     description: Tabela consolidada das áreas de estacionamento do Rio Rotativo, com quantidades de vagas, geometria e período de vigência.
     columns:
       - name: id_area
