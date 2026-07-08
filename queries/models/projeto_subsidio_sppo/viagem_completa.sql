@@ -247,7 +247,7 @@ with
                     *,
                     row_number() over (
                         partition by id_veiculo, datetime_partida
-                        order by distancia_planejada desc
+                        order by distancia_planejada desc id_tipo_trajeto
                     ) as rn
                 from filtro_desvio
             )
@@ -261,7 +261,7 @@ from
             *,
             row_number() over (
                 partition by id_veiculo, datetime_chegada
-                order by distancia_planejada desc
+                order by distancia_planejada desc id_tipo_trajeto
             ) as rn
         from filtro_partida
     )
