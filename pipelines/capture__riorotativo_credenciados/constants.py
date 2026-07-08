@@ -31,10 +31,10 @@ RIOROTATIVO_CREDENCIADOS_TABLE_CAPTURE_PARAMS = {
         "dtypes": str,
         "primary_keys": ["cpf"],
     },
-    # "lista_bloqueio": {
-    #     "sheet_name": "lista_bloqueio",
-    #     "primary_keys": ["cpf"],
-    # },
+    "lista_bloqueio": {
+        "sheet_name": "lista_bloqueio",
+        "primary_keys": ["cpf"],
+    },
 }
 
 RIOROTATIVO_CREDENCIADOS_SOURCES = [

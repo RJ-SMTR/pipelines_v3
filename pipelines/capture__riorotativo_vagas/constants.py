@@ -55,10 +55,14 @@ RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS = {
         "sheet_name": "perfil_funcionamento",
         "primary_keys": ["perfil_funcionamento_codigo"],
     },
-    # "perfil_funcionamento_excecao": {
-    #     "sheet_name": "perfil_funcionamento_excecao",
-    #     "primary_keys": ["area_codigo", "perfil_funcionamento_codigo"],
-    # },
+    "perfil_funcionamento_excecao": {
+        "sheet_name": "perfil_funcionamento_excecao",
+        "primary_keys": [
+            "area_codigo",
+            "perfil_funcionamento_codigo",
+            "perfil_funcionamento_excecao_decisao",
+        ],
+    },
 }
 
 RIOROTATIVO_VAGAS_SOURCES = [
