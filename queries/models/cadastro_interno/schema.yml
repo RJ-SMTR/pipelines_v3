@@ -303,3 +303,497 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
+
+
+
+  - name: staging_stu_veiculo_ativo
+    description: View para os dados capturados em staging de source_stu.veiculo_ativo.
+    columns:
+      - name: data
+        description: data
+      - name: placa
+        description: placa
+      - name: obs
+        description: obs
+      - name: ordem
+        description: ordem
+      - name: termo
+        description: termo
+      - name: motivo
+        description: motivo
+      - name: situacao
+        description: situacao
+      - name: tpperm
+        description: tpperm
+      - name: tptran
+        description: tptran
+      - name: datetime_ativo
+        description: datetime_ativo
+      - name: datetime_prazo
+        description: datetime_prazo
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_vistoria
+    description: View para os dados capturados em staging de source_stu.vistoria.
+    columns:
+      - name: data
+        description: data
+      - name: id_vistoria
+        description: id_vistoria
+      - name: ano_exercicio
+        description: ano_exercicio
+      - name: id_tipo_transporte
+        description: id_tipo_transporte
+      - name: id_tipo_transporte_2
+        description: id_tipo_transporte_2
+      - name: guia
+        description: guia
+      - name: selo
+        description: selo
+      - name: ano_selo
+        description: ano_selo
+      - name: darm
+        description: darm
+      - name: ano_darm
+        description: ano_darm
+      - name: placa
+        description: placa
+      - name: ordem
+        description: ordem
+      - name: cod_fiscal
+        description: cod_fiscal
+      - name: tptran
+        description: tptran
+      - name: tpperm
+        description: tpperm
+      - name: termo
+        description: termo
+      - name: ratr
+        description: ratr
+      - name: vistoria_obrigatoria
+        description: vistoria_obrigatoria
+      - name: numero_vistoria
+        description: numero_vistoria
+      - name: data_vistoria
+        description: data_vistoria
+      - name: matricula_usuario
+        description: matricula_usuario
+      - name: data_usuario
+        description: data_usuario
+      - name: situacao
+        description: situacao
+      - name: codrec
+        description: codrec
+      - name: emissao
+        description: emissao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: timestamp_captura
+        description: timestamp_captura
+
+  - name: staging_stu_veiculo
+    description: View para os dados capturados em staging de source_stu.veiculo.
+    columns:
+      - name: data
+        description: data
+      - name: placa
+        description: placa
+      - name: id_modelo
+        description: id_modelo
+      - name: id_planta
+        description: id_planta
+      - name: id_tipo_veiculo
+        description: id_tipo_veiculo
+      - name: id_cor
+        description: id_cor
+      - name: id_combustivel
+        description: id_combustivel
+      - name: renavam
+        description: renavam
+      - name: portas
+        description: portas
+      - name: chassi
+        description: chassi
+      - name: processo_taximetro
+        description: processo_taximetro
+      - name: id_marca_taximetro
+        description: id_marca_taximetro
+      - name: numero_taximetro
+        description: numero_taximetro
+      - name: numero_impressora
+        description: numero_impressora
+      - name: indicador_isencao
+        description: indicador_isencao
+      - name: situacao
+        description: situacao
+      - name: ano_fabricacao
+        description: ano_fabricacao
+      - name: ano_fabricacao_carroceria
+        description: ano_fabricacao_carroceria
+      - name: ano_licenca
+        description: ano_licenca
+      - name: ano_modelo
+        description: ano_modelo
+      - name: indicador_cadastro
+        description: indicador_cadastro
+      - name: indicador_erro_migracao
+        description: indicador_erro_migracao
+      - name: numero_homologacao
+        description: numero_homologacao
+      - name: data_validade_gnv
+        description: data_validade_gnv
+      - name: data_aquisicao
+        description: data_aquisicao
+      - name: gps
+        description: gps
+      - name: camera
+        description: camera
+      - name: placa_antiga
+        description: placa_antiga
+      - name: indicador_wifi
+        description: indicador_wifi
+      - name: indicador_usb
+        description: indicador_usb
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: timestamp_captura
+        description: timestamp_captura
+
+  - name: staging_stu_planta
+    description: View para os dados capturados em staging de source_stu.planta.
+    columns:
+      - name: data
+        description: data
+      - name: id_planta
+        description: id_planta
+      - name: id_tipo_veiculo
+        description: id_tipo_veiculo
+      - name: id_modelo_carroceria
+        description: id_modelo_carroceria
+      - name: id_modelo_chassi
+        description: id_modelo_chassi
+      - name: id_tipo_transporte
+        description: id_tipo_transporte
+      - name: processo
+        description: processo
+      - name: lotacao_sentado
+        description: lotacao_sentado
+      - name: lotacao_em_pe
+        description: lotacao_em_pe
+      - name: data_processo
+        description: data_processo
+      - name: portas
+        description: portas
+      - name: observacao
+        description: observacao
+      - name: distancia_eixos
+        description: distancia_eixos
+      - name: indicador_deficiente_fisico
+        description: indicador_deficiente_fisico
+      - name: id_planta_fabricante
+        description: id_planta_fabricante
+      - name: indicador_ar_condicionado
+        description: indicador_ar_condicionado
+      - name: indicador_piso_baixo
+        description: indicador_piso_baixo
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_permissao
+    description: View para os dados capturados em staging de source_stu.permissao.
+    columns:
+      - name: data
+        description: data
+      - name: tptran
+        description: tptran
+      - name: tpperm
+        description: tpperm
+      - name: termo
+        description: termo
+      - name: dv
+        description: dv
+      - name: processo_autorizacao
+        description: processo_autorizacao
+      - name: data_autorizacao
+        description: data_autorizacao
+      - name: processo_cancelamento
+        description: processo_cancelamento
+      - name: data_cancelamento
+        description: data_cancelamento
+      - name: situacao
+        description: situacao
+      - name: motivo
+        description: motivo
+      - name: sorteio
+        description: sorteio
+      - name: dnm
+        description: dnm
+      - name: origem
+        description: origem
+      - name: intransferivel
+        description: intransferivel
+      - name: sem_auxiliar
+        description: sem_auxiliar
+      - name: id_artigo
+        description: id_artigo
+      - name: codigo_hash
+        description: codigo_hash
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: timestamp_captura
+        description: timestamp_captura
+
+  - name: staging_stu_tipo_de_transporte
+    description: View para os dados capturados em staging de source_stu.tipo_de_transporte.
+    columns:
+      - name: data
+        description: data
+      - name: id_tipo_transporte
+        description: id_tipo_transporte
+      - name: descricao
+        description: descricao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_tipo_de_veiculo
+    description: View para os dados capturados em staging de source_stu.tipo_de_veiculo.
+    columns:
+      - name: data
+        description: data
+      - name: id_tipo_veiculo
+        description: id_tipo_veiculo
+      - name: descricao
+        description: descricao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_mod_carroceria
+    description: View para os dados capturados em staging de source_stu.mod_carroceria.
+    columns:
+      - name: data
+        description: data
+      - name: id_modelo_carroceria
+        description: id_modelo_carroceria
+      - name: id_fabricante
+        description: id_fabricante
+      - name: descricao
+        description: descricao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_mod_chassi
+    description: View para os dados capturados em staging de source_stu.mod_chassi.
+    columns:
+      - name: data
+        description: data
+      - name: id_modelo_chassi
+        description: id_modelo_chassi
+      - name: id_fabricante
+        description: id_fabricante
+      - name: descricao
+        description: descricao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_combustivel
+    description: View para os dados capturados em staging de source_stu.combustivel.
+    columns:
+      - name: data
+        description: data
+      - name: id_combustivel
+        description: id_combustivel
+      - name: descricao
+        description: descricao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_darm_apropriacao
+    description: View para os dados capturados em staging de source_stu.darm_apropriacao.
+    columns:
+      - name: data
+        description: data
+      - name: id_receita
+        description: id_receita
+      - name: ano_darm
+        description: ano_darm
+      - name: darm
+        description: darm
+      - name: emissao
+        description: emissao
+      - name: banco
+        description: banco
+      - name: valor_pagamento
+        description: valor_pagamento
+      - name: data_pagamento
+        description: data_pagamento
+      - name: data_aprovacao
+        description: data_aprovacao
+      - name: valor_pagamento_acumulado
+        description: valor_pagamento_acumulado
+      - name: indicador_gerar_zap_carioca
+        description: indicador_gerar_zap_carioca
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura
+
+  - name: staging_stu_pessoa_fisica
+    description: View para os dados capturados em staging de source_stu.pessoa_fisica.
+    columns:
+      - name: data
+        description: data
+      - name: ratr
+        description: ratr
+      - name: cod_estado
+        description: cod_estado
+      - name: cod_estado_civil
+        description: cod_estado_civil
+      - name: cpf
+        description: cpf
+      - name: cod_escolaridade
+        description: cod_escolaridade
+      - name: situacao
+        description: situacao
+      - name: nome
+        description: nome
+      - name: identidade
+        description: identidade
+      - name: orgao_identidade
+        description: orgao_identidade
+      - name: local_identidade
+        description: local_identidade
+      - name: data_emissao_identidade
+        description: data_emissao_identidade
+      - name: inss
+        description: inss
+      - name: cod_nacionalidade
+        description: cod_nacionalidade
+      - name: estado_naturalidade
+        description: estado_naturalidade
+      - name: naturalidade
+        description: naturalidade
+      - name: cnh
+        description: cnh
+      - name: data_primeira_cnh
+        description: data_primeira_cnh
+      - name: data_validade_cnh
+        description: data_validade_cnh
+      - name: data_emissao_cnh
+        description: data_emissao_cnh
+      - name: cep
+        description: cep
+      - name: municipio
+        description: municipio
+      - name: bairro
+        description: bairro
+      - name: endereco
+        description: endereco
+      - name: numero
+        description: numero
+      - name: complemento
+        description: complemento
+      - name: mae
+        description: mae
+      - name: pai
+        description: pai
+      - name: data_nascimento
+        description: data_nascimento
+      - name: sexo
+        description: sexo
+      - name: certidao1
+        description: certidao1
+      - name: certidao2
+        description: certidao2
+      - name: certidao3
+        description: certidao3
+      - name: certidao4
+        description: certidao4
+      - name: data_certidoes
+        description: data_certidoes
+      - name: data_criacao_registro
+        description: data_criacao_registro
+      - name: erro_migracao
+        description: erro_migracao
+      - name: categoria_cnh
+        description: categoria_cnh
+      - name: email
+        description: email
+      - name: valida_vencimento_cnh
+        description: valida_vencimento_cnh
+      - name: codigo_curso
+        description: codigo_curso
+      - name: data_inicio_curso
+        description: data_inicio_curso
+      - name: data_fim_curso
+        description: data_fim_curso
+      - name: tipo_curso
+        description: tipo_curso
+      - name: avaliacao_curso
+        description: avaliacao_curso
+      - name: processo_curso
+        description: processo_curso
+      - name: data_atualizacao
+        description: data_atualizacao
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: timestamp_captura
+        description: timestamp_captura
+
+  - name: staging_stu_pessoa_juridica
+    description: View para os dados capturados em staging de source_stu.pessoa_juridica.
+    columns:
+      - name: data
+        description: data
+      - name: cgc
+        description: cgc
+      - name: sigla_uf
+        description: sigla_uf
+      - name: nome_fantasia
+        description: nome_fantasia
+      - name: razao_social
+        description: razao_social
+      - name: endereco
+        description: endereco
+      - name: numero
+        description: numero
+      - name: complemento
+        description: complemento
+      - name: bairro
+        description: bairro
+      - name: municipio
+        description: municipio
+      - name: cep
+        description: cep
+      - name: inscricao_municipal
+        description: inscricao_municipal
+      - name: banco
+        description: banco
+      - name: agencia
+        description: agencia
+      - name: conta
+        description: conta
+      - name: situacao
+        description: situacao
+      - name: indicador_erro_migracao
+        description: indicador_erro_migracao
+      - name: letra_consorcio
+        description: letra_consorcio
+      - name: datetime_execucao_flow
+        description: datetime_execucao_flow
+      - name: datetime_captura
+        description: datetime_captura

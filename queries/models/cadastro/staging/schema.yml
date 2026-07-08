@@ -1,6 +1,72 @@
 version: 2
 
 models:
+  - name: staging_licenciamento_stu
+    description: |
+      Dados de licenciamento de veículos STU unificados de duas arquiteturas.
+
+      **Padrão v1/v2:** Este modelo combina dois períodos via UNION ALL:
+      - **v1 (até 2026-06-23):** Histórico completo de `staging_licenciamento_stu_v1` (múltiplos registros por veículo/data)
+      - **v2 (após 2026-06-23):** Snapshot diário de `staging_licenciamento_stu_v2`, derivado dos deltas do banco STU e do estado persistido da partição anterior
+
+      **Caso de uso:** Camada staging que alimenta modelos como `veiculo_licenciamento_dia`, `licenciamento` e `licenciamento_data_versao_efetiva`.
+    columns:
+      - name: data
+        description: Data do evento/captura do veículo na fonte
+      - name: timestamp_captura
+        description: Timestamp da captura na fonte (originalmente em string, convertido para datetime)
+      - name: id_veiculo
+        description: Identificador único do veículo (ex. D17039, B27055)
+      - name: placa
+        description: Placa do veículo
+      - name: modo
+        description: Modo/tipo de transporte do veículo
+      - name: permissao
+        description: Permissão do veículo (concatenação de tptran, tpperm, termo, dv)
+      - name: status
+        description: Status do licenciamento (ex. Licenciado)
+      - name: ultima_situacao
+        description: Situação atual do veículo (Normal, Suspenso, Cancelado)
+      - name: data_inicio_vinculo
+        description: Data de início do vínculo/licenciamento
+      - name: data_ultima_vistoria
+        description: Data da última vistoria realizada
+      - name: ano_ultima_vistoria
+        description: Ano da última vistoria
+      - name: tipo_veiculo
+        description: Tipo de veículo (ex. MIDI, ARTICULADO)
+      - name: carroceria
+        description: Tipo de carroceria
+      - name: tipo_combustivel
+        description: Tipo de combustível do veículo
+
+  - name: staging_licenciamento_stu_v1
+    description: |
+      Histórico completo de licenciamento até 2026-06-23.
+
+      Dados originários de duas fontes conforme data:
+      - Antes de 2026-04-30 (var: data_inicio_source_veiculo): `veiculo_staging.licenciamento_stu`
+      - A partir de 2026-04-30: `source_veiculo.licenciamento_stu`
+
+      Estrutura ephemeral que alimenta `staging_licenciamento_stu` via UNION ALL.
+    columns:
+      - name: data
+        description: Data do evento no formato original
+
+  - name: staging_licenciamento_stu_v2
+    description: |
+      Uma linha por veículo licenciado por dia, a partir de `data_inicio_dbstu + 1`.
+      Snapshot diário derivado de deltas do banco STU e do estado persistido da partição
+      anterior. Use `(data, id_veiculo)` para joins. Fonte: views `staging_stu_*`
+      derivadas de `source_stu`, substituindo a captura FTP v1 após o corte
+      `data_inicio_dbstu`. Na primeira carga, faz full scan do banco STU e salva o
+      estado inicial em `data_inicio_dbstu + 1`; nas cargas incrementais, combina a
+      partição anterior persistida com os deltas da janela
+      (`date_range_start`/`date_range_end`).
+    columns:
+      - name: data
+        description: "{{ doc('data') }}"
+
   - name: aux_operadora_jae_cliente_historico
     columns:
       - name: nome

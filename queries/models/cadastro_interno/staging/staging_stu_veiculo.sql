@@ -1,4 +1,4 @@
-{{ config(alias="veiculo") }}
+{{ config(materialized="view") }}
 
 select
     data,

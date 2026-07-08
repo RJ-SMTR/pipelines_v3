@@ -1,5 +1,12 @@
 # Changelog - queries
 
+## [1.1.8] - 2026-06-30
+
+### Alterado
+
+- Refatora `staging_licenciamento_stu` de view para incremental materializado com particionamento por data
+- Cria models ephemeral `staging_licenciamento_stu_v1` (histórico até 2026-06-23) e `staging_licenciamento_stu_v2` (snapshots a partir de 2026-06-23) para melhor separação de arquitetura
+
 ## [1.1.7] - 2026-06-26
 
 ### Corrigido
