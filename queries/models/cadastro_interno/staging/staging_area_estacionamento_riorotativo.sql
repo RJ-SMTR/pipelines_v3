@@ -1,4 +1,4 @@
-{{ config(alias="riorotativo_area_estacionamento") }}
+{{ config(alias="area_estacionamento_riorotativo") }}
 
 
 select
@@ -11,7 +11,15 @@ select
     safe_cast(
         json_value(content, '$.area_endereco_referencia') as string
     ) as area_endereco_referencia,
-    safe_cast(json_value(content, '$.area_poligono') as string) as area_poligono,
+    regexp_replace(
+        regexp_replace(
+            safe_cast(json_value(content, '$.area_poligono') as string),
+            r'\b([A-Za-z]+)\s+(?:ZM|Z|M)\b',
+            r'\1'
+        ),
+        r'(-?[0-9.]+(?:[eE][+-]?[0-9]+)?\s+-?[0-9.]+(?:[eE][+-]?[0-9]+)?)(?:\s+-?[0-9.]+(?:[eE][+-]?[0-9]+)?)+',
+        r'\1'
+    ) as area_poligono,
     safe_cast(json_value(content, '$.area_observacao') as string) as area_observacao,
     safe_cast(json_value(content, '$.area_vaga_total') as int64) as area_vaga_total,
     safe_cast(json_value(content, '$.area_vaga_moto') as int64) as area_vaga_moto,
