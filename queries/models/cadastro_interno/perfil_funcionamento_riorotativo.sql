@@ -7,4 +7,4 @@ select
     perfil_funcionamento_dia_semana as dias_semana,
     perfil_funcionamento_horario_inicio as horario_inicio,
     perfil_funcionamento_horario_fim as horario_fim
-from {{ ref("staging_riorotativo_perfil_funcionamento") }}
+from {{ ref("staging_perfil_funcionamento_riorotativo") }}

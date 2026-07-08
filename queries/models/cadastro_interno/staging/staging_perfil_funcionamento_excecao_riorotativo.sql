@@ -1,4 +1,4 @@
-{{ config(alias="riorotativo_perfil_funcionamento_excecao") }}
+{{ config(alias="perfil_funcionamento_excecao_riorotativo") }}
 
 
 select
