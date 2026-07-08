@@ -205,8 +205,7 @@ with
     -- shape
     filtro_desvio as (
         select
-            {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
-                * except (rn, id_tipo_trajeto)
+            {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %} * except (rn)
             {% else %} * except (rn)
             {% endif %}
         from
@@ -240,7 +239,7 @@ with
     -- 4. Filtra viagens com partida ou chegada diferentes pela maior distancia
     -- percorrida
     filtro_partida as (
-        select * except (rn)
+        select * except (rn, id_tipo_trajeto)
         from
             (
                 select
@@ -254,7 +253,7 @@ with
         where rn = 1
     )
 -- filtro_chegada
-select * except (rn)
+select * except (rn, id_tipo_trajeto)
 from
     (
         select
