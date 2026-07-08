@@ -1,5 +1,20 @@
 {{ config(materialized="table") }}
 
+{% if execute %}
+    {% set last_partition_query %}
+        select max(data)
+        from {{ ref("staging_area_estacionamento_riorotativo") }}
+        where data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}")
+    {% endset %}
+    {% set last_partition = run_query(last_partition_query).columns[0].values()[0] %}
+    {% if last_partition is none %}
+        {{
+            exceptions.raise_compiler_error(
+                "No staging_area_estacionamento_riorotativo partitions found between date_range_start and date_range_end"
+            )
+        }}
+    {% endif %}
+{% endif %}
 
 select
     area_codigo as id_area,
@@ -18,3 +33,4 @@ select
     data_inicio_vigencia,
     data_fim_vigencia
 from {{ ref("staging_area_estacionamento_riorotativo") }}
+where data = date("{{ last_partition }}")
