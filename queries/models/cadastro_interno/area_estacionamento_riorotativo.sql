@@ -17,4 +17,4 @@ select
     area_perfil_funcionamento as id_perfil_funcionamento,
     data_inicio_vigencia,
     data_fim_vigencia
-from {{ ref("staging_riorotativo_area_estacionamento") }}
+from {{ ref("staging_area_estacionamento_riorotativo") }}
