@@ -3,81 +3,124 @@
         materialized="incremental",
         incremental_strategy="merge",
         unique_key="id_agente_credenciado_historico",
+        partition_by={"field": "data", "data_type": "date", "granularity": "day"},
     )
 }}
 
-{% set staging_riorotativo_credenciado = ref("staging_riorotativo_credenciado") %}
-{% set staging_riorotativo_lista_bloqueio = ref("staging_riorotativo_lista_bloqueio") %}
-
-
 {% set incremental_filter %}
     data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
-    and datetime_captura between datetime("{{var('date_range_start')}}") and datetime("{{var('date_range_end')}}")
 {% endset %}
 
+-- depends_on: {{ ref('cliente_cpf_jae') }}
+{% if execute %}
+    {% set staging_partitions_query %}
+        select distinct cast(cnpj as int64) as cnpj, cast(documento as int64) as documento
+        from {{ ref("staging_agente_credenciado_riorotativo") }}
+        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+    {% endset %}
+    {% set staging_partitions = run_query(staging_partitions_query) %}
+    {% set cnpj_partitions = staging_partitions.columns[0].values() | unique | list %}
+    {% set cpf_partitions = staging_partitions.columns[1].values() | unique | list %}
+
+    {% set id_cliente_partitions_query %}
+        select distinct cast(id_cliente as int64)
+        from {{ ref("cliente_cpf_jae") }}
+        where cpf_particao in ({{ cpf_partitions | join(", ") if cpf_partitions else "null" }})
+    {% endset %}
+    {% set id_cliente_partitions = (
+        run_query(id_cliente_partitions_query).columns[0].values()
+    ) %}
+{% endif %}
 
 with
-    {% if is_incremental() %}
-        documentos_atualizados as (
-            select distinct documento
-            from {{ staging_riorotativo_credenciado }}
-            where {{ incremental_filter }}
-            union distinct
-            select distinct documento
-            from {{ staging_riorotativo_lista_bloqueio }}
-            where {{ incremental_filter }}
-        ),
-    {% endif %}
-
     credenciados as (
-        select
-            cnpj,
-            id_cliente,
-            documento,
-            "ativo" as status,
-            cast(null as string) as motivo_bloqueio,
-            cast(null as string) as decisao_bloqueio,
-            data as data_inicio,
-            date(null) as data_fim
-        from {{ staging_riorotativo_credenciado }} c
-        {% if is_incremental() %}
-            where documento in (select documento from documentos_atualizados)
-        {% endif %}
+        select data, documento, tipo_documento, cnpj
+        from {{ ref("staging_agente_credenciado_riorotativo") }}
+        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     bloqueios as (
+        /*
+        considera apenas bloqueios vigentes na data da captura: bloqueio
+        expirado que permanece na lista da fonte não marca o agente como
+        bloqueado
+        */
         select
+            data, documento, "CPF" as tipo_documento, motivo_bloqueio, decisao_bloqueio
+        from {{ ref("staging_lista_bloqueio_riorotativo") }}
+        where
+            (data >= data_inicio_bloqueio or data_inicio_bloqueio is null)
+            and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+    ),
+    status as (
+        select
+            coalesce(c.data, b.data) as data,
             c.cnpj,
-            c.id_cliente,
-            b.documento,
-            "bloqueado" as status,
+            coalesce(c.documento, b.documento) as documento,
+            coalesce(c.tipo_documento, b.tipo_documento) as tipo_documento,
+            if(b.documento is not null, "bloqueado", "ativo") as status,
             b.motivo_bloqueio,
-            b.decisao_bloqueio,
-            b.data_inicio_bloqueio as data_inicio,
-            b.data_fim_bloqueio as data_fim
-        from {{ staging_riorotativo_lista_bloqueio }} b
-        left join {{ staging_riorotativo_credenciado }} c using (documento)
-        {% if is_incremental() %}
-            where b.documento in (select documento from documentos_atualizados)
-        {% endif %}
+            b.decisao_bloqueio
+        from credenciados as c
+        full outer join bloqueios as b on c.data = b.data and c.documento = b.documento
+        qualify
+            row_number() over (
+                partition by
+                    coalesce(c.data, b.data), c.cnpj, coalesce(c.documento, b.documento)
+                order by
+                    case when b.documento is not null then 0 else 1 end,
+                    b.decisao_bloqueio
+            )
+            = 1
+    ),
+    pessoa_juridica as (
+        select cnpj, razao_social, nome_fantasia
+        from {{ source("rmi_dados_mestres", "pessoa_juridica") }}
+        where
+            cnpj_particao
+            in ({{ cnpj_partitions | join(", ") if cnpj_partitions else "null" }})
+    ),
+    cliente as (
+        select documento, id_cliente
+        from {{ ref("cliente_jae") }}
+        where
+            id_cliente_particao in (
+                {{
+                    (
+                        id_cliente_partitions | join(", ")
+                        if id_cliente_partitions
+                        else "null"
+                    )
+                }}
+            )
+            and tipo_documento = 'CPF'
     ),
     dados_novos as (
-        select *
-        from credenciados
-        union all by name
-        select *
-        from bloqueios
+        select
+            s.data,
+            s.cnpj,
+            s.documento,
+            s.tipo_documento,
+            c.id_cliente,
+            pj.razao_social,
+            pj.nome_fantasia,
+            s.status,
+            s.motivo_bloqueio,
+            s.decisao_bloqueio
+        from status as s
+        left join cliente as c using (documento)
+        left join pessoa_juridica as pj using (cnpj)
     ),
     dados_novos_chave as (
         select
             to_hex(
                 sha256(
                     concat(
+                        cast(data as string),
+                        '-',
                         ifnull(cnpj, 'n/a'),
-                        ifnull(id_cliente, 'n/a'),
-                        ifnull(status, 'n/a'),
-                        ifnull(decisao_bloqueio, 'n/a'),
-                        ifnull(cast(data_inicio as string), 'n/a'),
-                        ifnull(cast(data_fim as string), 'n/a')
+                        '-',
+                        ifnull(documento, 'n/a')
                     )
                 )
             ) as id_agente_credenciado_historico,
@@ -100,8 +143,8 @@ with
     ),
     dados_completos as (
         select n.*, a.* except (id_agente_credenciado_historico)
-        from dados_novos_chave n
-        left join dados_atuais a using (id_agente_credenciado_historico)
+        from dados_novos_chave as n
+        left join dados_atuais as a using (id_agente_credenciado_historico)
     ),
     agente_credenciado_colunas_controle as (
         select

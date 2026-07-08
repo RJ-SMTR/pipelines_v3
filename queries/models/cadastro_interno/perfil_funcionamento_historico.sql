@@ -3,23 +3,18 @@
         materialized="incremental",
         incremental_strategy="merge",
         unique_key="id_perfil_funcionamento_historico",
+        partition_by={"field": "data", "data_type": "date", "granularity": "day"},
     )
 }}
 
-{% set staging_riorotativo_perfil_funcionamento_excecao = ref(
-    "staging_riorotativo_perfil_funcionamento_excecao"
-) %}
-
-
 {% set incremental_filter %}
     data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
-    and datetime_captura between datetime("{{var('date_range_start')}}") and datetime("{{var('date_range_end')}}")
 {% endset %}
-
 
 with
     dados_novos as (
         select
+            data,
             perfil_funcionamento_codigo as id_perfil_funcionamento,
             area_codigo as id_area,
             perfil_funcionamento_excecao_data_inicio as data_inicio,
@@ -28,7 +23,7 @@ with
             perfil_funcionamento_excecao_horario_fim as horario_fim,
             perfil_funcionamento_excecao_motivo as motivo,
             perfil_funcionamento_excecao_decisao as decisao
-        from {{ staging_riorotativo_perfil_funcionamento_excecao }}
+        from {{ ref("staging_perfil_funcionamento_excecao_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     dados_novos_chave as (
@@ -36,13 +31,13 @@ with
             to_hex(
                 sha256(
                     concat(
+                        cast(data as string),
+                        '-',
                         ifnull(id_perfil_funcionamento, 'n/a'),
+                        '-',
                         ifnull(id_area, 'n/a'),
-                        ifnull(decisao, 'n/a'),
-                        ifnull(cast(data_inicio as string), 'n/a'),
-                        ifnull(cast(data_fim as string), 'n/a'),
-                        ifnull(horario_inicio, 'n/a'),
-                        ifnull(horario_fim, 'n/a')
+                        '-',
+                        ifnull(decisao, 'n/a')
                     )
                 )
             ) as id_perfil_funcionamento_historico,
@@ -65,8 +60,8 @@ with
     ),
     dados_completos as (
         select n.*, a.* except (id_perfil_funcionamento_historico)
-        from dados_novos_chave n
-        left join dados_atuais a using (id_perfil_funcionamento_historico)
+        from dados_novos_chave as n
+        left join dados_atuais as a using (id_perfil_funcionamento_historico)
     ),
     perfil_funcionamento_colunas_controle as (
         select
