@@ -1,4 +1,4 @@
-{{ config(alias="riorotativo_perfil_funcionamento") }}
+{{ config(alias="perfil_funcionamento_riorotativo") }}
 
 
 select
@@ -11,7 +11,9 @@ select
         select safe_cast(dia_semana as int64)
         from
             unnest(
-                json_value_array(content, '$.perfil_funcionamento_dia_semana')
+                json_value_array(
+                    json_value(content, '$.perfil_funcionamento_dia_semana')
+                )
             ) as dia_semana
     ) as perfil_funcionamento_dia_semana,
     safe_cast(
