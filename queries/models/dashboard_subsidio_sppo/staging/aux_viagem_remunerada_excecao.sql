@@ -332,8 +332,6 @@ with
                         '2026-02-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         ["805", "LECD136", "LECD137"] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
@@ -342,8 +340,6 @@ with
                         '2026-01-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -372,8 +368,6 @@ with
                         '2025-12-26' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "232",
                             "552",
@@ -398,8 +392,6 @@ with
                         '2025-12-31' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "232",
                             "552",
