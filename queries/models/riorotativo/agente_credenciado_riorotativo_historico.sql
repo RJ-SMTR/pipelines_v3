@@ -45,8 +45,7 @@ with
         expirado que permanece na lista da fonte não marca o agente como
         bloqueado
         */
-        select
-            data, documento, "CPF" as tipo_documento, motivo_bloqueio, decisao_bloqueio
+        select data, documento, motivo_bloqueio, decisao_bloqueio
         from {{ ref("staging_lista_bloqueio_riorotativo") }}
         where
             (data >= data_inicio_bloqueio or data_inicio_bloqueio is null)
@@ -54,23 +53,24 @@ with
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     status as (
+        /*
+        documento bloqueado que não está na lista de credenciados não gera
+        linha: o grão é o agente credenciado; a lista bruta de bloqueios fica
+        em staging_lista_bloqueio_riorotativo
+        */
         select
-            coalesce(c.data, b.data) as data,
+            c.data,
             c.cnpj,
-            coalesce(c.documento, b.documento) as documento,
-            coalesce(c.tipo_documento, b.tipo_documento) as tipo_documento,
+            c.documento,
+            c.tipo_documento,
             if(b.documento is not null, "bloqueado", "ativo") as status,
             b.motivo_bloqueio,
             b.decisao_bloqueio
         from credenciados as c
-        full outer join bloqueios as b on c.data = b.data and c.documento = b.documento
+        left join bloqueios as b using (data, documento)
         qualify
             row_number() over (
-                partition by
-                    coalesce(c.data, b.data), c.cnpj, coalesce(c.documento, b.documento)
-                order by
-                    case when b.documento is not null then 0 else 1 end,
-                    b.decisao_bloqueio
+                partition by c.data, c.cnpj, c.documento order by b.decisao_bloqueio
             )
             = 1
     ),
@@ -82,7 +82,7 @@ with
             in ({{ cnpj_partitions | join(", ") if cnpj_partitions else "null" }})
     ),
     cliente as (
-        select documento, id_cliente
+        select documento, id_cliente, nome, email, telefone
         from {{ ref("cliente_jae") }}
         where
             id_cliente_particao in (
@@ -103,6 +103,9 @@ with
             s.documento,
             s.tipo_documento,
             c.id_cliente,
+            c.nome,
+            c.email,
+            c.telefone,
             pj.razao_social,
             pj.nome_fantasia,
             s.status,
