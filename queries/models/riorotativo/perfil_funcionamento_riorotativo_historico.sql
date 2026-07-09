@@ -14,6 +14,11 @@
 
 with
     dados_novos as (
+        /*
+        considera apenas exceções vigentes na data da captura: exceção
+        expirada ou futura que permanece na lista da fonte não entra no
+        histórico do dia
+        */
         select
             data,
             perfil_funcionamento_codigo as id_perfil_funcionamento,
@@ -25,7 +30,16 @@ with
             perfil_funcionamento_excecao_motivo as motivo,
             perfil_funcionamento_excecao_decisao as decisao
         from {{ ref("staging_perfil_funcionamento_excecao_riorotativo") }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where
+            (
+                data >= perfil_funcionamento_excecao_data_inicio
+                or perfil_funcionamento_excecao_data_inicio is null
+            )
+            and (
+                data <= perfil_funcionamento_excecao_data_fim
+                or perfil_funcionamento_excecao_data_fim is null
+            )
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     dados_novos_chave as (
         select
