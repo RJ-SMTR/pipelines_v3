@@ -15,3 +15,4 @@
   - `perfil_funcionamento_riorotativo.sql`
   - `agente_credenciado_riorotativo_historico.sql`
   - `perfil_funcionamento_riorotativo_historico.sql`
+  - `entidade_credenciadora_riorotativo_historico.sql`

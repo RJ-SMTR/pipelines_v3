@@ -15,13 +15,15 @@
 -- depends_on: {{ ref('cliente_cpf_jae') }}
 {% if execute %}
     {% set staging_partitions_query %}
-        select distinct cast(cnpj as int64) as cnpj, cast(documento as int64) as documento
+        select distinct cast(documento as int64)
         from {{ ref("staging_agente_credenciado_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     {% endset %}
-    {% set staging_partitions = run_query(staging_partitions_query) %}
-    {% set cnpj_partitions = staging_partitions.columns[0].values() | unique | list %}
-    {% set cpf_partitions = staging_partitions.columns[1].values() | unique | list %}
+    {% set cpf_partitions = (
+        run_query(staging_partitions_query).columns[0].values()
+        | unique
+        | list
+    ) %}
 
     {% set id_cliente_partitions_query %}
         select distinct cast(id_cliente as int64)
@@ -74,12 +76,10 @@ with
             )
             = 1
     ),
-    pessoa_juridica as (
-        select cnpj, razao_social, nome_fantasia
-        from {{ source("rmi_dados_mestres", "pessoa_juridica") }}
-        where
-            cnpj_particao
-            in ({{ cnpj_partitions | join(", ") if cnpj_partitions else "null" }})
+    entidade_credenciadora as (
+        select
+            cnpj, data_inicio_vigencia, data_fim_vigencia, razao_social, nome_fantasia
+        from {{ ref("entidade_credenciadora_riorotativo_historico") }}
     ),
     cliente as (
         select documento, id_cliente, nome, email, telefone
@@ -106,14 +106,18 @@ with
             c.nome,
             c.email,
             c.telefone,
-            pj.razao_social,
-            pj.nome_fantasia,
+            ec.razao_social,
+            ec.nome_fantasia,
             s.status,
             s.motivo_bloqueio,
             s.decisao_bloqueio
         from status as s
         left join cliente as c using (documento)
-        left join pessoa_juridica as pj using (cnpj)
+        left join
+            entidade_credenciadora as ec
+            on s.cnpj = ec.cnpj
+            and (s.data >= ec.data_inicio_vigencia or ec.data_inicio_vigencia is null)
+            and (s.data <= ec.data_fim_vigencia or ec.data_fim_vigencia is null)
     ),
     dados_novos_chave as (
         select

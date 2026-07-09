@@ -80,7 +80,7 @@ models:
         data_type: string
         quote: true
   - name: agente_credenciado_riorotativo_historico
-    description: "Uma linha por agente credenciado (documento), por entidade credenciadora (cnpj), por data de captura, com o status do dia (ativo ou bloqueado). Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use documento e data para junções; id_agente_credenciado_historico é a chave única. Fonte: capturas diárias de credenciamento e da lista de bloqueio (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e dados mestres de CNPJ (rmi_dados_mestres.pessoa_juridica). Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio); documento bloqueado que não está na lista de credenciados não gera linha; agente ausente em uma data na qual já havia aparecido indica remoção; dias sem captura não têm linhas; nome/email/telefone e razao_social/nome_fantasia refletem o valor vigente no momento do processamento."
+    description: "Uma linha por agente credenciado (documento), por entidade credenciadora (cnpj), por data de captura, com o status do dia (ativo ou bloqueado). Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use documento e data para junções; id_agente_credenciado_historico é a chave única. Fonte: capturas diárias de credenciamento e da lista de bloqueio (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e o histórico de vigência das entidades credenciadoras (entidade_credenciadora_riorotativo_historico). Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio); documento bloqueado que não está na lista de credenciados não gera linha; agente ausente em uma data na qual já havia aparecido indica remoção; dias sem captura não têm linhas; razao_social/nome_fantasia refletem o valor vigente na data; nome/email/telefone refletem o valor vigente no momento do processamento."
     columns:
       - name: id_agente_credenciado_historico
         description: Identificador único do registro de histórico (hash de data, CNPJ e documento)
@@ -134,11 +134,11 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: razao_social
-        description: Razão social no cadastro do CNPJ da entidade credenciadora
+        description: Razão social do CNPJ da entidade credenciadora vigente na data
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
+        description: Nome fantasia do CNPJ da entidade credenciadora vigente na data
         data_type: string
         quote: true
       - name: status
@@ -151,6 +151,51 @@ models:
         quote: true
       - name: decisao_bloqueio
         description: Processo administrativo ou judicial que culminou no bloqueio
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: entidade_credenciadora_riorotativo_historico
+    description: "Uma linha por versão de razão social/nome fantasia por CNPJ de entidade credenciadora do Rio Rotativo, com vigência em datas (tabela entidade_credenciadora_historico). Fonte: rj-crm-registry.rmi_dados_mestres.pessoa_juridica (estado atual, sem histórico próprio) — cada execução observa o valor corrente e abre nova vigência quando ele muda; o histórico começa na primeira execução do projeto, a granularidade é a cadência de execução e não é backfillável. A versão vigente tem data_fim_vigencia nula; CNPJ que sai do credenciamento mantém a última vigência aberta. Os CNPJs acompanhados são os observados em staging_agente_credenciado_riorotativo. Use cnpj e a vigência para junções com agente_credenciado_riorotativo_historico."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
+          arguments:
+            combination_of_columns:
+              - cnpj
+              - data_inicio_vigencia
+    columns:
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: data_inicio_vigencia
+        description: Data de início de vigência da versão, observada a partir da primeira execução do projeto
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_inicio_vigencia__entidade_credenciadora_riorotativo_historico
+      - name: data_fim_vigencia
+        description: Data de fim de vigência da versão (nula enquanto vigente)
+        data_type: date
+        quote: true
+      - name: razao_social
+        description: Razão social no cadastro do CNPJ da entidade credenciadora
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
         data_type: string
         quote: true
       - name: versao
