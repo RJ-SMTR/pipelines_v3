@@ -9,6 +9,7 @@ logs/*
 .antigravity/
 .antigravitycli/
 .claude/settings.local.json
+.codex/
 CLAUDE.local.md
 AGENTS.local.md
 
