@@ -1,5 +1,12 @@
-{{ config(materialized="table", alias="agente_credenciado") }}
+{{
+    config(
+        materialized="table",
+        alias="agente_credenciado",
+        enabled=is_current_state_enabled(),
+    )
+}}
 
+/* backfill com janela antiga desliga o modelo: ver macro is_current_state_enabled */
 -- depends_on: {{ ref('cliente_cpf_jae') }}
 {% if execute %}
     {% set last_partition_query %}

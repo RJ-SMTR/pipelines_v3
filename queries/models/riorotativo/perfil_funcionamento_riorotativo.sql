@@ -1,5 +1,12 @@
-{{ config(materialized="table", alias="perfil_funcionamento") }}
+{{
+    config(
+        materialized="table",
+        alias="perfil_funcionamento",
+        enabled=is_current_state_enabled(),
+    )
+}}
 
+/* backfill com janela antiga desliga o modelo: ver macro is_current_state_enabled */
 {% if execute %}
     {% set last_partition_query %}
         select max(data)

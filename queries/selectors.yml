@@ -649,11 +649,12 @@ selectors:
 
   - name: riorotativo_diario
     description: >
-      Materialização diária do Rio Rotativo: stagings, modelos de estado atual
-      (última captura da janela date_range_start/end), históricos diários e
-      snapshot das entidades credenciadoras. Requer janela cobrindo a última
-      captura — os modelos de estado atual falham se não houver partição no
-      período.
+      Materialização do Rio Rotativo: stagings, modelos de estado atual
+      (última captura da janela date_range_start/end) e históricos diários.
+      Os modelos de estado atual saem do DAG quando uma janela explícita
+      não alcança a data corrente (macro is_current_state_enabled) —
+      backfills executam apenas stagings e históricos, sem regredir o
+      estado atual.
     definition:
       method: path
       value: models/riorotativo
@@ -667,22 +668,3 @@ selectors:
     definition:
       method: path
       value: snapshots/riorotativo
-
-  - name: riorotativo_historico
-    description: >
-      Backfill/reprocessamento por período (date_range_start/end) dos
-      históricos diários do Rio Rotativo. Não inclui os modelos de estado
-      atual nem o snapshot — rodar com janelas antigas não regride o estado
-      atual.
-    definition:
-      union:
-        - method: fqn
-          value: staging_agente_credenciado_riorotativo
-        - method: fqn
-          value: staging_lista_bloqueio_riorotativo
-        - method: fqn
-          value: staging_perfil_funcionamento_excecao_riorotativo
-        - method: fqn
-          value: agente_credenciado_riorotativo_historico
-        - method: fqn
-          value: perfil_funcionamento_riorotativo_historico

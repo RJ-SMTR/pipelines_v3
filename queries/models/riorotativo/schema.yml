@@ -31,7 +31,7 @@ models:
           arguments:
             expression: "(area_codigo is null) != (perfil_funcionamento_codigo is null)"
   - name: agente_credenciado_riorotativo
-    description: "Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end. Use documento para junções; id_cliente relaciona com cliente_jae. Fonte: capturas diárias das entidades credenciadoras (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e dados mestres de CNPJ (rmi_dados_mestres.pessoa_juridica). Agente ausente da última captura é considerado removido; não contém status de bloqueio — para status e histórico use agente_credenciado_riorotativo_historico."
+    description: "Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use documento para junções; id_cliente relaciona com cliente_jae. Fonte: capturas diárias das entidades credenciadoras (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e dados mestres de CNPJ (rmi_dados_mestres.pessoa_juridica). Agente ausente da última captura é considerado removido; não contém status de bloqueio — para status e histórico use agente_credenciado_riorotativo_historico."
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -148,7 +148,7 @@ models:
         data_type: string
         quote: true
   - name: area_estacionamento_riorotativo
-    description: "Uma linha por área de estacionamento (id_area) do Rio Rotativo. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end. Use id_area para junções; id_perfil_funcionamento relaciona com perfil_funcionamento_riorotativo. Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento). geometry_wkt já vem normalizado em WKT 2D pela staging; geometry aplica st_geogfromtext com make_valid; área ausente da última captura é considerada removida."
+    description: "Uma linha por área de estacionamento (id_area) do Rio Rotativo. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use id_area para junções; id_perfil_funcionamento relaciona com perfil_funcionamento_riorotativo. Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento). geometry_wkt já vem normalizado em WKT 2D pela staging; geometry aplica st_geogfromtext com make_valid; área ausente da última captura é considerada removida."
     columns:
       - name: id_area
         description: Código único da área de estacionamento
@@ -214,7 +214,7 @@ models:
         data_type: date
         quote: true
   - name: perfil_funcionamento_riorotativo
-    description: "Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana e horários aplicáveis. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end. Use id_perfil_funcionamento para junções com area_estacionamento_riorotativo e perfil_funcionamento_historico. Fonte: captura diária (source_riorotativo.perfil_funcionamento). Perfil ausente da última captura é considerado removido; exceções aos perfis ficam em perfil_funcionamento_historico."
+    description: "Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana e horários aplicáveis. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use id_perfil_funcionamento para junções com area_estacionamento_riorotativo e perfil_funcionamento_historico. Fonte: captura diária (source_riorotativo.perfil_funcionamento). Perfil ausente da última captura é considerado removido; exceções aos perfis ficam em perfil_funcionamento_historico."
     columns:
       - name: id_perfil_funcionamento
         description: Código de referência do perfil de funcionamento
