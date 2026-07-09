@@ -16,7 +16,7 @@ models:
           - not_null:
               name: not_null__data_inicio_bloqueio__staging_lista_bloqueio_riorotativo
   - name: staging_perfil_funcionamento_excecao_riorotativo
-    description: "Uma linha por exceção de perfil de funcionamento, por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções. Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao). Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento — exatamente um dos campos area_codigo e perfil_funcionamento_codigo é preenchido."
+    description: "Uma linha por exceção de perfil de funcionamento, por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções. Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao). Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento — exatamente um dos campos area_codigo e perfil_funcionamento_codigo é preenchido. Os campos de data e horário das bordas são unificados em perfil_funcionamento_excecao_datetime_inicio/fim — sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim."
     columns:
       - name: perfil_funcionamento_excecao_decisao
         description: Processo administrativo, judicial, portaria ou decreto que culminou na exceção; parte da chave natural da exceção
@@ -255,7 +255,7 @@ models:
         data_type: string
         quote: true
   - name: perfil_funcionamento_riorotativo_historico
-    description: "Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura. Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use id_area ou id_perfil_funcionamento e data para junções; id_perfil_funcionamento_historico é a chave única. Fonte: captura diária de exceções (source_riorotativo.perfil_funcionamento_excecao). Contém apenas exceções vigentes na data da captura (data entre data_inicio e data_fim) — exceção expirada ou futura que permanece na fonte não entra no dia. Exatamente um entre id_area e id_perfil_funcionamento é preenchido; exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada."
+    description: "Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura. Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use id_area ou id_perfil_funcionamento e data para junções; id_perfil_funcionamento_historico é a chave única. Fonte: captura diária de exceções (source_riorotativo.perfil_funcionamento_excecao). Contém apenas exceções vigentes na data da captura (data entre as datas de datetime_inicio e datetime_fim) — exceção expirada ou futura que permanece na fonte não entra no dia. Exatamente um entre id_area e id_perfil_funcionamento é preenchido; exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada."
     columns:
       - name: id_perfil_funcionamento_historico
         description: Identificador único do registro de histórico (hash de data, perfil, área e decisão)
@@ -278,21 +278,13 @@ models:
         description: Área de estacionamento sujeita à exceção (nulo quando a exceção se aplica a um perfil de funcionamento)
         data_type: string
         quote: true
-      - name: data_inicio
-        description: Data inicial de vigência da exceção
-        data_type: date
+      - name: datetime_inicio
+        description: Data e hora iniciais de vigência da exceção (sem horário na fonte, considera 00:00:00)
+        data_type: datetime
         quote: true
-      - name: data_fim
-        description: Data final de vigência da exceção
-        data_type: date
-        quote: true
-      - name: horario_inicio
-        description: Horário inicial de vigência da exceção
-        data_type: string
-        quote: true
-      - name: horario_fim
-        description: Horário final de vigência da exceção
-        data_type: string
+      - name: datetime_fim
+        description: Data e hora finais de vigência da exceção (sem horário na fonte, considera 23:59:59)
+        data_type: datetime
         quote: true
       - name: motivo
         description: Motivo da exceção que poderá ser exibido para o agente verificador ou usuário

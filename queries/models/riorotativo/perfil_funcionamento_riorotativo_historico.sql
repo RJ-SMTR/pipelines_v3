@@ -23,21 +23,19 @@ with
             data,
             perfil_funcionamento_codigo as id_perfil_funcionamento,
             area_codigo as id_area,
-            perfil_funcionamento_excecao_data_inicio as data_inicio,
-            perfil_funcionamento_excecao_data_fim as data_fim,
-            perfil_funcionamento_excecao_horario_inicio as horario_inicio,
-            perfil_funcionamento_excecao_horario_fim as horario_fim,
+            perfil_funcionamento_excecao_datetime_inicio as datetime_inicio,
+            perfil_funcionamento_excecao_datetime_fim as datetime_fim,
             perfil_funcionamento_excecao_motivo as motivo,
             perfil_funcionamento_excecao_decisao as decisao
         from {{ ref("staging_perfil_funcionamento_excecao_riorotativo") }}
         where
             (
-                data >= perfil_funcionamento_excecao_data_inicio
-                or perfil_funcionamento_excecao_data_inicio is null
+                data >= date(perfil_funcionamento_excecao_datetime_inicio)
+                or perfil_funcionamento_excecao_datetime_inicio is null
             )
             and (
-                data <= perfil_funcionamento_excecao_data_fim
-                or perfil_funcionamento_excecao_data_fim is null
+                data <= date(perfil_funcionamento_excecao_datetime_fim)
+                or perfil_funcionamento_excecao_datetime_fim is null
             )
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
