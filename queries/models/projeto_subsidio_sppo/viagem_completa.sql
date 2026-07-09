@@ -206,7 +206,6 @@ with
     filtro_desvio as (
         select
             {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %} * except (rn)
-            {% else %} * except (rn)
             {% endif %}
         from
             (
