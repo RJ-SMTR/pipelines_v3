@@ -16,73 +16,7 @@ with
                         '2026-04-02' as data_fim,
                         '2026-04-02T18:00:00' as faixa_horaria_inicio,
                         '2026-04-02T23:59:59' as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         cast([] as array<string>) as servicos,
-                        true as indicador_viagem_dentro_limite
-                    ),
-                    struct(  -- Processo 000301.010399/2026-90
-                        '2026-06-19' as data_inicio,
-                        '2026-06-19' as data_fim,
-                        '2026-06-19T15:00:00' as faixa_horaria_inicio,
-                        '2026-06-19T23:59:59' as faixa_horaria_fim,
-                        '2026-06-19T17:30:00' as datetime_partida_inicio,
-                        '2026-06-19T21:30:59' as datetime_partida_fim,
-                        cast([] as array<string>) as servicos,
-                        true as indicador_viagem_dentro_limite
-                    ),
-                    struct(  -- Processo 000301.010399/2026-90
-                        '2026-06-24' as data_inicio,
-                        '2026-06-24' as data_fim,
-                        '2026-06-24T15:00:00' as faixa_horaria_inicio,
-                        '2026-06-24T20:59:59' as faixa_horaria_fim,
-                        '2026-06-24T15:00:00' as datetime_partida_inicio,
-                        '2026-06-24T19:00:59' as datetime_partida_fim,
-                        cast([] as array<string>) as servicos,
-                        true as indicador_viagem_dentro_limite
-                    ),
-                    struct(  -- Processo n° 000300.025696/2026-40
-                        '2026-06-16' as data_inicio,
-                        '2026-06-30' as data_fim,
-                        cast(null as string) as faixa_horaria_inicio,
-                        cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
-                        [
-                            "104",
-                            "107",
-                            "160",
-                            "161",
-                            "162",
-                            "167",
-                            "169",
-                            "232",
-                            "319",
-                            "361",
-                            "SV319",
-                            "409",
-                            "410",
-                            "416",
-                            "435",
-                            "461",
-                            "473",
-                            "552",
-                            "583",
-                            "584",
-                            "805",
-                            "SP805",
-                            "LECD127",
-                            "LECD131",
-                            "LECD132",
-                            "LECD133",
-                            "LECD134",
-                            "LECD136",
-                            "LECD138",
-                            "LECD150",
-                            "LECD151",
-                            "LECD153",
-                            "SN319"
-                        ] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
                     struct(  -- Processo n° 000300.023357/2026-29.
@@ -90,8 +24,6 @@ with
                         '2026-06-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -130,8 +62,6 @@ with
                         '2026-05-31' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -171,8 +101,6 @@ with
                         '2026-05-17' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -210,8 +138,6 @@ with
                         '2026-05-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -250,8 +176,6 @@ with
                         '2026-04-30' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -290,8 +214,6 @@ with
                         '2026-03-31' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -330,8 +252,6 @@ with
                         '2026-03-05' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         ["321", "324", "325", "326", "329", "616"] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
@@ -340,8 +260,6 @@ with
                         '2026-03-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -380,8 +298,6 @@ with
                         '2026-02-15' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         [
                             "104",
                             "107",
@@ -512,8 +428,6 @@ with
                         '2025-09-16' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
-                        cast(null as string) as datetime_partida_inicio,
-                        cast(null as string) as datetime_partida_fim,
                         ["161", "LECD110", "583", "584", "109"] as servicos,
                         true as indicador_viagem_dentro_limite
                     )
@@ -527,8 +441,6 @@ select
     date(data_fim) as data_fim,
     datetime(faixa_horaria_inicio) as faixa_horaria_inicio,
     datetime(faixa_horaria_fim) as faixa_horaria_fim,
-    datetime(datetime_partida_inicio) as datetime_partida_inicio,
-    datetime(datetime_partida_fim) as datetime_partida_fim,
     servico,
     indicador_viagem_dentro_limite,
     priority
