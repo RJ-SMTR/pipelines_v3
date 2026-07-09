@@ -1,107 +1,30 @@
-# Recommendation: Use Debian 12.
-FROM debian:12-slim
-
-# Suppress interactive prompts.
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install utilities required by Spark scripts.
-RUN apt update && apt install -y procps tini libjemalloc2
-
-# Enable jemalloc as default memory allocator
-ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
-
-# Install utilities required by XGBoost for Spark.
-RUN apt install -y procps libgomp1
-
-# Install and configure Miniconda3.
-ENV CONDA_HOME=/opt/miniforge3
-ENV PYSPARK_PYTHON=${CONDA_HOME}/bin/python
-ENV PATH=${CONDA_HOME}/bin:${PATH}
-ADD https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh .
-RUN bash Miniforge3-Linux-x86_64.sh -b -p /opt/miniforge3 \
-  && ${CONDA_HOME}/bin/conda config --system --set always_yes True \
-  && ${CONDA_HOME}/bin/conda config --system --set auto_update_conda False \
-  && ${CONDA_HOME}/bin/conda config --system --set channel_priority strict
-# Packages ipython and ipykernel are required if using custom conda and want to
-# use this container for running notebooks.
-RUN ${CONDA_HOME}/bin/mamba install ipython ipykernel
-
-#Install Google Cloud SDK.
-RUN ${CONDA_HOME}/bin/mamba install -n base google-cloud-sdk
-
-# Install Conda packages.
+# Imagem minima para modelos dbt Python com OpenFisca no Dataproc Serverless.
 #
-# The following packages are installed in the default image.
-# Recommendation: include all packages.
+# O Python precisa casar com o runtime do batch: runtime 1.1 = Spark 3.3.4 +
+# Python 3.10. O cloudpickle do Spark 3.3 nao suporta Python >= 3.11
+# (PicklingError: tuple index out of range); 3.13 removeu typing.io; 3.14
+# segfaulta o PySpark 3.5. O runtime 1.1 e o default do dbt-bigquery e o unico
+# validado neste ambiente — nao usar version "2.2"+ (quebra a escrita no BQ).
 #
-# Use mamba to quickly install packages.
-RUN ${CONDA_HOME}/bin/mamba install -n base \
-    accelerate \
-    bigframes \
-    cython \
-    deepspeed \
-    evaluate \
-    fastavro \
-    fastparquet \
-    gcsfs \
-    google-cloud-aiplatform \
-    google-cloud-bigquery-storage \
-    google-cloud-bigquery[pandas] \
-    google-cloud-bigtable \
-    google-cloud-container \
-    google-cloud-datacatalog \
-    google-cloud-dataproc \
-    google-cloud-datastore \
-    google-cloud-language \
-    google-cloud-logging \
-    google-cloud-monitoring \
-    google-cloud-pubsub \
-    google-cloud-redis \
-    google-cloud-spanner \
-    google-cloud-speech \
-    google-cloud-storage \
-    google-cloud-texttospeech \
-    google-cloud-translate \
-    google-cloud-vision \
-    langchain \
-    lightgbm \
-    koalas \
-    matplotlib \
-    mlflow \
-    nltk \
-    numba \
-    numpy \
-    openblas \
-    orc \
-    pandas \
-    pyarrow \
-    pynvml \
-    pysal \
-    pytables \
-    python \
-    pytorch-cpu \
-    regex \
-    requests \
-    rtree \
-    scikit-image \
-    scikit-learn \
-    scipy \
-    seaborn \
-    sentence-transformers \
-    sqlalchemy \
-    sympy \
-    tokenizers \
-    transformers \
-    virtualenv \
-    xgboost
+# Imagem propositalmente sem pandas/pyarrow: o codigo de materializacao do dbt
+# importa pyspark.pandas dentro de try/except ImportError, entao sem pandas o
+# wrapper segue o caminho de Spark DataFrame puro, sem risco de conflito com o
+# Spark 3.3 (de 2022) montado pelo runtime.
+
+# Debian 12 (bookworm), recomendado pelo guia de container customizado do Google
+FROM python:3.10-slim-bookworm
+
+# Utilitarios exigidos pelos scripts do Spark.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends procps tini \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
-# Install pip packages.
-RUN ${PYSPARK_PYTHON} -m pip install -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# Create the 'spark' group/user.
-# The GID and UID must be 1099. Home directory is required.
-RUN groupadd -g 1099 spark
-RUN useradd -u 1099 -g 1099 -d /home/spark -m spark
+ENV PYSPARK_PYTHON=/usr/local/bin/python
+
+# O Dataproc Serverless executa o container como usuario spark (UID/GID 1099).
+RUN groupadd -g 1099 spark && useradd -u 1099 -g 1099 -d /home/spark -m spark
 USER spark

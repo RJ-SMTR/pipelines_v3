@@ -1,1 +1,5 @@
+# numpy >= 2 quebra o pyspark.pandas dos Sparks atuais (np.NaN removido no
+# numpy 2.0); >= 2.4 tambem quebra o import do openfisca-core 44.x
+# (metaclass conflict em openfisca_core/types.py).
+numpy<2
 openfisca-core==44.7.0
