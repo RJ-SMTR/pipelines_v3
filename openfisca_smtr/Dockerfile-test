@@ -1,0 +1,40 @@
+# FROM us-central1-docker.pkg.dev/cloud-managed-spark/spark/dataproc_2.0:latest
+
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends procps tini \
+#     && rm -rf /var/lib/apt/lists/*
+
+# RUN python -m pip install --no-cache-dir openfisca-core==44.7.0
+
+# ENV PYSPARK_PYTHON=/usr/local/bin/python
+
+# FROM python:3.11-slim
+
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends procps tini \
+#     && rm -rf /var/lib/apt/lists/*
+
+# RUN python -m pip install --no-cache-dir openfisca-core==44.7.0
+
+# ENV PYSPARK_PYTHON=/usr/local/bin/python
+
+# Recommendation: Use Debian 12.
+FROM python:3.11-slim-bookworm
+# Suppress interactive prompts.
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install utilities required by Spark scripts.
+RUN apt update && apt install -y procps tini libjemalloc2
+
+# Enable jemalloc as default memory allocator.
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+
+# Create the 'spark' group/user.
+# The GID and UID must be 1099. Home directory is required.
+RUN groupadd -g 1099 spark
+RUN useradd -u 1099 -g 1099 -d /home/spark -m spark
+USER spark
+
+COPY . .
+
+RUN pip install --no-cache-dir -r requirements.txt

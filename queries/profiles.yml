@@ -22,6 +22,7 @@ queries:
             service_account: prefect@rj-smtr-dev.iam.gserviceaccount.com
 
         runtime_config:
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -48,6 +49,7 @@ queries:
             service_account: prefect@rj-smtr-dev.iam.gserviceaccount.com
 
         runtime_config:
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -74,8 +76,9 @@ queries:
             service_account: prefect@rj-smtr.iam.gserviceaccount.com
 
         runtime_config:
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
             spark.driver.memoryOverhead: 1g
-  target: prod
+  target: dev
