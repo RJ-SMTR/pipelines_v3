@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", alias="perfil_funcionamento") }}
 
 {% if execute %}
     {% set last_partition_query %}

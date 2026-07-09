@@ -1,6 +1,7 @@
 {{
     config(
         materialized="incremental",
+        alias="agente_credenciado_historico",
         incremental_strategy="merge",
         unique_key="id_agente_credenciado_historico",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},

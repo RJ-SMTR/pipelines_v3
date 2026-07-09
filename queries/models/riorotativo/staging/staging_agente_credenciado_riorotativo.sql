@@ -1,4 +1,4 @@
-{{ config(alias="agente_credenciado_riorotativo") }}
+{{ config(alias="agente_credenciado") }}
 
 {% set entidades = [
     {"cnpj": "42498733000148", "source": "entidade_42498733000148"},

@@ -1,6 +1,7 @@
 {{
     config(
         materialized="incremental",
+        alias="perfil_funcionamento_historico",
         incremental_strategy="merge",
         unique_key="id_perfil_funcionamento_historico",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},

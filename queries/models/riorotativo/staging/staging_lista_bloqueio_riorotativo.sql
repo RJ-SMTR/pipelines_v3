@@ -1,4 +1,4 @@
-{{ config(alias="lista_bloqueio_riorotativo") }}
+{{ config(alias="lista_bloqueio") }}
 
 
 with

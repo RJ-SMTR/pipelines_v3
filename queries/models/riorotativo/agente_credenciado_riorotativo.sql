@@ -1,4 +1,4 @@
-{{ config(materialized="table") }}
+{{ config(materialized="table", alias="agente_credenciado") }}
 
 -- depends_on: {{ ref('cliente_cpf_jae') }}
 {% if execute %}

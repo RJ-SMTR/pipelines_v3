@@ -1,4 +1,4 @@
-{{ config(alias="area_estacionamento_riorotativo") }}
+{{ config(alias="area_estacionamento") }}
 
 
 select
