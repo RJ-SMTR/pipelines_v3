@@ -3,3 +3,8 @@
 # (metaclass conflict em openfisca_core/types.py).
 numpy<2
 openfisca-core==44.7.0
+
+# dependencias de outros modelos dbt Python que rodam com esta imagem em dev
+# (o container_image do profile vale para todos os modelos Python)
+pyproj
+shapely
