@@ -646,3 +646,43 @@ selectors:
     definition:
       method: fqn
       value: aux_operadora_cnpj
+
+  - name: riorotativo_diario
+    description: >
+      Materialização diária do Rio Rotativo: stagings, modelos de estado atual
+      (última captura da janela date_range_start/end), históricos diários e
+      snapshot das entidades credenciadoras. Requer janela cobrindo a última
+      captura — os modelos de estado atual falham se não houver partição no
+      período.
+    definition:
+      method: path
+      value: models/riorotativo
+
+  - name: riorotativo_snapshot
+    description: >
+      Snapshot SCD2 das entidades credenciadoras do Rio Rotativo (razão
+      social/nome fantasia a partir de pessoa_juridica). Executar após o
+      riorotativo_diario — os CNPJs acompanhados vêm do histórico de agente
+      credenciado.
+    definition:
+      method: path
+      value: snapshots/riorotativo
+
+  - name: riorotativo_historico
+    description: >
+      Backfill/reprocessamento por período (date_range_start/end) dos
+      históricos diários do Rio Rotativo. Não inclui os modelos de estado
+      atual nem o snapshot — rodar com janelas antigas não regride o estado
+      atual.
+    definition:
+      union:
+        - method: fqn
+          value: staging_agente_credenciado_riorotativo
+        - method: fqn
+          value: staging_lista_bloqueio_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_excecao_riorotativo
+        - method: fqn
+          value: agente_credenciado_riorotativo_historico
+        - method: fqn
+          value: perfil_funcionamento_riorotativo_historico

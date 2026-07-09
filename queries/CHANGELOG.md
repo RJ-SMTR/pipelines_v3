@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.8] - 2026-07-08
+
+### Adicionado
+
+- Cria selectors `riorotativo_diario` (materialização dos modelos), `riorotativo_snapshot` (snapshot, executado após o diário) e `riorotativo_historico` (backfill/reprocessamento por período, sem modelos de estado atual) (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+
 ## [1.1.7] - 2026-06-26
 
 ### Corrigido
