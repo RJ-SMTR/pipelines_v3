@@ -24,6 +24,9 @@ queries/target-base/*
 queries/target-base-fusion/*
 queries/profiles/*
 queries/dev/*
+!queries/dev/profiles-example.yml
+!queries/dev/run.example.py
+!queries/dev/utils.py
 queries/dbt_packages/*
 queries/.user.yml
 queries/package-lock.yml
