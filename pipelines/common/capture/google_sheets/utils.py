@@ -57,9 +57,9 @@ def create_google_sheet_capture_params(  # noqa: PLR0913
     source_name: str,
     flow_folder_name: str,
     spread_sheet_id: str,
-    bucket_names: dict[str, str],
     first_timestamp: datetime,
     tables: list[GoogleSheetTable],
+    bucket_names: Optional[dict[str, str]] = None,
     rename_mapping: Optional[dict[str, str]] = None,
 ) -> tuple[list[SourceTable], dict[str, dict]]:
     """
@@ -73,10 +73,11 @@ def create_google_sheet_capture_params(  # noqa: PLR0913
         source_name (str): Nome da fonte de dados.
         flow_folder_name (str): Nome da pasta do flow de captura.
         spread_sheet_id (str): ID padrão da planilha, usado quando a tabela não define o seu.
-        bucket_names (dict[str, str]): Nome dos buckets de prod e dev.
         first_timestamp (datetime): Primeira timestamp padrão, usada quando a tabela não
             define a sua.
         tables (list[GoogleSheetTable]): Configurações das abas a serem capturadas.
+        bucket_names (Optional[dict[str, str]]): Nome dos buckets de prod e dev. Se None,
+            usa os buckets padrão.
         rename_mapping (Optional[dict[str, str]]): Mapeamento padrão de renomeação de colunas,
             usado quando a tabela não define o seu.
 

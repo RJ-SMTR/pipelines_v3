@@ -7,7 +7,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.capture.google_sheets.utils import (
+    GoogleSheetTable,
+    create_google_sheet_capture_params,
+)
 
 VEICULO_FISCALIZACAO_SOURCE_NAME = "veiculo_fiscalizacao"
 VEICULO_LACRE_TABLE_ID = "veiculo_fiscalizacao_lacre"
@@ -32,13 +35,20 @@ VEICULO_LACRE_RENAME_MAPPING = {
     "ultima_atualizacao": "ultima_atualizacao",
 }
 
-VEICULO_LACRE_SOURCE = SourceTable(
+VEICULO_LACRE_SOURCES, VEICULO_LACRE_EXTRA_PARAMETERS = create_google_sheet_capture_params(
     source_name=VEICULO_FISCALIZACAO_SOURCE_NAME,
-    table_id=VEICULO_LACRE_TABLE_ID,
-    first_timestamp=datetime(2025, 5, 28, 5, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__veiculo_fiscalizacao_lacre",
-    partition_date_only=True,
-    max_recaptures=5,
-    primary_keys=["placa", "n_o_de_ordem", "data_do_lacre"],
-    raw_filetype="csv",
+    spread_sheet_id=VEICULO_LACRE_SHEET_ID,
+    first_timestamp=datetime(2025, 5, 28, 5, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    rename_mapping=VEICULO_LACRE_RENAME_MAPPING,
+    tables=[
+        GoogleSheetTable(
+            table_id=VEICULO_LACRE_TABLE_ID,
+            sheet_name=VEICULO_LACRE_SHEET_NAME,
+            primary_keys=["placa", "n_o_de_ordem", "data_do_lacre"],
+            max_recaptures=5,
+        ),
+    ],
 )
+
+VEICULO_LACRE_SOURCE = VEICULO_LACRE_SOURCES[0]
