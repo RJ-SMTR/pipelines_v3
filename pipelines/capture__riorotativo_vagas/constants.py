@@ -7,7 +7,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.capture.google_sheets.utils import (
+    GoogleSheetTable,
+    create_google_sheet_capture_params,
+)
 
 RIOROTATIVO_SOURCE_NAME = "riorotativo"
 RIOROTATIVO_VAGAS_SPREADSHEET_ID = "1z0KA7kMjsq6visGOt6HTk1jkotKOSCVASp0BxCdt3cM"
@@ -46,56 +49,32 @@ RIOROTATIVO_RENAME_MAPPING = {
     "ultimaatualizacao": "ultima_atualizacao",
 }
 
-RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS = {
-    "area_estacionamento": {
-        "sheet_name": "area_estacionamento",
-        "primary_keys": ["area_codigo", "data_inicio_vigencia"],
-    },
-    "perfil_funcionamento": {
-        "sheet_name": "perfil_funcionamento",
-        "primary_keys": ["perfil_funcionamento_codigo"],
-    },
-    "perfil_funcionamento_excecao": {
-        "sheet_name": "perfil_funcionamento_excecao",
-        "primary_keys": [
-            "area_codigo",
-            "perfil_funcionamento_codigo",
-            "perfil_funcionamento_excecao_decisao",
-        ],
-    },
-}
-
-RIOROTATIVO_VAGAS_SOURCES = [
-    SourceTable(
-        source_name=RIOROTATIVO_SOURCE_NAME,
-        table_id=k,
-        first_timestamp=v.get(
-            "first_timestamp",
-            datetime(2026, 7, 6, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+RIOROTATIVO_VAGAS_SOURCES, RIOROTATIVO_VAGAS_EXTRA_PARAMETERS = create_google_sheet_capture_params(
+    source_name=RIOROTATIVO_SOURCE_NAME,
+    flow_folder_name="capture__riorotativo_vagas",
+    spread_sheet_id=RIOROTATIVO_VAGAS_SPREADSHEET_ID,
+    bucket_names=RIOROTATIVO_PRIVATE_BUCKET_NAMES,
+    first_timestamp=datetime(2026, 7, 6, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    rename_mapping=RIOROTATIVO_RENAME_MAPPING,
+    tables=[
+        GoogleSheetTable(
+            table_id="area_estacionamento",
+            sheet_name="area_estacionamento",
+            primary_keys=["area_codigo", "data_inicio_vigencia"],
         ),
-        flow_folder_name="capture__riorotativo_vagas",
-        primary_keys=v["primary_keys"],
-        pretreatment_reader_args=v.get("pretreatment_reader_args"),
-        pretreat_funcs=v.get("pretreat_funcs"),
-        bucket_names=RIOROTATIVO_PRIVATE_BUCKET_NAMES,
-        partition_date_only=v.get("partition_date_only", True),
-        max_recaptures=v.get("max_recaptures", 4),
-        raw_filetype="csv",
-    )
-    for k, v in RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS.items()
-]
-
-RIOROTATIVO_VAGAS_EXTRA_PARAMETERS = {
-    table_id: {
-        "spread_sheet_id": params.get(
-            "spread_sheet_id",
-            RIOROTATIVO_VAGAS_SPREADSHEET_ID,
+        GoogleSheetTable(
+            table_id="perfil_funcionamento",
+            sheet_name="perfil_funcionamento",
+            primary_keys=["perfil_funcionamento_codigo"],
         ),
-        "sheet_name": params["sheet_name"],
-        "filter_expr": params.get("filter_expr"),
-        "rename_mapping": params.get("rename_mapping", RIOROTATIVO_RENAME_MAPPING),
-        "dtypes": params.get("dtypes"),
-        "parse_dates": params.get("parse_dates"),
-    }
-    for table_id, params in RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS.items()
-}
+        GoogleSheetTable(
+            table_id="perfil_funcionamento_excecao",
+            sheet_name="perfil_funcionamento_excecao",
+            primary_keys=[
+                "area_codigo",
+                "perfil_funcionamento_codigo",
+                "perfil_funcionamento_excecao_decisao",
+            ],
+        ),
+    ],
+)

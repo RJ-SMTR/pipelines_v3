@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Tasks de captura de dados de vagas do Rio Rotativo"""
+"""
+Tasks de captura de abas de Google Sheets
+"""
 
 from functools import partial
 
@@ -11,8 +13,8 @@ from pipelines.common.utils.extractors.gdrive import get_google_sheet_xlsx
 
 
 @task(cache_policy=NO_CACHE)
-def create_riorotativo_vagas_extractor(context: SourceCaptureContext):
-    """Cria a extração de abas de vagas do Rio Rotativo"""
+def create_google_sheet_extractor(context: SourceCaptureContext):
+    """Cria a extração de uma aba de Google Sheets"""
     return partial(
         get_google_sheet_xlsx,
         spread_sheet_id=context.extra_parameters["spread_sheet_id"],
