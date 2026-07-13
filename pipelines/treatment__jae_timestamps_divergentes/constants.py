@@ -10,77 +10,19 @@ from pipelines.capture__jae_transacao.flow import capture__jae_transacao
 from pipelines.capture__jae_transacao_erro.flow import capture__jae_transacao_erro
 from pipelines.capture__jae_transacao_riocard.flow import capture__jae_transacao_riocard
 from pipelines.common.capture.jae import constants as jae_constants
-from pipelines.treatment__cadastro import constants as cadastro_constants
 from pipelines.treatment__cadastro.flow import treatment__cadastro
-from pipelines.treatment__extrato_cliente_cartao import (
-    constants as extrato_cliente_cartao_constants,
-)
 from pipelines.treatment__extrato_cliente_cartao.flow import treatment__extrato_cliente_cartao
-from pipelines.treatment__gps_validador import constants as gps_validador_constants
 from pipelines.treatment__gps_validador.flow import treatment__gps_validador
-from pipelines.treatment__transacao import constants as transacao_constants
+from pipelines.treatment__jae_timestamps_divergentes.utils import GapRepairSpec
+from pipelines.treatment__passageiro_hora.flow import treatment__passageiro_hora
 from pipelines.treatment__transacao.flow import treatment__transacao
-from pipelines.treatment__transacao_erro import constants as transacao_erro_constants
 from pipelines.treatment__transacao_erro.flow import treatment__transacao_erro
 
-CAPTURE_GAP_TABLES = {
-    jae_constants.TRANSACAO_TABLE_ID: {"flow": capture__jae_transacao},
-    jae_constants.TRANSACAO_RIOCARD_TABLE_ID: {"flow": capture__jae_transacao_riocard},
-    jae_constants.TRANSACAO_ERRO_TABLE_ID: {"flow": capture__jae_transacao_erro},
-    jae_constants.GPS_VALIDADOR_TABLE_ID: {"flow": capture__jae_gps_validador},
-    jae_constants.LANCAMENTO_TABLE_ID: {"flow": capture__jae_lancamento},
-    jae_constants.CLIENTE_TABLE_ID: {"flow": capture__jae_auxiliar},
-    jae_constants.GRATUIDADE_TABLE_ID: {"flow": capture__jae_auxiliar},
-    jae_constants.ESTUDANTE_TABLE_ID: {"flow": capture__jae_auxiliar},
-    jae_constants.LAUDO_PCD_TABLE_ID: {"flow": capture__jae_auxiliar},
-}
+RECAPTURE_BATCH_SIZE = 20
 
+UPDATE_PROJECT_NAME = {"prod": "rj-smtr", "dev": "rj-smtr-dev"}
 
-CAPTURE_GAP_SELECTORS = [
-    {
-        "flow": treatment__cadastro,
-        "capture_tables": [
-            jae_constants.CLIENTE_TABLE_ID,
-            jae_constants.GRATUIDADE_TABLE_ID,
-            jae_constants.ESTUDANTE_TABLE_ID,
-            jae_constants.LAUDO_PCD_TABLE_ID,
-        ],
-        "selector": cadastro_constants.CADASTRO_SELECTOR,
-    },
-    {
-        "flow": treatment__transacao,
-        "capture_tables": [
-            jae_constants.TRANSACAO_TABLE_ID,
-            jae_constants.TRANSACAO_RIOCARD_TABLE_ID,
-        ],
-        "selector": transacao_constants.TRANSACAO_SELECTOR,
-    },
-    {
-        "flow": treatment__transacao_erro,
-        "capture_tables": [jae_constants.TRANSACAO_ERRO_TABLE_ID],
-        "selector": transacao_erro_constants.TRANSACAO_ERRO_SELECTOR,
-    },
-    {
-        "flow": treatment__gps_validador,
-        "capture_tables": [jae_constants.GPS_VALIDADOR_TABLE_ID],
-        "selector": gps_validador_constants.GPS_VALIDADOR_SELECTOR,
-    },
-    {
-        "flow": treatment__extrato_cliente_cartao,
-        "capture_tables": [jae_constants.LANCAMENTO_TABLE_ID],
-        "selector": extrato_cliente_cartao_constants.EXTRATO_CLIENTE_CARTAO_SELECTOR,
-    },
-]
-
-SQL_TREATMENTS = [
-    {
-        "capture_tables": [
-            jae_constants.CLIENTE_TABLE_ID,
-            jae_constants.GRATUIDADE_TABLE_ID,
-            jae_constants.ESTUDANTE_TABLE_ID,
-            jae_constants.LAUDO_PCD_TABLE_ID,
-        ],
-        "sql": """
+SQL_UPDATE_TRANSACAO_TIPO_USUARIO = """
             UPDATE {project}.bilhetagem.transacao t
             SET
             tipo_usuario = nv.tipo_usuario,
@@ -173,11 +115,9 @@ SQL_TREATMENTS = [
             WHERE
                 t.id_transacao = nv.id_transacao
                 AND t.data >= date_sub(date("{datetime_start}"), INTERVAL 1 DAY)
-        """,
-    },
-    {
-        "capture_tables": [jae_constants.CLIENTE_TABLE_ID],
-        "sql": """
+        """
+
+SQL_UPDATE_EXTRATO_CLIENTE_CARTAO = """
             UPDATE {project}.bilhetagem_interno.extrato_cliente_cartao e
             SET nome_cliente = nv.nome_cliente,
             documento_cliente = nv.documento_cliente,
@@ -205,6 +145,61 @@ SQL_TREATMENTS = [
             e.id_unico_lancamento = nv.id_unico_lancamento
             and e.id_conta = nv.id_conta
             AND e.data >= date_sub(date("{datetime_start}"), INTERVAL 1 DAY)
-        """,
-    },
-]
+        """
+
+# A ordem das tabelas no registry define a ordem de execução: recapturas e materializações
+# são criadas na ordem da primeira ocorrência de cada flow. As tabelas de cadastro vêm
+# primeiro para que treatment__cadastro seja materializado antes de treatment__transacao,
+# que consome seus modelos.
+GAP_REPAIR_REGISTRY = {
+    jae_constants.CLIENTE_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_auxiliar,
+        recapture_by_table_id=True,
+        materialization_flows=(treatment__cadastro,),
+        sql_treatments=(SQL_UPDATE_TRANSACAO_TIPO_USUARIO, SQL_UPDATE_EXTRATO_CLIENTE_CARTAO),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.GRATUIDADE_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_auxiliar,
+        recapture_by_table_id=True,
+        materialization_flows=(treatment__cadastro,),
+        sql_treatments=(SQL_UPDATE_TRANSACAO_TIPO_USUARIO,),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.ESTUDANTE_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_auxiliar,
+        recapture_by_table_id=True,
+        materialization_flows=(treatment__cadastro,),
+        sql_treatments=(SQL_UPDATE_TRANSACAO_TIPO_USUARIO,),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.LAUDO_PCD_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_auxiliar,
+        recapture_by_table_id=True,
+        materialization_flows=(treatment__cadastro,),
+        sql_treatments=(SQL_UPDATE_TRANSACAO_TIPO_USUARIO,),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.TRANSACAO_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_transacao,
+        materialization_flows=(treatment__transacao,),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.TRANSACAO_RIOCARD_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_transacao_riocard,
+        materialization_flows=(treatment__transacao,),
+        downstream_flows=(treatment__passageiro_hora,),
+    ),
+    jae_constants.TRANSACAO_ERRO_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_transacao_erro,
+        materialization_flows=(treatment__transacao_erro,),
+    ),
+    jae_constants.GPS_VALIDADOR_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_gps_validador,
+        materialization_flows=(treatment__gps_validador,),
+    ),
+    jae_constants.LANCAMENTO_TABLE_ID: GapRepairSpec(
+        recapture_flow=capture__jae_lancamento,
+        materialization_flows=(treatment__extrato_cliente_cartao,),
+    ),
+}

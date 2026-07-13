@@ -3,13 +3,13 @@ from typing import Optional
 
 from prefect import runtime
 
-from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.tasks import get_run_env, initialize_sentry, run_subflow, setup_environment
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
 from pipelines.control__jae_verificacao_captura.flow import control__jae_verificacao_captura
 from pipelines.treatment__jae_timestamps_divergentes import constants
 from pipelines.treatment__jae_timestamps_divergentes.tasks import (
+    create_downstream_subflows_params,
     create_materialization_subflows_params,
     create_recapture_subflows_params,
     create_transacao_valor_ordem_params,
@@ -17,7 +17,6 @@ from pipelines.treatment__jae_timestamps_divergentes.tasks import (
     get_gaps_from_result_table,
     run_updates,
 )
-from pipelines.treatment__passageiro_hora.flow import treatment__passageiro_hora
 from pipelines.treatment__transacao_valor_ordem.flow import treatment__transacao_valor_ordem
 
 
@@ -38,11 +37,9 @@ async def treatment__jae_timestamps_divergentes(
 
     sentry = initialize_sentry(env=env)
 
-    tables = constants.CAPTURE_GAP_TABLES
-
     gaps = get_gaps_from_result_table(
         env=env,
-        table_ids=tables.keys(),
+        table_ids=constants.GAP_REPAIR_REGISTRY.keys(),
         timestamp_start=datetime_start,
         timestamp_end=datetime_end,
         wait_for=[setup_enviroment, sentry],
@@ -60,15 +57,10 @@ async def treatment__jae_timestamps_divergentes(
 
     sql_treatment = run_updates(env=env, gaps=gaps)
 
-    if (
-        gaps[jae_constants.TRANSACAO_TABLE_ID]["flag_has_gaps"]
-        or gaps[jae_constants.TRANSACAO_RIOCARD_TABLE_ID]["flag_has_gaps"]
-        or gaps[jae_constants.CLIENTE_TABLE_ID]["flag_has_gaps"]
-        or gaps[jae_constants.GRATUIDADE_TABLE_ID]["flag_has_gaps"]
-        or gaps[jae_constants.ESTUDANTE_TABLE_ID]["flag_has_gaps"]
-        or gaps[jae_constants.LAUDO_PCD_TABLE_ID]["flag_has_gaps"]
-    ):
-        await run_subflow(env=env, flow=treatment__passageiro_hora, wait_for=[sql_treatment])
+    downstream_flows = create_downstream_subflows_params(gaps=gaps)
+
+    for downstream_flow in downstream_flows:
+        await run_subflow(env=env, flow=downstream_flow, wait_for=[sql_treatment])
 
     run_transacao_valor_ordem, params = create_transacao_valor_ordem_params(gaps=gaps)
 
