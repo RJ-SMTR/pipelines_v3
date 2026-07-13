@@ -33,7 +33,7 @@ RIOROTATIVO_CREDENCIADOS_TABLE_CAPTURE_PARAMS = {
     },
     "lista_bloqueio": {
         "sheet_name": "lista_bloqueio",
-        "primary_keys": ["cpf"],
+        "primary_keys": ["cpf", "decisao_bloqueio"],
     },
 }
 

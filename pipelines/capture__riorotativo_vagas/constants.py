@@ -49,7 +49,7 @@ RIOROTATIVO_RENAME_MAPPING = {
 RIOROTATIVO_VAGAS_TABLE_CAPTURE_PARAMS = {
     "area_estacionamento": {
         "sheet_name": "area_estacionamento",
-        "primary_keys": ["area_codigo"],
+        "primary_keys": ["area_codigo", "data_inicio_vigencia"],
     },
     "perfil_funcionamento": {
         "sheet_name": "perfil_funcionamento",
