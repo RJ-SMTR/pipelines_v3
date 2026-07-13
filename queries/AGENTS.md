@@ -7,7 +7,10 @@ queries/
   dbt_project.yml        # Config + vars (date_range_start/end, datetime_start/end, flow_name)
   selectors.yml          # Named selectors for `dbt build --selector <name>`
   packages.yml           # dbt package dependencies
-  dev/profiles.yml       # Local connection profile — use with --profiles-dir ./dev
+  dev/
+    profiles-example.yml # Template — copy to profiles.yml (gitignored)
+    run.example.py         # Template — copy to run.py for local dbt runs (gitignored)
+    utils.py               # Helpers to run dbt from Python
   models/
     <domain>/            # e.g., transito, cadastro, bilhetagem
       staging/           # Raw → structured (stg_*, aux_*)
@@ -26,6 +29,8 @@ queries/
 
 ```bash
 cd queries
+cp dev/profiles-example.yml dev/profiles.yml   # first-time setup
+cp dev/run.example.py dev/run.py               # optional: local dbt runner
 
 dbt deps                                                    # Install packages
 dbt build --selector <selector_name> --profiles-dir ./dev  # Build models by selector

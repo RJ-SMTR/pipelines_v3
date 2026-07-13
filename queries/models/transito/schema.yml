@@ -239,7 +239,7 @@ models:
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }} [protegido]"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/2206976536320458062"
       - name: datetime_autuacao
         description: "Data e hora da autuação"
       - name: data_limite_defesa_previa
@@ -267,7 +267,7 @@ models:
       - name: placa_veiculo
         description: "{{ doc('placa') }}"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/2206976536320458062"
       - name: ano_fabricacao_veiculo
         description: "{{ doc('ano_fabricacao') }}"
       - name: ano_modelo_veiculo
@@ -287,7 +287,7 @@ models:
       - name: documento_proprietario
         description: "Documento do proprietário do veículo"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/2206976536320458062"
       - name: cnh_proprietario
         description: "Número da CNH do proprietário do veículo"
         policy_tags:
@@ -305,7 +305,7 @@ models:
       - name: documento_possuidor_veiculo
         description: "Documento do possuidor do veículo [protegido]"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/2206976536320458062"
       - name: cnh_possuidor_veiculo
         description: "CNH do possuidor do veículo [protegido]"
         policy_tags:
@@ -363,7 +363,7 @@ models:
               name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__autuacao
               arguments:
                 datepart: day
-                interval: 1
+                interval: 2
               config:
                 tags: ["freshness", "daily"]
                 severity: warn
