@@ -10,9 +10,7 @@ with
             safe_cast(
                 json_value(content, '$.motivo_bloqueio') as string
             ) as motivo_bloqueio,
-            safe_cast(
-                json_value(content, '$.decisao_bloqueio') as string
-            ) as decisao_bloqueio,
+            safe_cast(decisao_bloqueio as string) as decisao_bloqueio,
             safe.parse_date(
                 '%d/%m/%Y',
                 safe_cast(json_value(content, '$.data_inicio_bloqueio') as string)

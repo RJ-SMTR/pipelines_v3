@@ -49,7 +49,7 @@ select
             )
     end as area_perfil_funcionamento,
     safe.parse_date(
-        '%d/%m/%Y', safe_cast(json_value(content, '$.data_inicio_vigencia') as string)
+        '%d/%m/%Y', safe_cast(data_inicio_vigencia as string)
     ) as data_inicio_vigencia,
     safe.parse_date(
         '%d/%m/%Y', safe_cast(json_value(content, '$.data_fim_vigencia') as string)
