@@ -4,18 +4,19 @@
 import csv
 import inspect
 from datetime import datetime, timedelta
+from functools import cached_property
 from pathlib import Path
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pandas_gbq
-import yaml
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery.external_config import HivePartitioningOptions
 
 from pipelines.common import constants
+from pipelines.common.utils.deployment import get_flow_folder_path, get_flow_schedule_cron
 from pipelines.common.utils.gcp.base import GCPBase
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.utils import convert_timezone, cron_date_range, cron_get_last_date
@@ -202,38 +203,20 @@ class SourceTable(BQTable):
         self.first_timestamp = convert_timezone(first_timestamp)
         self.pretreatment_reader_args = pretreatment_reader_args
         self.pretreat_funcs = pretreat_funcs or []
-        self.schedule_cron = self._get_schedule_cron()
         self.file_chunk_size = file_chunk_size
 
-    def _get_schedule_cron(self) -> str:
-        """
-        Retorna o cron do schedule do deployment do flow associado ao Source
-        """
-        if self.flow_folder_name is None:
-            flow_folder_path = Path(inspect.stack()[2].filename).parent
-
-            flow_name = flow_folder_path.name
-
+        if flow_folder_name is None:
+            self.flow_folder_path = Path(inspect.stack()[1].filename).parent
         else:
-            flow_name = self.flow_folder_name
+            self.flow_folder_path = get_flow_folder_path(flow_folder_name)
 
-            flow_folder_path = Path(constants.__file__).resolve().parent.parent / flow_name
-
-        with (flow_folder_path / "prefect.yaml").open("r") as f:
-            prefect_file = yaml.safe_load(f)
-
-        schedules = next(
-            d
-            for d in prefect_file["deployments"]
-            if d["name"] == f"rj-{flow_name.replace('__', '--', 1)}--prod"
-        ).get("schedules", [{}])
-
-        for sched in schedules:
-            ids = (sched.get("parameters") or {}).get("source_table_ids") or []
-            if self.table_id in ids:
-                return sched.get("cron")
-
-        return schedules[0].get("cron")
+    @cached_property
+    def schedule_cron(self) -> Optional[str]:
+        """
+        Cron do schedule do deployment do flow associado ao Source. Lido do prefect.yaml
+        no primeiro acesso.
+        """
+        return get_flow_schedule_cron(self.flow_folder_path, table_id=self.table_id)
 
     def _create_table_schema(self, sample_filepath: str) -> list[bigquery.SchemaField]:
         """

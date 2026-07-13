@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from datetime import datetime, time, timedelta
+from functools import cached_property
 from pathlib import Path
 from typing import Optional, Union
 from zoneinfo import ZoneInfo
@@ -23,6 +24,7 @@ from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment import constants
 from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
+from pipelines.common.utils.deployment import get_flow_folder_path, get_flow_schedule_cron
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -174,14 +176,18 @@ class DBTSelector:
             final_datetime if final_datetime is None else convert_timezone(final_datetime)
         )
         self.redis_key_suffix = redis_key_suffix
-        self.schedule_cron = self._get_schedule_cron()
         self.pre_test = pre_test
         self.post_test = post_test
 
         self.data_sources = data_sources or []
 
+        if flow_folder_name is None:
+            self.flow_folder_path = Path(inspect.stack()[1].filename).parent
+        else:
+            self.flow_folder_path = get_flow_folder_path(flow_folder_name)
+
     def __getitem__(self, key):
-        return self.__dict__[key]
+        return getattr(self, key)
 
     def _get_redis_key(self, env: str) -> str:
         """
@@ -198,31 +204,13 @@ class DBTSelector:
             return f"{redis_key}_{self.redis_key_suffix}"
         return redis_key
 
-    def _get_schedule_cron(self) -> str:
+    @cached_property
+    def schedule_cron(self) -> Optional[str]:
         """
-        Retorna o cron do schedule do deployment do flow associado ao Selector
+        Cron do schedule do deployment do flow associado ao Selector. Lido do prefect.yaml
+        no primeiro acesso.
         """
-        if self.flow_folder_name is None:
-            flow_folder_path = Path(inspect.stack()[2].filename).parent
-
-            flow_name = flow_folder_path.name
-
-        else:
-            flow_name = self.flow_folder_name
-            flow_folder_path = (
-                Path(constants.__file__).resolve().parent.parent.parent.parent / flow_name
-            )
-
-        with (flow_folder_path / "prefect.yaml").open("r") as f:
-            prefect_file = yaml.safe_load(f)
-
-        schedules = next(
-            d
-            for d in prefect_file["deployments"]
-            if d["name"] == f"rj-{flow_name.replace('__', '--', 1)}--prod"
-        ).get("schedules", [{}])
-
-        return schedules[0].get("cron")
+        return get_flow_schedule_cron(self.flow_folder_path)
 
     def get_last_materialized_datetime(self, env: str) -> Optional[datetime]:
         """

@@ -30,7 +30,7 @@ class GCPBase:
         self.set_env(env=self.env)
 
     def __getitem__(self, key):
-        return self.__dict__[key]
+        return getattr(self, key)
 
     def set_env(self, env: str):
         """
