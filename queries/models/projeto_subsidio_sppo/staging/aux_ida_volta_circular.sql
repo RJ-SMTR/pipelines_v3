@@ -15,4 +15,4 @@ select *
 from {{ ref("aux_ida_volta_circular_v2") }}
 where
     data between date("2025-06-01") and date("2025-06-30")
-    or data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")
+    or data >= date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}")  -- Exceção devido ao recurso SMTR202507001429 
