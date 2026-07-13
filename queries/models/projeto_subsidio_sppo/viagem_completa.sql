@@ -203,49 +203,20 @@ with
     ),
     -- 3. Filtra viagens com mesma chegada e partida pelo maior % de conformidade do
     -- shape
+     -- shape
     filtro_desvio as (
         select
+            {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
+                * except (rn, id_tipo_trajeto)
             {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %} * except (rn)
-            {% else %} * except (rn)
             {% endif %}
-        from
-            (
-                select
-                    *,
-                    {% if var("run_date") > var("DATA_SUBSIDIO_V7_INICIO") %}
-                        -- Apuração "Madonna · The Celebration Tour in Rio"
-                        row_number() over (
-                            partition by id_veiculo, datetime_partida, datetime_chegada
-                            order by
-                                perc_conformidade_shape desc,
-                                id_tipo_trajeto,
-                                distancia_planejada desc
-                        ) as rn
-                    {% elif var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
-                        row_number() over (
-                            partition by id_veiculo, datetime_partida, datetime_chegada
-                            order by perc_conformidade_shape desc, id_tipo_trajeto
-                        ) as rn
-                    {% else %}
-                        row_number() over (
-                            partition by id_veiculo, datetime_partida, datetime_chegada
-                            order by perc_conformidade_shape desc
-                        ) as rn
-                    {% endif %}
-                from viagem_comp_conf
-            )
-        where rn = 1
-    ),
-    -- 4. Filtra viagens com partida ou chegada diferentes pela maior distancia
-    -- percorrida
-    filtro_partida as (
-        select * except (rn)
-        from
+            from
             (
                 select
                     *,
                     row_number() over (
                         partition by id_veiculo, datetime_partida
+                        order by distancia_planejada desc
                         order by distancia_planejada desc, id_tipo_trajeto
                     ) as rn
                 from filtro_desvio
@@ -260,8 +231,8 @@ from
             *,
             row_number() over (
                 partition by id_veiculo, datetime_chegada
+                order by distancia_planejada desc
                 order by distancia_planejada desc, id_tipo_trajeto
             ) as rn
         from filtro_partida
     )
-where rn = 1
