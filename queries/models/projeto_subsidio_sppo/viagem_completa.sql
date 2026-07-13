@@ -203,7 +203,6 @@ with
     ),
     -- 3. Filtra viagens com mesma chegada e partida pelo maior % de conformidade do
     -- shape
-     -- shape
     filtro_desvio as (
         select
             {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %} * except (rn)
