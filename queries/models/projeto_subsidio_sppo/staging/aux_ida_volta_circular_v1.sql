@@ -26,6 +26,6 @@ select
 from {{ ref("aux_viagem_inicio_fim") }} v
 where
     sentido = "C"
-    and data < date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}") -- Exceção devido ao recurso SMTR202507001429 
+    and data < date("{{ var('DATA_SUBSIDIO_V24_INICIO') }}") -- Exceção devido ao recurso SMTR202507001429
     and data not between date("2025-06-01")
     and date("2025-06-30")
