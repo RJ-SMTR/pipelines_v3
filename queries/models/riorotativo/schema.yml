@@ -1,6 +1,11 @@
 models:
   - name: staging_agente_credenciado_riorotativo
-    description: "Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj), por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use documento e data para junções. Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>). Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio."
+    description: |
+      Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
+      Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -16,7 +21,14 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
   - name: staging_agente_verificacao_riorotativo
-    description: "Uma linha por agente de verificação (documento) por entidade de vínculo (cnpj), por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use documento e data para junções. Fonte: capturas diárias por CNPJ (source_riorotativo.entidade_<cnpj>), mesma lógica do agente credenciado com CNPJs distintos — agentes de verificação são servidores municipais ou empregados do Operador Tecnológico designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º). Enquanto a captura definitiva não existe, a lista de CNPJs aponta para o mesmo CNPJ do agente credenciado como placeholder. Contém apenas a presença na lista — sem dados cadastrais nem bloqueio."
+    description: |
+      Uma linha por agente de verificação (documento) por entidade de vínculo (cnpj), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: capturas diárias por CNPJ (source_riorotativo.entidade_<cnpj>), mesma lógica do agente credenciado.
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Contém apenas a presença na lista — sem dados cadastrais nem bloqueio.
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -32,7 +44,12 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
   - name: staging_area_estacionamento_riorotativo
-    description: "Uma linha por área de estacionamento (area_codigo), por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use area_codigo e data para junções. Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento). area_poligono é normalizado para WKT 2D (dimensões Z/M removidas para compatibilidade com st_geogfromtext)."
+    description: |
+      Uma linha por área de estacionamento (area_codigo), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use area_codigo e data para junções.
+      Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento).
+      area_poligono é normalizado para WKT 2D (dimensões Z/M removidas para compatibilidade com st_geogfromtext).
     columns:
       - name: area_codigo
         description: Código único da área de estacionamento; parte da chave natural da fonte
@@ -49,7 +66,12 @@ models:
           - not_null:
               name: not_null__data_inicio_vigencia__staging_area_estacionamento_riorotativo
   - name: staging_perfil_funcionamento_riorotativo
-    description: "Uma linha por perfil de funcionamento (perfil_funcionamento_codigo), por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use perfil_funcionamento_codigo e data para junções. Fonte: captura diária (source_riorotativo.perfil_funcionamento). perfil_funcionamento_dia_semana é decodificado de string JSON para array de inteiros."
+    description: |
+      Uma linha por perfil de funcionamento (perfil_funcionamento_codigo), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use perfil_funcionamento_codigo e data para junções.
+      Fonte: captura diária (source_riorotativo.perfil_funcionamento).
+      perfil_funcionamento_dia_semana é decodificado de string JSON para array de inteiros.
     columns:
       - name: perfil_funcionamento_codigo
         description: Código de referência do perfil de funcionamento; chave natural da fonte
@@ -59,7 +81,13 @@ models:
           - not_null:
               name: not_null__perfil_funcionamento_codigo__staging_perfil_funcionamento_riorotativo
   - name: staging_lista_bloqueio_riorotativo
-    description: "Uma linha por documento bloqueado, por decisão de bloqueio, por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use documento e data para junções. Fonte: planilha de bloqueio capturada diariamente (source_riorotativo.lista_bloqueio). Não aplica vigência — bloqueios expirados permanecem na lista; o consumidor deve filtrar por data_inicio_bloqueio/data_fim_bloqueio."
+    description: |
+      Uma linha por documento bloqueado, por decisão de bloqueio, por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: planilha de bloqueio capturada diariamente (source_riorotativo.lista_bloqueio).
+      Não aplica vigência — bloqueios expirados permanecem na lista.
+      O consumidor deve filtrar por data_inicio_bloqueio/data_fim_bloqueio.
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -82,7 +110,15 @@ models:
           - not_null:
               name: not_null__data_inicio_bloqueio__staging_lista_bloqueio_riorotativo
   - name: staging_perfil_funcionamento_excecao_riorotativo
-    description: "Uma linha por exceção de perfil de funcionamento, por data de captura. Staging com todas as partições de captura, deduplicadas pela última captura de cada dia. Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções. Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao). Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento — exatamente um dos campos area_codigo e perfil_funcionamento_codigo é preenchido. Os campos de data e horário das bordas são unificados em perfil_funcionamento_excecao_datetime_inicio/fim — sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim."
+    description: |
+      Uma linha por exceção de perfil de funcionamento, por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções.
+      Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao).
+      Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento —
+      exatamente um entre area_codigo e perfil_funcionamento_codigo é preenchido.
+      Os campos de data e horário das bordas são unificados em perfil_funcionamento_excecao_datetime_inicio/fim —
+      sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim.
     columns:
       - name: perfil_funcionamento_excecao_decisao
         description: Processo administrativo, judicial, portaria ou decreto que culminou na exceção; parte da chave natural da exceção
@@ -97,7 +133,15 @@ models:
           arguments:
             expression: "(area_codigo is null) != (perfil_funcionamento_codigo is null)"
   - name: agente_credenciado_riorotativo
-    description: "Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use documento para junções; id_cliente relaciona com cliente_jae. Fonte: última partição de agente_credenciado_riorotativo_historico dentro da janela (select simples, sem joins) — os enriquecimentos com cadastro Jaé e dados mestres de CNPJ acontecem no histórico. Agente ausente da última captura é considerado removido; não contém status de bloqueio — para status e histórico use agente_credenciado_riorotativo_historico."
+    description: |
+      Uma linha por agente credenciado ativo (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital.
+      Estado atual: agentes com status ativo na última partição da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use documento para junções; id_cliente relaciona com cliente_jae.
+      Fonte: última partição de agente_credenciado_riorotativo_historico dentro da janela.
+      Agente ausente da última captura é considerado removido; agentes bloqueados são excluídos —
+      para status e histórico use agente_credenciado_riorotativo_historico.
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -146,7 +190,19 @@ models:
         data_type: string
         quote: true
   - name: agente_credenciado_riorotativo_historico
-    description: "Uma linha por agente credenciado (documento), por entidade credenciadora (cnpj), por data de captura, com o status do dia (ativo ou bloqueado). Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use documento e data para junções; id_agente_credenciado_historico é a chave única. Fonte: capturas diárias de credenciamento e da lista de bloqueio (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e o histórico de vigência das entidades credenciadoras (entidade_credenciadora_riorotativo_historico). Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio); documento bloqueado que não está na lista de credenciados não gera linha; agente ausente em uma data na qual já havia aparecido indica remoção; dias sem captura não têm linhas; razao_social/nome_fantasia refletem o valor vigente na data; nome/email/telefone refletem o valor vigente no momento do processamento."
+    description: |
+      Uma linha por agente credenciado (documento), por entidade credenciadora (cnpj), por data de captura,
+      com o status do dia (ativo ou bloqueado).
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use documento e data para junções; id_agente_credenciado_historico é a chave única.
+      Fonte: staging_agente_credenciado_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      cliente_jae e entidade_credenciadora_riorotativo_historico.
+      Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
+      Documento bloqueado que não está na lista de credenciados não gera registro.
+      Agente ausente em uma data na qual já havia aparecido indica remoção.
+      Dias sem captura não têm registros.
+      razao_social/nome_fantasia refletem o valor vigente na data.
+      nome/email/telefone refletem o valor vigente no momento do processamento.
     columns:
       - name: id_agente_credenciado_historico
         description: Identificador único do registro de histórico (hash de data, CNPJ e documento)
@@ -232,7 +288,17 @@ models:
         data_type: string
         quote: true
   - name: agente_verificacao_riorotativo
-    description: "Uma linha por agente de verificação (documento) por entidade de vínculo (cnpj) no Rio Rotativo Digital — servidores municipais ou empregados do Operador Tecnológico designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º); mesma lógica do agente credenciado, com CNPJs de vínculo distintos das entidades credenciadoras. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use documento para junções; id_cliente relaciona com cliente_jae. Fonte: última partição de agente_verificacao_riorotativo_historico dentro da janela (select simples, sem joins) — os enriquecimentos com cadastro Jaé e dados mestres de CNPJ acontecem no histórico. Agente ausente da última captura é considerado removido; não contém status de bloqueio — para status e histórico use agente_verificacao_riorotativo_historico."
+    description: |
+      Uma linha por agente de verificação ativo (documento) por entidade de vínculo (cnpj) no Rio Rotativo Digital.
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Estado atual: agentes com status ativo na última partição da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use documento para junções; id_cliente relaciona com cliente_jae.
+      Fonte: última partição de agente_verificacao_riorotativo_historico dentro da janela.
+      Agente ausente da última captura é considerado removido; agentes bloqueados são excluídos —
+      para status e histórico use agente_verificacao_riorotativo_historico.
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
@@ -281,7 +347,21 @@ models:
         data_type: string
         quote: true
   - name: agente_verificacao_riorotativo_historico
-    description: "Uma linha por agente de verificação (documento), por entidade de vínculo (cnpj), por data de captura, com o status do dia (ativo ou bloqueado). Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º) — mesma lógica do agente credenciado, com CNPJs de vínculo distintos. Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use documento e data para junções; id_agente_verificacao_historico é a chave única. Fonte: capturas diárias dos agentes de verificação e da lista de bloqueio (source_riorotativo), enriquecidas com o cadastro Jaé (cliente_jae) e o histórico de vigência das entidades (entidade_credenciadora_riorotativo_historico). Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio); documento bloqueado que não está na lista de agentes não gera linha; agente ausente em uma data na qual já havia aparecido indica remoção; dias sem captura não têm linhas; razao_social/nome_fantasia refletem o valor vigente na data; nome/email/telefone refletem o valor vigente no momento do processamento."
+    description: |
+      Uma linha por agente de verificação (documento), por entidade de vínculo (cnpj), por data de captura,
+      com o status do dia (ativo ou bloqueado).
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use documento e data para junções; id_agente_verificacao_historico é a chave única.
+      Fonte: staging_agente_verificacao_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      cliente_jae e entidade_credenciadora_riorotativo_historico.
+      Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
+      Documento bloqueado que não está na lista de agentes não gera registro.
+      Agente ausente em uma data na qual já havia aparecido indica remoção.
+      Dias sem captura não têm registros.
+      razao_social/nome_fantasia refletem o valor vigente na data.
+      nome/email/telefone refletem o valor vigente no momento do processamento.
     tests:
       - dbt_utils.expression_is_true:
           name: dbt_utils.expression_is_true__documento_nao_credenciado__agente_verificacao_riorotativo_historico
@@ -383,7 +463,15 @@ models:
         data_type: string
         quote: true
   - name: entidade_credenciadora_riorotativo_historico
-    description: "Uma linha por versão de razão social/nome fantasia por CNPJ de entidade credenciadora do Rio Rotativo, com vigência em datas (tabela entidade_credenciadora_historico). Fonte: rj-crm-registry.rmi_dados_mestres.pessoa_juridica (estado atual, sem histórico próprio) — cada execução observa o valor corrente e abre nova vigência quando ele muda; o histórico começa na primeira execução do projeto, a granularidade é a cadência de execução e não é backfillável. A versão vigente tem data_fim_vigencia nula; CNPJ que sai do credenciamento mantém a última vigência aberta. Os CNPJs acompanhados são os observados em staging_agente_credenciado_riorotativo e staging_agente_verificacao_riorotativo. Use cnpj e a vigência para junções com agente_credenciado_riorotativo_historico e agente_verificacao_riorotativo_historico."
+    description: |
+      Uma linha por versão de razão social/nome fantasia por CNPJ do Rio Rotativo, com vigência em datas.
+      Fonte: rj-crm-registry.rmi_dados_mestres.pessoa_juridica.
+      Cada execução observa o valor corrente e abre nova vigência quando ele muda.
+      A versão vigente tem data_fim_vigencia nula.
+      CNPJ que deixa de aparecer nas stagings mantém a última vigência aberta.
+      Os CNPJs acompanhados são os observados em staging_agente_credenciado_riorotativo e
+      staging_agente_verificacao_riorotativo.
+      Use cnpj e a vigência para junções.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
@@ -428,7 +516,14 @@ models:
         data_type: string
         quote: true
   - name: area_estacionamento_riorotativo
-    description: "Uma linha por área de estacionamento (id_area) do Rio Rotativo. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use id_area para junções; id_perfil_funcionamento relaciona com perfil_funcionamento_riorotativo. Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento). geometry_wkt já vem normalizado em WKT 2D pela staging; geometry aplica st_geogfromtext com make_valid; área ausente da última captura é considerada removida."
+    description: |
+      Uma linha por área de estacionamento (id_area) do Rio Rotativo.
+      Estado atual: última partição de captura da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use id_area para junções; id_perfil_funcionamento relaciona com perfil_funcionamento_riorotativo.
+      Fonte: staging_area_estacionamento_riorotativo (captura source_riorotativo.area_estacionamento).
+      Área ausente da última captura é considerada removida.
     columns:
       - name: id_area
         description: Código único da área de estacionamento
@@ -494,7 +589,16 @@ models:
         data_type: date
         quote: true
   - name: perfil_funcionamento_riorotativo
-    description: "Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana e horários aplicáveis. Estado atual: reflete somente a última partição de captura dentro da janela date_range_start/date_range_end Sai do DAG apenas quando uma janela explícita date_range_start/end não alcança a data corrente (macro is_current_state_enabled) — backfills não regridem a foto; sem vars (parse/docs) o modelo fica habilitado e aparece na linhagem. Use id_perfil_funcionamento para junções com area_estacionamento_riorotativo e perfil_funcionamento_historico. Fonte: captura diária (source_riorotativo.perfil_funcionamento). Perfil ausente da última captura é considerado removido; exceções aos perfis ficam em perfil_funcionamento_historico."
+    description: |
+      Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana
+      e horários aplicáveis.
+      Estado atual: última partição de captura da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use id_perfil_funcionamento para junções com area_estacionamento_riorotativo.
+      Fonte: staging_perfil_funcionamento_riorotativo (captura source_riorotativo.perfil_funcionamento).
+      Perfil ausente da última captura é considerado removido.
+      Exceções aos perfis ficam em perfil_funcionamento_riorotativo_historico.
     columns:
       - name: id_perfil_funcionamento
         description: Código de referência do perfil de funcionamento
@@ -517,7 +621,16 @@ models:
         data_type: string
         quote: true
   - name: perfil_funcionamento_riorotativo_historico
-    description: "Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura. Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end). Use id_area ou id_perfil_funcionamento e data para junções; id_perfil_funcionamento_historico é a chave única. Fonte: captura diária de exceções (source_riorotativo.perfil_funcionamento_excecao). Contém apenas exceções vigentes na data da captura (data entre as datas de datetime_inicio e datetime_fim) — exceção expirada ou futura que permanece na fonte não entra no dia. Exatamente um entre id_area e id_perfil_funcionamento é preenchido; exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada."
+    description: |
+      Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura.
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use id_area ou id_perfil_funcionamento e data para junções; id_perfil_funcionamento_historico é a chave única.
+      Fonte: staging_perfil_funcionamento_excecao_riorotativo
+      (captura source_riorotativo.perfil_funcionamento_excecao).
+      Contém apenas exceções vigentes na data da captura (data entre datetime_inicio e datetime_fim) —
+      exceção expirada ou futura que permanece na fonte não entra no dia.
+      Exatamente um entre id_area e id_perfil_funcionamento é preenchido.
+      Exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada.
     columns:
       - name: id_perfil_funcionamento_historico
         description: Identificador único do registro de histórico (hash de data, perfil, área e decisão)
