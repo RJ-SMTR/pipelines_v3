@@ -364,7 +364,7 @@ models:
       nome/email/telefone refletem o valor vigente no momento do processamento.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__documento_nao_credenciado__agente_verificacao_riorotativo_historico
+          name: dbt_utils.expression_is_true__agente_verificacao_riorotativo_historico
           arguments:
             expression: >-
               concat(cast(data as string), '-', documento) not in (
