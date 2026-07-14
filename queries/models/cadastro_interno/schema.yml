@@ -62,6 +62,10 @@ models:
         description: "{{ doc('datetime_cadastro_cliente') }}"
         data_type: datetime
         quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
