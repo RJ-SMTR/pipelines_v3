@@ -38,10 +38,11 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
         rename_mapping=RIOROTATIVO_RENAME_MAPPING,
         tables=[
             GoogleSheetTable(
-                table_id="entidade_42498733000148",
-                sheet_name="42498733000148",
+                table_id="entidade_05019730000158",
+                sheet_name="05019730000158",
                 primary_keys=["cpf"],
                 dtypes=str,
+                pretreatment_reader_args={"dtype": "object"},
             ),
             GoogleSheetTable(
                 table_id="lista_bloqueio",

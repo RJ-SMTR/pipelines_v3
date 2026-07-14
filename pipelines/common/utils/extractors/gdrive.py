@@ -65,8 +65,7 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         rename_mapping: Dicionário com mapeamento de renomeação de colunas
         dtypes: Mapeamento ``coluna -> dtype``
         parse_dates: Mapeamento ``coluna -> kwargs`` repassados a ``pd.to_datetime`` (ex.:
-            ``{"dia": {"format": "%d/%m/%Y"}}``). ``errors="coerce"`` é o padrão para não quebrar
-            com valores inválidos
+            ``{"dia": {"format": "%d/%m/%Y"}}``)
 
     Returns:
         DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
@@ -93,7 +92,7 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
                 f"mas o cabeçalho tem {len(columns)} colunas"
             )
 
-        rows.append([*row, *([None] * (len(columns) - len(row)))])
+        rows.append([*row, *([""] * (len(columns) - len(row)))])
 
     df = pd.DataFrame(rows, columns=columns)
 
