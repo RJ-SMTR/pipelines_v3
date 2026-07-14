@@ -34,4 +34,4 @@ select
     razao_social,
     nome_fantasia
 from {{ ref("agente_credenciado_riorotativo_historico") }}
-where data = date("{{ last_partition }}")
+where data = date("{{ last_partition }}") and status = "ativo"

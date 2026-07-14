@@ -45,14 +45,24 @@ with
         /*
         considera apenas bloqueios vigentes na data da captura: bloqueio
         expirado que permanece na lista da fonte não marca o agente como
-        bloqueado
+        bloqueado; se houver mais de um bloqueio vigente, mantém o iniciado
+        mais recentemente
         */
         select data, documento, motivo_bloqueio, decisao_bloqueio
         from {{ ref("staging_lista_bloqueio_riorotativo") }}
         where
-            (data >= data_inicio_bloqueio or data_inicio_bloqueio is null)
+            data >= data_inicio_bloqueio
             and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        qualify
+            row_number() over (
+                partition by data, documento
+                order by
+                    data_inicio_bloqueio desc,
+                    ultima_atualizacao desc,
+                    decisao_bloqueio desc
+            )
+            = 1
     ),
     status as (
         /*
@@ -70,11 +80,6 @@ with
             b.decisao_bloqueio
         from verificacao as v
         left join bloqueios as b using (data, documento)
-        qualify
-            row_number() over (
-                partition by v.data, v.cnpj, v.documento order by b.decisao_bloqueio
-            )
-            = 1
     ),
     entidade as (
         select
