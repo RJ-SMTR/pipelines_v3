@@ -12,6 +12,32 @@
     data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
 {% endset %}
 
+{% if execute and is_incremental() %}
+    {% set columns = (
+        list_columns()
+        | reject(
+            "in",
+            ["versao", "datetime_ultima_atualizacao", "id_execucao_dbt"],
+        )
+        | list
+    ) %}
+    {% set sha_column %}
+        sha256(
+            concat(
+                {% for c in columns %}
+                    ifnull(cast({{ c }} as string), 'n/a')
+                    {% if not loop.last %}, {% endif %}
+
+                {% endfor %}
+            )
+        )
+    {% endset %}
+{% else %}
+    {% set sha_column %}
+        cast(null as bytes)
+    {% endset %}
+{% endif %}
+
 with
     dados_novos as (
         /*
@@ -57,34 +83,51 @@ with
             *
         from dados_novos
     ),
-    dados_atuais as (
+    sha_dados_novos as (
+        select *, {{ sha_column }} as sha_dado_novo from dados_novos_chave
+    ),
+    sha_dados_atuais as (
         {% if is_incremental() %}
             select
                 id_perfil_funcionamento_historico,
+                {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
             from {{ this }}
+            where {{ incremental_filter }}
         {% else %}
             select
                 cast(null as string) as id_perfil_funcionamento_historico,
+                cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
                 cast(null as string) as id_execucao_dbt_atual
         {% endif %}
     ),
-    dados_completos as (
+    sha_dados_completos as (
         select n.*, a.* except (id_perfil_funcionamento_historico)
-        from dados_novos_chave as n
-        left join dados_atuais as a using (id_perfil_funcionamento_historico)
+        from sha_dados_novos as n
+        left join sha_dados_atuais as a using (id_perfil_funcionamento_historico)
     ),
     perfil_funcionamento_colunas_controle as (
         select
-            * except (datetime_ultima_atualizacao_atual, id_execucao_dbt_atual),
+            * except (
+                sha_dado_novo,
+                sha_dado_atual,
+                datetime_ultima_atualizacao_atual,
+                id_execucao_dbt_atual
+            ),
             '{{ var("version") }}' as versao,
-            coalesce(
-                datetime_ultima_atualizacao_atual, current_datetime("America/Sao_Paulo")
-            ) as datetime_ultima_atualizacao,
-            coalesce(id_execucao_dbt_atual, '{{ invocation_id }}') as id_execucao_dbt
-        from dados_completos
+            case
+                when sha_dado_atual is null or sha_dado_novo != sha_dado_atual
+                then current_datetime("America/Sao_Paulo")
+                else datetime_ultima_atualizacao_atual
+            end as datetime_ultima_atualizacao,
+            case
+                when sha_dado_atual is null or sha_dado_novo != sha_dado_atual
+                then '{{ invocation_id }}'
+                else id_execucao_dbt_atual
+            end as id_execucao_dbt
+        from sha_dados_completos
     )
 select *
 from perfil_funcionamento_colunas_controle
