@@ -494,14 +494,15 @@ selectors:
   - name: monitoramento_veiculo
     definition:
       union:
-        - method: fqn
-          value: staging_veiculo_fiscalizacao_lacre
-        - method: fqn
-          value: staging_infracao
-        - method: fqn
-          value: veiculo_fiscalizacao_lacre
-        - method: fqn
-          value: autuacao_disciplinar_historico
+        - exclude:
+          - method: fqn
+            value: staging_veiculo_fiscalizacao_lacre
+          - method: fqn
+            value: staging_infracao
+          - method: fqn
+            value: veiculo_fiscalizacao_lacre
+          - method: fqn
+            value: autuacao_disciplinar_historico
         - method: fqn
           value: aux_veiculo_gps_dia
         - method: fqn
@@ -538,12 +539,15 @@ selectors:
   - name: monitoramento_temperatura
     definition:
       union:
-        - method: fqn
-          value: staging_temperatura_inmet
-        - method: fqn
-          value: temperatura_inmet
-        - method: fqn
-          value: temperatura_alertario
+        - exclude:
+          - method: fqn
+            value: staging_temperatura_inmet
+          - method: fqn
+            value: temperatura_inmet
+          - method: fqn
+            value: temperatura_alertario
+          - method: fqn
+            value: veiculo_regularidade_temperatura_dia
         - method: fqn
           value: temperatura
         - method: fqn
@@ -552,8 +556,6 @@ selectors:
           value: aux_viagem_temperatura
         - method: fqn
           value: aux_veiculo_falha_ar_condicionado
-        - method: fqn
-          value: veiculo_regularidade_temperatura_dia
         - method: fqn
           value: dicionario_subsidio
         - method: fqn
