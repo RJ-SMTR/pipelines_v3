@@ -19,9 +19,16 @@ dispatch:
     search_order: ["dbt_project_evaluator", "dbt"]
 
 vars:
-  "dbt_date:time_zone": "America/Sao_Paulo"
+  ### Elementary ###
+  # Sample of failing rows persisted by elementary in elementary.elementary_test_result_rows.
+  test_sample_row_count: 100
+  disable_run_results: true
+  disable_tests_results: "{{ target.name != 'prod' }}"
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
 
   ### Date default variables ###
+  "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"
   start_date: "2022-01-01T01:00:00"
@@ -321,6 +328,9 @@ models:
   +persist_docs:
     relation: true
     columns: true
+  elementary:
+    +schema: elementary
+    +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     projeto_subsidio_sppo:
       +materialized: view
