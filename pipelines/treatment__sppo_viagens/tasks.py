@@ -77,8 +77,6 @@ def prepare_sppo_viagens_contexts(  # noqa: PLR0913
             datetime_start=iter_start,
             datetime_end=iter_end,
             additional_vars=iter_vars,
-            test_scheduled_time=None,
-            force_test_run=False,
             snapshot_selector=snapshot_selector if is_last else None,
         )
 

@@ -24,5 +24,4 @@ def treatment__operadora_cnpj(
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        test_scheduled_time=None,
     )

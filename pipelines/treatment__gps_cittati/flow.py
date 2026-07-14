@@ -17,7 +17,10 @@ from typing import Optional
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
-from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.treatment.default_treatment.utils import (
+    MaterializationTestConfig,
+    rename_treatment_flow_run,
+)
 from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.treatment__gps_cittati import constants
 
@@ -44,7 +47,9 @@ def treatment__gps_cittati(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars or constants.ADDITIONAL_VARS,
-        test_scheduled_time=time(2, 6, 0),
-        force_test_run=force_test_run,
+        test_config=MaterializationTestConfig(
+            scheduled_time=time(2, 6, 0),
+            force_run=force_test_run,
+        ),
         skip_source_check=skip_source_check,
     )

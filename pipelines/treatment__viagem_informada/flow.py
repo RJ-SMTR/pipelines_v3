@@ -17,7 +17,10 @@ from typing import Optional
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
-from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.treatment.default_treatment.utils import (
+    MaterializationTestConfig,
+    rename_treatment_flow_run,
+)
 from pipelines.common.utils.prefect import flow
 from pipelines.treatment__viagem_informada import constants
 
@@ -39,6 +42,8 @@ def treatment__viagem_informada(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        force_test_run=force_test_run,
+        test_config=MaterializationTestConfig(
+            force_run=force_test_run,
+        ),
         skip_source_check=skip_source_check,
     )

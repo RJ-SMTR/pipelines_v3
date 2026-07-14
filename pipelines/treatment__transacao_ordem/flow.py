@@ -31,7 +31,6 @@ def treatment__transacao_ordem(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        test_scheduled_time=None,
         fallback_run=fallback_run,
         skip_source_check=skip_source_check,
     )

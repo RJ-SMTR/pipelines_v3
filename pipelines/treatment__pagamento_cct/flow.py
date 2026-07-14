@@ -25,6 +25,5 @@ def treatment__pagamento_cct(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        test_scheduled_time=None,
         skip_source_check=skip_source_check,
     )

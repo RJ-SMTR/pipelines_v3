@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import time
 from typing import Optional
 
 from prefect import runtime, unmapped
@@ -23,7 +22,11 @@ from pipelines.common.treatment.default_treatment.tasks import (
     test_fallback_run,
     wait_data_sources,
 )
-from pipelines.common.treatment.default_treatment.utils import DBTSelector
+from pipelines.common.treatment.default_treatment.utils import (
+    MATERIALIZATION_RUN_MODES,
+    DBTSelector,
+    MaterializationTestConfig,
+)
 
 
 def create_materialization_flows_default_tasks(  # noqa: PLR0913
@@ -31,18 +34,14 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     selectors: list[DBTSelector],
     datetime_start: Optional[str],
     datetime_end: Optional[str],
+    run_mode: str = "full",
     skip_source_check: bool = False,
+    fallback_run: bool = False,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict[str, str]] = None,
-    test_scheduled_time: Optional[time] = None,
-    force_test_run: bool = False,
-    test_webhook_key: str = "dataplex",
-    test_additional_mentions: Optional[list[str]] = None,
-    tasks_wait_for: Optional[dict[str, list[Task]]] = None,
+    test_config: Optional[MaterializationTestConfig] = None,
     snapshot_selector: Optional[DBTSelector] = None,
-    fallback_run: bool = False,
-    skip_pre_test: bool = False,
-    test_only: bool = False,
+    tasks_wait_for: Optional[dict[str, list[Task]]] = None,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -52,24 +51,31 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         selectors (list[DBTSelector]): Lista de selectors a serem materializadas.
         datetime_start (Optional[str]): Data/hora inicial para recorte dos dados.
         datetime_end (Optional[str]): Data/hora final para recorte dos dados.
+        run_mode (str): Nome de um modo de execução em `MATERIALIZATION_RUN_MODES`:
+            - "full": pre_test, materialização, post_test e snapshots.
+            - "skip_pre_test": materialização, post_test e snapshots, sem pre_test.
+            - "test_only": apenas pre_test e post_test.
+            - "post_test_only": apenas post_test.
         skip_source_check (bool): Indica se a checagem das fontes de dados deve ser ignorada.
+        fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
         additional_vars (Optional[dict[str, str]]): Variáveis DBT adicionais.
-        test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
-        force_test_run (bool): Força a execução dos testes.
-        test_webhook_key (str): Chave do webhook para notificações dos testes no Discord.
-        test_additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
-            nas notificações dos testes no Discord.
+        test_config (Optional[MaterializationTestConfig]): Configuração dos testes do dbt
+            (horário agendado, execução forçada e notificações no Discord).
+        snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
             argumento wait_for das tasks retornadas por esta função.
-        snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
-        fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
-        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
-        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
     """
+    if run_mode not in MATERIALIZATION_RUN_MODES:
+        raise ValueError(
+            f"run_mode inválido: {run_mode!r}. Modos válidos: {sorted(MATERIALIZATION_RUN_MODES)}"
+        )
+
+    mode = MATERIALIZATION_RUN_MODES[run_mode]
+    test_config = test_config or MaterializationTestConfig()
 
     tasks = {}
     tasks_wait_for = tasks_wait_for or {}
@@ -113,11 +119,9 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         additional_vars=additional_vars,
-        test_scheduled_time=test_scheduled_time,
-        force_test_run=force_test_run,
+        run_mode=run_mode,
+        test_config=test_config,
         snapshot_selector=snapshot_selector,
-        skip_pre_test=skip_pre_test,
-        test_only=test_only,
         wait_for=[
             tasks["install_dbt_packages"],
             *tasks_wait_for.get("contexts", []),
@@ -154,8 +158,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         pre_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
             context=contexts,
             mode=unmapped("pre"),
-            webhook_key=unmapped(test_webhook_key),
-            additional_mentions=unmapped(test_additional_mentions),
+            webhook_key=unmapped(test_config.webhook_key),
+            additional_mentions=unmapped(test_config.additional_mentions),
             wait_for=unmapped(
                 [
                     tasks["pre_tests"],
@@ -166,7 +170,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
 
-        if not test_only:
+        if mode.materialize:
             tasks["run_dbt"] = run_dbt_selectors(
                 contexts=contexts,
                 flags=flags,
@@ -191,8 +195,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         post_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
             context=contexts,
             mode=unmapped("post"),
-            webhook_key=unmapped(test_webhook_key),
-            additional_mentions=unmapped(test_additional_mentions),
+            webhook_key=unmapped(test_config.webhook_key),
+            additional_mentions=unmapped(test_config.additional_mentions),
             wait_for=unmapped(
                 [
                     tasks["post_tests"],
@@ -203,7 +207,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
         tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
 
-        if not test_only:
+        if mode.materialize:
             tasks["run_dbt_snapshots"] = run_dbt_snapshots(
                 contexts=contexts,
                 flags=flags,

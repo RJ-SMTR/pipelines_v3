@@ -1,5 +1,11 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.2.2] - 2026-07-14
+
+### Alterado
+
+- Adapta a chamada de `create_materialization_contexts` ao novo contrato de `run_mode` e `MaterializationTestConfig`
+
 ## [1.2.1] - 2026-06-23
 
 ### Alterado

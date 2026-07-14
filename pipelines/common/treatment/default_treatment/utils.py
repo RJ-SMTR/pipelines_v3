@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Optional, Union
@@ -338,6 +339,79 @@ def get_repo_version() -> str:
     )
     response.raise_for_status()
     return response.json()[0]["sha"]
+
+
+@dataclass(frozen=True)
+class MaterializationRunMode:
+    """
+    Define quais fases de uma materialização são executadas.
+
+    Attributes:
+        materialize (bool): Se True, executa o dbt run, os snapshots e o registro do
+            datetime da materialização no Redis.
+        include_pre_test (bool): Se True, executa o pre_test dos selectors.
+        force_test_run (bool): Se True, executa os testes independente do horário agendado.
+    """
+
+    materialize: bool
+    include_pre_test: bool
+    force_test_run: bool
+
+
+MATERIALIZATION_RUN_MODES = {
+    "full": MaterializationRunMode(materialize=True, include_pre_test=True, force_test_run=False),
+    "skip_pre_test": MaterializationRunMode(
+        materialize=True,
+        include_pre_test=False,
+        force_test_run=False,
+    ),
+    "test_only": MaterializationRunMode(
+        materialize=False,
+        include_pre_test=True,
+        force_test_run=True,
+    ),
+    "post_test_only": MaterializationRunMode(
+        materialize=False,
+        include_pre_test=False,
+        force_test_run=True,
+    ),
+}
+
+
+def resolve_run_mode(skip_pre_test: bool = False, test_only: bool = False) -> str:
+    """
+    Converte as flags de execução em um nome de modo de execução.
+
+    Args:
+        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
+
+    Returns:
+        str: Nome de um modo em `MATERIALIZATION_RUN_MODES`.
+    """
+    if test_only:
+        return "post_test_only" if skip_pre_test else "test_only"
+    return "skip_pre_test" if skip_pre_test else "full"
+
+
+@dataclass(frozen=True)
+class MaterializationTestConfig:
+    """
+    Configuração dos testes do dbt de uma materialização.
+
+    Attributes:
+        scheduled_time (Optional[time]): Horário agendado para execução dos testes.
+            Se None, os testes rodam em toda execução.
+        force_run (bool): Força a execução dos testes independente do horário agendado.
+        webhook_key (str): Chave do webhook para notificações dos testes no Discord.
+        additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
+            nas notificações dos testes no Discord.
+    """
+
+    scheduled_time: Optional[time] = None
+    force_run: bool = False
+    webhook_key: str = "dataplex"
+    additional_mentions: Optional[list[str]] = None
 
 
 class DBTSelectorMaterializationContext:

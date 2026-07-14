@@ -14,7 +14,11 @@ from typing import Optional
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
-from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.treatment.default_treatment.utils import (
+    MaterializationTestConfig,
+    rename_treatment_flow_run,
+    resolve_run_mode,
+)
 from pipelines.common.utils.prefect import flow
 from pipelines.treatment__subsidio_sppo_apuracao import constants
 
@@ -42,11 +46,10 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
         snapshot_selector=constants.SNAPSHOT_SUBSIDIO_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        run_mode=resolve_run_mode(skip_pre_test=skip_pre_test, test_only=test_only),
         skip_source_check=skip_source_check,
         additional_vars={**constants.ADDITIONAL_VARS, **(additional_vars or {})},
-        test_webhook_key=constants.WEBHOOK_KEY,
+        test_config=MaterializationTestConfig(webhook_key=constants.WEBHOOK_KEY),
         fallback_run=fallback_run,
-        skip_pre_test=skip_pre_test,
         flags=flags,
-        test_only=test_only,
     )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 from typing import Optional
@@ -10,10 +10,12 @@ from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import (
+    MATERIALIZATION_RUN_MODES,
     DBTSelector,
     DBTSelectorMaterializationContext,
     DBTTest,
     IncompleteDataError,
+    MaterializationTestConfig,
     clone_queries_from_github,
     dbt_test_notify_discord,
     run_dbt,
@@ -35,11 +37,9 @@ def create_materialization_contexts(  # noqa: PLR0913
     datetime_start: Optional[str],
     datetime_end: Optional[str],
     additional_vars: Optional[dict],
-    test_scheduled_time: time,
-    force_test_run: bool,
+    run_mode: str = "full",
+    test_config: Optional[MaterializationTestConfig] = None,
     snapshot_selector: Optional[DBTSelector] = None,
-    skip_pre_test: bool = False,
-    test_only: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -51,17 +51,16 @@ def create_materialization_contexts(  # noqa: PLR0913
         datetime_start (Optional[str]): Parâmetro de data e hora de inicio manual da materialização.
         datetime_end (Optional[str]): Parâmetro de data e hora de final manual da materialização.
         additional_vars (Optional[dict]): Variáveis adicionais para o dbt.
-        test_scheduled_time (time): Horário agendado para execução dos testes.
-        force_test_run (bool): Força a execução dos testes.
+        run_mode (str): Nome de um modo de execução em `MATERIALIZATION_RUN_MODES`.
+        test_config (Optional[MaterializationTestConfig]): Configuração dos testes do dbt.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
-        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
-        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
     """
+    mode = MATERIALIZATION_RUN_MODES[run_mode]
+    test_config = test_config or MaterializationTestConfig()
     contexts = []
-    force_test_run = True if test_only else force_test_run
     for s in selectors:
         ctx = DBTSelectorMaterializationContext(
             env=env,
@@ -70,10 +69,10 @@ def create_materialization_contexts(  # noqa: PLR0913
             datetime_start=datetime_start,
             datetime_end=datetime_end,
             additional_vars=additional_vars,
-            test_scheduled_time=test_scheduled_time,
-            force_test_run=force_test_run,
+            test_scheduled_time=test_config.scheduled_time,
+            force_test_run=mode.force_test_run or test_config.force_run,
             snapshot_selector=snapshot_selector,
-            skip_pre_test=skip_pre_test,
+            skip_pre_test=not mode.include_pre_test,
         )
         if ctx.should_run:
             contexts.append(ctx)

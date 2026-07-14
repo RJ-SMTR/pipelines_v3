@@ -139,8 +139,6 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             datetime_start=datetime_start,
             datetime_end=datetime_end,
             additional_vars=additional_vars,
-            test_scheduled_time=None,
-            force_test_run=False,
             wait_for=[upload_source_future],
         )
 

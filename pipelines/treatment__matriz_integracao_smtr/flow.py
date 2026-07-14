@@ -4,7 +4,10 @@ from typing import Optional
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
-from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.treatment.default_treatment.utils import (
+    MaterializationTestConfig,
+    rename_treatment_flow_run,
+)
 from pipelines.common.utils.prefect import flow
 from pipelines.treatment__matriz_integracao_smtr import constants
 
@@ -25,6 +28,7 @@ def treatment__matriz_integracao_smtr(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        test_scheduled_time=None,
-        force_test_run=force_test_run,
+        test_config=MaterializationTestConfig(
+            force_run=force_test_run,
+        ),
     )
