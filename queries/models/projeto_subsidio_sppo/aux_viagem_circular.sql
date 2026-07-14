@@ -38,10 +38,11 @@ with
                     on c.id_veiculo = v.id_veiculo
                     and c.servico_realizado = v.servico_realizado
                     and c.sentido = v.sentido
-                    {% if (
-                        var("run_date") >= "2025-06-01"
-                        and var("run_date") <= "2025-06-30"  -- Ao invés de refatorar com o and, incluir o between
-                    ) or var("run_date") >= var("DATA_SUBSIDIO_V24_INICIO") %}
+                  {% if (
+    (var("run_date") >= "2025-06-01" and var("run_date") <= "2025-06-30")
+    or
+    (var("run_date") >= var("DATA_SUBSIDIO_V24_INICIO"))
+) %}
                         and c.shape_id_planejado = v.shape_id_planejado
                     {% endif %}
             ) v
