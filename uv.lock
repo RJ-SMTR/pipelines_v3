@@ -27,6 +27,8 @@ members = [
     "capture-jae-transacao-riocard",
     "capture-rioonibus-rdo-rho",
     "capture-rioonibus-viagem-informada",
+    "capture-riorotativo-credenciados",
+    "capture-riorotativo-vagas",
     "capture-serpro-autuacao",
     "capture-sonda-registros",
     "capture-sonda-viagem-informada",
@@ -455,6 +457,16 @@ source = { virtual = "pipelines/capture__rioonibus_rdo_rho" }
 name = "capture-rioonibus-viagem-informada"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__rioonibus_viagem_informada" }
+
+[[package]]
+name = "capture-riorotativo-credenciados"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__riorotativo_credenciados" }
+
+[[package]]
+name = "capture-riorotativo-vagas"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__riorotativo_vagas" }
 
 [[package]]
 name = "capture-serpro-autuacao"
