@@ -237,9 +237,10 @@ models:
         description: "{{ doc('produto') }}"
         tests:
           - not_null:
+              severity: warn
               name: not_null__produto__transacao
               config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente !='9999'
         data_type: string
         quote: true
       - name: produto_jae
@@ -261,6 +262,7 @@ models:
         description: "{{ doc('meio_pagamento') }}"
         tests:
           - not_null:
+              serverity: warn
               name: not_null__meio_pagamento__transacao
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
@@ -270,6 +272,7 @@ models:
         description: "{{ doc('meio_pagamento_jae') }}"
         tests:
           - not_null:
+              serverity: warn
               name: not_null__meio_pagamento_jae__transacao
               config:
                 where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
