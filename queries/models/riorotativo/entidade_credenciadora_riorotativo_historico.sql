@@ -17,10 +17,17 @@
 {% endset %}
 
 -- depends_on: {{ ref('staging_agente_credenciado_riorotativo') }}
+-- depends_on: {{ ref('staging_agente_verificacao_riorotativo') }}
 {% if execute %}
     {% set cnpj_partitions_query %}
         select distinct cast(cnpj as int64)
         from {{ ref("staging_agente_credenciado_riorotativo") }}
+        where cnpj is not null
+
+        union all
+
+        select distinct cast(cnpj as int64)
+        from {{ ref("staging_agente_verificacao_riorotativo") }}
         where cnpj is not null
     {% endset %}
     {% set cnpj_partitions = (
