@@ -83,6 +83,9 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         .execute()
     )["values"]
 
+    if not file:
+        raise ValueError(f"A aba '{sheet_name}' está vazia ou não retornou dados.")
+
     columns = file[0]
     rows = []
     for row_number, row in enumerate(file[1:], start=2):
