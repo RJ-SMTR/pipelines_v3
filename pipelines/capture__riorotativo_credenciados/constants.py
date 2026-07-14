@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Valores constantes para captura de dados de credenciados do Rio Rotativo
+Valores constantes para captura de dados de credenciados do Rio Rotativo Digital
 """
 
 from datetime import datetime
@@ -34,7 +34,7 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
         flow_folder_name="capture__riorotativo_credenciados",
         spread_sheet_id=RIOROTATIVO_CREDENCIADOS_SPREADSHEET_ID,
         bucket_names=RIOROTATIVO_PRIVATE_BUCKET_NAMES,
-        first_timestamp=datetime(2026, 7, 6, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        first_timestamp=datetime(2026, 7, 14, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         rename_mapping=RIOROTATIVO_RENAME_MAPPING,
         tables=[
             GoogleSheetTable(
@@ -44,11 +44,10 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
                 dtypes=str,
                 pretreatment_reader_args={"dtype": "object"},
             ),
-            GoogleSheetTable(
-                table_id="lista_bloqueio",
-                sheet_name="lista_bloqueio",
-                primary_keys=["cpf", "decisao_bloqueio"],
-            ),
+            # GoogleSheetTable(
+            #     table_id="lista_bloqueio",
+            #     sheet_name="lista_bloqueio",
+            #     primary_keys=["cpf", "decisao_bloqueio"], considerar adicionar motivo como pk
         ],
     )
 )

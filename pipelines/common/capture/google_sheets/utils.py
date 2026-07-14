@@ -50,7 +50,7 @@ class GoogleSheetTable:
     pretreatment_reader_args: Optional[dict] = None
     pretreat_funcs: Optional[list[Callable[..., pd.DataFrame]]] = None
     partition_date_only: bool = True
-    max_recaptures: int = 4
+    max_recaptures: int = 7
 
 
 def create_google_sheet_capture_params(  # noqa: PLR0913
