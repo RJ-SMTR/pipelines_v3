@@ -329,10 +329,10 @@ sources:
       - name: calendario_manual
 
   - name: source_riorotativo
-    database: rj-smtr-dev
+    database: rj-smtr-staging
 
     tables:
-      - name: entidade_42498733000148
+      - name: entidade_05019730000158
       - name: lista_bloqueio
       - name: area_estacionamento
       - name: perfil_funcionamento
