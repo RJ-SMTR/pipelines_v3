@@ -29,13 +29,12 @@ from pipelines.treatment__riorotativo import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__riorotativo(  # noqa: PLR0913
+def treatment__riorotativo(
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
-    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -44,5 +43,4 @@ def treatment__riorotativo(  # noqa: PLR0913
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        skip_source_check=skip_source_check,
     )
