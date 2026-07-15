@@ -1,5 +1,12 @@
 # Changelog - queries
 
+## [1.1.8] - 2026-07-08
+
+### Adicionado
+
+- Cria macro `is_current_state_enabled` para desligar modelos de estado atual em backfills com janela antiga (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+- Cria selector `riorotativo_diario` (materialização dos modelos; backfills com janela antiga executam apenas stagings e históricos via `is_current_state_enabled`) (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+
 ## [1.1.7] - 2026-06-26
 
 ### Corrigido

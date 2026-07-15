@@ -1724,3 +1724,179 @@ Indicador de atividade do operador no sistema da Jaé
 {% docs sentido_shape %}
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 {% enddocs %}
+
+{% docs cnpj_entidade_credenciadora_riorotativo %}
+CNPJ da entidade credenciadora associada ao guardador de veículo
+{% enddocs %}
+
+{% docs cnpj_entidade_vinculo_agente_verificacao_riorotativo %}
+CNPJ da entidade à qual o agente de verificação é vinculado
+{% enddocs %}
+
+{% docs data_inicio_riorotativo %}
+Data de início do período informado para o cadastro do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs data_fim_riorotativo %}
+Data de fim do período informado para o cadastro do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs tipo_documento_guardador_veiculo_riorotativo %}
+Tipo do documento do guardador de veículo
+{% enddocs %}
+
+{% docs tipo_documento_agente_verificacao_riorotativo %}
+Tipo do documento do agente de verificação
+{% enddocs %}
+
+{% docs email_guardador_veiculo_riorotativo %}
+Email do guardador de veículo
+{% enddocs %}
+
+{% docs email_agente_verificacao_riorotativo %}
+Email do agente de verificação
+{% enddocs %}
+
+{% docs razao_social_entidade_credenciadora_riorotativo %}
+Razão social no cadastro do CNPJ da entidade credenciadora
+{% enddocs %}
+
+{% docs nome_fantasia_entidade_credenciadora_riorotativo %}
+Nome fantasia no cadastro do CNPJ da entidade credenciadora
+{% enddocs %}
+
+{% docs razao_social_entidade_vinculo_agente_verificacao_riorotativo %}
+Razão social no cadastro do CNPJ da entidade de vínculo
+{% enddocs %}
+
+{% docs nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo %}
+Nome fantasia no cadastro do CNPJ da entidade de vínculo
+{% enddocs %}
+
+{% docs motivo_bloqueio_riorotativo %}
+Motivo do bloqueio
+{% enddocs %}
+
+{% docs decisao_bloqueio_riorotativo %}
+Processo administrativo ou judicial que culminou no bloqueio
+{% enddocs %}
+
+{% docs data_inicio_bloqueio_riorotativo %}
+Data de início do bloqueio
+{% enddocs %}
+
+{% docs data_fim_bloqueio_riorotativo %}
+Data de fim do bloqueio
+{% enddocs %}
+
+{% docs area_codigo_riorotativo %}
+Código único da área de estacionamento
+{% enddocs %}
+
+{% docs area_nome_riorotativo %}
+Nome legível da área de estacionamento
+{% enddocs %}
+
+{% docs area_logradouro_riorotativo %}
+Nome oficial do logradouro ao qual a área de estacionamento se encontra
+{% enddocs %}
+
+{% docs area_endereco_referencia_riorotativo %}
+Endereço oficial do logradouro ao qual a área de estacionamento se encontra
+{% enddocs %}
+
+{% docs area_poligono_riorotativo %}
+Polígono WKT que representa a área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs area_geometry_riorotativo %}
+Geometria da área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs area_observacao_riorotativo %}
+Observação sobre a área de estacionamento
+{% enddocs %}
+
+{% docs area_vaga_total_riorotativo %}
+Quantidade total de vagas
+{% enddocs %}
+
+{% docs area_vaga_moto_riorotativo %}
+Quantidade de vagas regulamentadas para motocicletas
+{% enddocs %}
+
+{% docs area_vaga_idoso_riorotativo %}
+Quantidade de vagas regulamentadas para idosos
+{% enddocs %}
+
+{% docs area_vaga_pcd_riorotativo %}
+Quantidade de vagas regulamentadas para Pessoas com Deficiência [PcD]
+{% enddocs %}
+
+{% docs area_tempo_permanencia_hora_riorotativo %}
+Tempo de permanência em horas
+{% enddocs %}
+
+{% docs area_perfil_funcionamento_riorotativo %}
+Lista de perfis de funcionamento da área de estacionamento
+{% enddocs %}
+
+{% docs data_inicio_vigencia_area_estacionamento_riorotativo %}
+Data de início de vigência da área de estacionamento
+{% enddocs %}
+
+{% docs data_fim_vigencia_area_estacionamento_riorotativo %}
+Data de fim de vigência da área de estacionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_codigo_riorotativo %}
+Código de referência do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_nome_riorotativo %}
+Nome do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_dia_semana_riorotativo %}
+Lista de dias da semana em que o perfil está vigente, considerando 1 como domingo
+{% enddocs %}
+
+{% docs perfil_funcionamento_horario_inicio_riorotativo %}
+Horário de início do funcionamento do perfil
+{% enddocs %}
+
+{% docs perfil_funcionamento_horario_fim_riorotativo %}
+Horário de fim do funcionamento do perfil
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_area_codigo_riorotativo %}
+Área de estacionamento sujeita à exceção [nulo quando a exceção se aplica a um perfil de funcionamento]
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_perfil_codigo_riorotativo %}
+Perfil de funcionamento sujeito à exceção [nulo quando a exceção se aplica a uma área de estacionamento]
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_datetime_inicio_riorotativo %}
+Data e hora iniciais de vigência da exceção
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_datetime_fim_riorotativo %}
+Data e hora finais de vigência da exceção
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_motivo_riorotativo %}
+Motivo da exceção do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_decisao_riorotativo %}
+Processo administrativo, judicial, portaria ou decreto que culminou na exceção
+{% enddocs %}
+
+{% docs ultimo_editor_fonte %}
+Identificador do último editor do registro na fonte
+{% enddocs %}
+
+{% docs ultima_atualizacao_fonte %}
+Data e hora da última atualização do registro na fonte
+{% enddocs %}
