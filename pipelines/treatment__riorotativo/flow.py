@@ -4,7 +4,8 @@ Flow de materialização dos dados do Rio Rotativo Digital
 
 Executa o selector DBT 'riorotativo_diario' (stagings, modelos de estado
 atual, históricos diários e o histórico de vigência das entidades
-credenciadoras).
+credenciadoras) e o selector 'snapshot_riorotativo' (área de
+estacionamento e perfil de funcionamento).
 
 Backfill/reprocessamento: executar manualmente com datetime_start e
 datetime_end — os modelos de estado atual saem do DAG automaticamente
@@ -39,6 +40,7 @@ def treatment__riorotativo(
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.RIOROTATIVO_DIARIO_SELECTOR],
+        snapshot_selector=constants.SNAPSHOT_RIOROTATIVO_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
