@@ -10,23 +10,26 @@
     )
 }}
 
+{% set filtro_excecao_vistoria %}
+    date(data) between "2026-06-09" and "2027-12-31"
+    and struct(id_veiculo, placa) in (
+        struct('A50200', 'TUL6D99'),
+        struct('A50189', 'TUM6E22'),
+        struct('A29200', 'TUI8B82'),
+        struct('C47820', 'TUN6D97'),
+        struct('C47821', 'TUL6D91'),
+        struct('C47822', 'TUO6E93'),
+        struct('C47823', 'TUO6E86'),
+        struct('C47824', 'TUL6D95')
+    )
+{% endset %}
+
 with
     licenciamento as (
         select
             *,
             case
-                when
-                    date(data) between "2026-06-09" and "2027-12-31"
-                    and struct(id_veiculo, placa) in (
-                        struct('A50200', 'TUL6D99'),
-                        struct('A50189', 'TUM6E22'),
-                        struct('A29200', 'TUI8B82'),
-                        struct('C47820', 'TUN6D97'),
-                        struct('C47821', 'TUL6D91'),
-                        struct('C47822', 'TUO6E93'),
-                        struct('C47823', 'TUO6E86'),
-                        struct('C47824', 'TUL6D95')
-                    )
+                when {{ filtro_excecao_vistoria }}
                 then true  -- Processo Nº 000301.009966/2026-65 e Processo Nº 000301.009968/2026-54.
                 when
                     date(data) between ('2026-01-01') and ('2026-01-31')
@@ -108,18 +111,8 @@ with
                     and data_processamento between "2026-05-01" and "2026-05-18"
                 )
                 or (
-                    data between "2026-06-09" and "2027-12-31"  -- Exceção de vistoria
-                    and struct(id_veiculo, placa) in (
-                        struct('A50200', 'TUL6D99'),
-                        struct('A50189', 'TUM6E22'),
-                        struct('A29200', 'TUI8B82'),
-                        struct('C47820', 'TUN6D97'),
-                        struct('C47821', 'TUL6D91'),
-                        struct('C47822', 'TUO6E93'),
-                        struct('C47823', 'TUO6E86'),
-                        struct('C47824', 'TUL6D95')
-                    )
-                    and data_processamento between "2026-06-09" and "2027-12-31"
+                    {{ filtro_excecao_vistoria }}
+                    and data_processamento between "2026-06-09" and "2027-12-31"  -- Exceção de vistoria
                 )
             )
             {% if is_incremental() %}
