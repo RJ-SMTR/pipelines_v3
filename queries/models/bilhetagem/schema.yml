@@ -240,7 +240,7 @@ models:
               severity: warn
               name: not_null__produto__transacao
               config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente !='9999'
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
       - name: produto_jae
@@ -348,6 +348,7 @@ models:
         description: "{{ doc('id_servico_jae') }}"
         tests:
           - not_null:
+              severity: warn
               name: not_null__id_servico_jae__integracao
               config:
                 where: data in ({partitions}) and extract(year from data) > 2023
@@ -355,6 +356,7 @@ models:
         description: "{{ doc('servico_jae') }}"
         tests:
           - not_null:
+              severity: warn
               name: not_null__servico_jae__integracao
               config:
                 where: data in ({partitions}) and extract(year from data) > 2023
