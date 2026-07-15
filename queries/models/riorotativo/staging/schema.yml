@@ -1,0 +1,337 @@
+version: 2
+
+models:
+  - name: staging_guardador_veiculo_riorotativo
+    description: |
+      Uma linha por guardador de veículo (documento) por entidade credenciadora (cnpj), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
+      Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__staging_guardador_veiculo_riorotativo
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+
+  - name: staging_agente_verificacao_riorotativo
+    description: |
+      Uma linha por agente de verificação (documento) por entidade de vínculo (cnpj), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: capturas diárias por CNPJ (source_riorotativo.entidade_<cnpj>), mesma lógica do guardador de veículo.
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Contém apenas a presença na lista — sem dados cadastrais nem bloqueio.
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__staging_agente_verificacao_riorotativo
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_agente_verificacao_riorotativo
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+
+  - name: staging_area_estacionamento_riorotativo
+    description: |
+      Uma linha por área de estacionamento (area_codigo), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use area_codigo e data para junções.
+      Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento).
+      area_poligono é normalizado para WKT 2D (dimensões Z/M removidas para compatibilidade com st_geogfromtext).
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: area_codigo
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__area_codigo__staging_area_estacionamento_riorotativo
+      - name: area_nome
+        description: "{{ doc('area_nome_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: area_logradouro
+        description: "{{ doc('area_logradouro_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: area_endereco_referencia
+        description: "{{ doc('area_endereco_referencia_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: area_poligono
+        description: "{{ doc('area_poligono_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: area_observacao
+        description: "{{ doc('area_observacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: area_vaga_total
+        description: "{{ doc('area_vaga_total_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: area_vaga_moto
+        description: "{{ doc('area_vaga_moto_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: area_vaga_idoso
+        description: "{{ doc('area_vaga_idoso_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: area_vaga_pcd
+        description: "{{ doc('area_vaga_pcd_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: area_tempo_permanencia_hora
+        description: "{{ doc('area_tempo_permanencia_hora_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: area_perfil_funcionamento
+        description: "{{ doc('area_perfil_funcionamento_riorotativo') }}"
+        data_type: array
+        quote: true
+      - name: data_inicio_vigencia
+        description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_inicio_vigencia__staging_area_estacionamento_riorotativo
+      - name: data_fim_vigencia
+        description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+        quote: true
+      - name: ultimo_editor
+        description: "{{ doc('ultimo_editor_fonte') }}"
+        data_type: string
+        quote: true
+      - name: ultima_atualizacao
+        description: "{{ doc('ultima_atualizacao_fonte') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+
+  - name: staging_perfil_funcionamento_riorotativo
+    description: |
+      Uma linha por perfil de funcionamento (perfil_funcionamento_codigo), por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use perfil_funcionamento_codigo e data para junções.
+      Fonte: captura diária (source_riorotativo.perfil_funcionamento).
+      perfil_funcionamento_dia_semana é decodificado de string JSON para array de inteiros.
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: perfil_funcionamento_codigo
+        description: "{{ doc('perfil_funcionamento_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__perfil_funcionamento_codigo__staging_perfil_funcionamento_riorotativo
+      - name: perfil_funcionamento_nome
+        description: "{{ doc('perfil_funcionamento_nome_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: perfil_funcionamento_dia_semana
+        description: "{{ doc('perfil_funcionamento_dia_semana_riorotativo') }}"
+        data_type: array
+        quote: true
+      - name: perfil_funcionamento_horario_inicio
+        description: "{{ doc('perfil_funcionamento_horario_inicio_riorotativo') }}"
+        data_type: time
+        quote: true
+      - name: perfil_funcionamento_horario_fim
+        description: "{{ doc('perfil_funcionamento_horario_fim_riorotativo') }}"
+        data_type: time
+        quote: true
+      - name: ultimo_editor
+        description: "{{ doc('ultimo_editor_fonte') }}"
+        data_type: string
+        quote: true
+      - name: ultima_atualizacao
+        description: "{{ doc('ultima_atualizacao_fonte') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+
+  - name: staging_lista_bloqueio_riorotativo
+    description: |
+      Uma linha por documento bloqueado, por decisão de bloqueio, por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use documento e data para junções.
+      Fonte: planilha de bloqueio capturada diariamente (source_riorotativo.lista_bloqueio).
+      Não aplica vigência — bloqueios expirados permanecem na lista.
+      O consumidor deve filtrar por data_inicio_bloqueio/data_fim_bloqueio.
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__staging_lista_bloqueio_riorotativo
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_lista_bloqueio_riorotativo
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_cliente') }}"
+        data_type: string
+        quote: true
+      - name: motivo_bloqueio
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: decisao_bloqueio
+        description: "{{ doc('decisao_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: data_inicio_bloqueio
+        description: "{{ doc('data_inicio_bloqueio_riorotativo') }}"
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_inicio_bloqueio__staging_lista_bloqueio_riorotativo
+      - name: data_fim_bloqueio
+        description: "{{ doc('data_fim_bloqueio_riorotativo') }}"
+        data_type: date
+        quote: true
+      - name: ultimo_editor
+        description: "{{ doc('ultimo_editor_fonte') }}"
+        data_type: string
+        quote: true
+      - name: ultima_atualizacao
+        description: "{{ doc('ultima_atualizacao_fonte') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
+
+  - name: staging_perfil_funcionamento_excecao_riorotativo
+    description: |
+      Uma linha por exceção de perfil de funcionamento, por data de captura.
+      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
+      Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções.
+      Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao).
+      Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento —
+      exatamente um entre area_codigo e perfil_funcionamento_codigo é preenchido.
+      Os campos de data e horário das bordas são unificados em perfil_funcionamento_excecao_datetime_inicio/fim —
+      sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim.
+    tests:
+      - dbt_utils.expression_is_true:
+          name: dbt_utils.expression_is_true__staging_perfil_funcionamento_excecao_riorotativo
+          arguments:
+            expression: "(area_codigo is null) != (perfil_funcionamento_codigo is null)"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: area_codigo
+        description: "{{ doc('perfil_funcionamento_excecao_area_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: perfil_funcionamento_codigo
+        description: "{{ doc('perfil_funcionamento_excecao_perfil_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: perfil_funcionamento_excecao_datetime_inicio
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_inicio_riorotativo') }}"
+        data_type: datetime
+        quote: true
+      - name: perfil_funcionamento_excecao_datetime_fim
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_fim_riorotativo') }}"
+        data_type: datetime
+        quote: true
+      - name: perfil_funcionamento_excecao_motivo
+        description: "{{ doc('perfil_funcionamento_excecao_motivo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: perfil_funcionamento_excecao_decisao
+        description: "{{ doc('perfil_funcionamento_excecao_decisao_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__perfil_funcionamento_excecao_decisao__staging_perfil_funcionamento_excecao_riorotativo
+      - name: ultimo_editor
+        description: "{{ doc('ultimo_editor_fonte') }}"
+        data_type: string
+        quote: true
+      - name: ultima_atualizacao
+        description: "{{ doc('ultima_atualizacao_fonte') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+        quote: true
