@@ -1,6 +1,10 @@
 # Changelog - bilhetagem
 
-## [3.3.10] - 2026-06-11
+## [3.3.11] - 2026-07-15
+
+### Alterado
+
+- Altera condição nova policy tag no campo `documento_cliente` do tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
 
 ### Adicionado
 
