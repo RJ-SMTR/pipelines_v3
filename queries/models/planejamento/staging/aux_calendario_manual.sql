@@ -109,6 +109,8 @@ with
                 then "Domingo"  -- Feriado de Corpus Christi
                 when data = date(2026, 06, 05)
                 then "Ponto Facultativo"  -- DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026
+                when data = date(2026, 06, 29)
+                then "Ponto Facultativo"  -- DECRETO RIO Nº 58230 DE 24 DE JUNHO DE 2026
             end as tipo_dia,
             cast(null as string) as subtipo_dia,
             case
