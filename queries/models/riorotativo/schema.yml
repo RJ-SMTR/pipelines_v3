@@ -502,7 +502,7 @@ models:
       Exceções aos perfis ficam em perfil_funcionamento_riorotativo_historico.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__dias_semana_entre_1_e_7__perfil_funcionamento_riorotativo
+          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo
           arguments:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
     columns:
@@ -556,7 +556,7 @@ models:
       Exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__id_area_ou_id_perfil_funcionamento__perfil_funcionamento_riorotativo_historico
+          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo_historico
           arguments:
             expression: "(id_area is null) != (id_perfil_funcionamento is null)"
     columns:
