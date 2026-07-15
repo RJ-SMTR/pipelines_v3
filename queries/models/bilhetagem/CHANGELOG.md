@@ -8,7 +8,7 @@
 
 ### Alterado
 
-- Altera severidade dos warns para os testes dos campos `id_servico_jae`, `servico_jae` e `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera severidade dos warns para os testes dos campos `id_servico_jae`, `servico_jae`, `meio_pagamento_jae` e `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
 - Altera policy tag do campo `documento_cliente` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
 
 ## [3.3.10] - 2026-06-11
