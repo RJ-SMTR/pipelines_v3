@@ -44,6 +44,13 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
                 dtypes=str,
                 pretreatment_reader_args={"dtype": "object"},
             ),
+            GoogleSheetTable(
+                table_id="entidade_34152025000122",
+                sheet_name="34152025000122",
+                primary_keys=["cpf"],
+                dtypes=str,
+                pretreatment_reader_args={"dtype": "object"},
+            ),
             # GoogleSheetTable(
             #     table_id="lista_bloqueio",
             #     sheet_name="lista_bloqueio",
