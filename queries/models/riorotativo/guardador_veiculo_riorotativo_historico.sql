@@ -123,7 +123,12 @@ with
         from {{ ref("entidade_credenciadora_riorotativo_historico") }}
     ),
     cliente as (
-        select documento, id_cliente, nome, email, telefone
+        select
+            documento,
+            id_cliente,
+            nome,
+            nullif(trim(email), '') as email,
+            nullif(trim(telefone), '') as telefone
         from {{ ref("cliente_jae") }}
         where
             id_cliente_particao in (
