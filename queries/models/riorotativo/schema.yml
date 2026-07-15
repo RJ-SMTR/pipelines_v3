@@ -19,8 +19,12 @@ models:
         tests:
           - not_null:
               name: not_null__documento__guardador_veiculo_riorotativo
+              config:
+                where: "1=1"
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations.expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
+              config:
+                where: "1=1"
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -202,8 +206,12 @@ models:
         tests:
           - not_null:
               name: not_null__documento__agente_verificacao_riorotativo
+              config:
+                where: "1=1"
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations.expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo
+              config:
+                where: "1=1"
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -394,6 +402,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
+          config:
+            where: "1=1"
           arguments:
             combination_of_columns:
               - cnpj
@@ -410,6 +420,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_inicio_vigencia__entidade_credenciadora_riorotativo_historico
+              config:
+                where: "1=1"
       - name: data_fim_vigencia
         description: Data de fim de vigência da versão (nula enquanto vigente)
         data_type: date
@@ -451,6 +463,8 @@ models:
         tests:
           - not_null:
               name: not_null__id_area__area_estacionamento_riorotativo
+              config:
+                where: "1=1"
       - name: nome
         description: "{{ doc('area_nome_riorotativo') }}"
         data_type: string
@@ -502,6 +516,8 @@ models:
         tests:
           - not_null:
               name: not_null__id_perfil_funcionamento__area_estacionamento_riorotativo
+              config:
+                where: "1=1"
       - name: data_inicio_vigencia
         description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
         data_type: date
@@ -509,6 +525,8 @@ models:
         tests:
           - not_null:
               name: not_null__data_inicio_vigencia__area_estacionamento_riorotativo
+              config:
+                where: "1=1"
       - name: data_fim_vigencia
         description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
         data_type: date
@@ -539,6 +557,8 @@ models:
     tests:
       - dbt_utils.expression_is_true:
           name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo
+          config:
+            where: "1=1"
           arguments:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
     columns:
@@ -549,8 +569,12 @@ models:
         tests:
           - unique:
               name: unique__id_perfil_funcionamento__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
           - not_null:
               name: not_null__id_perfil_funcionamento__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
       - name: nome
         description: "{{ doc('perfil_funcionamento_nome_riorotativo') }}"
         data_type: string
@@ -558,6 +582,8 @@ models:
         tests:
           - not_null:
               name: not_null__nome__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
       - name: dias_semana
         description: "{{ doc('perfil_funcionamento_dia_semana_riorotativo') }}"
         data_type: array
@@ -565,6 +591,8 @@ models:
         tests:
           - not_null:
               name: not_null__dias_semana__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
       - name: horario_inicio
         description: "{{ doc('perfil_funcionamento_horario_inicio_riorotativo') }}"
         data_type: time
@@ -572,6 +600,8 @@ models:
         tests:
           - not_null:
               name: not_null__horario_inicio__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
       - name: horario_fim
         description: "{{ doc('perfil_funcionamento_horario_fim_riorotativo') }}"
         data_type: time
@@ -579,6 +609,8 @@ models:
         tests:
           - not_null:
               name: not_null__horario_fim__perfil_funcionamento_riorotativo
+              config:
+                where: "1=1"
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
