@@ -19,6 +19,88 @@ with
                         cast([] as array<string>) as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
+                    struct(  -- Processo 000399.016030/2026-59
+                        '2026-06-19' as data_inicio,
+                        '2026-06-19' as data_fim,
+                        '2026-06-19T15:00:00' as faixa_horaria_inicio,
+                        '2026-06-19T17:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo 000399.016030/2026-59
+                        '2026-06-19' as data_inicio,
+                        '2026-06-19' as data_fim,
+                        '2026-06-19T18:00:00' as faixa_horaria_inicio,
+                        '2026-06-19T20:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo 000399.016030/2026-59
+                        '2026-06-19' as data_inicio,
+                        '2026-06-19' as data_fim,
+                        '2026-06-19T21:00:00' as faixa_horaria_inicio,
+                        '2026-06-19T21:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo 000399.016030/2026-59
+                        '2026-06-24' as data_inicio,
+                        '2026-06-24' as data_fim,
+                        '2026-06-24T15:00:00' as faixa_horaria_inicio,
+                        '2026-06-24T17:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo 000399.016030/2026-59
+                        '2026-06-24' as data_inicio,
+                        '2026-06-24' as data_fim,
+                        '2026-06-24T18:00:00' as faixa_horaria_inicio,
+                        '2026-06-24T20:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo n° 000300.025696/2026-40
+                        '2026-06-16' as data_inicio,
+                        '2026-06-30' as data_fim,
+                        cast(null as string) as faixa_horaria_inicio,
+                        cast(null as string) as faixa_horaria_fim,
+                        [
+                            "104",
+                            "107",
+                            "160",
+                            "161",
+                            "162",
+                            "167",
+                            "169",
+                            "232",
+                            "319",
+                            "361",
+                            "SV319",
+                            "409",
+                            "410",
+                            "416",
+                            "435",
+                            "461",
+                            "473",
+                            "552",
+                            "583",
+                            "584",
+                            "805",
+                            "SP805",
+                            "LECD127",
+                            "LECD131",
+                            "LECD132",
+                            "LECD133",
+                            "LECD134",
+                            "LECD136",
+                            "LECD138",
+                            "LECD150",
+                            "LECD151",
+                            "LECD153",
+                            "SN319"
+                        ] as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
                     struct(  -- Processo n° 000300.023357/2026-29.
                         '2026-06-01' as data_inicio,
                         '2026-06-15' as data_fim,
