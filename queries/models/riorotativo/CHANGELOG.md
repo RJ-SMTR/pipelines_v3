@@ -1,5 +1,15 @@
 # Changelog - riorotativo
 
+## [1.0.1] - 2026-07-15
+
+### Alterado
+
+- Adiciona colunas de controle (`versao`, `datetime_ultima_atualizacao`, `id_execucao_dbt`) em (https://github.com/RJ-SMTR/pipelines_v3/pull/378):
+  - `guardador_veiculo_riorotativo.sql`
+  - `area_estacionamento_riorotativo.sql`
+  - `perfil_funcionamento_riorotativo.sql`
+  - `agente_verificacao_riorotativo.sql`
+
 ## [1.0.0] - 2026-07-08
 
 ### Adicionado
