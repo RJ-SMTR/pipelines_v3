@@ -2,12 +2,18 @@
 
 ## [3.3.11] - 2026-07-15
 
-### Alterado
-
-- Altera condição nova policy tag no campo `documento_cliente` do tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
-
 ### Adicionado
 
+- Adiciona nova condição de exceção dos testes do campo `produto` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
+### Alterado
+
+- Altera severidade dos warns para os testes dos campos `id_servico_jae`, `servico_jae` e `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera policy tag do campo `documento_cliente` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
+
+## [3.3.10] - 2026-06-11
+
+### Adicionado 
 - Adiciona condição para `tipo_transacao_jae` `EMV` na coluna `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 - Adiciona condição `id_cliente != '999999999'` no where do teste `not_null__meio_pagamento_jae__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 
