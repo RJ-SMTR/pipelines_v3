@@ -237,9 +237,9 @@ models:
         description: "{{ doc('produto') }}"
         tests:
           - not_null:
-              severity: warn
               name: not_null__produto__transacao
               config:
+                severity: warn
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
@@ -262,9 +262,9 @@ models:
         description: "{{ doc('meio_pagamento') }}"
         tests:
           - not_null:
-              severity: warn
               name: not_null__meio_pagamento__transacao
               config:
+                
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
         data_type: string
         quote: true
@@ -272,9 +272,9 @@ models:
         description: "{{ doc('meio_pagamento_jae') }}"
         tests:
           - not_null:
-              severity: warn
               name: not_null__meio_pagamento_jae__transacao
               config:
+                severity: warn
                 where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
@@ -348,17 +348,17 @@ models:
         description: "{{ doc('id_servico_jae') }}"
         tests:
           - not_null:
-              severity: warn
               name: not_null__id_servico_jae__integracao
               config:
+                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         tests:
           - not_null:
-              severity: warn
               name: not_null__servico_jae__integracao
               config:
+                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
