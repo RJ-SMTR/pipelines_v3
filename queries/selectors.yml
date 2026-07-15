@@ -661,3 +661,14 @@ selectors:
     definition:
       method: path
       value: models/riorotativo
+
+  - name: snapshot_riorotativo
+    description: >
+      Snapshots das tabelas área de estacionamento e
+      perfil de funcionamento do Rio Rotativo Digital.
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_area_estacionamento
+        - method: fqn
+          value: snapshot_perfil_funcionamento
