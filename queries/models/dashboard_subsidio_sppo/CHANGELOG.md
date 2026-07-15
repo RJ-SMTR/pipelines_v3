@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar uma exceção para o limite de viagens de servicos especificados no Processo nº 000300.025696/2026-40 e no Processo nº 000301.010399/2026-90. (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar uma exceção para o limite de viagens de servicos especificados no Processo nº 000300.025696/2026-40 e no Processo nº 000399.016030/2026-59. (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
 
 ## [8.2.4] - 2026-06-22
 
