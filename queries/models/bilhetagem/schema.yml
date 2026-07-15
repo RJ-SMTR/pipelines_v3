@@ -264,7 +264,7 @@ models:
           - not_null:
               name: not_null__meio_pagamento__transacao
               config:
-                
+
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
         data_type: string
         quote: true
