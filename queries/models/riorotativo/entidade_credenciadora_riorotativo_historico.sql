@@ -36,10 +36,10 @@
 with
     dados_novos as (
         select
-            current_date("America/Sao_Paulo") as data_inicio_vigencia,
             cnpj,
             razao_social,
-            nome_fantasia
+            nome_fantasia,
+            current_date("America/Sao_Paulo") as data_inicio_vigencia
         from {{ source("rmi_dados_mestres", "pessoa_juridica") }}
         where
             cnpj_particao
@@ -54,7 +54,7 @@ with
             union all by name
 
             select
-                data_inicio_vigencia, cnpj, razao_social, nome_fantasia, 1 as priority
+                cnpj, razao_social, nome_fantasia, data_inicio_vigencia, 1 as priority
             from dados_atuais
         {% endif %}
     ),

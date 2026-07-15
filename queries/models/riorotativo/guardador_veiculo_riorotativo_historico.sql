@@ -74,7 +74,7 @@ with
 
             /*
             considera apenas bloqueios vigentes na data da captura: bloqueio
-            expirado que permanece na lista da fonte não marca o agente como
+            expirado que permanece na lista da fonte não marca o guardador de veículo como
             bloqueado; se houver mais de um bloqueio vigente, mantém o
             iniciado mais recentemente
             */
@@ -102,8 +102,8 @@ with
     ),
     status as (
         /*
-        documento bloqueado que não está na lista de credenciados não gera
-        linha: o grão é o agente credenciado; a lista bruta de bloqueios fica
+        documento bloqueado que não está na lista de guardadores de veículo não gera
+        linha: o grão é o guardador de veículo; a lista bruta de bloqueios fica
         em staging_lista_bloqueio_riorotativo
         */
         select

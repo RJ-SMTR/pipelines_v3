@@ -1,146 +1,13 @@
 models:
-  - name: staging_guardador_veiculo_riorotativo
-    description: |
-      Uma linha por agente credenciado (documento) por entidade credenciadora (cnpj), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use documento e data para junções.
-      Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
-      Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
-    columns:
-      - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
-        data_type: string
-        quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
-        tests:
-          - not_null:
-              name: not_null__documento__staging_guardador_veiculo_riorotativo
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
-              arguments:
-                regex: "^[0-9]{11}$"
-  - name: staging_agente_verificacao_riorotativo
-    description: |
-      Uma linha por agente de verificação (documento) por entidade de vínculo (cnpj), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use documento e data para junções.
-      Fonte: capturas diárias por CNPJ (source_riorotativo.entidade_<cnpj>), mesma lógica do agente credenciado.
-      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
-      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
-      Contém apenas a presença na lista — sem dados cadastrais nem bloqueio.
-    columns:
-      - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
-        data_type: string
-        quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
-        tests:
-          - not_null:
-              name: not_null__documento__staging_agente_verificacao_riorotativo
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_agente_verificacao_riorotativo
-              arguments:
-                regex: "^[0-9]{11}$"
-  - name: staging_area_estacionamento_riorotativo
-    description: |
-      Uma linha por área de estacionamento (area_codigo), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use area_codigo e data para junções.
-      Fonte: captura diária do cadastro de áreas (source_riorotativo.area_estacionamento).
-      area_poligono é normalizado para WKT 2D (dimensões Z/M removidas para compatibilidade com st_geogfromtext).
-    columns:
-      - name: area_codigo
-        description: Código único da área de estacionamento
-        data_type: string
-        quote: true
-        tests:
-          - not_null:
-              name: not_null__area_codigo__staging_area_estacionamento_riorotativo
-      - name: data_inicio_vigencia
-        description: Data de início de vigência da área de estacionamento
-        data_type: date
-        quote: true
-        tests:
-          - not_null:
-              name: not_null__data_inicio_vigencia__staging_area_estacionamento_riorotativo
-  - name: staging_perfil_funcionamento_riorotativo
-    description: |
-      Uma linha por perfil de funcionamento (perfil_funcionamento_codigo), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use perfil_funcionamento_codigo e data para junções.
-      Fonte: captura diária (source_riorotativo.perfil_funcionamento).
-      perfil_funcionamento_dia_semana é decodificado de string JSON para array de inteiros.
-    columns:
-      - name: perfil_funcionamento_codigo
-        description: Código de referência do perfil de funcionamento
-        data_type: string
-        quote: true
-        tests:
-          - not_null:
-              name: not_null__perfil_funcionamento_codigo__staging_perfil_funcionamento_riorotativo
-  - name: staging_lista_bloqueio_riorotativo
-    description: |
-      Uma linha por documento bloqueado, por decisão de bloqueio, por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use documento e data para junções.
-      Fonte: planilha de bloqueio capturada diariamente (source_riorotativo.lista_bloqueio).
-      Não aplica vigência — bloqueios expirados permanecem na lista.
-      O consumidor deve filtrar por data_inicio_bloqueio/data_fim_bloqueio.
-    columns:
-      - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
-        data_type: string
-        quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
-        tests:
-          - not_null:
-              name: not_null__documento__staging_lista_bloqueio_riorotativo
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_lista_bloqueio_riorotativo
-              arguments:
-                regex: "^[0-9]{11}$"
-      - name: data_inicio_bloqueio
-        description: Data de início do bloqueio
-        data_type: date
-        quote: true
-        tests:
-          - not_null:
-              name: not_null__data_inicio_bloqueio__staging_lista_bloqueio_riorotativo
-  - name: staging_perfil_funcionamento_excecao_riorotativo
-    description: |
-      Uma linha por exceção de perfil de funcionamento, por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use area_codigo ou perfil_funcionamento_codigo + perfil_funcionamento_excecao_decisao e data para junções.
-      Fonte: captura diária (source_riorotativo.perfil_funcionamento_excecao).
-      Cada exceção aplica-se a uma área de estacionamento OU a um perfil de funcionamento —
-      exatamente um entre area_codigo e perfil_funcionamento_codigo é preenchido.
-      Os campos de data e horário das bordas são unificados em perfil_funcionamento_excecao_datetime_inicio/fim —
-      sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim.
-    tests:
-      - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__staging_perfil_funcionamento_excecao_riorotativo
-          arguments:
-            expression: "(area_codigo is null) != (perfil_funcionamento_codigo is null)"
-    columns:
-      - name: perfil_funcionamento_excecao_decisao
-        description: Processo administrativo, judicial, portaria ou decreto que culminou na exceção
-        data_type: string
-        quote: true
-        tests:
-          - not_null:
-              name: not_null__perfil_funcionamento_excecao_decisao__staging_perfil_funcionamento_excecao_riorotativo
   - name: guardador_veiculo_riorotativo
     description: |
-      Uma linha por agente credenciado ativo (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital.
-      Estado atual: agentes com status ativo na última partição da janela date_range_start/date_range_end.
+      Uma linha por guardador de veículo ativo (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital.
+      Estado atual: guardadores de veículo com status ativo na última partição da janela date_range_start/date_range_end.
       Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
       com dados históricos.
       Use documento para junções; id_cliente relaciona com cliente_jae.
       Fonte: última partição de guardador_veiculo_riorotativo_historico dentro da janela.
-      Agente ausente da última captura é considerado removido; agentes bloqueados são excluídos —
+      Guardador de veículo ausente da última captura é considerado removido; guardadores de veículo bloqueados são excluídos —
       para status e histórico use guardador_veiculo_riorotativo_historico.
     columns:
       - name: documento
@@ -157,7 +24,7 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
-        description: Tipo do documento do agente credenciado
+        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_cliente
@@ -177,7 +44,7 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: email
-        description: Email do agente credenciado [protegido]
+        description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
@@ -189,24 +56,24 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: razao_social
-        description: Razão social no cadastro do CNPJ da entidade credenciadora
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
   - name: guardador_veiculo_riorotativo_historico
     description: |
-      Uma linha por agente credenciado (documento), por entidade credenciadora (cnpj), por data de captura,
+      Uma linha por guardador de veículo (documento), por entidade credenciadora (cnpj), por data de captura,
       com o status do dia (ativo ou bloqueado).
       Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
       Use documento e data para junções; id_guardador_veiculo_historico é a chave única.
       Fonte: staging_guardador_veiculo_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
       cliente_jae e entidade_credenciadora_riorotativo_historico.
       Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
-      Documento bloqueado que não está na lista de credenciados não gera registro.
-      Agente ausente em uma data na qual já havia aparecido indica remoção.
+      Documento bloqueado que não está na lista de guardadores de veículo não gera registro.
+      Guardador de veículo ausente em uma data na qual já havia aparecido indica remoção.
       Dias sem captura não têm registros.
       razao_social/nome_fantasia refletem o valor vigente na data.
       nome/email/telefone refletem o valor vigente no momento do processamento.
@@ -221,7 +88,7 @@ models:
           - not_null:
               name: not_null__id_guardador_veiculo_historico__guardador_veiculo_riorotativo_historico
       - name: data
-        description: Data da captura à qual o status se refere (partição)
+        description: "{{ doc('data_captura') }} (partição)"
         data_type: date
         quote: true
       - name: cnpj
@@ -242,7 +109,7 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
-        description: Tipo do documento do agente credenciado
+        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_cliente
@@ -258,7 +125,7 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: email
-        description: Email do agente credenciado [protegido]
+        description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
@@ -270,23 +137,23 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: razao_social
-        description: Razão social do CNPJ da entidade credenciadora vigente na data
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia do CNPJ da entidade credenciadora vigente na data
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
       - name: status
-        description: Status do agente credenciado na data, combinando credenciamento e bloqueios vigentes informados em planilha
+        description: Status do guardador de veículo
         data_type: string
         quote: true
       - name: motivo_bloqueio
-        description: Motivo do bloqueio
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: decisao_bloqueio
-        description: Processo administrativo ou judicial que culminou no bloqueio
+        description: "{{ doc('decisao_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: versao
@@ -328,7 +195,7 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
-        description: Tipo do documento do agente de verificação
+        description: "{{ doc('tipo_documento_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_cliente
@@ -338,7 +205,7 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
       - name: cnpj
-        description: CNPJ da entidade à qual o agente de verificação é vinculado
+        description: "{{ doc('cnpj_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome
@@ -348,7 +215,7 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: email
-        description: Email do agente de verificação [protegido]
+        description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
@@ -360,11 +227,11 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: razao_social
-        description: Razão social no cadastro do CNPJ da entidade de vínculo
+        description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia no cadastro do CNPJ da entidade de vínculo
+        description: "{{ doc('nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
   - name: agente_verificacao_riorotativo_historico
@@ -410,11 +277,11 @@ models:
           - not_null:
               name: not_null__id_agente_verificacao_historico__agente_verificacao_riorotativo_historico
       - name: data
-        description: Data da captura à qual o status se refere (partição)
+        description: "{{ doc('data_captura') }} (partição)"
         data_type: date
         quote: true
       - name: cnpj
-        description: CNPJ da entidade à qual o agente de verificação é vinculado
+        description: "{{ doc('cnpj_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: documento
@@ -431,7 +298,7 @@ models:
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
-        description: Tipo do documento do agente de verificação
+        description: "{{ doc('tipo_documento_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_cliente
@@ -447,7 +314,7 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: email
-        description: Email do agente de verificação [protegido]
+        description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
@@ -459,23 +326,23 @@ models:
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: razao_social
-        description: Razão social do CNPJ da entidade de vínculo vigente na data
+        description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia do CNPJ da entidade de vínculo vigente na data
+        description: "{{ doc('nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: status
-        description: Status do agente de verificação na data, combinando presença na captura e bloqueios vigentes informados em planilha
+        description: Status do agente de verificação
         data_type: string
         quote: true
       - name: motivo_bloqueio
-        description: Motivo do bloqueio
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: decisao_bloqueio
-        description: Processo administrativo ou judicial que culminou no bloqueio
+        description: "{{ doc('decisao_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: versao
@@ -524,11 +391,11 @@ models:
         data_type: date
         quote: true
       - name: razao_social
-        description: Razão social no cadastro do CNPJ da entidade credenciadora
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
       - name: nome_fantasia
-        description: Nome fantasia no cadastro do CNPJ da entidade credenciadora
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
         data_type: string
         quote: true
       - name: versao
@@ -554,72 +421,72 @@ models:
       Área ausente da última captura é considerada removida.
     columns:
       - name: id_area
-        description: Código único da área de estacionamento
+        description: "{{ doc('area_codigo_riorotativo') }}"
         data_type: string
         quote: true
         tests:
           - not_null:
               name: not_null__id_area__area_estacionamento_riorotativo
       - name: nome
-        description: Nome legível da área de estacionamento, exibido ao usuário
+        description: "{{ doc('area_nome_riorotativo') }}"
         data_type: string
         quote: true
       - name: logradouro
-        description: Nome oficial do logradouro ao qual a área de estacionamento se encontra
+        description: "{{ doc('area_logradouro_riorotativo') }}"
         data_type: string
         quote: true
       - name: endereco_referencia
-        description: Endereço oficial do logradouro ao qual a área de estacionamento se encontra
+        description: "{{ doc('area_endereco_referencia_riorotativo') }}"
         data_type: string
         quote: true
       - name: geometry_wkt
-        description: Polígono WKT que representa a área de estacionamento no sistema de referência WGS84
+        description: "{{ doc('area_poligono_riorotativo') }}"
         data_type: string
         quote: true
       - name: geometry
-        description: Geometria da área de estacionamento no sistema de referência WGS84
+        description: "{{ doc('area_geometry_riorotativo') }}"
         data_type: geography
         quote: true
       - name: observacao
-        description: Observação sobre a área de estacionamento para uso interno
+        description: "{{ doc('area_observacao_riorotativo') }}"
         data_type: string
         quote: true
       - name: quantidade_vaga_total
-        description: Quantidade total de vagas
+        description: "{{ doc('area_vaga_total_riorotativo') }}"
         data_type: int64
         quote: true
       - name: quantidade_vaga_moto
-        description: Quantidade de vagas regulamentadas para motocicletas
+        description: "{{ doc('area_vaga_moto_riorotativo') }}"
         data_type: int64
         quote: true
       - name: quantidade_vaga_idoso
-        description: Quantidade de vagas regulamentadas para idosos
+        description: "{{ doc('area_vaga_idoso_riorotativo') }}"
         data_type: int64
         quote: true
       - name: quantidade_vaga_pcd
-        description: Quantidade de vagas regulamentadas para Pessoas com Deficiência (PcD)
+        description: "{{ doc('area_vaga_pcd_riorotativo') }}"
         data_type: int64
         quote: true
       - name: tempo_permanencia_hora
-        description: Tempo de permanência em horas
+        description: "{{ doc('area_tempo_permanencia_hora_riorotativo') }}"
         data_type: int64
         quote: true
       - name: id_perfil_funcionamento
-        description: Lista de perfis de funcionamento da área de estacionamento
+        description: "{{ doc('area_perfil_funcionamento_riorotativo') }}"
         data_type: array
         quote: true
         tests:
           - not_null:
               name: not_null__id_perfil_funcionamento__area_estacionamento_riorotativo
       - name: data_inicio_vigencia
-        description: Data de início de vigência da área de estacionamento
+        description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
         data_type: date
         quote: true
         tests:
           - not_null:
               name: not_null__data_inicio_vigencia__area_estacionamento_riorotativo
       - name: data_fim_vigencia
-        description: Data de fim de vigência da área de estacionamento
+        description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
         data_type: date
         quote: true
   - name: perfil_funcionamento_riorotativo
@@ -640,7 +507,7 @@ models:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
     columns:
       - name: id_perfil_funcionamento
-        description: Código de referência do perfil de funcionamento
+        description: "{{ doc('perfil_funcionamento_codigo_riorotativo') }}"
         data_type: string
         quote: true
         tests:
@@ -649,28 +516,28 @@ models:
           - not_null:
               name: not_null__id_perfil_funcionamento__perfil_funcionamento_riorotativo
       - name: nome
-        description: Nome do perfil de funcionamento disponibilizado aos usuários
+        description: "{{ doc('perfil_funcionamento_nome_riorotativo') }}"
         data_type: string
         quote: true
         tests:
           - not_null:
               name: not_null__nome__perfil_funcionamento_riorotativo
       - name: dias_semana
-        description: Lista de dias da semana em que o perfil está vigente, considerando 1 como domingo
+        description: "{{ doc('perfil_funcionamento_dia_semana_riorotativo') }}"
         data_type: array
         quote: true
         tests:
           - not_null:
               name: not_null__dias_semana__perfil_funcionamento_riorotativo
       - name: horario_inicio
-        description: Horário de início do funcionamento do perfil
+        description: "{{ doc('perfil_funcionamento_horario_inicio_riorotativo') }}"
         data_type: time
         quote: true
         tests:
           - not_null:
               name: not_null__horario_inicio__perfil_funcionamento_riorotativo
       - name: horario_fim
-        description: Horário de fim do funcionamento do perfil
+        description: "{{ doc('perfil_funcionamento_horario_fim_riorotativo') }}"
         data_type: time
         quote: true
         tests:
@@ -703,31 +570,31 @@ models:
           - not_null:
               name: not_null__id_perfil_funcionamento_historico__perfil_funcionamento_riorotativo_historico
       - name: data
-        description: Data da captura à qual o registro se refere (partição)
+        description: "{{ doc('data_captura') }} (partição)"
         data_type: date
         quote: true
       - name: id_perfil_funcionamento
-        description: Perfil de funcionamento sujeito à exceção (nulo quando a exceção se aplica a uma área de estacionamento)
+        description: "{{ doc('perfil_funcionamento_excecao_perfil_codigo_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_area
-        description: Área de estacionamento sujeita à exceção (nulo quando a exceção se aplica a um perfil de funcionamento)
+        description: "{{ doc('perfil_funcionamento_excecao_area_codigo_riorotativo') }}"
         data_type: string
         quote: true
       - name: datetime_inicio
-        description: Data e hora iniciais de vigência da exceção
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_inicio_riorotativo') }}"
         data_type: datetime
         quote: true
       - name: datetime_fim
-        description: Data e hora finais de vigência da exceção
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_fim_riorotativo') }}"
         data_type: datetime
         quote: true
       - name: motivo
-        description: Motivo da exceção que poderá ser exibido para o agente verificador ou usuário
+        description: "{{ doc('perfil_funcionamento_excecao_motivo_riorotativo') }}"
         data_type: string
         quote: true
       - name: decisao
-        description: Processo administrativo, judicial, portaria ou decreto que culminou na exceção
+        description: "{{ doc('perfil_funcionamento_excecao_decisao_riorotativo') }}"
         data_type: string
         quote: true
         tests:
