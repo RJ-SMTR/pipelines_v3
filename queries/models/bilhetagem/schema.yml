@@ -124,7 +124,7 @@ models:
       - name: documento_cliente
         description: "{{ doc('documento_cliente') }} que efetuou a transação [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/7422638426341085036'
         data_type: string
       - name: tipo_documento_cliente
         description: "{{ doc('tipo_documento_cliente') }} que efetuou a transação"
