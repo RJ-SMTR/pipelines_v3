@@ -28,7 +28,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -61,6 +61,18 @@ models:
         quote: true
       - name: nome_fantasia
         description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
   - name: guardador_veiculo_riorotativo_historico
@@ -113,7 +125,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -199,7 +211,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -232,6 +244,18 @@ models:
         quote: true
       - name: nome_fantasia
         description: "{{ doc('nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
   - name: agente_verificacao_riorotativo_historico
@@ -302,7 +326,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -489,6 +513,18 @@ models:
         description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
         data_type: date
         quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
   - name: perfil_funcionamento_riorotativo
     description: |
       Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana
@@ -502,7 +538,7 @@ models:
       Exceções aos perfis ficam em perfil_funcionamento_riorotativo_historico.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__dias_semana_entre_1_e_7__perfil_funcionamento_riorotativo
+          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo
           arguments:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
     columns:
@@ -543,6 +579,18 @@ models:
         tests:
           - not_null:
               name: not_null__horario_fim__perfil_funcionamento_riorotativo
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
   - name: perfil_funcionamento_riorotativo_historico
     description: |
       Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura.
@@ -556,7 +604,7 @@ models:
       Exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__id_area_ou_id_perfil_funcionamento__perfil_funcionamento_riorotativo_historico
+          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo_historico
           arguments:
             expression: "(id_area is null) != (id_perfil_funcionamento is null)"
     columns:
