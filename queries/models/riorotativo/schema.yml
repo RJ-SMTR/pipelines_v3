@@ -1,0 +1,614 @@
+models:
+  - name: guardador_veiculo_riorotativo
+    description: |
+      Uma linha por guardador de veículo ativo (documento) por entidade credenciadora (cnpj) no Rio Rotativo Digital.
+      Estado atual: guardadores de veículo com status ativo na última partição da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use documento para junções; id_cliente relaciona com cliente_jae.
+      Fonte: última partição de guardador_veiculo_riorotativo_historico dentro da janela.
+      Guardador de veículo ausente da última captura é considerado removido; guardadores de veículo bloqueados são excluídos —
+      para status e histórico use guardador_veiculo_riorotativo_historico.
+    columns:
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__guardador_veiculo_riorotativo
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: email
+        description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: razao_social
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+  - name: guardador_veiculo_riorotativo_historico
+    description: |
+      Uma linha por guardador de veículo (documento), por entidade credenciadora (cnpj), por data de captura,
+      com o status do dia (ativo ou bloqueado).
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use documento e data para junções; id_guardador_veiculo_historico é a chave única.
+      Fonte: staging_guardador_veiculo_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      cliente_jae e entidade_credenciadora_riorotativo_historico.
+      Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
+      Documento bloqueado que não está na lista de guardadores de veículo não gera registro.
+      Guardador de veículo ausente em uma data na qual já havia aparecido indica remoção.
+      Dias sem captura não têm registros.
+      razao_social/nome_fantasia refletem o valor vigente na data.
+      nome/email/telefone refletem o valor vigente no momento do processamento.
+    columns:
+      - name: id_guardador_veiculo_historico
+        description: Identificador único do registro de histórico (hash de data, CNPJ e documento)
+        data_type: string
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_guardador_veiculo_historico__guardador_veiculo_riorotativo_historico
+          - not_null:
+              name: not_null__id_guardador_veiculo_historico__guardador_veiculo_riorotativo_historico
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__guardador_veiculo_riorotativo_historico
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: email
+        description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: razao_social
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: status
+        description: Status do guardador de veículo
+        data_type: string
+        quote: true
+      - name: motivo_bloqueio
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: decisao_bloqueio
+        description: "{{ doc('decisao_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: agente_verificacao_riorotativo
+    description: |
+      Uma linha por agente de verificação ativo (documento) por entidade de vínculo (cnpj) no Rio Rotativo Digital.
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Estado atual: agentes com status ativo na última partição da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use documento para junções; id_cliente relaciona com cliente_jae.
+      Fonte: última partição de agente_verificacao_riorotativo_historico dentro da janela.
+      Agente ausente da última captura é considerado removido; agentes bloqueados são excluídos —
+      para status e histórico use agente_verificacao_riorotativo_historico.
+    columns:
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__agente_verificacao_riorotativo
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: email
+        description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: razao_social
+        description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: "{{ doc('nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+  - name: agente_verificacao_riorotativo_historico
+    description: |
+      Uma linha por agente de verificação (documento), por entidade de vínculo (cnpj), por data de captura,
+      com o status do dia (ativo ou bloqueado).
+      Agentes de verificação são servidores municipais ou empregados do Operador Tecnológico
+      designados pela SMTR (Decreto Rio 58277/2026, art. 16, §1º).
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use documento e data para junções; id_agente_verificacao_historico é a chave única.
+      Fonte: staging_agente_verificacao_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      cliente_jae e entidade_credenciadora_riorotativo_historico.
+      Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
+      Documento bloqueado que não está na lista de agentes não gera registro.
+      Agente ausente em uma data na qual já havia aparecido indica remoção.
+      Dias sem captura não têm registros.
+      razao_social/nome_fantasia refletem o valor vigente na data.
+      nome/email/telefone refletem o valor vigente no momento do processamento.
+    tests:
+      - dbt_utils.expression_is_true:
+          name: dbt_utils.expression_is_true__agente_verificacao_riorotativo_historico
+          arguments:
+            expression: >-
+              concat(cast(data as string), '-', documento) not in (
+                  select concat(cast(data as string), '-', documento)
+                  from {{ ref('guardador_veiculo_riorotativo_historico') }}
+                  where
+                      data between date('{{ var("date_range_start") }}')
+                      and date('{{ var("date_range_end") }}')
+              )
+          config:
+            where: >-
+              data between date('{{ var("date_range_start") }}')
+              and date('{{ var("date_range_end") }}')
+    columns:
+      - name: id_agente_verificacao_historico
+        description: Identificador único do registro de histórico (hash de data, CNPJ e documento)
+        data_type: string
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_agente_verificacao_historico__agente_verificacao_riorotativo_historico
+          - not_null:
+              name: not_null__id_agente_verificacao_historico__agente_verificacao_riorotativo_historico
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: documento
+        description: "{{ doc('documento_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        tests:
+          - not_null:
+              name: not_null__documento__agente_verificacao_riorotativo_historico
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo_historico
+              arguments:
+                regex: "^[0-9]{11}$"
+      - name: tipo_documento
+        description: "{{ doc('tipo_documento_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_cliente
+        description: "{{ doc('id_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/8608468264029421163"
+      - name: nome
+        description: "{{ doc('nome_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: email
+        description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: telefone
+        description: "{{ doc('telefone_cliente') }} [protegido]"
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: razao_social
+        description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: "{{ doc('nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: status
+        description: Status do agente de verificação
+        data_type: string
+        quote: true
+      - name: motivo_bloqueio
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: decisao_bloqueio
+        description: "{{ doc('decisao_bloqueio_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: entidade_credenciadora_riorotativo_historico
+    description: |
+      Uma linha por versão de razão social/nome fantasia por CNPJ do Rio Rotativo, com vigência em datas.
+      Fonte: rj-crm-registry.rmi_dados_mestres.pessoa_juridica.
+      Cada execução observa o valor corrente e abre nova vigência quando ele muda.
+      A versão vigente tem data_fim_vigencia nula.
+      CNPJ que deixa de aparecer nas stagings mantém a última vigência aberta.
+      Os CNPJs acompanhados são os observados em staging_guardador_veiculo_riorotativo e
+      staging_agente_verificacao_riorotativo.
+      Use cnpj e a vigência para junções.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
+          arguments:
+            combination_of_columns:
+              - cnpj
+              - data_inicio_vigencia
+    columns:
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: data_inicio_vigencia
+        description: Data de início de vigência da versão, observada a partir da primeira execução do projeto
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_inicio_vigencia__entidade_credenciadora_riorotativo_historico
+      - name: data_fim_vigencia
+        description: Data de fim de vigência da versão (nula enquanto vigente)
+        data_type: date
+        quote: true
+      - name: razao_social
+        description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: nome_fantasia
+        description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true
+  - name: area_estacionamento_riorotativo
+    description: |
+      Uma linha por área de estacionamento (id_area) do Rio Rotativo.
+      Estado atual: última partição de captura da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use id_area para junções; id_perfil_funcionamento relaciona com perfil_funcionamento_riorotativo.
+      Fonte: staging_area_estacionamento_riorotativo (captura source_riorotativo.area_estacionamento).
+      Área ausente da última captura é considerada removida.
+    columns:
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_area__area_estacionamento_riorotativo
+      - name: nome
+        description: "{{ doc('area_nome_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: logradouro
+        description: "{{ doc('area_logradouro_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: endereco_referencia
+        description: "{{ doc('area_endereco_referencia_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: geometry_wkt
+        description: "{{ doc('area_poligono_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: geometry
+        description: "{{ doc('area_geometry_riorotativo') }}"
+        data_type: geography
+        quote: true
+      - name: observacao
+        description: "{{ doc('area_observacao_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: quantidade_vaga_total
+        description: "{{ doc('area_vaga_total_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_moto
+        description: "{{ doc('area_vaga_moto_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_idoso
+        description: "{{ doc('area_vaga_idoso_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: quantidade_vaga_pcd
+        description: "{{ doc('area_vaga_pcd_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: tempo_permanencia_hora
+        description: "{{ doc('area_tempo_permanencia_hora_riorotativo') }}"
+        data_type: int64
+        quote: true
+      - name: id_perfil_funcionamento
+        description: "{{ doc('area_perfil_funcionamento_riorotativo') }}"
+        data_type: array
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_perfil_funcionamento__area_estacionamento_riorotativo
+      - name: data_inicio_vigencia
+        description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__data_inicio_vigencia__area_estacionamento_riorotativo
+      - name: data_fim_vigencia
+        description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+        quote: true
+  - name: perfil_funcionamento_riorotativo
+    description: |
+      Uma linha por perfil de funcionamento (id_perfil_funcionamento) do Rio Rotativo, com dias da semana
+      e horários aplicáveis.
+      Estado atual: última partição de captura da janela date_range_start/date_range_end.
+      Desabilitado em backfills com janela antiga (is_current_state_enabled), para não sobrescrever o estado atual
+      com dados históricos.
+      Use id_perfil_funcionamento para junções com area_estacionamento_riorotativo.
+      Fonte: staging_perfil_funcionamento_riorotativo (captura source_riorotativo.perfil_funcionamento).
+      Perfil ausente da última captura é considerado removido.
+      Exceções aos perfis ficam em perfil_funcionamento_riorotativo_historico.
+    tests:
+      - dbt_utils.expression_is_true:
+          name: dbt_utils.expression_is_true__dias_semana_entre_1_e_7__perfil_funcionamento_riorotativo
+          arguments:
+            expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
+    columns:
+      - name: id_perfil_funcionamento
+        description: "{{ doc('perfil_funcionamento_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_perfil_funcionamento__perfil_funcionamento_riorotativo
+          - not_null:
+              name: not_null__id_perfil_funcionamento__perfil_funcionamento_riorotativo
+      - name: nome
+        description: "{{ doc('perfil_funcionamento_nome_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__nome__perfil_funcionamento_riorotativo
+      - name: dias_semana
+        description: "{{ doc('perfil_funcionamento_dia_semana_riorotativo') }}"
+        data_type: array
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__dias_semana__perfil_funcionamento_riorotativo
+      - name: horario_inicio
+        description: "{{ doc('perfil_funcionamento_horario_inicio_riorotativo') }}"
+        data_type: time
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__horario_inicio__perfil_funcionamento_riorotativo
+      - name: horario_fim
+        description: "{{ doc('perfil_funcionamento_horario_fim_riorotativo') }}"
+        data_type: time
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__horario_fim__perfil_funcionamento_riorotativo
+  - name: perfil_funcionamento_riorotativo_historico
+    description: |
+      Uma linha por exceção de perfil de funcionamento (área OU perfil + decisão) vigente, por data de captura.
+      Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
+      Use id_area ou id_perfil_funcionamento e data para junções; id_perfil_funcionamento_historico é a chave única.
+      Fonte: staging_perfil_funcionamento_excecao_riorotativo
+      (captura source_riorotativo.perfil_funcionamento_excecao).
+      Contém apenas exceções vigentes na data da captura (data entre datetime_inicio e datetime_fim) —
+      exceção expirada ou futura que permanece na fonte não entra no dia.
+      Exatamente um entre id_area e id_perfil_funcionamento é preenchido.
+      Exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada.
+    tests:
+      - dbt_utils.expression_is_true:
+          name: dbt_utils.expression_is_true__id_area_ou_id_perfil_funcionamento__perfil_funcionamento_riorotativo_historico
+          arguments:
+            expression: "(id_area is null) != (id_perfil_funcionamento is null)"
+    columns:
+      - name: id_perfil_funcionamento_historico
+        description: Identificador único do registro de histórico (hash de data, perfil, área e decisão)
+        data_type: string
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_perfil_funcionamento_historico__perfil_funcionamento_riorotativo_historico
+          - not_null:
+              name: not_null__id_perfil_funcionamento_historico__perfil_funcionamento_riorotativo_historico
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+        quote: true
+      - name: id_perfil_funcionamento
+        description: "{{ doc('perfil_funcionamento_excecao_perfil_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: id_area
+        description: "{{ doc('perfil_funcionamento_excecao_area_codigo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: datetime_inicio
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_inicio_riorotativo') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_fim
+        description: "{{ doc('perfil_funcionamento_excecao_datetime_fim_riorotativo') }}"
+        data_type: datetime
+        quote: true
+      - name: motivo
+        description: "{{ doc('perfil_funcionamento_excecao_motivo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: decisao
+        description: "{{ doc('perfil_funcionamento_excecao_decisao_riorotativo') }}"
+        data_type: string
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__decisao__perfil_funcionamento_riorotativo_historico
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+        quote: true
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+        quote: true

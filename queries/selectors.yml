@@ -646,3 +646,17 @@ selectors:
     definition:
       method: fqn
       value: aux_operadora_cnpj
+
+  - name: riorotativo_diario
+    description: >
+      Materialização do Rio Rotativo: stagings, modelos de estado atual
+      (última captura da janela date_range_start/end), históricos diários
+      e o histórico de vigência das entidades credenciadoras
+      (razão social/nome fantasia a partir de pessoa_juridica).
+      Os modelos de estado atual saem do DAG quando uma janela explícita
+      não alcança a data corrente (macro is_current_state_enabled) —
+      backfills executam apenas stagings e históricos, sem regredir o
+      estado atual.
+    definition:
+      method: path
+      value: models/riorotativo

@@ -338,6 +338,17 @@ sources:
       - name: dicionario_subsidio
       - name: calendario_manual
 
+  - name: source_riorotativo
+    database: rj-smtr-staging
+
+    tables:
+      - name: entidade_05019730000158
+      - name: entidade_34152025000122
+      - name: lista_bloqueio
+      - name: area_estacionamento
+      - name: perfil_funcionamento
+      - name: perfil_funcionamento_excecao
+
   - name: planejamento_staging
     database: rj-smtr-staging
 

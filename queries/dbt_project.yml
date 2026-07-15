@@ -550,6 +550,12 @@ models:
       staging:
         +materialized: view
         +schema: cadastro_interno_staging
+    riorotativo:
+      +materialized: table
+      +schema: riorotativo
+      staging:
+        +materialized: view
+        +schema: riorotativo_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
