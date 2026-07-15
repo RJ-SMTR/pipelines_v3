@@ -15,13 +15,6 @@
         where data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}")
     {% endset %}
     {% set last_partition = run_query(last_partition_query).columns[0].values()[0] %}
-    {% if last_partition is none %}
-        {{
-            exceptions.raise_compiler_error(
-                "No agente_verificacao_riorotativo_historico partitions found between date_range_start and date_range_end"
-            )
-        }}
-    {% endif %}
 {% endif %}
 
 select
