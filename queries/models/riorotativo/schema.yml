@@ -28,7 +28,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -113,7 +113,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -199,7 +199,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
@@ -302,7 +302,7 @@ models:
         data_type: string
         quote: true
       - name: id_cliente
-        description: "{{ doc('id_cliente') }} [protegido]"
+        description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
