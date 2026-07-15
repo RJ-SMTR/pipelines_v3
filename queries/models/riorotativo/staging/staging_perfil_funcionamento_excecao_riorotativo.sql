@@ -1,4 +1,5 @@
-{{ config(alias="perfil_funcionamento_excecao") }}
+/* TODO: reativar quando a captura de perfil_funcionamento_excecao existir */
+{{ config(alias="perfil_funcionamento_excecao", enabled=false) }}
 
 
 with

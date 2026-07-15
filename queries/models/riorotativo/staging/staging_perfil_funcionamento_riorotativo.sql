@@ -8,7 +8,7 @@ select
         json_value(content, '$.perfil_funcionamento_nome') as string
     ) as perfil_funcionamento_nome,
     array(
-        select safe_cast(dia_semana as int64)
+        select distinct safe_cast(dia_semana as int64)
         from
             unnest(
                 json_value_array(
@@ -16,11 +16,33 @@ select
                 )
             ) as dia_semana
     ) as perfil_funcionamento_dia_semana,
-    safe_cast(
-        json_value(content, '$.perfil_funcionamento_horario_inicio') as string
+    coalesce(
+        safe.parse_time(
+            '%H:%M:%S',
+            safe_cast(
+                json_value(content, '$.perfil_funcionamento_horario_inicio') as string
+            )
+        ),
+        safe.parse_time(
+            '%H:%M',
+            safe_cast(
+                json_value(content, '$.perfil_funcionamento_horario_inicio') as string
+            )
+        )
     ) as perfil_funcionamento_horario_inicio,
-    safe_cast(
-        json_value(content, '$.perfil_funcionamento_horario_fim') as string
+    coalesce(
+        safe.parse_time(
+            '%H:%M:%S',
+            safe_cast(
+                json_value(content, '$.perfil_funcionamento_horario_fim') as string
+            )
+        ),
+        safe.parse_time(
+            '%H:%M',
+            safe_cast(
+                json_value(content, '$.perfil_funcionamento_horario_fim') as string
+            )
+        )
     ) as perfil_funcionamento_horario_fim,
     safe_cast(json_value(content, '$.ultimo_editor') as string) as ultimo_editor,
     datetime(

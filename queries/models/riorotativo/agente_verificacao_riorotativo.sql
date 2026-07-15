@@ -1,8 +1,9 @@
+/* TODO: reativar quando a captura da entidade de verificação existir */
 {{
     config(
         materialized="table",
         alias="agente_verificacao",
-        enabled=is_current_state_enabled(),
+        enabled=false,
     )
 }}
 

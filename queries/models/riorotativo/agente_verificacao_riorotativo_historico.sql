@@ -1,5 +1,7 @@
+/* TODO: reativar quando a captura da entidade de verificação existir */
 {{
     config(
+        enabled=false,
         materialized="incremental",
         alias="agente_verificacao_historico",
         incremental_strategy="merge",

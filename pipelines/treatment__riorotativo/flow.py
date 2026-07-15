@@ -12,7 +12,7 @@ quando a janela não alcança a data corrente (macro is_current_state_enabled)
 e o ponteiro do Redis não regride.
 
 Schedule:
-- Diariamente às 6h00 (horário de São Paulo)
+- Diariamente às 4h30 (horário de São Paulo)
 - Depende das capturas do Rio Rotativo
 
 DBT: 2026-07-08

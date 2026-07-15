@@ -1,7 +1,8 @@
-{{ config(alias="agente_credenciado") }}
+{{ config(alias="guardador_veiculo") }}
 
 {% set entidades = [
     {"cnpj": "05019730000158", "source": "entidade_05019730000158"},
+    {"cnpj": "34152025000122", "source": "entidade_34152025000122"},
 ] %}
 
 

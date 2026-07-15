@@ -1,4 +1,5 @@
-{{ config(alias="lista_bloqueio") }}
+/* TODO: reativar quando a captura de lista_bloqueio existir */
+{{ config(alias="lista_bloqueio", enabled=false) }}
 
 
 with

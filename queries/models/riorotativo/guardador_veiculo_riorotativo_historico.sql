@@ -1,9 +1,9 @@
 {{
     config(
         materialized="incremental",
-        alias="agente_credenciado_historico",
+        alias="guardador_veiculo_historico",
         incremental_strategy="merge",
-        unique_key="id_agente_credenciado_historico",
+        unique_key="id_guardador_veiculo_historico",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
     )
 }}
@@ -16,7 +16,7 @@
 {% if execute %}
     {% set staging_partitions_query %}
         select distinct cast(documento as int64)
-        from {{ ref("staging_agente_credenciado_riorotativo") }}
+        from {{ ref("staging_guardador_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     {% endset %}
     {% set cpf_partitions = (
@@ -64,31 +64,41 @@
 with
     credenciados as (
         select data, documento, tipo_documento, cnpj
-        from {{ ref("staging_agente_credenciado_riorotativo") }}
+        from {{ ref("staging_guardador_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     bloqueios as (
-        /*
-        considera apenas bloqueios vigentes na data da captura: bloqueio
-        expirado que permanece na lista da fonte não marca o agente como
-        bloqueado; se houver mais de um bloqueio vigente, mantém o iniciado
-        mais recentemente
-        */
-        select data, documento, motivo_bloqueio, decisao_bloqueio
-        from {{ ref("staging_lista_bloqueio_riorotativo") }}
-        where
-            data >= data_inicio_bloqueio
-            and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
-            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
-        qualify
-            row_number() over (
-                partition by data, documento
-                order by
-                    data_inicio_bloqueio desc,
-                    ultima_atualizacao desc,
-                    decisao_bloqueio desc
-            )
-            = 1
+        {#
+            TODO: substituir o stub de nulls pelo código comentado quando a
+            captura de lista_bloqueio existir:
+
+            /*
+            considera apenas bloqueios vigentes na data da captura: bloqueio
+            expirado que permanece na lista da fonte não marca o agente como
+            bloqueado; se houver mais de um bloqueio vigente, mantém o
+            iniciado mais recentemente
+            */
+            select data, documento, motivo_bloqueio, decisao_bloqueio
+            from {{ ref("staging_lista_bloqueio_riorotativo") }}
+            where
+                data >= data_inicio_bloqueio
+                and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
+                {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+            qualify
+                row_number() over (
+                    partition by data, documento
+                    order by
+                        data_inicio_bloqueio desc,
+                        ultima_atualizacao desc,
+                        decisao_bloqueio desc
+                )
+                = 1
+        #}
+        select
+            cast(null as date) as data,
+            cast(null as string) as documento,
+            cast(null as string) as motivo_bloqueio,
+            cast(null as string) as decisao_bloqueio
     ),
     status as (
         /*
@@ -147,7 +157,7 @@ with
         left join
             entidade_credenciadora as ec
             on s.cnpj = ec.cnpj
-            and (s.data >= ec.data_inicio_vigencia or ec.data_inicio_vigencia is null)
+            and s.data >= ec.data_inicio_vigencia
             and (s.data <= ec.data_fim_vigencia or ec.data_fim_vigencia is null)
     ),
     dados_novos_chave as (
@@ -162,7 +172,7 @@ with
                         ifnull(documento, 'n/a')
                     )
                 )
-            ) as id_agente_credenciado_historico,
+            ) as id_guardador_veiculo_historico,
             *
         from dados_novos
     ),
@@ -172,7 +182,7 @@ with
     sha_dados_atuais as (
         {% if is_incremental() %}
             select
-                id_agente_credenciado_historico,
+                id_guardador_veiculo_historico,
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
@@ -180,18 +190,18 @@ with
             where {{ incremental_filter }}
         {% else %}
             select
-                cast(null as string) as id_agente_credenciado_historico,
+                cast(null as string) as id_guardador_veiculo_historico,
                 cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
                 cast(null as string) as id_execucao_dbt_atual
         {% endif %}
     ),
     sha_dados_completos as (
-        select n.*, a.* except (id_agente_credenciado_historico)
+        select n.*, a.* except (id_guardador_veiculo_historico)
         from sha_dados_novos as n
-        left join sha_dados_atuais as a using (id_agente_credenciado_historico)
+        left join sha_dados_atuais as a using (id_guardador_veiculo_historico)
     ),
-    agente_credenciado_colunas_controle as (
+    guardador_veiculo_colunas_controle as (
         select
             * except (
                 sha_dado_novo,
@@ -213,4 +223,4 @@ with
         from sha_dados_completos
     )
 select *
-from agente_credenciado_colunas_controle
+from guardador_veiculo_colunas_controle

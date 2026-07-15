@@ -1730,9 +1730,9 @@ CNPJ da entidade credenciada associada ao agente
 {% enddocs %}
 
 {% docs data_inicio_riorotativo %}
-Data de início do período informado para o cadastro do Rio Rotativo
+Data de início do período informado para o cadastro do Rio Rotativo Digital
 {% enddocs %}
 
 {% docs data_fim_riorotativo %}
-Data de fim do período informado para o cadastro do Rio Rotativo
+Data de fim do período informado para o cadastro do Rio Rotativo Digital
 {% enddocs %}

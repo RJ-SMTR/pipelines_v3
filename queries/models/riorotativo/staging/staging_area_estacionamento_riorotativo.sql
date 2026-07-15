@@ -33,7 +33,7 @@ select
         then null
         else
             array(
-                select trim(perfil)
+                select distinct trim(perfil)
                 from
                     unnest(
                         split(
@@ -66,5 +66,8 @@ select
     ) as datetime_captura
 from {{ source("source_riorotativo", "area_estacionamento") }}
 qualify
-    row_number() over (partition by data, area_codigo order by datetime_captura desc)
+    row_number() over (
+        partition by data, area_codigo, data_inicio_vigencia
+        order by datetime_captura desc
+    )
     = 1

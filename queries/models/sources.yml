@@ -333,6 +333,7 @@ sources:
 
     tables:
       - name: entidade_05019730000158
+      - name: entidade_34152025000122
       - name: lista_bloqueio
       - name: area_estacionamento
       - name: perfil_funcionamento

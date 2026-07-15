@@ -1,4 +1,5 @@
-{{ config(alias="agente_verificacao") }}
+/* TODO: reativar quando a captura da entidade de verificação existir */
+{{ config(alias="agente_verificacao", enabled=false) }}
 
 {% set entidades = [
     {"cnpj": "42498733000148", "source": "entidade_42498733000148"},

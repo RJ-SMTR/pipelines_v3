@@ -1,5 +1,7 @@
+/* TODO: reativar quando a captura de perfil_funcionamento_excecao existir */
 {{
     config(
+        enabled=false,
         materialized="incremental",
         alias="perfil_funcionamento_historico",
         incremental_strategy="merge",
