@@ -13,7 +13,7 @@
 
 ## [3.3.10] - 2026-06-11
 
-### Adicionado 
+### Adicionado
 - Adiciona condição para `tipo_transacao_jae` `EMV` na coluna `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 - Adiciona condição `id_cliente != '999999999'` no where do teste `not_null__meio_pagamento_jae__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 
