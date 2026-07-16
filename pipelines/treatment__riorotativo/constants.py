@@ -16,6 +16,7 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 RIOROTATIVO_DIARIO_CHECKS_LIST = {
     "guardador_veiculo_riorotativo": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique": {"description": "Todos os números de identificação são únicos"},
     },
     "guardador_veiculo_riorotativo_historico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
