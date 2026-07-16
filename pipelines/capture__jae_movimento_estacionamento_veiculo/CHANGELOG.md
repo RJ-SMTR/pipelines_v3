@@ -4,4 +4,4 @@
 
 ### Adicionado
 
-- Cria flow `capture__jae_movimento_estacionamento_veiculo`
+- Cria flow `capture__jae_movimento_estacionamento_veiculo` (https://github.com/RJ-SMTR/pipelines_v3/pull/390)
