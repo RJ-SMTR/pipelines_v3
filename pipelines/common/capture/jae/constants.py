@@ -103,6 +103,7 @@ GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
 MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID = "movimento_estacionamento_veiculo"
+ESTACIONAMENTO_VEICULO_TABLE_ID = "estacionamento_veiculo"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
@@ -610,6 +611,19 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     *
                 FROM
                     movimento_estacionamento_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    estacionamento_veiculo
                 WHERE
                     data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
                     AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
