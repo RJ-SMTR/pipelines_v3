@@ -9,6 +9,23 @@ models:
       Fonte: última partição de guardador_veiculo_riorotativo_historico dentro da janela.
       Guardador de veículo ausente da última captura é considerado removido; guardadores de veículo bloqueados são excluídos —
       para status e histórico use guardador_veiculo_riorotativo_historico.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - documento
+              - cnpj
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
+          config:
+            where: "1=1"
+          arguments:
+            combination_of_columns:
+              - cnpj
+              - numero_identificacao
     columns:
       - name: documento
         description: "{{ doc('documento_cliente') }} [protegido]"
@@ -29,6 +46,10 @@ models:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
         description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: numero_identificacao
+        description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
       - name: id_cliente
@@ -109,6 +130,10 @@ models:
         quote: true
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+        quote: true
+      - name: numero_identificacao
+        description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
       - name: documento
