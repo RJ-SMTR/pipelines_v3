@@ -7,6 +7,7 @@
             strategy="timestamp",
             updated_at="timestamp_ultima_atualizacao",
             invalidate_hard_deletes=True,
+            enabled=is_current_state_enabled(),
         )
     }}
 
