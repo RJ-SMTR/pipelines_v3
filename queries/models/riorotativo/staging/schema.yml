@@ -30,6 +30,10 @@ models:
         description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
+      - name: numero_identificacao
+        description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        quote: true
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
