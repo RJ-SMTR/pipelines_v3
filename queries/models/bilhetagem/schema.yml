@@ -80,10 +80,17 @@ models:
           - not_null:
               name: not_null__id_servico_jae__transacao
               config:
+                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__servico_jae__transacao
+              config:
+                severity: warn
+                where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
         data_type: string
@@ -239,7 +246,6 @@ models:
           - not_null:
               name: not_null__produto__transacao
               config:
-                severity: warn
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
@@ -264,8 +270,7 @@ models:
           - not_null:
               name: not_null__meio_pagamento__transacao
               config:
-
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
       - name: meio_pagamento_jae
@@ -274,7 +279,6 @@ models:
           - not_null:
               name: not_null__meio_pagamento_jae__transacao
               config:
-                severity: warn
                 where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
@@ -350,7 +354,6 @@ models:
           - not_null:
               name: not_null__id_servico_jae__integracao
               config:
-                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
@@ -358,7 +361,6 @@ models:
           - not_null:
               name: not_null__servico_jae__integracao
               config:
-                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
