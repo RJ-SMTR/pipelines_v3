@@ -23,6 +23,7 @@ select
     telefone,
     documento,
     tipo_documento,
+    numero_identificacao,
     cnpj,
     razao_social,
     nome_fantasia,

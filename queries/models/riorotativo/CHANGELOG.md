@@ -1,5 +1,12 @@
 # Changelog - riorotativo
 
+## [1.1.0] - 2026-07-16
+
+### Adicionado
+
+- Adiciona `numero_identificacao` aos modelos de guardadores de veículo, normalizado
+  com quatro dígitos, e teste de unicidade (https://github.com/RJ-SMTR/pipelines_v3/pull/384)
+
 ## [1.0.1] - 2026-07-15
 
 ### Alterado
