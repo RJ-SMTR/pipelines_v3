@@ -61,6 +61,7 @@ RIOROTATIVO_VAGAS_SOURCES, RIOROTATIVO_VAGAS_EXTRA_PARAMETERS = create_google_sh
             table_id="area_estacionamento",
             sheet_name="area_estacionamento",
             primary_keys=["area_codigo", "data_inicio_vigencia"],
+            pretreatment_reader_args={"dtype": "object"},
         ),
         GoogleSheetTable(
             table_id="perfil_funcionamento",
