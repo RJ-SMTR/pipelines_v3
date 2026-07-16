@@ -1,0 +1,72 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: riorotativo-area-estacionamento
+name: Rio Rotativo - Área de estacionamento
+version: 1.0.0
+status: active
+schema:
+  - name: area_estacionamento
+    quality:
+      - type: sql
+        description: Campos de quantidade devem conter valores inteiros quando preenchidos.
+        query: |
+          SELECT COUNT(*)
+          FROM area_estacionamento
+          WHERE
+            (area_vaga_total IS NOT NULL AND TRY_CAST(area_vaga_total AS BIGINT) IS NULL)
+            OR (area_vaga_moto IS NOT NULL AND TRY_CAST(area_vaga_moto AS BIGINT) IS NULL)
+            OR (area_vaga_idoso IS NOT NULL AND TRY_CAST(area_vaga_idoso AS BIGINT) IS NULL)
+            OR (area_vaga_pcd IS NOT NULL AND TRY_CAST(area_vaga_pcd AS BIGINT) IS NULL)
+            OR (
+              area_tempo_permanencia_hora IS NOT NULL
+              AND TRY_CAST(area_tempo_permanencia_hora AS BIGINT) IS NULL
+            )
+        mustBe: 0
+    properties:
+      - name: area_codigo
+        logicalType: string
+        required: true
+      - name: area_nome
+        logicalType: string
+        required: true
+      - name: area_logradouro_logradouro
+        logicalType: string
+        required: true
+      - name: area_endereco_referencia
+        logicalType: string
+      - name: area_poligono
+        logicalType: string
+        required: true
+      - name: area_observacao
+        logicalType: string
+      - name: area_vaga_total
+        logicalType: string
+        required: true
+      - name: area_vaga_moto
+        logicalType: string
+      - name: area_vaga_idoso
+        logicalType: string
+      - name: area_vaga_pcd
+        logicalType: string
+      - name: area_tempo_permanencia_hora
+        logicalType: string
+        required: true
+      - name: area_perfil_funcionamento
+        logicalType: string
+        required: true
+      - name: data_inicio_vigencia
+        logicalType: string
+        required: true
+      - name: data_fim_vigencia
+        logicalType: string
+      - name: ultimo_editor
+        logicalType: string
+        required: true
+      - name: ultima_atualizacao
+        logicalType: string
+        required: true
+servers:
+  - server: incoming
+    type: local
+    path: data.csv
+    format: csv

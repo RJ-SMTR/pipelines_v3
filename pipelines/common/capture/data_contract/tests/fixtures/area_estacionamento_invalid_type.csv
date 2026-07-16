@@ -1,0 +1,2 @@
+area_codigo,area_nome,area_logradouro_logradouro,area_endereco_referencia,area_poligono,area_observacao,area_vaga_total,area_vaga_moto,area_vaga_idoso,area_vaga_pcd,area_tempo_permanencia_hora,area_perfil_funcionamento,data_inicio_vigencia,data_fim_vigencia,ultimo_editor,ultima_atualizacao
+A01,Área 01,Rua A,Próximo à praça,"POLYGON ((0 0, 0 1, 1 1, 0 0))",,dez,2,1,1,2,"[P01, P02]",01/07/2026,,editor@example.com,2026-07-16 10:00:00

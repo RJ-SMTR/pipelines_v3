@@ -1,0 +1,45 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: riorotativo-perfil-funcionamento
+name: Rio Rotativo - Perfil de funcionamento
+version: 1.0.0
+status: active
+schema:
+  - name: perfil_funcionamento
+    quality:
+      - type: sql
+        description: Horários devem ser compatíveis com o tipo TIME.
+        query: |
+          SELECT COUNT(*)
+          FROM perfil_funcionamento
+          WHERE
+            TRY_CAST(perfil_funcionamento_horario_inicio AS TIME) IS NULL
+            OR TRY_CAST(perfil_funcionamento_horario_fim AS TIME) IS NULL
+        mustBe: 0
+    properties:
+      - name: perfil_funcionamento_codigo
+        logicalType: string
+        required: true
+      - name: perfil_funcionamento_nome
+        logicalType: string
+        required: true
+      - name: perfil_funcionamento_dia_semana
+        logicalType: string
+        required: true
+      - name: perfil_funcionamento_horario_inicio
+        logicalType: string
+        required: true
+      - name: perfil_funcionamento_horario_fim
+        logicalType: string
+        required: true
+      - name: ultimo_editor
+        logicalType: string
+        required: true
+      - name: ultima_atualizacao
+        logicalType: string
+        required: true
+servers:
+  - server: incoming
+    type: local
+    path: data.csv
+    format: csv

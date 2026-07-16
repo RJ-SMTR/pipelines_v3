@@ -1,5 +1,11 @@
 # Changelog - capture__riorotativo_credenciados
 
+## [1.1.0] - 2026-07-16
+
+### Adicionado
+
+- Valida os arquivos brutos das tabelas ativas com contratos ODCS versionados.
+
 ## [1.0.1] - 2026-07-15
 
 ### Adicionado

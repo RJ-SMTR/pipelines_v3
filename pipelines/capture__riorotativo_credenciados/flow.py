@@ -8,6 +8,7 @@ Captura abas de Google Sheets com dados de credenciados do Rio Rotativo Digital.
 from typing import Optional
 
 from pipelines.capture__riorotativo_credenciados import constants
+from pipelines.common.capture.data_contract.tasks import validate_data_contract
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 from pipelines.common.capture.google_sheets.tasks import create_google_sheet_extractor
@@ -33,4 +34,5 @@ def capture__riorotativo_credenciados(  # noqa: PLR0913
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
         extra_parameters=constants.RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS,
+        validate_contract_task=validate_data_contract,
     )

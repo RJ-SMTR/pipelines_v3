@@ -33,6 +33,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
+    validate_contract_task: Optional[Task] = None,
 ) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
@@ -53,6 +54,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         should_capture_task (Optional[Task]): Task de gate (opcional) que retorna um
             `ShouldCapture`. Executa após o setup do ambiente e, se `value` for False, interrompe
             a captura cedo. Se None, mantém o comportamento padrão (sempre captura).
+        validate_contract_task (Optional[Task]): Task opcional executada após a preservação do
+            arquivo raw e antes do pré-tratamento.
 
     Returns:
         dict: Dicionário com o retorno das tasks. Sempre inclui `should_capture` (bool) e
@@ -136,9 +139,27 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     tasks["upload_raw"] = upload_raw_future.result()
 
+    pretreat_wait_for = [
+        tasks["upload_raw"],
+        *tasks_wait_for.get("pretreat", []),
+    ]
+    if validate_contract_task is not None:
+        validate_contract_future = validate_contract_task.map(
+            context=contexts,
+            wait_for=unmapped(
+                [
+                    tasks["upload_raw"],
+                    tasks["setup_enviroment"],
+                    *tasks_wait_for.get("validate_contract", []),
+                ]
+            ),
+        )
+        tasks["validate_contract"] = validate_contract_future.result()
+        pretreat_wait_for.append(tasks["validate_contract"])
+
     pretreat_future = transform_raw_to_nested_structure.map(
         context=contexts,
-        wait_for=unmapped([tasks["upload_raw"], *tasks_wait_for.get("pretreat", [])]),
+        wait_for=unmapped(pretreat_wait_for),
     )
 
     tasks["pretreat"] = pretreat_future.result()

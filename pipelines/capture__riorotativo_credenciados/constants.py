@@ -4,6 +4,7 @@ Valores constantes para captura de dados de credenciados do Rio Rotativo Digital
 """
 
 from datetime import datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
@@ -27,6 +28,7 @@ RIOROTATIVO_RENAME_MAPPING = {
     "ultimoeditor": "ultimo_editor",
     "ultimaatualizacao": "ultima_atualizacao",
 }
+CONTRACTS_DIR = Path(__file__).parent / "contracts"
 
 RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
     create_google_sheet_capture_params(
@@ -58,3 +60,8 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
         ],
     )
 )
+
+for table_id in ("entidade_05019730000158", "entidade_34152025000122"):
+    RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS[table_id]["data_contract_path"] = str(
+        CONTRACTS_DIR / f"{table_id}.odcs.yaml"
+    )

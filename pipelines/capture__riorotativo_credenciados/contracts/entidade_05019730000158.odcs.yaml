@@ -1,0 +1,26 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: riorotativo-entidade-05019730000158
+name: Rio Rotativo - Entidade 05019730000158
+version: 1.0.0
+status: active
+schema:
+  - name: entidade_05019730000158
+    properties:
+      - name: cpf
+        logicalType: string
+        required: true
+      - name: identificacao
+        logicalType: string
+        required: true
+      - name: ultimo_editor
+        logicalType: string
+        required: true
+      - name: ultima_atualizacao
+        logicalType: string
+        required: true
+servers:
+  - server: incoming
+    type: local
+    path: data.csv
+    format: csv
