@@ -441,7 +441,9 @@ with
                 then "Dinheiro (Botoeira)"
                 when tipo_transacao_jae like "Gratuidade operador%"
                 then "Gratuidade Operadora"
-                when t.meio_pagamento_jae = "PIX"
+                when
+                    t.meio_pagamento_jae = "PIX"
+                    or t.tipo_transacao_jae = "Débito PIX a bordo"
                 then "PIX"
             end as produto,
             case
