@@ -1,5 +1,11 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.1.3] - 2026-07-16
+
+### Adicionado
+
+- Adiciona tabelas no exclude e no filter (https://github.com/RJ-SMTR/pipelines_v3/pull/389)
+
 ## [1.1.2] - 2026-05-21
 
 ### Alterado
