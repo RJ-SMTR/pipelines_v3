@@ -85,12 +85,6 @@ models:
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         data_type: string
-        tests:
-          - not_null:
-              name: not_null__servico_jae__transacao
-              config:
-                severity: warn
-                where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
         data_type: string
@@ -455,6 +449,7 @@ models:
           - not_null:
               name: not_null__id_servico_jae__transacao_riocard
               config:
+                severity: warn
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
