@@ -80,6 +80,10 @@ JAE_DATABASE_SETTINGS = {
         "engine": "postgresql",
         "host": "10.128.0.31",
     },
+    "estacionamento_db": {
+        "engine": "postgresql",
+        "host": "10.5.112.172",
+    },
 }
 
 JAE_SECRET_PATH = "smtr_jae_access_data"
@@ -98,7 +102,7 @@ CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
-
+MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID = "movimento_estacionamento_veiculo"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
@@ -599,5 +603,18 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "database": "ressarcimento_db",
         "primary_keys": ["id_linha"],
         "capture_flow": "ordem_pagamento",
+    },
+    MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    movimento_estacionamento_veiculo
+                /*WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'*/
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
     },
 }
