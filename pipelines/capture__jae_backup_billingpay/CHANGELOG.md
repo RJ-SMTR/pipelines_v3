@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona tabelas no exclude e no filter
+- Adiciona tabelas no exclude e no filter (https://github.com/RJ-SMTR/pipelines_v3/pull/389)
 
 ## [1.1.2] - 2026-05-21
 
