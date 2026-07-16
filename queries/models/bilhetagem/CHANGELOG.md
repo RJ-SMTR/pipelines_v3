@@ -1,15 +1,19 @@
 # Changelog - bilhetagem
 
-## [3.3.11] - 2026-07-15
-
-### Adicionado
-
-- Adiciona nova condição de exceção dos testes do campo `produto` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+## [3.3.12] - 2026-07-16
 
 ### Alterado
 
-- Altera severidade dos warns para os testes dos campos `id_servico_jae`, `servico_jae`, `meio_pagamento_jae` e `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
-- Altera policy tag do campo `documento_cliente` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
+- Altera tratamento da coluna `produto` para classificar transações com `meio_pagamento_jae = 'PIX'` ou `tipo_transacao_jae = 'Débito PIX a bordo'` como `PIX` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera teste `not_null` da coluna `meio_pagamento` adicionando o filtro `id_cliente != '999999999'` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera testes `not_null` das colunas `id_servico_jae` e `servico_jae` adicionando `severity: warn` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera testes `not_null` das colunas `id_servico_jae` adicionando `severity: warn` na tabela `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
+## [3.3.11] - 2026-07-15
+
+### Alterado
+
+- Altera policy tag da coluna `documento_cliente` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
 
 ## [3.3.10] - 2026-06-11
 
