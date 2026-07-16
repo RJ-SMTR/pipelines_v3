@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.5] - 2026-07-16
+
+### Alterado
+
+- Altera teste `not_null` das colunas `id_servico_jae` e `servico_jae` adicionando `severity: warn` na tabela `gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
 ## [2.2.4] - 2026-07-09
 
 ### Adicionado
