@@ -12,7 +12,7 @@ with
             select
                 data,
                 lpad(
-                    safe_cast(identificacao as string), 4, '0'
+                    safe_cast(json_value(content, '$.identificacao') as string), 4, '0'
                 ) as numero_identificacao,
                 lpad(safe_cast(cpf as string), 11, '0') as documento,
                 "CPF" as tipo_documento,
