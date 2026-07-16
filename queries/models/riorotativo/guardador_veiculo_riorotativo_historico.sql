@@ -63,7 +63,7 @@
 
 with
     credenciados as (
-        select data, documento, tipo_documento, cnpj
+        select data, documento, tipo_documento, numero_identificacao, cnpj
         from {{ ref("staging_guardador_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
@@ -111,6 +111,7 @@ with
             c.cnpj,
             c.documento,
             c.tipo_documento,
+            c.numero_identificacao,
             if(b.documento is not null, "bloqueado", "ativo") as status,
             b.motivo_bloqueio,
             b.decisao_bloqueio
@@ -148,6 +149,7 @@ with
             s.cnpj,
             s.documento,
             s.tipo_documento,
+            s.numero_identificacao,
             c.id_cliente,
             c.nome,
             c.email,

@@ -1745,6 +1745,10 @@ Data de fim do período informado para o cadastro do Rio Rotativo Digital
 Tipo do documento do guardador de veículo
 {% enddocs %}
 
+{% docs numero_identificacao_guardador_veiculo_riorotativo %}
+Número de identificação do guardador de veículo
+{% enddocs %}
+
 {% docs tipo_documento_agente_verificacao_riorotativo %}
 Tipo do documento do agente de verificação
 {% enddocs %}

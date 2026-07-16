@@ -219,13 +219,14 @@ def run_dbt_snapshots(
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
+    snapshot_flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     for context in contexts:
         if context.snapshot_selector is None:
             continue
         run_dbt(
             dbt_obj=context.snapshot_selector,
             dbt_vars=context.dbt_vars,
-            flags=flags,
+            flags=snapshot_flags,
             is_snapshot=True,
             env=context.env,
         )
