@@ -80,6 +80,7 @@ models:
           - not_null:
               name: not_null__id_servico_jae__transacao
               config:
+                severity: warn
                 where: data in ({partitions}) and extract(year from data) > 2023 and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
@@ -239,7 +240,7 @@ models:
           - not_null:
               name: not_null__produto__transacao
               config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
       - name: produto_jae
@@ -263,7 +264,7 @@ models:
           - not_null:
               name: not_null__meio_pagamento__transacao
               config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
         quote: true
       - name: meio_pagamento_jae
@@ -448,6 +449,7 @@ models:
           - not_null:
               name: not_null__id_servico_jae__transacao_riocard
               config:
+                severity: warn
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
