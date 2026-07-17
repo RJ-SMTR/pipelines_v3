@@ -204,11 +204,7 @@ with
     -- 3. Filtra viagens com mesma chegada e partida pelo maior % de conformidade do
     -- shape
     filtro_desvio as (
-        select
-            {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
-                * except (rn, id_tipo_trajeto)
-            {% else %} * except (rn)
-            {% endif %}
+        select * except (rn)
         from
             (
                 select
@@ -247,21 +243,21 @@ with
                     *,
                     row_number() over (
                         partition by id_veiculo, datetime_partida
-                        order by distancia_planejada desc
+                        order by distancia_planejada desc, id_tipo_trajeto
                     ) as rn
                 from filtro_desvio
             )
         where rn = 1
     )
 -- filtro_chegada
-select * except (rn)
+select * except (rn, id_tipo_trajeto)
 from
     (
         select
             *,
             row_number() over (
                 partition by id_veiculo, datetime_chegada
-                order by distancia_planejada desc
+                order by distancia_planejada desc, id_tipo_trajeto
             ) as rn
         from filtro_partida
     )

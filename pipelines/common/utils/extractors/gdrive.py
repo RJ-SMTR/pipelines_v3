@@ -65,8 +65,7 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         rename_mapping: Dicionário com mapeamento de renomeação de colunas
         dtypes: Mapeamento ``coluna -> dtype``
         parse_dates: Mapeamento ``coluna -> kwargs`` repassados a ``pd.to_datetime`` (ex.:
-            ``{"dia": {"format": "%d/%m/%Y"}}``). ``errors="coerce"`` é o padrão para não quebrar
-            com valores inválidos
+            ``{"dia": {"format": "%d/%m/%Y"}}``)
 
     Returns:
         DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
@@ -84,7 +83,21 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         .execute()
     )["values"]
 
-    df = pd.DataFrame(file[1:], columns=file[0])
+    if not file:
+        raise ValueError(f"A aba '{sheet_name}' está vazia ou não retornou dados.")
+
+    columns = file[0]
+    rows = []
+    for row_number, row in enumerate(file[1:], start=2):
+        if len(row) > len(columns):
+            raise ValueError(
+                f"A linha {row_number} da aba {sheet_name} tem {len(row)} valores, "
+                f"mas o cabeçalho tem {len(columns)} colunas"
+            )
+
+        rows.append([*row, *([""] * (len(columns) - len(row)))])
+
+    df = pd.DataFrame(rows, columns=columns)
 
     df.columns = [
         normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True)

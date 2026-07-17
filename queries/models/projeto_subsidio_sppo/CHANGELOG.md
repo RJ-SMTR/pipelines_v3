@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.4.1] - 2026-07-08
+
+### Adicionado
+
+- Adiciona filtro de `id_tipo_trajeto` nas ctes `filtro_partida` e `filtro_chegada do modelo` no modelo de ` viagem_completa`. (https://github.com/RJ-SMTR/pipelines_v3/pull/363)
+
 ## [9.4.0] - 2026-07-06
 
 ### Adicionado
