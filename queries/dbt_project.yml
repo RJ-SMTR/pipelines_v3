@@ -556,6 +556,12 @@ models:
       staging:
         +materialized: view
         +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view

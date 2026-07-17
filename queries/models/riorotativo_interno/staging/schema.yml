@@ -1,0 +1,149 @@
+version: 2
+
+models:
+  - name: staging_movimento_estacionamento_veiculo_riorotativo
+    description: Uma linha por movimento de estacionamento capturado da Jaé
+    columns:
+      - name: id_movimento_estacionamento_veiculo
+        description: Identificador do movimento
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_movimento__staging_movimento_estacionamento_veiculo_riorotativo
+          - not_null:
+              name: not_null__id_movimento__staging_movimento_estacionamento_veiculo_riorotativo
+      - name: id_estacionamento_veiculo
+        description: Identificador da ativação de estacionamento
+        data_type: integer
+        quote: true
+      - name: datetime_periodo_inicial
+        description: Data e hora de início do período adquirido
+        data_type: datetime
+        quote: true
+      - name: datetime_periodo_final
+        description: Data e hora de término do período adquirido
+        data_type: datetime
+        quote: true
+
+  - name: staging_estacionamento_veiculo_riorotativo
+    description: Uma linha por ativação de estacionamento capturada da Jaé
+    columns:
+      - name: id_estacionamento_veiculo
+        description: Identificador da ativação
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_estacionamento__staging_estacionamento_veiculo_riorotativo
+          - not_null:
+              name: not_null__id_estacionamento__staging_estacionamento_veiculo_riorotativo
+      - name: id_veiculo_cliente
+        description: Identificador do vínculo entre veículo e motorista
+        data_type: integer
+        quote: true
+
+  - name: staging_fiscalizacao_veiculo_riorotativo
+    description: Uma linha por fiscalização de veículo capturada da Jaé
+    columns:
+      - name: id_fiscalizacao_veiculo
+        description: Identificador da fiscalização
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_fiscalizacao__staging_fiscalizacao_veiculo_riorotativo
+          - not_null:
+              name: not_null__id_fiscalizacao__staging_fiscalizacao_veiculo_riorotativo
+      - name: cpf_guardador_veiculo
+        description: CPF informado no login do guardador
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+      - name: datetime_fiscalizacao
+        description: Data e hora registradas em campo pela origem em UTC-3
+        data_type: datetime
+        quote: true
+      - name: datetime_inclusao
+        description: Data e hora de recebimento pela base central, convertida de UTC para o horário do Rio de Janeiro
+        data_type: datetime
+        quote: true
+
+  - name: staging_fiscalizacao_veiculo_imagem_riorotativo
+    description: Uma linha por registro de imagens associado a uma fiscalização de veículo
+    columns:
+      - name: id_fiscalizacao_veiculo
+        description: Identificador da fiscalização à qual as imagens pertencem
+        data_type: integer
+        quote: true
+        tests:
+          - not_null:
+              name: not_null__id_fiscalizacao__staging_fiscalizacao_veiculo_imagem_riorotativo
+      - name: indicador_imagem_placa
+        description: Indica se o registro contém fotografia da placa
+        data_type: boolean
+        quote: true
+      - name: indicador_imagem1_veiculo
+        description: Indica se o registro contém a primeira fotografia do veículo
+        data_type: boolean
+        quote: true
+      - name: indicador_imagem2_veiculo
+        description: Indica se o registro contém a segunda fotografia do veículo
+        data_type: boolean
+        quote: true
+      - name: datetime_inclusao_imagem
+        description: Data e hora de inclusão das imagens, convertida de UTC para o horário do Rio de Janeiro
+        data_type: datetime
+        quote: true
+
+  - name: staging_veiculo_riorotativo
+    description: Uma linha por veículo cadastrado na aplicação de estacionamento
+    columns:
+      - name: id_veiculo
+        description: Identificador do veículo
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_veiculo__staging_veiculo_riorotativo
+      - name: placa
+        description: Placa normalizada do veículo
+        data_type: string
+        quote: true
+
+  - name: staging_veiculo_cliente_riorotativo
+    description: Uma linha por vínculo entre motorista e veículo
+    columns:
+      - name: id_veiculo_cliente
+        description: Identificador do vínculo
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_veiculo_cliente__staging_veiculo_cliente_riorotativo
+      - name: cpf_motorista
+        description: CPF informado no login do motorista
+        data_type: string
+        quote: true
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+
+  - name: staging_notificacao_veiculo_riorotativo
+    description: Uma linha por notificação associada a fiscalização e estacionamento
+    columns:
+      - name: id_notificacao_veiculo
+        description: Identificador da notificação
+        data_type: integer
+        quote: true
+        tests:
+          - unique:
+              name: unique__id_notificacao__staging_notificacao_veiculo_riorotativo
+      - name: id_fiscalizacao_veiculo
+        description: Fiscalização que originou a notificação
+        data_type: integer
+        quote: true
+      - name: id_estacionamento_veiculo
+        description: Estacionamento associado à notificação
+        data_type: integer
+        quote: true

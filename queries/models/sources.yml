@@ -309,6 +309,13 @@ sources:
       - name: resultado_verificacao_captura_jae
       - name: device_operadora
       - name: transacao_erro
+      - name: movimento_estacionamento_veiculo
+      - name: estacionamento_veiculo
+      - name: fiscalizacao_veiculo
+      - name: fiscalizacao_veiculo_imagem
+      - name: veiculo
+      - name: veiculo_cliente
+      - name: notificacao_veiculo
 
   - name: source_sonda
     database: rj-smtr-staging
