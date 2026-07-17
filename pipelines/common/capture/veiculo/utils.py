@@ -22,10 +22,6 @@ def pre_treatment_sppo_licenciamento(
 
     data = data.dropna(subset=["id_veiculo"])
 
-    data["indicador_ar_condicionado"] = data["tipo_veiculo"].map(
-        lambda x: None if not isinstance(x, str) else bool("C/AR" in x.replace(" ", ""))
-    )
-
     data["status"] = "Licenciado"
     return data
 

@@ -31,7 +31,7 @@ SPPO_LICENCIAMENTO_MAPPING_KEYS = {
     "lotacao_sentado": "quantidade_lotacao_sentado",
     "lotacao_pe": "quantidade_lotacao_pe",
     "elevador": "indicador_elevador",
-    "ar_condicionado": "indicador_ar_condicionado_stu",
+    "ar_condicionado": "indicador_ar_condicionado",
     "tipo_veiculo": "tipo_veiculo",
     "combustivel": "tipo_combustivel",
     "portas": "quantidade_portas",

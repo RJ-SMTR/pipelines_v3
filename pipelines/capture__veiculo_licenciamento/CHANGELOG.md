@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-07-17
+
+### Corrigido
+
+- Corrigido o indicador_ar_condicionado ()
+
 ## [1.0.1] - 2026-06-12
 
 ### Adicionado
