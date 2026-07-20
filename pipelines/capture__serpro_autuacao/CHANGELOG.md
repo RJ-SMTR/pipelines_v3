@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Define `timeout_seconds=18000` (5h) no flow
+- Define `timeout_seconds=18000` (5h) no flow (https://github.com/RJ-SMTR/pipelines_v3/pull/394)
 
 ## [1.1.0] - 2026-06-11
 
