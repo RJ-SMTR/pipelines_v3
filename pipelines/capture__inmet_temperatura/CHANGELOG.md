@@ -1,5 +1,11 @@
 # Changelog - capture__inmet_temperatura
 
+## [1.0.2] - 2026-07-20
+
+### Adicionado
+
+- Adiciona schedule diário inativo (`0 5 * * *`) para habilitar lógica de recapture via `schedule_cron`
+
 ## [1.0.1] - 2026-06-12
 
 ### Adicionado
