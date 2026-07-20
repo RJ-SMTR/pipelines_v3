@@ -16,7 +16,7 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 from pipelines.common.utils.prefect import flow
 
 
-@flow(log_prints=True, flow_run_name=rename_capture_flow_run, timeout_seconds=10800)
+@flow(log_prints=True, flow_run_name=rename_capture_flow_run, timeout_seconds=18000)
 def capture__serpro_autuacao(
     env: Optional[str] = None,
     timestamp: Optional[str] = None,
