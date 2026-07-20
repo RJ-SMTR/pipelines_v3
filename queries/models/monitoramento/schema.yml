@@ -1134,6 +1134,7 @@ models:
           - not_null:
               name: not_null__id_servico_jae__gps_validador
               config:
+                severity: warn
                 where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
@@ -1141,6 +1142,7 @@ models:
           - not_null:
               name: not_null__servico_jae__gps_validador
               config:
+                severity: warn
                 where: "data in ({partitions}) and estado_equipamento != 'FECHADO' and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')"
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"

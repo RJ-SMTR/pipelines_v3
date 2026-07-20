@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.2] - 2026-07-09
+
+### Alterado
+
+- Alterado o `tipo_dia` no modelo `aux_calendario_manual.sql` de `2026-06-29` -> `Ponto Facultativo` DECRETO RIO Nº 58230 DE 24 DE JUNHO DE 2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
+
 ## [1.8.1] - 2026-06-24
 
 ### Adicionado

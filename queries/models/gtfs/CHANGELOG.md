@@ -1,5 +1,11 @@
 # Changelog - gtfs
 
+## [1.4.0] - 2026-07-13
+
+### Corrigido
+
+- Corrigida a lógica do modelo `trips_filtrada_aux_gtfs`, afetada durante a migração. (https://github.com/RJ-SMTR/pipelines_v3/pull/371)
+
 ## [1.3.9] - 2026-06-11
 
 ### Adicionado

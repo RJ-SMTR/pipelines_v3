@@ -1,9 +1,23 @@
 # Changelog - bilhetagem
 
+## [3.3.12] - 2026-07-16
+
+### Alterado
+
+- Altera tratamento da coluna `produto` para classificar transações com `meio_pagamento_jae = 'PIX'` ou `tipo_transacao_jae = 'Débito PIX a bordo'` como `PIX` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera teste `not_null` da coluna `meio_pagamento` adicionando o filtro `id_cliente != '999999999'` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera testes `not_null` das colunas `id_servico_jae` e `servico_jae` adicionando `severity: warn` na tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+- Altera testes `not_null` das colunas `id_servico_jae` adicionando `severity: warn` na tabela `transacao_riocard.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
+## [3.3.11] - 2026-07-15
+
+### Alterado
+
+- Altera policy tag da coluna `documento_cliente` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/377)
+
 ## [3.3.10] - 2026-06-11
 
 ### Adicionado
-
 - Adiciona condição para `tipo_transacao_jae` `EMV` na coluna `meio_pagamento` da tabela `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 - Adiciona condição `id_cliente != '999999999'` no where do teste `not_null__meio_pagamento_jae__transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/243)
 
