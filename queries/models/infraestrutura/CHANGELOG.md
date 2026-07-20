@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Exclui jobs com `statementType = SCRIPT` do modelo `log_bigquery` para evitar double count de bytes faturados já contabilizados nos jobs filhos (https://github.com/RJ-SMTR/pipelines_v3/pull/399)
+- Exclui jobs com `statementType = SCRIPT` do modelo `log_bigquery` para evitar contagem duplicada de bytes faturados já contabilizados nos jobs filhos (https://github.com/RJ-SMTR/pipelines_v3/pull/399)
 
 ## [1.0.1] - 2026-04-20
 
