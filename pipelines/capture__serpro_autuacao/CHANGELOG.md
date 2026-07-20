@@ -1,5 +1,11 @@
 # Changelog - capture__serpro_autuacao
 
+## [1.1.1] - 2026-07-20
+
+### Alterado
+
+- Define `timeout_seconds=18000` (5h) no flow
+
 ## [1.1.0] - 2026-06-11
 
 ### Alterado
