@@ -86,9 +86,8 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         )
 
         post_tests_notify = task_dbt_selector_test_notify_discord.map(
-            context=contexts,
+            context=post_tests,
             mode=unmapped("post"),
-            wait_for=unmapped([post_tests]),
         ).result()
 
         run_dbt_snapshots(
