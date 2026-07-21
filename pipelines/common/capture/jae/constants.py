@@ -594,20 +594,20 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "capture_flow": "ordem_pagamento",
         "pretreat_funcs": [raise_if_column_isna(column_name="id_ordem_pagamento")],
     },
-    "ordem_pagamento_estacionamento": {
-        "query": """
-                SELECT
-                    *
-                FROM
-                    ordem_pagamento_estacionamento
-                WHERE
-                    data_inclusao BETWEEN '{start}'
-                    AND '{end}'
-            """,
-        "database": "ressarcimento_db",
-        "primary_keys": ["id"],
-        "capture_flow": "ordem_pagamento",
-    },
+    # "ordem_pagamento_estacionamento": {
+    #     "query": """
+    #             SELECT
+    #                 *
+    #             FROM
+    #                 ordem_pagamento_estacionamento
+    #             WHERE
+    #                 data_inclusao BETWEEN '{start}'
+    #                 AND '{end}'
+    #         """,
+    #     "database": "ressarcimento_db",
+    #     "primary_keys": ["id"],
+    #     "capture_flow": "ordem_pagamento",
+    # },
     "linha_sem_ressarcimento": {
         "query": """
                 SELECT
@@ -672,7 +672,7 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     AND data_inclusao < timestamp '{end}'
             """,
         "database": "estacionamento_db",
-        "capture_delay_minutes": {"0": 5},
+        "primary_keys": ["id"],
         "capture_flow": "riorotativo_auxiliar",
     },
     VEICULO_CLIENTE_TABLE_ID: {
@@ -686,7 +686,7 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     AND data_inclusao < timestamp '{end}'
             """,
         "database": "estacionamento_db",
-        "capture_delay_minutes": {"0": 5},
+        "primary_keys": ["id"],
         "capture_flow": "riorotativo_auxiliar",
     },
 }
