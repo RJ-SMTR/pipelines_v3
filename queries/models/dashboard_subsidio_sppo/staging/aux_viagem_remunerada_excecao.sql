@@ -19,6 +19,22 @@ with
                         cast([] as array<string>) as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
+                    struct(  -- Processo 000399.016030/2026-59:
+                        '2026-06-13' as data_inicio,
+                        '2026-06-13' as data_fim,
+                        '2026-06-13T15:00:00' as faixa_horaria_inicio,
+                        '2026-06-13T17:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo 000399.016030/2026-59:
+                        '2026-06-13' as data_inicio,
+                        '2026-06-13' as data_fim,
+                        '2026-06-13T18:00:00' as faixa_horaria_inicio,
+                        '2026-06-13T20:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
                     struct(  -- Processo 000399.016030/2026-59
                         '2026-06-19' as data_inicio,
                         '2026-06-19' as data_fim,
