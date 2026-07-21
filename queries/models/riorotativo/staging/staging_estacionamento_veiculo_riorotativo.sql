@@ -3,9 +3,9 @@
 select
     data,
     hora,
-    safe_cast(id as int64) as id_estacionamento_veiculo,
-    safe_cast(
-        json_value(content, '$.id_veiculo_cliente') as int64
+    replace(safe_cast(id as string), ".0", "") as id_estacionamento_veiculo,
+    replace(
+        safe_cast(json_value(content, '$.id_veiculo_cliente') as string), ".0", ""
     ) as id_veiculo_cliente,
     safe_cast(json_value(content, '$.latitude') as float64) as latitude,
     safe_cast(json_value(content, '$.longitude') as float64) as longitude,

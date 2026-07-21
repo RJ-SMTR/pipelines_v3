@@ -3,9 +3,11 @@
 select
     data,
     hora,
-    safe_cast(id as int64) as id_fiscalizacao_veiculo,
-    safe_cast(
-        json_value(content, '$.id_status_fiscalizacao_veiculo') as int64
+    replace(safe_cast(id as string), ".0", "") as id_fiscalizacao_veiculo,
+    replace(
+        safe_cast(json_value(content, '$.id_status_fiscalizacao_veiculo') as string),
+        ".0",
+        ""
     ) as id_status_fiscalizacao_veiculo,
     regexp_replace(
         safe_cast(json_value(content, '$.tx_login') as string), r'\D', ''
@@ -24,10 +26,17 @@ select
             ''
         )
     ) as placa_digitada,
-    safe_cast(json_value(content, '$.id_veiculo') as int64) as id_veiculo,
-    safe_cast(
-        json_value(content, '$.data_fiscalizacao') as datetime
-    ) as datetime_fiscalizacao,
+    replace(
+        safe_cast(json_value(content, '$.id_veiculo') as string), ".0", ""
+    ) as id_veiculo,
+    datetime(
+        parse_timestamp(
+            '%Y-%m-%dT%H:%M:%E6S%Ez',
+            safe_cast(json_value(content, '$.data_fiscalizacao') as string)
+        ),
+        "America/Sao_Paulo"
+    )
+    + interval 3 hour as data_fiscalizacao,
     datetime(
         safe_cast(json_value(content, '$.data_analise') as timestamp),
         "America/Sao_Paulo"

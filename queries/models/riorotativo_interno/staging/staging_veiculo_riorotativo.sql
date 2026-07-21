@@ -2,14 +2,15 @@
 
 select
     data,
-    hora,
-    safe_cast(id as int64) as id_veiculo,
+    replace(safe_cast(id as string), ".0", "") as id_veiculo,
     upper(
         regexp_replace(
             safe_cast(json_value(content, '$.placa') as string), r'[^A-Za-z0-9]', ''
         )
     ) as placa,
-    safe_cast(json_value(content, '$.id_modelo_veiculo') as int64) as id_modelo_veiculo,
+    replace(
+        safe_cast(json_value(content, '$.id_modelo_veiculo') as string), ".0", ""
+    ) as id_modelo_veiculo,
     safe_cast(json_value(content, '$.cor') as string) as cor,
     datetime(
         safe_cast(json_value(content, '$.data_inclusao') as timestamp),

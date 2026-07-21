@@ -2,12 +2,13 @@
 
 select
     data,
-    hora,
-    safe_cast(id as int64) as id_veiculo_cliente,
+    replace(safe_cast(id as string), ".0", "") as id_veiculo_cliente,
     regexp_replace(
         safe_cast(json_value(content, '$.tx_login') as string), r'\D', ''
     ) as cpf_motorista,
-    safe_cast(json_value(content, '$.id_veiculo') as int64) as id_veiculo,
+    replace(
+        safe_cast(json_value(content, '$.id_veiculo') as string), ".0", ""
+    ) as id_veiculo,
     datetime(
         safe_cast(json_value(content, '$.data_inativacao') as timestamp),
         "America/Sao_Paulo"

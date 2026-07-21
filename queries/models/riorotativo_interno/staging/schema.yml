@@ -59,8 +59,6 @@ models:
         description: CPF informado no login do guardador
         data_type: string
         quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: datetime_fiscalizacao
         description: Data e hora registradas em campo pela origem em UTC-3
         data_type: datetime
@@ -126,8 +124,7 @@ models:
         description: CPF informado no login do motorista
         data_type: string
         quote: true
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+
 
   - name: staging_notificacao_veiculo_riorotativo
     description: Uma linha por notificação associada a fiscalização e estacionamento
