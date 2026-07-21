@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Valores constantes para captura de dados auxiliares do RioRotativo da Jaé
+Valores constantes para captura de dados auxiliares do Rio Rotativo Digital da Jaé
 """
 
 from datetime import datetime
