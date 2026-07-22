@@ -10,23 +10,35 @@ from pathlib import Path
 FALLBACK_REPO = "RJ-SMTR/pipelines_v3"
 DEFAULT_PROJECT_OWNER = "RJ-SMTR"
 DEFAULT_PROJECT_NUMBER = 21
+COMMAND_TIMEOUT_SECONDS = 60
 DEFAULT_FIELDS = {
     "status": "To Do",
-    "apetite": "2 semanas",
-    "raia": "Small Batch",
+    "apetite": "⏱️ 2 semanas",
+    "raia": "🗂️ Small Batch",
 }
 FALLBACK_NUCLEO = "Inovação"
 
 
+def run_command(args, input_text=None):
+    try:
+        return subprocess.run(
+            args,
+            input=input_text,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as exc:
+        command = " ".join(args)
+        raise RuntimeError(
+            f"command timed out after {COMMAND_TIMEOUT_SECONDS}s: {command}"
+        ) from exc
+
+
 def run_gh(args, input_text=None):
-    proc = subprocess.run(
-        ["gh", *args],
-        input=input_text,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    proc = run_command(["gh", *args], input_text=input_text)
     if proc.returncode != 0:
         raise RuntimeError(
             "gh command failed:\n"
@@ -51,13 +63,7 @@ def current_repo():
     except Exception:
         pass
 
-    proc = subprocess.run(
-        ["git", "remote", "get-url", "origin"],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    proc = run_command(["git", "remote", "get-url", "origin"])
     if proc.returncode == 0:
         remote = proc.stdout.strip()
         match = re.search(r"github\.com[:/](?P<repo>[^/]+/[^/.]+)(?:\.git)?$", remote)
@@ -130,7 +136,16 @@ def get_context(repo, parent_number, project_owner, project_number):
             "projectNumber": project_number,
         },
     )["data"]
-    return data["repository"], data["organization"]["projectV2"], data["viewer"]
+    repository = data.get("repository")
+    if repository is None:
+        raise ValueError(f"repository not found: {owner}/{name}")
+    if repository.get("issue") is None:
+        raise ValueError(f"parent issue #{parent_number} not found in {owner}/{name}")
+    organization = data.get("organization")
+    project = organization.get("projectV2") if organization else None
+    if project is None:
+        raise ValueError(f"Project {project_owner}/{project_number} not found")
+    return repository, project, data["viewer"]
 
 
 def escopo_issue_type_id(repository):
@@ -231,6 +246,29 @@ def field_maps(project):
     return fields, options
 
 
+def normalized_option_name(value):
+    return re.sub(r"^[^\w]+", "", value, flags=re.UNICODE).casefold()
+
+
+def resolve_option(option_map, requested_value, field_name):
+    if requested_value in option_map:
+        return requested_value, option_map[requested_value]
+
+    normalized = normalized_option_name(requested_value)
+    matches = [
+        (name, option_id)
+        for name, option_id in option_map.items()
+        if normalized_option_name(name) == normalized
+    ]
+    if len(matches) == 1:
+        return matches[0]
+
+    valid = ", ".join(option_map)
+    if len(matches) > 1:
+        raise ValueError(f"Ambiguous option for {field_name}: {requested_value}. Valid: {valid}")
+    raise ValueError(f"Invalid option for {field_name}: {requested_value}. Valid: {valid}")
+
+
 def set_single_select(project_id, item_id, field_id, option_id):
     query = """
     mutation($projectId:ID!, $itemId:ID!, $fieldId:ID!, $optionId:String!) {
@@ -307,11 +345,8 @@ def apply_fields(project, item_id, issue_spec, inherited_nucleo, dry_run):
         field_name = field_name_by_key[key]
         if field_name not in fields:
             raise ValueError(f"Project field not found: {field_name}")
-        option_id = options.get(field_name, {}).get(value)
-        if not option_id:
-            valid = ", ".join(options.get(field_name, {}).keys())
-            raise ValueError(f"Invalid option for {field_name}: {value}. Valid: {valid}")
-        applied[field_name] = value
+        canonical_value, option_id = resolve_option(options.get(field_name, {}), value, field_name)
+        applied[field_name] = canonical_value
         if not dry_run:
             set_single_select(project["id"], item_id, fields[field_name]["id"], option_id)
     return applied
@@ -328,7 +363,17 @@ def load_plan(path):
     return issues
 
 
-def main():
+def print_created_summary(created, heading="\nCreated issues:"):
+    if not created:
+        return
+    print(heading)
+    for item in created:
+        issue = item["issue"]
+        suffix = "" if item["fields"] is not None else " (Project fields incomplete)"
+        print(f"- #{issue['number']} {issue['url']}{suffix}")
+
+
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--parent", type=int, required=True)
     parser.add_argument("--plan", required=True)
@@ -342,7 +387,11 @@ def main():
         help="Default assignee behavior when an issue spec does not set assignees.",
     )
     parser.add_argument("--dry-run", action="store_true")
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     repo = args.repo or current_repo()
     issues = load_plan(args.plan)
@@ -368,6 +417,7 @@ def main():
         if title.casefold() in existing_titles:
             print(f"SKIP duplicate title: {title}")
             continue
+        existing_titles.add(title.casefold())
 
         assignee_ids = resolve_assignees(parent_issue, issue_spec, viewer, args.assignee_mode)
         if args.dry_run:
@@ -388,20 +438,22 @@ def main():
             parent_issue["id"],
             issue_type_id,
         )
-        item_id = find_project_item(project["id"], issue["id"])
-        if item_id is None:
-            item_id = add_to_project(project["id"], issue["id"])
-        applied = apply_fields(project, item_id, issue_spec, inherited_nucleo, dry_run=False)
-        created.append({"issue": issue, "fields": applied})
+        created_item = {"issue": issue, "fields": None}
+        created.append(created_item)
+        try:
+            item_id = find_project_item(project["id"], issue["id"])
+            if item_id is None:
+                item_id = add_to_project(project["id"], issue["id"])
+            applied = apply_fields(project, item_id, issue_spec, inherited_nucleo, dry_run=False)
+            created_item["fields"] = applied
+        except Exception:
+            print_created_summary(created, "\nCreated issues before failure:")
+            raise
         print(f"CREATED: #{issue['number']} {issue['title']}")
         print(f"  {issue['url']}")
         print(f"  fields: {applied}")
 
-    if created:
-        print("\nCreated issues:")
-        for item in created:
-            issue = item["issue"]
-            print(f"- #{issue['number']} {issue['url']}")
+    print_created_summary(created)
 
 
 if __name__ == "__main__":

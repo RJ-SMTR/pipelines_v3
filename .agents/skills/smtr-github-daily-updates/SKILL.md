@@ -21,11 +21,13 @@ approval.
 - Analyze commits authored by the current Git `user.name` or `user.email`.
   Include other authors only when the user requests it.
 - Interpret dates in `America/Sao_Paulo` unless the user specifies another
-  timezone.
+  timezone. Derive `today` and `yesterday` in that timezone, not from the
+  runtime's local calendar.
 - Convert GitHub UTC timestamps to the selected timezone before assigning
   activity to a calendar day. Do not use the UTC date as the comment date.
-- Treat the selected period as inclusive. For a single day, analyze from
-  `00:00:00` through `23:59:59` in the selected timezone.
+- Treat the selected calendar dates as inclusive. Represent each day as the
+  half-open local interval `[00:00, 00:00 of the following day)` and convert
+  both boundaries to UTC before querying or filtering activity.
 - Generate one independent comment per issue per calendar day. A catch-up
   period never produces one consolidated multi-day comment.
 - Comment only on subissues with relevant work in the period. Do not add empty
@@ -41,10 +43,11 @@ approval.
 ### 1. Establish the period and scope
 
 1. Ask which period to analyze unless the user already supplied one. Suggest
-   the current local date as the default and accept ranges such as yesterday
-   through today for missed updates.
+   the current date in the selected timezone as the default and accept ranges
+   such as yesterday through today for missed updates.
 2. State the exact inclusive dates before analyzing. Do not rely only on words
-   such as `today` or `yesterday`.
+   such as `today` or `yesterday`. Compute the UTC start and exclusive end
+   boundary for every included local date before collecting activity.
 3. Ask whether any calendar dates inside the selected period must be excluded,
    unless the user already specified exclusions. Remove excluded dates before
    collecting and drafting activity.
@@ -207,11 +210,12 @@ activity lacks a commit or direct textual match.
 
 Also ask whether an Expedite interrupted a planned activity and, if so, which
 subissue was interrupted and whether any relevant context-switch cost or
-post-incident follow-up should be recorded. When the candidate issue was later
-completed, ask for confirmation using the full sequence:
+post-incident follow-up should be recorded. Ask the user to confirm the state
+observed on each reported date without importing outcomes from a later day:
 
-> O Expedite #NNN parece ter interrompido a issue #MMM, que foi retomada e
-> concluída depois. Essa sequência está correta?
+> O Expedite #NNN parece ter interrompido a issue #MMM. Na data deste
+> comentário, ela foi retomada e concluída, retomada e ainda estava em
+> andamento, ou ainda não havia sido retomada?
 
 ### 8. Draft the comments
 
@@ -225,7 +229,7 @@ For planned subissues, use:
 - Atividade relevante realizada sem commit
 
 ### Expedites / Interrupções
-- A atividade foi interrompida para tratar a issue [#NNN](issue-url): descrição curta do incidente e resultado. Em seguida, foi retomada e concluída.
+- A atividade foi interrompida para tratar a issue [#NNN](issue-url): descrição curta do incidente e resultado. Estado verificado no dia: [retomada e concluída | retomada e ainda em andamento | ainda não retomada].
 
 ### Próximos passos
 - Próximo passo informado pelo usuário
@@ -246,7 +250,7 @@ For an Expedite issue, use:
 - **Resultado:** estado verificado após a intervenção.
 
 ### Trabalho interrompido
-- [#NNN](issue-url) — atividade planejada pausada para tratar este incidente, retomada e concluída posteriormente.
+- [#NNN](issue-url) — atividade planejada pausada para tratar este incidente. Estado verificado no dia: [retomada e concluída | retomada e ainda em andamento | ainda não retomada].
 
 ### Pendências
 - Acompanhamento ou correção definitiva, quando aplicável.
@@ -258,7 +262,10 @@ identified.
 
 For a multi-day catch-up, create separate comments headed
 `## Atualização — DD/MM/YYYY` for each day with relevant activity. Never use a
-date range in one comment.
+date range in one comment. Draft, publish, verify, and report them in ascending
+chronological order, oldest date first, with a stable issue order within each
+day. Keep each comment limited to facts observable on that date; never mention
+a later-day completion in an earlier-day comment.
 
 Formatting rules:
 
@@ -289,18 +296,30 @@ Show:
 6. the exact final comment for every target issue and calendar day.
 
 Ask for explicit authorization to publish. Accept approval for all comments or
-for selected issue numbers. Apply requested revisions and show the changed
-comment again before posting when the change is material.
+for selected issue numbers. After any material revision, show the complete
+changed comment and require a new explicit authorization; the earlier approval
+does not cover materially changed content.
 
-Post approved comments with `gh issue comment`. Never post an unapproved
-comment. Never treat authorization to comment as authorization to edit issue
-bodies, titles, Project fields, status, progress, or checklists.
+Write each approved body to a file created with `mktemp` so Markdown backticks
+and other shell-sensitive content are preserved. Post with the validated
+repository explicitly:
+
+```bash
+gh issue comment <number> --repo <owner/repo> --body-file <body-file>
+```
+
+Never post an unapproved comment. Never treat authorization to comment as
+authorization to edit issue bodies, titles, Project fields, status, progress,
+or checklists.
 
 ### 10. Verify and report
 
 After posting:
 
-1. read each created comment back from GitHub;
+1. read each created comment back from GitHub using the same repository, for
+   example `gh issue view <number> --repo <owner/repo> --json comments`; use the
+   returned comment URL or ID to verify the exact saved body when several
+   comments exist;
 2. report the issue number, title, comment URL, and covered period;
 3. report comments that were skipped or remained unresolved;
 4. compare the published work with the target subissue and root issue scopes;

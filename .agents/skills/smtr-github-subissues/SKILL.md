@@ -19,6 +19,8 @@ Default behavior:
 - Tactical view: `8` (`Visão Tática`)
 - Issue template: `.github/ISSUE_TEMPLATE/escopo.md` / GitHub template name `escopo`
 - Issue type: `🔨 Escopo`
+- Default fields: `Status=To Do`, `Apetite=⏱️ 2 semanas`, and
+  `Raia=🗂️ Small Batch`.
 - `Núcleo`: inherit from the root issue's Project field. Fall back to `Inovação` only when the root issue has no `Núcleo` value in Project 21.
 - Do not fill `Progresso` unless the user explicitly asks.
 
@@ -96,14 +98,14 @@ Default behavior:
          "title": "Titulo do subissue",
          "body": "## 🎯 Contexto e Origem\n...",
          "status": "To Do",
-         "apetite": "2 semanas",
-         "raia": "Small Batch"
+         "apetite": "⏱️ 2 semanas",
+         "raia": "🗂️ Small Batch"
        }
      ]
    }
    ```
 
-   Omit `nucleo` unless the user explicitly wants to override the inherited parent value. Omit `progresso` unless the user asks for it. Omit `assignees` unless the user explicitly names assignees; the script-level assignee mode controls the default. If fields are omitted, the script defaults to `Status=To Do`, `Apetite=2 semanas`, `Raia=Small Batch`, and inherited `Núcleo`.
+   Omit `nucleo` unless the user explicitly wants to override the inherited parent value. Omit `progresso` unless the user asks for it. Omit `assignees` unless the user explicitly names assignees; the script-level assignee mode controls the default. If fields are omitted, the script defaults to `Status=To Do`, `Apetite=⏱️ 2 semanas`, `Raia=🗂️ Small Batch`, and inherited `Núcleo`. The script accepts a unique emoji-free alias such as `2 semanas`, but applies and reports the canonical Project option.
 
 11. Run the bundled script once with `--dry-run` and review the output:
 
@@ -153,8 +155,8 @@ When the request concerns work already represented by a subissue:
 The script discovers field and option IDs from Project 21 at runtime. Expected field names and options:
 
 - `Status`: `Pitches em Estruturação`, `To Do`, `In progress`, `In review`, `Done`
-- `Apetite`: `6 semanas`, `2 semanas`, `SLA Urgência`
-- `Raia`: `Big Batch`, `Small Batch`, `Expedite`
+- `Apetite`: `🗓️ 6 semanas`, `⏱️ 2 semanas`, `⚡ SLA Urgência`
+- `Raia`: `📦 Big Batch`, `🗂️ Small Batch`, `🔥 Expedite`
 - `Núcleo`: `Bilhetagem`, `Subsídio`, `Inovação`, `Governança`, `Analytics`, `Infraestrutura`
 - `Progresso`: `⛰️ Uphill`, `🏃 Downhill`
 
