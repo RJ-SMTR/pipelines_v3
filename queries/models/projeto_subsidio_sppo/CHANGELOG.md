@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.4.2] - 2026-07-20
+
+### Alterado
+
+- Altera o teste `dbt_utils.unique_combination_of_columns__viagem_planejada` à `unique_key` do `snapshot_viagem_planejada`(https://github.com/RJ-SMTR/pipelines_v3/pull/400)
+
 ## [9.4.1] - 2026-07-08
 
 ### Adicionado
