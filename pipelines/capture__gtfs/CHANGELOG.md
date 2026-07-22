@@ -1,5 +1,12 @@
 # Changelog - capture__gtfs
 
+## [1.2.1] - 2026-07-22
+
+### Adicionado
+
+- Adiciona o teste `test_check_trajeto_alternativo__trips_gtfs` ao flow `capture__gtfs`(https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `test_formato_evento` em `ordem_servico_trajeto_alternativo_sentido` (planejamento e staging) ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.2.0] - 2026-06-23
 
 ### Adicionado

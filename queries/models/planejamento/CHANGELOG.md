@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.3] - 2026-07-22
+
+### Adicionado
+
+- Adiciona o teste `test_formato_evento` no modelo `ordem_servico_trajeto_alternativo_sentido` (planejamento) e na staging `br_rj_riodejaneiro_gtfs_staging` para validar o formato do `evento` (sem acentos ou caracteres especiais)(https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.8.2] - 2026-07-09
 
 ### Alterado

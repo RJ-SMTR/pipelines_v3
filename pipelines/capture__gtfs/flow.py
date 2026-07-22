@@ -181,7 +181,8 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
         dbt_test = DBTTest(
             test_select=(
                 f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
-                f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
+                f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID} "
+                f"{constants.GTFS_STAGING_SOURCE_ID}"
             ),
             exclude=constants.GTFS_DBT_TEST_EXCLUDE,
             test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
