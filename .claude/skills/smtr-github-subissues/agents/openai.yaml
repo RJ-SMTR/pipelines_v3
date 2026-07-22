@@ -1,7 +1,0 @@
-interface:
-  display_name: "SMTR GitHub Subissues"
-  short_description: "Cria e mantém escopos de subissues SMTR"
-  default_prompt: "Use $smtr-github-subissues para criar ou atualizar subissues, manter o issue raiz sincronizado e usar checklists concisos orientados a resultados."
-
-policy:
-  allow_implicit_invocation: true
