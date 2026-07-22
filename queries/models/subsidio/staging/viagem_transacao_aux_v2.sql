@@ -22,7 +22,11 @@
 with
     -- Transações Jaé
     transacao as (
-        select id_veiculo, servico_jae, datetime_transacao
+        select
+            id_veiculo,
+            servico_jae,
+            cast((valor_pagamento / 0.96) as numeric) as valor_transacao_rateio,
+            datetime_transacao
         from {{ ref("transacao") }}
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
@@ -35,7 +39,13 @@ with
     ),
     -- Transações RioCard
     transacao_riocard as (
-        select id_veiculo, servico_jae, datetime_transacao
+        select
+            id_veiculo,
+            servico_jae,
+            cast(
+                if(data < '2025-08-02', null, 4.7) as numeric
+            ) as valor_transacao_rateio,
+            datetime_transacao
         from {{ ref("transacao_riocard") }}
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
@@ -136,7 +146,8 @@ with
             count(t.datetime_transacao) as quantidade_transacao,
             countif(
                 v.servico != t.servico_jae and t.datetime_transacao > v.datetime_partida
-            ) as quantidade_transacao_servico_divergente
+            ) as quantidade_transacao_servico_divergente,
+            sum(t.valor_transacao_rateio) as valor_transacao,
         from transacao as t
         join
             viagem_com_tolerancia as v
@@ -154,7 +165,8 @@ with
             countif(
                 v.servico != tr.servico_jae
                 and tr.datetime_transacao > v.datetime_partida
-            ) as quantidade_transacao_riocard_servico_divergente
+            ) as quantidade_transacao_riocard_servico_divergente,
+            sum(tr.valor_transacao_rateio) as valor_transacao_riocard,
         from transacao_riocard as tr
         join
             viagem_com_tolerancia as v
@@ -181,6 +193,10 @@ with
             coalesce(
                 tr.quantidade_transacao_riocard_servico_divergente, 0
             ) as quantidade_transacao_riocard_servico_divergente,
+            if(v.data < '2025-08-01', null, t.valor_transacao) as valor_transacao,
+            if(
+                v.data < '2025-08-01', null, tr.valor_transacao_riocard
+            ) as valor_transacao_riocard,
             safe_cast(
                 json_value(item, '$.percentual_estado_equipamento_aberto') as numeric
             ) as percentual_estado_equipamento_aberto,
@@ -330,6 +346,8 @@ select
     v.distancia_planejada,
     any_value(eep.quantidade_transacao) as quantidade_transacao,
     any_value(eep.quantidade_transacao_riocard) as quantidade_transacao_riocard,
+    any_value(eep.valor_transacao) as valor_transacao,
+    any_value(eep.valor_transacao_riocard) as valor_transacao_riocard,
     case
         when v.data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
         then max(eep.percentual_estado_equipamento_aberto)
