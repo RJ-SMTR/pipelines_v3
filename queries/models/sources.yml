@@ -52,6 +52,15 @@ sources:
       - name: ordem_servico_faixa_horaria
       - name: ordem_servico_faixa_horaria_sentido
       - name: ordem_servico_trajeto_alternativo_sentido
+        columns:
+          - name: evento
+            tests:
+              - test_formato_evento:
+                  name: test_formato_evento__ordem_servico_trajeto_alternativo_sentido_staging
+                  arguments:
+                    date_column: data_versao
+                  config:
+                    where: "data_versao = '{{ var('data_versao_gtfs') }}' and safe_cast(data_versao as date) >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
 
   - name: br_rj_riodejaneiro_stu_staging
     database: rj-smtr-staging

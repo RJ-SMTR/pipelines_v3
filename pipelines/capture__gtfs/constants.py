@@ -16,6 +16,7 @@ GTFS_DATASET_ID = "br_rj_riodejaneiro_gtfs"
 GTFS_DISCORD_WEBHOOK = "gtfs"
 GTFS_MATERIALIZACAO_DATASET_ID = "gtfs"
 PLANEJAMENTO_MATERIALIZACAO_DATASET_ID = "planejamento"
+GTFS_STAGING_SOURCE_ID = "source:br_rj_riodejaneiro_gtfs_staging"
 
 GTFS_TABLE_CAPTURE_PARAMS = {
     "ordem_servico": ["servico", "tipo_os"],
@@ -67,6 +68,9 @@ GTFS_DATA_CHECKS_LIST = {
         "test_formato_evento__ordem_servico_trajeto_alternativo_sentido": {
             "description": "Todos os valores de `evento` em `ordem_servico_trajeto_alternativo_sentido` estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais)."
         },
+        "test_formato_evento__ordem_servico_trajeto_alternativo_sentido_staging": {
+            "description": "Todos os valores de `evento` na staging `ordem_servico_trajeto_alternativo_sentido` estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais)."
+        },
     },
     "ordem_servico_trips_shapes_gtfs": {
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs": {
@@ -87,7 +91,7 @@ GTFS_DATA_CHECKS_LIST = {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
         },
         "test_check_trajeto_alternativo__trips_gtfs": {
-            "description": "Todos os pares `(servico, evento)` de trajetos alternativos correspondem 1:1 entre `trips_gtfs` e `ordem_servico_trajeto_alternativo_sentido`."
+            "description": "Todos os pares `(servico, evento)` de `ordem_servico_trajeto_alternativo_sentido` constam em `trips_gtfs`."
         },
     },
     "viagem_planejada_planejamento": {

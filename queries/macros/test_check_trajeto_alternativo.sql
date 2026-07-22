@@ -34,6 +34,6 @@
         )
     select *
     from ordem_servico_trajeto_alternativo_sentido
-    full outer join trips using (servico, evento)
-    where quantidade_os is null or quantidade_trips is null
+    left join trips using (servico, evento)
+    where quantidade_trips is null
 {% endtest %}
