@@ -1,0 +1,4 @@
+interface:
+  display_name: "SMTR Daily Subissue Updates"
+  short_description: "Draft updates and flag issue scope drift"
+  default_prompt: "Use $smtr-github-daily-updates to map recent work to subissues, draft daily comments, and identify concise scope updates revealed by the work."
