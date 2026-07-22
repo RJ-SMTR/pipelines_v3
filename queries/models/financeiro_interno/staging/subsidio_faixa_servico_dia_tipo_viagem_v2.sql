@@ -84,6 +84,23 @@ with
         where
             data
             between date('{{ var("start_date") }}') and date('{{ var("end_date") }}')
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+        union all
+
+        select
+            data,
+            servico,
+            sentido,
+            id_veiculo,
+            id_viagem,
+            datetime_partida
+        -- from {{ ref("viagem_valida") }}
+        from `rj-smtr.monitoramento.viagem_valida`
+        where
+            data
+            between date('{{ var("start_date") }}') and date('{{ var("end_date") }}')
+            and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     ar_viagem as (
         select
