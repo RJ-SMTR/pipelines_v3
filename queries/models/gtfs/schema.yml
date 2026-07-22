@@ -351,6 +351,11 @@ models:
         description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
       - name: trip_headsign
         description: "{{ doc('trip_headsign') }}"
+        tests:
+          - test_check_trajeto_alternativo:
+              name: test_check_trajeto_alternativo__trips_gtfs
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
       - name: trip_short_name
         description: "{{ doc('trip_short_name') }}"
       - name: direction_id

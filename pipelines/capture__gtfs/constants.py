@@ -64,6 +64,9 @@ GTFS_DATA_CHECKS_LIST = {
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido": {
             "description": "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_sentido' e 'ordem_servico_gtfs'."
         },
+        "test_formato_evento__ordem_servico_trajeto_alternativo_sentido": {
+            "description": "Todos os valores de `evento` em `ordem_servico_trajeto_alternativo_sentido` estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais)."
+        },
     },
     "ordem_servico_trips_shapes_gtfs": {
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs": {
@@ -82,6 +85,9 @@ GTFS_DATA_CHECKS_LIST = {
     "trips_gtfs": {
         "test_shape_id_gtfs__trips_gtfs": {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
+        },
+        "test_check_trajeto_alternativo__trips_gtfs": {
+            "description": "Todos os pares `(servico, evento)` de trajetos alternativos correspondem 1:1 entre `trips_gtfs` e `ordem_servico_trajeto_alternativo_sentido`."
         },
     },
     "viagem_planejada_planejamento": {
