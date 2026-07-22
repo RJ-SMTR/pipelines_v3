@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.3] - 2026-06-30
+
+### Adicionado
+
+- Cria views `view_metricas_testes_dbt`, `view_sumario_testes_dbt_dia` e `view_ultimo_resultado_testes_dbt` para acompanhamento dos resultados de testes dbt gravados pelo Elementary (https://github.com/RJ-SMTR/pipelines_v3/pull/321)
+
 ## [1.0.2] - 2026-06-25
 
 ### Adicionado

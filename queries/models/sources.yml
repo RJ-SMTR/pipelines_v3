@@ -1,6 +1,16 @@
 version: 2
 
 sources:
+  - name: elementary
+    description: "Dataset operacional do Elementary em `rj-smtr.elementary`. Neste uso, ele recebe resultados de `dbt test` apenas quando o target dbt é `prod`; execuções em dev/hmg não devem alimentar estas tabelas."
+    database: rj-smtr
+    schema: elementary
+    tables:
+      - name: elementary_test_results
+        description: "Uma linha por resultado de teste dbt gravado pelo hook do Elementary no fim de uma invocação. Use `test_execution_id` para identificar uma execução específica e `test_unique_id` para agrupar o mesmo teste ao longo do tempo."
+      - name: test_result_rows
+        description: "Amostras das linhas retornadas por testes com falha ou alerta. Testes que passam normalmente não geram linhas aqui; esta tabela é apoio para diagnóstico, não para calcular taxa de falha."
+
   - name: br_rj_riodejaneiro_bilhetagem_staging
     database: rj-smtr-staging
 
