@@ -1,4 +1,4 @@
-{{
+{# {{
     config(
         materialized="incremental",
         alias="ordem_pagamento_riorotativo_guardador_veiculo_dia",
@@ -26,4 +26,4 @@ where
     data between date("{{ var('date_range_start') }}") and date(
         "{{ var('date_range_end') }}"
     )
-group by data_ordem, cpf_guardador_veiculo
+group by data_ordem, cpf_guardador_veiculo #}

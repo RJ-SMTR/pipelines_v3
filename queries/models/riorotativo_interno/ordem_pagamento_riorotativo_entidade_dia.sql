@@ -1,4 +1,4 @@
-{{
+{# {{
     config(
         materialized="incremental",
         alias="ordem_pagamento_riorotativo_entidade_dia",
@@ -43,4 +43,4 @@ left join
     on v.cnpj = e.cnpj
     and v.data >= e.data_inicio_vigencia
     and (v.data <= e.data_fim_vigencia or e.data_fim_vigencia is null)
-group by data_ordem, v.cnpj
+group by data_ordem, v.cnpj #}
