@@ -1,5 +1,11 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.2.6] - 2026-07-23
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para retificar a quinzena de `2026-05-01` a `2026-05-15`: inclui o serviço `LECD137` e remove o `LECD135`, conforme Processo SEI_000301.012216_2026_71 (https://github.com/RJ-SMTR/pipelines_v3/pull/420)
+
 ## [8.2.5] - 2026-07-09
 
 ### Alterado
