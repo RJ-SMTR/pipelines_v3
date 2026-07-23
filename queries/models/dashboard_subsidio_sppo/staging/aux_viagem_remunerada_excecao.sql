@@ -247,8 +247,8 @@ with
                             "LECD132",
                             "LECD133",
                             "LECD134",
-                            "LECD135",
                             "LECD136",
+                            "LECD137", -- Retificação Processo SEI_000301.012216_2026_71
                             "LECD138"
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
