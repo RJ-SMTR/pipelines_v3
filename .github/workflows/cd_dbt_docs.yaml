@@ -14,6 +14,8 @@ env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCS_BUCKET_NAME: rj-smtr-public
   GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+  OPENMETADATA_HOST_PORT: https://metadata.mobilidade.rio/api
+  OPENMETADATA_INGESTION_VERSION: 1.13.1.0
 
 jobs:
   generate-and-upload-docs:
@@ -62,7 +64,39 @@ jobs:
           uv run dbt deps --target prod
           uv run dbt docs generate --static --target prod
 
+      - name: Validate dbt artifacts
+        run: |
+          test -s queries/target/manifest.json
+          test -s queries/target/catalog.json
+
       - name: Upload docs to GCS
         run: |
           gsutil -m cp queries/target/index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
           gsutil -m cp queries/target/manifest.json gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
+
+      - name: Check OpenMetadata API
+        if: github.ref == 'refs/heads/master'
+        run: |
+          curl --fail --silent --show-error \
+            "${OPENMETADATA_HOST_PORT}/v1/system/version"
+
+      - name: Install OpenMetadata CLI
+        if: github.ref == 'refs/heads/master'
+        run: |
+          uv python install 3.11
+          uv venv --python 3.11 /tmp/openmetadata
+          uv --no-config pip install \
+            --python /tmp/openmetadata/bin/python \
+            "openmetadata-ingestion[dbt]==${OPENMETADATA_INGESTION_VERSION}"
+          /tmp/openmetadata/bin/metadata --version
+
+      - name: Ingest dbt docs into OpenMetadata
+        if: github.ref == 'refs/heads/master'
+        env:
+          OPENMETADATA_JWT_TOKEN: ${{ secrets.OPENMETADATA_JWT_TOKEN }}
+          OPENMETADATA_SERVICE_NAME: ${{ vars.OPENMETADATA_SERVICE_NAME }}
+          OPENMETADATA_DBT_MANIFEST_PATH: ${{ github.workspace }}/queries/target/manifest.json
+          OPENMETADATA_DBT_CATALOG_PATH: ${{ github.workspace }}/queries/target/catalog.json
+        run: |
+          /tmp/openmetadata/bin/metadata ingest \
+            -c pipelines/common/config/openmetadata/dbt_docs.yaml
