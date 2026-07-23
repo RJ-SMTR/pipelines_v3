@@ -87,15 +87,10 @@ with
     ),
     movimento_estacionamento_veiculo_desdobrado as (
         select
-            * except (
-                id_movimento_estacionamento_veiculo,
-                datetime_periodo_inicial,
-                datetime_periodo_final,
-                valor_pago
-            ),
+            * except (datetime_periodo_inicial, datetime_periodo_final, valor_pago),
             concat(
                 id_movimento_estacionamento_veiculo, '_', numero_ativacao
-            ) as id_movimento_estacionamento_veiculo,
+            ) as id_ativacao,
             valor_pago / id_tipo_periodo as valor_pago,
             least(
                 datetime_periodo_inicial + interval (numero_ativacao - 1) * 2 hour,
@@ -141,9 +136,10 @@ with
     ativacao as (
         select
             date(m.datetime_periodo_inicial) as data,
-            m.id_movimento_estacionamento_veiculo,
+            m.id_ativacao,
             m.datetime_periodo_inicial as datetime_inicio_periodo,
             m.datetime_periodo_final as datetime_fim_periodo,
+            m.id_movimento_estacionamento_veiculo,
             m.id_estacionamento_veiculo,
             e.id_veiculo_cliente,
             vc.id_veiculo,
