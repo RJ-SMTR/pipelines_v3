@@ -1,0 +1,21 @@
+source:
+  type: dbt
+  serviceName: ${OPENMETADATA_SERVICE_NAME}
+  sourceConfig:
+    config:
+      type: DBT
+      dbtConfigSource:
+        dbtConfigType: local
+        dbtManifestFilePath: ${OPENMETADATA_DBT_MANIFEST_PATH}
+        dbtRunResultsFilePath: ${OPENMETADATA_DBT_RUN_RESULTS_PATH}
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OPENMETADATA_HOST_PORT}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OPENMETADATA_JWT_TOKEN}
+    storeServiceConnection: true

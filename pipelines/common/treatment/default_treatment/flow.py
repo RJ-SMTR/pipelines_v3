@@ -13,6 +13,7 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
@@ -43,6 +44,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     fallback_run: bool = False,
     skip_pre_test: bool = False,
     test_only: bool = False,
+    ingest_openmetadata: bool = False,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -66,6 +68,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
         skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
         test_only (bool): Se True, executa apenas os testes.
+        ingest_openmetadata (bool): Se True, ingere os artefatos dbt no OpenMetadata.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -75,6 +78,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for = tasks_wait_for or {}
 
     deployment_name = runtime.deployment.name
+    flow_run_id = runtime.flow_run.id
 
     tasks["env"] = get_run_env(
         env=env,
@@ -132,90 +136,104 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
     contexts, should_run = tasks["fallback_run"]
 
-    if should_run:
-        wait_data_sources_future = wait_data_sources.map(
-            context=contexts,
-            skip=unmapped(skip_source_check),
-            wait_for=unmapped(tasks_wait_for.get("wait_data_sources")),
-        )
-
-        tasks["wait_data_sources"] = wait_data_sources_future.result()
-
-        tasks["pre_tests"] = run_dbt_selector_tests(
-            contexts=contexts,
-            mode="pre",
-            flags=flags,
-            wait_for=[
-                tasks["wait_data_sources"],
-                *tasks_wait_for.get("pre_tests", []),
-            ],
-        )
-
-        pre_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
-            context=contexts,
-            mode=unmapped("pre"),
-            webhook_key=unmapped(test_webhook_key),
-            additional_mentions=unmapped(test_additional_mentions),
-            wait_for=unmapped(
-                [
-                    tasks["pre_tests"],
-                    *tasks_wait_for.get("pre_tests_notify_discord", []),
-                ]
-            ),
-        )
-
-        tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
-
-        if not test_only:
-            tasks["run_dbt"] = run_dbt_selectors(
-                contexts=contexts,
-                flags=flags,
-                wait_for=[
-                    tasks["pre_tests_notify_discord"],
-                    *tasks_wait_for.get("run_dbt", []),
-                ],
+    try:
+        if should_run:
+            wait_data_sources_future = wait_data_sources.map(
+                context=contexts,
+                skip=unmapped(skip_source_check),
+                wait_for=unmapped(tasks_wait_for.get("wait_data_sources")),
             )
-        else:
-            tasks["run_dbt"] = None
 
-        tasks["post_tests"] = run_dbt_selector_tests(
-            contexts=contexts,
-            mode="post",
-            flags=flags,
-            wait_for=[
-                tasks["run_dbt"],
-                *tasks_wait_for.get("post_tests", []),
-            ],
-        )
+            tasks["wait_data_sources"] = wait_data_sources_future.result()
 
-        post_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
-            context=contexts,
-            mode=unmapped("post"),
-            webhook_key=unmapped(test_webhook_key),
-            additional_mentions=unmapped(test_additional_mentions),
-            wait_for=unmapped(
-                [
-                    tasks["post_tests"],
-                    *tasks_wait_for.get("post_tests_notify_discord", []),
-                ]
-            ),
-        )
-
-        tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
-
-        if not test_only:
-            tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+            tasks["pre_tests"] = run_dbt_selector_tests(
                 contexts=contexts,
+                mode="pre",
                 flags=flags,
                 wait_for=[
-                    tasks["post_tests_notify_discord"],
-                    *tasks_wait_for.get("run_dbt_snapshots", []),
+                    tasks["wait_data_sources"],
+                    *tasks_wait_for.get("pre_tests", []),
                 ],
             )
 
-            tasks["save_redis"] = save_materialization_datetime_redis(
-                contexts=contexts,
-                wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
+            pre_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
+                context=contexts,
+                mode=unmapped("pre"),
+                webhook_key=unmapped(test_webhook_key),
+                additional_mentions=unmapped(test_additional_mentions),
+                wait_for=unmapped(
+                    [
+                        tasks["pre_tests"],
+                        *tasks_wait_for.get("pre_tests_notify_discord", []),
+                    ]
+                ),
             )
+
+            tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
+
+            if not test_only:
+                tasks["run_dbt"] = run_dbt_selectors(
+                    contexts=contexts,
+                    flags=flags,
+                    wait_for=[
+                        tasks["pre_tests_notify_discord"],
+                        *tasks_wait_for.get("run_dbt", []),
+                    ],
+                )
+            else:
+                tasks["run_dbt"] = None
+
+            tasks["post_tests"] = run_dbt_selector_tests(
+                contexts=contexts,
+                mode="post",
+                flags=flags,
+                wait_for=[
+                    tasks["run_dbt"],
+                    *tasks_wait_for.get("post_tests", []),
+                ],
+            )
+
+            post_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
+                context=contexts,
+                mode=unmapped("post"),
+                webhook_key=unmapped(test_webhook_key),
+                additional_mentions=unmapped(test_additional_mentions),
+                wait_for=unmapped(
+                    [
+                        tasks["post_tests"],
+                        *tasks_wait_for.get("post_tests_notify_discord", []),
+                    ]
+                ),
+            )
+
+            tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
+
+            if not test_only:
+                tasks["run_dbt_snapshots"] = run_dbt_snapshots(
+                    contexts=contexts,
+                    flags=flags,
+                    wait_for=[
+                        tasks["post_tests_notify_discord"],
+                        *tasks_wait_for.get("run_dbt_snapshots", []),
+                    ],
+                )
+
+                tasks["save_redis"] = save_materialization_datetime_redis(
+                    contexts=contexts,
+                    wait_for=[
+                        tasks["run_dbt_snapshots"],
+                        *tasks_wait_for.get("save_redis", []),
+                    ],
+                )
+    finally:
+        if ingest_openmetadata:
+            try:
+                tasks["ingest_openmetadata"] = ingest_dbt_artifacts_to_openmetadata(
+                    env=tasks["env"],
+                    deployment_name=deployment_name,
+                    flow_run_id=flow_run_id,
+                )
+            except Exception as error:
+                print(f"OpenMetadata: falha não fatal no finalizador: {error}")
 
     return tasks

@@ -45,4 +45,5 @@ def treatment__riorotativo(
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
+        ingest_openmetadata=True,
     )
