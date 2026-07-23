@@ -26,10 +26,7 @@ from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
-from pipelines.common.utils.openmetadata import (
-    capture_dbt_run_results_id,
-    preserve_dbt_run_results,
-)
+from pipelines.common.utils.openmetadata import preserve_dbt_run_results
 from pipelines.common.utils.prefect import rename_flow_run
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
@@ -777,7 +774,7 @@ def run_dbt(  # noqa: PLR0913
     os.environ["DBT_TARGET_PATH"] = str(target_path)
     os.environ.setdefault("DBT_USER", "prefect")
 
-    previous_run_results_id = capture_dbt_run_results_id(target_path)
+    (Path(target_path) / "run_results.json").unlink(missing_ok=True)
     try:
         PrefectDbtRunner(
             settings=PrefectDbtSettings(
@@ -788,7 +785,7 @@ def run_dbt(  # noqa: PLR0913
             raise_on_failure=raise_on_failure,
         ).invoke(invoke)
     finally:
-        preserve_dbt_run_results(target_path, previous_run_results_id, runtime.flow_run.id)
+        preserve_dbt_run_results(target_path, runtime.flow_run.id)
 
     with (Path(log_dir) / "dbt.log").open("r") as logs:
         return logs.read()

@@ -34,14 +34,14 @@ def ingest_dbt_artifacts_to_openmetadata(
     env: str,
     deployment_name: str,
     flow_run_id: object,
-) -> dict:
+) -> None:
     """Ingere os artefatos dbt preservados ou os envia ao fallback GCS."""
     if env != "prod":
         print(f"OpenMetadata: ingestão ignorada no ambiente {env}")
-        return {"status": "skipped", "reason": "non_prod"}
+        return
 
     _, _, target_path = get_dbt_paths()
-    return ingest_dbt_artifacts(
+    ingest_dbt_artifacts(
         target_path=target_path,
         env=env,
         deployment_name=deployment_name,
