@@ -673,6 +673,7 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},
+        "primary_keys": ["id"],
         "capture_flow": "riorotativo_auxiliar",
     },
     VEICULO_CLIENTE_TABLE_ID: {
@@ -689,6 +690,7 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},
+        "primary_keys": ["id"],
         "capture_flow": "riorotativo_auxiliar",
     },
 }
