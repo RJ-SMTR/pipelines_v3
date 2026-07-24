@@ -87,7 +87,7 @@ def _run_cli(manifest_path: Path, run_results_path: Path) -> bool:
 
 
 def _upload_artifacts_to_gcs(
-    artifacts_dir: Path,
+    artifact_paths: list[Path],
     env: str,
     deployment_name: str,
     flow_run_id: object,
@@ -95,7 +95,7 @@ def _upload_artifacts_to_gcs(
     remote_prefix = f"{GCS_PREFIX}/pending/{deployment_name}/{flow_run_id}"
     client = storage.Client(project=constants.PROJECT_NAME[env])
     bucket = client.bucket(GCS_BUCKET_NAME)
-    for path in sorted(artifacts_dir.glob("*.json")):
+    for path in artifact_paths:
         blob_name = f"{remote_prefix}/{path.name}"
         blob = bucket.blob(blob_name)
         if not blob.exists(client=client):
@@ -121,12 +121,18 @@ def ingest_dbt_artifacts(
 
         manifest_path = artifacts_dir / "manifest.json"
         shutil.copyfile(Path(target_path) / "manifest.json", manifest_path)
-        success = True
+        failed_run_results_paths = []
         for run_results_path in run_results_paths:
-            success = _run_cli(manifest_path, run_results_path) and success
+            if not _run_cli(manifest_path, run_results_path):
+                failed_run_results_paths.append(run_results_path)
 
-        if not success:
-            _upload_artifacts_to_gcs(artifacts_dir, env, deployment_name, flow_run_id)
+        if failed_run_results_paths:
+            _upload_artifacts_to_gcs(
+                [manifest_path, *failed_run_results_paths],
+                env,
+                deployment_name,
+                flow_run_id,
+            )
         else:
             print("OpenMetadata: ingestão concluída com sucesso")
     except Exception as error:
