@@ -2,7 +2,6 @@
 """Publicação de artefatos dbt no OpenMetadata."""
 
 import json
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -11,11 +10,12 @@ from typing import Optional
 from google.cloud import storage
 
 from pipelines.common import constants
+from pipelines.common.utils.secret import get_env_secret
 
 CLI_PATH = "/opt/openmetadata/bin/metadata"
-CONFIG_DIR = Path(__file__).parents[1] / "config" / "openmetadata"
-CONFIG_PATH = CONFIG_DIR / "dbt_run_results.yaml"
-DOCS_CONFIG_PATH = CONFIG_DIR / "dbt_docs.yaml"
+CLI_TIMEOUT_SECONDS = 600
+CONFIG_PATH = Path(__file__).parents[1] / "config" / "openmetadata" / "dbt_run_results.yaml"
+GCS_BUCKET_NAME = "rj-smtr"
 GCS_PREFIX = "openmetadata/dbt"
 
 
@@ -50,20 +50,21 @@ def preserve_dbt_run_results(
 
 
 def _run_cli(manifest_path: Path, run_results_path: Path) -> bool:
-    process_env = os.environ.copy()
-    process_env["OPENMETADATA_JWT_TOKEN"] = process_env.get(
-        "OPENMETADATA_JWT_TOKEN", process_env.get("bot_jwt_token", "")
-    )
-    process_env["OPENMETADATA_DBT_MANIFEST_PATH"] = str(manifest_path)
-    process_env["OPENMETADATA_DBT_RUN_RESULTS_PATH"] = str(run_results_path)
     try:
+        secret = get_env_secret("openmetadata")
         result = subprocess.run(
-            [os.getenv("OPENMETADATA_CLI_PATH", CLI_PATH), "ingest", "-c", str(CONFIG_PATH)],
+            [CLI_PATH, "ingest", "-c", str(CONFIG_PATH)],
             check=False,
             capture_output=True,
             text=True,
-            timeout=int(os.getenv("OPENMETADATA_TIMEOUT_SECONDS", "600")),
-            env=process_env,
+            timeout=CLI_TIMEOUT_SECONDS,
+            env={
+                "OPENMETADATA_HOST_PORT": secret["host_port"],
+                "OPENMETADATA_SERVICE_NAME": secret["service_name"],
+                "OPENMETADATA_JWT_TOKEN": secret["jwt_token"],
+                "OPENMETADATA_DBT_MANIFEST_PATH": str(manifest_path),
+                "OPENMETADATA_DBT_RUN_RESULTS_PATH": str(run_results_path),
+            },
         )
         if result.returncode:
             print(
@@ -77,7 +78,7 @@ def _run_cli(manifest_path: Path, run_results_path: Path) -> bool:
             f"{error.stdout or ''}\n{error.stderr or ''}"
         )
         return False
-    except (OSError, ValueError) as error:
+    except (KeyError, OSError, ValueError) as error:
         print(f"OpenMetadata: falha ao ingerir {run_results_path.name}: {error}")
         return False
 
@@ -92,9 +93,8 @@ def _upload_artifacts_to_gcs(
     flow_run_id: object,
 ) -> None:
     remote_prefix = f"{GCS_PREFIX}/pending/{deployment_name}/{flow_run_id}"
-    bucket_name = os.getenv("OPENMETADATA_GCS_BUCKET", constants.DEFAULT_BUCKET_NAME[env])
     client = storage.Client(project=constants.PROJECT_NAME[env])
-    bucket = client.bucket(bucket_name)
+    bucket = client.bucket(GCS_BUCKET_NAME)
     for path in sorted(artifacts_dir.glob("*.json")):
         blob_name = f"{remote_prefix}/{path.name}"
         blob = bucket.blob(blob_name)
@@ -102,7 +102,7 @@ def _upload_artifacts_to_gcs(
             blob.upload_from_filename(
                 str(path), content_type="application/json", if_generation_match=0
             )
-    print(f"OpenMetadata: artefatos enviados para gs://{bucket_name}/{remote_prefix}")
+    print(f"OpenMetadata: artefatos enviados para gs://{GCS_BUCKET_NAME}/{remote_prefix}")
 
 
 def ingest_dbt_artifacts(
