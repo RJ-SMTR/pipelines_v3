@@ -141,7 +141,6 @@ models:
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
         data_type: datetime
-        quote: true
         description: "{{ doc('datetime_ultima_atualizacao') }}"
   - name: bilhetagem_dia
     description: "Tabela com os valores totais de pagamento da Jaé agregados por dia"
