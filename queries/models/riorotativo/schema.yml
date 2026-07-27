@@ -11,7 +11,7 @@ models:
       para status e histórico use guardador_veiculo_riorotativo_historico.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
+          name: dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
           config:
             where: "1=1"
           arguments:
@@ -19,7 +19,7 @@ models:
               - documento
               - cnpj
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
+          name: dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
           config:
             where: "1=1"
           arguments:
@@ -38,7 +38,7 @@ models:
               config:
                 where: "1=1"
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
               config:
                 where: "1=1"
               arguments:
@@ -128,7 +128,7 @@ models:
           - not_null:
               name: not_null__documento__guardador_veiculo_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -202,7 +202,7 @@ models:
               config:
                 where: "1=1"
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo
               config:
                 where: "1=1"
               arguments:
@@ -266,7 +266,7 @@ models:
       nome/email/telefone refletem o valor vigente no momento do processamento.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__agente_verificacao_riorotativo_historico
+          name: dbt_utils__expression_is_true__agente_verificacao_riorotativo_historico
           arguments:
             expression: >-
               concat(cast(data as string), '-', documento) not in (
@@ -304,7 +304,7 @@ models:
           - not_null:
               name: not_null__documento__agente_verificacao_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo_historico
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__agente_verificacao_riorotativo_historico
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -366,7 +366,7 @@ models:
       Use cnpj e a vigência para junções.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
+          name: dbt_utils__unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
           config:
             where: "1=1"
           arguments:
@@ -495,7 +495,7 @@ models:
       Exceções aos perfis ficam em perfil_funcionamento_riorotativo_historico.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo
+          name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo
           config:
             where: "1=1"
           arguments:
@@ -567,7 +567,7 @@ models:
       Exceção ausente em uma data pode indicar remoção na fonte ou vigência não alcançada/encerrada.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__perfil_funcionamento_riorotativo_historico
+          name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo_historico
           arguments:
             expression: "(id_area is null) != (id_perfil_funcionamento is null)"
     columns:

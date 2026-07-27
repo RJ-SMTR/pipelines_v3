@@ -21,7 +21,7 @@ models:
           - not_null:
               name: not_null__documento__staging_guardador_veiculo_riorotativo
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -59,7 +59,7 @@ models:
           - not_null:
               name: not_null__documento__staging_agente_verificacao_riorotativo
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_agente_verificacao_riorotativo
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__staging_agente_verificacao_riorotativo
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -201,7 +201,7 @@ models:
           - not_null:
               name: not_null__documento__staging_lista_bloqueio_riorotativo
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__documento__staging_lista_bloqueio_riorotativo
+              name: dbt_expectations__expect_column_values_to_match_regex__documento__staging_lista_bloqueio_riorotativo
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -244,7 +244,7 @@ models:
       sem horário na fonte, considera 00:00:00 no início e 23:59:59 no fim.
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__staging_perfil_funcionamento_excecao_riorotativo
+          name: dbt_utils__expression_is_true__staging_perfil_funcionamento_excecao_riorotativo
           arguments:
             expression: "(area_codigo is null) != (perfil_funcionamento_codigo is null)"
     columns:

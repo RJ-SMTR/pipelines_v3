@@ -51,31 +51,31 @@ GTFS_DBT_TEST_EXCLUDE = (
 
 GTFS_DATA_CHECKS_LIST = {
     "calendar_gtfs": {
-        "dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs": {
+        "dbt_expectations__expect_column_values_to_match_regex__service_id__calendar_gtfs": {
             "description": "Todos os 'service\\_id' começam com 'U\\_', 'S\\_', 'D\\_' ou 'EXCEP'."
         },
     },
     "ordem_servico_trajeto_alternativo_gtfs": {
-        "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs": {
+        "dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs": {
             "description": "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_gtfs' e 'ordem_servico_gtfs'."
         },
     },
     "ordem_servico_trajeto_alternativo_sentido": {
-        "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido": {
+        "dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido": {
             "description": "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_sentido' e 'ordem_servico_gtfs'."
         },
     },
     "ordem_servico_trips_shapes_gtfs": {
-        "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs": {
+        "dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs": {
             "description": "Todos os dados de 'feed_start_date', 'tipo_os', 'tipo_dia', 'servico' e 'faixa_horaria_inicio' correspondem 1:1 entre as tabelas 'ordem_servico_trips_shapes_gtfs' e 'ordem_servico_faixa_horaria'."
         },
-        "dbt_utils.unique_combination_of_columns__ordem_servico_trips_shapes_gtfs": {
+        "dbt_utils__unique_combination_of_columns__ordem_servico_trips_shapes_gtfs": {
             "description": "Todos os dados de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'sentido', 'faixa_horaria_inicio' e 'shape_id' são únicos."
         },
-        "dbt_expectations.expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs": {
+        "dbt_expectations__expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs": {
             "description": "A quantidade de registros de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'faixa_horaria_inicio' e 'shape_id' está dentro do intervalo esperado."
         },
-        "dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs": {
+        "dbt_expectations__expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs": {
             "description": "Todos os valores de 'distancia_planejada' são maiores que zero"
         },
     },
@@ -85,7 +85,7 @@ GTFS_DATA_CHECKS_LIST = {
         },
     },
     "viagem_planejada_planejamento": {
-        "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento": {
+        "dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento": {
             "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
         },
     },

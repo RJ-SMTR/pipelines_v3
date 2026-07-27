@@ -301,7 +301,7 @@ models:
       - check_gps_treatment:
           name: check_gps_treatment__gps
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__gps
+          name: dbt_utils__unique_combination_of_columns__gps
           arguments:
             combination_of_columns:
               - datetime_gps
@@ -421,7 +421,7 @@ models:
       Usada para validar atualização de dados por fornecedor via testes de freshness agrupados.
     tests:
       - dbt_expectations.expect_grouped_row_values_to_have_recent_data:
-          name: dbt_expectations.expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
+          name: dbt_expectations__expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
           arguments:
             group_by: ["fonte_gps"]
             timestamp_column: datetime_gps
@@ -464,7 +464,7 @@ models:
     description: Tabela com as informações do controle do lacre e deslacre de veículos
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre
+          name: dbt_utils__unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre
           config:
             where: "1=1"
           arguments:
@@ -473,7 +473,7 @@ models:
               - data_inicio_lacre
               - id_auto_infracao
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre
+          name: dbt_utils__unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre
           config:
             where: "1=1"
           arguments:
@@ -519,7 +519,7 @@ models:
         description: "{{ doc('id_auto_infracao') }}"
         tests:
           - dbt_utils.relationships_where:
-              name: dbt_utils.relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre
+              name: dbt_utils__relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre
               config:
                 where: "1=1"
               arguments:
@@ -562,7 +562,7 @@ models:
         description: "{{ doc('id_auto_infracao') }}"
         tests:
           - dbt_utils.relationships_where:
-              name: dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico
+              name: dbt_utils__relationships_where__id_auto_infracao__autuacao_disciplinar_historico
               config:
                 where: |
                   data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
@@ -726,13 +726,13 @@ models:
     description: Tabela resumo dos veículos e seus respectivos indicadores [contém dados a partir de 2025-04-01]
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia
+          name: dbt_utils__unique_combination_of_columns__data_id_veiculo__veiculo_dia
           arguments:
             combination_of_columns:
               - data
               - id_veiculo
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia
           arguments:
             date_col: data
             row_condition: "1=1"
@@ -877,7 +877,7 @@ models:
     description: "Tabela com indicadores de regularidade de temperatura por veículo por dia"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__veiculo_regularidade_temperatura_dia
+          name: dbt_utils__unique_combination_of_columns__veiculo_regularidade_temperatura_dia
           arguments:
             combination_of_columns:
               - data
@@ -973,7 +973,7 @@ models:
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador
+              name: dbt_expectations__expect_row_values_to_have_recent_data__datetime_captura__gps_validador
               arguments:
                 datepart: hour
                 interval: 3

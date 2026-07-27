@@ -22,7 +22,7 @@ GPS_POST_CHECKS_LIST = {
         "check_gps_treatment__gps": {
             "description": "Todos os dados de GPS foram devidamente tratados"
         },
-        "dbt_utils.unique_combination_of_columns__gps": {
+        "dbt_utils__unique_combination_of_columns__gps": {
             "description": "Todos os registros são únicos"
         },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},

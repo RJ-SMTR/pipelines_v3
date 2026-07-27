@@ -18,7 +18,7 @@ ORDEM_PAGAMENTO_DBT_TEST = DBTTest(
     test_descriptions={
         "bilhetagem_consorcio_operador_dia": {
             "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "dbt_expectations.expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia": {
+            "dbt_expectations__expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia": {
                 "description": "A Ordem de pagamento está em dia"
             },
         }

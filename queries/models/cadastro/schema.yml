@@ -154,7 +154,7 @@ models:
     description: Tabela histórica de dados cadastrais dos veículos que operam o sistema de transporte rodoviário, considerando tanto os licenciados no Sistema de Transporte Urbano [STU] quanto as solicitações válidas em andamento para ingresso no sistema [contém dados a partir de 2025-04-01]
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__veiculo_licenciamento_dia
+          name: dbt_utils__unique_combination_of_columns__veiculo_licenciamento_dia
           arguments:
             combination_of_columns:
               - data

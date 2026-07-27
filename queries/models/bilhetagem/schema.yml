@@ -283,7 +283,7 @@ models:
     description: "Tabela de integrações realizadas entre modos do sistema de transporte municipal, contendo os valores da repartição tarifária (quando houver). [Dados em fase de teste]"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__integracao
+          name: dbt_utils__unique_combination_of_columns__integracao
           arguments:
             combination_of_columns:
               - id_integracao
@@ -490,7 +490,7 @@ models:
     description: Tabela contendo o valor de cada transação em uma ordem de pagamento
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__transacao_valor_ordem
+          name: dbt_utils__unique_combination_of_columns__transacao_valor_ordem
           config:
             where: data_ordem in ({partitions})
           arguments:

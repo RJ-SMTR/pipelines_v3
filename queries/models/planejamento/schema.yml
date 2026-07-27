@@ -5,7 +5,7 @@ models:
     description: "Quantidade de viagens planejadas por faixa horária"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
           config:
             where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
           arguments:
@@ -55,7 +55,7 @@ models:
         description: "{{ doc('partidas') }}"
         # tests:
         #   - dbt_expectations.expect_column_sum_to_be_between:
-        #       name: dbt_expectations.expect_column_sum_to_be_between__partidas__ordem_servico_faixa_horaria
+        #       name: dbt_expectations__expect_column_sum_to_be_between__partidas__ordem_servico_faixa_horaria
         #       min_value: 0
         #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
         #       strictly: true
@@ -64,7 +64,7 @@ models:
         description: "{{ doc('quilometragem') }}"
         # tests:
         #   - dbt_expectations.expect_column_sum_to_be_between:
-        #       name: dbt_expectations.expect_column_sum_to_be_between__quilometragem__ordem_servico_faixa_horaria
+        #       name: dbt_expectations__expect_column_sum_to_be_between__quilometragem__ordem_servico_faixa_horaria
         #       min_value: 0
         #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
         #       strictly: true
@@ -159,7 +159,7 @@ models:
     description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento
+          name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento
           config:
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
@@ -228,7 +228,7 @@ models:
     description: Uma linha por viagem planejada por dia. Representa o planejamento derivado do GTFS e do calendário operacional para a janela de materialização, incluindo extensão de 2 dias além de `date_range_end`. Use `(data, id_viagem)` como chave de join; a seleção considera o calendário e os feeds GTFS disponíveis para o período.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
+          name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento_dia
           config:
             where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
           arguments:
@@ -399,7 +399,7 @@ models:
     description: "Tabela auxiliar de tecnologias permitidas por serviço"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__tecnologia_servico
+          name: dbt_utils__unique_combination_of_columns__tecnologia_servico
           config:
             where: "1=1"
           arguments:
@@ -588,7 +588,7 @@ models:
     description: "Anexo da Ordem de Serviço [OS] com trajetos alternativos de serviços"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
           config:
             where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:

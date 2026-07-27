@@ -1009,8 +1009,11 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     for test_id, test_result in checks_results.items():
         parts = test_id.split("__")
+        # Strip sanitized package prefix (dbt_utils__..., dbt_expectations__...)
+        if parts and parts[0] in ("dbt_utils", "dbt_expectations"):
+            parts = parts[1:]
         if len(parts) >= 3:  # noqa: PLR2004
-            table_name = parts[2]
+            table_name = parts[-1]
         elif len(parts) == 2:  # noqa: PLR2004
             table_name = parts[1]
         else:
@@ -1039,7 +1042,14 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
                 if table_name in key:
                     for existing_test_id, test_info in value.items():
                         if existing_test_id in test_id:
-                            column = test_id.split("__")[1] if "__" in test_id else test_id
+                            name_parts = test_id.split("__")
+                            if name_parts and name_parts[0] in ("dbt_utils", "dbt_expectations"):
+                                name_parts = name_parts[1:]
+                            column = (
+                                name_parts[1]
+                                if len(name_parts) >= 3  # noqa: PLR2004
+                                else (name_parts[0] if name_parts else test_id)
+                            )
                             matched_description = test_info.get("description", test_id).replace(
                                 "{column_name}", column
                             )

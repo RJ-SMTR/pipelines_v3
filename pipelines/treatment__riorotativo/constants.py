@@ -16,10 +16,10 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 RIOROTATIVO_DIARIO_CHECKS_LIST = {
     "guardador_veiculo_riorotativo": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo": {
+        "dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo": {
             "description": "Cada combinação de documento e CNPJ é única"
         },
-        "dbt_utils.unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo": {
+        "dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo": {
             "description": "Cada combinação de CNPJ e número de identificação é única"
         },
     },
@@ -33,7 +33,7 @@ RIOROTATIVO_DIARIO_CHECKS_LIST = {
     "agente_verificacao_riorotativo_historico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os registros são únicos"},
-        "dbt_utils.expression_is_true__agente_verificacao_riorotativo_historico": {
+        "dbt_utils__expression_is_true__agente_verificacao_riorotativo_historico": {
             "description": (
                 "Nenhum agente de verificação coincide com guardador de veículo na mesma data"
             )
@@ -41,7 +41,7 @@ RIOROTATIVO_DIARIO_CHECKS_LIST = {
     },
     "entidade_credenciadora_riorotativo_historico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__entidade_credenciadora_riorotativo_historico": {
+        "dbt_utils__unique_combination_of_columns__entidade_credenciadora_riorotativo_historico": {
             "description": "Cada combinação de CNPJ e data de início de vigência é única"
         },
     },
@@ -51,7 +51,7 @@ RIOROTATIVO_DIARIO_CHECKS_LIST = {
     "perfil_funcionamento_riorotativo": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os registros são únicos"},
-        "dbt_utils.expression_is_true__perfil_funcionamento_riorotativo": {
+        "dbt_utils__expression_is_true__perfil_funcionamento_riorotativo": {
             "description": "Todos os dias da semana estão entre 1 e 7"
         },
     },
@@ -60,7 +60,7 @@ RIOROTATIVO_DIARIO_CHECKS_LIST = {
         "unique__id_perfil_funcionamento_historico__perfil_funcionamento_riorotativo_historico": {
             "description": "Todos os registros são únicos"
         },
-        "dbt_utils.expression_is_true__perfil_funcionamento_riorotativo_historico": {
+        "dbt_utils__expression_is_true__perfil_funcionamento_riorotativo_historico": {
             "description": "Exatamente um entre id_area e id_perfil_funcionamento é preenchido"
         },
     },
