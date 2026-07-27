@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera o modelo `subsidio_faixa_servico_dia_tipo_viagem_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+- Altera o modelo `subsidio_faixa_servico_dia_tipo_viagem_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
 
 ## [1.0.3] - 2026-06-01
 

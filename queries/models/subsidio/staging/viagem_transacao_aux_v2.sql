@@ -87,8 +87,8 @@ with
                 union all by name
 
                 select id_veiculo, datetime_partida, datetime_chegada
-                -- from {{ ref("viagem_valida") }}
-                from `rj-smtr.monitoramento.viagem_valida`
+                from {{ ref("viagem_valida") }}
+                -- from `rj-smtr.monitoramento.viagem_valida`
                 where
                     data = date_sub(date({{ date_range_start }}), interval 1 day)
                     and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")

@@ -42,8 +42,8 @@ with
             id_viagem,
             distancia_planejada,
             sentido
-        -- from {{ ref("viagem_valida") }}
-        from `rj-smtr.monitoramento.viagem_valida`
+        from {{ ref("viagem_valida") }}
+        -- from `rj-smtr.monitoramento.viagem_valida`
         where
             {{ incremental_filter }}
             and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")

@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera os modelos `viagem_classificada` e `viagem_transacao_aux_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+- Altera os modelos `viagem_classificada` e `viagem_transacao_aux_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
 
 ## [2.3.4] - 2026-05-04
 
