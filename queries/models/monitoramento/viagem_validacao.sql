@@ -64,7 +64,7 @@ with
             any_value(sentido) as sentido,
             countif(id_segmento is not null) as quantidade_segmentos_considerados,
             countif(quantidade_gps > 0) as quantidade_segmentos_validos,
-            round(
+            ceil(
                 countif(id_segmento is not null)
                 * safe_cast((1 - {{ var("parametro_validacao") }}) as numeric)
             ) as quantidade_segmentos_tolerados,
@@ -263,7 +263,26 @@ with
         from servicos_planejados_os
     ),
     /*
-    Verifica se a viagem está sobreposta a outra viagem do mesmo veículo
+    Indicadores de processamento e prazo de envio da viagem informada
+    */
+    viagem_informada_indicadores as (
+        select
+            v.*,
+            ifnull(
+                datetime_processamento > datetime_captura_viagem, false
+            ) as indicador_processamento_posterior_captura,
+            ifnull(
+                datetime_processamento < datetime_chegada_considerada, false
+            ) as indicador_processamento_anterior_chegada,
+            ifnull(
+                datetime_processamento is not null
+                and date(datetime_processamento) <= date_add(data, interval 5 day),
+                false
+            ) as indicador_prazo_envio
+        from viagens_velocidade_media v
+    ),
+    /*
+    Verifica se a viagem está sobreposta a outra viagem elegível do mesmo veículo
     */
     viagens_sobrepostas as (
         select
@@ -284,9 +303,9 @@ with
                     end
                 else false
             end as indicador_viagem_sobreposta
-        from viagens_velocidade_media v1
+        from viagem_informada_indicadores v1
         left join
-            viagens_velocidade_media v2
+            viagem_informada_indicadores v2
             on (
                 v1.data between date_sub(v2.data, interval 1 day) and date_add(
                     v2.data, interval 1 day
@@ -294,6 +313,12 @@ with
             )
             and v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
+            and not v1.indicador_processamento_posterior_captura
+            and not v1.indicador_processamento_anterior_chegada
+            and v1.indicador_prazo_envio
+            and not v2.indicador_processamento_posterior_captura
+            and not v2.indicador_processamento_anterior_chegada
+            and v2.indicador_prazo_envio
             /* tolerância inicial de 5 min: só conta sobreposição maior que 5 minutos */
             and v1.datetime_partida_considerada
             < datetime_sub(v2.datetime_chegada_considerada, interval 5 minute)
@@ -306,30 +331,6 @@ with
                     v2.datetime_captura_viagem desc, v2.datetime_partida_considerada
             )
             = 1
-    ),
-    /*
-    Indicadores de processamento e prazo de envio da viagem informada
-    */
-    viagem_informada_indicadores as (
-        select
-            id_viagem,
-            ifnull(
-                datetime_processamento > datetime_captura_viagem, false
-            ) as indicador_processamento_posterior_captura,
-            ifnull(
-                datetime_processamento < datetime_chegada_considerada, false
-            ) as indicador_processamento_anterior_chegada,
-            ifnull(
-                datetime_processamento is not null
-                and (
-                    select countif(tipo_dia = 'Dia Útil')
-                    from {{ calendario }}
-                    where data > v.data and data <= date(v.datetime_processamento)
-                )
-                <= 2,
-                false
-            ) as indicador_prazo_envio
-        from viagens_velocidade_media v
     ),
     /*
     Agregação dos indicadores de validação da viagem
@@ -373,9 +374,9 @@ with
             vm.indicador_chegada_posterior_partida,
             vm.indicador_trajeto_alternativo,
             vm.indicador_acima_velocidade_max,
-            vi.indicador_processamento_posterior_captura,
-            vi.indicador_processamento_anterior_chegada,
-            vi.indicador_prazo_envio,
+            vm.indicador_processamento_posterior_captura,
+            vm.indicador_processamento_anterior_chegada,
+            vm.indicador_prazo_envio,
             (
                 vm.indicador_campos_obrigatorios
                 and vm.indicador_chegada_posterior_partida
@@ -391,16 +392,15 @@ with
                 and ifnull(vm.indicador_primeiro_segmento_valido, false)
                 and ifnull(vm.indicador_ultimo_segmento_valido, false)
                 and ifnull(vm.indicador_servico_planejado_os, true)
-                and not vi.indicador_processamento_posterior_captura
-                and not vi.indicador_processamento_anterior_chegada
-                and vi.indicador_prazo_envio
+                and not vm.indicador_processamento_posterior_captura
+                and not vm.indicador_processamento_anterior_chegada
+                and vm.indicador_prazo_envio
             ) as indicador_viagem_valida,
             vm.tipo_dia,
             vm.feed_version,
             vm.feed_start_date
-        from viagens_velocidade_media vm
+        from viagem_informada_indicadores vm
         left join viagens_sobrepostas vs using (id_viagem)
-        left join viagem_informada_indicadores vi using (id_viagem)
     ),
     -- fmt: off
     /*

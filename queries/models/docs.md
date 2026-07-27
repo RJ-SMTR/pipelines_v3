@@ -1020,7 +1020,7 @@ Data e hora do processamento da viagem
 {% enddocs %}
 
 {% docs indicador_prazo_envio %}
-Indica se a viagem foi enviada dentro do prazo de até 2 dias úteis após a data de partida
+Indica se a viagem foi enviada dentro do prazo de até 5 dias corridos após a data de partida
 {% enddocs %}
 
 {% docs indicador_viagem_sobreposta %}
