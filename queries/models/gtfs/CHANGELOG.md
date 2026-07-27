@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona o teste `test_check_trajeto_alternativo` no modelo `trips_gtfs` para validar a correspondência de `(servico, evento)` com `ordem_servico_trajeto_alternativo_sentido`(https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__trips_gtfs_trajeto_alternativo` no modelo `trips_gtfs` para validar a correspondência de `(servico, evento)` com `ordem_servico_trajeto_alternativo_sentido` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
 
 ## [1.4.0] - 2026-07-13
 

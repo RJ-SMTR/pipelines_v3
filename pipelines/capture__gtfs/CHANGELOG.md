@@ -4,8 +4,8 @@
 
 ### Adicionado
 
-- Adiciona o teste `test_check_trajeto_alternativo__trips_gtfs` ao flow `capture__gtfs`(https://github.com/RJ-SMTR/pipelines_v3/pull/411)
-- Adiciona o teste `test_formato_evento` em `ordem_servico_trajeto_alternativo_sentido` (planejamento e staging) ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__trips_gtfs_trajeto_alternativo` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
 
 ## [1.2.0] - 2026-06-23
 

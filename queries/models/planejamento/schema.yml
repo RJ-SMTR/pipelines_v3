@@ -742,10 +742,12 @@ models:
       - name: evento
         description: "Evento relacionado ao trajeto alternativo"
         tests:
-          - test_formato_evento:
-              name: test_formato_evento__ordem_servico_trajeto_alternativo_sentido
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido
               config:
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+              arguments:
+                regex: "^\\[[a-z0-9_]+\\]$"
       - name: extensao
         description: "{{ doc('extensao') }}"
       - name: versao_modelo
