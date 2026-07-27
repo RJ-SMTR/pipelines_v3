@@ -261,4 +261,4 @@ from
             ) as rn
         from filtro_partida
     )
-where rn = 1
+where rn = 1 and date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
