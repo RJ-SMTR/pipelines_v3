@@ -18,7 +18,7 @@ JAE_RIOROTATIVO_AUXILIAR_SOURCES = [
             "first_timestamp",
             datetime(2026, 7, 21, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         ),
-        flow_folder_name="capture__jae_auxiliar",
+        flow_folder_name="capture__jae_riorotativo_auxiliar",
         primary_keys=v["primary_keys"],
         pretreatment_reader_args=v.get("pre_treatment_reader_args"),
         pretreat_funcs=v.get("pretreat_funcs"),

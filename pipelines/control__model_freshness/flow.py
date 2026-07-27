@@ -58,9 +58,11 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
     )
     timestamp = get_scheduled_timestamp(wait_for=[sentry])
 
+    lookback = timedelta(days=1) if "tag:daily" in test_select.split() else timedelta(hours=2)
+
     dbt_logs, _ = run_dbt_tests(
         dbt_test=dbt_test,
-        datetime_start=timestamp - timedelta(hours=2),
+        datetime_start=timestamp - lookback,
         datetime_end=timestamp,
         env=env,
     )

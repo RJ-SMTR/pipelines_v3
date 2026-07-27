@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.4] - 2026-07-21
+
+### Alterado
+
+- Ajusta a janela de `date_range` dos testes de freshness por tag: `tag:hourly` usa 2h e `tag:daily` usa 1 dia (https://github.com/RJ-SMTR/pipelines_v3/pull/406)
+
 ## [1.1.3] - 2026-06-26
 
 ### Alterado
