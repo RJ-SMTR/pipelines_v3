@@ -22,10 +22,16 @@ RIOROTATIVO_DIARIO_CHECKS_LIST = {
         "dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo": {
             "description": "Cada combinação de CNPJ e número de identificação é única"
         },
+        "dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo": {
+            "description": "Todos os documentos possuem exatamente 11 dígitos numéricos"
+        },
     },
     "guardador_veiculo_riorotativo_historico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os registros são únicos"},
+        "dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico": {
+            "description": "Todos os documentos possuem exatamente 11 dígitos numéricos"
+        },
     },
     "agente_verificacao_riorotativo": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
