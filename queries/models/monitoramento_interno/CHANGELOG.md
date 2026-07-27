@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.3] - 2026-07-27
+
+### Adicionado
+
+- Cria `view_viagem_monitoramento`, consolidando `viagem_completa` e `viagem_inferida` em uma interface histórica para painéis internos (https://github.com/RJ-SMTR/pipelines_v3/pull/438).
+
 ## [1.0.2] - 2026-06-25
 
 ### Adicionado
