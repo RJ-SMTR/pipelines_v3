@@ -32,7 +32,7 @@ models:
         quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
-        data_type: int64
+        data_type: string
         quote: true
       - name: route_id
         description: "{{ doc('route_id') }}"
