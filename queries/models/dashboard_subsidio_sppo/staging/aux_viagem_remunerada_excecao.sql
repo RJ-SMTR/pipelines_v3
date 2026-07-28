@@ -139,7 +139,7 @@ with
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
-                    struct(  -- Processo nº 000300.021698/2026-60.
+                    struct(  -- Processo n° 000300.021698/2026-60.
                         '2026-05-18' as data_inicio,
                         '2026-05-31' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
@@ -153,9 +153,7 @@ with
                             "167",
                             "169",
                             "232",
-                            "319",
                             "361",
-                            "SV319",
                             "409",
                             "410",
                             "416",
@@ -172,15 +170,55 @@ with
                             "LECD132",
                             "LECD133",
                             "LECD134",
-                            "LECD136",
-                            "LECD137",
-                            "LECD138"
+                            "LECD138",
+                            "319",
+                            "SV319",
+                            "SN319"
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
-                    struct(  -- Processo nº 000300.021698/2026-60.
-                        '2026-05-16' as data_inicio,
+                    struct(  -- Processo n° 000300.021698/2026-60.
+                        '2026-05-17' as data_inicio,
                         '2026-05-17' as data_fim,
+                        cast(null as string) as faixa_horaria_inicio,
+                        cast(null as string) as faixa_horaria_fim,
+                        [
+                            "104",
+                            "107",
+                            "161",
+                            "167",
+                            "169",
+                            "232",
+                            "361",
+                            "409",
+                            "410",
+                            "416",
+                            "435",
+                            "461",
+                            "473",
+                            "552",
+                            "583",
+                            "584",
+                            "805",
+                            "SP805",
+                            "LECD127",
+                            "LECD128",
+                            "LECD130",
+                            "LECD131",
+                            "LECD132",
+                            "LECD133",
+                            "LECD134",
+                            "LECD136",
+                            "LECD138",
+                            "319",
+                            "SV319",
+                            "SN319"
+                        ] as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Processo n° 000300.021698/2026-60.
+                        '2026-05-16' as data_inicio,
+                        '2026-05-16' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
                         cast(null as string) as faixa_horaria_fim,
                         [
@@ -211,6 +249,7 @@ with
                             "LECD133",
                             "LECD134",
                             "LECD136",
+                            "LECD137",
                             "LECD138"
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
