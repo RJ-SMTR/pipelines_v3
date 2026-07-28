@@ -14,7 +14,7 @@ from pipelines.treatment__gps_conecta import constants as gps_conecta_constants
 from pipelines.treatment__gps_zirix import constants as gps_zirix_constants
 from pipelines.treatment__planejamento_diario import constants as planejamento_constants
 
-VIAGEM_VALIDACAO_DELAY_HOURS = 48
+VIAGEM_VALIDACAO_DELAY_HOURS = 24 * 5
 
 WAIT_VIAGEM_INFORMADA_SELECTOR = DBTSelector(
     name="viagem_informada",
