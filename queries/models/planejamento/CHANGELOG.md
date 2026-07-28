@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.4] - 2026-07-28
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para validar que a quantidade distinta de `evento` por `(servico, left(sentido, 1))` em `ordem_servico_trajeto_alternativo_sentido` é igual à quantidade distinta de `trip_id_planejado` com `id_tipo_trajeto = 1` por `(servico, sentido_shape)` em `ordem_servico_trips_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.8.3] - 2026-07-22
 
 ### Adicionado
