@@ -1,0 +1,4 @@
+[project]
+name = "treatment__viagem_inferida"
+version = "0.1.0"
+description = "Materialização de viagem inferida do monitoramento"
