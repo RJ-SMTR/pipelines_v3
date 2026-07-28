@@ -727,7 +727,7 @@ models:
           arguments:
             expression: count(distinct evento)
             compare_model: ref("ordem_servico_trips_shapes_gtfs")
-            compare_expression: count(distinct trip_id_planejado)
+            compare_expression: "count(distinct regexp_extract(vista, r'(\\[.*?\\])'))"
             group_by: [servico, "left(sentido, 1)"]
             compare_group_by: [servico, sentido_shape]
             row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
