@@ -95,7 +95,7 @@ models:
         description: "{{ doc('servico') }} [com base na identificação do trajeto]"
         data_type: string
       - name: shape_id
-        description: "{{ doc('shape_id') }}. Não disponível em `viagem_valida`."
+        description: "{{ doc('shape_id') }}"
         data_type: string
       - name: sentido
         description: "{{ doc('sentido') }}"

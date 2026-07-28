@@ -158,6 +158,10 @@ Velocidade instantânea do veículo, conforme informado pelo GPS (km/h)
 Velocidade média nos últimos 10 minutos de operação (km/h)
 {% enddocs %}
 
+{% docs velocidade_media_viagem %}
+Velocidade média da viagem (km/h)
+{% enddocs %}
+
 {% docs distancia_gps %}
 Distância da última posição do GPS em relação à posição atual (m)
 {% enddocs %}
