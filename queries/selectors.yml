@@ -96,6 +96,18 @@ selectors:
         - method: fqn
           value: planejamento
 
+  - name: viagem_inferida
+    description: Materialização da tabela de viagens inferidas a partir do GPS
+    definition:
+      method: file
+      value: viagem_inferida
+      parents: true
+      exclude:
+        - method: fqn
+          value: gtfs
+        - method: fqn
+          value: planejamento
+
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
     definition:
