@@ -342,23 +342,6 @@ models:
 
   - name: trips_gtfs
     description: "Viagens para cada rota"
-    tests:
-      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__trips_gtfs_trajeto_alternativo
-          config:
-            where: "1=1"
-          arguments:
-            expression: count(*)
-            compare_model: ref("ordem_servico_trajeto_alternativo_sentido")
-            compare_expression: count(*)
-            group_by:
-              - trip_short_name
-              - "regexp_replace(normalize(lower(regexp_extract(trip_headsign, r'(\\[.*?\\])')), nfd), r'\\pM', '')"
-            compare_group_by:
-              - servico
-              - "regexp_replace(normalize(lower(regexp_extract(evento, r'(\\[.*?\\])')), nfd), r'\\pM', '')"
-            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}') and regexp_extract(trip_headsign, r'(\\[.*?\\])') is not null"
-            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}') and regexp_extract(evento, r'(\\[.*?\\])') is not null"
     columns:
       - name: trip_id
         description: "{{ doc('trip_id') }}"

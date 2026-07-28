@@ -60,7 +60,8 @@ sources:
                   config:
                     where: "data_versao = '{{ var('data_versao_gtfs') }}' and safe_cast(data_versao as date) >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
                   arguments:
-                    regex: "^\\[[a-z0-9_]+\\]$"
+                    regex: '^\[[a-z0-9_]+\]$'
+                    is_raw: true
 
   - name: br_rj_riodejaneiro_stu_staging
     database: rj-smtr-staging

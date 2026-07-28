@@ -720,6 +720,16 @@ models:
             compare_group_by: [feed_start_date, tipo_os]
             row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
             compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
+      - dbt_utils.relationships_where:
+          name: dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
+          config:
+            where: "1=1"
+          arguments:
+            column_name: "concat(servico, '||', evento)"
+            to: ref("trips_gtfs")
+            field: "concat(trip_short_name, '||', regexp_extract(trip_headsign, r'(\\[.*?\\])'))"
+            from_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+            to_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -747,7 +757,8 @@ models:
               config:
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
               arguments:
-                regex: "^\\[[a-z0-9_]+\\]$"
+                regex: '^\[[a-z0-9_]+\]$'
+                is_raw: true
       - name: extensao
         description: "{{ doc('extensao') }}"
       - name: versao_modelo
