@@ -32,7 +32,10 @@ models:
               - servico
               - sentido
               - faixa_horaria_inicio
+              - trip_id
+              - trip_id_planejado
               - shape_id
+              - shape_id_planejado
       - check_km_planejada:
           name: check_km_planejada__viagem_planejada
       - check_partidas_planejadas:

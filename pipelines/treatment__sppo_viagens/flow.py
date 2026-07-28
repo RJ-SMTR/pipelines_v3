@@ -17,9 +17,11 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     install_dbt_packages,
+    run_dbt_selector_tests,
     run_dbt_selectors,
     run_dbt_snapshots,
     setup_dbt_queries,
+    task_dbt_selector_test_notify_discord,
     test_fallback_run,
     wait_data_sources,
 )
@@ -76,8 +78,20 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             wait_for=[wait_sources, dbt_deps],
         )
 
+        post_tests = run_dbt_selector_tests(
+            contexts=contexts,
+            mode="post",
+            flags=flags,
+            wait_for=[run_dbt],
+        )
+
+        post_tests_notify = task_dbt_selector_test_notify_discord.map(
+            context=post_tests,
+            mode=unmapped("post"),
+        ).result()
+
         run_dbt_snapshots(
             contexts=contexts,
             flags=flags,
-            wait_for=[run_dbt],
+            wait_for=[post_tests_notify],
         )
