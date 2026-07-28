@@ -8,7 +8,7 @@ operadoras ainda não enviaram a viagem informada (prazo de 5 dias).
 
 Schedule:
 - Diariamente às 8h (horário de São Paulo)
-- Depende de dados do Planejamento Diário e do GPS SPPO
+- Depende de dados do Planejamento Diário e do GPS (Conecta e Zirix)
 
 DBT: 2026-07-28
 """
