@@ -1,14 +1,25 @@
-{{
-    config(
-        materialized="incremental",
-        partition_by={
-            "field": "data",
-            "data_type": "date",
-            "granularity": "day",
-        },
-        incremental_strategy="insert_overwrite",
-    )
-}}
+{% if var("tipo_materializacao") == "monitoramento" %}
+    {{
+        config(
+            partition_by={
+                "field": "data",
+                "data_type": "date",
+                "granularity": "day",
+            },
+            schema="monitoramento_interno",
+        )
+    }}
+{% else %}
+    {{
+        config(
+            partition_by={
+                "field": "data",
+                "data_type": "date",
+                "granularity": "day",
+            },
+        )
+    }}
+{% endif %}
 
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
