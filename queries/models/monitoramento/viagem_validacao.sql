@@ -74,8 +74,10 @@ with
             logical_or(
                 indicador_ultimo_segmento_valido
             ) as indicador_ultimo_segmento_valido,
-            max(indicador_servico_divergente) as indicador_servico_divergente,
-            max(id_segmento is null) as indicador_shape_invalido,
+            logical_and(
+                ifnull(indicador_servico_convergente, true)
+            ) as indicador_servico_convergente,
+            logical_and(id_segmento is not null) as indicador_shape_valido,
             any_value(service_ids) as service_ids,
             any_value(tipo_dia) as tipo_dia,
             any_value(feed_version) as feed_version,
@@ -127,8 +129,8 @@ with
             ) as indice_validacao,
             indicador_primeiro_segmento_valido,
             indicador_ultimo_segmento_valido,
-            indicador_servico_divergente,
-            indicador_shape_invalido,
+            indicador_servico_convergente,
+            indicador_shape_valido,
             (
                 id_viagem is not null
                 and datetime_partida_considerada is not null
@@ -252,14 +254,14 @@ with
             between spu.faixa_horaria_inicio and spu.faixa_horaria_fim
     ),
     /*
-    Verifica se a velocidade média da viagem está acima do limite máximo permitido
+    Verifica se a velocidade média da viagem está abaixo do limite máximo permitido
     */
     viagens_velocidade_media as (
         select
             *,
             velocidade_media
-            >= {{ var("conformidade_velocidade_min") }}
-            as indicador_acima_velocidade_max
+            < {{ var("conformidade_velocidade_min") }}
+            as indicador_abaixo_velocidade_max
         from servicos_planejados_os
     ),
     /*
@@ -269,11 +271,11 @@ with
         select
             v.*,
             ifnull(
-                datetime_processamento > datetime_captura_viagem, false
-            ) as indicador_processamento_posterior_captura,
+                datetime_processamento <= datetime_captura_viagem, true
+            ) as indicador_sem_alteracao_retroativa,
             ifnull(
-                datetime_processamento < datetime_chegada_considerada, false
-            ) as indicador_processamento_anterior_chegada,
+                datetime_processamento >= datetime_chegada_considerada, true
+            ) as indicador_processamento_apos_chegada,
             ifnull(
                 datetime_processamento is not null
                 and date(datetime_processamento) <= date_add(data, interval 5 day),
@@ -282,7 +284,7 @@ with
         from viagens_velocidade_media v
     ),
     /*
-    Verifica se a viagem está sobreposta a outra viagem elegível do mesmo veículo
+    Verifica se a viagem não está sobreposta a outra viagem elegível do mesmo veículo
     */
     viagens_sobrepostas as (
         select
@@ -296,13 +298,13 @@ with
                 then
                     case
                         when v1.datetime_captura_viagem = v2.datetime_captura_viagem
-                        then true
+                        then false
                         when v1.datetime_captura_viagem < v2.datetime_captura_viagem
-                        then true
-                        else false
+                        then false
+                        else true
                     end
-                else false
-            end as indicador_viagem_sobreposta
+                else true
+            end as indicador_viagem_nao_sobreposta
         from viagem_informada_indicadores v1
         left join
             viagem_informada_indicadores v2
@@ -313,11 +315,11 @@ with
             )
             and v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
-            and not v1.indicador_processamento_posterior_captura
-            and not v1.indicador_processamento_anterior_chegada
+            and v1.indicador_sem_alteracao_retroativa
+            and v1.indicador_processamento_apos_chegada
             and v1.indicador_prazo_envio
-            and not v2.indicador_processamento_posterior_captura
-            and not v2.indicador_processamento_anterior_chegada
+            and v2.indicador_sem_alteracao_retroativa
+            and v2.indicador_processamento_apos_chegada
             and v2.indicador_prazo_envio
             /* tolerância inicial de 5 min: só conta sobreposição maior que 5 minutos */
             and v1.datetime_partida_considerada
@@ -360,7 +362,7 @@ with
             vm.quantidade_segmentos_validos,
             vm.quantidade_segmentos_necessarios,
             vm.indice_validacao,
-            vs.indicador_viagem_sobreposta,
+            vs.indicador_viagem_nao_sobreposta,
             -- fmt: off
             vm.quantidade_segmentos_validos >= vm.quantidade_segmentos_necessarios as indicador_trajeto_valido,
             -- fmt: on
@@ -368,32 +370,33 @@ with
             vm.indicador_servico_planejado_os,
             vm.indicador_primeiro_segmento_valido,
             vm.indicador_ultimo_segmento_valido,
-            vm.indicador_servico_divergente,
-            vm.indicador_shape_invalido,
+            vm.indicador_servico_convergente,
+            vm.indicador_shape_valido,
             vm.indicador_campos_obrigatorios,
             vm.indicador_chegada_posterior_partida,
             vm.indicador_trajeto_alternativo,
-            vm.indicador_acima_velocidade_max,
-            vm.indicador_processamento_posterior_captura,
-            vm.indicador_processamento_anterior_chegada,
+            vm.indicador_abaixo_velocidade_max,
+            vm.indicador_sem_alteracao_retroativa,
+            vm.indicador_processamento_apos_chegada,
             vm.indicador_prazo_envio,
             (
                 vm.indicador_campos_obrigatorios
                 and vm.indicador_chegada_posterior_partida
-                and not vm.indicador_shape_invalido
+                and vm.indicador_shape_valido
                 -- fmt: off
                 and vm.quantidade_segmentos_validos >= vm.quantidade_segmentos_necessarios
                 -- fmt: on
                 and vm.indicador_servico_planejado_gtfs
                 {% if var("tipo_materializacao") != "monitoramento" %}
-                    and not vs.indicador_viagem_sobreposta
+                    and vs.indicador_viagem_nao_sobreposta
                 {% endif %}
-                and not vm.indicador_acima_velocidade_max
-                and ifnull(vm.indicador_primeiro_segmento_valido, false)
-                and ifnull(vm.indicador_ultimo_segmento_valido, false)
+                and ifnull(vm.indicador_abaixo_velocidade_max, false)
+                and vm.indicador_primeiro_segmento_valido
+                and vm.indicador_ultimo_segmento_valido
                 and ifnull(vm.indicador_servico_planejado_os, true)
-                and not vm.indicador_processamento_posterior_captura
-                and not vm.indicador_processamento_anterior_chegada
+                and vm.indicador_servico_convergente
+                and vm.indicador_sem_alteracao_retroativa
+                and vm.indicador_processamento_apos_chegada
                 and vm.indicador_prazo_envio
             ) as indicador_viagem_valida,
             vm.tipo_dia,
@@ -486,20 +489,20 @@ select
     quantidade_segmentos_validos,
     quantidade_segmentos_necessarios,
     indice_validacao,
-    indicador_viagem_sobreposta,
+    indicador_viagem_nao_sobreposta,
     indicador_trajeto_valido,
     indicador_servico_planejado_gtfs,
     indicador_servico_planejado_os,
     indicador_primeiro_segmento_valido,
     indicador_ultimo_segmento_valido,
-    indicador_servico_divergente,
-    indicador_shape_invalido,
+    indicador_servico_convergente,
+    indicador_shape_valido,
     indicador_campos_obrigatorios,
     indicador_chegada_posterior_partida,
     indicador_trajeto_alternativo,
-    indicador_acima_velocidade_max,
-    indicador_processamento_posterior_captura,
-    indicador_processamento_anterior_chegada,
+    indicador_abaixo_velocidade_max,
+    indicador_sem_alteracao_retroativa,
+    indicador_processamento_apos_chegada,
     indicador_prazo_envio,
     indicador_viagem_valida,
     tipo_dia,

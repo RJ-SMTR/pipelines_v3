@@ -6,6 +6,7 @@
 
 - Altera o modelo `viagem_validacao` para considerar o prazo de envio de até 5 dias corridos, usar `CEIL` no cálculo de segmentos tolerados e desconsiderar viagens com inconsistências temporais na verificação de sobreposição conforme Resolução SMTR 3934/2026
 (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Renomeia indicadores de `viagem_validacao` / `gps_segmento_viagem` para polaridade única (`true` = critério atendido) e inclui `indicador_servico_convergente` na composição de `indicador_viagem_valida`(https://github.com/RJ-SMTR/pipelines_v3/pull/439)
 
 ## [2.2.5] - 2026-07-16
 
