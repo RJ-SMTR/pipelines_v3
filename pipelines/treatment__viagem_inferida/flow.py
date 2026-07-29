@@ -3,14 +3,14 @@
 Flow de materialização de viagem inferida
 
 Executa o selector DBT 'viagem_inferida' para materializar viagens inferidas
-a partir do GPS no BigQuery, como alternativa ao monitoramento enquanto as
+a partir do GPS e sua cadeia de validação no modo monitoramento, enquanto as
 operadoras ainda não enviaram a viagem informada (prazo de 5 dias).
 
 Schedule:
 - Diariamente às 8h (horário de São Paulo)
 - Depende de dados do Planejamento Diário e do GPS (Conecta e Zirix)
 
-DBT: 2026-07-28
+DBT: 2026-07-29
 """
 
 from typing import Optional
@@ -39,7 +39,7 @@ def treatment__viagem_inferida(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
     )
