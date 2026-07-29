@@ -9,6 +9,13 @@
     )
 }}
 
+{% set incremental_filter %}
+    data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    {% if is_incremental() %}
+        and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+    {% endif %}
+{% endset %}
+
 {% if execute %}
     {% set result = run_query(
         "SELECT coalesce(data_versao_shapes, feed_start_date) FROM "
@@ -45,17 +52,13 @@ with
                     fim_periodo,
                     id_tipo_trajeto
                 from {{ ref("viagem_planejada") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) p
         inner join
             (
                 select distinct *
                 from {{ ref("viagem_conformidade") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) v
             on v.trip_id = p.trip_id
             and v.data = p.data
@@ -261,4 +264,4 @@ from
             ) as rn
         from filtro_partida
     )
-where rn = 1 and date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+where rn = 1
