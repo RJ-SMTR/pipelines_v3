@@ -385,11 +385,12 @@ with
                 and vm.indicador_shape_valido
                 -- fmt: off
                 and vm.quantidade_segmentos_validos >= vm.quantidade_segmentos_necessarios
-                -- fmt: on
                 and vm.indicador_servico_planejado_gtfs
                 {% if var("tipo_materializacao") != "monitoramento" %}
                     and vs.indicador_viagem_nao_sobreposta
+                    and vm.indicador_prazo_envio
                 {% endif %}
+                -- fmt: on
                 and ifnull(vm.indicador_abaixo_velocidade_max, false)
                 and vm.indicador_primeiro_segmento_valido
                 and vm.indicador_ultimo_segmento_valido
@@ -397,7 +398,6 @@ with
                 and vm.indicador_servico_convergente
                 and vm.indicador_sem_alteracao_retroativa
                 and vm.indicador_processamento_apos_chegada
-                and vm.indicador_prazo_envio
             ) as indicador_viagem_valida,
             vm.tipo_dia,
             vm.feed_version,
