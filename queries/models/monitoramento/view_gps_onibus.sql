@@ -11,10 +11,9 @@ from {{ source("monitoramento", "gps_onibus_conecta") }}
 union all
 
 select *, 'zirix' as fonte_gps
-from {{ source("monitoramento", "gps_onibus_zirix") }}
+from
+    {{ source("monitoramento", "gps_onibus_zirix") }}
 
-union all
-
--- union all
--- select *, 'cittati' as fonte_gps
--- from {{ source("monitoramento", "gps_onibus_cittati") }}
+    -- union all
+    -- select *, 'cittati' as fonte_gps
+    -- from {{ source("monitoramento", "gps_onibus_cittati") }}
