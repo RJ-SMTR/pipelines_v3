@@ -7,7 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.treatment.default_treatment.utils import DBTSelector
+from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 VIAGENS_SPPO_SELECTOR = DBTSelector(
     name="viagens_sppo",
@@ -25,4 +25,8 @@ VIAGENS_SPPO_SNAPSHOT_SELECTOR = DBTSelector(
     name="snapshot_viagem",
     initial_datetime=datetime(2026, 1, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__sppo_viagens",
+)
+
+VIAGEM_PLANEJADA_SNAPSHOT_UNIQUE_TEST = DBTTest(
+    test_select="unique__snapshot_key__viagem_planejada",
 )
