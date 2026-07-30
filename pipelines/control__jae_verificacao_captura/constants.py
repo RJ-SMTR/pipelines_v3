@@ -125,6 +125,7 @@ CHECK_CAPTURE_PARAMS = {
         "timestamp_column": "data_inclusao",
         "primary_keys": VEICULO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
     },
     jae_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
         "source": movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE,
@@ -132,6 +133,7 @@ CHECK_CAPTURE_PARAMS = {
         "timestamp_column": "data_inclusao",
         "primary_keys": movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
     },
     jae_constants.ESTACIONAMENTO_VEICULO_TABLE_ID: {
         "source": estacionamento_veiculo_constants.ESTACIONAMENTO_VEICULO_SOURCE,
@@ -139,6 +141,7 @@ CHECK_CAPTURE_PARAMS = {
         "timestamp_column": "data_inclusao",
         "primary_keys": estacionamento_veiculo_constants.ESTACIONAMENTO_VEICULO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
     },
     jae_constants.FISCALIZACAO_VEICULO_TABLE_ID: {
         "source": fiscalizacao_veiculo_constants.FISCALIZACAO_VEICULO_SOURCE,
@@ -146,5 +149,6 @@ CHECK_CAPTURE_PARAMS = {
         "timestamp_column": "data_inclusao",
         "primary_keys": fiscalizacao_veiculo_constants.FISCALIZACAO_VEICULO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
     },
 }
