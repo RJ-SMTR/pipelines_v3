@@ -1908,3 +1908,47 @@ Identificador do último editor do registro na fonte
 {% docs ultima_atualizacao_fonte %}
 Data e hora da última atualização do registro na fonte
 {% enddocs %}
+
+{% docs id_ativacao_riorotativo %}
+Identificador único da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_inicio_periodo_ativacao_riorotativo %}
+Data e hora inicial da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_fim_periodo_ativacao_riorotativo %}
+Data e hora final da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs id_veiculo_riorotativo %}
+Identificador único do veículo no Rio Rotativo
+{% enddocs %}
+
+{% docs cpf_motorista_riorotativo %}
+CPF do motorista
+{% enddocs %}
+
+{% docs valor_pago_bruto_ativacao_riorotativo %}
+Valor bruto pago pela ativação (R$)
+{% enddocs %}
+
+{% docs valor_retido_jae_ativacao_riorotativo %}
+Valor da ativação retido pela Jaé (R$)
+{% enddocs %}
+
+{% docs valor_pago_liquido_ativacao_riorotativo %}
+Valor bruto subtraído pelo valor retido (R$)
+{% enddocs %}
+
+{% docs status_guardador %}
+Status do guardador de veículo
+{% enddocs %}
+
+{% docs cpf_guardador %}
+CPF do guardador de veículo
+{% enddocs %}
+
+{% docs datetime_inclusao_ordem_pagamento_riorotativo %}
+Datetime da geração da ordem de pagamento
+{% enddocs %}
