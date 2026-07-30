@@ -36,7 +36,7 @@ models:
       - unique:
           name: unique__snapshot_key__viagem_planejada
           config:
-            where: "data between date_sub(current_date('America/Sao_Paulo'), interval 10 day) and current_date('America/Sao_Paulo') and distancia_total_planejada != 0"
+            where: "data = date_sub(date('{{ var('run_date') }}'), interval 1 day) and distancia_total_planejada != 0"
           arguments:
             column_name: "concat(data, '-', servico, '-', sentido, '-', faixa_horaria_inicio, '-', ifnull(trip_id, ''), '-', ifnull(trip_id_planejado, ''), '-', ifnull(shape_id, ''), '-', ifnull(shape_id_planejado, ''))"
       - check_km_planejada:
