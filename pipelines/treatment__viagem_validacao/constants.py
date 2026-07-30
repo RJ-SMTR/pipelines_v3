@@ -25,7 +25,7 @@ WAIT_VIAGEM_INFORMADA_SELECTOR = DBTSelector(
 
 VIAGEM_VALIDACAO_SELECTOR = DBTSelector(
     name="viagem_validacao",
-    initial_datetime=datetime(2024, 10, 12, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 8, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__viagem_validacao",
     incremental_delay_hours=VIAGEM_VALIDACAO_DELAY_HOURS,
     data_sources=[
