@@ -72,9 +72,11 @@
 
         {% set ativacao_partitions = (
             partitions_result.columns[0].values()
-            + partitions_result.columns[1].values()
-            + partitions_result.columns[2].values()
-        ) | unique %}
+             partitions_result.columns[1].values()
+             partitions_result.columns[2].values()
+        )
+        | unique
+        | list %}
 
     {% else %}
         {% set sha_column %}
