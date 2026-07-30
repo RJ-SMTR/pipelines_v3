@@ -169,7 +169,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_cpf__ordem_pagamento_guardador_veiculo_dia_riorotativo
           config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
           arguments:
             combination_of_columns:
               - data_ordem
@@ -182,7 +182,7 @@ models:
           - not_null:
               name: not_null__data_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: id_ordem_pagamento_guardador_veiculo_dia
         description: Identificador único da ordem de pagamento do guardador de veículo
         data_type: string
@@ -190,11 +190,11 @@ models:
           - unique:
               name: unique__id_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
           - not_null:
               name: not_null__id_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: cpf_guardador_veiculo
         description: "{{ doc('cpf_guardador') }}"
         data_type: string
@@ -204,7 +204,7 @@ models:
           - not_null:
               name: not_null__cpf_guardador_veiculo__ordem_pagamento_guardador_veiculo_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: quantidade_verificacao_total
         description: Quantidade total de verificações realizadas pelo guardador de veículos
         data_type: int64
@@ -235,7 +235,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_cnpj__ordem_pagamento_entidade_dia_riorotativo
           config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
           arguments:
             combination_of_columns:
               - data_ordem
@@ -248,7 +248,7 @@ models:
           - not_null:
               name: not_null__data_ordem__ordem_pagamento_entidade_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: id_ordem_pagamento_entidade_dia
         description: Identificador único da ordem de pagamento da entidade credenciadora
         data_type: string
@@ -256,11 +256,11 @@ models:
           - unique:
               name: unique__id_ordem__ordem_pagamento_entidade_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
           - not_null:
               name: not_null__id_ordem__ordem_pagamento_entidade_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: cnpj_entidade
         description: CNPJ da entidade credenciadora
         data_type: string
@@ -268,7 +268,7 @@ models:
           - not_null:
               name: not_null__cnpj_entidade__ordem_pagamento_entidade_dia_riorotativo
               config:
-                where: data in ({partitions})
+                where: data_ordem in ({partitions})
       - name: quantidade_verificacao_valida
         description: Quantidade verificações válidas realizadas pelos guardadores de veículos
         data_type: int64

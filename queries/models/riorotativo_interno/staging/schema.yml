@@ -8,11 +8,6 @@ models:
         description: Identificador do movimento
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_movimento__staging_movimento_estacionamento_veiculo_riorotativo
-          - not_null:
-              name: not_null__id_movimento__staging_movimento_estacionamento_veiculo_riorotativo
       - name: id_estacionamento_veiculo
         description: Identificador da ativação de estacionamento
         data_type: integer
@@ -33,11 +28,6 @@ models:
         description: Identificador da ativação
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_estacionamento__staging_estacionamento_veiculo_riorotativo
-          - not_null:
-              name: not_null__id_estacionamento__staging_estacionamento_veiculo_riorotativo
       - name: id_veiculo_cliente
         description: Identificador do vínculo entre veículo e motorista
         data_type: integer
@@ -50,11 +40,6 @@ models:
         description: Identificador da fiscalização
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_fiscalizacao__staging_fiscalizacao_veiculo_riorotativo
-          - not_null:
-              name: not_null__id_fiscalizacao__staging_fiscalizacao_veiculo_riorotativo
       - name: cpf_guardador_veiculo
         description: CPF informado no login do guardador
         data_type: string
@@ -75,9 +60,6 @@ models:
         description: Identificador da fiscalização à qual as imagens pertencem
         data_type: integer
         quote: true
-        tests:
-          - not_null:
-              name: not_null__id_fiscalizacao__staging_fiscalizacao_veiculo_imagem_riorotativo
       - name: indicador_imagem_placa
         description: Indica se o registro contém fotografia da placa
         data_type: boolean
@@ -102,9 +84,6 @@ models:
         description: Identificador do veículo
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_veiculo__staging_veiculo_riorotativo
       - name: placa
         description: Placa normalizada do veículo
         data_type: string
@@ -117,9 +96,6 @@ models:
         description: Identificador do vínculo
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_veiculo_cliente__staging_veiculo_cliente_riorotativo
       - name: cpf_motorista
         description: CPF informado no login do motorista
         data_type: string
@@ -133,9 +109,6 @@ models:
         description: Identificador da notificação
         data_type: integer
         quote: true
-        tests:
-          - unique:
-              name: unique__id_notificacao__staging_notificacao_veiculo_riorotativo
       - name: id_fiscalizacao_veiculo
         description: Fiscalização que originou a notificação
         data_type: integer

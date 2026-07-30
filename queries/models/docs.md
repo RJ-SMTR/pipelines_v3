@@ -1926,15 +1926,15 @@ CPF do motorista
 {% enddocs %}
 
 {% docs valor_pago_bruto_ativacao_riorotativo %}
-Valor bruto pago pela ativação [R$]
+Valor bruto pago pela ativação (R$)
 {% enddocs %}
 
 {% docs valor_retido_jae_ativacao_riorotativo %}
-Valor da ativação retido pela Jaé [R$]
+Valor da ativação retido pela Jaé (R$)
 {% enddocs %}
 
 {% docs valor_pago_liquido_ativacao_riorotativo %}
-Valor bruto subtraído pelo valor retido [R$]
+Valor bruto subtraído pelo valor retido (R$)
 {% enddocs %}
 
 {% docs status_guardador %}
