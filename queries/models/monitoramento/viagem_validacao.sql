@@ -293,25 +293,12 @@ with
             v1.id_veiculo,
             v2.id_viagem as id_viagem_sobreposta,
             v2.datetime_captura_viagem as datetime_captura_viagem_sobreposta,
-            case
-                when v2.id_viagem is not null
-                then
-                    case
-                        when v1.datetime_captura_viagem = v2.datetime_captura_viagem
-                        then false
-                        when v1.datetime_captura_viagem < v2.datetime_captura_viagem
-                        then false
-                        else true
-                    end
-                else true
-            end as indicador_viagem_nao_sobreposta
+            v2.id_viagem is null as indicador_viagem_nao_sobreposta
         from viagem_informada_indicadores v1
         left join
             viagem_informada_indicadores v2
-            on (
-                v1.data between date_sub(v2.data, interval 1 day) and date_add(
-                    v2.data, interval 1 day
-                )
+            on v1.data between date_sub(v2.data, interval 1 day) and date_add(
+                v2.data, interval 1 day
             )
             and v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
@@ -321,11 +308,22 @@ with
             and v2.indicador_sem_alteracao_retroativa
             and v2.indicador_processamento_apos_chegada
             and v2.indicador_prazo_envio
-            /* tolerância inicial de 5 min: só conta sobreposição maior que 5 minutos */
-            and v1.datetime_partida_considerada
-            < datetime_sub(v2.datetime_chegada_considerada, interval 5 minute)
-            and v1.datetime_chegada_considerada
-            > datetime_add(v2.datetime_partida_considerada, interval 5 minute)
+            and timestamp_diff(
+                least(v1.datetime_chegada_considerada, v2.datetime_chegada_considerada),
+                greatest(
+                    v1.datetime_partida_considerada, v2.datetime_partida_considerada
+                ),
+                minute
+            )
+            > 5
+            and (
+                v2.datetime_captura_viagem > v1.datetime_captura_viagem
+                or (
+                    v2.datetime_captura_viagem = v1.datetime_captura_viagem
+                    and v2.datetime_partida_considerada
+                    < v1.datetime_partida_considerada
+                )
+            )
         qualify
             row_number() over (
                 partition by v1.id_viagem
