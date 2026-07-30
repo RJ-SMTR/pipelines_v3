@@ -242,7 +242,7 @@ models:
               - cnpj_entidade
     columns:
       - name: data_ordem
-        description: "{{ doc('data_ordem') }}"
+        description: "{{ doc('data_ordem') }} [Partição]"
         data_type: date
         tests:
           - not_null:

@@ -1,4 +1,4 @@
-# Changelog - riorotativo_interno
+# Changelog - projeto_riorotativo_cct
 
 ## [1.0.0] - 2026-07-30
 
