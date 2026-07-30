@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__riorotativo_ordem_pagamento/flow.py:treatment__riorotativo_ordem_pagamento
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "30 6 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool

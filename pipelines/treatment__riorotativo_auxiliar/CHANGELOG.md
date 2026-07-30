@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0] - 2026-07-30
+
+### Alterado
+
+- Renomeia flow para `treatment__riorotativo_auxiliar`
+- Altera execução diária para horária
+
 ## [1.0.1] - 2026-07-15
 
 ### Adicionado

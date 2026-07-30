@@ -71,10 +71,14 @@
         {% set verificacao_partitions = partitions_result.columns[0].values() %}
 
         {% set ativacao_partitions = (
-            partitions_result.columns[0].values()
-            + partitions_result.columns[1].values()
-            + partitions_result.columns[2].values()
-        ) | unique %}
+            (
+                partitions_result.columns[0].values()
+                + partitions_result.columns[1].values()
+                + partitions_result.columns[2].values()
+            )
+            | unique
+            | list
+        ) %}
 
     {% else %}
         {% set sha_column %}
@@ -124,14 +128,14 @@ with
     ),
     guardador as (
         select data, documento, status, array_agg(cnpj) as cnpjs_entidade
-        from
-            {{ ref("guardador_veiculo_riorotativo_historico") }}
-            {% if is_incremental() %}
-                and {% if verificacao_partitions | length > 0 %}
+        from {{ ref("guardador_veiculo_riorotativo_historico") }}
+        {% if is_incremental() %}
+            where
+                {% if verificacao_partitions | length > 0 %}
                     data in ({{ verificacao_partitions | join(", ") }})
                 {% else %} false
                 {% endif %}
-            {% endif %}
+        {% endif %}
         group by all
     ),
     area_estacionamento as (
