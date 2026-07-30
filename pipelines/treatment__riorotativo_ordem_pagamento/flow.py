@@ -27,5 +27,5 @@ def treatment__riorotativo_ordem_pagamento(  # noqa: PLR0913
         additional_vars=additional_vars,
         test_scheduled_time=None,
         force_test_run=force_test_run,
-        snapshot_selector=constants.RIOROTATIVO_ORDEM_PAGAMENTO_SELECTOR,
+        snapshot_selector=constants.RIOROTATIVO_ORDEM_PAGAMENTO_SNAPSHOT,
     )
