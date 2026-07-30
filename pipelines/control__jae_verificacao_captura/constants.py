@@ -47,7 +47,7 @@ LAUDO_PCD_SOURCE = next(
 
 VEICULO_SOURCE = next(
     s
-    for s in riorotativo_auxiliar_constants.JAE_AUXILIAR_SOURCES
+    for s in riorotativo_auxiliar_constants.JAE_RIOROTATIVO_AUXILIAR_SOURCES
     if s.table_id == jae_constants.VEICULO_TABLE_ID
 )
 
