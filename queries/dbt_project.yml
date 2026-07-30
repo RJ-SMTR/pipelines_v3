@@ -634,7 +634,6 @@ models:
         +schema: transito_interno_staging
     projeto_riorotativo_cct:
       +materialized: view
-      +incremental_strategy: insert_overwrite
       +schema: projeto_riorotativo_cct
 flags:
   require_generic_test_arguments_property: true

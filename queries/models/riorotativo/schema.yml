@@ -186,11 +186,11 @@ models:
         data_type: string
         quote: true
       - name: status
-        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
+        description: "{{ doc('status_guardador') }}"
         data_type: string
         quote: true
       - name: motivo_bloqueio
-        description: "{{ doc('status_guardador') }}"
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: decisao_bloqueio
@@ -720,7 +720,7 @@ models:
     description: Tabela com os dados das ativações do Rio Rotativo Digital
     columns:
       - name: data
-        description: Data da ativação (partição)
+        description: Data da ativação [Partição]
         data_type: date
       - name: id_ativacao
         description: "{{ doc('id_ativacao_riorotativo') }}"

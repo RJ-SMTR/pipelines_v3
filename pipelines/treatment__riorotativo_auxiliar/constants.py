@@ -97,5 +97,5 @@ RIOROTATIVO_AUX_SELECTOR = DBTSelector(
 SNAPSHOT_RIOROTATIVO_AUX_SELECTOR = DBTSelector(
     name="snapshot_riorotativo_auxiliar",
     initial_datetime=datetime(2026, 7, 14, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="treatment__riorotativo",
+    flow_folder_name="treatment__riorotativo_auxiliar",
 )

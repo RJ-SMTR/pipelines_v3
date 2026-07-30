@@ -3,7 +3,7 @@ models:
     description: Tabela contendo as verificações dos guardadores no Rio Rotativo Digital
     columns:
       - name: data
-        description: Data da verificação (Partição)
+        description: Data da verificação [Partição]
         data_type: date
       - name: id_verificacao
         description: Identificador único da verificação
@@ -125,7 +125,7 @@ models:
     description: Tabela com os dados de cadastro de veículos do Rio Rotativo Digital
     columns:
       - name: id_veiculo_particao
-        description: Identificador do veículo convertido para inteiro (Partição)
+        description: Identificador do veículo convertido para inteiro [Partição]
         data_type: int64
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
@@ -176,7 +176,7 @@ models:
               - cpf_guardador_veiculo
     columns:
       - name: data_ordem
-        description: "{{ doc('data_ordem') }} (Partição)"
+        description: "{{ doc('data_ordem') }} [Partição]"
         data_type: date
         tests:
           - not_null:
