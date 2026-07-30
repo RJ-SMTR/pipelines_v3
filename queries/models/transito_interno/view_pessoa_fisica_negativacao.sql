@@ -1,6 +1,7 @@
 {{ config(materialized="view") }}
 
 {% set aux_autuacao_negativacao = ref("aux_autuacao_negativacao") %}
+{% set partitions = [] %}
 {% if execute %}
     {% set partitions_query %}
         select distinct
@@ -34,5 +35,9 @@ select
     datavenda,
     valor
 from {{ ref("aux_autuacao_negativacao") }}
-where indicador_nao_inclusao is false and data in ({{ partitions | join(", ") }})
+where
+    indicador_nao_inclusao is false
+    and {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
+    {% else %} false
+    {% endif %}
 order by data, contrato
