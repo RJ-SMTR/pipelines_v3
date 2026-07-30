@@ -1,6 +1,6 @@
 # Changelog - capture__gtfs
 
-## [1.2.1] - 2026-07-22
+## [1.2.1] - 2026-07-30
 
 ### Adicionado
 
