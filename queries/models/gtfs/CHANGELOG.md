@@ -1,5 +1,11 @@
 # Changelog - gtfs
 
+## [1.4.1] - 2026-07-30
+
+### Adicionado
+
+- Remove o teste de agregação de trajeto alternativo de `trips_gtfs` (substituído por `dbt_utils.relationships_where` em `ordem_servico_trajeto_alternativo_sentido`) (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.4.0] - 2026-07-13
 
 ### Corrigido
