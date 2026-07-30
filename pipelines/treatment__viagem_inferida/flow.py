@@ -39,7 +39,7 @@ def treatment__viagem_inferida(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
+        additional_vars={**constants.ADDITIONAL_VARS, **(additional_vars or {})},
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
     )
