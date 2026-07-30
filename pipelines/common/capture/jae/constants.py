@@ -682,8 +682,10 @@ JAE_TABLE_CAPTURE_PARAMS = {
                 FROM
                     veiculo_cliente
                 WHERE
-                    data_inclusao >= timestamp '{start}'
-                    AND data_inclusao < timestamp '{end}'
+                    (data_inclusao >= timestamp '{start}'
+                    AND data_inclusao < timestamp '{end}')
+                    OR (data_inativacao >= timestamp '{start}'
+                    AND data_inativacao < timestamp '{end}')
             """,
         "database": "estacionamento_db",
         "primary_keys": ["id"],
