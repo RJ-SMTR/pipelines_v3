@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.0] - 2026-07-27
+
+### Alterado
+
+- Limita `viagem_planejada`, `registros_status_viagem`, `viagem_conformidade` e `viagem_completa` às viagens anteriores a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
 ## [9.4.1] - 2026-07-08
 
 ### Adicionado
