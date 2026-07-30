@@ -144,6 +144,16 @@ POST_TEST_V14_SELECT = (
 )
 
 POST_CHECKS_LIST = {
+    "sumario_servico_dia_tipo": {
+        "sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo": {
+            "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
+        },
+    },
+    "sumario_servico_dia_pagamento": {
+        "sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento": {
+            "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
+        },
+    },
     "sumario_faixa_servico_dia_pagamento": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils.accepted_range__km_planejada_faixa__sumario_faixa_servico_dia_pagamento": {
