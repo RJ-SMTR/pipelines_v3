@@ -45,7 +45,7 @@ from pipelines.common.utils.prefect import flow, rename_flow_run
 from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
 
-@flow(log_prints=True, flow_run_name=rename_flow_run)
+@flow(log_prints=True, flow_run_name=rename_flow_run, timeout_seconds=7200)
 async def capture__gtfs(  # noqa: PLR0913, PLR0915
     env: Optional[str] = None,
     upload_from_gcs: bool = False,
