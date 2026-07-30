@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona tabelas `veiculo` `movimento_estacionamento_veiculo`, `estacionamento_veiculo` e `fiscalizacao_veiculo` (https://github.com/RJ-SMTR/pipelines_v3/pull/458)
+- Adiciona tabelas `veiculo`, `movimento_estacionamento_veiculo`, `estacionamento_veiculo` e `fiscalizacao_veiculo` (https://github.com/RJ-SMTR/pipelines_v3/pull/458)
 
 ## [1.0.3] - 2026-05-21
 
