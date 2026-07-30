@@ -221,12 +221,14 @@ with
             union all
 
             select
-                * except (versao, datetime_ultima_atualizacao, id_execucao_dbt),
+                d.* except (versao, datetime_ultima_atualizacao, id_execucao_dbt),
                 1 as priority
-            from dados_atuais
-            where
-                id_movimento_estacionamento_veiculo
-                not in (select id_movimento_estacionamento_veiculo from ativacao)
+            from dados_atuais d
+            left join
+                (select distinct id_movimento_estacionamento_veiculo from ativacao) a
+                on d.id_movimento_estacionamento_veiculo
+                = a.id_movimento_estacionamento_veiculo
+            where a.id_movimento_estacionamento_veiculo is null
         {% endif %}
     ),
     sha_dados_novos as (

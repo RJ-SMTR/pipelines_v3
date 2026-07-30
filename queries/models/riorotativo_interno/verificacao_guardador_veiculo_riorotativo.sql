@@ -31,9 +31,9 @@
             sha256(
                 concat(
                     {% for c in columns %}
-                        {% if c == "geo_point_ativacao" %}
-                            ifnull(st_astext(geo_point_ativacao), 'n/a')
-                        {% elif c in ["ids_perfil_funcionamento", "ids_perfil_funcionamento"] %}
+                        {% if c in ["geo_point_verificacao"] %}
+                            ifnull(st_astext({{ c }}), 'n/a')
+                        {% elif c in ["ids_perfil_funcionamento", "ids_perfil_funcionamento", "cnpjs_entidade", "valor_repasse_entidades"] %}
                             ifnull(to_json_string({{ c }}), 'n/a')
                         {% else %}ifnull(cast({{ c }} as string), 'n/a')
                         {% endif %}
