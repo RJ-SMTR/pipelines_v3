@@ -731,7 +731,7 @@ models:
             group_by: [servico, "left(sentido, 1)"]
             compare_group_by: [servico, sentido_shape]
             row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
-            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}') and id_tipo_trajeto = 1"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
       - dbt_utils.relationships_where:
           name: dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
           config:
