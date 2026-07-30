@@ -1,5 +1,11 @@
 # Changelog - treatment__sppo_viagens
 
+## [1.1.2] - 2026-07-29
+
+### Adicionado
+
+- Cria teste de unicidade para `viagem_planejada` após a materialização e interrompe a execução do snapshot em caso de duplicidade (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.1.1] - 2026-06-23
 
 ### Alterado

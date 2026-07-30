@@ -25,7 +25,10 @@ from pipelines.common.treatment.default_treatment.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
-from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
+from pipelines.treatment__sppo_viagens.tasks import (
+    prepare_sppo_viagens_contexts,
+    validate_viagem_planejada_snapshot_key,
+)
 
 
 @flow(
@@ -76,8 +79,14 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             wait_for=[wait_sources, dbt_deps],
         )
 
-        run_dbt_snapshots(
+        validate_snapshot_key = validate_viagem_planejada_snapshot_key(
             contexts=contexts,
             flags=flags,
             wait_for=[run_dbt],
+        )
+
+        run_dbt_snapshots(
+            contexts=contexts,
+            flags=flags,
+            wait_for=[validate_snapshot_key],
         )

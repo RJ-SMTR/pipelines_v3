@@ -10,10 +10,33 @@ from pipelines.common.treatment.default_treatment.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import (
     DBTSelectorMaterializationContext,
+    run_dbt,
 )
 from pipelines.treatment__sppo_viagens import constants
 
 D0_HOUR_THRESHOLD = 14
+
+
+@task(cache_policy=NO_CACHE)
+def validate_viagem_planejada_snapshot_key(
+    contexts: list[DBTSelectorMaterializationContext],
+    flags: Optional[list[str]] = None,
+) -> list[DBTSelectorMaterializationContext]:
+    """Valida a unicidade da chave de viagem_planejada antes do snapshot."""
+    test_flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
+
+    for context in contexts:
+        if context.snapshot_selector is None:
+            continue
+
+        run_dbt(
+            dbt_obj=constants.VIAGEM_PLANEJADA_SNAPSHOT_UNIQUE_TEST,
+            dbt_vars=context.dbt_vars,
+            flags=test_flags,
+            env=context.env,
+        )
+
+    return contexts
 
 
 @task(cache_policy=NO_CACHE)
