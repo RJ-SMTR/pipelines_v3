@@ -138,6 +138,9 @@ with
                 ifnull(
                     n.valor_repasse_entidade, a.valor_repasse_entidade
                 ) as valor_repasse_entidade,
+                ifnull(
+                    a.datetime_inclusao, current_datetime("America/Sao_Paulo")
+                ) as datetime_inclusao,
                 case
                     when
                         a.id_ordem_pagamento_entidade_dia is not null
@@ -176,6 +179,7 @@ with
         particoes_completas as (
             select
                 *,
+                current_datetime("America/Sao_Paulo") as datetime_inclusao,
                 null as quantidade_valida_divergente,
                 null as valor_divergente,
                 null as novo_registro_ordem

@@ -145,6 +145,9 @@ with
                 ifnull(
                     n.valor_repasse_guardador_veiculo, a.valor_repasse_guardador_veiculo
                 ) as valor_repasse_guardador_veiculo,
+                ifnull(
+                    a.datetime_inclusao, current_datetime("America/Sao_Paulo")
+                ) as datetime_inclusao,
                 case
                     when
                         a.id_ordem_pagamento_guardador_veiculo_dia is not null
@@ -195,6 +198,7 @@ with
         particoes_completas as (
             select
                 *,
+                current_datetime("America/Sao_Paulo") as datetime_inclusao,
                 null as quantidade_total_divergente,
                 null as quantidade_valida_divergente,
                 null as valor_divergente,

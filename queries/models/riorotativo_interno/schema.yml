@@ -217,6 +217,9 @@ models:
       - name: valor_repasse_guardador_veiculo
         description: Valor de repasse devido ao guardador de veículos [R$]
         data_type: numeric
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_ordem_pagamento_riorotativo') }}"
+        data_type: datetime
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
@@ -275,6 +278,9 @@ models:
       - name: valor_repasse_entidade
         description: Valor de repasse devido à entidade credenciadora [R$]
         data_type: numeric
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_ordem_pagamento_riorotativo') }}"
+        data_type: datetime
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string

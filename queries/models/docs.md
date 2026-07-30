@@ -1944,3 +1944,7 @@ Status do guardador de veículo
 {% docs cpf_guardador %}
 CPF do guardador de veículo
 {% enddocs %}
+
+{% docs datetime_inclusao_ordem_pagamento_riorotativo %}
+Datetime da geração da ordem de pagamento
+{% enddocs %}

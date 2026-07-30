@@ -732,6 +732,8 @@ selectors:
           value: ordem_pagamento_guardador_veiculo_dia_riorotativo
         - method: fqn
           value: ordem_pagamento_entidade_dia_riorotativo
+        - method: fqn
+          value: view_ordem_pagamento_riorotativo
 
   - name: snapshot_riorotativo_ordem_pagamento
     description: Snapshots das tabelas de ordem pagamento do Rio Rotativo Digital
