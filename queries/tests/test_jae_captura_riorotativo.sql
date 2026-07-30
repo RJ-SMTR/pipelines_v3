@@ -7,7 +7,6 @@ with
                     'movimento_estacionamento_veiculo',
                     'estacionamento_veiculo',
                     'veiculo',
-                    'veiculo_cliente',
                     'fiscalizacao_veiculo'
                 ]
             ) as table_id
