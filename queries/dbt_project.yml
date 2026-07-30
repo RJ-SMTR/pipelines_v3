@@ -308,6 +308,9 @@ vars:
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
 
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
+
 query-comment: "{{ query_comment(node) }}"
 
 tests:
@@ -556,6 +559,12 @@ models:
       staging:
         +materialized: view
         +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
@@ -623,6 +632,9 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:
