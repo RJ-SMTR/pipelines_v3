@@ -12,8 +12,8 @@
     and datetime_captura between datetime("{{var('date_range_start')}}") and datetime("{{var('date_range_end')}}")
 {% endset %}
 
-{% set staging_fiscalizacao_veiculo_riorotativo = ref(
-    "staging_fiscalizacao_veiculo_riorotativo"
+{% set aux_verificacao_particao_captura_riorotativo = ref(
+    "aux_verificacao_particao_captura_riorotativo"
 ) %}
 
 {% if execute %}
@@ -45,13 +45,24 @@
             )
         {% endset %}
         {% set partitions_query %}
-
+            with datas as (
+                select distinct
+                    particao
+                from
+                    (
+                        select
+                            array_concat_agg(particoes) as particoes
+                        from
+                            {{ aux_verificacao_particao_captura_riorotativo }}
+                        where {{ incremental_filter }}
+                    ),
+                    unnest(particoes) as particao
+            )
             select distinct
-                concat("'", date(data_fiscalizacao), "'") as data,
-                concat("'", date(data_fiscalizacao - interval 1 day), "'") as data_anterior,
-                concat("'", date(data_fiscalizacao + interval 1 day), "'") as data_posterior
-            from {{ staging_fiscalizacao_veiculo_riorotativo }}
-            {# where {{ incremental_filter }} #}
+                concat("'", particao, "'") as data,
+                concat("'", date(particao - interval 1 day), "'") as data_anterior,
+                concat("'", date(particao + interval 1 day), "'") as data_posterior
+            from datas
 
         {% endset %}
 
@@ -75,7 +86,7 @@
 with
     fiscalizacao_staging as (
         select *, st_geogpoint(longitude, latitude) as geo_point_verificacao
-        from {{ staging_fiscalizacao_veiculo_riorotativo }}
+        from {{ ref("staging_fiscalizacao_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         qualify
             row_number() over (
@@ -104,7 +115,6 @@ with
             geo_point_ativacao
         from {{ ref("ativacao_riorotativo") }}
         where
-            placa_veiculo is not null
             {% if is_incremental() %}
                 and {% if ativacao_partitions | length > 0 %}
                     data in ({{ ativacao_partitions | join(", ") }})
@@ -155,8 +165,8 @@ with
             f.geo_point_verificacao,
             a.id_ativacao,
             a.geo_point_ativacao,
-            valor_pago_bruto,
-            valor_retido_jae
+            a.valor_pago_bruto,
+            a.valor_retido_jae
         from fiscalizacao_staging f
         left join
             ativacao a
@@ -268,11 +278,24 @@ with
             ) as indicador_ja_verificado
         from
             (
-                select id_verificacao, datetime_verificacao
+                select
+                    data,
+                    id_verificacao,
+                    datetime_verificacao,
+                    datetime_inclusao_verificacao,
+                    id_veiculo,
+                    id_ativacao
                 from verificacao
+
                 {% if is_incremental() %}
                     union all
-                    select id_verificacao, datetime_verificacao
+                    select
+                        data,
+                        id_verificacao,
+                        datetime_verificacao,
+                        datetime_inclusao_verificacao,
+                        id_veiculo,
+                        id_ativacao
                     from dados_atuais
                     where id_verificacao not in (select id_verificacao from verificacao)
                 {% endif %}
@@ -289,8 +312,14 @@ with
                 then "Rotativo não ativado"
                 when vijv.indicador_ja_verificado
                 then "Veículo já verificado neste período"
-                when ifnull(not vap.indicador_vaga_perfil_funcionamento_ativo, false)
+                when
+                    vap.indicador_vaga_perfil_funcionamento_ativo is not null
+                    and not vap.indicador_vaga_perfil_funcionamento_ativo
                 then "Fora do horário de funcionamento do rotativo"
+                when
+                    vap.indicador_vaga_vigente is not null
+                    and not vap.indicador_vaga_vigente
+                then "Vaga inativa"
                 when vap.id_area is null
                 then "Verificação fora da área de estacionamento"
                 when data < date(datetime_inclusao_verificacao)
@@ -310,12 +339,28 @@ with
             if(
                 motivo_nao_repasse is null,
                 [
-                    struct("Sindicato" as entidade, numeric "0.11" as valor_repasse),
-                    struct("Associação" as entidade, numeric "0.11" as valor_repasse)
+                    struct(
+                        "Sindicato" as entidade,
+                        "34152025000122" as cnpj,
+                        numeric "0.11" as valor_repasse
+                    ),
+                    struct(
+                        "Associação" as entidade,
+                        "05019730000158" as cnpj,
+                        numeric "0.11" as valor_repasse
+                    )
                 ],
                 [
-                    struct("Sindicato" as entidade, numeric "0.0" as valor_repasse),
-                    struct("Associação" as entidade, numeric "0.0" as valor_repasse)
+                    struct(
+                        "Sindicato" as entidade,
+                        "34152025000122" as cnpj,
+                        numeric "0.0" as valor_repasse
+                    ),
+                    struct(
+                        "Associação" as entidade,
+                        "05019730000158" as cnpj,
+                        numeric "0.0" as valor_repasse
+                    )
                 ]
             ) as valor_repasse_entidades
         from verificacao_validacao
@@ -374,6 +419,10 @@ with
                 * except (versao, datetime_ultima_atualizacao, id_execucao_dbt),
                 1 as priority
             from dados_atuais
+            {% if verificacao_partitions | length > 0 %}
+                where data in ({{ verificacao_partitions | join(", ") }})
+            {% endif %}
+
         {% endif %}
     ),
     sha_dados_novos as (

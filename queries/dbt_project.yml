@@ -308,6 +308,9 @@ vars:
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
 
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
+
 query-comment: "{{ query_comment(node) }}"
 
 tests:

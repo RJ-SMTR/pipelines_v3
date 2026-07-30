@@ -12,8 +12,8 @@
     and datetime_captura between datetime("{{var('date_range_start')}}") and datetime("{{var('date_range_end')}}")
 {% endset %}
 
-{% set staging_movimento_estacionamento_veiculo_riorotativo = ref(
-    "staging_movimento_estacionamento_veiculo_riorotativo"
+{% set aux_ativacao_particao_captura_riorotativo = ref(
+    "aux_ativacao_particao_captura_riorotativo"
 ) %}
 
 {% if execute %}
@@ -45,20 +45,18 @@
         {% endset %}
 
         {% set partitions_query %}
-            with staging as (
-                select
-                    date(datetime_periodo_inicial) as datetime_periodo_inicial,
-                    date(datetime_periodo_final) as datetime_periodo_final
-                from {{ staging_movimento_estacionamento_veiculo_riorotativo }}
-                where {{ incremental_filter }}
-            )
-            select distinct concat("'", date(datetime_periodo_inicial), "'") as data
-            from staging
 
-            union distinct
-
-            select distinct concat("'", date(datetime_periodo_final), "'") as data
-            from staging
+            select distinct
+                concat("'", particao, "'") as particao
+            from
+                (
+                    select
+                        array_concat_agg(particoes) as particoes
+                    from
+                        {{ aux_ativacao_particao_captura_riorotativo }}
+                    where {{ incremental_filter }}
+                ),
+                unnest(particoes) as particao
 
         {% endset %}
 
@@ -73,9 +71,7 @@
 
 with
     movimento_estacionamento_veiculo as (
-        select
-            * except (id_tipo_periodo),
-            cast(id_tipo_periodo as integer) as id_tipo_periodo
+        select *
         from {{ ref("staging_movimento_estacionamento_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         qualify
@@ -85,28 +81,61 @@ with
             )
             = 1
     ),
+    tipo_periodo as (
+        select *
+        from
+            unnest(
+                [
+                    struct(
+                        '1' as id_tipo_periodo,
+                        2 as quantidade_horas_periodo,
+                        1 as quantidade_periodos
+                    ),
+                    struct(
+                        '2' as id_tipo_periodo,
+                        2 as quantidade_horas_periodo,
+                        2 as quantidade_periodos
+                    ),
+                    struct(
+                        '3' as id_tipo_periodo,
+                        2 as quantidade_horas_periodo,
+                        3 as quantidade_periodos
+                    )
+                ]
+            )
+    ),
+    movimento_estacionamento_veiculo_tipo_periodo as (
+        select m.*, t.* except (id_tipo_periodo)
+        from movimento_estacionamento_veiculo m
+        left join tipo_periodo t using (id_tipo_periodo)
+    ),
     movimento_estacionamento_veiculo_desdobrado as (
         select
             * except (datetime_periodo_inicial, datetime_periodo_final, valor_pago),
             concat(
                 id_movimento_estacionamento_veiculo, '_', numero_ativacao
             ) as id_ativacao,
-            valor_pago / id_tipo_periodo as valor_pago,
+            valor_pago / ifnull(quantidade_periodos, 0) as valor_pago,
             least(
-                datetime_periodo_inicial + interval (numero_ativacao - 1) * 2 hour,
+                datetime_periodo_inicial
+                + interval (numero_ativacao - 1) * quantidade_horas_periodo hour,
                 datetime_periodo_final
             ) as datetime_periodo_inicial,
             if(
                 cast(id_tipo_periodo as integer) = numero_ativacao,
                 datetime_periodo_final,
-                datetime_periodo_inicial + interval numero_ativacao * 2 hour
+                datetime_periodo_inicial
+                + interval numero_ativacao * quantidade_horas_periodo hour
             ) as datetime_periodo_final
-
         from
-            movimento_estacionamento_veiculo,
+            movimento_estacionamento_veiculo_tipo_periodo,
             unnest(
-                array(select n from unnest(generate_array(1, id_tipo_periodo)) as n)
+                array(
+                    select n
+                    from unnest(generate_array(1, ifnull(quantidade_periodos, 1))) as n
+                )
             ) as numero_ativacao
+
     ),
     estacionamento_veiculo as (
         select *, st_geogpoint(longitude, latitude) as geo_point_ativacao
@@ -167,7 +196,7 @@ with
             on st_dwithin(e.geo_point_ativacao, a.geometry, 1000)
         qualify
             row_number() over (
-                partition by m.id_movimento_estacionamento_veiculo
+                partition by m.id_ativacao
                 order by st_distance(e.geo_point_ativacao, st_centroid(a.geometry)) asc
             )
             = 1
@@ -196,10 +225,8 @@ with
                 1 as priority
             from dados_atuais
             where
-                split(id_movimento_estacionamento_veiculo, "_")[0] not in (
-                    select split(id_movimento_estacionamento_veiculo, "_")[0]
-                    from ativacao
-                )
+                id_movimento_estacionamento_veiculo
+                not in (select id_movimento_estacionamento_veiculo from ativacao)
         {% endif %}
     ),
     sha_dados_novos as (
@@ -209,7 +236,7 @@ with
         {% if is_incremental() %}
 
             select
-                id_movimento_estacionamento_veiculo,
+                id_ativacao,
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
@@ -217,16 +244,16 @@ with
 
         {% else %}
             select
-                cast(null as string) as id_movimento_estacionamento_veiculo,
+                cast(null as string) as id_ativacao,
                 cast(null as bytes) as sha_dado_atual,
                 datetime(null) as datetime_ultima_atualizacao_atual,
                 cast(null as string) as id_execucao_dbt_atual
         {% endif %}
     ),
     sha_dados_completos as (
-        select n.*, a.* except (id_movimento_estacionamento_veiculo)
+        select n.*, a.* except (id_ativacao)
         from sha_dados_novos n
-        left join sha_dados_atuais a using (id_movimento_estacionamento_veiculo)
+        left join sha_dados_atuais a using (id_ativacao)
     ),
     ativacao_colunas_controle as (
         select

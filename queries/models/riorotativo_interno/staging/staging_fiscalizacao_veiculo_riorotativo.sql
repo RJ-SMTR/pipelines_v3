@@ -9,8 +9,12 @@ select
         ".0",
         ""
     ) as id_status_fiscalizacao_veiculo,
-    regexp_replace(
-        safe_cast(json_value(content, '$.tx_login') as string), r'\D', ''
+    lpad(
+        regexp_replace(
+            safe_cast(json_value(content, '$.tx_login') as string), r'\D', ''
+        ),
+        11,
+        '0'
     ) as cpf_guardador_veiculo,
     safe_cast(json_value(content, '$.latitude') as float64) as latitude,
     safe_cast(json_value(content, '$.longitude') as float64) as longitude,

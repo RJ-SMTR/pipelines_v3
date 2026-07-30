@@ -186,11 +186,11 @@ models:
         data_type: string
         quote: true
       - name: status
-        description: Status do guardador de veículo
+        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
         data_type: string
         quote: true
       - name: motivo_bloqueio
-        description: "{{ doc('motivo_bloqueio_riorotativo') }}"
+        description: "{{ doc('status_guardador') }}"
         data_type: string
         quote: true
       - name: decisao_bloqueio
@@ -321,8 +321,7 @@ models:
               )
           config:
             where: >-
-              data between date('{{ var("date_range_start") }}')
-              and date('{{ var("date_range_end") }}')
+              data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
     columns:
       - name: id_agente_verificacao_historico
         description: Identificador único do registro de histórico (hash de data, CNPJ e documento)
@@ -717,3 +716,140 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
         quote: true
+  - name: ativacao_riorotativo
+    description: Tabela com os dados das ativações do Rio Rotativo Digital
+    columns:
+      - name: data
+        description: Data da ativação (partição)
+        data_type: date
+      - name: id_ativacao
+        description: "{{ doc('id_ativacao_riorotativo') }}"
+        data_type: string
+        tests:
+          - unique:
+              name: unique__id_ativacao__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: datetime_inicio_periodo
+        description: "{{ doc('datetime_inicio_periodo_ativacao_riorotativo') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_inicio_periodo__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: datetime_fim_periodo
+        description: "{{ doc('datetime_fim_periodo_ativacao_riorotativo') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_fim_periodo__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: id_movimento_estacionamento_veiculo
+        description: Identificador único da tabela movimento_estacionamento_veiculo na base da Jaé
+        data_type: string
+      - name: id_estacionamento_veiculo
+        description: Identificador único da tabela id_estacionamento_veiculo na base da Jaé
+        data_type: string
+      - name: id_veiculo_cliente
+        description: Identificador único do associação entre veiculo e cliente
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+        tests:
+          - not_null:
+              name: not_null__id_veiculo_cliente__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: placa_veiculo
+        description: "{{ doc('placa') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+        tests:
+          - not_null:
+              name: not_null__placa_veiculo__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: cpf_motorista
+        description: "{{ doc('cpf_motorista_riorotativo') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+        tests:
+          - not_null:
+              name: not_null__cpf_motorista__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: latitude
+        description: Latitude da ativação [EPSG:4326 - WGS84]
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__latitude__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: longitude
+        description: Longitude da ativação [EPSG:4326 - WGS84]
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__longitude__ativacao_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: geo_point_ativacao
+        description: Ponto geográfico da ativação
+        data_type: geography
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+      - name: ids_perfil_funcionamento
+        description: "{{ doc('area_perfil_funcionamento_riorotativo') }}"
+        data_type: string
+      - name: data_inicio_vigencia_area
+        description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+      - name: data_fim_vigencia_area
+        description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
+        data_type: date
+      - name: id_tipo_periodo
+        description: Identificador único do tipo de período da ativação [1 hora, 2 horas ou 3 horas]
+        data_type: int64
+      - name: datetime_pagamento
+        description: Data e hora do pagamento da ativação
+        data_type: datetime
+      - name: valor_pago_bruto
+        description: "{{ doc('valor_pago_bruto_ativacao_riorotativo') }}"
+        data_type: numeric
+      - name: valor_retido_jae
+        description: "{{ doc('valor_retido_jae_ativacao_riorotativo') }}"
+        data_type: numeric
+      - name: valor_pago_liquido
+        description: "{{ doc('valor_pago_liquido_ativacao_riorotativo') }}"
+        data_type: numeric
+      - name: datetime_inclusao
+        description: Data e hora da inclusão da ativação na base de dados da Jaé
+        data_type: datetime
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
