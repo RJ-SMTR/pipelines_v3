@@ -104,7 +104,7 @@ def get_capture_gaps(
     query_datalake = f"""
     WITH contagens AS (
         SELECT
-            timestamp_captura,
+            {params.get("datalake_timestamp_captura_column", "timestamp_captura")} as timestamp_captura,
             COUNT({primary_keys}) AS total_datalake
         FROM
             {params["datalake_table"]}
