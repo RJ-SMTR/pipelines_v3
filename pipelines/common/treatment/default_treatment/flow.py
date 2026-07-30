@@ -43,6 +43,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     fallback_run: bool = False,
     skip_pre_test: bool = False,
     test_only: bool = False,
+    save_redis: Optional[bool] = True,
 ):
     """
     Cria o conjunto padrão de tasks para um fluxo de materialização.
@@ -66,6 +67,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         fallback_run (bool): Indica se a execução deve ser pulada caso o selector esteja em dia.
         skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
         test_only (bool): Se True, executa apenas os testes.
+        save_redis (Optional[bool]): Controla a atualização do Redis. Se None, atualiza apenas em
+            runs criadas automaticamente pelo agendamento do Prefect.
 
     Returns:
         dict: Dicionário com o retorno das tasks.
@@ -215,6 +218,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
 
             tasks["save_redis"] = save_materialization_datetime_redis(
                 contexts=contexts,
+                save_redis=save_redis,
                 wait_for=[tasks["run_dbt_snapshots"], *tasks_wait_for.get("save_redis", [])],
             )
 
