@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0] - 2026-07-30
+
+### Alterado
+
+- Renomeia flow para `treatment__riorotativo_auxiliar` (https://github.com/RJ-SMTR/pipelines_v3/pull/458)
+- Altera execução diária para horária (https://github.com/RJ-SMTR/pipelines_v3/pull/458)
+
 ## [1.0.1] - 2026-07-15
 
 ### Adicionado
