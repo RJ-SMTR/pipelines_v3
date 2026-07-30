@@ -8,7 +8,6 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__cliente_cpf ./pipelines/treatment__cliente_cpf/
 
-COPY ./queries ./queries/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

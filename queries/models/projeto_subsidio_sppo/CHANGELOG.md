@@ -1,5 +1,29 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.0] - 2026-07-27
+
+### Alterado
+
+- Limita `viagem_planejada`, `registros_status_viagem`, `viagem_conformidade` e `viagem_completa` às viagens anteriores a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
+## [9.4.1] - 2026-07-08
+
+### Adicionado
+
+- Adiciona filtro de `id_tipo_trajeto` nas ctes `filtro_partida` e `filtro_chegada do modelo` no modelo de ` viagem_completa`. (https://github.com/RJ-SMTR/pipelines_v3/pull/363)
+
+## [9.4.0] - 2026-07-06
+
+### Adicionado
+
+- Adiciona campo `shape_id_planejado` no join para identificar viagens circulares consecutivas no modelo `aux_viagem_circular`. (https://github.com/RJ-SMTR/pipelines_v3/pull/349)
+
+## [9.3.9] - 2026-06-11
+
+### Adicionado
+
+- Adiciona tratamento ao modelo `aux_viagem_inicio_fim` para viagens circulares com partida em um dia e chegada no dia subsequente. (https://github.com/RJ-SMTR/pipelines_v3/pull/240)
+
 ## [9.3.8] - 2026-06-02
 
 ### Adicionado

@@ -1,0 +1,4 @@
+[project]
+name = "treatment__jae_timestamps_divergentes"
+version = "0.1.0"
+description = "Pipeline jae_timestamps_divergentes da secretaria rj-smtr"

@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__infraestrutura ./pipelines/treatment__infraestrutura
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

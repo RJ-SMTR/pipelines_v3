@@ -19,9 +19,16 @@ dispatch:
     search_order: ["dbt_project_evaluator", "dbt"]
 
 vars:
-  "dbt_date:time_zone": "America/Sao_Paulo"
+  ### Elementary ###
+  # Sample of failing rows persisted by elementary in elementary.elementary_test_result_rows.
+  test_sample_row_count: 100
+  disable_run_results: true
+  disable_tests_results: "{{ target.name != 'prod' }}"
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
 
   ### Date default variables ###
+  "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"
   start_date: "2022-01-01T01:00:00"
@@ -162,6 +169,8 @@ vars:
   DATA_SUBSIDIO_V17_INICIO: "2025-07-16"
   # Feature validadores e transações Jaé [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629), RESOLUÇÃO SMTR 3843/2025 e RESOLUÇÃO SMTR 3858/2025]
   DATA_SUBSIDIO_V18_INICIO: "2025-08-01"
+  # Início da operação exclusiva com SBD Jaé
+  DATA_SUBSIDIO_V18A_INICIO: "2025-08-02"
   # Feature Não pagamento de viagens licenciadas sem ar condicionado [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629) e RESOLUÇÃO SMTR 3843/2025]
   DATA_SUBSIDIO_V19_INICIO: "2025-11-01"
   # Feature Inciso IV Climatização
@@ -172,8 +181,10 @@ vars:
   DATA_SUBSIDIO_V22_INICIO: "2026-03-01"
   # Processo.SEI 006400.000323/2026-14 - Temperatura máxima e ajuste de horário no INMET
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
- # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
+  # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
@@ -274,10 +285,10 @@ vars:
   ### Viagens 2.0 ###
 
   limite_reducao_area_buffer: 0.5
-  limite_validacao_inicio_fim_minutos: 10
+  limite_validacao_inicio_fim_minutos: 30
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
-  buffer_validacao_inicio_fim_metros: 500
+  buffer_validacao_inicio_fim_metros: 100
   buffer_tunel_metros: 50
   parametro_validacao: 0.9
   comprimento_shape: 1000
@@ -287,6 +298,7 @@ vars:
 
   ### Planejamento ###
   feed_inicial_viagem_planejada: "2024-09-29"
+  data_inicio_calendario_sheets: "2026-06-29"
 
   ### Infraestrutura ###
   data_inicial_logs_bigquery: "2024-09-30"
@@ -297,6 +309,9 @@ vars:
   data_final_veiculo_arquitetura_1: "2025-03-31"
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
+
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
 
@@ -318,6 +333,9 @@ models:
   +persist_docs:
     relation: true
     columns: true
+  elementary:
+    +schema: elementary
+    +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     projeto_subsidio_sppo:
       +materialized: view
@@ -537,6 +555,18 @@ models:
       staging:
         +materialized: view
         +schema: cadastro_interno_staging
+    riorotativo:
+      +materialized: table
+      +schema: riorotativo
+      staging:
+        +materialized: view
+        +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
@@ -604,6 +634,9 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

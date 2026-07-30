@@ -24,6 +24,5 @@ COPY ./pipelines/capture__jae_transacao_riocard ./pipelines/capture__jae_transac
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

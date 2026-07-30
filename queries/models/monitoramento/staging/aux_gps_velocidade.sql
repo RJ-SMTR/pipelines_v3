@@ -16,6 +16,14 @@ with
             lag(posicao_veiculo_geo) over w as posicao_anterior,
             lag(datetime_gps) over w as datetime_anterior
         from {{ ref("aux_gps_filtrada") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and datetime_gps
+            between datetime('{{ var("date_range_start") }}') and datetime(
+                '{{ var("date_range_end") }}'
+            )
         window w as (partition by id_veiculo, servico order by datetime_gps)
     ),
     calculo_velocidade as (

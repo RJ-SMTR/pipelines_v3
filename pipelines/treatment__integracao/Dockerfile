@@ -22,6 +22,5 @@ COPY ./pipelines/capture__jae_auxiliar/ ./pipelines/capture__jae_auxiliar/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

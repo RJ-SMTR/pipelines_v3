@@ -41,6 +41,14 @@ with
     posicoes_veiculos as (
         select id_veiculo, datetime_gps, data, servico, posicao_veiculo_geo
         from {{ ref("aux_gps_filtrada") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and datetime_gps
+            between datetime('{{ var("date_range_start") }}') and datetime(
+                '{{ var("date_range_end") }}'
+            )
     ),
     veiculos_em_garagens as (
         select

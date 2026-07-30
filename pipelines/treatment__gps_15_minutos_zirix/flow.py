@@ -34,6 +34,7 @@ def treatment__gps_15_minutos_zirix(  # noqa: PLR0913
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -43,4 +44,5 @@ def treatment__gps_15_minutos_zirix(  # noqa: PLR0913
         flags=flags,
         additional_vars=additional_vars or constants.ADDITIONAL_VARS,
         force_test_run=force_test_run,
+        skip_source_check=skip_source_check,
     )

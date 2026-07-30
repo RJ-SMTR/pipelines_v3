@@ -1,0 +1,34 @@
+{{
+    config(
+        materialized="table",
+        alias="guardador_veiculo",
+        enabled=is_current_state_enabled(),
+    )
+}}
+
+/* backfill com janela antiga desliga o modelo: ver macro is_current_state_enabled */
+{% if execute %}
+    {% set last_partition_query %}
+        select max(data)
+        from {{ ref("guardador_veiculo_riorotativo_historico") }}
+        where data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}")
+    {% endset %}
+    {% set last_partition = run_query(last_partition_query).columns[0].values()[0] %}
+{% endif %}
+
+select
+    id_cliente,
+    nome,
+    email,
+    telefone,
+    documento,
+    tipo_documento,
+    numero_identificacao,
+    cnpj,
+    razao_social,
+    nome_fantasia,
+    '{{ var("version") }}' as versao,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ invocation_id }}' as id_execucao_dbt
+from {{ ref("guardador_veiculo_riorotativo_historico") }}
+where data = date("{{ last_partition }}") and status = "ativo"

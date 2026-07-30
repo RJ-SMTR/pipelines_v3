@@ -10,11 +10,12 @@ from pipelines.treatment__matriz_integracao_smtr import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__matriz_integracao_smtr(
+def treatment__matriz_integracao_smtr(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
@@ -23,6 +24,7 @@ def treatment__matriz_integracao_smtr(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
+        additional_vars=additional_vars,
         test_scheduled_time=None,
         force_test_run=force_test_run,
     )

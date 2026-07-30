@@ -144,6 +144,7 @@ BACKUP_JAE_BILLING_PAY = {
             "transacao_riocard",
             "embossadora_producao_20240809",
             "transacao_faltante_23082023",
+            "temp_midia_lm",
             # sem permissão #
             "temp_estudante_cpfduplicado_13032025",
             "temp_estudante_cpfduplicado_14032025",
@@ -166,6 +167,9 @@ BACKUP_JAE_BILLING_PAY = {
             "tracking_sumarizado": ["ultima_data_tracking"],
             "spatial_ref_sys": ["srid"],
             "mq_connections": ["count(*)"],
+            "gtfs_shapes": ["count(*)"],
+            "gtfs_trips": ["count(*)"],
+            "gtfs_stops": ["count(*)"],
         },
     },
     "ressarcimento_db": {
@@ -203,6 +207,29 @@ BACKUP_JAE_BILLING_PAY = {
             "estudante_import_old",
             "gratuidade_import_pcd_old",
             "estudante_seeduc_25032025",
+            "estudante_seeduc_01042026",
+            "estudante_seeduc_14042026",
+            "estudante_seeduc_26052026",
+            "estudante_seeduc_09062026",
+            "temp_estudante_seeduc_valido_13042026",
+            "estudante_seeduc_06022026",
+            "estudante_seeduc_04022026",
+            "estudante_seeduc_05022026",
+            "estudante_seeduc_22012026",
+            "estudante_universitario_07042026",
+            "estudante_universitario_02062026",
+            "estudante_universitario_19032026",
+            "estudante_universitario_02072026",
+            "temp_alunos_cpf_sme",
+            "estudante_universitario_11022026",
+            "temp_midia_limbo_03072026",
+            "estudante_universitario_15042026",
+            "estudante_universitario_15052026",
+            "estudante_universitario_05032026",
+            "estudante_universitario_18122025",
+            "temp_cliente_gratuidade",
+            "estudante_universitario_26012026",
+            "estudante_sme_inativar_10042026",
             # sem permissão: #
             "pcd_excluir",
             "estudante_seeduc",
@@ -287,6 +314,9 @@ BACKUP_JAE_BILLING_PAY = {
             "cliente_fraude_05092024",
             "cargas_garota_vip_18082023",
             "lancamento",
+            "temp_ult_transacao_midia_avulsa_09032026",
+            "temp_contas_transacoes_discrepancias",
+            "temp_vendas_analise_avulso_12032026",
         ],
         "filter": {
             "conta": [
@@ -314,6 +344,7 @@ BACKUP_JAE_BILLING_PAY = {
             "midia_gravacao_fisica_135": ["dt_gravacao"],
             "midia_gravacao_fisica_133": ["dt_gravacao"],
             "midia_gravacao_fisica_139": ["dt_gravacao"],
+            "saldo_conta": ["dt_saldo_dia"],
             "criar_conta_financeira": ["count(*)"],
         },
         "custom_select": {
@@ -346,6 +377,14 @@ BACKUP_JAE_BILLING_PAY = {
             "midia_chip_12092024",
             "midia_chip_30092024",
             "cargas_garota_vip_18082023",
+            "temp_midia_volta_mercado",
+            "temp_midias_panhash_menor_32_20022026",
+            "temp_midia_limbo_03072026",
+            "temp_midias_sem_associacao_processador_transacao_22042026",
+            "temp_panhash_25052026",
+            "temp_acerto_midia_chip_panhash_10032026",
+            "temp_midias_1_pedido_limbo_26062026",
+            "temp_midia_lm",
             # sem permissão #
             "tb_arquivos_validacao",
             "jal_sp_cbd_producao_tudo",
@@ -399,6 +438,7 @@ BACKUP_JAE_BILLING_PAY = {
             "retorno_geral": ["count(*)"],
             "midia_jall": ["count(*)"],
             "temp_retorno_midia": ["count(*)"],
+            "midia_black_list": ["dt_inclusao"],
         },
     },
     "processador_transacao_db": {
@@ -434,7 +474,12 @@ BACKUP_JAE_BILLING_PAY = {
     #     },
     # },
     "vendas_db": {
-        "exclude": ["nsu_temp_venda", "vendas_piu"],
+        "exclude": [
+            "nsu_temp_venda",
+            "vendas_piu",
+            "tem_venda_bp_server_midia_09032026",
+            "temp_panhash_sem_venda_25052026",
+        ],
         "filter": {
             "venda": [
                 "dt_cancelamento",

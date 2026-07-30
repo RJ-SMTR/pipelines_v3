@@ -35,6 +35,7 @@ def treatment__gps_conecta(  # noqa: PLR0913
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -45,4 +46,5 @@ def treatment__gps_conecta(  # noqa: PLR0913
         additional_vars=additional_vars or constants.ADDITIONAL_VARS,
         test_scheduled_time=time(2, 6, 0),
         force_test_run=force_test_run,
+        skip_source_check=skip_source_check,
     )

@@ -1,0 +1,8 @@
+[project]
+name = "test__serpro_connection"
+version = "0.1.0"
+description = "Flow de teste de conexão com o SERPRO via Impala"
+dependencies = [
+    "impyla>=0.22.0",
+    "jaydebeapi>=1.2.3",
+]

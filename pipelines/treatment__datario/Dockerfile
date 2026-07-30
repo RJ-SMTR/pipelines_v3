@@ -10,6 +10,5 @@ COPY ./pipelines/treatment__datario ./pipelines/treatment__datario/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

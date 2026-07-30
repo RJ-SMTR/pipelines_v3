@@ -1,5 +1,41 @@
 # Changelog - queries
 
+## [1.1.9] - 2026-07-15
+
+### Adicionado
+
+- Cria selector `snapshot_riorotativo` (https://github.com/RJ-SMTR/pipelines_v3/pull/378)
+
+## [1.1.8] - 2026-07-08
+
+### Adicionado
+
+- Cria macro `is_current_state_enabled` para desligar modelos de estado atual em backfills com janela antiga (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+- Cria selector `riorotativo_diario` (materialização dos modelos; backfills com janela antiga executam apenas stagings e históricos via `is_current_state_enabled`) (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+
+## [1.1.7] - 2026-06-26
+
+### Corrigido
+
+- Corrige nomes dos modelos `autuacao_citran` e `autuacao_serpro` para `view_autuacao_citran` e `view_autuacao_serpro` no selector `transito_autuacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/317)
+
+## [1.1.6] - 2026-06-24
+
+### Alterado
+
+- Amplia para 3h a tolerância dos testes hourly de freshness de `view_gps_onibus` e `gps_validador` (https://github.com/RJ-SMTR/pipelines_v3/pull/310)
+
+## [1.1.5] - 2026-06-02
+
+### Adicionado
+
+- Cria view `view_gps_onibus` unindo os dados de GPS dos fornecedores `sppo`, `zirix`, `cittati` e `conecta` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+- Adiciona teste `dbt_expectations.expect_grouped_row_values_to_have_recent_data` na coluna `datetime_gps` da view `view_gps_onibus`, com tags `freshness` e `hourly`, verificando freshness por fornecedor (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
+### Alterado
+
+- Altera tags do teste de freshness `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` de `freshness_hourly` para `freshness` e `hourly` (https://github.com/RJ-SMTR/pipelines_v3/pull/224)
+
 ## [1.1.4] - 2026-05-26
 
 ### Adicionado

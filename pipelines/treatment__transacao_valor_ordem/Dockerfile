@@ -34,6 +34,5 @@ COPY ./pipelines/treatment__transacao_valor_ordem ./pipelines/treatment__transac
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

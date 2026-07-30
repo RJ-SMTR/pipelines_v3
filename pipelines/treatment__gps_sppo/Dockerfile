@@ -14,6 +14,5 @@ COPY ./pipelines/capture__sppo_realocacao ./pipelines/capture__sppo_realocacao/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

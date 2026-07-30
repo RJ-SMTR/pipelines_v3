@@ -1,0 +1,316 @@
+version: 2
+models:
+  - name: rho_registros_sppo
+    description: Tabela materializada para acesso geral aos dados do RHO SPPO
+    columns:
+      - name: data_transacao
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora_transacao
+        description: "{{ doc('hora_transacao') }}"
+      - name: data_processamento
+        description: Data de processamento da transação
+      - name: data_arquivo_rho
+        description: Data do arquivo fonte do RHO
+      - name: servico_riocard
+        description: Nome curto da linha de acordo com o padrão do RioCard
+      - name: linha_riocard
+        description: Identificador interno da linha no RioCard
+      - name: operadora
+        description: Identificador da operadora de transporte
+      - name: quantidade_transacao_cartao
+        description: Quantidade de transações feitas com o cartão
+      - name: quantidade_transacao_especie
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: quantidade_transacao_gratuidade
+        description: Quantidade de gratuidades
+      - name: registro_processado
+        description: Identificador se o registro foi recalculado
+      - name: datetime_captura
+        description: Data e hora da captura dos dados
+  - name: rho_registros_stpl
+    description: Tabela materializada para acesso geral aos dados do RHO STPL
+    columns:
+      - name: data_transacao
+        description: "{{ doc('data_transacao') }} [partição]"
+      - name: hora_transacao
+        description: "{{ doc('hora_transacao') }}"
+      - name: servico_riocard
+        description: Nome curto da linha de acordo com o padrão do RioCard
+      - name: operadora
+        description: Identificador da operadora de transporte
+      - name: quantidade_transacao_pagante
+        description: Quantidade de transações pagantes
+      - name: quantidade_transacao_gratuidade
+        description: Quantidade de gratuidades
+      - name: arquivos_somados
+        description: Coluna de controle com array das datas dos arquivos que foram
+          somados para obter os valores finais
+  - name: rdo40_registros
+    description: View para os dados do Resumo Diário de Operação com a quantidade
+      total de passageiros
+    columns:
+      - name: data
+        description: Data das transações
+      - name: ano
+        description: Ano das transações
+      - name: mes
+        description: Mês das transações
+      - name: dia
+        description: Dia das transações
+      - name: id_consorcio
+        description: "{{ doc('id_consorcio') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: linha
+        description: "{{ doc('linha') }}"
+      - name: tipo_servico
+        description: "{{ doc('tipo_servico') }}"
+      - name: ordem_servico
+        description: "{{ doc('ordem_servico') }}"
+      - name: codigo_veiculo
+        description: "{{ doc('codigo_veiculo') }}"
+      - name: tarifa_codigo
+        description: "{{ doc('tarifa_codigo') }}"
+      - name: tarifa_valor
+        description: "{{ doc('tarifa_valor') }}"
+      - name: frota_determinada
+        description: "{{ doc('frota_determinada') }}"
+      - name: frota_licenciada
+        description: "{{ doc('frota_licenciada') }}"
+      - name: frota_operante
+        description: "{{ doc('frota_operante') }}"
+      - name: qtd_viagens
+        description: "{{ doc('qtd_viagens') }}"
+      - name: qtd_km_cobertos
+        description: "{{ doc('qtd_km_cobertos') }}"
+      - name: qtd_grt_idoso
+        description: "{{ doc('qtd_grt_idoso') }}"
+      - name: qtd_grt_especial
+        description: "{{ doc('qtd_grt_especial') }}"
+      - name: qtd_grt_estud_federal
+        description: "{{ doc('qtd_grt_estud_federal') }}"
+      - name: qtd_grt_estud_estadual
+        description: "{{ doc('qtd_grt_estud_estadual') }}"
+      - name: qtd_grt_estud_municipal
+        description: "{{ doc('qtd_grt_estud_municipal') }}"
+      - name: qtd_grt_rodoviario
+        description: "{{ doc('qtd_grt_rodoviario') }}"
+      - name: qtd_buc_1_perna
+        description: "{{ doc('qtd_buc_1_perna') }}"
+      - name: qtd_buc_2_perna_integracao
+        description: "{{ doc('qtd_buc_2_perna_integracao') }}"
+      - name: receita_buc
+        description: "{{ doc('receita_buc') }}"
+      - name: qtd_buc_supervia_1_perna
+        description: "{{ doc('qtd_buc_supervia_1_perna') }}"
+      - name: qtd_buc_supervia_2_perna_integracao
+        description: "{{ doc('qtd_buc_supervia_2_perna_integracao') }}"
+      - name: receita_buc_supervia
+        description: "{{ doc('receita_buc_supervia') }}"
+      - name: qtd_cartoes_perna_unica_e_demais
+        description: "{{ doc('qtd_cartoes_perna_unica_e_demais') }}"
+      - name: receita_cartoes_perna_unica_e_demais
+        description: "{{ doc('receita_cartoes_perna_unica_e_demais') }}"
+      - name: qtd_pagamentos_especie
+        description: "{{ doc('qtd_pagamentos_especie') }}"
+      - name: receita_especie
+        description: "{{ doc('receita_especie') }}"
+      - name: qtd_grt_passe_livre_universitario
+        description: "{{ doc('qtd_grt_passe_livre_universitario') }}"
+      - name: class_servico
+        description: "{{ doc('class_servico') }}"
+      - name: qtd_passageiros_total
+        description: "{{ doc('qtd_passageiros_total') }}"
+  - name: rdo_registros_stpl
+    columns:
+      - name: data_transacao
+        description: "{{ doc('data_transacao') }} [partição]"
+        data_type: date
+        quote: true
+      - name: data_arquivo_rdo
+        description: Data do arquivo fonte do RDO
+        data_type: date
+        quote: true
+      - name: servico_riocard
+        description: Nome curto da linha de acordo com o padrão do RioCard
+        data_type: string
+        quote: true
+      - name: linha_riocard
+        description: Identificador interno da linha no RioCard
+        data_type: string
+        quote: true
+      - name: operadora
+        description: Identificador da operadora de transporte
+        data_type: string
+        quote: true
+      - name: quantidade_transacao_gratuidade_idoso
+        description: Quantidade de transações do tipo gratuidade idoso
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_gratuidade_especial
+        description: Quantidade de transações do tipo gratuidade para portadores de
+          necessidades especiais
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_gratuidade_estudante_federal
+        description: Quantidade de transações do tipo gratuidade para estudantes de
+          escolas federais
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_gratuidade_estudante_estadual
+        description: Quantidade de transações do tipo gratuidade para estudantes de
+          escolas estaduais
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_gratuidade_estudante_municipal
+        description: Quantidade de transações do tipo gratuidade para estudantes de
+          escolas municipal
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_buc_universitario
+        description: Quantidade de transações feitas com Passe Livre Universitário
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_buc_perna_1
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          de Bilhete Único Carioca (onde a 2ª perna foi realizada em um ônibus
+          municipal)
+        data_type: int64
+        quote: true
+      - name: quantidade_transacao_buc_perna_2
+        description: Quantidade de transações identificadas como 2ª perna de integração
+          de Bilhete Único Carioca (onde a 1ª perna foi realizada em um ônibus
+          municipal)
+        data_type: int64
+        quote: true
+      - name: valor_buc
+        description: Valor das transações de integrações de Bilhete Único Carioca com
+          ônibus municipal
+        data_type: numeric
+        quote: true
+      - name: quantidade_transacao_buc_supervia_perna_1
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          com a SuperVia (onde a 2ª perna foi realizada em um trem da Supervia)
+      - name: quantidade_transacao_buc_supervia_perna_2
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 2ª perna de integração
+          com a SuperVia (onde a 1ª perna foi realizada em um trem da Supervia)
+      - name: valor_buc_supervia
+        data_type: numeric
+        quote: true
+        description: Valor das transações de integrações de Bilhete Único Carioca com a
+          SuperVia
+      - name: quantidade_transacao_buc_van_perna_1
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          em Van (onde a 2ª perna foi realizada em Van municipal)
+      - name: quantidade_transacao_buc_van_perna_2
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 2ª perna de integração
+          em Van (onde a 1ª perna foi realizada em Van municipal)
+      - name: valor_buc_van
+        data_type: numeric
+        quote: true
+        description: Valor das transações de integrações de Bilhete Único Carioca com
+          Van municipal
+      - name: quantidade_transacao_buc_brt_perna_1
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          em Van (onde a 2ª perna foi realizada no BRT)
+      - name: quantidade_transacao_buc_brt_perna_2
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 2ª perna no BRT (onde a
+          1ª perna foi realizada em Van)
+      - name: quantidade_transacao_buc_brt_perna_3
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 3ª perna de integração
+          em Van (onde a 2ª perna foi realizada no BRT)
+      - name: valor_buc_brt
+        data_type: numeric
+        quote: true
+        description: Valor das transações de integrações de Bilhete Único Carioca com o BRT
+      - name: quantidade_transacao_buc_inter_perna_1
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          (onde a 2ª perna foi realizada em ônibus ou van intermunicipal)
+      - name: quantidade_transacao_buc_inter_perna_2
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 2ª perna de integração
+          (onde a 1ª perna foi realizada em ônibus ou van intermunicipal)
+      - name: valor_buc_inter
+        data_type: numeric
+        quote: true
+        description: Valor das transações de integrações de Bilhete Único Carioca com
+          ônibus ou van intermunicipal
+      - name: quantidade_transacao_buc_metro_perna_1
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 1ª perna de integração
+          com Metrô (onde a 2ª perna foi realizada no Metrô)
+      - name: quantidade_transacao_buc_metro_perna_2
+        data_type: int64
+        quote: true
+        description: Quantidade de transações identificadas como 2ª perna de integração
+          com Metrô (onde a 1ª perna foi realizada no Metrô)
+      - name: valor_buc_metro
+        data_type: numeric
+        quote: true
+        description: Valor das transações de integrações de Bilhete Único Carioca com Metrô
+      - name: quantidade_transacao_cartao
+        data_type: int64
+        quote: true
+        description: Quantidade de transações feitas com cartão sem integração
+      - name: valor_cartao
+        data_type: int64
+        quote: true
+        description: Valor das transações feitas com cartão sem integração
+      - name: quantidade_transacao_especie
+        data_type: int64
+        quote: true
+        description: "{{ doc('quantidade_transacao_especie') }}"
+      - name: valor_especie
+        data_type: numeric
+        quote: true
+        description: Valor das transações feitas em espécie
+      - name: data_processamento
+        data_type: date
+        quote: true
+        description: Data de processamento do arquivo do RDO
+      - name: datetime_captura
+        data_type: datetime
+        quote: true
+        description: Data e hora da captura dos dados
+      - name: versao
+        data_type: string
+        quote: true
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        data_type: datetime
+        quote: true
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+    description: Tabela materializada para acesso geral aos dados do RDO STPL
+  - name: dicionario_rdo
+    description: "Dicionário de dados"
+    columns:
+      - name: chave
+        description: "{{ doc('chave') }}"
+      - name: cobertura_temporal
+        description: "{{ doc('cobertura_temporal') }}"
+      - name: id_tabela
+        description: "{{ doc('table_id') }}"
+      - name: coluna
+        description: "{{ doc('coluna') }}"
+      - name: valor
+        description: "Valor"

@@ -1,17 +1,36 @@
-{{ config(materialized="ephemeral") }}
-
 -- depends_on: {{ ref('ordem_servico_trajeto_alternativo_gtfs') }}
 -- depends_on: {{ ref('ordem_servico_trajeto_alternativo_sentido') }}
 /*
 Identificação de um trip de referência para cada serviço e sentido regular
 Identificação de todas as trips de referência para os trajetos alternativos
 */
+{{ config(materialized="ephemeral") }}
+
+{% if execute -%}
+    {%- set query = (
+        "SELECT DISTINCT evento FROM "
+        ~ ref("ordem_servico_trajeto_alternativo_gtfs")
+        ~ " WHERE feed_start_date = '"
+        ~ var("data_versao_gtfs")
+        ~ "'"
+        ~ " UNION DISTINCT"
+        ~ " SELECT DISTINCT evento FROM "
+        ~ ref("ordem_servico_trajeto_alternativo_sentido")
+        ~ " WHERE feed_start_date = '"
+        ~ var("data_versao_gtfs")
+        ~ "'"
+    ) -%}
+    {%- set eventos_trajetos_alternativos = run_query(query).columns[0].values() -%}
+{% endif %}
+
 with
+    -- 1. Busca os shapes em formato geográfico
     shapes as (
         select *
         from {{ ref("shapes_geom_gtfs") }}
         where feed_start_date = '{{ var("data_versao_gtfs") }}'
     ),
+    -- 2. Busca as trips
     trips_all as (
         select
             *,
@@ -48,18 +67,10 @@ with
                     case
                         when
                             (
-                                trip_headsign like "%[reveillon]%"
-                                or trip_headsign like "%[desvio_obra]%"
-                                or trip_headsign like "%[reversível]%"
-                                or trip_headsign like "%[desvio_feira]%"
-                                or trip_headsign like "%[desvio_lazer]%"
-                                or trip_headsign like "%[desvio_túnel]%"
-                                or trip_headsign like "%[desvio_januário]%"
-                                or trip_headsign like "%[desvio_maracanã]%"
-                                or trip_headsign like "%[excepcionalidade]%"
-                                or trip_headsign like "%[excepcionalidade_1]%"
-                                or trip_headsign like "%[excepcionalidade_2]%"
-                                or service_id = "EXCEP"
+                                {% for evento in eventos_trajetos_alternativos %}
+                                    trip_headsign like "%{{evento}}%" or
+                                {% endfor %} service_id
+                                = "EXCEP"
                             )
                         then true
                         else false
@@ -68,9 +79,10 @@ with
                 left join shapes using (feed_start_date, feed_version, shape_id)
                 where
                     feed_start_date = '{{ var("data_versao_gtfs") }}'
-                    and service_id not like "%_DESAT_%"
+                    and service_id not like "%_DESAT_%"  -- Desconsidera service_ids desativados
             )
     )
+-- 3. Busca as trips de referência para cada serviço, sentido, e tipo_dia
 select * except (shape_distance),
 from trips_all
 qualify

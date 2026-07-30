@@ -12,6 +12,5 @@ COPY ./pipelines/treatment__pagamento_cct ./pipelines/treatment__pagamento_cct/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

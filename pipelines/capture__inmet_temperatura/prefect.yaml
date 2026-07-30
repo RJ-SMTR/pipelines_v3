@@ -38,6 +38,10 @@ deployments:
   - name: rj-capture--inmet_temperatura--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__inmet_temperatura/flow.py:capture__inmet_temperatura
+    schedules:
+      - cron: "0 5 * * *"
+        timezone: "America/Sao_Paulo"
+        active: false
     work_pool:
       name: smtr-pool
       work_queue_name: default

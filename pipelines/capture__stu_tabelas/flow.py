@@ -10,6 +10,8 @@ Common: 2026-03-27
 
 from typing import Optional
 
+from prefect.task_runners import ThreadPoolTaskRunner
+
 from pipelines.capture__stu_tabelas import constants
 from pipelines.capture__stu_tabelas.tasks import create_stu_extractor
 from pipelines.common.capture.default_capture.flow import create_capture_flows_default_tasks
@@ -17,13 +19,17 @@ from pipelines.common.capture.default_capture.utils import rename_capture_flow_r
 from pipelines.common.utils.prefect import flow
 
 
-@flow(log_prints=True, flow_run_name=rename_capture_flow_run)
+@flow(
+    log_prints=True,
+    flow_run_name=rename_capture_flow_run,
+    task_runner=ThreadPoolTaskRunner(max_workers=2),
+)
 def capture__stu_tabelas(  # noqa: PLR0913
     env: Optional[str] = None,
     source_table_ids: Optional[list[str]] = None,
     timestamp: Optional[str] = None,
     recapture: bool = True,
-    recapture_days: int = 5,
+    recapture_days: int = 2,
     recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(

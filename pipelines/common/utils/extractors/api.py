@@ -15,6 +15,7 @@ def get_api_data(
     headers: Union[None, dict] = None,
     params: Union[None, dict] = None,
     raw_filetype: str = "json",
+    timeout: Union[None, int] = constants.MAX_TIMEOUT_SECONDS,
 ) -> Union[str, dict, list[dict]]:
     """
     Get data from a single API endpoint.
@@ -24,6 +25,7 @@ def get_api_data(
         headers (Union[None, dict]): Request headers
         params (Union[None, dict]): Request parameters
         raw_filetype (str): File type for response (json, csv, etc.)
+        timeout (Union[None, int]): Request timeout in seconds. Defaults to MAX_TIMEOUT_SECONDS.
 
     Returns:
         Union[str, dict, list[dict]]: API response data
@@ -33,7 +35,7 @@ def get_api_data(
         response = requests.get(
             url,
             headers=headers,
-            timeout=constants.MAX_TIMEOUT_SECONDS,
+            timeout=timeout,
             params=params,
         )
 
@@ -90,6 +92,7 @@ def get_raw_api_list(
     raw_filepath: str,
     params_list: Union[None, list[dict]] = None,
     headers: Union[None, dict] = None,
+    timeout: Union[None, int] = constants.MAX_TIMEOUT_SECONDS,
 ) -> list[str]:
     """
     Get data from API by aggregating multiple calls and save to a local file.
@@ -99,6 +102,7 @@ def get_raw_api_list(
         raw_filepath (str): File path template with {page} placeholder
         params_list (list[dict]): List of parameter dicts for multiple requests
         headers (Union[None, dict]): Request headers
+        timeout (Union[None, int]): Request timeout in seconds. Defaults to MAX_TIMEOUT_SECONDS.
 
     Returns:
         list[str]: List with the path where data was saved
@@ -106,7 +110,9 @@ def get_raw_api_list(
     data = []
     if isinstance(url, list):
         for single_url in url:
-            page_data = get_api_data(url=single_url, headers=headers, raw_filetype="json")
+            page_data = get_api_data(
+                url=single_url, headers=headers, raw_filetype="json", timeout=timeout
+            )
             data += page_data
     else:
         if params_list is None:
@@ -116,7 +122,9 @@ def get_raw_api_list(
             )
 
         for params in params_list:
-            page_data = get_api_data(url=url, headers=headers, params=params, raw_filetype="json")
+            page_data = get_api_data(
+                url=url, headers=headers, params=params, raw_filetype="json", timeout=timeout
+            )
             data += page_data
 
     filepath = raw_filepath.format(page=0)

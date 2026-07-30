@@ -9,6 +9,13 @@
     )
 }}
 
+{% set incremental_filter %}
+    data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    {% if is_incremental() %}
+        and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+    {% endif %}
+{% endset %}
+
 {% if execute %}
     {% set result = run_query(
         "SELECT coalesce(data_versao_shapes, feed_start_date) FROM "
@@ -45,17 +52,13 @@ with
                     fim_periodo,
                     id_tipo_trajeto
                 from {{ ref("viagem_planejada") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) p
         inner join
             (
                 select distinct *
                 from {{ ref("viagem_conformidade") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) v
             on v.trip_id = p.trip_id
             and v.data = p.data
@@ -204,11 +207,7 @@ with
     -- 3. Filtra viagens com mesma chegada e partida pelo maior % de conformidade do
     -- shape
     filtro_desvio as (
-        select
-            {% if var("run_date") > var("DATA_SUBSIDIO_V6_INICIO") %}
-                * except (rn, id_tipo_trajeto)
-            {% else %} * except (rn)
-            {% endif %}
+        select * except (rn)
         from
             (
                 select
@@ -247,21 +246,21 @@ with
                     *,
                     row_number() over (
                         partition by id_veiculo, datetime_partida
-                        order by distancia_planejada desc
+                        order by distancia_planejada desc, id_tipo_trajeto
                     ) as rn
                 from filtro_desvio
             )
         where rn = 1
     )
 -- filtro_chegada
-select * except (rn)
+select * except (rn, id_tipo_trajeto)
 from
     (
         select
             *,
             row_number() over (
                 partition by id_veiculo, datetime_chegada
-                order by distancia_planejada desc
+                order by distancia_planejada desc, id_tipo_trajeto
             ) as rn
         from filtro_partida
     )

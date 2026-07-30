@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - pipelines/**
-      - queries/**
       - .github/workflows/deploy-prefect-flows-prod.yaml
   workflow_dispatch:
     inputs:

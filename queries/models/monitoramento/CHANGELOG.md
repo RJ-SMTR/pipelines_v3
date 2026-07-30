@@ -1,5 +1,50 @@
 # Changelog - monitoramento
 
+## [2.2.5] - 2026-07-16
+
+### Alterado
+
+- Altera teste `not_null` das colunas `id_servico_jae` e `servico_jae` adicionando `severity: warn` na tabela `gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
+## [2.2.4] - 2026-07-09
+
+### Adicionado
+
+- Adiciona exceção de vistoria para veículos incluídos no Processo Nº 000301.009966/2026-65 e no Processo Nº 000301.009968/2026-54. (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
+
+## [2.2.3] - 2026-06-26
+
+### Corrigido
+
+- Corrige o filtro de validade dos registros de GPS no modelo `staging_gps` para considerar o atraso entre `datetime_envio` e `datetime_servidor` (https://github.com/RJ-SMTR/pipelines_v3/pull/314)
+
+## [2.2.2] - 2026-06-25
+
+### Adicionado
+
+- Adiciona a coluna `consorcio` nos modelos `viagem_validacao` e `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+
+## [2.2.1] - 2026-06-23
+
+### Alterado
+
+- Adiciona tolerância de 5 minutos na regra de sobreposição de viagens do modelo `viagem_validacao`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [2.2.0] - 2026-06-17
+
+### Alterado
+
+- Altera materialização do modelo `aux_gps_filtrada` de `ephemeral` para `incremental` (particionada por `data`, clusterizada por `datetime_gps`) quando `15_minutos = false`, eliminando leituras repetidas dos dados brutos de GPS nos modelos `gps`, `aux_gps_velocidade`, `aux_gps_parada`, `aux_gps_trajeto_correto` e no teste `check_gps_treatment` (redução de ~66% dos bytes processados por materialização horária) (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Adiciona filtro de partição nas leituras de `aux_gps_filtrada` nos modelos `gps`, `gps_15_minutos`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Remove colunas não utilizadas e torna incondicional o filtro de partição na CTE `gps_filtrada` do teste `check_gps_treatment` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Adiciona `aux_gps_filtrada` ao seletor `gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+
+## [2.1.1] - 2026-06-16
+
+### Corrigido
+
+- Corrige o teste `dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico` para adicionar tolerância entre o teste das tabelas `veiculo_fiscalizacao_lacre` e `autuacao_disciplinar_historico` (https://github.com/RJ-SMTR/pipelines_v3/pull/265)
+
 ## [2.1.0] - 2026-05-19
 
 ### Alterado
@@ -15,7 +60,7 @@
 
 ### Adicionado
 
-- Adiciona teste `recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
+- Adiciona teste `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
 
 ## [2.0.8] - 2026-05-13
 

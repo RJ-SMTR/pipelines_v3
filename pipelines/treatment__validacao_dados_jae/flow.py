@@ -24,12 +24,14 @@ from pipelines.treatment__validacao_dados_jae import constants
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
     timeout_seconds=10800,
 )
-def treatment__validacao_dados_jae(
+def treatment__validacao_dados_jae(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -37,7 +39,9 @@ def treatment__validacao_dados_jae(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
+        additional_vars=additional_vars,
         test_scheduled_time=None,
         force_test_run=force_test_run,
         test_webhook_key="alertas_bilhetagem",
+        skip_source_check=skip_source_check,
     )

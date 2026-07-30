@@ -55,7 +55,7 @@ with
             partidas_ida,
             partidas_volta,
             tipo_os
-        from {{ ref("aux_ordem_servico_diaria") }}
+        from {{ ref("aux_ordem_servico_diaria_subsidio") }}
         where feed_start_date in ('{{ feed_start_dates|join("', '") }}')
     ),
     data_versao_efetiva as (

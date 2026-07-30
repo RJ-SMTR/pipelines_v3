@@ -1,5 +1,28 @@
 # Changelog - default_treatment
 
+## [1.4.1] - 2026-07-29
+
+### Corrigido
+
+- Permite preservar o checkpoint de materialização no Redis e, quando `save_redis=None`, atualizá-lo somente em execuções criadas automaticamente pelo agendamento do Prefect. (https://github.com/RJ-SMTR/pipelines_v3/pull/437)
+
+## [1.4.0] - 2026-06-23
+
+### Alterado
+
+- Propaga `flags` para testes dbt pré e pós-materialização. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+### Adicionado
+
+- Adiciona criação seletiva de relações dbt ausentes com `--empty` antes da materialização normal em ambiente dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Adiciona resolução do SHA do deployment para clonar `queries/` no mesmo commit da imagem em deploys de dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.3.0] - 2026-06-02
+
+### Adicionado
+
+- Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` ao flow genérico de materialização para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
 ## [1.2.2] - 2026-06-02
 
 ### Adicionado

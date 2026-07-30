@@ -8,6 +8,8 @@ para as análises de monitoramento de temperatura dos veículos da SMTR.
 Common 2026-05-13
 """
 
+from typing import Optional
+
 from pipelines.capture__inmet_temperatura import constants
 from pipelines.capture__inmet_temperatura.tasks import create_temperatura_extractor
 from pipelines.common.capture.default_capture.flow import (
@@ -19,11 +21,11 @@ from pipelines.common.utils.prefect import flow
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__inmet_temperatura(
-    env=None,
-    timestamp=None,
-    recapture=True,
-    recapture_days=2,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,

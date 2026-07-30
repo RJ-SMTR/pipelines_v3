@@ -41,6 +41,7 @@ select
     ve.tecnologia as tecnologia_apurada,
     ve.status as tipo_viagem,
     vv.servico,
+    vv.consorcio,
     vv.sentido,
     vv.distancia_planejada,
     vv.feed_start_date,

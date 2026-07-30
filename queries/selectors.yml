@@ -122,7 +122,7 @@ selectors:
         - method: fqn
           value: servico_planejado_faixa_horaria
         - method: fqn
-          value: viagem_planejada_planejamento
+          value: viagem_planejada_planejamento_dia
 
   - name: transacao_ordem
     description: Materialização da tabela auxiliar de relacionamento entre as ordens de pagamento e as transações
@@ -405,9 +405,9 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: autuacao_citran
+          value: view_autuacao_citran
         - method: fqn
-          value: autuacao_serpro
+          value: view_autuacao_serpro
         - method: fqn
           value: aux_autuacao_id
         - method: fqn
@@ -432,6 +432,8 @@ selectors:
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
+        - method: fqn
+          value: aux_gps_filtrada
         - method: fqn
           value: gps
 
@@ -644,3 +646,100 @@ selectors:
     definition:
       method: fqn
       value: aux_operadora_cnpj
+
+  - name: riorotativo_auxiliar
+    description: >
+      Materialização dos dados auxiliares Rio Rotativo: stagings, modelos de estado atual
+      (última captura da janela date_range_start/end), históricos diários
+      e o histórico de vigência das entidades credenciadoras
+      (razão social/nome fantasia a partir de pessoa_juridica).
+      Os modelos de estado atual saem do DAG quando uma janela explícita
+      não alcança a data corrente (macro is_current_state_enabled) —
+      backfills executam apenas stagings e históricos, sem regredir o
+      estado atual.
+    definition:
+       union:
+          - method: fqn
+            value: staging_agente_verificacao_riorotativo
+          - method: fqn
+            value: staging_area_estacionamento_riorotativo
+          - method: fqn
+            value: staging_guardador_veiculo_riorotativo
+          - method: fqn
+            value: staging_lista_bloqueio_riorotativo
+          - method: fqn
+            value: staging_perfil_funcionamento_excecao_riorotativo
+          - method: fqn
+            value: staging_perfil_funcionamento_riorotativo
+          - method: fqn
+            value: agente_verificacao_riorotativo
+          - method: fqn
+            value: area_estacionamento_riorotativo
+          - method: fqn
+            value: agente_verificacao_riorotativo_historico
+          - method: fqn
+            value: entidade_credenciadora_riorotativo_historico
+          - method: fqn
+            value: guardador_veiculo_riorotativo
+          - method: fqn
+            value: guardador_veiculo_riorotativo_historico
+          - method: fqn
+            value: perfil_funcionamento_riorotativo
+          - method: fqn
+            value: perfil_funcionamento_riorotativo_historico
+          - method: fqn
+            value: staging_veiculo_cliente_riorotativo
+          - method: fqn
+            value: staging_veiculo_riorotativo
+          - method: fqn
+            value: veiculo_riorotativo
+
+  - name: snapshot_riorotativo_auxiliar
+    description: >
+      Snapshots das tabelas área de estacionamento e
+      perfil de funcionamento do Rio Rotativo Digital.
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_area_estacionamento
+        - method: fqn
+          value: snapshot_perfil_funcionamento
+
+  - name: riorotativo_operacao
+    description: Materialização de tabelas da operação do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: staging_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: staging_movimento_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: aux_ativacao_particao_captura_riorotativo
+        - method: fqn
+          value: ativacao_riorotativo
+        - method: fqn
+          value: staging_fiscalizacao_veiculo_riorotativo
+        - method: fqn
+          value: aux_verificacao_particao_captura_riorotativo
+        - method: fqn
+          value: verificacao_guardador_veiculo_riorotativo
+
+  - name: riorotativo_ordem_pagamento
+    description: Materialização de tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: ordem_pagamento_guardador_veiculo_dia_riorotativo
+        - method: fqn
+          value: ordem_pagamento_entidade_dia_riorotativo
+        - method: fqn
+          value: view_ordem_pagamento_riorotativo
+
+  - name: snapshot_riorotativo_ordem_pagamento
+    description: Snapshots das tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_ordem_pagamento_entidade_dia
+        - method: fqn
+          value: snapshot_ordem_pagamento_guardador_veiculo_dia

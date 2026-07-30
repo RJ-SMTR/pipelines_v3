@@ -14,6 +14,5 @@ COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realoc
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

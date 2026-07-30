@@ -20,6 +20,14 @@ COPY ./pipelines/capture__jae_transacao_erro ./pipelines/capture__jae_transacao_
 
 COPY ./pipelines/capture__jae_transacao_riocard ./pipelines/capture__jae_transacao_riocard/
 
+COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_riorotativo_auxiliar/
+
+COPY ./pipelines/capture__jae_estacionamento_veiculo ./pipelines/capture__jae_estacionamento_veiculo/
+
+COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/capture__jae_movimento_estacionamento_veiculo/
+
+COPY ./pipelines/capture__jae_fiscalizacao_veiculo ./pipelines/capture__jae_fiscalizacao_veiculo/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages

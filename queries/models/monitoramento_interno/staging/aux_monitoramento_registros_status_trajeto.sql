@@ -61,7 +61,14 @@ with
     ),
     servico_planejado as (
         select
-            data, feed_version, feed_start_date, servico, sentido, extensao, trip_info
+            data,
+            feed_version,
+            feed_start_date,
+            servico,
+            consorcio,
+            sentido,
+            extensao,
+            trip_info
         from {{ ref("servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }}
     ),
@@ -71,6 +78,7 @@ with
             sp.feed_version,
             sp.feed_start_date,
             sp.servico,
+            sp.consorcio,
             sp.sentido,
             sp.extensao,
             trip.trip_id,
@@ -101,6 +109,7 @@ with
             g.geo_point_gps,
             trim(g.servico, " ") as servico_gps,
             s.servico as servico_viagem,
+            s.consorcio,
             s.shape_id,
             s.sentido,
             s.trip_id,

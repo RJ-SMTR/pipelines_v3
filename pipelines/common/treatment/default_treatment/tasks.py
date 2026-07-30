@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+from pathlib import Path
 from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import task
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
@@ -13,8 +14,11 @@ from pipelines.common.treatment.default_treatment.utils import (
     DBTSelectorMaterializationContext,
     DBTTest,
     IncompleteDataError,
+    clone_queries_from_github,
     dbt_test_notify_discord,
     run_dbt,
+    run_dbt_deps,
+    run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
@@ -192,7 +196,13 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
-        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags)
+        run_dbt_empty_for_missing_relations(
+            dbt_obj=context.selector,
+            dbt_vars=context.dbt_vars,
+            flags=flags,
+            env=context.env,
+        )
+        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts
 
@@ -209,14 +219,16 @@ def run_dbt_snapshots(
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
+    snapshot_flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     for context in contexts:
         if context.snapshot_selector is None:
             continue
         run_dbt(
             dbt_obj=context.snapshot_selector,
             dbt_vars=context.dbt_vars,
-            flags=flags,
+            flags=snapshot_flags,
             is_snapshot=True,
+            env=context.env,
         )
 
     return contexts
@@ -226,13 +238,15 @@ def run_dbt_snapshots(
 def run_dbt_selector_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
+    flags: Optional[list[str]] = None,
 ):
     """
     Executa os testes do dbt para cada contexto de materialização.
 
     Args:
-        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        contexts (list[DBTSelectorMaterializationContext]): Contextos de materialização.
         mode (str): Modo de execução do teste (pre ou post).
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
     """
     for context in contexts:
         if not context[f"should_run_{mode}_test"]:
@@ -245,6 +259,8 @@ def run_dbt_selector_tests(
                 dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
+                env=context.env,
+                flags=flags,
             )
         context[f"{mode}_test_log"] = log
 
@@ -286,14 +302,47 @@ def task_dbt_selector_test_notify_discord(
 @task(cache_policy=NO_CACHE)
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
+    save_redis: Optional[bool] = True,
 ):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+        save_redis (Optional[bool]): Se True, atualiza o checkpoint; se False, preserva;
+            se None, decide pela origem agendada da flow run.
     """
+    if not (save_redis if save_redis is not None else "auto-scheduled" in runtime.flow_run.tags):
+        print("Checkpoint de materialização no Redis preservado")
+        return
+
     for context in contexts:
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end
         )
+
+
+@task(cache_policy=NO_CACHE)
+def setup_dbt_queries(env: str) -> Path:
+    """
+    Clona a pasta queries/ do repositório GitHub via sparse-checkout.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
+
+    Returns:
+        Path: Caminho para a pasta queries/.
+    """
+    return clone_queries_from_github(env=env)
+
+
+@task(cache_policy=NO_CACHE)
+def install_dbt_packages() -> None:
+    """
+    Executa dbt deps para instalar pacotes do dbt.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    run_dbt_deps()

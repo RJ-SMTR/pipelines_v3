@@ -15,6 +15,7 @@ def treatment__operadora_cnpj(
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -22,5 +23,6 @@ def treatment__operadora_cnpj(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
+        additional_vars=additional_vars,
         test_scheduled_time=None,
     )

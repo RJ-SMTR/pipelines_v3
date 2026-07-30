@@ -12,6 +12,5 @@ COPY ./pipelines/capture__sonda_registros ./pipelines/capture__sonda_registros/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
 
 RUN uv sync --all-packages

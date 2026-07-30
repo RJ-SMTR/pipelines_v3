@@ -10,11 +10,13 @@ from pipelines.treatment__pagamento_cct import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__pagamento_cct(
+def treatment__pagamento_cct(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -22,5 +24,7 @@ def treatment__pagamento_cct(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
+        additional_vars=additional_vars,
         test_scheduled_time=None,
+        skip_source_check=skip_source_check,
     )

@@ -80,6 +80,10 @@ JAE_DATABASE_SETTINGS = {
         "engine": "postgresql",
         "host": "10.128.0.31",
     },
+    "estacionamento_db": {
+        "engine": "postgresql",
+        "host": "10.5.112.172",
+    },
 }
 
 JAE_SECRET_PATH = "smtr_jae_access_data"
@@ -98,7 +102,11 @@ CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
-
+MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID = "movimento_estacionamento_veiculo"
+ESTACIONAMENTO_VEICULO_TABLE_ID = "estacionamento_veiculo"
+VEICULO_TABLE_ID = "veiculo"
+VEICULO_CLIENTE_TABLE_ID = "veiculo_cliente"
+FISCALIZACAO_VEICULO_TABLE_ID = "fiscalizacao_veiculo"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
@@ -586,6 +594,20 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "capture_flow": "ordem_pagamento",
         "pretreat_funcs": [raise_if_column_isna(column_name="id_ordem_pagamento")],
     },
+    # "ordem_pagamento_estacionamento": {
+    #     "query": """
+    #             SELECT
+    #                 *
+    #             FROM
+    #                 ordem_pagamento_estacionamento
+    #             WHERE
+    #                 data_inclusao BETWEEN '{start}'
+    #                 AND '{end}'
+    #         """,
+    #     "database": "ressarcimento_db",
+    #     "primary_keys": ["id"],
+    #     "capture_flow": "ordem_pagamento",
+    # },
     "linha_sem_ressarcimento": {
         "query": """
                 SELECT
@@ -599,5 +621,74 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "database": "ressarcimento_db",
         "primary_keys": ["id_linha"],
         "capture_flow": "ordem_pagamento",
+    },
+    MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    movimento_estacionamento_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    estacionamento_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    FISCALIZACAO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    fiscalizacao_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}'
+                    AND data_inclusao < timestamp '{end}'
+            """,
+        "database": "estacionamento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "riorotativo_auxiliar",
+    },
+    VEICULO_CLIENTE_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    veiculo_cliente
+                WHERE
+                    (data_inclusao >= timestamp '{start}'
+                    AND data_inclusao < timestamp '{end}')
+                    OR (data_inativacao >= timestamp '{start}'
+                    AND data_inativacao < timestamp '{end}')
+            """,
+        "database": "estacionamento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "riorotativo_auxiliar",
     },
 }

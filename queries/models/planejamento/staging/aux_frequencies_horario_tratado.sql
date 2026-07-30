@@ -12,14 +12,10 @@ with
 
 select
     * except (start_time_parts, end_time_parts, start_time, end_time),
-    make_interval(
-        hour => cast(start_time_parts[0] as integer),
-        minute => cast(start_time_parts[1] as integer),
-        second => cast(start_time_parts[2] as integer)
-    ) as start_time,
-    make_interval(
-        hour => cast(end_time_parts[0] as integer),
-        minute => cast(end_time_parts[1] as integer),
-        second => cast(end_time_parts[2] as integer)
-    ) as end_time
+    cast(start_time_parts[0] as int64) * 3600
+    + cast(start_time_parts[1] as int64) * 60
+    + cast(start_time_parts[2] as int64) as start_seconds,
+    cast(end_time_parts[0] as int64) * 3600
+    + cast(end_time_parts[1] as int64) * 60
+    + cast(end_time_parts[2] as int64) as end_seconds
 from frequencies

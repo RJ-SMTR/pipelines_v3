@@ -11,7 +11,38 @@
 }}
 
 with
-    datas as (
+    planilha_source as (
+        select
+            safe_cast(dia as date) as data,
+            safe_cast(json_value(content, '$.tipo_dia') as string) as tipo_dia,
+            safe_cast(json_value(content, '$.subtipo_dia') as string) as subtipo_dia,
+            safe_cast(json_value(content, '$.tipo_os') as string) as tipo_os
+        from {{ source("source_smtr", "calendario_manual") }}
+        qualify
+            row_number() over (
+                partition by safe_cast(dia as date) order by timestamp_captura desc
+            )
+            = 1
+    ),
+    planilha as (
+        /* A partir da data de corte, o calendário manual vem da planilha (source). */
+        select
+            data,
+            date(null) as feed_start_date,
+            nullif(trim(tipo_dia), '') as tipo_dia,
+            nullif(trim(subtipo_dia), '') as subtipo_dia,
+            nullif(trim(tipo_os), '') as tipo_os
+        from planilha_source
+        where
+            data >= date("{{ var('data_inicio_calendario_sheets') }}")
+            {% if is_incremental() %}
+                and data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% endif %}
+    ),
+    historico as (
+        /* Antes da data de corte, o histórico permanece congelado no hardcoded. */
         select
             data,
             date(null) as feed_start_date,
@@ -74,7 +105,14 @@ with
                 then "Domingo"  -- Feriado sexta-feira da Paixão
                 when data = date(2026, 04, 24)
                 then "Ponto Facultativo"  -- DECRETO RIO Nº 57867 DE 13 DE ABRIL DE 2026
+                when data = date(2026, 06, 04)
+                then "Domingo"  -- Feriado de Corpus Christi
+                when data = date(2026, 06, 05)
+                then "Ponto Facultativo"  -- DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026
+                when data = date(2026, 06, 29)
+                then "Ponto Facultativo"  -- DECRETO RIO Nº 58230 DE 24 DE JUNHO DE 2026
             end as tipo_dia,
+            cast(null as string) as subtipo_dia,
             case
                 when data between date(2024, 09, 14) and date(2024, 09, 15)
                 then "Verão + Rock in Rio"
@@ -178,6 +216,14 @@ with
                 then "Shakira_02-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 02/05/2026
                 when data = date(2026, 05, 03)
                 then "Shakira_03-05"  -- 000399.009326/2026-13 - Operação Especial para o dia 03/05/2026
+                when data = date(2026, 05, 17)
+                then "Oper_634"  -- 000399.011715/2026-17 - Inauguração 634
+                when data = date(2026, 06, 13)
+                then "Copa_13_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 19)
+                then "Copa_19_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
+                when data = date(2026, 06, 24)
+                then "Copa_24_Junho"  -- 000399.016030/2026-59 - Jogo da Copa
             end as tipo_os
         from
             unnest(
@@ -189,7 +235,24 @@ with
                     {% endif %}
                 )
             ) as data
+        where data < date("{{ var('data_inicio_calendario_sheets') }}")
+    ),
+    datas as (
+        select data, feed_start_date, tipo_dia, subtipo_dia, tipo_os
+        from planilha
+
+        union all
+
+        select data, feed_start_date, tipo_dia, subtipo_dia, tipo_os
+        from historico
     )
 select *
 from datas
-where feed_start_date is not null or tipo_dia is not null or tipo_os is not null
+where
+    data is not null
+    and (
+        feed_start_date is not null
+        or tipo_dia is not null
+        or subtipo_dia is not null
+        or tipo_os is not null
+    )

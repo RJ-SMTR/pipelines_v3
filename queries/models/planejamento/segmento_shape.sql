@@ -10,6 +10,7 @@
 }}
 
 -- depends_on: {{ ref('feed_info_gtfs') }}
+{% set last_feed_version = var("data_versao_gtfs") %}
 {% if execute and is_incremental() %}
     {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
 {% endif %}

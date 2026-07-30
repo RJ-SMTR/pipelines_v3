@@ -441,7 +441,9 @@ with
                 then "Dinheiro (Botoeira)"
                 when tipo_transacao_jae like "Gratuidade operador%"
                 then "Gratuidade Operadora"
-                when t.meio_pagamento_jae = "PIX"
+                when
+                    t.meio_pagamento_jae = "PIX"
+                    or t.tipo_transacao_jae = "Débito PIX a bordo"
                 then "PIX"
             end as produto,
             case
@@ -511,8 +513,12 @@ with
             case
                 when t.tipo_transacao_jae = "Botoeira"
                 then "Dinheiro"
-                when t.meio_pagamento_jae like "Cartão%"
+                when
+                    t.meio_pagamento_jae like "Cartão%"
+                    or t.tipo_transacao_jae like "% EMV"
                 then "Cartão"
+                when t.tipo_transacao_jae = "Gratuidade operadora"
+                then "Gratuidade operadora"
                 else t.meio_pagamento_jae
             end as meio_pagamento,
             g.id_cre_escola

@@ -7,25 +7,25 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome_social
         description: "{{ doc('nome_social_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_pessoa
         description: Pessoa física ou jurídica
         data_type: string
@@ -39,25 +39,25 @@ models:
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: documento_alternativo
         description: Número do documento alternativo do cliente [protegido]
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: email
         description: Email do cliente [protegido]
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: datetime_cadastro
         description: "{{ doc('datetime_cadastro_cliente') }}"
         data_type: datetime
@@ -86,31 +86,31 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: cpf
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: datetime_cadastro
         description: "{{ doc('datetime_cadastro_cliente') }}"
         data_type: datetime
@@ -139,25 +139,25 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente_sequencia
         description: "{{ doc('id_cliente_sequencia') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: numero_sequencia_endereco
         description: "{{ doc('numero_sequencia_endereco_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_endereco
         description: "{{ doc('tipo_endereco_cliente') }}"
         data_type: string
@@ -222,31 +222,31 @@ models:
         data_type: int64
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: cpf
         description: "{{ doc('documento_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: id_cliente_sequencia
         description: "{{ doc('id_cliente_sequencia') }} [protegido]"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: numero_sequencia_endereco
         description: "{{ doc('numero_sequencia_endereco_cliente') }}"
         data_type: string
         quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214'
+          - "projects/rj-smtr/locations/us/taxonomies/3022745664175989584/policyTags/1799822095924326214"
       - name: tipo_endereco
         description: "{{ doc('tipo_endereco_cliente') }}"
         data_type: string

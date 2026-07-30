@@ -11,6 +11,8 @@ Schedule:
 DBT: 2026-05-22
 """
 
+from typing import Optional
+
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -20,12 +22,13 @@ from pipelines.treatment__planejamento_diario import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__planejamento_diario(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+def treatment__planejamento_diario(  # noqa: PLR0913
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    save_redis: Optional[bool] = None,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -35,4 +38,5 @@ def treatment__planejamento_diario(
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
+        save_redis=save_redis,
     )
