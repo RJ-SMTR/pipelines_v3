@@ -4,8 +4,16 @@ Constantes para o flow de verificação da captura dos dados da Jaé
 """
 
 from pipelines.capture__jae_auxiliar import constants as auxiliar_constants
+from pipelines.capture__jae_estacionamento_veiculo import (
+    constants as estacionamento_veiculo_constants,
+)
+from pipelines.capture__jae_fiscalizacao_veiculo import constants as fiscalizacao_veiculo_constants
 from pipelines.capture__jae_gps_validador import constants as gps_validador_constants
 from pipelines.capture__jae_lancamento import constants as lancamento_constants
+from pipelines.capture__jae_movimento_estacionamento_veiculo import (
+    constants as movimento_estacionamento_veiculo_constants,
+)
+from pipelines.capture__jae_riorotativo_auxiliar import constants as riorotativo_auxiliar_constants
 from pipelines.capture__jae_transacao import constants as transacao_constants
 from pipelines.capture__jae_transacao_erro import constants as transacao_erro_constants
 from pipelines.capture__jae_transacao_riocard import constants as transacao_riocard_constants
@@ -35,6 +43,12 @@ LAUDO_PCD_SOURCE = next(
     s
     for s in auxiliar_constants.JAE_AUXILIAR_SOURCES
     if s.table_id == jae_constants.LAUDO_PCD_TABLE_ID
+)
+
+VEICULO_SOURCE = next(
+    s
+    for s in riorotativo_auxiliar_constants.JAE_RIOROTATIVO_AUXILIAR_SOURCES
+    if s.table_id == jae_constants.VEICULO_TABLE_ID
 )
 
 
@@ -104,5 +118,37 @@ CHECK_CAPTURE_PARAMS = {
         "timestamp_column": "data_inclusao",
         "primary_keys": LAUDO_PCD_SOURCE.primary_keys,
         "final_timestamp_exclusive": False,
+    },
+    jae_constants.VEICULO_TABLE_ID: {
+        "source": VEICULO_SOURCE,
+        "datalake_table": "rj-smtr.riorotativo_interno_staging.veiculo",
+        "timestamp_column": "data_inclusao",
+        "primary_keys": ["id_veiculo"],
+        "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
+    },
+    jae_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "source": movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE,
+        "datalake_table": "rj-smtr.riorotativo_staging.movimento_estacionamento_veiculo",
+        "timestamp_column": "data_inclusao",
+        "primary_keys": ["id_movimento_estacionamento_veiculo"],
+        "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
+    },
+    jae_constants.ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "source": estacionamento_veiculo_constants.ESTACIONAMENTO_VEICULO_SOURCE,
+        "datalake_table": "rj-smtr.riorotativo_staging.estacionamento_veiculo",
+        "timestamp_column": "data_inclusao",
+        "primary_keys": ["id_estacionamento_veiculo"],
+        "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
+    },
+    jae_constants.FISCALIZACAO_VEICULO_TABLE_ID: {
+        "source": fiscalizacao_veiculo_constants.FISCALIZACAO_VEICULO_SOURCE,
+        "datalake_table": "rj-smtr.riorotativo_interno_staging.fiscalizacao_veiculo",
+        "timestamp_column": "data_inclusao",
+        "primary_keys": ["id_fiscalizacao_veiculo"],
+        "final_timestamp_exclusive": True,
+        "datalake_timestamp_captura_column": "datetime_captura",
     },
 }

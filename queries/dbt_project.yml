@@ -183,6 +183,8 @@ vars:
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
   # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
@@ -307,6 +309,9 @@ vars:
   data_final_veiculo_arquitetura_1: "2025-03-31"
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
+
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
 
@@ -556,6 +561,12 @@ models:
       staging:
         +materialized: view
         +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
@@ -623,6 +634,9 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:
