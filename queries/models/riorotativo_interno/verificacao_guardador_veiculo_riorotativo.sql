@@ -114,13 +114,13 @@ with
             valor_retido_jae,
             geo_point_ativacao
         from {{ ref("ativacao_riorotativo") }}
-        where
-            {% if is_incremental() %}
-                and {% if ativacao_partitions | length > 0 %}
+        {% if is_incremental() %}
+            where
+                {% if ativacao_partitions | length > 0 %}
                     data in ({{ ativacao_partitions | join(", ") }})
                 {% else %} false
                 {% endif %}
-            {% endif %}
+        {% endif %}
     ),
     guardador as (
         select data, documento, status, array_agg(cnpj) as cnpjs_entidade
