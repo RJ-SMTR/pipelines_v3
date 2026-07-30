@@ -1,16 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Flow de materialização do planejamento diário
-
-Executa o selector DBT 'planejamento_diario' para materializar dados no BigQuery.
-
-Schedule:
-- Diariamente às 1h00 (horário de São Paulo)
-- Depende de dados capturados pela Rio Ônibus
-
-DBT: 2026-05-22
-"""
-
+from datetime import time
 from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
@@ -18,25 +7,25 @@ from pipelines.common.treatment.default_treatment.flow import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
-from pipelines.treatment__planejamento_diario import constants
+from pipelines.treatment__riorotativo_operacao import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__planejamento_diario(  # noqa: PLR0913
+def treatment__riorotativo_operacao(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
-    save_redis: Optional[bool] = None,
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.PLANEJAMENTO_DIARIO_SELECTOR],
-        snapshot_selector=constants.SNAPSHOT_PLANEJAMENTO_SELECTOR,
+        selectors=[constants.RIOROTATIVO_OPERACAO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
         additional_vars=additional_vars,
-        save_redis=save_redis,
+        test_scheduled_time=time(0, 15, 0),
+        force_test_run=force_test_run,
     )
