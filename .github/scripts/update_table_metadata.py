@@ -52,7 +52,7 @@ def atualizar_descricao_tabela(  # noqa: PLR0913
     table_def = client.get_table(table_id)
     tabela = table_def.to_api_repr()
 
-    if descricao_tabela and tabela["description"] != descricao_tabela:
+    if descricao_tabela and tabela.get("description") != descricao_tabela:
         if len(descricao_tabela) > MAX_TABLE_DESCRIPTION_LENGTH:
             print(
                 f"A descrição da tabela '{table_id}' tem mais de "
