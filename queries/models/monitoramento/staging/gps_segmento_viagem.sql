@@ -25,8 +25,22 @@
     }}
 {% endif %}
 
+{% set viagem_informada = ref("viagem_informada_monitoramento") %}
+{% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+    {% set partitions = get_modified_partitions_filter(viagem_informada) %}
+{% else %} {% set partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
+        {% endif %}
+    {% else %}
+        data between date('{{ var("date_range_start") }}') and date(
+            '{{ var("date_range_end") }}'
+        )
+    {% endif %}
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -130,12 +144,14 @@ with
         {% endif %}
     ),
     /*
-    Identificação de viagens com serviço divergente entre GPS e viagem informada
+    Identificação de viagens com serviço convergente entre GPS e viagem informada
     */
-    servico_divergente as (
+    servico_convergente as (
         select
             id_viagem,
-            max(servico_viagem != servico_gps) as indicador_servico_divergente
+            ifnull(
+                logical_and(servico_viagem = servico_gps), true
+            ) as indicador_servico_convergente
         from gps_viagem
         group by 1
     ),
@@ -462,7 +478,7 @@ select
     v.indicador_segmento_desconsiderado,
     v.indicador_primeiro_segmento_valido,
     v.indicador_ultimo_segmento_valido,
-    s.indicador_servico_divergente,
+    s.indicador_servico_convergente,
     v.datetime_inicio_segmento,
     v.datetime_fim_segmento,
     v.feed_version,
@@ -474,7 +490,7 @@ select
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from segmento_com_datetime v
-left join servico_divergente s using (id_viagem)
+left join servico_convergente s using (id_viagem)
 {% if not is_incremental() and var("tipo_materializacao") != "monitoramento" %}
     where v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
 {% endif %}

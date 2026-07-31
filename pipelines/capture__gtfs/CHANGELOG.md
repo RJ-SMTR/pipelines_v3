@@ -1,5 +1,11 @@
 # Changelog - capture__gtfs
 
+## [1.2.2] - 2026-07-31
+
+### Alterado
+
+- Altera a descrição do teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` no flow `capture__gtfs`(https://github.com/RJ-SMTR/pipelines_v3/pull/470)
+
 ## [1.2.1] - 2026-07-30
 
 ### Adicionado

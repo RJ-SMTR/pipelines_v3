@@ -169,8 +169,8 @@ models:
         description: "{{ doc('indice_validacao') }}"
         data_type: float64
         quote: true
-      - name: indicador_viagem_sobreposta
-        description: "{{ doc('indicador_viagem_sobreposta') }}"
+      - name: indicador_viagem_nao_sobreposta
+        description: "{{ doc('indicador_viagem_nao_sobreposta') }}"
         data_type: boolean
         quote: true
       - name: indicador_trajeto_valido
@@ -193,12 +193,12 @@ models:
         description: "{{ doc('indicador_ultimo_segmento_valido') }}"
         data_type: boolean
         quote: true
-      - name: indicador_servico_divergente
-        description: "{{ doc('indicador_servico_divergente') }}"
+      - name: indicador_servico_convergente
+        description: "{{ doc('indicador_servico_convergente') }}"
         data_type: boolean
         quote: true
-      - name: indicador_shape_invalido
-        description: "Indica se o shape existe no GTFS no feed vigente durante a data da viagem"
+      - name: indicador_shape_valido
+        description: "{{ doc('indicador_shape_valido') }}"
         data_type: boolean
         quote: true
       - name: indicador_campos_obrigatorios
@@ -213,16 +213,16 @@ models:
         description: "Indica se o shape é um trajeto alternativo"
         data_type: boolean
         quote: true
-      - name: indicador_acima_velocidade_max
-        description: "Indica se a velocidade média da viagem está acima do limite estabelecido"
+      - name: indicador_abaixo_velocidade_max
+        description: "{{ doc('indicador_abaixo_velocidade_max') }}"
         data_type: boolean
         quote: true
-      - name: indicador_processamento_posterior_captura
-        description: "{{ doc('indicador_processamento_posterior_captura') }}"
+      - name: indicador_sem_alteracao_retroativa
+        description: "{{ doc('indicador_sem_alteracao_retroativa') }}"
         data_type: boolean
         quote: true
-      - name: indicador_processamento_anterior_chegada
-        description: "{{ doc('indicador_processamento_anterior_chegada') }}"
+      - name: indicador_processamento_apos_chegada
+        description: "{{ doc('indicador_processamento_apos_chegada') }}"
         data_type: boolean
         quote: true
       - name: indicador_prazo_envio
@@ -345,8 +345,8 @@ models:
         description: "{{ doc('indicador_ultimo_segmento_valido') }}"
         data_type: boolean
         quote: true
-      - name: indicador_servico_divergente
-        description: "{{ doc('indicador_servico_divergente') }}"
+      - name: indicador_servico_convergente
+        description: "{{ doc('indicador_servico_convergente') }}"
         data_type: boolean
         quote: true
       - name: datetime_inicio_segmento

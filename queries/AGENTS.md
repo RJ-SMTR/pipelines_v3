@@ -74,5 +74,3 @@ SELECTOR = DBTSelector(
     flow_folder_name="treatment__<name>",
 )
 ```
-
-When reusing/combining a `DBTSelector` from another pipeline's `constants.py`, wrap it in `deepcopy()` to avoid mutating the shared object.
