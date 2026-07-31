@@ -27,14 +27,14 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    {% set partitions = get_modified_partitions(viagem_informada) %}
+    {% set partitions = get_modified_partitions_filter(viagem_informada) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
     {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
         {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-        {% else %} data = date("2026-08-01")
+        {% else %} data = date("2000-01-01")
         {% endif %}
     {% else %}
         data between date('{{ var("date_range_start") }}') and date(

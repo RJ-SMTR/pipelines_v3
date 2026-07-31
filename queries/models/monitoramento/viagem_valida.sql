@@ -10,18 +10,16 @@
     )
 }}
 
-{% set viagem_informada = ref("viagem_informada_monitoramento") %}
+{% set viagem_validacao = ref("viagem_validacao") %}
 {% if execute and is_incremental() %}
-    {% set partitions = get_modified_partitions(
-        viagem_informada, include_adjacent=true
-    ) %}
+    {% set partitions = get_modified_partitions_filter(viagem_validacao) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
     {% if is_incremental() %}
         {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-        {% else %} data = date("2026-08-01")
+        {% else %} data = date("2000-01-01")
         {% endif %}
     {% else %}
         data between date('{{ var("date_range_start") }}') and date(
@@ -38,7 +36,7 @@ with
     ),
     viagem_valida as (
         select *
-        from {{ ref("viagem_validacao") }}
+        from {{ viagem_validacao }}
         {# from `rj-smtr.monitoramento.viagem_validacao` v #}
         where
             indicador_viagem_valida

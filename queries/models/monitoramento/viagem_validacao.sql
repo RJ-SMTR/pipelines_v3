@@ -23,21 +23,38 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    {% set partitions = get_modified_partitions(
+    {% set modified_partitions = get_modified_partitions_filter(viagem_informada) %}
+    {% set context_partitions = get_modified_partitions_filter(
         viagem_informada, include_adjacent=true
     ) %}
-{% else %} {% set partitions = [] %}
+{% else %}
+    {% set modified_partitions = [] %}
+    {% set context_partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
     {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-        {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-        {% else %} data = date("2026-08-01")
+        {% if context_partitions | length > 0 %}
+            data in ({{ context_partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
         {% endif %}
     {% else %}
         data between date_sub(
             date('{{ var("date_range_start") }}'), interval 1 day
-        ) and date('{{ var("date_range_end") }}')
+        ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
+    {% endif %}
+{% endset %}
+
+{% set output_filter %}
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        {% if modified_partitions | length > 0 %}
+            data in ({{ modified_partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
+        {% endif %}
+    {% else %}
+        data between date('{{ var("date_range_start") }}') and date(
+            '{{ var("date_range_end") }}'
+        )
     {% endif %}
 {% endset %}
 
@@ -322,14 +339,14 @@ with
             and v2.indicador_sem_alteracao_retroativa
             and v2.indicador_processamento_apos_chegada
             and v2.indicador_prazo_envio
-            and timestamp_diff(
+            and datetime_diff(
                 least(v1.datetime_chegada_considerada, v2.datetime_chegada_considerada),
                 greatest(
                     v1.datetime_partida_considerada, v2.datetime_partida_considerada
                 ),
-                minute
+                second
             )
-            > 5
+            > 300
             and (
                 v2.datetime_captura_viagem > v1.datetime_captura_viagem
                 or (
@@ -526,9 +543,4 @@ select
 {% if var("tipo_materializacao") == "monitoramento" %} from filtro_chegada
 {% else %} from viagem_completa
 {% endif %}
-{% if not is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-    where
-        data between date('{{ var("date_range_start") }}') and date(
-            '{{ var("date_range_end") }}'
-        )
-{% endif %}
+where {{ output_filter }}

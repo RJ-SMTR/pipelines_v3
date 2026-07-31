@@ -13,14 +13,14 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() %}
-    {% set partitions = get_modified_partitions(viagem_informada) %}
+    {% set partitions = get_modified_partitions_filter(viagem_informada) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
     {% if is_incremental() %}
         {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
-        {% else %} data = date("2026-08-01")
+        {% else %} data = date("2000-01-01")
         {% endif %}
     {% else %} data >= date('{{ var("data_inicial_gps_validacao_viagem") }}')
     {% endif %}
