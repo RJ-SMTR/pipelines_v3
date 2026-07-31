@@ -30,17 +30,16 @@ with
             substr(id_veiculo, 2, 3) as id_empresa,
             st_geogpoint(longitude, latitude) as geo_point_gps,
             case
-                when extract(hour from timestamp_gps) < 3
-                then date_sub(extract(date from timestamp_gps), interval 1 day)
-                else extract(date from timestamp_gps)
+                when extract(hour from datetime_gps) < 3
+                then date_sub(extract(date from datetime_gps), interval 1 day)
+                else extract(date from datetime_gps)
             end as data_operacao
-        from {{ ref("view_gps_sppo_completo") }} g
-        {# from `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo` g #}
+        from {{ ref("view_gps_onibus") }} g
         where
             data between date('{{ var("date_range_start") }}') and date_add(
                 date('{{ var("date_range_end") }}'), interval 1 day
             )
-            and timestamp_gps
+            and datetime_gps
             between datetime_trunc(
                 date('{{ var("date_range_start") }}'),
                 day
@@ -105,7 +104,8 @@ with
             data_operacao as data,
             g.id_veiculo,
             g.id_empresa,
-            g.timestamp_gps,
+            g.datetime_gps,
+            g.fonte_gps,
             g.geo_point_gps,
             trim(g.servico, " ") as servico_gps,
             s.servico as servico_viagem,
