@@ -27,9 +27,7 @@
     {% set context_partitions = get_modified_partitions_filter(
         viagem_informada, include_adjacent=true
     ) %}
-{% else %}
-    {% set modified_partitions = [] %}
-    {% set context_partitions = [] %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
@@ -335,10 +333,14 @@ with
             and v1.id_viagem != v2.id_viagem
             and v1.indicador_sem_alteracao_retroativa
             and v1.indicador_processamento_apos_chegada
-            and v1.indicador_prazo_envio
             and v2.indicador_sem_alteracao_retroativa
             and v2.indicador_processamento_apos_chegada
-            and v2.indicador_prazo_envio
+            -- fmt: off
+            {% if var("tipo_materializacao") != "monitoramento" %}
+                and v1.indicador_prazo_envio
+                and v2.indicador_prazo_envio
+            {% endif %}
+            -- fmt: on
             and datetime_diff(
                 least(v1.datetime_chegada_considerada, v2.datetime_chegada_considerada),
                 greatest(
