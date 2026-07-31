@@ -1,6 +1,81 @@
 version: 2
 
 models:
+  - name: view_metricas_testes_dbt
+    description: |
+      Uma linha por resultado de teste dbt gravado pelo Elementary em produção.
+      Histórico append-only de execuções, não estado atual. Use
+      `test_execution_id` para joins com amostras de linhas de falha em
+      `elementary.test_result_rows` e `test_unique_id` para acompanhar o mesmo
+      teste ao longo do tempo. Fonte: `rj-smtr.elementary.elementary_test_results`,
+      alimentada pelos hooks do Elementary durante `dbt test --target prod`.
+      Inclui apenas `test_type = dbt_test`, normaliza datas para America/Sao_Paulo,
+      converte contadores para inteiros e expande tags para filtros de painel.
+      `flow_name` fica nulo enquanto o upload de metadados de invocação do dbt
+      estiver desabilitado.
+    columns:
+      - name: data
+        description: "Data local da execução do teste em America/Sao_Paulo."
+      - name: datetime_detectado
+        description: "Data e hora local em que o resultado do teste foi detectado."
+      - name: datetime_criacao
+        description: "Data e hora local de criação do registro no Elementary."
+      - name: invocation_id
+        description: "Identificador da invocação dbt que executou o teste."
+      - name: test_unique_id
+        description: "Identificador único do teste no grafo dbt."
+      - name: model_unique_id
+        description: "Identificador único do modelo testado no grafo dbt."
+      - name: tabela_completa
+        description: "Referência completa da tabela testada no formato projeto.dataset.tabela."
+      - name: teste
+        description: "Nome completo do teste executado."
+      - name: teste_curto
+        description: "Nome curto ou alias do teste executado."
+      - name: severidade
+        description: "Severidade configurada no teste dbt."
+      - name: status
+        description: "Status normalizado do resultado do teste."
+      - name: quantidade_falhas
+        description: "Quantidade de falhas reportada pelo dbt."
+      - name: quantidade_linhas_falhas
+        description: "Quantidade de linhas com falha reportada pelo Elementary, quando disponível."
+      - name: tags
+        description: "Tags do teste extraídas do registro JSON gravado pelo Elementary."
+      - name: flow_name
+        description: "Nome do flow Prefect. Atualmente nulo porque os metadados de invocação do dbt estão desabilitados."
+      - name: indicador_sucesso
+        description: "Indica se o teste foi concluído com status pass."
+      - name: indicador_alerta
+        description: "Indica se o teste foi concluído com status warn."
+      - name: indicador_erro
+        description: "Indica se o teste foi concluído com status fail ou error."
+      - name: indicador_nao_sucesso
+        description: "Indica se o teste teve status diferente de pass ou skipped."
+      - name: indicador_freshness
+        description: "Indica se o teste possui a tag freshness."
+      - name: indicador_hourly
+        description: "Indica se o teste possui a tag hourly."
+  - name: view_sumario_testes_dbt_dia
+    description: |
+      Uma linha por dia, flow, tipo de teste, dataset e tabela, agregando os
+      resultados gravados em `view_metricas_testes_dbt`. Histórico diário para
+      painel, não estado atual. Use `data`, `flow_name`, `dataset`, `tabela`,
+      `tipo_teste`, `subtipo_teste`, `indicador_freshness` e `indicador_hourly`
+      como chave de agrupamento; para voltar ao detalhe, filtre esses campos em
+      `view_metricas_testes_dbt`. Fonte: resultados de testes Elementary já
+      normalizados por `view_metricas_testes_dbt`. Enquanto `flow_name` não for
+      capturado pelo Elementary, todas as execuções ficam agrupadas como
+      `sem_flow_name`.
+  - name: view_ultimo_resultado_testes_dbt
+    description: |
+      Uma linha por `test_unique_id`, mantendo apenas o resultado mais recente
+      conhecido de cada teste dbt. Estado atual derivado do histórico, não uma
+      tabela de eventos. Use `test_unique_id` para joins com definições de testes
+      e `test_execution_id` para voltar ao registro histórico específico em
+      `view_metricas_testes_dbt`. Fonte: `view_metricas_testes_dbt`. A ordenação
+      usa `detected_at` e `created_at`; se uma execução antiga for reprocessada
+      com timestamp maior, ela passa a representar o estado atual do teste.
   - name: viagem_inferida
     description: "Viagens inferidas a partir dos dados de GPS"
     columns:
