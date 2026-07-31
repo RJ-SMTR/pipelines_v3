@@ -723,15 +723,19 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido
           config:
-            where: "1=1"
+            where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
             expression: count(distinct evento)
             compare_model: ref("ordem_servico_trips_shapes_gtfs")
             compare_expression: "count(distinct regexp_extract(vista, r'(\\[.*?\\])'))"
-            group_by: [servico, "left(sentido, 1)"]
-            compare_group_by: [servico, sentido_shape]
-            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
-            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+            group_by:
+              - servico
+              - left(sentido, 1)
+            compare_group_by:
+              - servico
+              - "if(sentido = 'C', 'I', sentido)"
+            row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
+            compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and id_tipo_trajeto = 1"
       - dbt_utils.relationships_where:
           name: dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
           config:

@@ -1,4 +1,11 @@
 # Changelog - planejamento
+
+## [1.8.4] - 2026-07-31
+
+### Corrigido
+
+- Corrigido o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para tratar corretamente os sentidos circulares, considerando-os como sentido de ida (I) ao invés de circular (C) (https://github.com/RJ-SMTR/pipelines_v3/pull/468)
+
 ## [1.8.3] - 2026-07-30
 
 ### Adicionado
