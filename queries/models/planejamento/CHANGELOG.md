@@ -1,4 +1,11 @@
 # Changelog - planejamento
+## [1.8.3] - 2026-07-30
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido` no modelo `ordem_servico_trajeto_alternativo_sentido` (planejamento) e registra `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido` para validar que todo `(servico, evento)` da OS existe em `trips_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para validar que a quantidade distinta de `evento` por `(servico, sentido)` em `ordem_servico_trajeto_alternativo_sentido` é igual à quantidade distinta de eventos extraídos de `vista` em `ordem_servico_trips_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
 
 ## [1.8.2] - 2026-07-09
 
