@@ -167,7 +167,25 @@ with
             d.cor,
             array(
                 select as struct *
-                from unnest(array_concat(d.motoristas, vc.motoristas))
+                from
+                    unnest(
+                        array_concat(
+                            d.motoristas,
+                            ifnull(
+                                vc.motoristas,
+                                cast(
+                                    [] as array<
+                                        struct<
+                                            id_veiculo_cliente string,
+                                            cpf_motorista string,
+                                            datetime_inativacao datetime,
+                                            datetime_inclusao datetime
+                                        >
+                                    >
+                                )
+                            )
+                        )
+                    )
                 qualify
                     row_number() over (
                         partition by id_veiculo_cliente
