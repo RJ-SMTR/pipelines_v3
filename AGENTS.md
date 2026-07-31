@@ -61,7 +61,6 @@ queries/               # dbt project — see queries/AGENTS.md
 - **Environment**: Auto-detected from deployment name (`get_run_env` in `pipelines/common/tasks.py`): `--prod` → `prod`, anything else (including `--staging`) → `dev`; defaults to `dev` locally
 - **Credentials**: `pipelines.common.utils.env.inject_bd_credentials()` (called by the base tasks in `common/`)
 - **Secrets**: `pipelines.common.utils.secret.get_env_secret()` — reads from the Kubernetes Secret mounted via `secretName` in `prefect.yaml` (`prefect-jobs-secrets` prod / `prefect-jobs-secrets-staging` staging)
-- **DBT selectors**: Use `deepcopy()` when reusing/combining `DBTSelector` objects from another pipeline's `constants.py`
 - **Logging**: Use `print()` with `@flow(log_prints=True)` — no `log()` calls
 - **Constants**: Plain variables, no `Enum` — no `.value` access
 - **Imports**: Always at top of file, never inside functions
