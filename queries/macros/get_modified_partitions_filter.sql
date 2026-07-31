@@ -16,7 +16,7 @@
                         "{{ var('date_range_end') }}"
                     )
                     and parse_date("%Y%m%d", partition_id) >= date_sub(
-                        current_date("America/Sao_Paulo"), interval {{ max_age_days }} day
+                        date("{{ var('date_range_end') }}"), interval {{ max_age_days }} day
                     )
             )
             {% if include_adjacent %}
