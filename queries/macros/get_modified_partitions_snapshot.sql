@@ -12,7 +12,7 @@
             from `{{ source_relation.database }}.{{ source_relation.schema }}.INFORMATION_SCHEMA.PARTITIONS`
             where
                 table_name = "{{ source_relation.identifier }}"
-                and partition_id != "__NULL__"
+                and partition_id not in ("__NULL__", "__UNPARTITIONED__")
                 and datetime(last_modified_time, "America/Sao_Paulo")
                 >= datetime_sub(current_datetime("America/Sao_Paulo"), interval {{ interval_days }} day)
         {%- endset -%}
