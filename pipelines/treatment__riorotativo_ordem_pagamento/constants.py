@@ -75,5 +75,5 @@ RIOROTATIVO_ORDEM_PAGAMENTO_SELECTOR = DBTSelector(
 RIOROTATIVO_ORDEM_PAGAMENTO_SNAPSHOT = DBTSelector(
     name="snapshot_riorotativo_ordem_pagamento",
     initial_datetime=datetime(2026, 7, 30, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-    flow_folder_name="treatment__riorotativo",
+    flow_folder_name="treatment__riorotativo_ordem_pagamento",
 )
