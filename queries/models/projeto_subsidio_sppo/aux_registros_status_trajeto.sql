@@ -134,7 +134,7 @@
         gps as (
             select
                 g.* except (longitude, latitude, servico),
-                servico,
+                case when servico = "498" then "LECD152" else servico end as servico,
                 substr(id_veiculo, 2, 3) as id_empresa,
                 st_geogpoint(longitude, latitude) posicao_veiculo_geo,
                 date_sub(date('{{ var("run_date") }}'), interval 1 day) as data_operacao
