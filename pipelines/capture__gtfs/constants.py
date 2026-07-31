@@ -86,7 +86,7 @@ GTFS_DATA_CHECKS_LIST = {
         },
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido": {
             "description": "Todos os dados de 'feed_start_date', 'tipo_os', 'servico' e 'sentido' correspondem 1:1 entre as tabelas 'ordem_servico_trips_shapes_gtfs' e 'ordem_servico_trajeto_alternativo_sentido'."
-        }
+        },
     },
     "ordem_servico_faixa_horaria": {
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria": {
