@@ -1,14 +1,25 @@
-{{
-    config(
-        materialized="incremental",
-        partition_by={
-            "field": "data",
-            "data_type": "date",
-            "granularity": "day",
-        },
-        incremental_strategy="insert_overwrite",
-    )
-}}
+{% if var("tipo_materializacao") == "monitoramento" %}
+    {{
+        config(
+            partition_by={
+                "field": "data",
+                "data_type": "date",
+                "granularity": "day",
+            },
+            schema="monitoramento_interno",
+        )
+    }}
+{% else %}
+    {{
+        config(
+            partition_by={
+                "field": "data",
+                "data_type": "date",
+                "granularity": "day",
+            },
+        )
+    }}
+{% endif %}
 
 {% set viagem_validacao = ref("viagem_validacao") %}
 {% if execute and is_incremental() %}
@@ -46,21 +57,25 @@ select
     vv.data,
     vv.id_viagem,
     vv.id_viagem_planejada,
-    vv.id_veiculo,
-    ve.placa,
-    ve.ano_fabricacao,
     vv.datetime_partida_considerada as datetime_partida,
     vv.datetime_chegada_considerada as datetime_chegada,
     vv.modo,
+    vv.tipo_dia,
+    vv.consorcio,
+    vv.servico,
+    vv.trip_id,
+    vv.shape_id,
+    vv.sentido,
+    vv.id_veiculo,
+    ve.placa,
+    ve.ano_fabricacao,
     ve.tecnologia as tecnologia_apurada,
     ve.status as tipo_viagem,
-    vv.servico,
-    vv.consorcio,
-    vv.sentido,
-    vv.distancia_planejada,
     vv.feed_start_date,
-    '{{ var("version") }}' as versao,
+    vv.distancia_planejada,
+    vv.velocidade_media,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ var("version") }}' as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from viagem_valida as vv
 left join veiculo as ve using (data, id_veiculo)

@@ -117,32 +117,36 @@ models:
         description: "{{ doc('modo') }}"
         data_type: string
         quote: true
-      - name: id_veiculo
-        description: "{{ doc('id_veiculo') }}"
-        data_type: string
-        quote: true
-      - name: trip_id
-        description: "{{ doc('trip_id') }}"
-        data_type: int64
-        quote: true
-      - name: route_id
-        description: "{{ doc('route_id') }}"
-        data_type: string
-        quote: true
-      - name: shape_id
-        description: "{{ doc('shape_id') }}"
-        data_type: string
-        quote: true
-      - name: servico
-        description: "{{ doc('servico') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
         data_type: string
         quote: true
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
         quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: int64
+        quote: true
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
         data_type: string
         quote: true
       - name: distancia_planejada
@@ -150,7 +154,7 @@ models:
         data_type: float64
         quote: true
       - name: velocidade_media
-        description: "Velocidade média da viagem (km/h)"
+        description: "{{ doc('velocidade_media_viagem') }}"
         data_type: float64
         quote: true
       - name: quantidade_segmentos_considerados
@@ -233,10 +237,6 @@ models:
         description: "Indica se a viagem está válida conforme critérios definidos"
         data_type: boolean
         quote: true
-      - name: tipo_dia
-        description: "{{ doc('tipo_dia') }}"
-        data_type: string
-        quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
@@ -245,13 +245,13 @@ models:
         description: "{{ doc('feed_start_date') }}"
         data_type: date
         quote: true
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
         quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
@@ -1317,6 +1317,42 @@ models:
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
         quote: true
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        data_type: datetime
+        quote: true
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        data_type: datetime
+        quote: true
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+        quote: true
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+        quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+        quote: true
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        quote: true
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+        quote: true
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+        quote: true
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
@@ -1329,18 +1365,6 @@ models:
         description: "{{ doc('ano_fabricacao') }}"
         data_type: int64
         quote: true
-      - name: datetime_partida_informada
-        description: "{{ doc('datetime_partida_informada') }}"
-        data_type: datetime
-        quote: true
-      - name: datetime_chegada_informada
-        description: "{{ doc('datetime_chegada_informada') }}"
-        data_type: datetime
-        quote: true
-      - name: modo
-        description: "{{ doc('modo') }}"
-        data_type: string
-        quote: true
       - name: tecnologia_apurada
         description: "{{ doc('tecnologia') }}"
         data_type: string
@@ -1349,33 +1373,25 @@ models:
         description: "{{ doc('tipo_viagem_status') }}"
         data_type: string
         quote: true
-      - name: servico
-        description: "{{ doc('servico') }}"
-        data_type: string
-        quote: true
-      - name: consorcio
-        description: "{{ doc('consorcio') }}"
-        data_type: string
-        quote: true
-      - name: sentido
-        description: "{{ doc('sentido') }}"
-        data_type: string
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
         quote: true
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
         quote: true
-      - name: feed_start_date
-        description: "{{ doc('feed_start_date') }}"
-        data_type: date
-        quote: true
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
+      - name: velocidade_media
+        description: "{{ doc('velocidade_media_viagem') }}"
+        data_type: float64
         quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
+        quote: true
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
         quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
