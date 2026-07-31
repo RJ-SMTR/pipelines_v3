@@ -8,6 +8,10 @@ models:
         description: "{{ doc('id_viagem') }}"
         data_type: string
         quote: true
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+        quote: true
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         data_type: date
@@ -58,11 +62,15 @@ models:
         quote: true
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
-        data_type: timestamp
+        data_type: datetime
         quote: true
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
-        data_type: timestamp
+        data_type: datetime
+        quote: true
+      - name: fonte_gps
+        description: Fornecedor de dados de GPS a ser considerado para validar a viagem
+        data_type: string
         quote: true
       - name: versao
         description: "{{ doc('versao') }}"
@@ -71,6 +79,10 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
+        quote: true
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
         quote: true
   - name: monitoramento_sumario_servico_dia_historico
     description: "Viagens sumario serviço dia histórico"
