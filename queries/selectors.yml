@@ -96,6 +96,27 @@ selectors:
         - method: fqn
           value: planejamento
 
+  - name: viagem_inferida
+    description: Materialização e validação das viagens inferidas para monitoramento
+    definition:
+      union:
+        - method: fqn
+          value: viagem_inferida
+          parents: true
+        - method: fqn
+          value: registros_status_viagem_inferida
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        - exclude:
+            - method: fqn
+              value: gtfs
+            - method: fqn
+              value: planejamento
+
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
     definition:

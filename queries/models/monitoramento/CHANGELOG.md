@@ -1,5 +1,12 @@
 # Changelog - monitoramento
 
+## [2.2.7] - 2026-07-31
+
+### Alterado
+
+- Altera `view_gps_onibus` para consolidar `gps_onibus_conecta` e `gps_onibus_zirix` (remove `gps_onibus_sppo`) (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+- Usa `id_viagem_planejada` de `viagem_inferida` em `gps_segmento_viagem` no modo monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
 ## [2.2.6] - 2026-07-29
 
 ### Alterado
