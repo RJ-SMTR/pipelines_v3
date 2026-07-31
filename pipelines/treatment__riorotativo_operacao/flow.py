@@ -6,11 +6,16 @@ from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.prefect import flow
+from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.treatment__riorotativo_operacao import constants
 
 
-@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+@flow(
+    log_prints=True,
+    flow_run_name=rename_treatment_flow_run,
+    on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+)
 def treatment__riorotativo_operacao(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
@@ -28,4 +33,5 @@ def treatment__riorotativo_operacao(  # noqa: PLR0913
         additional_vars=additional_vars,
         test_scheduled_time=time(0, 15, 0),
         force_test_run=force_test_run,
+        test_webhook_key="alertas_bilhetagem",
     )
