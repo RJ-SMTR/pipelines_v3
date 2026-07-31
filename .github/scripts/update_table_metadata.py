@@ -45,6 +45,40 @@ def extrair_descricoes_de_modelos(manifest):
     return tabelas
 
 
+# A função é recursiva para atualizar campos aninhados, i.e. json
+def atualizar_descricoes_campos(fields, prefixo, descricoes_colunas, table_id):
+    alterado = False
+
+    for field in fields:
+        nome_completo = f"{prefixo}.{field['name']}" if prefixo else field["name"]
+        descricao_campo = descricoes_colunas.get(nome_completo)
+
+        if descricao_campo and (
+            ("description" in field and field["description"] != descricao_campo)
+            or "description" not in field
+        ):
+            if len(descricao_campo) > MAX_COLUMN_DESCRIPTION_LENGTH:
+                print(
+                    f"A descrição da coluna '{nome_completo}' da tabela '{table_id}' "
+                    f"tem mais de {MAX_COLUMN_DESCRIPTION_LENGTH} caracteres, "
+                    f"não é possível atualizar."
+                )
+            else:
+                print(f"Atualizando a descrição da coluna '{nome_completo}' da tabela '{table_id}'")
+                field["description"] = descricao_campo
+                alterado = True
+
+        subcampos = field.get("fields")
+        # caso base: campo escalar, sem subcampos para recursão
+        if not subcampos:
+            continue
+
+        if atualizar_descricoes_campos(subcampos, nome_completo, descricoes_colunas, table_id):
+            alterado = True
+
+    return alterado
+
+
 def atualizar_descricao_tabela(  # noqa: PLR0913
     client,
     projeto,
@@ -73,30 +107,8 @@ def atualizar_descricao_tabela(  # noqa: PLR0913
             tabela["description"] = descricao_tabela
             alterado = True
 
-    for i in range(len(tabela["schema"]["fields"])):
-        field = tabela["schema"]["fields"][i]
-        if field["name"] in descricoes_colunas and descricoes_colunas[field["name"]]:
-            if (
-                "description" in field
-                and field["description"] != descricoes_colunas[field["name"]]
-            ) or "description" not in field:
-                if (
-                    len(descricoes_colunas[field["name"]])
-                    > MAX_COLUMN_DESCRIPTION_LENGTH
-                ):
-                    print(
-                        f"A descrição da coluna '{field['name']}' da tabela '{table_id}' "
-                        f"tem mais de {MAX_COLUMN_DESCRIPTION_LENGTH} caracteres, "
-                        f"não é possível atualizar."
-                    )
-                    continue
-                print(
-                    f"Atualizando a descrição da coluna '{field['name']}' da tabela '{table_id}'"
-                )
-                tabela["schema"]["fields"][i]["description"] = descricoes_colunas[
-                    field["name"]
-                ]
-                alterado = True
+    if atualizar_descricoes_campos(tabela["schema"]["fields"], "", descricoes_colunas, table_id):
+        alterado = True
 
     if not alterado:
         table_cache[table_id] = table_def
@@ -110,7 +122,9 @@ def atualizar_descricao_tabela(  # noqa: PLR0913
         table_cache[table_id] = client.update_table(tabela, ["description", "schema"])
 
 
-def propagate_labels(manifest, client, table_cache, dry_run=False):  # noqa: PLR0912, PLR0915
+def propagate_labels(  # noqa: PLR0912, PLR0915
+    manifest, client, table_cache, dry_run=False
+):
     allowed_resource_types = {"model", "source"}
 
     with Path("queries/tag_propagation_allowlist.yml").open("r", encoding="utf-8") as f:
