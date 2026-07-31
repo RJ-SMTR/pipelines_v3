@@ -4,6 +4,7 @@
 
 ### Alterado
 
+- Altera `gps_viagem`, `gps_segmento_viagem`, `viagem_validacao` e `viagem_valida` para reprocessar partições modificadas de `viagem_informada` via `INFORMATION_SCHEMA.PARTITIONS` / `last_modified_time`, permitindo atualizar validações quando houver correção dentro do prazo de 5 dias (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
 - Altera o modelo `viagem_validacao` para considerar o prazo de envio de até 5 dias corridos, usar `CEIL` no cálculo de segmentos tolerados e desconsiderar viagens com inconsistências temporais na verificação de sobreposição conforme Resolução SMTR 3934/2026
 (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
 - Renomeia indicadores de `viagem_validacao` / `gps_segmento_viagem` para polaridade única (`true` = critério atendido) e inclui `indicador_servico_convergente` na composição de `indicador_viagem_valida`(https://github.com/RJ-SMTR/pipelines_v3/pull/439)

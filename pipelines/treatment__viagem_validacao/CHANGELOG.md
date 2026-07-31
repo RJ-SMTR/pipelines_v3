@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera de 48 para 120 horas a janela de materialização do flow `treatment__viagem_validacao`, adequando-a ao prazo de envio de 5 dias corridos conforme Resolução SMTR 3934/2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Altera `VIAGEM_VALIDACAO_DELAY_HOURS` para 24 horas, permitindo feedback diário da validação enquanto correções na janela de 5 dias são reprocessadas via partições modificadas de `viagem_informada` (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
 
 ## [1.0.1] - 2026-07-07
 

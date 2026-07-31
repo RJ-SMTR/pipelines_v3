@@ -21,10 +21,24 @@
     }}
 {% endif %}
 
+{% set viagem_informada = ref("viagem_informada_monitoramento") %}
+{% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+    {% set partitions = get_modified_partitions(
+        viagem_informada, include_adjacent=true
+    ) %}
+{% else %} {% set partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between
-        date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
-        and date('{{ var("date_range_end") }}')
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
+        {% else %} data = date("2026-08-01")
+        {% endif %}
+    {% else %}
+        data between date_sub(
+            date('{{ var("date_range_start") }}'), interval 1 day
+        ) and date('{{ var("date_range_end") }}')
+    {% endif %}
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -512,7 +526,9 @@ select
 {% if var("tipo_materializacao") == "monitoramento" %} from filtro_chegada
 {% else %} from viagem_completa
 {% endif %}
-where
-    data between date('{{ var("date_range_start") }}') and date(
-        '{{ var("date_range_end") }}'
-    )
+{% if not is_incremental() or var("tipo_materializacao") == "monitoramento" %}
+    where
+        data between date('{{ var("date_range_start") }}') and date(
+            '{{ var("date_range_end") }}'
+        )
+{% endif %}
