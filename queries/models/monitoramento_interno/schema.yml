@@ -103,7 +103,7 @@ models:
         description: "{{ doc('trip_id') }}"
         data_type: string
       - name: route_id
-        description: "{{ doc('route_id') }}. Não disponível em `viagem_completa`."
+        description: "{{ doc('route_id') }}"
         data_type: string
       - name: shape_id
         description: "{{ doc('shape_id') }}"
