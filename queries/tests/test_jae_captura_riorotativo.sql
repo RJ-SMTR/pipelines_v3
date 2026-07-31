@@ -27,6 +27,7 @@ with
                 ),
                 timestamp("{{ var('date_range_end') }}", "America/Sao_Paulo")
             ) as fim
+        from table_ids
 
     ),
     ts as (
