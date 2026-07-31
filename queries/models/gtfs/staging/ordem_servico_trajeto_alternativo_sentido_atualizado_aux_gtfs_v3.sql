@@ -29,8 +29,8 @@ with
             servico,
             evento,
             countif(sentido = "I" and distancia_planejada != 0) > 0
-            and countif(sentido = "V" and distancia_planejada != 0) > 0
-            as indicador_duplo_sentido
+            and countif(sentido = "V" and distancia_planejada != 0)
+            > 0 as indicador_duplo_sentido
         from ordem_servico_trajeto_alternativo_sentido
         group by 1, 2, 3, 4, 5
     )
@@ -42,8 +42,7 @@ select
         else ot.sentido
     end as sentido
 from ordem_servico_trajeto_alternativo_sentido as ot
-left join
-    ordem_servico_faixa_horaria_sentido as s using (feed_start_date, servico)
+left join ordem_servico_faixa_horaria_sentido as s using (feed_start_date, servico)
 left join
     indicador_duplo_sentido as d using (
         feed_start_date, feed_version, tipo_os, servico, evento
