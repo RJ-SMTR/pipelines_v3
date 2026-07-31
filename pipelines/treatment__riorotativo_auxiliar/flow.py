@@ -45,4 +45,5 @@ def treatment__riorotativo_auxiliar(  # noqa: PLR0913
         additional_vars=additional_vars,
         force_test_run=force_test_run,
         test_scheduled_time=time(5, 10, 0),
+        test_webhook_key="alertas_bilhetagem",
     )
