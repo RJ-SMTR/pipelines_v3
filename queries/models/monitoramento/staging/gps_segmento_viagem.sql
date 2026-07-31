@@ -237,10 +237,7 @@ with
         select
             data,
             v.id_viagem,
-            {% if var("tipo_materializacao") == "monitoramento" %}
-                cast(null as string) as id_viagem_planejada,
-            {% else %} v.id_viagem_planejada,
-            {% endif %}
+            v.id_viagem_planejada,
             v.datetime_partida as datetime_partida_informada,
             v.datetime_chegada as datetime_chegada_informada,
             pca.datetime_partida_automatica,
