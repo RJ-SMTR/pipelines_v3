@@ -24,8 +24,9 @@
         {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
         {% else %} data = date("2000-01-01")
         {% endif %}
-    {% else %} data >= date('{{ var("data_inicial_gps_validacao_viagem") }}')
+        and
     {% endif %}
+    data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 with
@@ -45,7 +46,7 @@ with
             fonte_gps
         from {{ ref("viagem_informada_monitoramento") }}
         {# from `rj-smtr.monitoramento.viagem_informada` #}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where {{ incremental_filter }}
     ),
     gps_conecta as (
         select data, datetime_gps, servico, id_veiculo, latitude, longitude
@@ -123,5 +124,7 @@ join
     and g.id_veiculo = v.id_veiculo
     and g.fornecedor = v.fonte_gps
 {% if not is_incremental() %}
-    where v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
+    where
+        v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
+        and v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}

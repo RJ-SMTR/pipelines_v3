@@ -43,6 +43,7 @@
             '{{ var("date_range_end") }}'
         )
     {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -494,5 +495,7 @@ select
 from segmento_com_datetime v
 left join servico_convergente s using (id_viagem)
 {% if not is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    where v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
+    where
+        v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
+        and v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}

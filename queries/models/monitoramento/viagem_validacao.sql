@@ -43,6 +43,7 @@
             date('{{ var("date_range_start") }}'), interval 1 day
         ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
     {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set output_filter %}
@@ -56,6 +57,7 @@
             '{{ var("date_range_end") }}'
         )
     {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set calendario = ref("calendario") %}

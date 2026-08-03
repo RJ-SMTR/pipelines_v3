@@ -39,13 +39,16 @@
             '{{ var("date_range_end") }}'
         )
     {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 with
     veiculo as (
         select data, id_veiculo, placa, ano_fabricacao, tecnologia, status
         from {{ ref("aux_veiculo_dia_consolidada") }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where
+            data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     viagem_valida as (
         select *
@@ -53,6 +56,7 @@ with
         {# from `rj-smtr.monitoramento.viagem_validacao` v #}
         where
             indicador_viagem_valida
+            and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     )
 select
