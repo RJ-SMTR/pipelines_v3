@@ -1,5 +1,11 @@
 # Changelog - capture__gtfs
 
+## [1.3.0] - 2026-08-03
+
+### Adicionado
+
+- Adiciona ao pós-teste do GTFS as validações de trajetos alternativos e de freshness de `viagem_planejada_planejamento`.
+
 ## [1.2.2] - 2026-07-31
 
 ### Alterado

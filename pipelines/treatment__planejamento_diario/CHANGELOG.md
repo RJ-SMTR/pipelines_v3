@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-08-03
+
+### Adicionado
+
+- Adiciona ao pós-teste do planejamento diário as validações de trajetos alternativos e de freshness em relação ao GTFS.
+
 ## [1.0.1] - 2026-07-29
 
 ### Corrigido

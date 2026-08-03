@@ -102,5 +102,19 @@ GTFS_DATA_CHECKS_LIST = {
         "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento": {
             "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
         },
+        "dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento": {
+            "description": (
+                "A quantidade distinta de eventos de trajetos alternativos corresponde "
+                "entre a Ordem de Serviço e `viagem_planejada_planejamento` para o mesmo "
+                "`feed_start_date`, `servico`, `tipo_os` e `sentido`."
+            )
+        },
+        "planejamento_gtfs_freshness__viagem_planejada_planejamento": {
+            "description": (
+                "A partição de `viagem_planejada_planejamento` do feed GTFS atualizado "
+                "existe, contém o `feed_start_date` esperado e foi gravada após a "
+                "atualização do feed."
+            )
+        },
     },
 }
