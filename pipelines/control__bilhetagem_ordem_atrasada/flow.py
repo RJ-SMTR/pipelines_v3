@@ -5,7 +5,7 @@ Flow para os processos manuais de ordem atrasada da bilhetagem
 
 from prefect import runtime
 
-from pipelines.capture__jae_integracao import flow as capture__jae_integracao
+from pipelines.capture__jae_integracao.flow import capture__jae_integracao
 from pipelines.capture__jae_ordem_pagamento import constants as ordem_pagamento_constants
 from pipelines.capture__jae_ordem_pagamento.flow import capture__jae_ordem_pagamento
 from pipelines.capture__jae_transacao_ordem.flow import capture__jae_transacao_ordem
@@ -39,10 +39,12 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     timestamp = get_scheduled_timestamp(wait_for=[sentry, setup_env])
 
     await run_subflow(
+        env=env,
         flow=capture__jae_ordem_pagamento,
     )
 
     await run_subflow(
+        env=env,
         flow=capture__jae_ordem_pagamento,
         parameters=[
             {
@@ -53,10 +55,12 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     )
 
     await run_subflow(
+        env=env,
         flow=treatment__financeiro_bilhetagem,
     )
 
     run_ordem_quality_check = await run_subflow(
+        env=env,
         flow=quality_check__ordem_pagamento,
     )
 
@@ -67,11 +71,13 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     )
 
     await run_subflow(
+        env=env,
         flow=capture__jae_integracao,
-        parameters=integracao_capture_params,
+        parameters=[integracao_capture_params],
     )
 
     run_materializacao_integracao = await run_subflow(
+        env=env,
         flow=treatment__integracao,
     )
 
@@ -82,10 +88,12 @@ async def control__bilhetagem_ordem_atrasada(env: str | None = None):
     )
 
     await run_subflow(
+        env=env,
         flow=capture__jae_transacao_ordem,
-        parameters=transacao_ordem_capture_params,
+        parameters=[transacao_ordem_capture_params],
     )
 
     await run_subflow(
+        env=env,
         flow=treatment__transacao_ordem,
     )
