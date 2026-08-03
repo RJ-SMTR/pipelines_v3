@@ -23,9 +23,11 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    {% set modified_partitions = get_modified_partitions_filter(viagem_informada) %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        viagem_informada, truncate_date=true
+    ) %}
     {% set context_partitions = get_modified_partitions_filter(
-        viagem_informada, include_adjacent=true
+        viagem_informada, include_adjacent=true, truncate_date=true
     ) %}
 {% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
 {% endif %}

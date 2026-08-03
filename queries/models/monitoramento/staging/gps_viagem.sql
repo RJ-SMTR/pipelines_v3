@@ -13,7 +13,9 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() %}
-    {% set partitions = get_modified_partitions_filter(viagem_informada) %}
+    {% set partitions = get_modified_partitions_filter(
+        viagem_informada, truncate_date=true
+    ) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 

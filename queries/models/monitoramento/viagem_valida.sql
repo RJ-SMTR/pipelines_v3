@@ -23,7 +23,9 @@
 
 {% set viagem_validacao = ref("viagem_validacao") %}
 {% if execute and is_incremental() %}
-    {% set partitions = get_modified_partitions_filter(viagem_validacao) %}
+    {% set partitions = get_modified_partitions_filter(
+        viagem_validacao, truncate_date=true
+    ) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 
