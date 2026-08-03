@@ -26,6 +26,10 @@ COPY ./pipelines/treatment__integracao ./pipelines/treatment__integracao/
 
 COPY ./pipelines/treatment__transacao_ordem ./pipelines/treatment__transacao_ordem/
 
+COPY ./pipelines/quality_check__ordem_pagamento ./pipelines/quality_check__ordem_pagamento/
+
+COPY ./pipelines/treatment__financeiro_bilhetagem ./pipelines/treatment__financeiro_bilhetagem/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 
