@@ -124,7 +124,5 @@ join
     and g.id_veiculo = v.id_veiculo
     and g.fornecedor = v.fonte_gps
 {% if not is_incremental() %}
-    where
-        v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
-        and v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    where v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}
