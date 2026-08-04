@@ -111,6 +111,8 @@ selectors:
           value: viagem_validacao
         - method: fqn
           value: viagem_valida
+        - method: fqn
+          value: view_viagem_monitoramento
         - exclude:
             - method: fqn
               value: gtfs
@@ -131,6 +133,8 @@ selectors:
           value: viagem_valida
         - method: fqn
           value: dicionario_monitoramento
+        - method: fqn
+          value: view_viagem_onibus_datario
 
   - name: planejamento_diario
     description: Materialização das tabelas de planejamento que devem rodar diariamente
@@ -680,41 +684,41 @@ selectors:
       backfills executam apenas stagings e históricos, sem regredir o
       estado atual.
     definition:
-       union:
-          - method: fqn
-            value: staging_agente_verificacao_riorotativo
-          - method: fqn
-            value: staging_area_estacionamento_riorotativo
-          - method: fqn
-            value: staging_guardador_veiculo_riorotativo
-          - method: fqn
-            value: staging_lista_bloqueio_riorotativo
-          - method: fqn
-            value: staging_perfil_funcionamento_excecao_riorotativo
-          - method: fqn
-            value: staging_perfil_funcionamento_riorotativo
-          - method: fqn
-            value: agente_verificacao_riorotativo
-          - method: fqn
-            value: area_estacionamento_riorotativo
-          - method: fqn
-            value: agente_verificacao_riorotativo_historico
-          - method: fqn
-            value: entidade_credenciadora_riorotativo_historico
-          - method: fqn
-            value: guardador_veiculo_riorotativo
-          - method: fqn
-            value: guardador_veiculo_riorotativo_historico
-          - method: fqn
-            value: perfil_funcionamento_riorotativo
-          - method: fqn
-            value: perfil_funcionamento_riorotativo_historico
-          - method: fqn
-            value: staging_veiculo_cliente_riorotativo
-          - method: fqn
-            value: staging_veiculo_riorotativo
-          - method: fqn
-            value: veiculo_riorotativo
+      union:
+        - method: fqn
+          value: staging_agente_verificacao_riorotativo
+        - method: fqn
+          value: staging_area_estacionamento_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_riorotativo
+        - method: fqn
+          value: staging_lista_bloqueio_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_excecao_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo
+        - method: fqn
+          value: area_estacionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo_historico
+        - method: fqn
+          value: entidade_credenciadora_riorotativo_historico
+        - method: fqn
+          value: guardador_veiculo_riorotativo
+        - method: fqn
+          value: guardador_veiculo_riorotativo_historico
+        - method: fqn
+          value: perfil_funcionamento_riorotativo
+        - method: fqn
+          value: perfil_funcionamento_riorotativo_historico
+        - method: fqn
+          value: staging_veiculo_cliente_riorotativo
+        - method: fqn
+          value: staging_veiculo_riorotativo
+        - method: fqn
+          value: veiculo_riorotativo
 
   - name: snapshot_riorotativo_auxiliar
     description: >
