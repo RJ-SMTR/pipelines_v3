@@ -5,6 +5,7 @@ with
         select
             data,
             consorcio,
+            "Ônibus SPPO" as modo,
             tipo_dia,
             id_empresa,
             id_veiculo,
@@ -26,6 +27,7 @@ with
         select
             data,
             consorcio,
+            modo,
             tipo_dia,
             regexp_extract(upper(id_veiculo), r"^[A-Z]([0-9]{3})") as id_empresa,
             id_veiculo,
