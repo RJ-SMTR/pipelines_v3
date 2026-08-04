@@ -5,7 +5,7 @@
 }}
 
 with
-    viagens_legado as (
+    viagem_completa as (
         select
             id_viagem,
             data,
@@ -27,7 +27,7 @@ with
         from {{ ref("viagem_completa") }}
         where date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
-    viagens_nova_arquitetura as (
+    viagem_inferida as (
         select
             id_viagem,
             data,
@@ -50,7 +50,7 @@ with
         where date(datetime_partida) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
 select *
-from viagens_legado
-union all
+from viagem_completa
+union all by name
 select *
-from viagens_nova_arquitetura
+from viagem_inferida

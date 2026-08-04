@@ -27,7 +27,9 @@
 
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    {% set partitions = get_modified_partitions_filter(viagem_informada) %}
+    {% set partitions = get_modified_partitions_filter(
+        viagem_informada, truncate_date=true
+    ) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
 
@@ -41,6 +43,7 @@
             '{{ var("date_range_end") }}'
         )
     {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -61,13 +64,7 @@ with
     /*
     Dados do calendário com informações sobre feeds do GTFS, tipos de dia e service_ids
     */
-    calendario as (
-        select *
-        from {{ calendario }}
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-            where {{ incremental_filter }}
-        {% endif %}
-    ),
+    calendario as (select * from {{ calendario }} where {{ incremental_filter }}),
     /*
     Relacionamento entre dados do GPS das viagens e feed do GTFS
     */
@@ -89,9 +86,7 @@ with
         {% else %} from {{ ref("gps_viagem") }} gv
         {% endif %}
         join calendario c using (data)
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-            where {{ incremental_filter }}
-        {% endif %}
+        where {{ incremental_filter }}
     ),
     /*
     Dados dos segmentos dos shapes
@@ -492,5 +487,5 @@ select
 from segmento_com_datetime v
 left join servico_convergente s using (id_viagem)
 {% if not is_incremental() and var("tipo_materializacao") != "monitoramento" %}
-    where v.data <= date_sub(current_date("America/Sao_Paulo"), interval 2 day)
+    where v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}
