@@ -64,13 +64,7 @@ with
     /*
     Dados do calendário com informações sobre feeds do GTFS, tipos de dia e service_ids
     */
-    calendario as (
-        select *
-        from {{ calendario }}
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-            where {{ incremental_filter }}
-        {% endif %}
-    ),
+    calendario as (select * from {{ calendario }} where {{ incremental_filter }}),
     /*
     Relacionamento entre dados do GPS das viagens e feed do GTFS
     */
@@ -92,9 +86,7 @@ with
         {% else %} from {{ ref("gps_viagem") }} gv
         {% endif %}
         join calendario c using (data)
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-            where {{ incremental_filter }}
-        {% endif %}
+        where {{ incremental_filter }}
     ),
     /*
     Dados dos segmentos dos shapes
