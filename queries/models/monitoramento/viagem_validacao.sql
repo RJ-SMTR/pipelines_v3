@@ -43,7 +43,6 @@
             date('{{ var("date_range_start") }}'), interval 1 day
         ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
     {% endif %}
-    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set output_filter %}
@@ -57,7 +56,6 @@
             '{{ var("date_range_end") }}'
         )
     {% endif %}
-    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -244,7 +242,8 @@ with
             quilometragem,
             faixa_horaria_inicio,
             faixa_horaria_fim,
-            trip_info
+            trip_info,
+            trajetos_alternativos
         from {{ ref("servico_planejado_faixa_horaria") }}
         {# from `rj-smtr`.`planejamento`.`servico_planejado_faixa_horaria` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
@@ -252,7 +251,8 @@ with
         {% endif %}
     ),
     /*
-    Desaninhamento da informação do shape_id e indicador_trajeto_alternativo do array trip_info
+    Desaninhamento do shape_id e indicador_trajeto_alternativo dos arrays
+    trip_info (trajeto principal) e trajetos_alternativos
     */
     servico_planejado_unnested as (
         select distinct
@@ -268,6 +268,22 @@ with
             trip.indicador_trajeto_alternativo
         from servico_planejado sp, unnest(sp.trip_info) as trip
         where trip.shape_id is not null
+
+        union all
+
+        select distinct
+            sp.data,
+            sp.servico,
+            sp.consorcio,
+            sp.sentido,
+            alt.extensao,
+            sp.quilometragem,
+            sp.faixa_horaria_inicio,
+            sp.faixa_horaria_fim,
+            alt.shape_id,
+            true as indicador_trajeto_alternativo
+        from servico_planejado sp, unnest(sp.trajetos_alternativos) as alt
+        where alt.shape_id is not null
     ),
     /*
     Verifica se o serviço está planejado na OS e calcula a velocidade média da viagem
