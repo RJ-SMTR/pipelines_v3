@@ -251,17 +251,61 @@ with
                 from filtro_desvio
             )
         where rn = 1
+    ),
+    -- 5. Filtra viagens com chegada diferente pela maior distancia planejada
+    filtro_chegada as (
+        select * except (rn)
+        from
+            (
+                select
+                    *,
+                    row_number() over (
+                        partition by id_veiculo, datetime_chegada
+                        order by distancia_planejada desc, id_tipo_trajeto
+                    ) as rn
+                from filtro_partida
+            )
+        where rn = 1
+    ),
+    -- 6. Desempata viagens sobrepostas (partida/chegada nao identicas) do mesmo
+    -- veiculo, apos partida/chegada. Mesma regra do PR #363: maior
+    -- distancia_planejada e, em empate, menor id_tipo_trajeto (regular antes de
+    -- alternativo). Se ambos forem alternativos, permanece a escolha por distancia.
+    filtro_sobreposicao as (
+        select v1.* except (id_tipo_trajeto)
+        from filtro_chegada v1
+        left join
+            filtro_chegada v2
+            on v1.id_veiculo = v2.id_veiculo
+            and v1.data between date_sub(v2.data, interval 1 day) and date_add(
+                v2.data, interval 1 day
+            )
+            and v1.id_viagem != v2.id_viagem
+            and datetime_diff(
+                least(v1.datetime_chegada, v2.datetime_chegada),
+                greatest(v1.datetime_partida, v2.datetime_partida),
+                second
+            )
+            > 0
+            and (
+                v2.distancia_planejada > v1.distancia_planejada
+                or (
+                    v2.distancia_planejada = v1.distancia_planejada
+                    and v2.id_tipo_trajeto < v1.id_tipo_trajeto
+                )
+                or (
+                    v2.distancia_planejada = v1.distancia_planejada
+                    and v2.id_tipo_trajeto = v1.id_tipo_trajeto
+                    and v2.perc_conformidade_shape > v1.perc_conformidade_shape
+                )
+                or (
+                    v2.distancia_planejada = v1.distancia_planejada
+                    and v2.id_tipo_trajeto = v1.id_tipo_trajeto
+                    and v2.perc_conformidade_shape = v1.perc_conformidade_shape
+                    and v2.datetime_partida < v1.datetime_partida
+                )
+            )
+        where v2.id_viagem is null
     )
--- filtro_chegada
-select * except (rn, id_tipo_trajeto)
-from
-    (
-        select
-            *,
-            row_number() over (
-                partition by id_veiculo, datetime_chegada
-                order by distancia_planejada desc, id_tipo_trajeto
-            ) as rn
-        from filtro_partida
-    )
-where rn = 1
+select *
+from filtro_sobreposicao
