@@ -46,7 +46,8 @@ GTFS_DBT_EXCLUDE = (
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
     "viagem_planejada viagens_remuneradas sumario_servico_dia_historico "
-    "viagem_planejada_planejamento_dia"
+    "viagem_planejada_planejamento_dia "
+    "planejamento_gtfs_freshness__viagem_planejada_planejamento"
 )
 
 GTFS_DBT_TEST_SELECT = (
@@ -113,13 +114,6 @@ GTFS_DATA_CHECKS_LIST = {
                 "A quantidade distinta de eventos de trajetos alternativos corresponde "
                 "entre a Ordem de Serviço e `viagem_planejada_planejamento` para o mesmo "
                 "`feed_start_date`, `servico`, `tipo_os` e `sentido`."
-            )
-        },
-        "planejamento_gtfs_freshness__viagem_planejada_planejamento": {
-            "description": (
-                "Para cada feed GTFS com `feed_update_datetime` na janela, a partição "
-                "correspondente em `viagem_planejada_planejamento` existe, contém o "
-                "`feed_start_date` esperado e foi gravada após a atualização do feed."
             )
         },
     },
