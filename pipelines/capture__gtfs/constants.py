@@ -111,9 +111,9 @@ GTFS_DATA_CHECKS_LIST = {
         },
         "planejamento_gtfs_freshness__viagem_planejada_planejamento": {
             "description": (
-                "A partição de `viagem_planejada_planejamento` do feed GTFS atualizado "
-                "existe, contém o `feed_start_date` esperado e foi gravada após a "
-                "atualização do feed."
+                "Para cada feed GTFS com `feed_update_datetime` na janela, a partição "
+                "correspondente em `viagem_planejada_planejamento` existe, contém o "
+                "`feed_start_date` esperado e foi gravada após a atualização do feed."
             )
         },
     },

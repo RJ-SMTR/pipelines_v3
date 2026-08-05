@@ -24,8 +24,9 @@ PLANEJAMENTO_DIARIO_CHECKS_LIST = {
         },
         "planejamento_gtfs_freshness__viagem_planejada_planejamento_dia": {
             "description": (
-                "As partições diárias da vigência do último feed GTFS atualizado "
-                "existem, contêm o `feed_start_date` esperado e foram gravadas após a "
+                "Para cada feed GTFS com `feed_update_datetime` na janela, as partições "
+                "diárias da vigência em `viagem_planejada_planejamento_dia` existem, "
+                "contêm o `feed_start_date` esperado e foram gravadas após a "
                 "atualização do feed."
             )
         },

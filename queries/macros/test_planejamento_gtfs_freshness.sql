@@ -1,19 +1,20 @@
 {% test planejamento_gtfs_freshness(model, partition_column, model_relation) -%}
     with
-        feed_mais_recentemente_atualizado as (
+        feeds_atualizados as (
             select feed_start_date, feed_end_date, feed_update_datetime
             from {{ ref("feed_info_gtfs") }}
-            qualify
-                row_number() over (
-                    order by feed_update_datetime desc, feed_start_date desc
+            where
+                date(
+                    feed_update_datetime
+                ) between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
                 )
-                = 1
         ),
         particoes_esperadas as (
             {% if partition_column == "data" %}
                 select data as partition_date, feed_start_date, feed_update_datetime
                 from
-                    feed_mais_recentemente_atualizado,
+                    feeds_atualizados,
                     unnest(
                         generate_date_array(
                             feed_start_date,
@@ -34,52 +35,42 @@
                     feed_start_date as partition_date,
                     feed_start_date,
                     feed_update_datetime
-                from feed_mais_recentemente_atualizado
+                from feeds_atualizados
             {% endif %}
-        ),
-        limites as (
-            select min(partition_date) as data_inicio, max(partition_date) as data_fim
-            from particoes_esperadas
         ),
         particoes_modelo as (
             select distinct {{ partition_column }} as partition_date, feed_start_date
             from {{ model }}
             where
-                {{ partition_column }} between (select data_inicio from limites) and (
-                    select data_fim from limites
-                )
+                {{ partition_column }}
+                in (select partition_date from particoes_esperadas)
         ),
         metadados_particoes as (
             select
                 parse_date("%Y%m%d", partition_id) as partition_date,
-                max(
-                    datetime(last_modified_time, "America/Sao_Paulo")
+                datetime(
+                    last_modified_time, "America/Sao_Paulo"
                 ) as partition_update_datetime
             from
                 `{{ model_relation.database }}.{{ model_relation.schema }}.INFORMATION_SCHEMA.PARTITIONS`
             where
                 table_name = "{{ model_relation.identifier }}"
                 and partition_id not in ("__NULL__", "__UNPARTITIONED__")
-                and parse_date(
-                    "%Y%m%d",
-                    partition_id
-                ) between (select data_inicio from limites) and (
-                    select data_fim from limites
-                )
-            group by 1
+                and parse_date("%Y%m%d", partition_id)
+                in (select partition_date from particoes_esperadas)
         )
     select
         e.partition_date,
         e.feed_start_date as feed_start_date_esperado,
         e.feed_update_datetime,
-        m.partition_update_datetime,
-        countif(p.feed_start_date = e.feed_start_date) as registros_feed_esperado
+        m.partition_update_datetime
     from particoes_esperadas as e
-    left join particoes_modelo as p using (partition_date)
-    left join metadados_particoes as m using (partition_date)
-    group by 1, 2, 3, 4
-    having
-        registros_feed_esperado = 0
-        or partition_update_datetime is null
-        or partition_update_datetime < feed_update_datetime
+    left join
+        particoes_modelo as p
+        on e.partition_date = p.partition_date
+        and e.feed_start_date = p.feed_start_date
+    left join metadados_particoes as m on e.partition_date = m.partition_date
+    where
+        p.feed_start_date is null
+        or m.partition_update_datetime < e.feed_update_datetime
 {%- endtest %}
