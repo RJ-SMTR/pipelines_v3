@@ -49,6 +49,12 @@ GTFS_DBT_TEST_EXCLUDE = (
     "viagem_planejada_planejamento_dia"
 )
 
+GTFS_DBT_TEST_SELECT = (
+    f"{GTFS_MATERIALIZACAO_DATASET_ID} "
+    f"{PLANEJAMENTO_MATERIALIZACAO_DATASET_ID} "
+    "test_consistencia_servicos_ordem_servico_gtfs"
+)
+
 GTFS_DATA_CHECKS_LIST = {
     "calendar_gtfs": {
         "dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs": {
@@ -116,5 +122,12 @@ GTFS_DATA_CHECKS_LIST = {
                 "`feed_start_date` esperado e foi gravada após a atualização do feed."
             )
         },
+    },
+    "test_consistencia_servicos_ordem_servico_gtfs": {
+        "description": (
+            "Todos os serviços presentes na Ordem de Serviço possuem trips, e cada "
+            "trip possui frequencies ou stop_times com stop_sequence = 0 para gerar "
+            "viagens planejadas."
+        )
     },
 }
