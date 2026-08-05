@@ -4,8 +4,8 @@
 
 ### Adicionado
 
-- Adiciona testes `dbt_expectations.expect_table_aggregation_to_equal_other_table` para os trajetos alternativos em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia`
-- Adiciona o teste `planejamento_gtfs_freshness` para validar que feeds GTFS com `feed_update_datetime` na janela foram materializados em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` com o `feed_start_date` esperado e partição gravada após a atualização do feed
+- Adiciona testes `dbt_expectations.expect_table_aggregation_to_equal_other_table` para os trajetos alternativos em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona o teste `planejamento_gtfs_freshness` para validar que feeds GTFS com `feed_update_datetime` na janela foram materializados em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` com o `feed_start_date` esperado e partição gravada após a atualização do feed (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
 
 ## [1.8.4] - 2026-07-31
 

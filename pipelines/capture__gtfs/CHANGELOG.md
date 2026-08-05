@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona ao pós-teste do GTFS as validações de trajetos alternativos e de freshness de `viagem_planejada_planejamento`.
+- Adiciona ao pós-teste do GTFS a validação de trajetos alternativos de `viagem_planejada_planejamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
 
 ## [1.2.2] - 2026-07-31
 
