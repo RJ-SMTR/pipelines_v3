@@ -67,11 +67,13 @@ with
             consorcio,
             sentido,
             extensao,
-            trip_info
+            faixa_horaria_inicio,
+            trip_info,
+            trajetos_alternativos
         from {{ ref("servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }}
     ),
-    servico_planejado_unnested as (
+    servico_planejado_expandido as (
         select
             sp.data,
             sp.feed_version,
@@ -83,12 +85,43 @@ with
             trip.trip_id,
             trip.route_id,
             trip.shape_id,
-        from servico_planejado sp, unnest(sp.trip_info) as trip
+            trip.primeiro_horario as horario_ordenacao
+        from servico_planejado as sp, unnest(sp.trip_info) as trip
         where trip.shape_id is not null
+
+        union all
+
+        select
+            sp.data,
+            sp.feed_version,
+            sp.feed_start_date,
+            sp.servico,
+            sp.consorcio,
+            sp.sentido,
+            alt.extensao,
+            alt.trip_id,
+            sp.trip_info[safe_offset(0)].route_id,
+            alt.shape_id,
+            sp.faixa_horaria_inicio as horario_ordenacao
+        from servico_planejado as sp, unnest(sp.trajetos_alternativos) as alt
+        where alt.shape_id is not null
+    ),
+    servico_planejado_unnested as (
+        select
+            data,
+            feed_version,
+            feed_start_date,
+            servico,
+            consorcio,
+            sentido,
+            extensao,
+            trip_id,
+            route_id,
+            shape_id,
+        from servico_planejado_expandido
         qualify
             row_number() over (
-                partition by sp.data, trip.route_id, trip.shape_id
-                order by trip.primeiro_horario
+                partition by data, route_id, shape_id order by horario_ordenacao
             )
             = 1
     ),
