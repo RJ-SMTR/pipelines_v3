@@ -329,11 +329,24 @@ models:
               - if(left(sentido, 1) = 'V', 'V', 'I')
             row_condition: "1=1"
             compare_row_condition: >
-              feed_start_date in (
-                select distinct feed_start_date
+              struct(
+                feed_start_date,
+                servico,
+                tipo_os,
+                if(left(sentido, 1) = 'V', 'V', 'I')
+              ) in (
+                select as struct
+                  feed_start_date,
+                  servico,
+                  tipo_os,
+                  if(sentido = 'V', 'V', 'I')
                 from {{ ref("viagem_planejada_planejamento_dia") }}
-                where data between date('{{ var("date_range_start") }}')
-                  and date_add(date('{{ var("date_range_end") }}'), interval 2 day)
+                where
+                  data between date('{{ var("date_range_start") }}')
+                  and date_add(
+                    date('{{ var("date_range_end") }}'),
+                    interval 2 day
+                  )
               )
               and feed_start_date >= date('{{ var("DATA_GTFS_V5_INICIO") }}')
       - planejamento_gtfs_freshness:

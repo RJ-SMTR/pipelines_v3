@@ -19,8 +19,8 @@ PLANEJAMENTO_DIARIO_CHECKS_LIST = {
                 "A quantidade distinta de eventos de trajetos alternativos corresponde "
                 "entre a Ordem de Serviço e `viagem_planejada_planejamento_dia` para o "
                 "mesmo `feed_start_date`, `servico`, `tipo_os` e `sentido`, considerando "
-                "todas as combinações da Ordem de Serviço dos feeds presentes na janela "
-                "diária, inclusive as ausentes no planejamento."
+                "apenas as combinações presentes nas viagens planejadas da janela "
+                "diária."
             )
         },
         "planejamento_gtfs_freshness__viagem_planejada_planejamento_dia": {
