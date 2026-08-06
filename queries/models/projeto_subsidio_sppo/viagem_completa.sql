@@ -269,10 +269,10 @@ with
             )
         where rn = 1
     ),
-    -- 6. Desempata viagens sobrepostas (partida/chegada nao identicas) do mesmo
-    -- veiculo, apos partida/chegada. Mesma regra do PR #363: maior
-    -- distancia_planejada e, em empate, menor id_tipo_trajeto (regular antes de
-    -- alternativo). Se ambos forem alternativos, permanece a escolha por distancia.
+    -- 6. Atribui prioridade às viagens do mesmo veículo no dia para uso no
+    -- filtro_sobreposicao: maior perc_conformidade_shape, depois menor
+    -- id_tipo_trajeto (regular antes de alternativo), depois maior
+    -- distancia_planejada e, por fim, datetime_partida mais cedo.
     filtro_priorizado as (
         select
             *,
