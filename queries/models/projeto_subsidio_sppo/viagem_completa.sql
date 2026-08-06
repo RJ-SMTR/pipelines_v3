@@ -12,7 +12,9 @@
 {% set incremental_filter %}
     data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     {% if is_incremental() %}
-        and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+        and data between date_sub(date('{{ var("run_date") }}'), interval 2 day) and date_sub(
+            date('{{ var("run_date") }}'), interval 1 day
+        )
     {% endif %}
 {% endset %}
 
@@ -271,15 +273,26 @@ with
     -- veiculo, apos partida/chegada. Mesma regra do PR #363: maior
     -- distancia_planejada e, em empate, menor id_tipo_trajeto (regular antes de
     -- alternativo). Se ambos forem alternativos, permanece a escolha por distancia.
+    filtro_priorizado as (
+        select
+            *,
+            row_number() over (
+                partition by data, id_veiculo
+                order by
+                    perc_conformidade_shape desc,
+                    id_tipo_trajeto,
+                    distancia_planejada desc,
+                    datetime_partida
+            ) as prioridade
+        from filtro_chegada
+    ),
     filtro_sobreposicao as (
-        select v1.* except (id_tipo_trajeto)
-        from filtro_chegada v1
+        select v1.* except (id_tipo_trajeto, prioridade)
+        from filtro_priorizado as v1
         left join
-            filtro_chegada v2
+            filtro_priorizado as v2
             on v1.id_veiculo = v2.id_veiculo
-            and v1.data between date_sub(v2.data, interval 1 day) and date_add(
-                v2.data, interval 1 day
-            )
+            and v2.data in (v1.data, date_sub(v1.data, interval 1 day))
             and v1.id_viagem != v2.id_viagem
             and datetime_diff(
                 least(v1.datetime_chegada, v2.datetime_chegada),
@@ -288,24 +301,13 @@ with
             )
             > 0
             and (
-                v2.distancia_planejada > v1.distancia_planejada
-                or (
-                    v2.distancia_planejada = v1.distancia_planejada
-                    and v2.id_tipo_trajeto < v1.id_tipo_trajeto
-                )
-                or (
-                    v2.distancia_planejada = v1.distancia_planejada
-                    and v2.id_tipo_trajeto = v1.id_tipo_trajeto
-                    and v2.perc_conformidade_shape > v1.perc_conformidade_shape
-                )
-                or (
-                    v2.distancia_planejada = v1.distancia_planejada
-                    and v2.id_tipo_trajeto = v1.id_tipo_trajeto
-                    and v2.perc_conformidade_shape = v1.perc_conformidade_shape
-                    and v2.datetime_partida < v1.datetime_partida
-                )
+                -- Dia anterior sempre prevalece
+                v2.data < v1.data
+                -- No mesmo dia, prevalece a melhor prioridade
+                or (v2.data = v1.data and v2.prioridade < v1.prioridade)
             )
         where v2.id_viagem is null
     )
 select *
 from filtro_sobreposicao
+where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
