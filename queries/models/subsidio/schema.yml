@@ -127,7 +127,7 @@ models:
     description: "Tabela com classificação de viagens de ônibus [SPPO] baseado no status do veículo e autuações"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_classificada
+          name: dbt_utils__unique_combination_of_columns__viagem_classificada
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V15_INICIO}')"
           arguments:
@@ -220,7 +220,7 @@ models:
     description: "Tabela com classificação de viagens considerando regularidade da temperatura do ar condicionado"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_regularidade_temperatura
+          name: dbt_utils__unique_combination_of_columns__viagem_regularidade_temperatura
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
           arguments:
@@ -252,7 +252,7 @@ models:
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
           - dbt_utils.relationships_where:
-              name: dbt_utils.relationships_where__id_viagem__viagem_regularidade_temperatura
+              name: dbt_utils__relationships_where__id_viagem__viagem_regularidade_temperatura
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}') and data >= date('{DATA_SUBSIDIO_V17_INICIO}')"
               arguments:

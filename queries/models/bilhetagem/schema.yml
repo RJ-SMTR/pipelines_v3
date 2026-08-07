@@ -70,7 +70,7 @@ models:
       - name: documento_operadora
         description: "{{ doc('documento_operadora') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+          - "projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059"
       - name: tipo_documento_operadora
         description: "{{ doc('tipo_documento_operadora') }}"
       - name: id_servico_jae
@@ -115,17 +115,17 @@ models:
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
         data_type: string
       - name: hash_cliente
         description: "Hash identificador do cliente [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691"
         data_type: bytes
       - name: documento_cliente
         description: "{{ doc('documento_cliente') }} que efetuou a transação [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/7422638426341085036'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/7422638426341085036"
         data_type: string
       - name: tipo_documento_cliente
         description: "{{ doc('tipo_documento_cliente') }} que efetuou a transação"
@@ -219,21 +219,18 @@ models:
               name: not_null__id_operadora_jae__transacao
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
-        quote: true
       - name: hash_cartao
         description: "{{ doc('hash_cartao') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
         data_type: string
-        quote: true
       - name: saldo_cartao
         description: "{{ doc('saldo_cartao') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: cadastro_cliente
         description: "{{ doc('cadastro_cliente') }}"
         data_type: string
-        quote: true
       - name: produto
         description: "{{ doc('produto') }}"
         tests:
@@ -242,21 +239,18 @@ models:
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
-        quote: true
       - name: produto_jae
         description: "{{ doc('produto_jae') }}"
         data_type: string
-        quote: true
       - name: tipo_usuario
         description: "{{ doc('tipo_usuario') }}"
         data_type: string
-        quote: true
       - name: subtipo_usuario
         description: "{{ doc('subtipo_usuario') }}"
       - name: subtipo_usuario_protegido
         description: "Subtipo do usuário que efetuou a transação com dados relacionados à saúde [ex.: Ensino Básico Municipal, DC] [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
         data_type: string
       - name: meio_pagamento
         description: "{{ doc('meio_pagamento') }}"
@@ -266,7 +260,6 @@ models:
               config:
                 where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
-        quote: true
       - name: meio_pagamento_jae
         description: "{{ doc('meio_pagamento_jae') }}"
         tests:
@@ -275,25 +268,22 @@ models:
               config:
                 where: tipo_transacao_jae != 'Gratuidade operadora' and data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and id_cliente != '999999999'
         data_type: string
-        quote: true
       - name: id_cre_escola
         description: "{{ doc('id_cre_escola') }} do cliente [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
         data_type: string
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: integracao
     description: "Tabela de integrações realizadas entre modos do sistema de transporte municipal, contendo os valores da repartição tarifária (quando houver). [Dados em fase de teste]"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__integracao
+          name: dbt_utils__unique_combination_of_columns__integracao
           arguments:
             combination_of_columns:
               - id_integracao
@@ -393,11 +383,9 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: transacao_riocard
     description: "Tabela com as transações feitas com RioCard que foram registradas pelo validador da Jaé"
     columns:
@@ -502,7 +490,7 @@ models:
     description: Tabela contendo o valor de cada transação em uma ordem de pagamento
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__transacao_valor_ordem
+          name: dbt_utils__unique_combination_of_columns__transacao_valor_ordem
           config:
             where: data_ordem in ({partitions})
           arguments:
@@ -515,11 +503,9 @@ models:
       - name: data_ordem
         description: "{{ doc('data_transacao') }} [partição]"
         data_type: date
-        quote: true
       - name: data_transacao
         description: "{{ doc('data_transacao') }}"
         data_type: date
-        quote: true
         tests:
           - not_null:
               name: not_null__data_transacao__transacao_valor_ordem
@@ -528,7 +514,6 @@ models:
       - name: id_transacao
         description: "{{ doc('id_transacao') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__id_transacao__transacao_valor_ordem
@@ -537,7 +522,6 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__modo__transacao_valor_ordem
@@ -546,11 +530,9 @@ models:
       - name: consorcio
         description: "{{  doc('consorcio') }}"
         data_type: string
-        quote: true
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__id_operadora__transacao_valor_ordem
@@ -559,7 +541,6 @@ models:
       - name: id_servico_jae
         description: "{{ doc('id_servico_jae') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__id_servico_jae__transacao_valor_ordem
@@ -568,7 +549,6 @@ models:
       - name: valor_transacao_rateio
         description: Valor da transação com o rateio [se houver] (R$)
         data_type: float64
-        quote: true
         tests:
           - not_null:
               name: not_null__valor_transacao_rateio__transacao_valor_ordem
@@ -577,23 +557,18 @@ models:
       - name: id_ordem_pagamento
         description: "{{ doc('id_ordem_pagamento') }}"
         data_type: string
-        quote: true
       - name: id_ordem_pagamento_consorcio_dia
         description: "{{ doc('id_ordem_pagamento_consorcio_dia') }}"
         data_type: string
-        quote: true
       - name: id_ordem_pagamento_consorcio_operador_dia
         description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
         data_type: string
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
 
   - name: passageiro_hora
     description: "Tabela de contagem do número de passageiros por hora."
@@ -638,14 +613,12 @@ models:
       - name: cadastro_cliente
         description: "{{ doc('cadastro_cliente') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__cadastro_cliente__passageiro_hora
       - name: produto
         description: "{{ doc('produto') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__produto__passageiro_hora
@@ -658,15 +631,12 @@ models:
       - name: tipo_usuario
         description: "{{ doc('tipo_usuario') }}"
         data_type: string
-        quote: true
       - name: valor_total_transacao
         description: "Valor total das transações (R$)"
         data_type: float64
-        quote: true
       - name: meio_pagamento
         description: "{{ doc('meio_pagamento') }}"
         data_type: string
-        quote: true
       - name: quantidade_passageiros
         description: "{{ doc('quantidade_passageiros') }}"
       - name: versao
@@ -714,11 +684,9 @@ models:
       - name: cadastro_cliente
         description: "{{ doc('cadastro_cliente') }}"
         data_type: string
-        quote: true
       - name: produto
         description: "{{ doc('produto') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__produto__passageiro_tile_hora
@@ -731,11 +699,9 @@ models:
       - name: tipo_usuario
         description: "{{ doc('tipo_usuario') }}"
         data_type: string
-        quote: true
       - name: meio_pagamento
         description: "{{ doc('meio_pagamento') }}"
         data_type: string
-        quote: true
       - name: tile_id
         description: "Identificador do hexágono da geolocalização da transação na tabela rj-smtr.br_rj_riodejaneiro_geo.h3_res9"
       - name: quantidade_passageiros
@@ -762,62 +728,51 @@ models:
       - name: id_retificacao
         description: Identificador único da retificação
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__id_retificacao__transacao_retificada
       - name: data
         description: "{{ doc('data_transacao') }}"
         data_type: date
-        quote: true
       - name: id_transacao
         description: "{{ doc('id_transacao') }}"
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__id_transacao__transacao_retificada
       - name: tipo_transacao_jae_original
         description: Tipo da transação que estava originalmente na transação
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__tipo_transacao_jae_original__transacao_retificada
       - name: valor_transacao_original
         description: Valor da transação que estava originalmente na transação (R$)
         data_type: float64
-        quote: true
         tests:
           - not_null:
               name: not_null__valor_transacao_original__transacao_retificada
       - name: tipo_transacao_jae_retificada
         description: Novo tipo da transação
         data_type: string
-        quote: true
         tests:
           - not_null:
               name: not_null__tipo_transacao_jae_retificada__transacao_retificada
       - name: valor_transacao_retificada
         description: Novo valor da transação (R$)
         data_type: float64
-        quote: true
         tests:
           - not_null:
               name: not_null__valor_transacao_retificada__transacao_retificada
       - name: datetime_retificacao
         description: Data e hora da retificação da transacao
         data_type: datetime
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true

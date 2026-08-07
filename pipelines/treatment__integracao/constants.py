@@ -18,7 +18,7 @@ INTEGRACAO_DAILY_TEST = DBTTest(
     test_descriptions={
         "integracao": {
             "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "dbt_utils.unique_combination_of_columns__integracao": {
+            "dbt_utils__unique_combination_of_columns__integracao": {
                 "description": "Todos os registros são únicos"
             },
         },

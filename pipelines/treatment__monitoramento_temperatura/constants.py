@@ -21,19 +21,19 @@ MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
     },
     "aux_viagem_temperatura": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__aux_viagem_temperatura": {
+        "dbt_utils__unique_combination_of_columns__aux_viagem_temperatura": {
             "description": "Todos os registros são únicos"
         },
     },
     "aux_veiculo_falha_ar_condicionado": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__aux_veiculo_falha_ar_condicionado": {
+        "dbt_utils__unique_combination_of_columns__aux_veiculo_falha_ar_condicionado": {
             "description": "Todos os registros são únicos"
         },
     },
     "veiculo_regularidade_temperatura_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__veiculo_regularidade_temperatura_dia": {
+        "dbt_utils__unique_combination_of_columns__veiculo_regularidade_temperatura_dia": {
             "description": "Todos os registros são únicos"
         },
     },

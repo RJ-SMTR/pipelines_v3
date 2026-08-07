@@ -34,4 +34,5 @@ def treatment__riorotativo_ordem_pagamento(  # noqa: PLR0913
         force_test_run=force_test_run,
         snapshot_selector=constants.RIOROTATIVO_ORDEM_PAGAMENTO_SNAPSHOT,
         test_webhook_key="alertas_bilhetagem",
+        ingest_openmetadata=True,
     )

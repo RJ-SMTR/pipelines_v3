@@ -5,7 +5,7 @@ models:
     description: "Tabela auxiliar com indicadores de temperatura e validadores por viagem"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__aux_viagem_temperatura
+          name: dbt_utils__unique_combination_of_columns__aux_viagem_temperatura
           arguments:
             combination_of_columns:
               - data

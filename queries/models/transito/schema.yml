@@ -360,7 +360,7 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              name: dbt_expectations.expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__autuacao
+              name: dbt_expectations__expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__autuacao
               arguments:
                 datepart: day
                 interval: 2

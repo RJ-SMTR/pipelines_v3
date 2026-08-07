@@ -158,17 +158,24 @@ models:
         config:
           deprecation_date: 2023-12-31
           description: "Balanço da receita aferida e esperada por servico e dia para serviços-dia subsidiados. Ver metodologia em NOTA TÉCNICA TR/SUBTT Nº 01/2024"
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dbt_utils__unique_combination_of_columns__data_servico__balanco_servico_dia_v1
+              arguments:
+                combination_of_columns:
+                  - data
+                  - servico
       - v: 2
         config:
           alias: balanco_servico_dia
           description: "Balanço da receita aferida e esperada por servico e dia para pares data-serviço subsidiados [Processo.Rio MTR-PRO-2025/18086]"
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__data_servico__balanco_servico_dia
-          arguments:
-            combination_of_columns:
-              - data
-              - servico
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              name: dbt_utils__unique_combination_of_columns__data_servico__balanco_servico_dia_v2
+              arguments:
+                combination_of_columns:
+                  - data
+                  - servico
     columns:
       - name: data
         description: "{{ doc('data') }}"

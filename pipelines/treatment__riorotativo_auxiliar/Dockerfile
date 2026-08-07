@@ -14,8 +14,6 @@ COPY ./pipelines/capture__riorotativo_vagas ./pipelines/capture__riorotativo_vag
 
 COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_riorotativo_auxiliar/
 
-
 COPY ./pipelines/common/ ./pipelines/common/
-
 
 RUN uv sync --all-packages
