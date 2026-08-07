@@ -27,12 +27,8 @@ def preserve_dbt_run_results(
     """Preserva o resultado gerado sem permitir que observabilidade falhe o dbt."""
     try:
         source_path = Path(target_path) / "run_results.json"
-        manifest_source_path = Path(target_path) / "manifest.json"
         if not source_path.exists():
             print("OpenMetadata: comando dbt não gerou run_results.json")
-            return None
-        if not manifest_source_path.exists():
-            print("OpenMetadata: comando dbt não gerou manifest.json")
             return None
 
         run_results = json.loads(source_path.read_text(encoding="utf-8"))
@@ -44,16 +40,11 @@ def preserve_dbt_run_results(
         artifacts_dir = Path(target_path) / "openmetadata" / str(flow_run_id)
         artifacts_dir.mkdir(parents=True, exist_ok=True)
         sequence = len(list(artifacts_dir.glob("run_results_*.json"))) + 1
-        artifact_suffix = f"{sequence:04d}_{invocation_id}.json"
-        run_results_destination = artifacts_dir / f"run_results_{artifact_suffix}"
-        manifest_destination = artifacts_dir / f"manifest_{artifact_suffix}"
-        shutil.copyfile(source_path, run_results_destination)
-        shutil.copyfile(manifest_source_path, manifest_destination)
-        print(
-            "OpenMetadata: artefatos preservados em "
-            f"{run_results_destination} e {manifest_destination}"
-        )
-        return run_results_destination
+        filename = f"run_results_{sequence:04d}_{invocation_id}.json"
+        destination = artifacts_dir / filename
+        shutil.copyfile(source_path, destination)
+        print(f"OpenMetadata: artefato preservado em {destination}")
+        return destination
     except Exception as error:
         print(f"OpenMetadata: falha não fatal ao preservar run_results.json: {error}")
         return None
@@ -133,21 +124,16 @@ def ingest_dbt_artifacts(
             print("OpenMetadata: nenhum run_results.json para ingerir")
             return
 
-        failed_artifact_paths = []
+        manifest_path = artifacts_dir / "manifest.json"
+        shutil.copyfile(Path(target_path) / "manifest.json", manifest_path)
+        failed_run_results_paths = []
         for run_results_path in run_results_paths:
-            manifest_path = run_results_path.with_name(
-                run_results_path.name.replace("run_results_", "manifest_", 1)
-            )
-            if not manifest_path.exists():
-                print(f"OpenMetadata: manifest correspondente ausente para {run_results_path.name}")
-                failed_artifact_paths.append(run_results_path)
-                continue
             if not _run_cli(manifest_path, run_results_path):
-                failed_artifact_paths.extend([manifest_path, run_results_path])
+                failed_run_results_paths.append(run_results_path)
 
-        if failed_artifact_paths:
+        if failed_run_results_paths:
             _upload_artifacts_to_gcs(
-                failed_artifact_paths,
+                [manifest_path, *failed_run_results_paths],
                 env,
                 deployment_name,
                 flow_run_id,

@@ -153,6 +153,9 @@ POST_CHECKS_LIST = {
         "sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento": {
             "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
         },
+        "dbt_utils__expression_is_true__sumario_servico_dia_pagamento": {
+            "description": "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
+        },
     },
     "sumario_faixa_servico_dia_pagamento": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -180,7 +183,7 @@ POST_CHECKS_LIST = {
         "sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_faixa_servico_dia_pagamento": {
             "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
         },
-        "expression_is_true__sumario_faixa_servico_dia_pagamento": {
+        "dbt_utils__expression_is_true__sumario_faixa_servico_dia_pagamento": {
             "description": "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
         },
     },
