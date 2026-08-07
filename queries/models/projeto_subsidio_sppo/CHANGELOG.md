@@ -1,5 +1,16 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.1] - 2026-08-07
+
+### Adicionado
+
+- Adiciona as CTEs `filtro_priorizado` e `filtro_sobreposicao` no modelo `viagem_completa` para eliminar viagens sobrepostas do mesmo veículo, priorizando o dia anterior e, no mesmo dia, a melhor prioridade (`perc_conformidade_shape`, `id_tipo_trajeto`, `distancia_planejada`, `datetime_partida`).
+
+### Alterado
+
+- Altera o filtro incremental de `viagem_completa` para reprocessar 2 dias (`D-2` a `D-1`), necessário ao filtro de sobreposição com o dia anterior.
+- Restaura a CTE `filtro_chegada` no modelo `viagem_completa`.
+
 ## [9.5.0] - 2026-07-27
 
 ### Alterado

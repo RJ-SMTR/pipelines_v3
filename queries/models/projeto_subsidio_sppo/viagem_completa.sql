@@ -1,4 +1,61 @@
 -- depends_on: {{ ref('subsidio_data_versao_efetiva') }}
+{#
+  Seleção gulosa de viagens não sobrepostas por veículo (ranking de prioridade).
+  Implementada em JS porque WITH RECURSIVE não pode ficar aninhado no
+  CREATE TABLE AS (...) gerado pelo materialization incremental do dbt-bigquery.
+#}
+{% set sobreposicao_udf %}
+create temp function seleciona_viagens_sem_sobreposicao(
+    viagens array<
+        struct<
+            id_viagem string,
+            data date,
+            prioridade int64,
+            datetime_partida datetime,
+            datetime_chegada datetime
+        >
+    >
+)
+returns array<string>
+language js as """
+  if (!viagens || !viagens.length) {
+    return [];
+  }
+  const sorted = viagens.slice().sort(function(a, b) {
+    if (a.data < b.data) return -1;
+    if (a.data > b.data) return 1;
+    return Number(a.prioridade) - Number(b.prioridade);
+  });
+  function overlaps(a, b) {
+    var start =
+      a.datetime_partida > b.datetime_partida
+        ? a.datetime_partida
+        : b.datetime_partida;
+    var end =
+      a.datetime_chegada < b.datetime_chegada
+        ? a.datetime_chegada
+        : b.datetime_chegada;
+    // Equivale a datetime_diff(..., second) > 0 (tocar no extremo não conta)
+    return start < end;
+  }
+  var kept = [];
+  for (var i = 0; i < sorted.length; i++) {
+    var v = sorted[i];
+    var conflita = false;
+    for (var j = 0; j < kept.length; j++) {
+      if (overlaps(v, kept[j])) {
+        conflita = true;
+        break;
+      }
+    }
+    if (!conflita) {
+      kept.push(v);
+    }
+  }
+  return kept.map(function(v) { return v.id_viagem; });
+""";
+{% endset %}
+
 {{
     config(
         materialized="incremental",
@@ -6,13 +63,16 @@
         unique_key=["id_viagem"],
         incremental_strategy="insert_overwrite",
         labels={"dashboard": "yes"},
+        sql_header=sobreposicao_udf,
     )
 }}
 
 {% set incremental_filter %}
     data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     {% if is_incremental() %}
-        and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+    and data between date_sub(date('{{ var("run_date") }}'), interval 2 day) and date_sub(
+            date('{{ var("run_date") }}'), interval 1 day
+    )
     {% endif %}
 {% endset %}
 
@@ -251,17 +311,67 @@ with
                 from filtro_desvio
             )
         where rn = 1
-    )
--- filtro_chegada
-select * except (rn, id_tipo_trajeto)
-from
-    (
+    ),
+    -- 5. Filtra viagens com mesma chegada pela maior distancia percorrida
+    filtro_chegada as (
+        select * except (rn)
+        from
+            (
+                select
+                    *,
+                    row_number() over (
+                        partition by id_veiculo, datetime_chegada
+                        order by distancia_planejada desc, id_tipo_trajeto
+                    ) as rn
+                from filtro_partida
+            )
+        where rn = 1
+    ),
+    -- 6. Atribui prioridade às viagens do mesmo veículo no dia para uso no
+    -- filtro_sobreposicao: maior perc_conformidade_shape, depois menor
+    -- id_tipo_trajeto (regular antes de alternativo), depois maior
+    -- distancia_planejada e, por fim, datetime_partida mais cedo.
+    filtro_priorizado as (
         select
             *,
             row_number() over (
-                partition by id_veiculo, datetime_chegada
-                order by distancia_planejada desc, id_tipo_trajeto
-            ) as rn
-        from filtro_partida
+                partition by data, id_veiculo
+                order by
+                    perc_conformidade_shape desc,
+                    id_tipo_trajeto,
+                    distancia_planejada desc,
+                    datetime_partida
+            ) as prioridade
+        from filtro_chegada
+    ),
+    -- 7. Seleção gulosa por veículo (estilo Weighted Interval Scheduling por
+    -- ranking): dia anterior primeiro, depois melhor prioridade; aceita só se
+    -- não sobrepõe nenhuma já aceita. Evita o bug do anti-join em que B
+    -- (depois eliminada) remove C mesmo quando A e C não se sobrepõem.
+    filtro_sobreposicao as (
+        select v.* except (id_tipo_trajeto, prioridade)
+        from filtro_priorizado as v
+        inner join
+            (
+                select
+                    id_veiculo,
+                    seleciona_viagens_sem_sobreposicao(
+                        array_agg(
+                            struct(
+                                id_viagem,
+                                data,
+                                prioridade,
+                                datetime_partida,
+                                datetime_chegada
+                            )
+                        )
+                    ) as ids_aceitos
+                from filtro_priorizado
+                group by id_veiculo
+            ) as a
+            on v.id_veiculo = a.id_veiculo
+            and v.id_viagem in unnest(a.ids_aceitos)
     )
-where rn = 1
+
+select *
+from filtro_sobreposicao
