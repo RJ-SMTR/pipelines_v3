@@ -94,7 +94,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         env:
           OPENMETADATA_JWT_TOKEN: ${{ secrets.OPENMETADATA_JWT_TOKEN }}
-          OPENMETADATA_SERVICE_NAME: ${{ vars.OPENMETADATA_SERVICE_NAME }}
+          OPENMETADATA_SERVICE_NAME: ${{ secrets.OPENMETADATA_SERVICE_NAME }}
           OPENMETADATA_DBT_MANIFEST_PATH: ${{ github.workspace }}/queries/target/manifest.json
           OPENMETADATA_DBT_CATALOG_PATH: ${{ github.workspace }}/queries/target/catalog.json
         run: |
