@@ -20,7 +20,7 @@ dependencies = [
     "prefect==3.7.1",
     "prefect-dbt==0.7.21",
     "psycopg2-binary>=2.9.10",
-    "pydantic>=2.0,<3.0",
+    "pydantic==2.7.4",
     "pymysql>=1.1.1",
     "sentry-sdk>=2.53.0",
     "shandy-sqlfmt[jinjafmt]>=0.29.0",
