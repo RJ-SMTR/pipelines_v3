@@ -1,5 +1,11 @@
 # Changelog - datario
 
+## [1.0.5] - 2026-08-06
+
+### Alterado
+
+- Amplia `view_viagem_onibus_datario` com `servico_informado`, `servico_realizado`, `vista`, `inicio_periodo` e `fim_periodo` para atender painéis públicos; no pós-V25, obtém `vista` de `ordem_servico_trips_shapes_gtfs` por `feed_start_date` e `shape_id`, mantendo os períodos nulos
+
 ## [1.0.4] - 2026-07-27
 
 ### Alterado
