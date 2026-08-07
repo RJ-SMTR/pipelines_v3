@@ -32,6 +32,11 @@ models:
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
         quote: true
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations.expect_column_values_to_match_regex__numero_identificacao__staging_guardador_veiculo_riorotativo
+              arguments:
+                regex: "^[0-9]+$"
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
