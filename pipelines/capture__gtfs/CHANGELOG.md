@@ -1,5 +1,11 @@
 # Changelog - capture__gtfs
 
+## [1.3.0] - 2026-08-03
+
+### Adicionado
+
+- Adiciona ao pós-teste do GTFS a validação de trajetos alternativos de `viagem_planejada_planejamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
 ## [1.2.2] - 2026-07-31
 
 ### Alterado

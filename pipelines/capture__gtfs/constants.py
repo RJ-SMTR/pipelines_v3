@@ -46,7 +46,14 @@ GTFS_DBT_EXCLUDE = (
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
     "viagem_planejada viagens_remuneradas sumario_servico_dia_historico "
-    "viagem_planejada_planejamento_dia"
+    "viagem_planejada_planejamento_dia "
+    "planejamento_gtfs_freshness__viagem_planejada_planejamento"
+)
+
+GTFS_DBT_TEST_SELECT = (
+    f"{GTFS_MATERIALIZACAO_DATASET_ID} "
+    f"{PLANEJAMENTO_MATERIALIZACAO_DATASET_ID} "
+    "test_consistencia_servicos_ordem_servico_gtfs"
 )
 
 GTFS_DATA_CHECKS_LIST = {
@@ -102,5 +109,19 @@ GTFS_DATA_CHECKS_LIST = {
         "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento": {
             "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
         },
+        "dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento": {
+            "description": (
+                "A quantidade distinta de eventos de trajetos alternativos corresponde "
+                "entre a Ordem de Serviço e `viagem_planejada_planejamento` para o mesmo "
+                "`feed_start_date`, `servico`, `tipo_os` e `sentido`."
+            )
+        },
+    },
+    "test_consistencia_servicos_ordem_servico_gtfs": {
+        "description": (
+            "Todos os serviços presentes na Ordem de Serviço possuem trips, e cada "
+            "trip possui frequencies ou stop_times com stop_sequence = 0 para gerar "
+            "viagens planejadas."
+        )
     },
 }
