@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.1] - 2026-08-05
+
+### Alterado
+
+- Altera o modelo `viagem_completa` para desempatar viagens sobrepostas do mesmo veículo (com partida/chegada não idênticas), aplicando a mesma regra do PR #363: maior `distancia_planejada` e, em empate, menor `id_tipo_trajeto` (regular antes de alternativo).
+
 ## [9.5.0] - 2026-07-27
 
 ### Alterado
