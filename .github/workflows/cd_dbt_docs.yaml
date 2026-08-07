@@ -14,8 +14,8 @@ env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCS_BUCKET_NAME: rj-smtr-public
   GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
-  OPENMETADATA_HOST_PORT: https://metadata.mobilidade.rio/api
-  OPENMETADATA_INGESTION_VERSION: 1.13.1.0
+  OPENMETADATA_HOST_PORT: https://openmetadata.mobilidade.rio/api
+  OPENMETADATA_INGESTION_VERSION: 1.13.3.0
 
 jobs:
   generate-and-upload-docs:

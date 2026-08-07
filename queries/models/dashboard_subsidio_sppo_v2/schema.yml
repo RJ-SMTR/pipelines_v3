@@ -98,7 +98,7 @@ models:
               - faixa_horaria_inicio
               - sentido
       - dbt_utils.expression_is_true:
-          name: expression_is_true__sumario_faixa_servico_dia_pagamento
+          name: dbt_utils__expression_is_true__sumario_faixa_servico_dia_pagamento
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
@@ -306,7 +306,7 @@ models:
               - data
               - servico
       - dbt_utils.expression_is_true:
-          name: expression_is_true__sumario_servico_dia_pagamento
+          name: dbt_utils__expression_is_true__sumario_servico_dia_pagamento
           arguments:
             expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:

@@ -5,7 +5,7 @@ from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import task
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
@@ -324,13 +324,20 @@ def task_dbt_selector_test_notify_discord(
 @task(cache_policy=NO_CACHE)
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
+    save_redis: Optional[bool] = True,
 ):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+        save_redis (Optional[bool]): Se True, atualiza o checkpoint; se False, preserva;
+            se None, decide pela origem agendada da flow run.
     """
+    if not (save_redis if save_redis is not None else "auto-scheduled" in runtime.flow_run.tags):
+        print("Checkpoint de materialização no Redis preservado")
+        return
+
     for context in contexts:
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end

@@ -25,7 +25,7 @@ models:
         data_type: string
       - name: trip_id
         description: "{{ doc('trip_id') }}"
-        data_type: int64
+        data_type: string
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
@@ -89,32 +89,35 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-      - name: id_veiculo
-        description: "{{ doc('id_veiculo') }}"
-        data_type: string
-      - name: trip_id
-        description: "{{ doc('trip_id') }}"
-        data_type: int64
-      - name: route_id
-        description: "{{ doc('route_id') }}"
-        data_type: string
-      - name: shape_id
-        description: "{{ doc('shape_id') }}"
-        data_type: string
-      - name: servico
-        description: "{{ doc('servico') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
         data_type: string
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: int64
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
       - name: sentido
         description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
         data_type: string
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
       - name: velocidade_media
-        description: "Velocidade média da viagem (km/h)"
+        description: "{{ doc('velocidade_media_viagem') }}"
         data_type: float64
       - name: quantidade_segmentos_considerados
         description: "Quantidade de segmentos considerados na validação"
@@ -128,8 +131,8 @@ models:
       - name: indice_validacao
         description: "{{ doc('indice_validacao') }}"
         data_type: float64
-      - name: indicador_viagem_sobreposta
-        description: "{{ doc('indicador_viagem_sobreposta') }}"
+      - name: indicador_viagem_nao_sobreposta
+        description: "{{ doc('indicador_viagem_nao_sobreposta') }}"
         data_type: boolean
       - name: indicador_trajeto_valido
         description: "Indica se o veículo cumpriu o trajeto [quantidade_segmentos_validos >= quantidade_segmentos_necessarios]"
@@ -146,11 +149,11 @@ models:
       - name: indicador_ultimo_segmento_valido
         description: "{{ doc('indicador_ultimo_segmento_valido') }}"
         data_type: boolean
-      - name: indicador_servico_divergente
-        description: "{{ doc('indicador_servico_divergente') }}"
+      - name: indicador_servico_convergente
+        description: "{{ doc('indicador_servico_convergente') }}"
         data_type: boolean
-      - name: indicador_shape_invalido
-        description: "Indica se o shape existe no GTFS no feed vigente durante a data da viagem"
+      - name: indicador_shape_valido
+        description: "{{ doc('indicador_shape_valido') }}"
         data_type: boolean
       - name: indicador_campos_obrigatorios
         description: "Indica se os campos obrigatórios para validação da viagem estão preenchidos corretamente"
@@ -161,14 +164,14 @@ models:
       - name: indicador_trajeto_alternativo
         description: "Indica se o shape é um trajeto alternativo"
         data_type: boolean
-      - name: indicador_acima_velocidade_max
-        description: "Indica se a velocidade média da viagem está acima do limite estabelecido"
+      - name: indicador_abaixo_velocidade_max
+        description: "{{ doc('indicador_abaixo_velocidade_max') }}"
         data_type: boolean
-      - name: indicador_processamento_posterior_captura
-        description: "{{ doc('indicador_processamento_posterior_captura') }}"
+      - name: indicador_sem_alteracao_retroativa
+        description: "{{ doc('indicador_sem_alteracao_retroativa') }}"
         data_type: boolean
-      - name: indicador_processamento_anterior_chegada
-        description: "{{ doc('indicador_processamento_anterior_chegada') }}"
+      - name: indicador_processamento_apos_chegada
+        description: "{{ doc('indicador_processamento_apos_chegada') }}"
         data_type: boolean
       - name: indicador_prazo_envio
         description: "{{ doc('indicador_prazo_envio') }}"
@@ -176,21 +179,18 @@ models:
       - name: indicador_viagem_valida
         description: "Indica se a viagem está válida conforme critérios definidos"
         data_type: boolean
-      - name: tipo_dia
-        description: "{{ doc('tipo_dia') }}"
-        data_type: string
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
@@ -261,8 +261,8 @@ models:
       - name: indicador_ultimo_segmento_valido
         description: "{{ doc('indicador_ultimo_segmento_valido') }}"
         data_type: boolean
-      - name: indicador_servico_divergente
-        description: "{{ doc('indicador_servico_divergente') }}"
+      - name: indicador_servico_convergente
+        description: "{{ doc('indicador_servico_convergente') }}"
         data_type: boolean
       - name: datetime_inicio_segmento
         description: "{{ doc('datetime_inicio_segmento') }}"
@@ -1178,6 +1178,33 @@ models:
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+        data_type: datetime
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+        data_type: datetime
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
@@ -1187,42 +1214,27 @@ models:
       - name: ano_fabricacao
         description: "{{ doc('ano_fabricacao') }}"
         data_type: int64
-      - name: datetime_partida_informada
-        description: "{{ doc('datetime_partida_informada') }}"
-        data_type: datetime
-      - name: datetime_chegada_informada
-        description: "{{ doc('datetime_chegada_informada') }}"
-        data_type: datetime
-      - name: modo
-        description: "{{ doc('modo') }}"
-        data_type: string
       - name: tecnologia_apurada
         description: "{{ doc('tecnologia') }}"
         data_type: string
       - name: tipo_viagem
         description: "{{ doc('tipo_viagem_status') }}"
         data_type: string
-      - name: servico
-        description: "{{ doc('servico') }}"
-        data_type: string
-      - name: consorcio
-        description: "{{ doc('consorcio') }}"
-        data_type: string
-      - name: sentido
-        description: "{{ doc('sentido') }}"
-        data_type: string
-      - name: distancia_planejada
-        description: "{{ doc('distancia_planejada') }}"
-        data_type: float64
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+        data_type: float64
+      - name: velocidade_media
+        description: "{{ doc('velocidade_media_viagem') }}"
+        data_type: float64
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string

@@ -1,0 +1,292 @@
+models:
+  - name: verificacao_guardador_veiculo_riorotativo
+    description: Tabela contendo as verificações dos guardadores no Rio Rotativo Digital
+    columns:
+      - name: data
+        description: Data da verificação [Partição]
+        data_type: date
+      - name: id_verificacao
+        description: Identificador único da verificação
+        data_type: string
+        tests:
+          - unique:
+              name: unique__id_verificacao__verificacao_guardador_veiculo_riorotativo
+              config:
+                where: data in ({partitions})
+          - not_null:
+              name: not_null__id_verificacao__verificacao_guardador_veiculo_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: datetime_verificacao
+        description: Data e hora da verificação
+        data_type: datetime
+      - name: datetime_inclusao_verificacao
+        description: Data e hora da inclusão da verificação na base de dados da Jaé
+        data_type: datetime
+      - name: datetime_inicio_periodo_ativacao
+        description: "{{ doc('datetime_inicio_periodo_ativacao_riorotativo') }}"
+        data_type: datetime
+      - name: datetime_fim_periodo_ativacao
+        description: "{{ doc('datetime_fim_periodo_ativacao_riorotativo') }}"
+        data_type: datetime
+      - name: cpf_guardador_veiculo
+        description: "{{ doc('cpf_guardador') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362'
+        tests:
+          - not_null:
+              name: not_null__cpf_guardador_veiculo__verificacao_guardador_veiculo_riorotativo
+              config:
+                where: data in ({partitions})
+      - name: cnpjs_entidade
+        description: Lista com os CNPJs das entidades credenciadoras associadas ao guardador de veículo
+        data_type: string
+      - name: status_guardador
+        description: "{{ doc('status_guardador') }}"
+        data_type: string
+      - name: cpf_motorista
+        description: "{{ doc('cpf_motorista_riorotativo') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: placa_veiculo
+        description: "{{ doc('placa') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: placa_veiculo_ocr
+        description: Placa do veículo identificada pelo Reconhecimento Óptico de Caracteres
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: placa_veiculo_digitada
+        description: Placa do veículo digitada pelo guardador
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo_riorotativo') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: latitude
+        description: Latitude da verificação [EPSG:4326 - WGS84]
+        data_type: float64
+      - name: longitude
+        description: Longitude da verificação [EPSG:4326 - WGS84]
+        data_type: float64
+      - name: geo_point_verificacao
+        description: Ponto geográfico da verificação
+        data_type: geography
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+      - name: indicador_vaga_vigente
+        description: Indica se a vaga verificada está vigente na data da verificação
+        data_type: boolean
+      - name: indicador_vaga_perfil_funcionamento_ativo
+        description: Indica se a vaga está ativa de acordo com o perfil de funcionamento e a data e hora da verificação
+        data_type: boolean
+      - name: id_ativacao
+        description: "{{ doc('id_ativacao_riorotativo') }}"
+        data_type: string
+      - name: indicador_verificacao_valida
+        description: Indica se a verificação foi válida para o repasse monetário
+        data_type: boolean
+      - name: motivo_nao_repasse
+        description: Motivo de não haver o repasse monetário da verificação
+        data_type: string
+      - name: valor_pago_bruto
+        description: "{{ doc('valor_pago_bruto_ativacao_riorotativo') }}"
+        data_type: numeric
+      - name: valor_retido_jae
+        description: "{{ doc('valor_retido_jae_ativacao_riorotativo') }}"
+        data_type: numeric
+      - name: valor_repasse_guardador_veiculo
+        description: Valor repassado ao guardador de veículos
+        data_type: numeric
+      - name: valor_repasse_entidades
+        description: Valor repassado à entidades credenciadoras
+        data_type: record
+      - name: valor_repasse_pcrj
+        description: Valor repassado à prefeitura
+        data_type: numeric
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+  - name: veiculo_riorotativo
+    description: Tabela com os dados de cadastro de veículos do Rio Rotativo Digital
+    columns:
+      - name: id_veiculo_particao
+        description: Identificador do veículo convertido para inteiro [Partição]
+        data_type: int64
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: placa
+        description: "{{ doc('placa') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+      - name: id_modelo_veiculo
+        description: Identificador do modelo do veículo
+        data_type: string
+      - name: cor
+        description: Cor do veículo
+        data_type: string
+      - name: motoristas
+        description: Lista com os dados dos motoristas associados ao veículo
+        data_type: record
+      - name: datetime_inclusao
+        description: Data e hora da inclusão do veículo na base de dados da Jaé
+        data_type: datetime
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+  - name: ordem_pagamento_guardador_veiculo_dia_riorotativo
+    description: Uma linha por guardador por dia, com o volume de fiscalizações válidas e inválidas e o valor total devido. Não aplica pagamento mínimo nem máximo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__data_cpf__ordem_pagamento_guardador_veiculo_dia_riorotativo
+          config:
+                where: data_ordem in ({partitions})
+          arguments:
+            combination_of_columns:
+              - data_ordem
+              - cpf_guardador_veiculo
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [Partição]"
+        data_type: date
+        tests:
+          - not_null:
+              name: not_null__data_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: id_ordem_pagamento_guardador_veiculo_dia
+        description: Identificador único da ordem de pagamento do guardador de veículo
+        data_type: string
+        tests:
+          - unique:
+              name: unique__id_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+          - not_null:
+              name: not_null__id_ordem__ordem_pagamento_guardador_veiculo_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: cpf_guardador_veiculo
+        description: "{{ doc('cpf_guardador') }}"
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362'
+        tests:
+          - not_null:
+              name: not_null__cpf_guardador_veiculo__ordem_pagamento_guardador_veiculo_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: quantidade_verificacao_total
+        description: Quantidade total de verificações realizadas pelo guardador de veículos
+        data_type: int64
+      - name: quantidade_verificacao_valida
+        description: Quantidade verificações válidas realizadas pelo guardador de veículos
+        data_type: int64
+      - name: quantidade_verificacao_invalida
+        description: Quantidade verificações inválidas realizadas pelo guardador de veículos
+        data_type: int64
+      - name: valor_repasse_guardador_veiculo
+        description: Valor de repasse devido ao guardador de veículos [R$]
+        data_type: numeric
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_ordem_pagamento_riorotativo') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+  - name: ordem_pagamento_entidade_dia_riorotativo
+    description: Uma linha por entidade credenciada por dia. Cada entidade vigente recebe R$ 0,11 por verificação válida.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__data_cnpj__ordem_pagamento_entidade_dia_riorotativo
+          config:
+                where: data_ordem in ({partitions})
+          arguments:
+            combination_of_columns:
+              - data_ordem
+              - cnpj_entidade
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [Partição]"
+        data_type: date
+        tests:
+          - not_null:
+              name: not_null__data_ordem__ordem_pagamento_entidade_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: id_ordem_pagamento_entidade_dia
+        description: Identificador único da ordem de pagamento da entidade credenciadora
+        data_type: string
+        tests:
+          - unique:
+              name: unique__id_ordem__ordem_pagamento_entidade_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+          - not_null:
+              name: not_null__id_ordem__ordem_pagamento_entidade_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: cnpj_entidade
+        description: CNPJ da entidade credenciadora
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__cnpj_entidade__ordem_pagamento_entidade_dia_riorotativo
+              config:
+                where: data_ordem in ({partitions})
+      - name: quantidade_verificacao_valida
+        description: Quantidade verificações válidas realizadas pelos guardadores de veículos
+        data_type: int64
+      - name: quantidade_guardador_ativo
+        description: Quantidade de guardadores distintos com verificação válida
+        data_type: int64
+      - name: valor_repasse_entidade
+        description: Valor de repasse devido à entidade credenciadora [R$]
+        data_type: numeric
+      - name: datetime_inclusao
+        description: "{{ doc('datetime_inclusao_ordem_pagamento_riorotativo') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string

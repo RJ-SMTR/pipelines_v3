@@ -33,10 +33,10 @@ with
                 when status_viagem = 'end'
                 then
                     last_value(
-                        case when status_viagem = 'start' then timestamp_gps end
+                        case when status_viagem = 'start' then datetime_gps end
                     ) over (
                         partition by id_veiculo, shape_id
-                        order by timestamp_gps
+                        order by datetime_gps
                         rows between unbounded preceding and 1 preceding
                     )
             end as datetime_partida
@@ -62,6 +62,7 @@ with
                 "-",
                 format_datetime("%Y%m%d%H%M%S", datetime_partida)
             ) as id_viagem,
+            cast(null as string) as id_viagem_planejada,
             data,
             id_empresa,
             id_veiculo,
@@ -80,19 +81,21 @@ with
             sentido,
             distancia_planejada,
             datetime_partida,
-            timestamp_gps as datetime_chegada,
+            datetime_gps as datetime_chegada,
+            fonte_gps,
             '{{ var("version") }}' as versao,
-            current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
+            current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+            '{{ invocation_id }}' as id_execucao_dbt
         from aux_status
         left join routes r using (route_id, feed_start_date)
         where
             status_viagem = 'end'
             and datetime_partida is not null
-            and datetime_partida < timestamp_gps
+            and datetime_partida < datetime_gps
         qualify
             row_number() over (
                 partition by id_veiculo, shape_id, datetime_partida
-                order by timestamp_gps
+                order by datetime_gps
             )
             = 1
     )

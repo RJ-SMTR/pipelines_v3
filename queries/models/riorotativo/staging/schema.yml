@@ -13,7 +13,7 @@ models:
         description: "{{ doc('data_captura') }} (partição)"
         data_type: date
       - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
+        description: "{{ doc('documento_cliente') }}"
         data_type: string
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
@@ -51,7 +51,7 @@ models:
         description: "{{ doc('data_captura') }} (partição)"
         data_type: date
       - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
+        description: "{{ doc('documento_cliente') }}"
         data_type: string
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
@@ -193,7 +193,7 @@ models:
         description: "{{ doc('data_captura') }} (partição)"
         data_type: date
       - name: documento
-        description: "{{ doc('documento_cliente') }} [protegido]"
+        description: "{{ doc('documento_cliente') }}"
         data_type: string
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
