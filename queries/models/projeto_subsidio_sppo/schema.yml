@@ -736,8 +736,15 @@ models:
   - name: viagem_completa
     description: "Detalhes de todas as viagens completas identificadas [Dados entre 2022-06-01 e 2026-07-31]"
     tests:
-      - viagem_completa_sem_sobreposicao:
-          name: viagem_completa_sem_sobreposicao__viagem_completa
+      - dbt_utils.mutually_exclusive_ranges:
+          name: dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa
+          arguments:
+            lower_bound_column: datetime_partida
+            upper_bound_column: datetime_chegada
+            partition_by: id_veiculo
+            gaps: allowed
+          config:
+            where: data between date_sub(date('{start_date}'), interval 1 day) and date('{end_date}')
     columns:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
