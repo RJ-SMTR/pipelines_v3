@@ -363,13 +363,11 @@ with recursive
                 select id_veiculo, ids_aceitos
                 from selecao_gulosa
                 qualify
-                    row_number() over (
-                        partition by id_veiculo order by rn_selecao desc
-                    )
+                    row_number() over (partition by id_veiculo order by rn_selecao desc)
                     = 1
             ) as a
-            on o.id_veiculo = a.id_veiculo
-            and o.id_viagem in unnest(a.ids_aceitos)
+            using (id_veiculo)
+        where o.id_viagem in unnest(a.ids_aceitos)
     )
 
 select *
