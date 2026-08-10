@@ -775,6 +775,7 @@ def run_dbt(  # noqa: PLR0913
     os.environ.setdefault("DBT_USER", "prefect")
 
     (Path(target_path) / "run_results.json").unlink(missing_ok=True)
+    (Path(target_path) / "manifest.json").unlink(missing_ok=True)
     try:
         PrefectDbtRunner(
             settings=PrefectDbtSettings(
