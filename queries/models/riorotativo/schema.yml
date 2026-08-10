@@ -61,17 +61,17 @@ models:
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: email
         description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: razao_social
         description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
         data_type: string
@@ -143,17 +143,17 @@ models:
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: email
         description: "{{ doc('email_guardador_veiculo_riorotativo') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: razao_social
         description: "{{ doc('razao_social_entidade_credenciadora_riorotativo') }}"
         data_type: string
@@ -222,17 +222,17 @@ models:
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: email
         description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: razao_social
         description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
@@ -318,17 +318,17 @@ models:
         description: "{{ doc('nome_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: email
         description: "{{ doc('email_agente_verificacao_riorotativo') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: telefone
         description: "{{ doc('telefone_cliente') }} [protegido]"
         data_type: string
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/1273891912591002461"
       - name: razao_social
         description: "{{ doc('razao_social_entidade_vinculo_agente_verificacao_riorotativo') }}"
         data_type: string
@@ -651,7 +651,7 @@ models:
         description: Identificador único do associação entre veiculo e cliente
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293"
         tests:
           - not_null:
               name: not_null__id_veiculo_cliente__ativacao_riorotativo
@@ -661,7 +661,7 @@ models:
         description: "{{ doc('id_veiculo') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293"
         tests:
           - not_null:
               name: not_null__id_veiculo__ativacao_riorotativo
@@ -671,7 +671,7 @@ models:
         description: "{{ doc('placa') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293"
         tests:
           - not_null:
               name: not_null__placa_veiculo__ativacao_riorotativo
@@ -681,7 +681,7 @@ models:
         description: "{{ doc('cpf_motorista_riorotativo') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293'
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/6915590486065674293"
         tests:
           - not_null:
               name: not_null__cpf_motorista__ativacao_riorotativo

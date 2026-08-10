@@ -56,7 +56,7 @@ sources:
           - name: evento
             tests:
               - dbt_expectations.expect_column_values_to_match_regex:
-                  name: dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging
+                  name: dbt_expectations__expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging
                   config:
                     where: "data_versao = '{{ var('data_versao_gtfs') }}' and safe_cast(data_versao as date) >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
                   arguments:
