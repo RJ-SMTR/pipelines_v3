@@ -5,8 +5,8 @@
 ### Adicionado
 
 - Adiciona as CTEs `filtro_priorizado` e `filtro_sobreposicao` no modelo `viagem_completa` para eliminar viagens sobrepostas do mesmo veículo, priorizando o dia anterior e, no mesmo dia, a melhor prioridade (`perc_conformidade_shape`, `id_tipo_trajeto`, `distancia_planejada`, `datetime_partida`).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
-- Substitui o anti-join de sobreposição por seleção gulosa (`WITH RECURSIVE` / `selecao_gulosa`): aceita cada viagem só se não conflitar com as já retidas, evitando que uma candidata intermediária eliminada remova outra válida (cadeia A–B–C).
-- Adiciona o teste de integridade `viagem_completa_sem_sobreposicao` no materializado (janela `start_date`/`end_date`).
+- Substitui o anti-join de sobreposição por seleção gulosa (`WITH RECURSIVE` / `selecao_gulosa`): aceita cada viagem só se não conflitar com as já retidas, evitando que uma candidata intermediária eliminada remova outra válida (cadeia A–B–C).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para garantir que viagens do mesmo veículo não se sobreponham (janela `start_date`/`end_date`).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
 
 ### Alterado
 
