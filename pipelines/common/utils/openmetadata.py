@@ -37,6 +37,14 @@ def preserve_dbt_run_results(
             print("OpenMetadata: run_results.json ausente ou inválido; artefato ignorado")
             return None
 
+        has_test_results = any(
+            isinstance(result, dict) and result.get("unique_id", "").startswith("test.")
+            for result in (run_results.get("results") or [])
+        )
+        if not has_test_results:
+            print("OpenMetadata: run_results.json sem resultados de testes; artefato ignorado")
+            return None
+
         artifacts_dir = Path(target_path) / "openmetadata" / str(flow_run_id)
         artifacts_dir.mkdir(parents=True, exist_ok=True)
         sequence = len(list(artifacts_dir.glob("run_results_*.json"))) + 1
