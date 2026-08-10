@@ -296,10 +296,7 @@ with recursive
             ) as rn_selecao
         from filtro_priorizado
     ),
-    -- 8. Seleção gulosa (estilo Weighted Interval Scheduling por ranking):
-    -- percorre na ordem de rn_selecao e só aceita se não sobrepõe nenhuma
-    -- já aceita. Evita o bug do anti-join em que B (depois eliminada)
-    -- remove C mesmo quando A e C não se sobrepõem.
+    -- 8. Seleção gulosa: aceita só se não sobrepõe nenhuma já aceita.
     selecao_gulosa as (
         select
             id_veiculo,
@@ -366,7 +363,9 @@ with recursive
                 select id_veiculo, ids_aceitos
                 from selecao_gulosa
                 qualify
-                    row_number() over (partition by id_veiculo order by rn_selecao desc)
+                    row_number() over (
+                        partition by id_veiculo order by rn_selecao desc
+                    )
                     = 1
             ) as a
             on o.id_veiculo = a.id_veiculo

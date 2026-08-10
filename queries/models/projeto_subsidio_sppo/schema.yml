@@ -735,6 +735,9 @@ models:
           - not_null
   - name: viagem_completa
     description: "Detalhes de todas as viagens completas identificadas [Dados entre 2022-06-01 e 2026-07-31]"
+    tests:
+      - viagem_completa_sem_sobreposicao:
+          name: viagem_completa_sem_sobreposicao__viagem_completa
     columns:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
