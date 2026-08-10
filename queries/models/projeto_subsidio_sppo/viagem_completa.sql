@@ -365,8 +365,7 @@ with recursive
                 qualify
                     row_number() over (partition by id_veiculo order by rn_selecao desc)
                     = 1
-            ) as a
-            using (id_veiculo)
+            ) as a using (id_veiculo)
         where o.id_viagem in unnest(a.ids_aceitos)
     )
 
