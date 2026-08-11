@@ -30,7 +30,7 @@
 {% endif %}
 -- 1. Identifica viagens que estão dentro do quadro planejado (por
 -- enquanto, consideramos o dia todo).
-with recursive
+with
     viagem_periodo as (
         select distinct
             p.consorcio,
@@ -286,88 +286,34 @@ with recursive
             ) as prioridade
         from filtro_chegada
     ),
-    -- 7. Ordena candidatas por veículo: dia anterior primeiro (prevalece),
-    -- depois melhor prioridade do dia. rn_selecao é a ordem gulosa.
-    filtro_ordenado as (
-        select
-            *,
-            row_number() over (
-                partition by id_veiculo order by data, prioridade
-            ) as rn_selecao
-        from filtro_priorizado
-    ),
-    -- 8. Seleção gulosa: aceita só se não sobrepõe nenhuma já aceita.
-    selecao_gulosa as (
-        select
-            id_veiculo,
-            rn_selecao,
-            [id_viagem] as ids_aceitos,
-            [
-                struct(datetime_partida as partida, datetime_chegada as chegada)
-            ] as intervalos_aceitos
-        from filtro_ordenado
-        where rn_selecao = 1
-
-        union all
-
-        select
-            c.id_veiculo,
-            c.rn_selecao,
-            if(
-                x.conflita, s.ids_aceitos, array_concat(s.ids_aceitos, [c.id_viagem])
-            ) as ids_aceitos,
-            if(
-                x.conflita,
-                s.intervalos_aceitos,
-                array_concat(
-                    s.intervalos_aceitos,
-                    [
-                        struct(
-                            c.datetime_partida as partida, c.datetime_chegada as chegada
-                        )
-                    ]
-                )
-            ) as intervalos_aceitos
-        from selecao_gulosa as s
-        inner join
-            filtro_ordenado as c
-            on c.id_veiculo = s.id_veiculo
-            and c.rn_selecao = s.rn_selecao + 1
-        cross join
-            unnest(
-                [
-                    struct(
-                        array_length(
-                            array(
-                                select as struct 1
-                                from unnest(s.intervalos_aceitos) as i
-                                where
-                                    datetime_diff(
-                                        least(c.datetime_chegada, i.chegada),
-                                        greatest(c.datetime_partida, i.partida),
-                                        second
-                                    )
-                                    > 0
-                            )
-                        )
-                        > 0 as conflita
-                    )
-                ]
-            ) as x
-    ),
+    -- 7. Remove sobreposição do mesmo veículo (padrão de viagem_validacao):
+    -- self-join; prevalece dia anterior e, no mesmo dia, melhor prioridade.
+    -- D-2 entra só para preferência; o select final materializa só D-1.
     filtro_sobreposicao as (
-        select o.* except (id_tipo_trajeto, prioridade, rn_selecao)
-        from filtro_ordenado as o
-        inner join
-            (
-                select id_veiculo, ids_aceitos
-                from selecao_gulosa
-                qualify
-                    row_number() over (partition by id_veiculo order by rn_selecao desc)
-                    = 1
-            ) as a using (id_veiculo)
-        where o.id_viagem in unnest(a.ids_aceitos)
+        select v1.* except (id_tipo_trajeto, prioridade)
+        from filtro_priorizado as v1
+        left join
+            filtro_priorizado as v2
+            on v1.id_veiculo = v2.id_veiculo
+            and v2.data in (v1.data, date_sub(v1.data, interval 1 day))
+            and v1.id_viagem != v2.id_viagem
+            and datetime_diff(
+                least(v1.datetime_chegada, v2.datetime_chegada),
+                greatest(v1.datetime_partida, v2.datetime_partida),
+                second
+            )
+            > 0
+            and (
+                -- Dia anterior sempre prevalece
+                v2.data < v1.data
+                -- No mesmo dia, prevalece a melhor prioridade
+                or (v2.data = v1.data and v2.prioridade < v1.prioridade)
+            )
+        where v2.id_viagem is null
     )
 
 select *
 from filtro_sobreposicao
+{% if is_incremental() %}
+    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
+{% endif %}
