@@ -1,17 +1,16 @@
 # Changelog - projeto_subsidio_sppo
 
-## [9.5.1] - 2026-08-10
+## [9.5.1] - 2026-08-11
 
 ### Adicionado
 
-- Adiciona as CTEs `filtro_priorizado` e `filtro_sobreposicao` no modelo `viagem_completa` para eliminar viagens sobrepostas do mesmo veículo, priorizando o dia anterior e, no mesmo dia, a melhor prioridade (`perc_conformidade_shape`, `id_tipo_trajeto`, `distancia_planejada`, `datetime_partida`).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
-- Substitui o anti-join de sobreposição por seleção gulosa (`WITH RECURSIVE` / `selecao_gulosa`): aceita cada viagem só se não conflitar com as já retidas, evitando que uma candidata intermediária eliminada remova outra válida (cadeia A–B–C).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
-- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para garantir que viagens do mesmo veículo não se sobreponham (janela `start_date`/`end_date`).(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona no modelo `viagem_completa` as CTEs `filtro_priorizado`, `eliminadoras` e `filtro_sobreposicao` para remover viagens sobrepostas do mesmo veículo. Prevalece o dia anterior e, no mesmo dia, a melhor prioridade (`perc_conformidade_shape`, `id_tipo_trajeto`, `distancia_planejada`, `datetime_partida`). A CTE `eliminadoras` garante que uma viagem intermediária descartada não elimine outra válida (cadeia A–B–C). (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo` na janela `start_date`/`end_date`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
 
 ### Alterado
 
-- Altera o filtro incremental de `viagem_completa` para reprocessar 2 dias (`D-2` a `D-1`), necessário ao filtro de sobreposição com o dia anterior.
-- Restaura a CTE `filtro_chegada` no modelo `viagem_completa`.(https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Altera o filtro incremental de `viagem_completa` para ler `D-2` e `D-1` (sobreposição com o dia anterior), materializando somente `D-1`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+
 
 ## [9.5.0] - 2026-07-27
 

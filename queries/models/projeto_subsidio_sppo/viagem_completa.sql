@@ -286,14 +286,36 @@ with
             ) as prioridade
         from filtro_chegada
     ),
-    -- 7. Remove sobreposição do mesmo veículo (padrão de viagem_validacao):
-    -- self-join; prevalece dia anterior e, no mesmo dia, melhor prioridade.
+    -- 7. Remove sobreposição do mesmo veículo (padrão de viagem_validacao).
+    -- eliminadoras: viagens que não são eliminadas por alguém ainda melhor
+    -- (equivale ao NOT EXISTS de um nível; BQ não permite EXISTS no ON).
+    -- Assim B descartada por A não remove C (cadeia A–B–C).
     -- D-2 entra só para preferência; o select final materializa só D-1.
+    eliminadoras as (
+        select v2.*
+        from filtro_priorizado as v2
+        left join
+            filtro_priorizado as v3
+            on v3.id_veiculo = v2.id_veiculo
+            and v3.data in (v2.data, date_sub(v2.data, interval 1 day))
+            and v3.id_viagem != v2.id_viagem
+            and datetime_diff(
+                least(v2.datetime_chegada, v3.datetime_chegada),
+                greatest(v2.datetime_partida, v3.datetime_partida),
+                second
+            )
+            > 0
+            and (
+                v3.data < v2.data
+                or (v3.data = v2.data and v3.prioridade < v2.prioridade)
+            )
+        where v3.id_viagem is null
+    ),
     filtro_sobreposicao as (
         select v1.* except (id_tipo_trajeto, prioridade)
         from filtro_priorizado as v1
         left join
-            filtro_priorizado as v2
+            eliminadoras as v2
             on v1.id_veiculo = v2.id_veiculo
             and v2.data in (v1.data, date_sub(v1.data, interval 1 day))
             and v1.id_viagem != v2.id_viagem
