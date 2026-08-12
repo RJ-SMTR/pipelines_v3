@@ -256,47 +256,52 @@ with
     ),
     -- 5. Filtra viagens com mesma chegada pela maior distancia percorrida
     filtro_chegada as (
-        select * except (rn)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by id_veiculo, datetime_chegada
-                        order by distancia_planejada desc, id_tipo_trajeto
-                    ) as rn
-                from filtro_partida
+        select *
+        from filtro_partida
+        qualify
+            row_number() over (
+                partition by id_veiculo, datetime_chegada
+                order by distancia_planejada desc, id_tipo_trajeto
             )
-        where rn = 1
+            = 1
     ),
 
     viagens_concorrentes as (
         select
             v1.id_viagem,
             logical_or(
-                -- Regra 1: Perde se a concorrente tiver melhor conformidade geométrica
-                v1.perc_conformidade_shape < v2.perc_conformidade_shape
-                -- Regra 2 (CORRIGIDA): Desempate pela Distância (maior distância ganha)
+                -- Regra 1: Se a viagem concorrente for mais recente, perde.
+                v1.data > v2.data
+                -- Regra 2: Perde se a concorrente tiver melhor conformidade
+                -- geométrica
                 or (
-                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape < v2.perc_conformidade_shape
+                )
+                -- Regra 3: Desempate pela Distância (maior distância ganha)
+                or (
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.distancia_planejada < v2.distancia_planejada
                 )
-                -- Regra 3 : Desempate pelo Tipo de Trajeto (0 = principal,
+                -- Regra 4 : Desempate pelo Tipo de Trajeto (0 = principal,
                 -- logo menor ganha)
                 or (
-                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.distancia_planejada = v2.distancia_planejada
                     and v1.id_tipo_trajeto > v2.id_tipo_trajeto
                 )
-                
-                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas em caso idêntico
+                -- Regra 5: Desempate técnico final para evitar que ambas sejam nulas
+                -- em caso idêntico
                 or (
-                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.id_tipo_trajeto = v2.id_tipo_trajeto
                     and v1.distancia_planejada = v2.distancia_planejada
                     and v1.id_viagem > v2.id_viagem
                 )
-            ) as analise_concorrentes
+            ) as indicador_exclusao_concorrente
 
         from filtro_chegada v1
         inner join
@@ -309,8 +314,10 @@ with
 
         group by v1.id_viagem
     )
--- 2. RESULTADO FINAL
+
 select v.* except (id_tipo_trajeto)
 from filtro_chegada as v
 left join viagens_concorrentes as vc on v.id_viagem = vc.id_viagem
-where coalesce(vc.analise_concorrentes, false) = false
+where
+    coalesce(vc.indicador_exclusao_concorrente, false) = false
+    and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
