@@ -288,8 +288,8 @@ with
                     and v1.distancia_planejada = v2.distancia_planejada
                     and v1.id_tipo_trajeto > v2.id_tipo_trajeto
                 )
-                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas
-                -- em caso idêntico
+                
+                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas em caso idêntico
                 or (
                     v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.id_tipo_trajeto = v2.id_tipo_trajeto
