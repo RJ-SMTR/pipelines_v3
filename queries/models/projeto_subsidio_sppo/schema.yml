@@ -744,7 +744,7 @@ models:
             partition_by: id_veiculo
             gaps: allowed
           config:
-            where: "data between date_sub(date('{{ var('start_date') }}'), interval 1 day) and date('{{ var('end_date') }}')"
+            where: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
     columns:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
