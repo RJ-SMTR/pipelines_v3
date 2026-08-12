@@ -316,7 +316,7 @@ with
 
 select v.* except (id_tipo_trajeto)
 from filtro_chegada as v
-left join viagens_concorrentes as vc using (id.viagem)
+left join viagens_concorrentes as vc using (id_viagem)
 where
     coalesce(vc.indicador_exclusao_concorrente, false) = false
     and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
