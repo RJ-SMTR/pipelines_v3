@@ -269,30 +269,32 @@ with
             )
         where rn = 1
     ),
-    
-    
+
     viagens_concorrentes as (
         select
             v1.id_viagem,
-            -- Agrega todos os confrontos: Se V1 perder pelo menos UM conflito, retorna TRUE
-            LOGICAL_OR(
+            -- Agrega todos os confrontos: Se V1 perder pelo menos UM conflito,
+            -- retorna TRUE
+            logical_or(
                 -- Regra 1: Perde se a concorrente tiver melhor conformidade geométrica
                 v1.perc_conformidade_shape < v2.perc_conformidade_shape
-                
+
                 -- Regra 2 (CORRIGIDA): Desempate pela Distância (maior distância ganha)
                 or (
                     v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.distancia_planejada < v2.distancia_planejada
                 )
-                
-                -- Regra 3 (CORRIGIDA): Desempate pelo Tipo de Trajeto (0 = principal, logo menor ganha)
+
+                -- Regra 3 (CORRIGIDA): Desempate pelo Tipo de Trajeto (0 = principal,
+                -- logo menor ganha)
                 or (
                     v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.distancia_planejada = v2.distancia_planejada
                     and v1.id_tipo_trajeto > v2.id_tipo_trajeto
                 )
-                
-                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas em caso idêntico
+
+                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas
+                -- em caso idêntico
                 or (
                     v1.perc_conformidade_shape = v2.perc_conformidade_shape
                     and v1.id_tipo_trajeto = v2.id_tipo_trajeto
@@ -302,13 +304,14 @@ with
             ) as analise_concorrentes
 
         from filtro_chegada v1
-        inner join filtro_chegada v2
+        inner join
+            filtro_chegada v2
             on v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
             -- Lógica central de Sobreposição no Tempo:
             and v1.datetime_partida < v2.datetime_chegada
             and v1.datetime_chegada > v2.datetime_partida
-        
+
         group by v1.id_viagem
     )
 
