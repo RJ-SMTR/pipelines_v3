@@ -269,73 +269,51 @@ with
             )
         where rn = 1
     ),
-    -- 6. Atribui prioridade às viagens do mesmo veículo no dia para uso no
-    -- filtro_sobreposicao: maior perc_conformidade_shape, depois menor
-    -- id_tipo_trajeto (regular antes de alternativo), depois maior
-    -- distancia_planejada e, por fim, datetime_partida mais cedo.
-    filtro_priorizado as (
+    
+    
+    viagens_concorrentes as (
         select
-            *,
-            row_number() over (
-                partition by data, id_veiculo
-                order by
-                    perc_conformidade_shape desc,
-                    id_tipo_trajeto,
-                    distancia_planejada desc,
-                    datetime_partida
-            ) as prioridade
-        from filtro_chegada
-    ),
-    -- 7. Remove sobreposição do mesmo veículo (padrão de viagem_validacao).
-    -- eliminadoras: viagens que não são eliminadas por alguém ainda melhor
-    -- (equivale ao NOT EXISTS de um nível; BQ não permite EXISTS no ON).
-    -- Assim B descartada por A não remove C (cadeia A–B–C).
-    -- D-2 entra só para preferência; o select final materializa só D-1.
-    eliminadoras as (
-        select v2.*
-        from filtro_priorizado as v2
-        left join
-            filtro_priorizado as v3
-            on v3.id_veiculo = v2.id_veiculo
-            and v3.data in (v2.data, date_sub(v2.data, interval 1 day))
-            and v3.id_viagem != v2.id_viagem
-            and datetime_diff(
-                least(v2.datetime_chegada, v3.datetime_chegada),
-                greatest(v2.datetime_partida, v3.datetime_partida),
-                second
-            )
-            > 0
-            and (
-                v3.data < v2.data
-                or (v3.data = v2.data and v3.prioridade < v2.prioridade)
-            )
-        where v3.id_viagem is null
-    ),
-    filtro_sobreposicao as (
-        select v1.* except (id_tipo_trajeto, prioridade)
-        from filtro_priorizado as v1
-        left join
-            eliminadoras as v2
+            v1.id_viagem,
+            -- Agrega todos os confrontos: Se V1 perder pelo menos UM conflito, retorna TRUE
+            LOGICAL_OR(
+                -- Regra 1: Perde se a concorrente tiver melhor conformidade geométrica
+                v1.perc_conformidade_shape < v2.perc_conformidade_shape
+                
+                -- Regra 2 (CORRIGIDA): Desempate pela Distância (maior distância ganha)
+                or (
+                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.distancia_planejada < v2.distancia_planejada
+                )
+                
+                -- Regra 3 (CORRIGIDA): Desempate pelo Tipo de Trajeto (0 = principal, logo menor ganha)
+                or (
+                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.distancia_planejada = v2.distancia_planejada
+                    and v1.id_tipo_trajeto > v2.id_tipo_trajeto
+                )
+                
+                -- Regra 4: Desempate técnico final para evitar que ambas sejam nulas em caso idêntico
+                or (
+                    v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.id_tipo_trajeto = v2.id_tipo_trajeto
+                    and v1.distancia_planejada = v2.distancia_planejada
+                    and v1.id_viagem > v2.id_viagem
+                )
+            ) as analise_concorrentes
+
+        from filtro_chegada v1
+        inner join filtro_chegada v2
             on v1.id_veiculo = v2.id_veiculo
-            and v2.data in (v1.data, date_sub(v1.data, interval 1 day))
             and v1.id_viagem != v2.id_viagem
-            and datetime_diff(
-                least(v1.datetime_chegada, v2.datetime_chegada),
-                greatest(v1.datetime_partida, v2.datetime_partida),
-                second
-            )
-            > 0
-            and (
-                -- Dia anterior sempre prevalece
-                v2.data < v1.data
-                -- No mesmo dia, prevalece a melhor prioridade
-                or (v2.data = v1.data and v2.prioridade < v1.prioridade)
-            )
-        where v2.id_viagem is null
+            -- Lógica central de Sobreposição no Tempo:
+            and v1.datetime_partida < v2.datetime_chegada
+            and v1.datetime_chegada > v2.datetime_partida
+        
+        group by v1.id_viagem
     )
 
-select *
-from filtro_sobreposicao
-{% if is_incremental() %}
-    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-{% endif %}
+-- 2. RESULTADO FINAL
+select v.* except (id_tipo_trajeto)
+from filtro_chegada as v
+left join viagens_concorrentes as vc on v.id_viagem = vc.id_viagem
+where coalesce(vc.analise_concorrentes, false) = false
