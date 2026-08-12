@@ -270,10 +270,9 @@ with
         select
             v1.id_viagem,
             logical_or(
-                -- Regra 1: Se a viagem concorrente for mais recente, perde.
+                -- Regra 1: Se a viagem concorrente for data mais recente, perde.
                 v1.data > v2.data
-                -- Regra 2: Perde se a concorrente tiver melhor conformidade
-                -- geométrica
+                -- Regra 2: Perde se a concorrente tiver melhor perc_conformidade_shape
                 or (
                     v1.data <= v2.data
                     and v1.perc_conformidade_shape < v2.perc_conformidade_shape
@@ -317,7 +316,7 @@ with
 
 select v.* except (id_tipo_trajeto)
 from filtro_chegada as v
-left join viagens_concorrentes as vc on v.id_viagem = vc.id_viagem
+left join viagens_concorrentes as vc using(id.viagem)
 where
     coalesce(vc.indicador_exclusao_concorrente, false) = false
     and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)

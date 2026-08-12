@@ -1,11 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
-## [9.5.1] - 2026-08-11
+## [9.5.1] - 2026-08-12
 
 ### Adicionado
 
-- Adiciona no modelo `viagem_completa` as CTEs `filtro_priorizado`, `eliminadoras` e `filtro_sobreposicao` para remover viagens sobrepostas do mesmo veículo. Prevalece o dia anterior e, no mesmo dia, a melhor prioridade (`perc_conformidade_shape`, `id_tipo_trajeto`, `distancia_planejada`, `datetime_partida`). A CTE `eliminadoras` garante que uma viagem intermediária descartada não elimine outra válida (cadeia A–B–C). (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
-- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo` na janela `start_date`/`end_date`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona no modelo `viagem_completa` a CTE `viagens_concorrentes` para remover viagens sobrepostas do mesmo veículo. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
 
 ### Alterado
 
