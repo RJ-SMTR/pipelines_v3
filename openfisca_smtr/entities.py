@@ -7,5 +7,9 @@ apuracao = Entity(
     key="apuracao",
     plural="apuracoes",
     label="Apuracao",
-    doc="Unidade de calculo das regras de remuneracao.",
+    doc=(
+        "Unidade de calculo das regras de remuneracao. "
+        "Na apuracao operacional, cada instancia corresponde a uma viagem "
+        "(verificacao); o pagamento agrega por veiculo."
+    ),
 )

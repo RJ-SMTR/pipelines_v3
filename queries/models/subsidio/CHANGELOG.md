@@ -1,5 +1,12 @@
 # Changelog - subsidio
 
+## [Unreleased]
+
+### Alterado
+
+- Move cadeia remuneração I.8 / OpenFisca para o dataset `sistemario`
+  (ver `models/sistemario/CHANGELOG.md`)
+
 ## [2.3.4] - 2026-05-04
 
 ### Alterado

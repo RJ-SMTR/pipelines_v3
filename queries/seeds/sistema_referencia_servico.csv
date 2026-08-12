@@ -1,0 +1,744 @@
+lote,data_inicio,data_fim,tipo_dia,servico,vista,servico_tipo,servico_tecnologia,extensao_ida_km,extensao_volta_km,tempo_ciclo_min,frota_hp,frota_noturna,intervalo_hp_min,frequencia_hp,viagens_ida_dia,viagens_volta_dia,viagens_mes,producao_km_mes,fonte
+B1,2026-08-01,2027-04-30,util,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,181.0,17,0,13.0,5.0,80,80,4512,125080.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,164.0,8,0,20.0,3.0,48,48,2736,61834.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,181.0,12,0,15.0,4.0,69,69,3876,112106.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,197.0,13,0,15.0,4.0,67,67,3796,108938.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,22,0,10.0,6.0,96,96,5392,179091.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,224.0,12,0,20.0,3.0,60,60,3488,123320.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,15,0,15.0,4.0,78,78,4392,146287.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,3,60.0,1.0,5,5,300,9244.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,3,60.0,1.0,4,4,240,8481.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,util,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,13,0,20.0,3.0,58,58,3288,110911.0,Anexo I.2 p.18
+B1,2026-08-01,2027-04-30,sabado,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,181.0,14,0,15.0,4.0,69,69,4512,125080.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,164.0,6,0,25.0,2.4,40,40,2736,61834.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,181.0,12,0,15.0,4.0,65,65,3876,112106.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,197.0,12,0,15.0,4.0,65,65,3796,108938.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,18,0,12.0,5.0,83,83,5392,179091.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,224.0,11,0,20.0,3.0,55,55,3488,123320.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,13,0,15.0,4.0,67,67,4392,146287.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,3,60.0,1.0,5,5,300,9244.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,3,60.0,1.0,4,4,240,8481.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,sabado,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,13,0,20.0,3.0,46,46,3288,110911.0,Anexo I.2 p.19
+B1,2026-08-01,2027-04-30,domingo,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,181.0,11,0,18.0,3.0,55,55,4512,125080.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,164.0,5,0,30.0,2.0,38,38,2736,61834.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,181.0,8,0,20.0,3.0,40,40,3876,112106.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,197.0,8,0,20.0,3.0,41,41,3796,108938.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,11,0,15.0,4.0,63,63,5392,179091.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,224.0,9,0,20.0,3.0,51,51,3488,123320.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,9,0,20.0,3.0,53,53,4392,146287.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,3,60.0,1.0,5,5,300,9244.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,3,60.0,1.0,4,4,240,8481.0,Anexo I.2 p.20
+B1,2026-08-01,2027-04-30,domingo,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,12,0,20.0,3.0,46,46,3288,110911.0,Anexo I.2 p.20
+B1,2027-05-01,,util,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,216.0,24,0,9.0,7.0,113,113,6028,165085.0,Anexo I.2 p.23
+B1,2027-05-01,,util,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,149.0,10,0,15.0,4.0,54,54,3000,67453.0,Anexo I.2 p.23
+B1,2027-05-01,,util,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,179.0,15,0,12.0,5.0,78,78,4272,122980.0,Anexo I.2 p.23
+B1,2027-05-01,,util,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,186.0,16,0,12.0,5.0,78,78,4280,122101.0,Anexo I.2 p.23
+B1,2027-05-01,,util,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,22,0,10.0,6.0,96,96,5392,179091.0,Anexo I.2 p.23
+B1,2027-05-01,,util,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,227.0,16,0,15.0,4.0,65,65,3780,133375.0,Anexo I.2 p.23
+B1,2027-05-01,,util,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,15,0,15.0,4.0,71,71,4084,136581.0,Anexo I.2 p.23
+B1,2027-05-01,,util,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,4,45.0,1.0,6,6,360,11093.0,Anexo I.2 p.23
+B1,2027-05-01,,util,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,6,30.0,2.0,7,7,420,14841.0,Anexo I.2 p.23
+B1,2027-05-01,,util,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,17,0,15.0,4.0,74,74,3992,133284.0,Anexo I.2 p.23
+B1,2027-05-01,,sabado,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,216.0,18,0,12.0,5.0,77,77,6028,165085.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,149.0,6,0,25.0,2.0,40,40,3000,67453.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,179.0,12,0,15.0,4.0,65,65,4272,122980.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,186.0,12,0,15.0,4.0,65,65,4280,122101.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,18,0,12.0,5.0,83,83,5392,179091.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,227.0,14,0,15.0,4.0,64,64,3780,133375.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,13,0,15.0,4.0,67,67,4084,136581.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,7,30.0,2.0,6,6,360,11093.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,6,30.0,2.0,7,7,420,14841.0,Anexo I.2 p.24
+B1,2027-05-01,,sabado,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,13,0,20.0,3.0,46,46,3992,133284.0,Anexo I.2 p.24
+B1,2027-05-01,,domingo,731,C. Grande - Mal. Hermes,regular,basico,28.911,27.363,216.0,11,0,18.0,3.0,55,55,6028,165085.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,765,Mendanha - T. Deodoro,regular,midi,22.596,23.085,149.0,5,0,30.0,2.0,38,38,3000,67453.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,770,C. Grande - Coelho Neto,regular,basico,29.898,29.043,179.0,8,0,20.0,3.0,40,40,4272,122980.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,771,C. Grande - Coelho Neto,regular,basico,29.572,28.802,186.0,8,0,20.0,3.0,41,41,4280,122101.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,790,C. Grande - Cascadura,regular,basico,32.266,35.252,219.0,11,0,15.0,4.0,63,63,5392,179091.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,796,Cosmos - T. Deodoro,regular,basico,35.419,35.794,227.0,9,0,20.0,3.0,51,51,3780,133375.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,798,Urucânia - T. Deodoro,regular,basico,33.338,34.303,212.0,9,0,20.0,3.0,53,53,4084,136581.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,SN731,C. Grande - Mal. Hermes,noturno,midi,32.004,29.625,168.0,0,4,45.0,1.0,6,6,360,11093.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,SN790,C. Grande - Cascadura,noturno,basico,33.578,37.095,171.0,0,6,30.0,2.0,7,7,420,14841.0,Anexo I.2 p.25
+B1,2027-05-01,,domingo,SV790,C. Grande - Cascadura,variante,basico,32.645,35.566,253.0,12,0,20.0,3.0,46,46,3992,133284.0,Anexo I.2 p.25
+B2,2026-08-01,2027-04-30,util,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,177.0,7,0,30.0,2.0,42,42,2512,42651.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,5,0,15.0,4.0,66,0,1980,25801.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,4,0,20.0,3.0,53,0,1574,21081.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,110.0,7,0,20.0,3.0,55,55,3292,43233.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,10,0,15.0,4.0,72,72,4096,47195.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,83.0,5,0,18.0,3.0,61,0,1818,28631.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,112.0,7,0,18.0,3.0,67,67,3932,51567.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,60.0,1.0,4,0,120,1564.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,util,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,94.0,0,2,60.0,1.0,4,4,240,3169.0,Anexo I.2 p.29
+B2,2026-08-01,2027-04-30,sabado,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,177.0,6,0,30.0,2.0,42,42,2512,42651.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,5,0,15.0,4.0,66,0,1980,25801.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,4,0,20.0,3.0,51,0,1574,21081.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,110.0,6,0,20.0,3.0,53,53,3292,43233.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,9,0,15.0,4.0,65,65,4096,47195.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,83.0,5,0,18.0,3.0,61,0,1818,28631.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,112.0,7,0,18.0,3.0,63,63,3932,51567.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,60.0,1.0,4,0,120,1564.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,sabado,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,94.0,0,2,60.0,1.0,4,4,240,3169.0,Anexo I.2 p.30
+B2,2026-08-01,2027-04-30,domingo,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,177.0,6,0,30.0,2.0,41,41,2512,42651.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,4,0,15.0,4.0,66,0,1980,25801.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,3,0,20.0,3.0,51,0,1574,21081.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,110.0,6,0,20.0,3.0,56,56,3292,43233.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,6,0,20.0,3.0,51,51,4096,47195.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,83.0,6,0,18.0,3.0,58,0,1818,28631.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,112.0,7,0,18.0,3.0,60,60,3932,51567.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,60.0,1.0,4,0,120,1564.0,Anexo I.2 p.31
+B2,2026-08-01,2027-04-30,domingo,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,94.0,0,2,60.0,1.0,4,4,240,3169.0,Anexo I.2 p.31
+B2,2027-05-01,2028-08-24,util,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,13,0,15.0,4.0,71,71,3972,66311.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,6,0,13.0,5.0,90,0,2528,32505.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,5,0,15.0,4.0,68,0,2016,26992.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,9,0,15.0,4.0,65,0,1930,51167.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,9,0,15.0,4.0,70,70,4016,52210.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,10,0,15.0,4.0,72,72,4096,47195.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,14,0,15.0,4.0,80,80,4736,101517.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,6,0,15.0,4.0,66,0,1960,30834.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,8,0,15.0,4.0,69,69,4108,38384.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,8,0,15.0,4.0,76,76,4408,57611.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,util,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,3,45.0,1.0,6,6,360,4753.0,Anexo I.2 p.34
+B2,2027-05-01,2028-08-24,sabado,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,9,0,18.0,3.0,62,62,3972,66311.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,5,0,15.0,4.0,70,0,2528,32505.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,5,0,15.0,4.0,65,0,2016,26992.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,8,0,15.0,4.0,65,0,1930,51167.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,7,0,18.0,3.0,61,61,4016,52210.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,9,0,15.0,4.0,65,65,4096,47195.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,13,0,15.0,4.0,80,80,4736,101517.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,6,0,15.0,4.0,66,0,1960,30834.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,8,0,15.0,4.0,69,69,4108,38384.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,8,0,15.0,4.0,71,71,4408,57611.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,sabado,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,8,15.0,4.0,6,6,360,4753.0,Anexo I.2 p.35
+B2,2027-05-01,2028-08-24,domingo,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,7,0,20.0,3.0,44,44,3972,66311.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,4,0,15.0,4.0,67,0,2528,32505.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,4,0,15.0,4.0,65,0,2016,26992.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,6,0,18.0,3.0,60,0,1930,51167.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,7,0,20.0,3.0,56,56,4016,52210.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,6,0,20.0,3.0,51,51,4096,47195.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,11,0,15.0,4.0,72,72,4736,101517.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,7,0,15.0,4.0,61,0,1960,30834.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,5,0,18.0,3.0,65,65,4108,38384.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,9,0,15.0,4.0,62,62,4408,57611.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.36
+B2,2027-05-01,2028-08-24,domingo,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,8,15.0,4.0,6,6,360,4753.0,Anexo I.2 p.36
+B2,2028-08-25,,util,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,13,0,15.0,4.0,71,71,3972,66311.0,Anexo I.2 p.39
+B2,2028-08-25,,util,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,6,0,13.0,5.0,90,0,2528,32505.0,Anexo I.2 p.39
+B2,2028-08-25,,util,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,5,0,15.0,4.0,68,0,2016,26992.0,Anexo I.2 p.39
+B2,2028-08-25,,util,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,9,0,15.0,4.0,65,0,1930,51167.0,Anexo I.2 p.39
+B2,2028-08-25,,util,826,Carobinha - Vilar Carioca,regular,mini,18.581,16.9,149.0,10,0,15.0,4.0,68,68,3768,65697.0,Anexo I.2 p.39
+B2,2028-08-25,,util,830,Pedregoso - C. Grande,regular,mini,11.299,10.745,120.0,8,0,15.0,4.0,66,66,3880,42560.0,Anexo I.2 p.39
+B2,2028-08-25,,util,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,9,0,15.0,4.0,70,70,4016,52210.0,Anexo I.2 p.39
+B2,2028-08-25,,util,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,10,0,15.0,4.0,72,72,4096,47195.0,Anexo I.2 p.39
+B2,2028-08-25,,util,850,Mendanha - C. Grande,regular,mini,11.489,10.912,122.0,9,0,15.0,4.0,64,64,3664,40568.0,Anexo I.2 p.39
+B2,2028-08-25,,util,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,14,0,15.0,4.0,80,80,4736,101517.0,Anexo I.2 p.39
+B2,2028-08-25,,util,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,6,0,15.0,4.0,66,0,1960,30834.0,Anexo I.2 p.40
+B2,2028-08-25,,util,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,8,0,15.0,4.0,69,69,4108,38384.0,Anexo I.2 p.40
+B2,2028-08-25,,util,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,8,0,15.0,4.0,76,76,4408,57611.0,Anexo I.2 p.40
+B2,2028-08-25,,util,895,Serrinha - C. Grande,regular,mini,13.376,12.811,130.0,9,0,15.0,4.0,57,57,3100,39804.0,Anexo I.2 p.40
+B2,2028-08-25,,util,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.40
+B2,2028-08-25,,util,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,3,45.0,1.0,6,6,360,4753.0,Anexo I.2 p.40
+B2,2028-08-25,,util,SN895,C. Grande - Serrinha,noturno,mini,23.471,0.0,90.0,0,2,45.0,1.0,6,0,180,4225.0,Anexo I.2 p.40
+B2,2028-08-25,,util,SD850,C. Grande - João Melo,derivado,mini,13.572,0.0,81.0,6,0,15.0,4.0,66,0,1832,24457.0,Anexo I.2 p.40
+B2,2028-08-25,,util,SV850,Mendanha - C. Grande,variante,mini,12.732,12.241,155.0,11,0,15.0,4.0,67,67,3588,43790.0,Anexo I.2 p.40
+B2,2028-08-25,,sabado,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,9,0,18.0,3.0,62,62,3972,66311.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,5,0,15.0,4.0,70,0,2528,32505.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,5,0,15.0,4.0,65,0,2016,26992.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,8,0,15.0,4.0,65,0,1930,51167.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,826,Carobinha - Vilar Carioca,regular,mini,18.581,16.9,149.0,9,0,20.0,3.0,52,52,3768,65697.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,830,Pedregoso - C. Grande,regular,mini,11.299,10.745,120.0,8,0,15.0,4.0,63,63,3880,42560.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,7,0,18.0,3.0,61,61,4016,52210.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,9,0,15.0,4.0,65,65,4096,47195.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,850,Mendanha - C. Grande,regular,mini,11.489,10.912,122.0,6,0,20.0,3.0,58,58,3664,40568.0,Anexo I.2 p.41
+B2,2028-08-25,,sabado,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,13,0,15.0,4.0,80,80,4736,101517.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,6,0,15.0,4.0,66,0,1960,30834.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,8,0,15.0,4.0,69,69,4108,38384.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,8,0,15.0,4.0,71,71,4408,57611.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,895,Serrinha - C. Grande,regular,mini,13.376,12.811,130.0,5,0,25.0,2.0,37,37,3100,39804.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,8,15.0,4.0,6,6,360,4753.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,SN895,C. Grande - Serrinha,noturno,mini,23.471,0.0,90.0,0,3,45.0,1.0,6,0,180,4225.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,SD850,C. Grande - João Melo,derivado,mini,13.572,0.0,81.0,4,0,20.0,3.0,50,0,1832,24457.0,Anexo I.2 p.42
+B2,2028-08-25,,sabado,SV850,Mendanha - C. Grande,variante,mini,12.732,12.241,155.0,5,0,30.0,2.0,40,40,3588,43790.0,Anexo I.2 p.42
+B2,2028-08-25,,domingo,808,Sagrado Coração - C. Grande,regular,mini,16.294,17.696,185.0,7,0,20.0,3.0,44,44,3972,66311.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,821,C. Grande - Corcundinha,regular,mini,13.031,0.0,72.0,4,0,15.0,4.0,67,0,2528,32505.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,822,C. Grande - Corcundinha,regular,mini,13.419,0.0,74.0,4,0,15.0,4.0,65,0,2016,26992.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,824,Jardim Letícia - São Jorge,regular,mini,26.594,0.0,131.0,6,0,18.0,3.0,60,0,1930,51167.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,826,Carobinha - Vilar Carioca,regular,mini,18.581,16.9,149.0,6,0,25.0,2.0,45,45,3768,65697.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,830,Pedregoso - C. Grande,regular,mini,11.299,10.745,120.0,6,0,18.0,3.0,59,59,3880,42560.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,833,Conjunto Manguariba - C. Grande,regular,midi,13.232,13.024,123.0,7,0,20.0,3.0,56,56,4016,52210.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,841,Vilar Carioca - C. Grande,regular,mini,11.076,12.28,139.0,6,0,20.0,3.0,51,51,4096,47195.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,850,Mendanha - C. Grande,regular,mini,11.489,10.912,122.0,5,0,25.0,2.0,48,48,3664,40568.0,Anexo I.2 p.43
+B2,2028-08-25,,domingo,860,Cabritos - T. Magarça,regular,basico,21.148,21.897,208.0,11,0,15.0,4.0,72,72,4736,101517.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,869,C. Grande - Santa Margarida,regular,mini,15.78,0.0,90.0,7,0,15.0,4.0,61,0,1960,30834.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,882,Santa Margarida - C. Grande,regular,mini,8.649,10.082,109.0,5,0,18.0,3.0,65,65,4108,38384.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,893,Jardim Palmares - C. Grande,regular,mini,12.246,14.112,111.0,9,0,15.0,4.0,62,62,4408,57611.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,895,Serrinha - C. Grande,regular,mini,13.376,12.811,130.0,5,0,25.0,2.0,37,37,3100,39804.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,SN821,C. Grande - Corcundinha,noturno,mini,13.032,0.0,46.0,0,1,50.0,1.0,4,0,120,1564.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,SN893,Jardim Palmares - C. Grande,noturno,mini,12.246,14.161,109.0,0,8,15.0,4.0,6,6,360,4753.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,SN895,C. Grande - Serrinha,noturno,mini,23.471,0.0,90.0,0,3,45.0,1.0,6,0,180,4225.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,SD850,C. Grande - João Melo,derivado,mini,13.572,0.0,81.0,3,0,25.0,2.0,45,0,1832,24457.0,Anexo I.2 p.44
+B2,2028-08-25,,domingo,SV850,Mendanha - C. Grande,variante,mini,12.732,12.241,155.0,4,0,30.0,2.0,40,40,3588,43790.0,Anexo I.2 p.44
+A2,2026-08-01,2027-04-30,util,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,226.0,17,0,13.0,5.0,87,87,5052,123938.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,142.0,7,0,20.0,3.0,59,59,3460,45681.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,12,0,15.0,4.0,67,67,3972,86844.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,840,São Fernando - C. Grande,regular,,21.696,22.085,174.0,13,0,14.0,4.0,86,86,4912,106489.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,9,0,20.0,3.0,64,64,3728,75475.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,140.0,8,0,20.0,3.0,55,55,3300,60390.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,10,0,15.0,4.0,77,77,4484,88419.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,7,0,18.0,3.0,64,64,3824,53087.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,4,0,20.0,3.0,58,0,1724,24169.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,16,0,15.0,4.0,76,76,4424,138124.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,3,60.0,1.0,4,4,240,5206.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,util,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,4,60.0,1.0,4,4,224,6953.0,Anexo I.2 p.48
+A2,2026-08-01,2027-04-30,sabado,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,226.0,13,0,13.0,5.0,84,84,5052,123938.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,142.0,6,0,20.0,3.0,54,54,3460,45681.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,12,0,15.0,4.0,67,67,3972,86844.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,840,São Fernando - C. Grande,regular,,21.696,22.085,174.0,12,0,15.0,4.0,71,71,4912,106489.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,8,0,20.0,3.0,58,58,3728,75475.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,140.0,7,0,20.0,3.0,53,53,3300,60390.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,9,0,15.0,4.0,70,70,4484,88419.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,7,0,18.0,3.0,64,64,3824,53087.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,4,0,20.0,3.0,58,0,1724,24169.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,16,0,15.0,4.0,72,72,4424,138124.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,3,60.0,1.0,4,4,240,5206.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,sabado,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,3,60.0,1.0,3,3,224,6953.0,Anexo I.2 p.49
+A2,2026-08-01,2027-04-30,domingo,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,226.0,14,0,13.0,5.0,69,69,5052,123938.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,142.0,6,0,20.0,3.0,54,54,3460,45681.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,9,0,18.0,3.0,61,61,3972,86844.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,840,São Fernando - C. Grande,regular,,21.696,22.085,174.0,12,0,15.0,4.0,70,70,4912,106489.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,8,0,20.0,3.0,56,56,3728,75475.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,140.0,6,0,20.0,3.0,57,57,3300,60390.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,10,0,15.0,4.0,67,67,4484,88419.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,6,0,20.0,3.0,62,62,3824,53087.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,3,0,20.0,3.0,54,0,1724,24169.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,13,0,15.0,4.0,63,63,4424,138124.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,3,60.0,1.0,4,4,240,5206.0,Anexo I.2 p.50
+A2,2026-08-01,2027-04-30,domingo,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,2,60.0,1.0,3,3,224,6953.0,Anexo I.2 p.50
+A2,2027-05-01,,util,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,237.0,17,0,13.0,5.0,75,75,4420,108992.0,Anexo I.2 p.53
+A2,2027-05-01,,util,807,Jesuítas - T. Curral Falso,regular,,11.83,15.672,130.0,9,0,15.0,4.0,70,70,4104,56088.0,Anexo I.2 p.53
+A2,2027-05-01,,util,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,137.0,10,0,15.0,4.0,76,76,4376,57485.0,Anexo I.2 p.53
+A2,2027-05-01,,util,811,Santa Cruz - Dist. Industrial,regular,,13.822,14.136,125.0,9,0,15.0,4.0,53,53,2780,37813.0,Anexo I.2 p.53
+A2,2027-05-01,,util,813,Manguariba - Santa Veridiana,regular,,17.362,17.313,147.0,10,0,15.0,4.0,66,66,3784,64783.0,Anexo I.2 p.53
+A2,2027-05-01,,util,814,Lote 14 - T. Curral Falso,regular,,10.348,10.041,116.0,8,0,15.0,4.0,66,66,3928,39946.0,Anexo I.2 p.53
+A2,2027-05-01,,util,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,12,0,15.0,4.0,67,67,3972,86844.0,Anexo I.2 p.53
+A2,2027-05-01,,util,828,T. Curral Falso - T. Pingo D'Água,regular,,18.842,16.889,179.0,12,0,15.0,4.0,73,73,4260,75560.0,Anexo I.2 p.53
+A2,2027-05-01,,util,840,São Fernando - C. Grande,regular,,21.696,22.085,176.0,12,0,15.0,4.0,75,75,4428,96616.0,Anexo I.2 p.53
+A2,2027-05-01,,util,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,11,0,15.0,4.0,81,81,4684,94668.0,Anexo I.2 p.53
+A2,2027-05-01,,util,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,150.0,11,0,15.0,4.0,68,68,3920,71076.0,Anexo I.2 p.54
+A2,2027-05-01,,util,858,São Fernando - Comunidade do Aço,regular,,12.13,13.227,122.0,9,0,15.0,4.0,71,71,4260,54010.0,Anexo I.2 p.54
+A2,2027-05-01,,util,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,10,0,15.0,4.0,77,77,4484,88419.0,Anexo I.2 p.54
+A2,2027-05-01,,util,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,8,0,15.0,4.0,73,73,4292,59292.0,Anexo I.2 p.54
+A2,2027-05-01,,util,873,Paciência - C. Grande,regular,,13.763,14.347,121.0,9,0,15.0,4.0,73,73,4276,59762.0,Anexo I.2 p.54
+A2,2027-05-01,,util,874,Sepetiba - Santa Cruz,regular,,12.383,12.556,115.0,8,0,15.0,4.0,80,80,4600,56858.0,Anexo I.2 p.54
+A2,2027-05-01,,util,889,Santa Cruz - São Benedito,regular,,11.601,0.0,56.0,4,0,15.0,4.0,87,0,2490,28594.0,Anexo I.2 p.54
+A2,2027-05-01,,util,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,5,0,15.0,4.0,75,0,2222,31119.0,Anexo I.2 p.54
+A2,2027-05-01,,util,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,16,0,15.0,4.0,76,76,4424,138124.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN813,Manguariba - Santa Veridiana,noturno,,17.361,17.312,116.0,0,2,60.0,1.0,4,4,240,4161.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,4,40.0,2.0,5,5,300,6508.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN828,T. Curral Falso - T. Pingo D'Água,noturno,,18.84,16.891,160.0,0,4,45.0,1.0,5,5,300,5360.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN840,São Fernando - C. Grande,noturno,,21.696,22.083,137.0,0,5,30.0,2.0,6,6,360,7880.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN892,Santa Cruz - São Benedito,noturno,,14.058,0.0,58.0,0,2,30.0,2.0,4,0,120,1687.0,Anexo I.2 p.54
+A2,2027-05-01,,util,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,7,30.0,2.0,6,6,360,11325.0,Anexo I.2 p.54
+A2,2027-05-01,,sabado,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,237.0,15,0,13.0,5.0,71,71,4420,108992.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,807,Jesuítas - T. Curral Falso,regular,,11.83,15.672,130.0,9,0,15.0,4.0,68,68,4104,56088.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,137.0,8,0,15.0,4.0,68,68,4376,57485.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,811,Santa Cruz - Dist. Industrial,regular,,13.822,14.136,125.0,3,0,40.0,2.0,28,28,2780,37813.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,813,Manguariba - Santa Veridiana,regular,,17.362,17.313,147.0,10,0,15.0,4.0,63,63,3784,64783.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,814,Lote 14 - T. Curral Falso,regular,,10.348,10.041,116.0,8,0,15.0,4.0,66,66,3928,39946.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,12,0,15.0,4.0,67,67,3972,86844.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,828,T. Curral Falso - T. Pingo D'Água,regular,,18.842,16.889,179.0,11,0,15.0,4.0,70,70,4260,75560.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,840,São Fernando - C. Grande,regular,,21.696,22.085,176.0,12,0,15.0,4.0,71,71,4428,96616.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,10,0,15.0,4.0,72,72,4684,94668.0,Anexo I.2 p.55
+A2,2027-05-01,,sabado,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,150.0,9,0,18.0,3.0,59,59,3920,71076.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,858,São Fernando - Comunidade do Aço,regular,,12.13,13.227,122.0,7,0,15.0,4.0,71,71,4260,54010.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,9,0,15.0,4.0,70,70,4484,88419.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,8,0,15.0,4.0,73,73,4292,59292.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,873,Paciência - C. Grande,regular,,13.763,14.347,121.0,9,0,15.0,4.0,69,69,4276,59762.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,874,Sepetiba - Santa Cruz,regular,,12.383,12.556,115.0,8,0,15.0,4.0,69,69,4600,56858.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,889,Santa Cruz - São Benedito,regular,,11.601,0.0,56.0,4,0,15.0,4.0,75,0,2490,28594.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,5,0,15.0,4.0,75,0,2222,31119.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,15,0,15.0,4.0,72,72,4424,138124.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN813,Manguariba - Santa Veridiana,noturno,,17.361,17.312,116.0,0,2,60.0,1.0,4,4,240,4161.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,4,40.0,2.0,5,5,300,6508.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN828,T. Curral Falso - T. Pingo D'Água,noturno,,18.84,16.891,160.0,0,4,45.0,1.0,5,5,300,5360.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN840,São Fernando - C. Grande,noturno,,21.696,22.083,137.0,0,5,30.0,2.0,6,6,360,7880.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN892,Santa Cruz - São Benedito,noturno,,14.058,0.0,58.0,0,2,30.0,2.0,4,0,120,1687.0,Anexo I.2 p.56
+A2,2027-05-01,,sabado,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,7,25.0,2.0,6,6,360,11325.0,Anexo I.2 p.56
+A2,2027-05-01,,domingo,804,C. Grande - T. Curral Falso,regular,,23.955,25.551,237.0,14,0,13.0,5.0,69,69,4420,108992.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,807,Jesuítas - T. Curral Falso,regular,,11.83,15.672,130.0,6,0,18.0,3.0,60,60,4104,56088.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,809,Aterrado do Leme - Conjunto Liberdade,regular,,11.413,15.107,137.0,7,0,18.0,3.0,61,61,4376,57485.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,811,Santa Cruz - Dist. Industrial,regular,,13.822,14.136,125.0,3,0,40.0,2.0,28,28,2780,37813.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,813,Manguariba - Santa Veridiana,regular,,17.362,17.313,147.0,7,0,18.0,3.0,47,47,3784,64783.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,814,Lote 14 - T. Curral Falso,regular,,10.348,10.041,116.0,6,0,15.0,4.0,62,62,3928,39946.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,825,Jesuítas - C. Grande,regular,,22.628,21.259,173.0,9,0,18.0,3.0,61,61,3972,86844.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,828,T. Curral Falso - T. Pingo D'Água,regular,,18.842,16.889,179.0,11,0,15.0,4.0,61,61,4260,75560.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,840,São Fernando - C. Grande,regular,,21.696,22.085,176.0,12,0,15.0,4.0,70,70,4428,96616.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,842,Paciência - C. Grande,regular,,19.402,21.338,162.0,11,0,15.0,4.0,68,68,4684,94668.0,Anexo I.2 p.57
+A2,2027-05-01,,domingo,849,Base Aérea de Santa Cruz - C. Grande,regular,,17.829,18.731,150.0,7,0,20.0,3.0,57,57,3920,71076.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,858,São Fernando - Comunidade do Aço,regular,,12.13,13.227,122.0,10,0,15.0,4.0,71,71,4260,54010.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,868,Urucânia - C. Grande,regular,,19.036,20.651,150.0,10,0,15.0,4.0,67,67,4484,88419.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,870,Sepetiba - Santa Cruz,regular,,13.858,13.942,120.0,6,0,20.0,3.0,62,62,4292,59292.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,873,Paciência - C. Grande,regular,,13.763,14.347,121.0,9,0,15.0,4.0,64,64,4276,59762.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,874,Sepetiba - Santa Cruz,regular,,12.383,12.556,115.0,6,0,18.0,3.0,66,66,4600,56858.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,889,Santa Cruz - São Benedito,regular,,11.601,0.0,56.0,4,0,15.0,4.0,69,0,2490,28594.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,892,Santa Cruz - São Benedito,regular,,14.058,0.0,65.0,7,0,15.0,4.0,68,0,2222,31119.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,898,Sepetiba - C. Grande,regular,,30.262,32.659,235.0,14,0,15.0,4.0,63,63,4424,138124.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN813,Manguariba - Santa Veridiana,noturno,,17.361,17.312,116.0,0,2,60.0,1.0,4,4,240,4161.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN825,Jesuítas - C. Grande,noturno,,22.714,20.672,129.0,0,4,40.0,2.0,5,5,300,6508.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN828,T. Curral Falso - T. Pingo D'Água,noturno,,18.84,16.891,160.0,0,4,45.0,1.0,5,5,300,5360.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN840,São Fernando - C. Grande,noturno,,21.696,22.083,137.0,0,5,30.0,2.0,6,6,360,7880.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN892,Santa Cruz - São Benedito,noturno,,14.058,0.0,58.0,0,2,30.0,2.0,4,0,120,1687.0,Anexo I.2 p.58
+A2,2027-05-01,,domingo,SN898,Sepetiba - C. Grande,noturno,,30.262,32.657,184.0,0,3,25.0,2.0,6,6,360,11325.0,Anexo I.2 p.58
+A0,2026-07-01,2026-07-31,util,006,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,007,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,010,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,014,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,100,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,104,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,107,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,109,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,117,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,133,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,157,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,160,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,161,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,162,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,165,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,167,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,169,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,201,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,202,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,209,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,210,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,217,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,220,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,229,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,232,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,238,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,239,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,247,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,249,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,254,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,265,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,275,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,277,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,292,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,296,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,298,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,300,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,301,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,302,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,306,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,311,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,312,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,313,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,315,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,319,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,321,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,323,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,324,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,325,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,326,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,327,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,328,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,329,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,335,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,338,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,341,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,342,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,343,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,348,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,349,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,350,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,352,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,353,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,355,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,361,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,362,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,363,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,368,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,369,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,371,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,378,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,380,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,383,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,384,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,385,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,386,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,388,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,390,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,391,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,393,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,397,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,399,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,409,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,410,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,415,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,416,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,422,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,426,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,448,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,455,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,456,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,457,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,461,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,472,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,473,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,474,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,476,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,483,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,484,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,485,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,486,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,492,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,497,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,507,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,513,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,518,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,519,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,539,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,550,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,552,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,553,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,554,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,555,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,557,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,565,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,583,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,584,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,585,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,600,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,601,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,603,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,606,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,607,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,608,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,610,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,611,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,613,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,614,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,616,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,621,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,622,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,623,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,624,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,625,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,626,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,627,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,628,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,629,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,630,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,635,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,636,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,638,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,639,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,645,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,650,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,651,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,652,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,653,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,663,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,665,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,669,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,678,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,679,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,685,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,687,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,688,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,691,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,692,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,693,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,696,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,711,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,712,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,721,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,731,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,737,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,741,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,743,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,745,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,746,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,753,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,754,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,756,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,757,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,759,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,764,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,765,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,766,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,770,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,771,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,774,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,775,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,778,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,779,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,780,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,783,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,785,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,786,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,788,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,790,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,791,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,793,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,794,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,796,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,798,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,799,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,801,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,802,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,803,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,804,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,805,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,807,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,808,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,809,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,810,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,812,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,817,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,819,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,820,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,821,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,822,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,825,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,826,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,829,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,830,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,831,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,833,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,834,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,835,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,836,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,837,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,838,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,840,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,841,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,842,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,843,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,844,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,845,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,846,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,847,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,848,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,849,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,850,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,851,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,852,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,853,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,854,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,855,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,856,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,857,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,859,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,861,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,862,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,863,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,864,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,865,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,866,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,867,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,868,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,869,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,870,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,871,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,872,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,878,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,880,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,881,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,883,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,884,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,885,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,892,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,893,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,894,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,895,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,897,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,898,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,899,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,900,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,901,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,905,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,906,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,908,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,910,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,913,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,915,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,917,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,918,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,919,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,920,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,921,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,922,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,925,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,926,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,928,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,932,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,940,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,944,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,946,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,950,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,951,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,954,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,959,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,961,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,975,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,979,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,987,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,990,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD126,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD127,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD131,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD132,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD133,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD134,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD135,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD136,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD138,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD139,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD140,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD141,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD142,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD143,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD144,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD145,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD146,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD147,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD148,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD149,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD150,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD151,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD152,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD153,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD154,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD155,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,LECD156,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN007,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN104,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN133,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN209,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN232,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN238,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN265,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN292,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN298,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN302,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN312,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN319,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN324,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN328,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN353,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN355,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN363,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN368,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN383,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN388,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN393,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN397,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN399,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN410,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN415,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN422,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN457,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN474,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN483,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN497,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN550,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN552,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN554,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN565,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN600,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN624,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN629,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN636,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN639,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN696,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN731,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN779,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN790,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN794,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN803,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN805,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN810,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN821,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN825,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN840,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN846,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN848,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN853,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN857,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN861,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN867,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN878,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN880,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN884,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN885,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN893,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN895,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN897,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN898,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN908,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN919,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SN954,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP265,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP324,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP328,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP329,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP343,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP389,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP404,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP485,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP635,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP759,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP766,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP795,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP801,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP803,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP805,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP810,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP864,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SP918,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPA483,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPA550,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPA613,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPB326,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPB483,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SPB550,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR300,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR328,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR342,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR355,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR362,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR378,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR384,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR386,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR388,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR393,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR397,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SR399,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV319,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV363,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV391,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV474,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV483,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV606,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV624,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV669,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV692,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV774,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV777,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV790,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV831,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV853,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV863,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV866,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV878,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV899,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV908,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV917,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV921,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SV922,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SVA665,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SVA685,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SVB665,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SVB685,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)
+A0,2026-07-01,2026-07-31,util,SVB901,,regular,,0,0,0,0,0,0,0,0,0,0,0,simulação A0 (teste jul/2026)

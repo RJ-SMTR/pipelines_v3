@@ -225,7 +225,7 @@ def run_dbt_selector(
             run_command += f" --vars {vars_str}"
 
     if flags:
-        run_command += f" {flags}"
+        run_command += f" {flags} "
 
     print(f"\n>>> RUNNING: {run_command}\n")
     os.chdir(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))

@@ -4,17 +4,12 @@
 from openfisca_core.model_api import Enum
 
 
-class TipoApuracao(Enum):
-    """Tipo de apuracao da viagem conforme Anexo I.8."""
+class Lote(Enum):
+    """Lotes com parametros I.9 vigentes (B1 deserto — fora do enum).
 
-    completa = "completa"
-    incompleta = "incompleta"
-    nao_apurada = "nao_apurada"
+    A0: lote de simulação (espelho A2) para testes com vigência jul/2026.
+    """
 
-
-class ClassificacaoValidacao(Enum):
-    """Classificacao de validacao da viagem conforme Anexo I.8."""
-
-    conforme = "conforme"
-    nao_conforme = "nao_conforme"
-    invalida = "invalida"
+    A0 = "A0"
+    A2 = "A2"
+    B2 = "B2"

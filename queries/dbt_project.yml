@@ -485,6 +485,12 @@ models:
       +schema: subsidio
       staging:
         +schema: subsidio_staging
+    sistemario:
+      +materialized: incremental
+      +incremental_strategy: insert_overwrite
+      +schema: sistemario
+      staging:
+        +schema: sistemario_staging
     catalogo:
       +materialized: view
       +schema: catalogo
@@ -623,6 +629,47 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+seeds:
+  rj_smtr:
+    sistema_referencia_servico:
+      +schema: sistemario
+      +column_types:
+        servico: string
+        data_inicio: string
+        data_fim: string
+        extensao_ida_km: float64
+        extensao_volta_km: float64
+        tempo_ciclo_min: float64
+        frota_hp: int64
+        frota_noturna: int64
+        intervalo_hp_min: float64
+        frequencia_hp: float64
+        viagens_ida_dia: int64
+        viagens_volta_dia: int64
+        viagens_mes: int64
+        producao_km_mes: float64
+    sistema_referencia_lote:
+      +schema: sistemario
+      +column_types:
+        data_inicio: string
+        data_fim: string
+        frota_operante_hp: float64
+        frota_determinada: float64
+        viagens_dia_util: float64
+        km_comercial_dia_util: float64
+        qr_mensal: float64
+    sistema_referencia_lote_tecnologia:
+      +schema: sistemario
+      +column_types:
+        data_inicio: string
+        data_fim: string
+        frota_operante_hp: float64
+        frota_determinada: float64
+        viagens_dia_util: float64
+        km_comercial_dia_util: float64
+        pmd_comercial_dia_util: float64
+        pmm_comercial: float64
+
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

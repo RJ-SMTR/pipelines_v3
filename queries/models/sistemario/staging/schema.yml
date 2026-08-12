@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: aux_frota_operante_dia_lote
+    description: >
+      DEPRECATED — frota diária agora sai de `viagens_apuradas` via
+      `openfisca_smtr.apurar`. Mantido só por compatibilidade temporária.
+      Frota operante diária por lote (Anexo I.8 item 4): maior quantitativo
+      de veículos com viagem completa em pico manhã [05h, 09h) ou tarde [16h, 20h).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils.unique_combination_of_columns__aux_frota_operante_dia_lote
+          arguments:
+            combination_of_columns:
+              - data
+              - lote
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__aux_frota_operante_dia_lote
+      - name: lote
+        description: "Identificador do lote contratual"
+        tests:
+          - not_null:
+              name: not_null__lote__aux_frota_operante_dia_lote
+      - name: indicador_dia_util
+        description: "Indica se a data é dia útil (segunda a sexta)"
+      - name: frota_pico_manha
+        description: "Quantidade distinta de veículos com viagem completa partida no pico manhã"
+      - name: frota_pico_tarde
+        description: "Quantidade distinta de veículos com viagem completa partida no pico tarde"
+      - name: frota_operante
+        description: "Maior frota entre pico manhã e pico tarde no dia/lote"

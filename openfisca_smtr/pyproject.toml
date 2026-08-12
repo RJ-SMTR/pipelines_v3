@@ -17,7 +17,7 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["openfisca_smtr"]
+packages = ["openfisca_smtr", "openfisca_smtr.variables"]
 
 [tool.setuptools.package-dir]
 openfisca_smtr = "."
@@ -33,5 +33,5 @@ line-length = 100
 select = ["ARG", "E", "F", "I", "N", "PL", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-"variables.py" = ["ARG002", "N801", "N805", "PLR2004"]
+"variables/**/*.py" = ["ARG002", "N801", "N805", "PLR2004"]
 "tests/*" = ["PLR2004"]
