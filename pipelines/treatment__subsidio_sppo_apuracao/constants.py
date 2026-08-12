@@ -26,7 +26,7 @@ ADDITIONAL_VARS = {"tipo_teste": "subsidio"}
 PRE_TEST_SELECT = (
     "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
     " veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
-    " gps_validador test_completude__temperatura test_jae_captura_subsidio"
+    " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_completa"
 )
 PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
@@ -85,6 +85,11 @@ PRE_CHECKS_LIST = {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils__unique_combination_of_columns__tecnologia_servico": {
             "description": "Todos os registros são únicos"
+        },
+    },
+    "viagem_completa": {
+        "dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa": {
+            "description": "Todos os registros de viagem não se sobrepõem"
         },
     },
     "viagem_planejada": {
