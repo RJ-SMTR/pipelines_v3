@@ -8,8 +8,6 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__remuneracao_openfisca ./pipelines/treatment__remuneracao_openfisca/
 
-COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
-
 COPY ./pipelines/common/ ./pipelines/common/
 
 COPY ./queries ./queries

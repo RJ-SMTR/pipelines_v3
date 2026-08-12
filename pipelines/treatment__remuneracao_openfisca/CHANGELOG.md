@@ -4,8 +4,11 @@
 
 ### Alterado
 
+- Remove `WAIT_VIAGENS_SPPO_SELECTOR` (data_sources desligado): o
+  `DBTSelector` lia `treatment__sppo_viagens/prefect.yaml` no import e
+  quebrava a imagem, que não copia essa pasta
 - `incremental_delay_hours` de 48h para `5 * 24` (5 dias) no selector
-  `remuneracao_openfisca` e no wait `viagens_sppo`
+  `remuneracao_openfisca`
 - Modelos do selector `remuneracao_openfisca` passam a materializar no
   dataset `sistemario` (antes em `subsidio`)
 - WIP/teste: `data_sources` aguarda `viagens_sppo` (`viagem_completa`) —
