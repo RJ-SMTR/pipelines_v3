@@ -59,7 +59,7 @@ with
                         cast([] as array<string>) as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
-                       struct(  -- Processo nº 000300.029670/2026-71
+                       struct(  -- Processo nº 000300.029670/2026-71.
                         '2026-07-23' as data_inicio,
                         '2026-07-31' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
@@ -109,7 +109,7 @@ with
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
-                    struct(  -- Processo nº 000300.029670/2026-71
+                    struct(  -- Processo nº 000300.029670/2026-71.
                         '2026-07-16' as data_inicio,
                         '2026-07-22' as data_fim,
                         cast(null as string) as faixa_horaria_inicio,
