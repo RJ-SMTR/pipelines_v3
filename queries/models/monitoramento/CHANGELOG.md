@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-07-16` e `2026-07-31` com `data_processamento`entre `2026-07-16` e `2026-08-12` devido à falha no processamento dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/499)
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-07-16` e `2026-07-31` com `data_processamento` entre `2026-07-16` e `2026-08-12` devido à falha no processamento dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/499)
 
 ## [2.2.7] - 2026-07-31
 
