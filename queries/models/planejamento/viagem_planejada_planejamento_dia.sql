@@ -22,7 +22,7 @@
 
 {% set source_filter %}
     data between
-        date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
+        date('{{ var("date_range_start") }}')
         and {{ date_range_end_extended }}
 {% endset %}
 
@@ -101,19 +101,7 @@ with
     ),
     viagem_dia as (
         select
-            date(
-                datetime(
-                    timestamp(
-                        c.data + make_interval(
-                            hour => cast(split(vp.horario_partida, ':')[0] as int64),
-                            minute => cast(split(vp.horario_partida, ':')[1] as int64),
-                            second => cast(split(vp.horario_partida, ':')[2] as int64)
-                        ),
-                        "America/Sao_Paulo"
-                    ),
-                    "America/Sao_Paulo"
-                )
-            ) as data,
+            c.data as data,
             datetime(
                 timestamp(
                     c.data + make_interval(
