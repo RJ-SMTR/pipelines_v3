@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona no modelo `viagem_completa` a CTE `viagens_concorrentes` para remover viagens sobrepostas do mesmo veículo. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona no modelo `viagem_completa` a CTE `viagens_concorrentes` para remover viagens sobrepostas do mesmo veículo, conforme processo SEI nº 006400.000803/2026-85 (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
 - Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
 
 ### Alterado
