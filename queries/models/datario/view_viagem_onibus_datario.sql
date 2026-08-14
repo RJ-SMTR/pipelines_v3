@@ -44,7 +44,6 @@ with
             v.id_viagem,
             v.servico as servico_informado,
             v.servico as servico_realizado,
-            v.servico,
             vs.vista,
             v.shape_id,
             v.sentido,
