@@ -35,3 +35,416 @@ exposures:
           team:
             - rodrigo.fcunha@prefeitura.rio
             - victormiguel@prefeitura.rio
+
+  - name: PAINEL_APURACAO_VIAGENS_ONIBUS
+    type: dashboard
+    description: >
+      APURACAO DE VIAGENS E ITINERÁRIOS DO SPPO
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('viagem_completa')
+      - ref('viagem_planejada')
+    config:
+      meta:
+        data_product_name: Apuração de Viagens e Itinerários do SPPO
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_GPS_ONIBUS
+    type: dashboard
+    description: >
+      GPS DOS ÔNIBUS (ÚLTIMOS 8 DIAS)
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('gps_sppo_8_dias')
+      - ref('viagem_planejada')
+    config:
+      meta:
+        data_product_name: GPS dos Ônibus (Últimos 8 Dias)
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_GPS_ONIBUS_HISTORICO
+    type: dashboard
+    description: >
+      GPS DOS ÔNIBUS (HISTÓRICO)
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_gps_sppo_completo')
+      - ref('viagem_planejada')
+      - ref('sumario_servico_dia_historico')
+    config:
+      meta:
+        data_product_name: GPS dos Ônibus (Histórico)
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_SUBSIDIO_ONIBUS
+    type: dashboard
+    description: >
+      SUBSÍDIO DOS ÔNIBUS
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('viagem_completa')
+      - ref('sumario_servico_dia_tipo_viagem_historico')
+      - ref('sumario_servico_dia_historico')
+    config:
+      meta:
+        data_product_name: Subsídio dos Ônibus
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_OPERACAO_ONIBUS
+    type: dashboard
+    description: >
+      OPERAÇÃO DOS ÔNIBUS
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('sumario_servico_dia_historico')
+      - ref('viagem_planejada')
+      - ref('sumario_faixa_servico_dia')
+      - ref('sumario_faixa_servico_dia_pagamento')
+      - source('cmtd_projetos', 'forms-teste')
+      - ref('viagem_completa')
+      - ref('ordem_servico_diaria')
+      - ref('licenciamento')
+      - ref('veiculo_licenciamento_dia')
+    config:
+      meta:
+        data_product_name: Operação dos Ônibus
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_BILHETAGEM_DIGITAL
+    type: dashboard
+    description: >
+      BILHETAGEM DIGITAL - JAÉ
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_passageiro_hora')
+      - ref('view_passageiro_tile_hora')
+      - ref('view_integracao')
+      - ref('subsidio_data_versao_efetiva')
+      - source('br_rj_riodejaneiro_geo', 'h3_res9')
+      - ref('servicos')
+      - ref('ultimo_datetime_captura_confiavel')
+    config:
+      meta:
+        data_product_name: Bilhetagem Digital - Jaé
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_CCT
+    type: dashboard
+    description: >
+      CCT - CÂMARA DE COMPENSAÇÃO TARIFÁRIA
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - source('controle_financeiro_staging', 'cb')
+      - source('controle_financeiro_staging', 'cett')
+    config:
+      meta:
+        data_product_name: CCT - Câmara de Compensação Tarifária
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_OPERACAO_MENSAL
+    type: dashboard
+    description: >
+      RELATÓRIO DE OPERAÇÃO MENSAL - RDO D+40
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('estacao_brt')
+      - source('br_rj_riodejaneiro_rdo', 'rdo40_tratado')
+    config:
+      meta:
+        data_product_name: Relatório de Operação Mensal - RDO D+40
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_PONTOS_ONIBUS
+    type: dashboard
+    description: >
+      PAINEL SIGMOB - PONTOS MAPEADOS
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - source('br_rj_riodejaneiro_sigmob', 'stops_desaninhada')
+      - source('br_rj_riodejaneiro_sigmob', 'agg_stops_vistoriadas')
+      - source('br_rj_riodejaneiro_sigmob', 'stop_details_desaninhada')
+    config:
+      meta:
+        data_product_name: Painel SIGMOB - Pontos Mapeados
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_MATRIZ_OD
+    type: dashboard
+    description: >
+      MATRIZ OD (ORIGEM-DESTINO)
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - source('mit_ipea_project', 'origin_destination_res9')
+      - source('br_rj_riodejaneiro_geo', 'h3_res9')
+    config:
+      meta:
+        data_product_name: Matriz OD (Origem-Destino)
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_CADASTRO_STU
+    type: dashboard
+    description: >
+      CADASTRO STU
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('veiculo_licenciamento_dia')
+    config:
+      meta:
+        data_product_name: Cadastro STU
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_CUSTOS_GOOGLE_CLOUD
+    type: dashboard
+    description: >
+      PAINEL DE CUSTOS - GOOGLE CLOUD
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - source('cloudcosts', 'cloud_pricing_export')
+      - ref('custo_cloud')
+      - ref('log_bigquery')
+    config:
+      meta:
+        data_product_name: Painel de Custos - Google Cloud
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_GPS_VAN
+    type: dashboard
+    description: >
+      GPS DAS VANS
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_gps_validador_van')
+    config:
+      meta:
+        data_product_name: GPS das Vans
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_SENSORES_AR_CONDICIONADO
+    type: dashboard
+    description: >
+      PAINEL DE SENSORES DE AR-CONDICIONADO
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_viagem_climatizacao')
+    config:
+      meta:
+        data_product_name: Painel de Sensores de Ar-Condicionado
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_OUVIDORIA
+    type: dashboard
+    description: >
+      PAINEL DA OUVIDORIA
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - source('adm_central_atendimento_1746', 'chamado')
+      - source('dados_mestres', 'logradouro')
+    config:
+      meta:
+        data_product_name: Painel da Ouvidoria
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
+
+  - name: PAINEL_RIO_ROTATIVO_DIGITAL
+    type: dashboard
+    description: >
+      PAINEL RIO ROTATIVO DIGITAL
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('ativacao_dia')
+      - ref('ativacao_hora')
+    config:
+      meta:
+        data_product_name: Painel Rio Rotativo Digital
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: null
+          unit: null
+          core: null
+          team: null
