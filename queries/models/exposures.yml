@@ -56,10 +56,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_GPS_ONIBUS
     type: dashboard
@@ -81,10 +83,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_GPS_ONIBUS_HISTORICO
     type: dashboard
@@ -107,10 +111,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_SUBSIDIO_ONIBUS
     type: dashboard
@@ -133,10 +139,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_OPERACAO_ONIBUS
     type: dashboard
@@ -153,7 +161,7 @@ exposures:
       - ref('viagem_planejada')
       - ref('sumario_faixa_servico_dia')
       - ref('sumario_faixa_servico_dia_pagamento')
-      - source('cmtd_projetos', 'forms-teste')
+      # - source('cmtd_projetos', 'forms-teste')
       - ref('viagem_completa')
       - ref('ordem_servico_diaria')
       - ref('licenciamento')
@@ -165,10 +173,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_BILHETAGEM_DIGITAL
     type: dashboard
@@ -195,10 +205,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - adriano.neto@prefeitura.rio
 
   - name: PAINEL_CCT
     type: dashboard
@@ -220,10 +231,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - adriano.neto@prefeitura.rio
 
   - name: PAINEL_OPERACAO_MENSAL
     type: dashboard
@@ -245,10 +257,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - adriano.neto@prefeitura.rio
 
   - name: PAINEL_PONTOS_ONIBUS
     type: dashboard
@@ -272,7 +285,7 @@ exposures:
         data_contract: null
         technical_data_steward:
           email: null
-          unit: null
+          unit: IPLANRIO/PRE/VPIA/DTDI
           core: null
           team: null
 
@@ -296,10 +309,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: guilherme.hcbotelho@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Inovação
+          team:
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_CADASTRO_STU
     type: dashboard
@@ -320,10 +334,12 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_CUSTOS_GOOGLE_CLOUD
     type: dashboard
@@ -346,10 +362,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: guilherme.hcbotelho@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Inovação
+          team:
+            - adriano.neto@prefeitura.rio
 
   - name: PAINEL_GPS_VAN
     type: dashboard
@@ -370,10 +387,11 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - adriano.neto@prefeitura.rio
 
   - name: PAINEL_SENSORES_AR_CONDICIONADO
     type: dashboard
@@ -394,10 +412,13 @@ exposures:
         business_value: null
         data_contract: null
         technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - adriano.neto@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio
 
   - name: PAINEL_OUVIDORIA
     type: dashboard
@@ -420,31 +441,31 @@ exposures:
         data_contract: null
         technical_data_steward:
           email: null
-          unit: null
+          unit: IPLANRIO/PRE/VPIA/DTDI
           core: null
           team: null
 
-  - name: PAINEL_RIO_ROTATIVO_DIGITAL
-    type: dashboard
-    description: >
-      PAINEL RIO ROTATIVO DIGITAL
-    owner:
-      name: TR/SUBTT/CMO
-      email: marcio.caldeira@prefeitura.rio
-      roles:
-        - Owner
-        - Business Data Steward
-    depends_on:
-      - ref('ativacao_dia')
-      - ref('ativacao_hora')
-    config:
-      meta:
-        data_product_name: Painel Rio Rotativo Digital
-        data_usage_frequency: null
-        business_value: null
-        data_contract: null
-        technical_data_steward:
-          email: null
-          unit: null
-          core: null
-          team: null
+  # - name: PAINEL_RIO_ROTATIVO_DIGITAL
+  #   type: dashboard
+  #   description: >
+  #     PAINEL RIO ROTATIVO DIGITAL
+  #   owner:
+  #     name: TR/SUBTT/CMO
+  #     email: marcio.caldeira@prefeitura.rio
+  #     roles:
+  #       - Owner
+  #       - Business Data Steward
+  #   depends_on:
+  #     - ref('ativacao_dia')
+  #     - ref('ativacao_hora')
+  #   config:
+  #     meta:
+  #       data_product_name: Painel Rio Rotativo Digital
+  #       data_usage_frequency: null
+  #       business_value: null
+  #       data_contract: null
+  #       technical_data_steward:
+  #         email: null
+  #         unit: IPLANRIO/PRE/VPIA/DTDI
+  #         core: Bilhetagem
+  #         team: null
