@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.6] - 2026-08-17
+
+### Alterado
+
+- Adiciona as colunas `consorcio`, `sistema` e `vista` aos modelos `viagem_planejada_planejamento`, `viagem_planejada_planejamento_dia` e `servico_planejado_faixa_horaria`, inclui `vista` nos trajetos alternativos e remove os campos redundantes `evento` e `indicador_trajeto_alternativo` das estruturas de trajetos regulares (https://github.com/RJ-SMTR/pipelines_v3/pull/519)
+
 ## [1.8.5] - 2026-08-14
 
 ### Corrigido
