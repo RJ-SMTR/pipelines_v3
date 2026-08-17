@@ -378,4 +378,3 @@ with
     )
 select *
 from colunas_controle
-where feed_start_date = date('{{ var("data_versao_gtfs") }}')
