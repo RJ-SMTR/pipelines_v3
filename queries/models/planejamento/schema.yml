@@ -205,6 +205,18 @@ models:
         description: "{{ doc('modo') }}"
         data_type: string
         quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+        quote: true
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+        quote: true
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
@@ -237,16 +249,12 @@ models:
         description: "{{ doc('sentido') }}"
         data_type: string
         quote: true
-      - name: evento
-        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
-        data_type: string
-        quote: true
       - name: extensao
         description: "{{ doc('extensao') }}"
         data_type: float64
         quote: true
       - name: trajetos_alternativos
-        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido, tipo_os)"
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
         quote: true
       - name: feed_version
@@ -297,6 +305,18 @@ models:
         description: "{{ doc('modo') }}"
         data_type: string
         quote: true
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+        quote: true
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+        quote: true
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+        quote: true
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
@@ -321,16 +341,12 @@ models:
         description: "{{ doc('sentido') }}"
         data_type: string
         quote: true
-      - name: evento
-        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
-        data_type: string
-        quote: true
       - name: extensao
         description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
         data_type: float64
         quote: true
       - name: trajetos_alternativos
-        description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
         quote: true
       - name: data_referencia
@@ -575,6 +591,14 @@ models:
         description: "{{ doc('consorcio') }}"
         data_type: string
         quote: true
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+        quote: true
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
@@ -608,7 +632,7 @@ models:
         data_type: record
         quote: true
       - name: trajetos_alternativos
-        description: "Outros trajetos que podem, alternativamente, serem utilizados na viagem"
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
         quote: true
       - name: versao
