@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tasks de captura dos dados de GPS (cittati, conecta, zirix, sppo, sonda)
+Tasks de captura dos dados de GPS
 """
 
 from datetime import timedelta
@@ -18,7 +18,7 @@ from pipelines.common.utils.secret import get_env_secret
 
 @task(cache_policy=NO_CACHE)
 def create_gps_extractor(context: SourceCaptureContext):
-    """Cria a extração de dados de GPS das fontes cittati, conecta, zirix, sppo e sonda"""
+    """Cria a extração de dados de GPS das fontes configuradas."""
     source = context.source
     source_config = constants.GPS_SOURCE_CONFIGS[source.source_name]
 
@@ -48,7 +48,12 @@ def create_gps_extractor(context: SourceCaptureContext):
             end = timestamp.strftime(fmt)
 
         url = f"{source_config['base_url']}/{endpoint}"
-        extractor_kwargs = {"params": {"dataInicial": start, "dataFinal": end}}
+        extractor_kwargs = {
+            "params": {
+                source_config.get(f"{source.table_id}_start_parameter", "dataInicial"): start,
+                source_config.get(f"{source.table_id}_end_parameter", "dataFinal"): end,
+            }
+        }
 
     headers = get_env_secret(secret_path)
     if not headers:
@@ -57,8 +62,11 @@ def create_gps_extractor(context: SourceCaptureContext):
     if source.source_name == constants.SONDA_SOURCE_NAME:
         extractor_kwargs["headers"] = headers
     else:
-        key = next(iter(headers))
-        extractor_kwargs["params"]["guidIdentificacao"] = headers[key]
+        credential_key = source_config.get("credential_key") or next(iter(headers))
+        credential_parameter = source_config.get("credential_parameter", "guidIdentificacao")
+        if credential_key not in headers:
+            raise KeyError(f"Credential '{credential_key}' not found in {secret_path}")
+        extractor_kwargs["params"][credential_parameter] = headers[credential_key]
 
     return partial(
         get_raw_api,

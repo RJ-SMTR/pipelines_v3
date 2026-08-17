@@ -10,6 +10,7 @@ import pandas as pd
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.capture.gps.constants import (
+    MAXTRACK_REGISTROS_DATETIME_COLS,
     OUTPUT_DATETIME_FORMAT,
     REALOCACAO_DATETIME_INPUT_FORMATS,
     SONDA_REGISTROS_RENAME,
@@ -45,6 +46,12 @@ def _convert_naive_sp_to_utc_iso(series: pd.Series) -> pd.Series:
         .dt.strftime(OUTPUT_DATETIME_FORMAT)
     )
     return converted.fillna(series)
+
+
+def _convert_iso_to_utc_iso(series: pd.Series) -> pd.Series:
+    """Normaliza strings ISO com timezone para o formato UTC usado no staging."""
+    converted = pd.to_datetime(series, utc=True, errors="coerce")
+    return converted.dt.strftime(OUTPUT_DATETIME_FORMAT).fillna(series)
 
 
 def pretreat_sonda_registros(
@@ -83,6 +90,17 @@ def rename_sppo_registros(
     for col in SPPO_REGISTROS_DATETIME_COLS:
         if col in data.columns:
             data[col] = _convert_epoch_ms_to_utc_iso(data[col])
+    return data
+
+
+def normalize_maxtrack_registros(
+    data: pd.DataFrame,
+    context: SourceCaptureContext,  # noqa: ARG001
+) -> pd.DataFrame:
+    """Normaliza os datetimes ISO com milissegundos retornados pela Maxtrack."""
+    for col in MAXTRACK_REGISTROS_DATETIME_COLS:
+        if col in data.columns:
+            data[col] = _convert_iso_to_utc_iso(data[col])
     return data
 
 
