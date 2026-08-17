@@ -10,7 +10,6 @@
     )
 }}
 
--- depends_on: {{ ref('feed_info_gtfs') }}
 {% if execute and is_incremental() %}
     {% set columns = (
         list_columns()
@@ -32,11 +31,8 @@
             )
         )
     {% endset %}
-    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
     {% set feed_filter %}
-        feed_start_date in (
-            date('{{ last_feed_version }}'), date('{{ var("data_versao_gtfs") }}')
-        )
+        feed_start_date = date('{{ var("data_versao_gtfs") }}')
     {% endset %}
 {% else %}
     {% set sha_column %}
@@ -176,13 +172,14 @@ with
     ),
     /*
     Monta a base da viagem planejada: converte partida_seconds em horário
-    HH:MM:SS, deriva tipo_dia do service_id (Útil/Sábado/Domingo) e o sentido
-    (C = circular, I = ida quando direction_id 0, V = volta caso contrário).
+    HH:MM:SS normalizado com módulo 24, deriva tipo_dia do service_id
+    (Útil/Sábado/Domingo) e o sentido (C = circular, I = ida quando
+    direction_id 0, V = volta caso contrário).
     */
     viagem_planejada_base as (
         select
             concat(
-                lpad(cast(div(partida_seconds, 3600) as string), 2, '0'),
+                lpad(cast(mod(div(partida_seconds, 3600), 24) as string), 2, '0'),
                 ':',
                 lpad(cast(mod(div(partida_seconds, 60), 60) as string), 2, '0'),
                 ':',
