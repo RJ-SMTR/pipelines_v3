@@ -91,6 +91,9 @@ with
         select
             tf.trip_id,
             tf.modo,
+            tf.consorcio,
+            tf.sistema,
+            tf.vista,
             tf.route_id,
             tf.service_id,
             tf.servico,
@@ -98,7 +101,6 @@ with
             tf.shape_id,
             tf.feed_version,
             tf.feed_start_date,
-            tf.evento,
             partida_seconds
         from
             trips_frequencies tf,
@@ -115,6 +117,9 @@ with
         select
             t.trip_id,
             t.modo,
+            t.consorcio,
+            t.sistema,
+            t.vista,
             t.route_id,
             t.service_id,
             t.servico,
@@ -122,7 +127,6 @@ with
             t.shape_id,
             t.feed_version,
             t.feed_start_date,
-            t.evento,
             st.arrival_seconds as partida_seconds
         from trips t
         join
@@ -186,6 +190,9 @@ with
                 lpad(cast(mod(partida_seconds, 60) as string), 2, '0')
             ) as horario_partida,
             modo,
+            consorcio,
+            sistema,
+            vista,
             service_id,
             case
                 when service_id like "%U_%"
@@ -208,7 +215,6 @@ with
                 then "I"
                 else "V"
             end as sentido,
-            evento,
             feed_version,
             feed_start_date
         from viagens_unidas v
@@ -236,7 +242,7 @@ with
             and {{ ordem_servico_excecoes_join("ose", "v") }}
     ),
     /*
-    Constrói o array de trajetos alternativos (trip, shape, evento e extensão)
+    Constrói o array de trajetos alternativos (trip, shape, vista, evento e extensão)
     por serviço/sentido/tipo_os, ignorando alternativas sem extensão válida.
     */
     trips_alternativas as (
@@ -253,6 +259,7 @@ with
                         struct(
                             t.trip_id as trip_id,
                             t.shape_id as shape_id,
+                            t.vista || " " || t.evento as vista,
                             t.evento as evento,
                             tas.extensao as extensao
                         )

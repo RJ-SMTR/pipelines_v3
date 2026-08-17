@@ -253,8 +253,8 @@ with
         {% endif %}
     ),
     /*
-    Desaninhamento do shape_id e indicador_trajeto_alternativo dos arrays
-    trip_info (trajeto principal) e trajetos_alternativos
+    Desaninhamento do shape_id dos arrays trip_info (trajeto principal) e
+    trajetos_alternativos, com classificação do tipo de trajeto
     */
     servico_planejado_unnested as (
         select distinct
@@ -267,7 +267,7 @@ with
             sp.faixa_horaria_inicio,
             sp.faixa_horaria_fim,
             trip.shape_id,
-            trip.indicador_trajeto_alternativo
+            false as indicador_trajeto_alternativo
         from servico_planejado sp, unnest(sp.trip_info) as trip
         where trip.shape_id is not null
 
