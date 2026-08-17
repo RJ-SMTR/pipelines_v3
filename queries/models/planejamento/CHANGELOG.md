@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.5] - 2026-08-14
+
+### Corrigido
+
+- Ajusta os modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` para processar somente o feed atual e manter partidas com horários iguais ou superiores a 24:00:00 associadas ao mesmo dia operacional, normalizando `horario_partida` com módulo 24 (https://github.com/RJ-SMTR/pipelines_v3/pull/516)
+
 ## [1.8.4] - 2026-07-31
 
 ### Corrigido
