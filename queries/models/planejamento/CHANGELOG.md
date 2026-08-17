@@ -1,11 +1,17 @@
 # Changelog - planejamento
 
-## [1.8.5] - 2026-08-03
+## [1.8.6] - 2026-08-17
 
 ### Adicionado
 
 - Adiciona testes `dbt_expectations.expect_table_aggregation_to_equal_other_table` para os trajetos alternativos em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
 - Adiciona o teste `planejamento_gtfs_freshness` para validar que feeds GTFS com `feed_update_datetime` na janela foram materializados em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` com o `feed_start_date` esperado e partição gravada após a atualização do feed (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
+## [1.8.5] - 2026-08-14
+
+### Corrigido
+
+- Ajusta os modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` para processar somente o feed atual e manter partidas com horários iguais ou superiores a 24:00:00 associadas ao mesmo dia operacional, normalizando `horario_partida` com módulo 24 (https://github.com/RJ-SMTR/pipelines_v3/pull/516)
 
 ## [1.8.4] - 2026-07-31
 
