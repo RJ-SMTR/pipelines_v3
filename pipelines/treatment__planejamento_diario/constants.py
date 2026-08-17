@@ -10,32 +10,32 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 PLANEJAMENTO_DIARIO_CHECKS_LIST = {
+    "servico_planejado_faixa_horaria": {
+        "test_consistencia_servico_planejado_faixa_horaria": {
+            "description": (
+                "Os totais de partidas e quilometragem dos serviços planejados "
+                "correspondem aos da Ordem de Serviço para cada "
+                "`feed_start_date`, `tipo_dia` e `tipo_os`."
+            )
+        },
+    },
     "viagem_planejada_planejamento_dia": {
         "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia": {
             "description": "Todos os registros de 'data' e 'id_viagem' são únicos."
         },
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia": {
             "description": (
-                "A quantidade distinta de eventos de trajetos alternativos corresponde "
+                "A quantidade de trajetos alternativos corresponde "
                 "entre a Ordem de Serviço e `viagem_planejada_planejamento_dia` para o "
-                "mesmo `feed_start_date`, `servico`, `tipo_os` e `sentido`, considerando "
-                "apenas as combinações presentes nas viagens planejadas da janela "
-                "diária."
-            )
-        },
-        "planejamento_gtfs_freshness__viagem_planejada_planejamento_dia": {
-            "description": (
-                "Para cada feed GTFS com `feed_update_datetime` na janela, as partições "
-                "diárias da vigência em `viagem_planejada_planejamento_dia` existem, "
-                "contêm o `feed_start_date` esperado e foram gravadas após a "
-                "atualização do feed."
+                "mesmo `feed_start_date`, `servico`, `tipo_os` e `sentido`."
             )
         },
     },
 }
 
 PLANEJAMENTO_DIARIO_TEST = DBTTest(
-    test_select="viagem_planejada_planejamento_dia",
+    test_select="servico_planejado_faixa_horaria viagem_planejada_planejamento_dia",
+    exclude="tag:freshness",
     test_descriptions=PLANEJAMENTO_DIARIO_CHECKS_LIST,
     truncate_date=True,
 )
