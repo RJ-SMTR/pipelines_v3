@@ -888,12 +888,12 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
         result = info["result"]
         log_message += f"Test: {test} Status: {result}\n"
 
-        if result in ("FAIL", "WARN") and "query" in info:
+        if result in ("FAIL", "WARN"):
             log_message += "Query:\n"
             log_message += f"{info['query']}\n"
 
         if result == "ERROR":
-            log_message += f"Error: {info.get('error', 'sem detalhe no log do dbt')}\n"
+            log_message += f"Error: {info['error']}\n"
 
         log_message += "\n"
 
