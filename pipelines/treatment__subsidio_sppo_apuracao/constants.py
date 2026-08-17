@@ -88,6 +88,16 @@ PRE_CHECKS_LIST = {
         },
     },
     "viagem_completa": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "accepted_values": {
+            "description": "Todos os valores da coluna `{column_name}` são aceitos"
+        },
+        "greater_than_zero": {
+            "description": "Todos os valores da coluna `{column_name}` maiores que zero"
+        },
+        "unique__id_viagem__viagem_completa": {
+            "description": "Todos os registros são únicos"
+        },
         "dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa": {
             "description": "Todos os registros de viagem não se sobrepõem"
         },
