@@ -1,10 +1,11 @@
 # Changelog - capture__gtfs
 
-## [1.3.0] - 2026-08-03
+## [1.3.0] - 2026-08-17
 
 ### Adicionado
 
 - Adiciona ao pós-teste do GTFS a validação de trajetos alternativos de `viagem_planejada_planejamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona ao pós-teste do GTFS o teste `test_consistencia_servicos_ordem_servico_gtfs`, que valida a existência de trips e horários para os serviços da Ordem de Serviço. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
 
 ## [1.2.2] - 2026-07-31
 
