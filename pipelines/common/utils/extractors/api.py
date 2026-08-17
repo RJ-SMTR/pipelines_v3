@@ -87,6 +87,72 @@ def get_raw_api(  # noqa: PLR0913
     return [filepath]
 
 
+def get_raw_api_paginated(  # noqa: PLR0913
+    url: str,
+    raw_filepath: str,
+    page_param_name: str,
+    page_size_param_name: str,
+    page_size: int,
+    params: dict,
+    headers: Union[None, dict] = None,
+    response_key: Union[None, str] = None,
+    first_page: int = 0,
+) -> list[str]:
+    """Get data from a page-number paginated API and save each page locally.
+
+    Args:
+        url (str): API endpoint URL.
+        raw_filepath (str): File path template with a ``{page}`` placeholder.
+        page_param_name (str): Name of the page-number query parameter.
+        page_size_param_name (str): Name of the page-size query parameter.
+        page_size (int): Maximum number of records requested per page.
+        headers (Union[None, dict]): Request headers.
+        params (dict): Additional request parameters.
+        response_key (Union[None, str]): Key containing the records when the response is an object.
+        first_page (int): First page number accepted by the API. Defaults to 0.
+
+    Returns:
+        list[str]: Paths of the saved page files.
+    """
+    filepaths = []
+    page_index = 0
+    page_data_len = page_size
+
+    while page_data_len == page_size:
+        current_page = first_page + page_index
+        page_params = {
+            **params,
+            page_param_name: current_page,
+            page_size_param_name: page_size,
+        }
+        response_data = get_api_data(
+            url=url,
+            headers=headers,
+            params=page_params,
+            raw_filetype="json",
+        )
+        page_data = response_data[response_key] if response_key is not None else response_data
+        if not isinstance(page_data, list):
+            raise ValueError("Paginated API response must contain a list of records")
+
+        page_data_len = len(page_data)
+        print(
+            f"Page size: {page_size}\n"
+            f"Current page: {current_page}\n"
+            f"Current page returned {page_data_len} rows"
+        )
+
+        filepath = raw_filepath.format(page=page_index)
+        save_local_file(filepath=filepath, filetype="json", data=page_data)
+        filepaths.append(filepath)
+
+        if page_data_len < page_size:
+            print("Last page, ending extraction")
+        page_index += 1
+
+    return filepaths
+
+
 def get_raw_api_list(
     url: Union[str, list[str]],
     raw_filepath: str,
