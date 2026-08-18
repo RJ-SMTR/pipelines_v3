@@ -265,7 +265,7 @@ with
             and t.servico = tas.servico
             and t.evento = tas.evento
             and t.direction_id = tas.direction_id
-        where t.trip_id not in (select trip_id from frequencies_tratada)
+        where t.service_id = 'EXCEP'
         group by 1, 2, 3, 4, 5
     ),
     /*
