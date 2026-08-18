@@ -46,6 +46,14 @@ COPY ./pipelines/capture__jae_transacao_ordem ./pipelines/capture__jae_transacao
 
 COPY ./pipelines/treatment__transacao_valor_ordem ./pipelines/treatment__transacao_valor_ordem/
 
+COPY ./pipelines/capture__jae_estacionamento_veiculo ./pipelines/capture__jae_estacionamento_veiculo/
+
+COPY ./pipelines/capture__jae_fiscalizacao_veiculo ./pipelines/capture__jae_fiscalizacao_veiculo/
+
+COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/capture__jae_movimento_estacionamento_veiculo/
+
+COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_riorotativo_auxiliar/
+
 COPY ./pipelines/control__jae_verificacao_captura ./pipelines/control__jae_verificacao_captura/
 
 COPY ./pipelines/treatment__jae_timestamps_divergentes ./pipelines/treatment__jae_timestamps_divergentes/
