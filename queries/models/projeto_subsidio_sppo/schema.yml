@@ -737,7 +737,7 @@ models:
     description: "Detalhes de todas as viagens completas identificadas [Dados entre 2022-06-01 e 2026-07-31]"
     tests:
       - dbt_utils.mutually_exclusive_ranges:
-          name: dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa
+          name: dbt_utils__mutually_exclusive_ranges__id_veiculo__viagem_completa
           arguments:
             lower_bound_column: datetime_partida
             upper_bound_column: datetime_chegada

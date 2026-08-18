@@ -446,7 +446,7 @@ models:
           - not_null:
               name: not_null__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils__accepted_range__distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: distancia_total_subsidio
@@ -455,7 +455,7 @@ models:
           - not_null:
               name: not_null__distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils__accepted_range__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: valor_total_aferido

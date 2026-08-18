@@ -167,7 +167,7 @@ models:
               - feed_start_date
               - id_viagem
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento
           config:
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
@@ -265,7 +265,7 @@ models:
               - data
               - id_viagem
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia
           config:
             where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day) and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
