@@ -29,9 +29,12 @@
                     table_name = "{{ source_relation.identifier }}"
                     and partition_id not in ("__NULL__", "__UNPARTITIONED__")
                     and {{ modified_filter }}
-                    and parse_date("%Y%m%d", partition_id) >= date_sub(
-                        date("{{ var('date_range_end') }}"), interval {{ max_age_days }} day
-                    )
+                    {% if max_age_days is not none %}
+                        and parse_date("%Y%m%d", partition_id) >= date_sub(
+                            date("{{ var('date_range_end') }}"),
+                            interval {{ max_age_days }} day
+                        )
+                    {% endif %}
             )
             {% if include_adjacent %}
                 ,
