@@ -257,10 +257,6 @@ models:
         description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
         quote: true
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
-        data_type: string
-        quote: true
       - name: feed_start_date
         description: "Data inicial do feed do GTFS (versão). [partição]"
         data_type: date
@@ -363,10 +359,6 @@ models:
         quote: true
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
-        data_type: string
-        quote: true
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
         data_type: string
         quote: true
       - name: feed_start_date
@@ -566,10 +558,6 @@ models:
       - name: data
         description: "Data [partição]"
         data_type: date
-        quote: true
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
-        data_type: string
         quote: true
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"

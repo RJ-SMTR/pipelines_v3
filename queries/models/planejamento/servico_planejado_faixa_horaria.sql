@@ -58,7 +58,6 @@ with
     viagens_na_faixa as (
         select
             o.data,
-            o.feed_version,
             o.feed_start_date,
             o.tipo_dia,
             o.tipo_os,
@@ -97,7 +96,6 @@ with
     deduplicado as (
         select
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -135,7 +133,6 @@ with
     viagens_agrupadas as (
         select
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -163,7 +160,6 @@ with
         from deduplicado
         group by
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -182,7 +178,6 @@ with
     )
 select
     data,
-    feed_version,
     feed_start_date,
     tipo_dia,
     tipo_os,

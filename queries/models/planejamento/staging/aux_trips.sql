@@ -11,10 +11,9 @@ with
             case
                 when r.agency_id in ("22005", "22002", "22004", "22003")
                 then "SPPO"
-                when r.agency_id = "20001"
-                then "BRT"
                 when regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
                 then "RIO"
+                else null
             end as sistema,
             case
                 when r.agency_id in ("22005", "22002", "22004", "22003")
@@ -36,8 +35,7 @@ select
     r.route_short_name as servico,
     t.direction_id,
     t.shape_id,
-    t.feed_version,
     t.feed_start_date,
     regexp_extract(t.trip_headsign, r'\[.*?\]') as evento
 from {{ ref("trips_gtfs") }} t
-join routes r using (feed_start_date, feed_version, route_id)
+join routes r using (feed_start_date, route_id)

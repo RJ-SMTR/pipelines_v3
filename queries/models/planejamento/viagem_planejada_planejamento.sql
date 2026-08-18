@@ -99,7 +99,6 @@ with
             tf.servico,
             tf.direction_id,
             tf.shape_id,
-            tf.feed_version,
             tf.feed_start_date,
             partida_seconds
         from
@@ -125,7 +124,6 @@ with
             t.servico,
             t.direction_id,
             t.shape_id,
-            t.feed_version,
             t.feed_start_date,
             st.arrival_seconds as partida_seconds
         from trips t
@@ -154,8 +152,7 @@ with
     dia e tipo de OS. Fonte do tipo_dia e da extensão da viagem.
     */
     ordem_servico_extensao as (
-        select
-            feed_start_date, feed_version, servico, tipo_os, tipo_dia, sentido, extensao
+        select feed_start_date, servico, tipo_os, tipo_dia, sentido, extensao
         from {{ ref("aux_ordem_servico_diaria") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
@@ -215,7 +212,6 @@ with
                 then "I"
                 else "V"
             end as sentido,
-            feed_version,
             feed_start_date
         from viagens_unidas v
         left join servico_circular c using (shape_id, feed_start_date)
@@ -248,7 +244,6 @@ with
     trips_alternativas as (
         select
             t.feed_start_date,
-            t.feed_version,
             t.servico,
             t.direction_id,
             tas.tipo_os,
@@ -273,7 +268,7 @@ with
             and t.evento = tas.evento
             and t.direction_id = tas.direction_id
         where t.trip_id not in (select trip_id from frequencies_tratada)
-        group by 1, 2, 3, 4, 5
+        group by 1, 2, 3, 4
     ),
     /*
     Une o array de trajetos alternativos a cada viagem planejada.
