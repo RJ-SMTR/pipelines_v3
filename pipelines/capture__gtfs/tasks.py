@@ -329,12 +329,14 @@ def run_dbt_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = N
 @task(cache_policy=NO_CACHE)
 def run_dbt_tests_gtfs(data_versao_gtfs: str, env: str, flags: Optional[list[str]] = None) -> str:
     """Executa os testes dbt do GTFS e planejamento, retornando os logs."""
-    select = (
-        f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
-        f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
-    )
     return run_dbt(
-        dbt_command=["test", "--select", select, "--exclude", constants.GTFS_DBT_TEST_EXCLUDE],
+        dbt_command=[
+            "test",
+            "--select",
+            constants.GTFS_DBT_TEST_SELECT,
+            "--exclude",
+            constants.GTFS_DBT_TEST_EXCLUDE,
+        ],
         dbt_vars={"data_versao_gtfs": data_versao_gtfs},
         flags=flags,
         raise_on_failure=False,
