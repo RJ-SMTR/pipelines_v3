@@ -192,6 +192,35 @@ models:
             combination_of_columns:
               - feed_start_date
               - id_viagem
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento
+          config:
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: "any_value((select count(distinct trajeto.evento) from unnest(trajetos_alternativos) as trajeto))"
+            compare_model: ref("ordem_servico_trajeto_alternativo_sentido")
+            compare_expression: count(distinct evento)
+            group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(sentido = 'V', 'V', 'I')
+            compare_group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(left(sentido, 1) = 'V', 'V', 'I')
+            row_condition: "1=1"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+      - planejamento_gtfs_freshness:
+          name: planejamento_gtfs_freshness__viagem_planejada_planejamento
+          arguments:
+            partition_column: feed_start_date
+            model_relation: ref("viagem_planejada_planejamento")
+          config:
+            where: "1=1"
+            tags: ["freshness", "daily"]
+            severity: warn
     columns:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
@@ -280,6 +309,46 @@ models:
             combination_of_columns:
               - data
               - id_viagem
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia
+          config:
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day) and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: "any_value((select count(distinct trajeto.evento) from unnest(trajetos_alternativos) as trajeto))"
+            compare_model: ref("ordem_servico_trajeto_alternativo_sentido")
+            compare_expression: count(distinct evento)
+            group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(sentido = 'V', 'V', 'I')
+            compare_group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(left(sentido, 1) = 'V', 'V', 'I')
+            row_condition: "1=1"
+            compare_row_condition: >
+              feed_start_date in (
+                select distinct feed_start_date
+                from {{ ref("viagem_planejada_planejamento_dia") }}
+                where
+                  data between date('{{ var("date_range_start") }}')
+                  and date_add(
+                    date('{{ var("date_range_end") }}'),
+                    interval 2 day
+                  )
+              )
+              and feed_start_date >= date('{{ var("DATA_GTFS_V5_INICIO") }}')
+      - planejamento_gtfs_freshness:
+          name: planejamento_gtfs_freshness__viagem_planejada_planejamento_dia
+          arguments:
+            partition_column: data
+            model_relation: ref("viagem_planejada_planejamento_dia")
+          config:
+            where: "1=1"
+            tags: ["freshness", "daily"]
+            severity: warn
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
