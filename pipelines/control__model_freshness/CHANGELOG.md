@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.5] - 2026-08-17
+
+### Adicionado
+
+- Adiciona à execução diária os testes `planejamento_gtfs_freshness` dos modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia`. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
 ## [1.1.4] - 2026-07-21
 
 ### Alterado
