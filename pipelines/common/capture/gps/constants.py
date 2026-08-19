@@ -35,7 +35,6 @@ SPPO_REGISTROS_RENAME = {
 }
 
 SPPO_REGISTROS_DATETIME_COLS = ["datetime", "datetime_envio", "datetime_servidor"]
-MAXTRACK_REGISTROS_DATETIME_COLS = ["datetime", "datetime_envio", "datetime_servidor"]
 
 SPPO_REALOCACAO_RENAME = {
     "veiculo": "id_veiculo",
