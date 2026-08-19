@@ -418,6 +418,7 @@ sources:
       - name: gps_onibus_cittati
       - name: gps_onibus_zirix
       - name: gps_onibus_sppo
+      - name: gps_onibus_maxtrack
       - name: gps_brt_sonda
       - name: gps_15_minutos_onibus_sppo
       - name: gps_15_minutos_onibus_conecta
@@ -476,6 +477,12 @@ sources:
     tables:
       - name: registros
       - name: realocacao
+
+  - name: source_maxtrack
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
 
   - name: clima_estacao_meteorologica
     database: rj-cor
