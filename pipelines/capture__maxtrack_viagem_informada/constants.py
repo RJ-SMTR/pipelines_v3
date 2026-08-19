@@ -9,9 +9,8 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 
 MAXTRACK_SOURCE_NAME = "maxtrack"
 MAXTRACK_SECRET_PATH = "maxtrack_api"
-VIAGEM_INFORMADA_BASE_URL = "https://api-sspo-rj.maxtrack.com.br/api/v1/trips"
+VIAGEM_INFORMADA_BASE_URL = "https://api-sspo-rj.maxtrack.com.br/api/v1/viagens"
 VIAGEM_INFORMADA_TABLE_ID = "viagem_informada"
-MAXTRACK_PAGE_SIZE = 1000
 
 VIAGEM_INFORMADA_SOURCE = SourceTable(
     source_name=MAXTRACK_SOURCE_NAME,
