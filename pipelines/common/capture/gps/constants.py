@@ -55,53 +55,141 @@ SPPO_REALOCACAO_DATETIME_COLS = [
 REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"]
 
 GPS_SOURCE_CONFIGS = {
-    "sonda": {
+    SONDA_SOURCE_NAME: {
         "base_url": "https://zn4.m2mcontrol.com.br/api/integracao/veiculos",
-        "secret_path": "brt_api_v2",
-        "registros_response_key": "veiculos",
+        "auth": {
+            "secret_path": "brt_api_v2",
+            "credentials_as_headers": True,
+        },
+        "requests": {
+            REGISTROS_TABLE_ID: {"response_key": "veiculos"},
+        },
     },
-    "cittati": {
+    CITTATI_SOURCE_NAME: {
         "base_url": "https://servicos.cittati.com.br/WSIntegracaoCittati/SMTR/v2",
-        "secret_path": "cittati_api",
-        "registros_endpoint": "EnvioRastreamentos",
-        "realocacao_endpoint": "EnvioViagensRetroativasSMTR",
-        "registros_datetime_format": "%Y-%m-%d %H:%M:%S",
-        "realocacao_datetime_format": "%Y-%m-%d %H:%M:%S",
+        "auth": {
+            "secret_path": "cittati_api",
+            "parameter": "guidIdentificacao",
+        },
+        "requests": {
+            REGISTROS_TABLE_ID: {
+                "endpoint": "EnvioRastreamentos",
+                "window": {
+                    "datetime_format": "%Y-%m-%d %H:%M:%S",
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                },
+            },
+            REALOCACAO_TABLE_ID: {
+                "endpoint": "EnvioViagensRetroativasSMTR",
+                "window": {
+                    "datetime_format": "%Y-%m-%d %H:%M:%S",
+                    "start_offset_minutes": 10,
+                    "end_offset_minutes": 0,
+                },
+            },
+        },
     },
-    "conecta": {
+    CONECTA_SOURCE_NAME: {
         "base_url": "https://ccomobility.com.br/webservices/binder/wsconecta",
-        "secret_path": "conecta_api",
-        "registros_endpoint": "envioSMTR",
-        "realocacao_endpoint": "EnvioRealocacoesSMTR",
-        "registros_datetime_format": "%Y-%m-%d %H:%M:%S",
-        "realocacao_datetime_format": "%Y-%m-%d %H:%M:%S",
+        "auth": {
+            "secret_path": "conecta_api",
+            "parameter": "guidIdentificacao",
+        },
+        "requests": {
+            REGISTROS_TABLE_ID: {
+                "endpoint": "envioSMTR",
+                "window": {
+                    "datetime_format": "%Y-%m-%d %H:%M:%S",
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                },
+            },
+            REALOCACAO_TABLE_ID: {
+                "endpoint": "EnvioRealocacoesSMTR",
+                "window": {
+                    "datetime_format": "%Y-%m-%d %H:%M:%S",
+                    "start_offset_minutes": 10,
+                    "end_offset_minutes": 0,
+                },
+            },
+        },
     },
-    "zirix": {
+    ZIRIX_SOURCE_NAME: {
         "base_url": "https://zxbus.zirix.app.br/v2",
-        "secret_path": "zirix_api_v2",
-        "registros_endpoint": "posicao",
-        "realocacao_endpoint": "realocacao",
-        "registros_datetime_format": "%Y-%m-%dT%H:%M:%S",
-        "realocacao_datetime_format": "%Y-%m-%dT%H:%M:%S",
+        "auth": {
+            "secret_path": "zirix_api_v2",
+            "parameter": "guidIdentificacao",
+        },
+        "requests": {
+            REGISTROS_TABLE_ID: {
+                "endpoint": "posicao",
+                "window": {
+                    "datetime_format": "%Y-%m-%dT%H:%M:%S",
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                },
+            },
+            REALOCACAO_TABLE_ID: {
+                "endpoint": "realocacao",
+                "window": {
+                    "datetime_format": "%Y-%m-%dT%H:%M:%S",
+                    "start_offset_minutes": 10,
+                    "end_offset_minutes": 0,
+                },
+            },
+        },
     },
-    "sppo": {
+    SPPO_SOURCE_NAME: {
         "base_url": "http://ccomobility.com.br/WebServices/Binder/wsconecta",
-        "registros_secret_path": "sppo_api_v2",
-        "realocacao_secret_path": "realocacao_api",
-        "registros_endpoint": "EnvioIplan",
-        "realocacao_endpoint": "EnvioViagensRetroativasSMTR",
-        "registros_datetime_format": "%Y-%m-%d %H:%M:%S",
-        "realocacao_datetime_format": "%Y-%m-%dT%H:%M:%S",
-        "timezone": "America/Sao_Paulo",
+        "requests": {
+            REGISTROS_TABLE_ID: {
+                "endpoint": "EnvioIplan",
+                "auth": {
+                    "secret_path": "sppo_api_v2",
+                    "parameter": "guidIdentificacao",
+                },
+                "window": {
+                    "datetime_format": "%Y-%m-%d %H:%M:%S",
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                    "timezone": "America/Sao_Paulo",
+                },
+            },
+            REALOCACAO_TABLE_ID: {
+                "endpoint": "EnvioViagensRetroativasSMTR",
+                "auth": {
+                    "secret_path": "realocacao_api",
+                    "parameter": "guidIdentificacao",
+                },
+                "window": {
+                    "datetime_format": "%Y-%m-%dT%H:%M:%S",
+                    "start_offset_minutes": 10,
+                    "end_offset_minutes": 0,
+                    "timezone": "America/Sao_Paulo",
+                },
+            },
+        },
     },
-    "maxtrack": {
+    MAXTRACK_SOURCE_NAME: {
         "base_url": "https://api-sspo-rj.maxtrack.com.br/api/v1",
-        "secret_path": "maxtrack_api",
-        "registros_endpoint": "posicoes",
-        "registros_datetime_format": "%Y-%m-%dT%H:%M:%SZ",
-        "registros_start_parameter": "datetime_servidor_inicio",
-        "registros_end_parameter": "datetime_servidor_fim",
-        "credential_key": "guid",
-        "credential_parameter": "guid",
+        "auth": {
+            "secret_path": "maxtrack_api",
+            "secret_name": "token",
+            "header": "Authorization",
+            "scheme": "Bearer",
+        },
+        "requests": {
+            REGISTROS_TABLE_ID: {
+                "endpoint": "posicoes",
+                "window": {
+                    "datetime_format": "%Y-%m-%dT%H:%M:%SZ",
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                    "start_parameter": "datetime_servidor_inicio",
+                    "end_parameter": "datetime_servidor_fim",
+                },
+            },
+        },
     },
 }

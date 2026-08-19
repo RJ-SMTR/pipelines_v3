@@ -1,76 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-Tasks de captura dos dados de GPS
-"""
+"""Tasks de captura dos dados de GPS."""
 
-from datetime import timedelta
 from functools import partial
 
 from prefect import task
 from prefect.cache_policies import NO_CACHE
-from pytz import timezone
 
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
-from pipelines.common.capture.gps import constants
+from pipelines.common.capture.gps.constants import GPS_SOURCE_CONFIGS
+from pipelines.common.capture.gps.utils import create_gps_extractor_kwargs
 from pipelines.common.utils.extractors.api import get_raw_api
-from pipelines.common.utils.secret import get_env_secret
 
 
 @task(cache_policy=NO_CACHE)
 def create_gps_extractor(context: SourceCaptureContext):
     """Cria a extração de dados de GPS das fontes configuradas."""
-    source = context.source
-    source_config = constants.GPS_SOURCE_CONFIGS[source.source_name]
-
-    if source.source_name == constants.SONDA_SOURCE_NAME:
-        secret_path = source_config["secret_path"]
-        url = source_config["base_url"]
-        extractor_kwargs = {"response_key": source_config.get("registros_response_key")}
-    else:
-        tz_name = source_config.get("timezone", "UTC")
-        timestamp = context.timestamp.astimezone(timezone(tz_name))
-
-        if source.table_id == constants.REGISTROS_TABLE_ID:
-            secret_path = source_config.get(
-                "registros_secret_path", source_config.get("secret_path")
-            )
-            endpoint = source_config["registros_endpoint"]
-            fmt = source_config["registros_datetime_format"]
-            start = (timestamp - timedelta(minutes=6)).strftime(fmt)
-            end = (timestamp - timedelta(minutes=5)).strftime(fmt)
-        else:
-            secret_path = source_config.get(
-                "realocacao_secret_path", source_config.get("secret_path")
-            )
-            endpoint = source_config["realocacao_endpoint"]
-            fmt = source_config["realocacao_datetime_format"]
-            start = (timestamp - timedelta(minutes=10)).strftime(fmt)
-            end = timestamp.strftime(fmt)
-
-        url = f"{source_config['base_url']}/{endpoint}"
-        extractor_kwargs = {
-            "params": {
-                source_config.get(f"{source.table_id}_start_parameter", "dataInicial"): start,
-                source_config.get(f"{source.table_id}_end_parameter", "dataFinal"): end,
-            }
-        }
-
-    headers = get_env_secret(secret_path)
-    if not headers:
-        raise ValueError(f"Empty credentials for {secret_path}")
-
-    if source.source_name == constants.SONDA_SOURCE_NAME:
-        extractor_kwargs["headers"] = headers
-    else:
-        credential_key = source_config.get("credential_key") or next(iter(headers))
-        credential_parameter = source_config.get("credential_parameter", "guidIdentificacao")
-        if credential_key not in headers:
-            raise KeyError(f"Credential '{credential_key}' not found in {secret_path}")
-        extractor_kwargs["params"][credential_parameter] = headers[credential_key]
+    source_config = GPS_SOURCE_CONFIGS[context.source.source_name]
+    extractor_kwargs = create_gps_extractor_kwargs(
+        context=context,
+        source_config=source_config,
+    )
 
     return partial(
         get_raw_api,
-        url=url,
         raw_filepath=context.raw_filepath,
         **extractor_kwargs,
     )
