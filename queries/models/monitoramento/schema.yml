@@ -179,9 +179,6 @@ models:
       - name: indicador_viagem_valida
         description: "Indica se a viagem está válida conforme critérios definidos"
         data_type: boolean
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
-        data_type: string
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date

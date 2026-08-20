@@ -205,6 +205,15 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
@@ -229,18 +238,12 @@ models:
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-      - name: evento
-        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
-        data_type: string
       - name: extensao
         description: "{{ doc('extensao') }}"
         data_type: float64
       - name: trajetos_alternativos
-        description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido, tipo_os)"
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
-        data_type: string
       - name: feed_start_date
         description: "Data inicial do feed do GTFS (versão). [partição]"
         data_type: date
@@ -317,6 +320,15 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
@@ -335,14 +347,11 @@ models:
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-      - name: evento
-        description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
-        data_type: string
       - name: extensao
         description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
         data_type: float64
       - name: trajetos_alternativos
-        description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
       - name: data_referencia
         description: Data de referência que foi utilizada de base para gerar a viagem
@@ -355,9 +364,6 @@ models:
         data_type: string
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
-        data_type: string
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
         data_type: string
       - name: feed_start_date
         description: Data inicial do feed do GTFS (versão).
@@ -523,9 +529,6 @@ models:
       - name: data
         description: "Data [partição]"
         data_type: date
-      - name: feed_version
-        description: "{{ doc('feed_version') }}"
-        data_type: string
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
@@ -540,6 +543,12 @@ models:
         data_type: string
       - name: consorcio
         description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
         data_type: string
       - name: sentido
         description: "{{ doc('sentido') }}"
@@ -566,7 +575,7 @@ models:
         description: "Informações detalhadas das viagens programadas na faixa horária"
         data_type: record
       - name: trajetos_alternativos
-        description: "Outros trajetos que podem, alternativamente, serem utilizados na viagem"
+        description: "{{ doc('trajetos_alternativos') }}"
         data_type: record
       - name: versao
         description: "{{ doc('versao') }}"
