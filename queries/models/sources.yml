@@ -52,6 +52,16 @@ sources:
       - name: ordem_servico_faixa_horaria
       - name: ordem_servico_faixa_horaria_sentido
       - name: ordem_servico_trajeto_alternativo_sentido
+        columns:
+          - name: evento
+            tests:
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  name: dbt_expectations__expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging
+                  config:
+                    where: "data_versao = '{{ var('data_versao_gtfs') }}' and safe_cast(data_versao as date) >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+                  arguments:
+                    regex: '^\[[a-z0-9_]+\]$'
+                    is_raw: true
 
   - name: br_rj_riodejaneiro_stu_staging
     database: rj-smtr-staging
@@ -332,6 +342,9 @@ sources:
       - name: matriz_integracao_excecao
       - name: dicionario_subsidio
       - name: calendario_manual
+      - name: controle_financeiro_staging
+      - name: cb
+      - name: cett
 
   - name: source_riorotativo
     database: rj-smtr-staging

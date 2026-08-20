@@ -41,7 +41,7 @@ RDO_SOURCES = [
         pretreat_funcs=v.get("pretreat_funcs", [rename_rdo_columns]),
         bucket_names=v.get("save_bucket_names"),
         partition_date_only=v.get("partition_date_only", True),
-        max_recaptures=v.get("max_recaptures", 10),
+        max_recaptures=v.get("max_recaptures", 2),
         raw_filetype=v.get("raw_filetype", "csv"),
         file_chunk_size=v.get("file_chunk_size"),
     )

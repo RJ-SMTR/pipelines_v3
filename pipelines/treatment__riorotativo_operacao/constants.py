@@ -46,4 +46,5 @@ RIOROTATIVO_OPERACAO_SELECTOR = DBTSelector(
         riorotativo_auxiliar_constants.RIOROTATIVO_AUX_SELECTOR,
     ],
     post_test=RIOROTATIVO_OPERACAO_TEST,
+    incremental_delay_hours=1,
 )

@@ -6,6 +6,23 @@
 
 - Adiciona teste de unicidade da chave utilizada pelo snapshot no modelo `viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/457)
 
+## [9.5.1] - 2026-08-12
+
+### Adicionado
+
+- Adiciona no modelo `viagem_completa` a CTE `viagens_concorrentes` para remover viagens sobrepostas do mesmo veículo, conforme processo SEI nº 006400.000803/2026-85 (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+
+### Alterado
+
+- Altera o filtro incremental de `viagem_completa` para ler `D-2` e `D-1` (sobreposição com o dia anterior), materializando somente `D-1`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+
+## [9.5.0] - 2026-07-27
+
+### Alterado
+
+- Limita `viagem_planejada`, `registros_status_viagem`, `viagem_conformidade` e `viagem_completa` às viagens anteriores a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
 ## [9.4.1] - 2026-07-08
 
 ### Adicionado

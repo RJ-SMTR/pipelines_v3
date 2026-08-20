@@ -158,6 +158,10 @@ Velocidade instantânea do veículo, conforme informado pelo GPS (km/h)
 Velocidade média nos últimos 10 minutos de operação (km/h)
 {% enddocs %}
 
+{% docs velocidade_media_viagem %}
+Velocidade média da viagem (km/h)
+{% enddocs %}
+
 {% docs distancia_gps %}
 Distância da última posição do GPS em relação à posição atual (m)
 {% enddocs %}
@@ -695,8 +699,8 @@ Indica se o primeiro segmento da viagem é considerado e possui registros de GPS
 Indica se o último segmento da viagem é considerado e possui registros de GPS
 {% enddocs %}
 
-{% docs indicador_servico_divergente %}
-Indica se o serviço indicado nos dados de GPS estava diferente do serviço informado na viagem
+{% docs indicador_servico_convergente %}
+Indica se o serviço nos dados de GPS é convergente com o serviço informado na viagem
 {% enddocs %}
 
 {% docs taxa_conversao_real %}
@@ -1020,11 +1024,19 @@ Data e hora do processamento da viagem
 {% enddocs %}
 
 {% docs indicador_prazo_envio %}
-Indica se a viagem foi enviada dentro do prazo de até 2 dias úteis após a data de partida
+Indica se a viagem foi enviada dentro do prazo de até 5 dias corridos após a data de partida
 {% enddocs %}
 
-{% docs indicador_viagem_sobreposta %}
-Indica se a viagem se sobrepõe a outra viagem do mesmo veículo
+{% docs indicador_viagem_nao_sobreposta %}
+Indica se a viagem não se sobrepõe a outra viagem do mesmo veículo
+{% enddocs %}
+
+{% docs indicador_shape_valido %}
+Indica se o shape_id existe no GTFS no feed vigente durante a data da viagem
+{% enddocs %}
+
+{% docs indicador_abaixo_velocidade_max %}
+Indica se a velocidade média da viagem está abaixo do limite máximo estabelecido
 {% enddocs %}
 
 {% docs id_transmissao_gps %}
@@ -1047,12 +1059,12 @@ Data do recebimento da transmissão do GPS
 Hora do recebimento da transmissão do GPS
 {% enddocs %}
 
-{% docs indicador_processamento_posterior_captura %}
-Indica se o datetime de processamento é posterior ao datetime de captura, caracterizando alteração retroativa indevida [Art. 8º, I]
+{% docs indicador_sem_alteracao_retroativa %}
+Indica se o datetime de processamento não é posterior ao datetime de captura
 {% enddocs %}
 
-{% docs indicador_processamento_anterior_chegada %}
-Indica se o datetime de processamento é anterior ao datetime de chegada, indicando processamento antes da conclusão da viagem [Art. 8º, II]
+{% docs indicador_processamento_apos_chegada %}
+Indica se o datetime de processamento é posterior ou igual à chegada considerada
 {% enddocs %}
 
 {% docs especie_veiculo %}

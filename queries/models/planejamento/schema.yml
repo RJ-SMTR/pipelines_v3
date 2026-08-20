@@ -5,7 +5,7 @@ models:
     description: "Quantidade de viagens planejadas por faixa horária"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
           config:
             where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
           arguments:
@@ -55,7 +55,7 @@ models:
         description: "{{ doc('partidas') }}"
         # tests:
         #   - dbt_expectations.expect_column_sum_to_be_between:
-        #       name: dbt_expectations.expect_column_sum_to_be_between__partidas__ordem_servico_faixa_horaria
+        #       name: dbt_expectations__expect_column_sum_to_be_between__partidas__ordem_servico_faixa_horaria
         #       min_value: 0
         #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
         #       strictly: true
@@ -64,7 +64,7 @@ models:
         description: "{{ doc('quilometragem') }}"
         # tests:
         #   - dbt_expectations.expect_column_sum_to_be_between:
-        #       name: dbt_expectations.expect_column_sum_to_be_between__quilometragem__ordem_servico_faixa_horaria
+        #       name: dbt_expectations__expect_column_sum_to_be_between__quilometragem__ordem_servico_faixa_horaria
         #       min_value: 0
         #       group_by: [ feed_start_date, tipo_os, tipo_dia, servico ]
         #       strictly: true
@@ -77,425 +77,398 @@ models:
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-        quote: true
       - name: feed_end_date
         description: "{{ doc('feed_end_date') }}"
         data_type: date
-        quote: true
       - name: shape_id
         description: Identificador de shape.
         data_type: string
-        quote: true
       - name: id_segmento
         description: Identificador do segmento.
         data_type: string
-        quote: true
       - name: segmento
         description: Segmento em formato geográfico.
         data_type: geography
-        quote: true
       - name: wkt_segmento
         description: Segmento em formato string WKT
         data_type: string
-        quote: true
       - name: comprimento_segmento
         description: Comprimento do segmento emm metros.
         data_type: float64
-        quote: true
       - name: buffer_completo
         description: Área de 20m ao redor do segmento.
         data_type: geography
-        quote: true
       - name: buffer
         description: Área de 20m ao redor do segmento com tratamento para não haver interseções entre ele e os segmentos posteriores.
         data_type: geography
-        quote: true
       - name: inicio_vigencia_tunel
         description: "{{ doc('inicio_vigencia_tunel') }}"
         data_type: date
-        quote: true
       - name: fim_vigencia_tunel
         description: "{{ doc('fim_vigencia_tunel') }}"
         data_type: date
-        quote: true
       - name: indicador_tunel
         description: Indica se o segmento passa por um túnel.
         data_type: boolean
-        quote: true
       - name: indicador_area_prejudicada
         description: Indica se o buffer teve a área reduzida em mais de 50% após o tratamento.
         data_type: boolean
-        quote: true
       - name: indicador_segmento_pequeno
         description: Indica se o segmento é menor que 990 metros.
         data_type: boolean
-        quote: true
       - name: indicador_segmento_desconsiderado
         description: Indica se o segmento deve ser desconsiderado na validação de viagens
         data_type: boolean
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
   - name: shapes_geom_planejamento
     description: Tabela contendo shapes em formatos geográficos
     columns:
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-        quote: true
       - name: feed_end_date
         description: "{{ doc('feed_end_date') }}"
         data_type: date
-        quote: true
       - name: shape_id
         description: Identificador de shape.
         data_type: string
-        quote: true
       - name: shape
         description: "{{ doc('shape') }}"
         data_type: geography
-        quote: true
       - name: wkt_shape
         description: Shape em formato string WKT
         data_type: string
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: start_pt
         description: Primeiro ponto do shape
         data_type: geography
-        quote: true
       - name: end_pt
         description: Último ponto do shape
         data_type: geography
-        quote: true
   - name: viagem_planejada_planejamento
     description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento
+          name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento
           config:
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
             combination_of_columns:
               - feed_start_date
               - id_viagem
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento
+          config:
+            where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: "any_value((select count(distinct trajeto.evento) from unnest(trajetos_alternativos) as trajeto))"
+            compare_model: ref("ordem_servico_trajeto_alternativo_sentido")
+            compare_expression: count(distinct evento)
+            group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(sentido = 'V', 'V', 'I')
+            compare_group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(left(sentido, 1) = 'V', 'V', 'I')
+            row_condition: "1=1"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+      - planejamento_gtfs_freshness:
+          name: planejamento_gtfs_freshness__viagem_planejada_planejamento
+          arguments:
+            partition_column: feed_start_date
+            model_relation: ref("viagem_planejada_planejamento")
+          config:
+            where: "1=1"
+            tags: ["freshness", "daily"]
+            severity: warn
     columns:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
-        quote: true
       - name: horario_partida
         description: "Horário de partida da viagem no formato HH:MM:SS"
         data_type: string
-        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
-        quote: true
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
-        quote: true
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
-        quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
-        quote: true
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
-        quote: true
       - name: shape_id
         description: Identificador de um shape da tabela shapes do GTFS
         data_type: string
-        quote: true
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-        quote: true
       - name: evento
         description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
         data_type: string
-        quote: true
       - name: extensao
         description: "{{ doc('extensao') }}"
         data_type: float64
-        quote: true
       - name: trajetos_alternativos
         description: "Trajetos alternativos (trips EXCEP e sem frequencies) para a viagem — struct com extensao da OS por (servico, evento, sentido, tipo_os)"
         data_type: record
-        quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: "Data inicial do feed do GTFS (versão). [partição]"
         data_type: date
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: viagem_planejada_planejamento_dia
     description: Uma linha por viagem planejada por dia. Representa o planejamento derivado do GTFS e do calendário operacional para a janela de materialização, incluindo extensão de 2 dias além de `date_range_end`. Use `(data, id_viagem)` como chave de join; a seleção considera o calendário e os feeds GTFS disponíveis para o período.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia
+          name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento_dia
           config:
             where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
           arguments:
             combination_of_columns:
               - data
               - id_viagem
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia
+          config:
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day) and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: "any_value((select count(distinct trajeto.evento) from unnest(trajetos_alternativos) as trajeto))"
+            compare_model: ref("ordem_servico_trajeto_alternativo_sentido")
+            compare_expression: count(distinct evento)
+            group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(sentido = 'V', 'V', 'I')
+            compare_group_by:
+              - feed_start_date
+              - servico
+              - tipo_os
+              - if(left(sentido, 1) = 'V', 'V', 'I')
+            row_condition: "1=1"
+            compare_row_condition: >
+              feed_start_date in (
+                select distinct feed_start_date
+                from {{ ref("viagem_planejada_planejamento_dia") }}
+                where
+                  data between date('{{ var("date_range_start") }}')
+                  and date_add(
+                    date('{{ var("date_range_end") }}'),
+                    interval 2 day
+                  )
+              )
+              and feed_start_date >= date('{{ var("DATA_GTFS_V5_INICIO") }}')
+      - planejamento_gtfs_freshness:
+          name: planejamento_gtfs_freshness__viagem_planejada_planejamento_dia
+          arguments:
+            partition_column: data
+            model_relation: ref("viagem_planejada_planejamento_dia")
+          config:
+            where: "1=1"
+            tags: ["freshness", "daily"]
+            severity: warn
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         data_type: date
-        quote: true
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
-        quote: true
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
-        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
       - name: service_id
         description: Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
         data_type: string
-        quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
-        quote: true
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
-        quote: true
       - name: shape_id
         description: Identificador de um shape da tabela shapes do GTFS
         data_type: string
-        quote: true
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-        quote: true
       - name: evento
         description: "Evento relacionado ao trajeto (nulo se o trajeto for regular)"
         data_type: string
-        quote: true
       - name: extensao
         description: Distância planejada da viagem, conforme Ordem de Serviço (OS)
         data_type: float64
-        quote: true
       - name: trajetos_alternativos
         description: Outros trajetos que podem, alternativamente, serem utilizados na viagem
         data_type: record
-        quote: true
       - name: data_referencia
         description: Data de referência que foi utilizada de base para gerar a viagem
         data_type: date
-        quote: true
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
-        quote: true
       - name: subtipo_dia
         description: "{{ doc('subtipo_dia') }}"
         data_type: string
-        quote: true
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
-        quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: Data inicial do feed do GTFS (versão).
         data_type: date
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: calendario
     description: Tabela calendário
     columns:
       - name: data
         description: "{{ doc('data') }}"
         data_type: date
-        quote: true
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
-        quote: true
       - name: subtipo_dia
         description: "{{ doc('subtipo_dia') }}"
         data_type: string
-        quote: true
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
-        quote: true
       - name: service_ids
         description: Lista de service_ids válidos para o dia
         data_type: string
-        quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
   - name: matriz_integracao
     description: "Matriz de integração no sistema de transporte municipal"
     columns:
       - name: tempo_integracao_minutos
         description: "{{ doc('tempo_integracao_minutos_matriz') }}"
         data_type: float64
-        quote: true
       - name: data_inicio
         description: Data de início da validade da integração [partição]
         data_type: date
-        quote: true
       - name: data_fim
         description: Data de fim da validade da integração
         data_type: date
-        quote: true
       - name: integracao
         description: String representando a integração (sequência modos da integração separados por "-"). Pode ser usada como chave para relacionar com a tabela rj-smtr.planejamento.matriz_reparticao_tarifaria
         data_type: string
-        quote: true
       - name: modo_origem
         description: Modo da perna de origem
         data_type: string
-        quote: true
       - name: id_servico_jae_origem
         description: Identificador único do serviço da perna de origem no banco de dados da Jaé
         data_type: string
-        quote: true
       - name: id_servico_gtfs_origem
         description: Identificador único do serviço da perna de origem no GTFS
         data_type: string
-        quote: true
       - name: tabela_gtfs_origem
         description: Tabela do GTFS de onde foram coletadas as informações do serviço da perna de origem (stops ou routes)
         data_type: string
-        quote: true
       - name: servico_origem
         description: "Nome consolidado do serviço da perna de origem. Para linhas, é o nome curto da linha (ex: 010, 011SN). E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé"
         data_type: string
-        quote: true
       - name: descricao_servico_origem
         description: Nome completo consolidado do serviço da perna de origem. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. (Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé)
         data_type: string
-        quote: true
       - name: integracao_origem
         description: Sequência de modos separados por "-" (caso a integração tenha mais de 2 pernas)
         data_type: string
-        quote: true
       - name: modo_destino
         description: Modo da perna de destino
         data_type: string
-        quote: true
       - name: id_servico_jae_destino
         description: Identificador único do serviço da perna de destino no banco de dados da Jaé
         data_type: string
-        quote: true
       - name: id_servico_gtfs_destino
         description: Identificador único do serviço da perna de destino no GTFS
         data_type: string
-        quote: true
       - name: tabela_gtfs_destino
         description: Tabela do GTFS de onde foram coletadas as informações do serviço da perna de destino (stops ou routes)
         data_type: string
-        quote: true
       - name: servico_destino
         description: "Nome consolidado do serviço da perna de destino. Para linhas, é o nome curto da linha (ex: 010, 011SN). E para estações, é o stop_code do GTFS ou o código interno da estação no banco de dados da Jaé"
         data_type: string
-        quote: true
       - name: descricao_servico_destino
         description: Nome completo consolidado do serviço da perna de origem. Para linhas é, primariamente o route_long_name da tabela routes do GTFS. Para estações é primariamente a coluna stop_name da tabela stops do GTFS. (Caso o registro não exista no GTFS, busca o nome do serviço na base de dados da Jaé)
         data_type: string
-        quote: true
       - name: valor_integracao
         description: Valor total da integração (R$)
         data_type: numeric
-        quote: true
       - name: tipo_integracao
         description: Integração ou Transferência
         data_type: string
-        quote: true
       - name: indicador_integracao
         description: Se deve ocorrer a integração ou não para a combinação de origem e destino
         data_type: boolean
-        quote: true
   - name: tecnologia_servico
     description: "Tabela auxiliar de tecnologias permitidas por serviço"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__tecnologia_servico
+          name: dbt_utils__unique_combination_of_columns__tecnologia_servico
           config:
             where: "1=1"
           arguments:
@@ -550,106 +523,81 @@ models:
       - name: data
         description: "Data [partição]"
         data_type: date
-        quote: true
       - name: feed_version
         description: "{{ doc('feed_version') }}"
         data_type: string
-        quote: true
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
-        quote: true
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
-        quote: true
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
-        quote: true
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
-        quote: true
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-        quote: true
       - name: extensao
         description: "{{ doc('extensao') }}"
         data_type: float64
-        quote: true
       - name: partidas
         description: "{{ doc('partidas') }}"
         data_type: int64
-        quote: true
       - name: quilometragem
         description: "{{ doc('quilometragem') }}"
         data_type: float64
-        quote: true
       - name: faixa_horaria_inicio
         description: "{{ doc('faixa_horaria_inicio') }}"
         data_type: datetime
-        quote: true
       - name: faixa_horaria_fim
         description: "{{ doc('faixa_horaria_fim') }}"
         data_type: datetime
-        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
       - name: trip_info
         description: "Informações detalhadas das viagens programadas na faixa horária"
         data_type: record
-        quote: true
       - name: trajetos_alternativos
         description: "Outros trajetos que podem, alternativamente, serem utilizados na viagem"
         data_type: record
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
   - name: matriz_reparticao_tarifaria
     description: Matriz de repartição tarifária de integrações válidas no sistema de transporte municipal
     columns:
       - name: data_inicio_matriz
         description: Data de início da versão da matriz de integração [partição]
         data_type: date
-        quote: true
       - name: data_fim_matriz
         description: Data de fim da versão da matriz de integração
         data_type: date
-        quote: true
       - name: integracao
         description: String representando a integração (sequência modos da integração separados por "-")
         data_type: string
-        quote: true
       - name: sequencia_modo
         description: Array contendo a sequência de modos da integração
         data_type: string
-        quote: true
       - name: sequencia_rateio
         description: "{{ doc('sequencia_rateio_matriz') }}"
         data_type: numeric
-        quote: true
       - name: tempo_integracao_minutos
         description: "{{ doc('tempo_integracao_minutos_matriz') }}"
         data_type: float64
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
   - name: tuneis
     description: "Tabela contendo os túneis do município do Rio de Janeiro"
     columns:
@@ -709,7 +657,7 @@ models:
     description: "Anexo da Ordem de Serviço [OS] com trajetos alternativos de serviços"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
           config:
             where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
@@ -720,6 +668,32 @@ models:
             compare_group_by: [feed_start_date, tipo_os]
             row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
             compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
+      - dbt_expectations.expect_table_aggregation_to_equal_other_table:
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido
+          config:
+            where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+          arguments:
+            expression: count(distinct evento)
+            compare_model: ref("ordem_servico_trips_shapes_gtfs")
+            compare_expression: "count(distinct regexp_extract(vista, r'(\\[.*?\\])'))"
+            group_by:
+              - servico
+              - left(sentido, 1)
+            compare_group_by:
+              - servico
+              - "if(sentido = 'C', 'I', sentido)"
+            row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
+            compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and id_tipo_trajeto = 1"
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
+          config:
+            where: "1=1"
+          arguments:
+            column_name: "concat(servico, '||', evento)"
+            to: ref("trips_gtfs")
+            field: "concat(trip_short_name, '||', regexp_extract(trip_headsign, r'(\\[.*?\\])'))"
+            from_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+            to_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
     columns:
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
@@ -741,6 +715,14 @@ models:
         description: "Descrição sobre o trajeto alternativo"
       - name: evento
         description: "Evento relacionado ao trajeto alternativo"
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+              arguments:
+                regex: '^\[[a-z0-9_]+\]$'
+                is_raw: true
       - name: extensao
         description: "{{ doc('extensao') }}"
       - name: versao_modelo
@@ -786,16 +768,12 @@ models:
       - name: data_inicio
         description: Data de início de vigência do valor da tarifa
         data_type: date
-        quote: true
       - name: data_fim
         description: Data de fim de vigência do valor da tarifa
         data_type: date
-        quote: true
       - name: valor_tarifa
         description: "{{ doc('tarifa_valor') }}"
         data_type: float64
-        quote: true
       - name: legislacao
         description: Decreto que alterou o valor da tarifa
         data_type: string
-        quote: true

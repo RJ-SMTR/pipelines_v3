@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+# /// script
+# dependencies = [
+#     "google-cloud-bigquery>=3.29.0",
+#     "pyyaml>=6.0.2",
+# ]
+# ///
+
 import json
 import os
 from pathlib import Path
@@ -38,12 +45,58 @@ def extrair_descricoes_de_modelos(manifest):
     return tabelas
 
 
-def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, descricoes_colunas):  # noqa: PLR0913
-    table_id = f"{projeto}.{schema}.{nome}"
-    table_def = client.get_table(table_id)
-    tabela = table_def.to_api_repr()
+# A função é recursiva para atualizar campos aninhados, i.e. json
+def atualizar_descricoes_campos(fields, prefixo, descricoes_colunas, table_id):
+    alterado = False
 
-    if descricao_tabela and tabela["description"] != descricao_tabela:
+    for field in fields:
+        nome_completo = f"{prefixo}.{field['name']}" if prefixo else field["name"]
+        descricao_campo = descricoes_colunas.get(nome_completo)
+
+        if descricao_campo and (
+            ("description" in field and field["description"] != descricao_campo)
+            or "description" not in field
+        ):
+            if len(descricao_campo) > MAX_COLUMN_DESCRIPTION_LENGTH:
+                print(
+                    f"A descrição da coluna '{nome_completo}' da tabela '{table_id}' "
+                    f"tem mais de {MAX_COLUMN_DESCRIPTION_LENGTH} caracteres, "
+                    f"não é possível atualizar."
+                )
+            else:
+                print(f"Atualizando a descrição da coluna '{nome_completo}' da tabela '{table_id}'")
+                field["description"] = descricao_campo
+                alterado = True
+
+        subcampos = field.get("fields")
+        # caso base: campo escalar, sem subcampos para recursão
+        if not subcampos:
+            continue
+
+        if atualizar_descricoes_campos(subcampos, nome_completo, descricoes_colunas, table_id):
+            alterado = True
+
+    return alterado
+
+
+def atualizar_descricao_tabela(  # noqa: PLR0913
+    client,
+    projeto,
+    schema,
+    nome,
+    descricao_tabela,
+    descricoes_colunas,
+    table_cache,
+    dry_run=False,
+):
+    table_id = f"{projeto}.{schema}.{nome}"
+    table_def = table_cache.get(table_id)
+    if table_def is None:
+        table_def = client.get_table(table_id)
+    tabela = table_def.to_api_repr()
+    alterado = False
+
+    if descricao_tabela and tabela.get("description") != descricao_tabela:
         if len(descricao_tabela) > MAX_TABLE_DESCRIPTION_LENGTH:
             print(
                 f"A descrição da tabela '{table_id}' tem mais de "
@@ -52,28 +105,26 @@ def atualizar_descricao_tabela(client, projeto, schema, nome, descricao_tabela, 
         else:
             print(f"Atualizando a descrição da tabela '{table_id}'")
             tabela["description"] = descricao_tabela
+            alterado = True
 
-    for i in range(len(tabela["schema"]["fields"])):
-        field = tabela["schema"]["fields"][i]
-        if field["name"] in descricoes_colunas and descricoes_colunas[field["name"]]:
-            if (
-                "description" in field and field["description"] != descricoes_colunas[field["name"]]
-            ) or "description" not in field:
-                if len(descricoes_colunas[field["name"]]) > MAX_COLUMN_DESCRIPTION_LENGTH:
-                    print(
-                        f"A descrição da coluna '{field['name']}' da tabela '{table_id}' "
-                        f"tem mais de {MAX_COLUMN_DESCRIPTION_LENGTH} caracteres, "
-                        f"não é possível atualizar."
-                    )
-                    continue
-                print(f"Atualizando a descrição da coluna '{field['name']}' da tabela '{table_id}'")
-                tabela["schema"]["fields"][i]["description"] = descricoes_colunas[field["name"]]
+    if atualizar_descricoes_campos(tabela["schema"]["fields"], "", descricoes_colunas, table_id):
+        alterado = True
+
+    if not alterado:
+        table_cache[table_id] = table_def
+        return
 
     tabela = table_def.from_api_repr(tabela)
-    client.update_table(tabela, ["description", "schema"])
+    if dry_run:
+        print(f"[DRY_RUN] {table_id}: alteração não aplicada")
+        table_cache[table_id] = table_def
+    else:
+        table_cache[table_id] = client.update_table(tabela, ["description", "schema"])
 
 
-def propagate_labels(manifest, client):  # noqa: PLR0912, PLR0915
+def propagate_labels(  # noqa: PLR0912, PLR0915
+    manifest, client, table_cache, dry_run=False
+):
     allowed_resource_types = {"model", "source"}
 
     with Path("queries/tag_propagation_allowlist.yml").open("r", encoding="utf-8") as f:
@@ -136,30 +187,38 @@ def propagate_labels(manifest, client):  # noqa: PLR0912, PLR0915
 
         full_id = f"{database}.{schema}.{table_name}"
 
-        try:
-            table = client.get_table(full_id)
-        except Exception as e:
-            print(f"{full_id} não encontrada: {e}")
-            continue
+        table = table_cache.get(full_id)
+        if table is None:
+            try:
+                table = client.get_table(full_id)
+            except Exception as e:
+                print(f"{full_id} não encontrada: {e}")
+                continue
 
         labels = table.labels or {}
         for t in tags:
             labels[t] = "true"
         table.labels = labels
 
+        if dry_run:
+            print(f"[DRY_RUN] Atualizaria {full_id} com tags: {sorted(tags)}")
+            continue
+
         try:
-            client.update_table(table, ["labels"])
+            table_cache[full_id] = client.update_table(table, ["labels"])
             print(f"Atualizado {full_id} com tags: {sorted(tags)}")
         except Exception as e:
             print(f"Erro atualizando {full_id}: {e}")
 
 
 def main():
-    credentials = json.loads(os.getenv("BQ_AUTH_SA"))
+    dry_run = os.getenv("DRY_RUN", "true").lower() == "true"
+    credentials = json.loads(os.getenv("GKE_SA_KEY"))
     client = bigquery.Client.from_service_account_info(credentials, project="rj-smtr")
     with Path("queries/target/manifest.json").open("r") as f:
         manifest = json.load(f)
     modelos = extrair_descricoes_de_modelos(manifest)
+    table_cache = {}
 
     for modelo in modelos:
         try:
@@ -170,11 +229,13 @@ def main():
                 modelo["table_name"],
                 modelo["description"],
                 modelo["column_descriptions"],
+                table_cache,
+                dry_run=dry_run,
             )
         except Exception as e:
             print(f"Error: {modelo['table_name']}: {e}")
 
-    propagate_labels(manifest, client)
+    propagate_labels(manifest, client, table_cache, dry_run=dry_run)
 
 
 if __name__ == "__main__":

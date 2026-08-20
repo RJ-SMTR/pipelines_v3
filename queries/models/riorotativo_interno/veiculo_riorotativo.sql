@@ -135,7 +135,19 @@ with
                 ifnull(s.placa, a.placa) as placa,
                 ifnull(s.id_modelo_veiculo, a.id_modelo_veiculo) as id_modelo_veiculo,
                 ifnull(s.cor, a.cor) as cor,
-                a.motoristas,
+                ifnull(
+                    a.motoristas,
+                    cast(
+                        [] as array<
+                            struct<
+                                id_veiculo_cliente string,
+                                cpf_motorista string,
+                                datetime_inativacao datetime,
+                                datetime_inclusao datetime
+                            >
+                        >
+                    )
+                ) as motoristas,
                 ifnull(s.datetime_inclusao, a.datetime_inclusao) as datetime_inclusao,
                 ifnull(s.datetime_captura, a.datetime_captura) as datetime_captura,
             from veiculo_staging s
@@ -167,7 +179,25 @@ with
             d.cor,
             array(
                 select as struct *
-                from unnest(array_concat(d.motoristas, vc.motoristas))
+                from
+                    unnest(
+                        array_concat(
+                            d.motoristas,
+                            ifnull(
+                                vc.motoristas,
+                                cast(
+                                    [] as array<
+                                        struct<
+                                            id_veiculo_cliente string,
+                                            cpf_motorista string,
+                                            datetime_inativacao datetime,
+                                            datetime_inclusao datetime
+                                        >
+                                    >
+                                )
+                            )
+                        )
+                    )
                 qualify
                     row_number() over (
                         partition by id_veiculo_cliente

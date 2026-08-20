@@ -12,9 +12,17 @@ with
             select
                 data,
                 lpad(
-                    safe_cast(json_value(content, '$.identificacao') as string), 4, '0'
+                    regexp_replace(
+                        safe_cast(json_value(content, '$.identificacao') as string),
+                        r'[^0-9]',
+                        ''
+                    ),
+                    4,
+                    '0'
                 ) as numero_identificacao,
-                lpad(safe_cast(cpf as string), 11, '0') as documento,
+                lpad(
+                    regexp_replace(safe_cast(cpf as string), r'[^0-9]', ''), 11, '0'
+                ) as documento,
                 "CPF" as tipo_documento,
                 "{{ entidade.cnpj }}" as cnpj,
                 datetime(

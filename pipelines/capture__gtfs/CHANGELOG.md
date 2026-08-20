@@ -1,5 +1,25 @@
 # Changelog - capture__gtfs
 
+## [1.3.0] - 2026-08-17
+
+### Adicionado
+
+- Adiciona ao pós-teste do GTFS a validação de trajetos alternativos de `viagem_planejada_planejamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona ao pós-teste do GTFS o teste `test_consistencia_servicos_ordem_servico_gtfs`, que valida a existência de trips e horários para os serviços da Ordem de Serviço. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
+## [1.2.2] - 2026-07-31
+
+### Alterado
+
+- Altera a descrição do teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` no flow `capture__gtfs`(https://github.com/RJ-SMTR/pipelines_v3/pull/470)
+
+## [1.2.1] - 2026-07-30
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido` ao flow `capture__gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.2.0] - 2026-06-23
 
 ### Adicionado

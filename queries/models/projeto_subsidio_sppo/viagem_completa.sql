@@ -9,6 +9,15 @@
     )
 }}
 
+{% set incremental_filter %}
+    data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    {% if is_incremental() %}
+    and data between date_sub(date('{{ var("run_date") }}'), interval 2 day) and date_sub(
+            date('{{ var("run_date") }}'), interval 1 day
+    )
+    {% endif %}
+{% endset %}
+
 {% if execute %}
     {% set result = run_query(
         "SELECT coalesce(data_versao_shapes, feed_start_date) FROM "
@@ -45,17 +54,13 @@ with
                     fim_periodo,
                     id_tipo_trajeto
                 from {{ ref("viagem_planejada") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) p
         inner join
             (
                 select distinct *
                 from {{ ref("viagem_conformidade") }}
-                {% if is_incremental() %}
-                    where data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
-                {% endif %}
+                where {{ incremental_filter }}
             ) v
             on v.trip_id = p.trip_id
             and v.data = p.data
@@ -248,17 +253,70 @@ with
                 from filtro_desvio
             )
         where rn = 1
-    )
--- filtro_chegada
-select * except (rn, id_tipo_trajeto)
-from
-    (
-        select
-            *,
+    ),
+    -- 5. Filtra viagens com mesma chegada pela maior distancia percorrida
+    filtro_chegada as (
+        select *
+        from filtro_partida
+        qualify
             row_number() over (
                 partition by id_veiculo, datetime_chegada
                 order by distancia_planejada desc, id_tipo_trajeto
-            ) as rn
-        from filtro_partida
+            )
+            = 1
+    ),
+
+    viagens_concorrentes as (
+        select
+            v1.id_viagem,
+            logical_or(
+                -- Regra 1: Se a viagem concorrente for data mais recente, perde.
+                v1.data > v2.data
+                -- Regra 2: Perde se a concorrente tiver melhor perc_conformidade_shape
+                or (
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape < v2.perc_conformidade_shape
+                )
+                -- Regra 3: Desempate pela Distância (maior distância ganha)
+                or (
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.distancia_planejada < v2.distancia_planejada
+                )
+                -- Regra 4 : Desempate pelo Tipo de Trajeto (0 = principal,
+                -- logo menor ganha)
+                or (
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.distancia_planejada = v2.distancia_planejada
+                    and v1.id_tipo_trajeto > v2.id_tipo_trajeto
+                )
+                -- Regra 5: Desempate técnico final para evitar que ambas sejam nulas
+                -- em caso idêntico
+                or (
+                    v1.data <= v2.data
+                    and v1.perc_conformidade_shape = v2.perc_conformidade_shape
+                    and v1.id_tipo_trajeto = v2.id_tipo_trajeto
+                    and v1.distancia_planejada = v2.distancia_planejada
+                    and v1.id_viagem > v2.id_viagem
+                )
+            ) as indicador_exclusao_concorrente
+
+        from filtro_chegada v1
+        inner join
+            filtro_chegada v2
+            on v1.id_veiculo = v2.id_veiculo
+            and v1.id_viagem != v2.id_viagem
+            -- Lógica central de Sobreposição no Tempo:
+            and v1.datetime_partida < v2.datetime_chegada
+            and v1.datetime_chegada > v2.datetime_partida
+
+        group by v1.id_viagem
     )
-where rn = 1
+
+select v.* except (id_tipo_trajeto)
+from filtro_chegada as v
+left join viagens_concorrentes as vc using (id_viagem)
+where
+    coalesce(vc.indicador_exclusao_concorrente, false) = false
+    and data = date_sub(date('{{ var("run_date") }}'), interval 1 day)
