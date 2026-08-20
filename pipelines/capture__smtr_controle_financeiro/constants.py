@@ -28,6 +28,7 @@ CONTROLE_FINANCEIRO_SOURCES = [
         first_timestamp=datetime(2026, 8, 20, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         partition_date_only=True,
         raw_filetype="csv",
+        primary_keys=[],
     )
     for t in SHEETS_CAPTURE_PARAMS
 ]

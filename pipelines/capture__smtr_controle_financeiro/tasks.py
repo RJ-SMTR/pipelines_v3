@@ -22,7 +22,10 @@ def create_controle_financeiro_extractor(context: SourceCaptureContext):
     Returns:
         Callable: Função parcial configurada para extração
     """
-    url = constants.SHEETS_BASE_URL + constants.SHEETS_CAPTURE_PARAMS[context.source.table_id]
+    url = (
+        constants.SHEETS_BASE_URL
+        + constants.SHEETS_CAPTURE_PARAMS[context.source.table_id]["sheet_id"]
+    )
 
     return partial(
         get_raw_api,
