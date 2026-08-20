@@ -28,5 +28,5 @@ VIAGENS_SPPO_SNAPSHOT_SELECTOR = DBTSelector(
 )
 
 VIAGEM_PLANEJADA_SNAPSHOT_UNIQUE_TEST = DBTTest(
-    test_select="unique__snapshot_key__viagem_planejada",
+    test_select="dbt.unique__snapshot_key__viagem_planejada",
 )
