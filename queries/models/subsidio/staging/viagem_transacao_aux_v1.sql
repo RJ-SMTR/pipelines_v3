@@ -52,7 +52,7 @@ with
             id_viagem,
             distancia_planejada,
             sentido,
-            "Ônibus SPPO" as modo,
+            "Ônibus" as modo,
             ve.status as tipo_viagem,
             ve.tecnologia as tecnologia_apurada
         from {{ ref("viagem_completa") }}
