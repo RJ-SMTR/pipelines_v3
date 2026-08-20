@@ -20,10 +20,10 @@ VEICULO_DIA_INCREMENTAL_DELAY_HOURS = 24 * 7
 VEICULO_DIA_CHECKS_LIST = {
     "veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
+        "dbt_utils__unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
             "description": "Todos os registros são únicos"
         },
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
             "description": "Todas as datas possuem dados"
         },
         "test_check_veiculo_lacre__veiculo_dia": {
