@@ -1,6 +1,6 @@
 # Changelog - treatment__sppo_viagens
 
-## [1.1.2] - 2026-07-29
+## [1.1.2] - 2026-08-20
 
 ### Adicionado
 

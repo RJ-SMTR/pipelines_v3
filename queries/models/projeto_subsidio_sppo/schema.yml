@@ -34,7 +34,7 @@ models:
               - faixa_horaria_inicio
               - shape_id
       - unique:
-          name: dbt.unique__snapshot_key__viagem_planejada
+          name: unique__snapshot_key__viagem_planejada
           config:
             where: "data between date_sub(date('{{ var('date_range_start') }}'), interval 1 day) and date_sub(date('{{ var('date_range_end') }}'), interval 1 day) and distancia_total_planejada != 0"
           arguments:
