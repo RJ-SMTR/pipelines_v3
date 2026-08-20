@@ -113,7 +113,6 @@ with
             logical_and(id_segmento is not null) as indicador_shape_valido,
             any_value(service_ids) as service_ids,
             any_value(tipo_dia) as tipo_dia,
-            any_value(feed_version) as feed_version,
             any_value(feed_start_date) as feed_start_date,
             any_value(datetime_processamento) as datetime_processamento,
             any_value(datetime_captura_viagem) as datetime_captura_viagem
@@ -188,7 +187,6 @@ with
             ) as indicador_prazo_envio,
             service_ids,
             tipo_dia,
-            feed_version,
             feed_start_date,
             datetime_processamento,
             datetime_captura_viagem
@@ -201,20 +199,16 @@ with
         select * from indice where indicador_campos_obrigatorios
     ),
     /*
-    Agregação dos service_ids por feed_start_date, feed_version e route_id
+    Agregação dos service_ids por feed_start_date e route_id
     */
     trips as (
-        select distinct
-            feed_start_date,
-            feed_version,
-            route_id,
-            array_agg(service_id) as service_ids,
+        select distinct feed_start_date, route_id, array_agg(service_id) as service_ids,
         from {{ ref("trips_gtfs") }}
         {# from `rj-smtr.gtfs.trips` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
             where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         {% endif %}
-        group by 1, 2, 3
+        group by 1, 2
     ),
     /*
     Verifica se o serviço da viagem está planejado no GTFS
@@ -229,7 +223,7 @@ with
             )
             > 0 as indicador_servico_planejado_gtfs
         from viagens_campos_obrigatorios v
-        left join trips t using (feed_start_date, feed_version, route_id)
+        left join trips t using (feed_start_date, route_id)
     ),
     /*
     Quilometragem planejada por serviço, faixa horária e sentido
@@ -253,8 +247,8 @@ with
         {% endif %}
     ),
     /*
-    Desaninhamento do shape_id e indicador_trajeto_alternativo dos arrays
-    trip_info (trajeto principal) e trajetos_alternativos
+    Desaninhamento do shape_id dos arrays trip_info (trajeto principal) e
+    trajetos_alternativos, com classificação do tipo de trajeto
     */
     servico_planejado_unnested as (
         select distinct
@@ -267,7 +261,7 @@ with
             sp.faixa_horaria_inicio,
             sp.faixa_horaria_fim,
             trip.shape_id,
-            trip.indicador_trajeto_alternativo
+            false as indicador_trajeto_alternativo
         from servico_planejado sp, unnest(sp.trip_info) as trip
         where trip.shape_id is not null
 
@@ -304,7 +298,7 @@ with
                 then true
                 when
                     (spu.quilometragem is not null and spu.quilometragem <= 0)
-                    or (spu.quilometragem is null and spg.modo = "Ônibus SPPO")
+                    or (spu.quilometragem is null and spg.modo = "Ônibus")
                 then false
             end as indicador_servico_planejado_os
         from servicos_planejados_gtfs spg
@@ -446,7 +440,6 @@ with
                 and vm.indicador_processamento_apos_chegada
             ) as indicador_viagem_valida,
             vm.tipo_dia,
-            vm.feed_version,
             vm.feed_start_date
         from viagens_velocidade_media vm
         left join viagens_sobrepostas vs using (id_viagem)
@@ -552,7 +545,6 @@ select
     indicador_processamento_apos_chegada,
     indicador_prazo_envio,
     indicador_viagem_valida,
-    feed_version,
     feed_start_date,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     "{{ var('version') }}" as versao,

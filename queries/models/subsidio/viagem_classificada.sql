@@ -105,7 +105,7 @@ with
             v.id_viagem,
             v.distancia_planejada,
             v.sentido,
-            "Ônibus SPPO" as modo,
+            "Ônibus" as modo,
             ve.tecnologia,
             ve.status,
             ve.indicadores
