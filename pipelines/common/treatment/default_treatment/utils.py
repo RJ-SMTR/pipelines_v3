@@ -859,12 +859,8 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
     for line in log_lines:
         if line.strip() == "":
             continue
-        try:
-            log_line_json = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-
-        data = log_line_json.get("data") or {}
+        log_line_json = json.loads(line)
+        data = log_line_json["data"]
 
         node_info = data.get("node_info", {})
         if node_info.get("materialized", "") == "test":
@@ -879,32 +875,25 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
                 path is not None
                 and "compiled code at" in log_line_json.get("info", {}).get("msg", "").lower()
             ):
-                try:
-                    filepath = queries_path / Path(os.path.relpath(path, queries_path))
-                    filepath = filepath.resolve()
-                    with filepath.open("r") as f:
-                        query = f.read()
+                filepath = queries_path / Path(os.path.relpath(path, queries_path))
+                filepath = filepath.resolve()
+                with filepath.open("r") as f:
+                    query = f.read()
 
-                    query = re.sub(r"\n+", "\n", query)
-                    if test_name in results:
-                        results[test_name]["query"] = query
-                except OSError as exc:
-                    if test_name in results:
-                        results[test_name]["error"] = (
-                            f"Não foi possível ler a query compilada: {exc}"
-                        )
+                query = re.sub(r"\n+", "\n", query)
+                results[test_name]["query"] = query
 
     log_message = ""
     for test, info in results.items():
         result = info["result"]
         log_message += f"Test: {test} Status: {result}\n"
 
-        if result in ("FAIL", "WARN") and "query" in info:
+        if result in ("FAIL", "WARN"):
             log_message += "Query:\n"
             log_message += f"{info['query']}\n"
 
-        if result == "ERROR" or "error" in info:
-            log_message += f"Error: {info.get('error', 'sem detalhe no log do dbt')}\n"
+        if result == "ERROR":
+            log_message += f"Error: {info['error']}\n"
 
         log_message += "\n"
 
