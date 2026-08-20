@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: viagem_planejada
-    description: Tabela histórica com detalhes das viagens planejadas a cada dia
+    description: "Tabela histórica com detalhes das viagens planejadas a cada dia [Dados entre 2022-06-01 e 2026-07-31]"
     tests:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
           name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__viagem_planejada
@@ -444,7 +444,7 @@ models:
       - name: trip_id_planejado
         description: "{{ doc('trip_id') }}"
   - name: registros_status_viagem
-    description: Registros de GPS clasificados por viagem
+    description: "Registros de GPS clasificados por viagem [Dados entre 2022-06-01 e 2026-07-31]"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -604,7 +604,7 @@ models:
           - not_null
           - not_negative
   - name: viagem_conformidade
-    description: Tabela de cálculo da conformidade de viagens identificadas por GPS
+    description: "Tabela de cálculo da conformidade de viagens identificadas por GPS [Dados entre 2022-06-01 e 2026-07-31]"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -737,7 +737,7 @@ models:
         tests:
           - not_null
   - name: viagem_completa
-    description: Detalhes de todas as viagens completas identificadas
+    description: "Detalhes de todas as viagens completas identificadas [Dados entre 2022-06-01 e 2026-07-31]"
     columns:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
