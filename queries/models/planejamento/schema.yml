@@ -641,15 +641,12 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-        quote: true
       - name: sistema
         description: "{{ doc('sistema') }}"
         data_type: string
-        quote: true
       - name: vista
         description: "{{ doc('vista') }}"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
