@@ -14,7 +14,7 @@ with
             servico_informado as servico_gps,
             servico_realizado as servico,
             consorcio,
-            "Ônibus SPPO" as modo,
+            "Ônibus" as modo,
             trip_id,
             cast(null as string) as route_id,
             shape_id,
