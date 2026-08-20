@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona o teste `unique__snapshot_key__viagem_planejada` com a mesma chave do snapshot `snapshot_viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/400)
+- Adiciona o teste `unique__snapshot_key__viagem_planejada` para refletir a `unique_key` do snapshot `snapshot_viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/400)
 
 ## [9.4.1] - 2026-07-08
 
