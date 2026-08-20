@@ -5,82 +5,64 @@ models:
       - name: data
         description: Data do lançamento da recarga no sistema da Jaé [partição]
         data_type: date
-        quote: true
       - name: id_lancamento
         description: Identificador único do lançamento no sistema da Jaé
         data_type: string
-        quote: true
       - name: datetime_recarga
         description: Data e hora do lançamento da recarga no sistema da Jaé
         data_type: datetime
-        quote: true
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
-        quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_conta
         description: Identificador único da conta que recebeu a transferência
         data_type: string
-        quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_conta
         description: Tipo da conta que recebeu a transferência
         data_type: string
-        quote: true
       - name: tipo_movimento
         description: Tipo da movimentação financeira
         data_type: string
-        quote: true
       - name: valor_recarga
         description: Valor da recarga
         data_type: numeric
-        quote: true
       - name: tipo_moeda
         description: Moeda utilizada na recarga (Real ou Crédito eletrônico)
         data_type: string
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: data_ordem_transacao
     description: Tabela com relacionamento entre data_transacao e data_ordem
     columns:
       - name: data_ordem
         description: "{{ doc('data_ordem') }} [partição]"
         data_type: date
-        quote: true
       - name: id_ordem_pagamento_consorcio_operador_dia
         description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
         data_type: string
-        quote: true
       - name: data_transacao
         description: "{{ doc('data_transacao') }}"
         data_type: date
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: transacao_gratuidade_estudante_municipal
     description: View com transações de gratuidade dos estudantes da rede municipal
     tests:
@@ -123,15 +105,15 @@ models:
       - name: documento_cliente
         description: "{{ doc('documento_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521"
       - name: numero_matricula
         description: Número da matrícula do estudante
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521"
       - name: nome_cliente
         description: "{{ doc('nome_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521"
       - name: tipo_transacao_jae
         description: "{{ doc('tipo_transacao_jae') }}"
         data_type: string
@@ -141,7 +123,6 @@ models:
       - name: tipo_usuario
         description: "{{ doc('tipo_usuario') }}"
         data_type: string
-        quote: true
       - name: subtipo_usuario
         description: "{{ doc('subtipo_usuario') }}"
       - name: meio_pagamento
@@ -149,11 +130,11 @@ models:
       - name: id_cre_escola
         description: "{{ doc('id_cre_escola') }} do cliente"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521"
       - name: nome_escola
         description: Nome da escola
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1101226827904472521"
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
@@ -170,11 +151,11 @@ models:
       - name: id_conta
         description: Identificador único da conta que recebeu a transferência
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: hash_cartao
         description: "{{ doc('hash_cartao') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_lancamento
         description: Identificador único do lançamento da transferência
       - name: id_unico_lancamento
@@ -182,15 +163,15 @@ models:
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: nome_cliente
         description: "{{ doc('nome_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: documento_cliente
         description: "{{ doc('documento_cliente') }}"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: tipo_documento_cliente
         description: "{{ doc('tipo_documento_cliente') }}"
       - name: tipo_movimento
@@ -254,7 +235,7 @@ models:
         description: "{{ doc('documento_operadora') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+          - "projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059"
       - name: tipo_documento_operadora
         description: "{{ doc('tipo_documento_operadora') }}"
         data_type: string
@@ -280,17 +261,17 @@ models:
         description: "{{ doc('id_cliente') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: hash_cartao
         description: "{{ doc('hash_cartao') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: saldo_cartao
         description: "{{ doc('saldo_cartao') }}"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: id_tipo_pagamento
         description: "Identificador do tipo pagamento na tabela bilhetagem.dicionario"
         data_type: string
@@ -313,7 +294,7 @@ models:
         description: "Token da transação EMV"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: indicador_emv
         description: "Indica se a transação é EMV"
         data_type: bool
@@ -336,7 +317,7 @@ models:
         description: "JSON completo enviado pelo validador com as informações da transação"
         data_type: string
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: versao
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
