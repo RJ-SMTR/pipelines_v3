@@ -208,7 +208,7 @@ with
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
             where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         {% endif %}
-        group by 1, 2, 3
+        group by 1, 2
     ),
     /*
     Verifica se o serviço da viagem está planejado no GTFS
