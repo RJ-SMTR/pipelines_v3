@@ -342,6 +342,9 @@ sources:
       - name: matriz_integracao_excecao
       - name: dicionario_subsidio
       - name: calendario_manual
+      - name: controle_financeiro_staging
+      - name: cb
+      - name: cett
 
   - name: source_riorotativo
     database: rj-smtr-staging
