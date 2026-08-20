@@ -20,7 +20,7 @@ PLANEJAMENTO_DIARIO_CHECKS_LIST = {
         },
     },
     "viagem_planejada_planejamento_dia": {
-        "dbt_utils.unique_combination_of_columns__viagem_planejada_planejamento_dia": {
+        "dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento_dia": {
             "description": "Todos os registros de 'data' e 'id_viagem' são únicos."
         },
         "dbt_expectations.expect_table_aggregation_to_equal_other_table__trajetos_alternativos__viagem_planejada_planejamento_dia": {
