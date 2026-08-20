@@ -52,13 +52,37 @@ dbt source freshness --profiles-dir ./dev                  # Check source freshn
 
 **ALWAYS run `sqlfmt <file>.sql` after editing any SQL model.** This is mandatory before committing.
 
+## Schema columns
+
+Do **not** set `quote: true` on column definitions in `schema.yml` / `schema.yaml`.
+
 ## Test Naming
 
-Named tests in `schema.yml` must use the full package prefix in the `name:` field:
+Named tests in `schema.yml` must use the sanitized package prefix (no dots) in the `name:` field. Keep the package declaration with dots.
+
+Patterns for the suffix after `<package>__<test>`:
+
+| Scope | Pattern | Example |
+| --- | --- | --- |
+| Column-level | `__<column>__<table>` | `dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo` |
+| Table-level (once) | `__<table>` | `dbt_utils__unique_combination_of_columns__viagem_planejada` |
+| Table-level (repeated) | `__<discriminator>__<table>` | see below |
+
+When the same table-level test is declared more than once on a model, disambiguate with a discriminator (e.g. the columns in the combination) before the table name:
 
 ```yaml
-- dbt_expectations.expect_row_values_to_have_recent_data:
-    name: dbt_expectations.expect_row_values_to_have_recent_data__<column>__<table>
+- dbt_utils.unique_combination_of_columns:
+    name: dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
+    arguments:
+      combination_of_columns:
+        - documento
+        - cnpj
+- dbt_utils.unique_combination_of_columns:
+    name: dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
+    arguments:
+      combination_of_columns:
+        - cnpj
+        - numero_identificacao
 ```
 
 ## DBTSelector (Python side)
