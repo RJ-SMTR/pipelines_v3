@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.2] - 2026-08-17
+
+### Alterado
+
+- Nomeia os testes dbt de `viagem_completa` no padrão `tipo__coluna__viagem_completa` para exibir descrições na notificação do Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/522)
+
 ## [9.5.1] - 2026-08-12
 
 ### Adicionado
