@@ -62,7 +62,7 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
   - name: view_viagem_monitoramento
-    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_inferida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus SPPO."
+    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_inferida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus."
     columns:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
