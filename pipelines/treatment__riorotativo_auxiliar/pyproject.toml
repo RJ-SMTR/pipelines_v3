@@ -1,0 +1,4 @@
+[project]
+name = "treatment__riorotativo_auxiliar"
+version = "0.1.0"
+description = "Pipeline de materialização dos dados auxiliares do Rio Rotativo Digital da secretaria rj-smtr"

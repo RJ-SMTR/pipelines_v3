@@ -4,14 +4,14 @@ models:
     description: "Tabela histórica com detalhes das viagens planejadas a cada dia [Dados entre 2022-06-01 e 2026-07-31]"
     tests:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__viagem_planejada
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__viagem_planejada
           arguments:
             date_col: data
             row_condition: 1=1
             test_start_date: "{{ var('date_range_start') }}"
             test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__viagem_planejada
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__viagem_planejada
           config:
             where: 1=1
           arguments:
@@ -25,7 +25,7 @@ models:
             row_condition: DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}')
             compare_row_condition: DATA BETWEEN DATE('{{ var('date_range_start') }}') AND DATE('{{ var('date_range_end') }}')
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagem_planejada
+          name: dbt_utils__unique_combination_of_columns__viagem_planejada
           arguments:
             combination_of_columns:
               - data
@@ -86,7 +86,7 @@ models:
               config:
                 where: data BETWEEN greatest(date('{date_range_start}'), date('{DATA_SUBSIDIO_V6_INICIO}')) and date('{date_range_end}')
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__partidas_total_planejada__viagem_planejada
+              name: dbt_utils__accepted_range__partidas_total_planejada__viagem_planejada
               arguments:
                 min_value: 0
                 inclusive: false
@@ -96,7 +96,7 @@ models:
           - not_null:
               name: not_null__distancia_planejada__viagem_planejada
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__distancia_planejada__viagem_planejada
+              name: dbt_utils__accepted_range__distancia_planejada__viagem_planejada
               arguments:
                 min_value: 0
                 inclusive: false
@@ -106,7 +106,7 @@ models:
           - not_null:
               name: not_null__distancia_total_planejada__viagem_planejada
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__distancia_total_planejada__viagem_planejada
+              name: dbt_utils__accepted_range__distancia_total_planejada__viagem_planejada
               arguments:
                 min_value: 0
                 inclusive: false
@@ -741,6 +741,16 @@ models:
           - not_null
   - name: viagem_completa
     description: "Detalhes de todas as viagens completas identificadas [Dados entre 2022-06-01 e 2026-07-31]"
+    tests:
+      - dbt_utils.mutually_exclusive_ranges:
+          name: dbt_utils__mutually_exclusive_ranges__id_veiculo__viagem_completa
+          arguments:
+            lower_bound_column: datetime_partida
+            upper_bound_column: datetime_chegada
+            partition_by: id_veiculo
+            gaps: allowed
+          config:
+            where: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
     columns:
       - name: consorcio
         description: "{{ doc('consorcio') }}"

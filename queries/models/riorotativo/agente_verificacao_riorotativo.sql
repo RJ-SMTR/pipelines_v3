@@ -12,7 +12,7 @@
     {% set last_partition_query %}
         select max(data)
         from {{ ref("agente_verificacao_riorotativo_historico") }}
-        where data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}")
+        where data between date_sub(date("{{ var('date_range_start') }}"), interval 1 day) and date("{{ var('date_range_end') }}")
     {% endset %}
     {% set last_partition = run_query(last_partition_query).columns[0].values()[0] %}
 {% endif %}

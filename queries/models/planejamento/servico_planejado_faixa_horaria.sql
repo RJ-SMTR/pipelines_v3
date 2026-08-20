@@ -54,7 +54,7 @@ with
             end as indicador_trajeto_alternativo
         from {{ ref("viagem_planejada_planejamento_dia") }}
         {# from `rj-smtr.planejamento.viagem_planejada` #}
-        where {{ incremental_filter }} and {{ feed_filter }}
+        where {{ incremental_filter }}
     ),
     viagens_na_faixa as (
         select

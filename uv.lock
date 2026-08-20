@@ -7,6 +7,7 @@ exclude-newer = "2026-05-31T00:00:00Z"
 
 [manifest]
 members = [
+    "capture-calendario-manual",
     "capture-cct-pagamento",
     "capture-cittati-realocacao",
     "capture-cittati-registros",
@@ -16,10 +17,14 @@ members = [
     "capture-inmet-temperatura",
     "capture-jae-auxiliar",
     "capture-jae-backup-billingpay",
+    "capture-jae-estacionamento-veiculo",
+    "capture-jae-fiscalizacao-veiculo",
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
+    "capture-jae-movimento-estacionamento-veiculo",
     "capture-jae-ordem-pagamento",
+    "capture-jae-riorotativo-auxiliar",
     "capture-jae-transacao",
     "capture-jae-transacao-erro",
     "capture-jae-transacao-ordem",
@@ -56,6 +61,7 @@ members = [
     "quality-check-ordem-pagamento",
     "test-raise-for-sentry",
     "test-runner-deployment",
+    "test-serpro-connection",
     "treatment-cadastro",
     "treatment-cadastro-veiculo",
     "treatment-cliente-cpf",
@@ -74,6 +80,7 @@ members = [
     "treatment-gps-zirix",
     "treatment-infraestrutura",
     "treatment-integracao",
+    "treatment-jae-timestamps-divergentes",
     "treatment-matriz-integracao-smtr",
     "treatment-monitoramento-temperatura",
     "treatment-monitoramento-veiculo",
@@ -81,6 +88,7 @@ members = [
     "treatment-pagamento-cct",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
+    "treatment-riorotativo",
     "treatment-sppo-viagens",
     "treatment-subsidio-sppo-apuracao",
     "treatment-transacao",
@@ -90,6 +98,7 @@ members = [
     "treatment-transito-autuacao",
     "treatment-validacao-dados-jae",
     "treatment-veiculo-dia",
+    "treatment-viagem-inferida",
     "treatment-viagem-informada",
     "treatment-viagem-validacao",
 ]
@@ -347,6 +356,11 @@ wheels = [
 ]
 
 [[package]]
+name = "capture-calendario-manual"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__calendario_manual" }
+
+[[package]]
 name = "capture-cct-pagamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__cct_pagamento" }
@@ -404,6 +418,16 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_backup_billingpay" }
 
 [[package]]
+name = "capture-jae-estacionamento-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_estacionamento_veiculo" }
+
+[[package]]
+name = "capture-jae-fiscalizacao-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_fiscalizacao_veiculo" }
+
+[[package]]
 name = "capture-jae-gps-validador"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_gps_validador" }
@@ -419,9 +443,19 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_lancamento" }
 
 [[package]]
+name = "capture-jae-movimento-estacionamento-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_movimento_estacionamento_veiculo" }
+
+[[package]]
 name = "capture-jae-ordem-pagamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_ordem_pagamento" }
+
+[[package]]
+name = "capture-jae-riorotativo-auxiliar"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_riorotativo_auxiliar" }
 
 [[package]]
 name = "capture-jae-transacao"
@@ -3112,6 +3146,21 @@ version = "0.1.0"
 source = { virtual = "pipelines/test__runner_deployment" }
 
 [[package]]
+name = "test-serpro-connection"
+version = "0.1.0"
+source = { virtual = "pipelines/test__serpro_connection" }
+dependencies = [
+    { name = "impyla" },
+    { name = "jaydebeapi" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "impyla", specifier = ">=0.22.0" },
+    { name = "jaydebeapi", specifier = ">=1.2.3" },
+]
+
+[[package]]
 name = "text-unidecode"
 version = "1.3"
 source = { registry = "https://pypi.org/simple" }
@@ -3264,6 +3313,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__integracao" }
 
 [[package]]
+name = "treatment-jae-timestamps-divergentes"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__jae_timestamps_divergentes" }
+
+[[package]]
 name = "treatment-matriz-integracao-smtr"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__matriz_integracao_smtr" }
@@ -3297,6 +3351,11 @@ source = { virtual = "pipelines/treatment__passageiro_hora" }
 name = "treatment-planejamento-diario"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__planejamento_diario" }
+
+[[package]]
+name = "treatment-riorotativo"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__riorotativo" }
 
 [[package]]
 name = "treatment-sppo-viagens"
@@ -3342,6 +3401,11 @@ source = { virtual = "pipelines/treatment__validacao_dados_jae" }
 name = "treatment-veiculo-dia"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__veiculo_dia" }
+
+[[package]]
+name = "treatment-viagem-inferida"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__viagem_inferida" }
 
 [[package]]
 name = "treatment-viagem-informada"

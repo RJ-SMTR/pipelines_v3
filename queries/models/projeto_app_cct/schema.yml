@@ -29,7 +29,7 @@ models:
     description: "Tabela para testar a sincronia entre as transações do BigQuery e as transações salvas no DB do App CCT."
     tests:
       - dbt_utils.expression_is_true:
-          name: dbt_utils.expression_is_true__teste_sincronizacao_transacao_cct
+          name: dbt_utils__expression_is_true__teste_sincronizacao_transacao_cct
           config:
             where: "true"
           arguments:
@@ -52,8 +52,6 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true

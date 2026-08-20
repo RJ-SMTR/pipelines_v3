@@ -5,7 +5,7 @@ from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import task
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
@@ -16,6 +16,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     IncompleteDataError,
     clone_queries_from_github,
     dbt_test_notify_discord,
+    get_dbt_paths,
     run_dbt,
     run_dbt_deps,
     run_dbt_empty_for_missing_relations,
@@ -23,8 +24,29 @@ from pipelines.common.treatment.default_treatment.utils import (
 )
 from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
+
+
+@task(cache_policy=NO_CACHE)
+def ingest_dbt_artifacts_to_openmetadata(
+    env: str,
+    deployment_name: str,
+    flow_run_id: object,
+) -> None:
+    """Ingere os artefatos dbt preservados ou os envia ao fallback GCS."""
+    if env != "prod":
+        print(f"OpenMetadata: ingestão ignorada no ambiente {env}")
+        return
+
+    _, _, target_path = get_dbt_paths()
+    ingest_dbt_artifacts(
+        target_path=target_path,
+        env=env,
+        deployment_name=deployment_name,
+        flow_run_id=flow_run_id,
+    )
 
 
 @task(cache_policy=NO_CACHE)
@@ -302,13 +324,20 @@ def task_dbt_selector_test_notify_discord(
 @task(cache_policy=NO_CACHE)
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
+    save_redis: Optional[bool] = True,
 ):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+        save_redis (Optional[bool]): Se True, atualiza o checkpoint; se False, preserva;
+            se None, decide pela origem agendada da flow run.
     """
+    if not (save_redis if save_redis is not None else "auto-scheduled" in runtime.flow_run.tags):
+        print("Checkpoint de materialização no Redis preservado")
+        return
+
     for context in contexts:
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end

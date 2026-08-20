@@ -1,5 +1,22 @@
 # Changelog - monitoramento_interno
 
+## [1.0.4] - 2026-07-31
+
+### Adicionado
+
+- Cria `view_viagem_monitoramento`, consolidando `viagem_completa` e `viagem_inferida` em uma interface histórica para painéis internos (https://github.com/RJ-SMTR/pipelines_v3/pull/438)
+
+## [1.0.3] - 2026-07-28
+
+### Adicionado
+
+- Adiciona as colunas `id_viagem_planejada`, `fonte_gps` e `id_execucao_dbt` no modelo `viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
+### Alterado
+
+- Substitui `view_gps_sppo_completo` por `view_gps_onibus` em `aux_monitoramento_registros_status_trajeto` (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+- Renomeia `timestamp_gps` para `datetime_gps` na cadeia `aux_monitoramento_registros_status_trajeto` → `viagem_inferida` → `registros_status_viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
 ## [1.0.2] - 2026-06-25
 
 ### Adicionado

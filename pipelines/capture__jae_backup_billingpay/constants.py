@@ -59,6 +59,8 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_estudante_05122025",
             "temp_midias_transferidas_04122025",
             "temp_estudante_11032026",
+            "temp_pedido_midia_transferidas_08072026",
+            "temp_cliente_midia_volta_mercado",
         ],
         "filter": {
             "ITEM_PEDIDO": ["DT_INCLUSAO"],
@@ -116,6 +118,8 @@ BACKUP_JAE_BILLING_PAY = {
                 "DT_CANCELAMENTO",
             ],
             "pcd_mae": ["count(*)"],
+            "MOVIMENTO_ESTOQUE_MIDIA": ["DT_INCLUSAO"],
+            "VT_EVENT_IDEMPOTENCY": ["CREATED_AT"],
         },
         "custom_select": {
             "CLIENTE_IMAGEM": """
@@ -182,6 +186,7 @@ BACKUP_JAE_BILLING_PAY = {
             "ordem_rateio",
             "linha_sem_ressarcimento",
             "percentual_rateio_integracao",
+            "temp_guardador_22072026",
         ],
         "filter": {
             "item_ordem_transferencia_custodia": ["data_inclusao"],
@@ -230,6 +235,8 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_cliente_gratuidade",
             "estudante_universitario_26012026",
             "estudante_sme_inativar_10042026",
+            "estudante_universitario_15072026",
+            "estudante_universitario_03082026",
             # sem permissão: #
             "pcd_excluir",
             "estudante_seeduc",
@@ -444,6 +451,8 @@ BACKUP_JAE_BILLING_PAY = {
     "processador_transacao_db": {
         "exclude": [
             "transacao_erro",
+            "saldo_poder_compra",
+            "saldo_poder_compra_original",
         ],
         "filter": {
             "transacao_processada": ["dt_inclusao"],

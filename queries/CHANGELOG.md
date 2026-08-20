@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.1.10] - 2026-07-28
+
+### Adicionado
+
+- Cria selector `viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
 ## [1.1.9] - 2026-07-15
 
 ### Adicionado

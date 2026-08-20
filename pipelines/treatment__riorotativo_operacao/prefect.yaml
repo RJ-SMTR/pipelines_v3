@@ -1,4 +1,4 @@
-name: treatment__riorotativo
+name: treatment__riorotativo_operacao
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "treatment__riorotativo-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/treatment__riorotativo/Dockerfile
+      tag: "treatment__riorotativo_operacao-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/treatment__riorotativo_operacao/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,28 +24,29 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--riorotativo--staging
+  - name: rj-treatment--riorotativo_operacao--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/treatment__riorotativo/flow.py:treatment__riorotativo
+    entrypoint: pipelines/treatment__riorotativo_operacao/flow.py:treatment__riorotativo_operacao
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__riorotativo -- prefect flow-run execute
+        command: uv run --package treatment__riorotativo_operacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--riorotativo--prod
+  - name: rj-treatment--riorotativo_operacao--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/treatment__riorotativo/flow.py:treatment__riorotativo
+    entrypoint: pipelines/treatment__riorotativo_operacao/flow.py:treatment__riorotativo_operacao
     schedules:
-      - cron: "30 4 * * *"
+      - cron: "15 * * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__riorotativo -- prefect flow-run execute
+        command: uv run --package treatment__riorotativo_operacao -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+    concurrency_limit: 1

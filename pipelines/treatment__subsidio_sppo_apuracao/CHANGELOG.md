@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.3] - 2026-07-28
+
+### Adicionado
+
+- Adiciona descrições dos testes `sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo` e `sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/443)
+
 ## [1.0.2] - 2026-06-02
 
 ### Adicionado
