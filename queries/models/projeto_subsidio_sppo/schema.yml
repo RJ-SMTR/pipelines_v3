@@ -749,16 +749,20 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__consorcio__viagem_completa
       - name: data
         description: "{{ doc('data_viagem') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__data__viagem_completa
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__tipo_dia__viagem_completa
           - accepted_values:
+              name: accepted_values__tipo_dia__viagem_completa
               arguments:
                 values:
                   - Dia Útil
@@ -767,34 +771,42 @@ models:
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__id_veiculo__viagem_completa
       - name: id_empresa
         description: "{{ doc('id_empresa') }}"
       - name: servico_informado
         description: "{{ doc('servico_informado') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__servico_informado__viagem_completa
       - name: servico_realizado
         description: "{{ doc('servico') }} [com base na identificação do trajeto]"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__servico_realizado__viagem_completa
       - name: vista
         description: "{{ doc('trip_headsign') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__vista__viagem_completa
       - name: trip_id
         description: Código identificador do itinerário operado
         tests:
-          - not_null
+          - not_null:
+              name: not_null__trip_id__viagem_completa
       - name: shape_id
         description: "{{ doc('shape_id') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__shape_id__viagem_completa
       - name: sentido
         description: "Sentido do trajeto identificado [categorias: I - Ida, V - Volta, C - Circular]"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__sentido__viagem_completa
           - accepted_values:
+              name: accepted_values__sentido__viagem_completa
               arguments:
                 values:
                   - I
@@ -803,21 +815,27 @@ models:
       - name: id_viagem
         description: "Código identificador da viagem [ex: id_veiculo + servico + sentido + shape_id + datetime_partida]"
         tests:
-          - not_null
-          - unique
+          - not_null:
+              name: not_null__id_viagem__viagem_completa
+          - unique:
+              name: unique__id_viagem__viagem_completa
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__datetime_partida__viagem_completa
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__datetime_chegada__viagem_completa
       - name: tipo_viagem
         description: "Tipo de viagem - categorias: Completa linha correta, Completa linha incorreta"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__tipo_viagem__viagem_completa
           - accepted_values:
+              name: accepted_values__tipo_viagem__viagem_completa
               arguments:
                 values:
                   - Completa linha correta
@@ -831,56 +849,75 @@ models:
       - name: tempo_viagem
         description: Tempo aferido da viagem (min)
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__tempo_viagem__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__tempo_viagem__viagem_completa
       - name: distancia_planejada
         description: Distância do shape [trajeto] planejado
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__distancia_planejada__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__distancia_planejada__viagem_completa
       - name: distancia_aferida
         description: Distância aferida da viagem [geodésia entre posições consecutivas do sinal de GPS]
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__distancia_aferida__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__distancia_aferida__viagem_completa
       - name: n_registros_shape
         description: "{{ doc('n_registros_shape') }}"
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__n_registros_shape__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__n_registros_shape__viagem_completa
       - name: n_registros_total
         description: "{{ doc('n_registros_total') }}"
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__n_registros_total__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__n_registros_total__viagem_completa
       - name: n_registros_minuto
         description: "{{ doc('n_registros_minuto') }}"
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__n_registros_minuto__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__n_registros_minuto__viagem_completa
       - name: velocidade_media
         description: Velocidade média da viagem (km/h)
       - name: perc_conformidade_shape
         description: Percentual de sinais emitidos dentro do shape [trajeto] ao longo da viagem
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__perc_conformidade_shape__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__perc_conformidade_shape__viagem_completa
       - name: perc_conformidade_distancia
         description: "{{ doc('perc_conformidade_distancia') }}"
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__perc_conformidade_distancia__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__perc_conformidade_distancia__viagem_completa
       - name: perc_conformidade_registros
         description: "{{ doc('perc_conformidade_registros') }}"
         tests:
-          - not_null
-          - greater_than_zero
+          - not_null:
+              name: not_null__perc_conformidade_registros__viagem_completa
+          - greater_than_zero:
+              name: greater_than_zero__perc_conformidade_registros__viagem_completa
       - name: perc_conformidade_tempo
         description: Razão do tempo aferido da viagem pelo planejado x 100
       - name: versao_modelo
         description: "{{ doc('versao') }}"
         tests:
-          - not_null
+          - not_null:
+              name: not_null__versao_modelo__viagem_completa
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
   - name: subsidio_data_versao_efetiva
