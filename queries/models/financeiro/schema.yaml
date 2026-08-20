@@ -53,7 +53,7 @@ models:
         description: "{{ doc('data_ordem') }} [partição]"
         tests:
           - dbt_expectations.expect_column_max_to_be_between:
-              name: dbt_expectations.expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia
+              name: dbt_expectations__expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia
 
               config:
                 where: "1=1"
@@ -141,7 +141,6 @@ models:
         description: "{{ doc('versao') }}"
       - name: datetime_ultima_atualizacao
         data_type: datetime
-        quote: true
         description: "{{ doc('datetime_ultima_atualizacao') }}"
   - name: bilhetagem_dia
     description: "Tabela com os valores totais de pagamento da Jaé agregados por dia"
