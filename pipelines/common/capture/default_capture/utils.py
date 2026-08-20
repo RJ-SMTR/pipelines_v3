@@ -107,5 +107,5 @@ def rename_capture_flow_run() -> str:
     )
 
     flow_name = runtime.flow_run.flow_name
-    recapture = runtime.flow_run.parameters["recapture"]
+    recapture = runtime.flow_run.parameters.get("recapture", False)
     return f"[{scheduled_start_time}] {flow_name} - Recapture: {recapture}"
