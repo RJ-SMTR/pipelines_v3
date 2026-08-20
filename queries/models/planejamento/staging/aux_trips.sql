@@ -9,14 +9,22 @@ with
             r.*,
             a.agency_name as consorcio,
             case
-                when r.agency_id in ("22005", "22002", "22004", "22003")
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    and r.route_type = '700'
                 then "SPPO"
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    and r.route_type = '200'
+                then "SPPO Executivo"
                 when regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
                 then "RIO"
                 else null
             end as sistema,
             case
-                when r.agency_id in ("22005", "22002", "22004", "22003")
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
                 then "Ônibus"
                 when r.agency_id = "20001"
                 then "BRT"

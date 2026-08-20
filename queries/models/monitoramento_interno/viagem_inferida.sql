@@ -70,10 +70,10 @@ with
             servico,
             consorcio,
             case
-                when r.route_type = '200'
-                then 'Ônibus Executivo'
-                when r.route_type = '700'
-                then 'Ônibus SPPO'
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
+                then 'Ônibus'
             end as modo,
             trip_id,
             route_id,

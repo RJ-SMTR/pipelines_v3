@@ -217,10 +217,10 @@ with
             case
                 when v.fonte_gps = 'brt'
                 then 'BRT'
-                when r.route_type = '200'
-                then 'Ônibus Executivo'
-                when r.route_type = '700'
-                then 'Ônibus SPPO'
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
+                then 'Ônibus'
             end as modo,
             if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
             if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,

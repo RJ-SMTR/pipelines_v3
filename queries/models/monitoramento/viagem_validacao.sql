@@ -298,7 +298,7 @@ with
                 then true
                 when
                     (spu.quilometragem is not null and spu.quilometragem <= 0)
-                    or (spu.quilometragem is null and spg.modo = "Ônibus SPPO")
+                    or (spu.quilometragem is null and spg.modo = "Ônibus")
                 then false
             end as indicador_servico_planejado_os
         from servicos_planejados_gtfs spg
