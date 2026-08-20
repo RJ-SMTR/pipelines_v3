@@ -68,14 +68,7 @@
 
 with
     calendario as (
-        select
-            data,
-            tipo_dia,
-            subtipo_dia,
-            tipo_os,
-            service_ids,
-            feed_version,
-            feed_start_date
+        select data, tipo_dia, subtipo_dia, tipo_os, service_ids, feed_start_date
         from {{ calendario }}
         where {{ source_filter }}
     ),
@@ -89,7 +82,6 @@ with
     ordem_servico as (
         select
             feed_start_date,
-            feed_version,
             servico,
             sentido,
             tipo_dia,
@@ -114,13 +106,15 @@ with
                 "America/Sao_Paulo"
             ) as datetime_partida,
             vp.modo,
+            vp.consorcio,
+            vp.sistema,
+            vp.vista,
             vp.service_id,
             vp.trip_id,
             vp.route_id,
             vp.shape_id,
             vp.servico,
             vp.sentido,
-            vp.evento,
             vp.extensao,
             vp.trajetos_alternativos,
             c.data as data_referencia,
@@ -133,7 +127,6 @@ with
             os.horario_fim,
             vp.horario_partida,
             vp.id_viagem,
-            vp.feed_version,
             vp.feed_start_date
         from calendario c
         join
