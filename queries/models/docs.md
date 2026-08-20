@@ -226,8 +226,16 @@ Dados brutos capturados aninhados em formato JSON
 Tipo de transporte [Ônibus, Van, BRT]
 {% enddocs %}
 
+{% docs sistema %}
+Sistema de transporte [SPPO, BRT ou RIO]
+{% enddocs %}
+
 {% docs vista %}
 Itinerário do serviço [ex: Bananal ↔ Saens Peña]
+{% enddocs %}
+
+{% docs trajetos_alternativos %}
+Trajetos alternativos para a viagem
 {% enddocs %}
 
 {% docs viagens_planejadas %}
