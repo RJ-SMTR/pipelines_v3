@@ -13,61 +13,48 @@ models:
       - name: integracao_realizada
         description: String representando a integração realizada [sequência modos da integração separados por "-"]
         data_type: string
-        quote: true
       - name: tempo_integracao_minutos_realizado
         description: Tempo entre a primeira e a última perna da integração
         data_type: int64
-        quote: true
       - name: tempo_integracao_minutos_matriz
         description: "{{ doc('tempo_integracao_minutos_matriz') }} [de acordo com a matriz de integração]"
         data_type: float64
-        quote: true
       - name: rateio_realizado
         description: Array contendo os percentuais de rateio para cada perna realizados na integração
         data_type: numeric
-        quote: true
       - name: rateio_matriz
         description: "{{ doc('sequencia_rateio_matriz') }} [de acordo com a matriz]"
         data_type: string
-        quote: true
       - name: transferencias_realizadas
         description: Array contendo as informações das transferências realizadas dentro da integração
         data_type: record
-        quote: true
       - name: indicador_integracao_fora_matriz
         description: Indica se a integração não estava prevista na matriz de integração
         data_type: boolean
-        quote: true
       - name: indicador_tempo_integracao_invalido
         description: "Indica se o tempo entre a primeira e a última transação da integração é maior que o tempo limite de integração"
         data_type: boolean
       - name: indicador_rateio_invalido
         description: Indica se o rateio não foi feito de acordo com os valores estipulados na matriz
         data_type: boolean
-        quote: true
       - name: indicador_transferencia_fora_matriz
         description: Indica se houve alguma transferência que não estava prevista na matriz
         data_type: boolean
-        quote: true
       - name: indicador_tempo_transferencia_invalido
         description: Indica se houve alguma transferência em que o tempo entre a primeira e a última transação foi maior que o tempo limite de transferência
         data_type: boolean
-        quote: true
       - name: datas_transacoes
         description: Array contendo as datas distintas das transações presentes na integração [e transferências]
         data_type: date
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: transacao_invalida
     description: "Tabela para validação dos dados de transação da Jaé"
     columns:
@@ -124,15 +111,12 @@ models:
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: ordem_pagamento_invalida
     description: "Tabela para validação dos dados da ordem de pagamento da Jaé"
     columns:
@@ -158,27 +142,21 @@ models:
       - name: data
         description: "{{ doc('data_transacao') }} [partição]"
         data_type: date
-        quote: true
       - name: id_integracao
         description: "{{ doc('id_integracao') }} (é igual ao id_transacao da primeira transação da integração)"
         data_type: string
-        quote: true
       - name: datetime_inicio_integracao
         description: Data e hora da primeira transação da integração [GMT-3]
         data_type: datetime
-        quote: true
       - name: sequencia_integracao
         description: "{{ doc('sequencia_integracao') }}"
         data_type: int64
-        quote: true
       - name: tipo_integracao
         description: Tipo da integração [Primeira perna, Integração ou Transferência]
         data_type: string
-        quote: true
       - name: id_transacao
         description: "{{ doc('id_transacao') }}"
         data_type: string
-        quote: true
         tests:
           - unique:
               name: unique__id_transacao__integracao_nao_realizada
@@ -187,118 +165,91 @@ models:
       - name: datetime_transacao
         description: "{{ doc('datetime_transacao') }}"
         data_type: datetime
-        quote: true
       - name: datetime_processamento
         description: "{{ doc('datetime_processamento_transacao') }}"
         data_type: datetime
-        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
       - name: id_consorcio
         description: "{{ doc('id_consorcio') }}"
         data_type: string
-        quote: true
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-        quote: true
       - name: id_servico_jae
         description: "{{ doc('id_servico_jae') }}"
         data_type: string
-        quote: true
       - name: servico_jae
         description: "{{ doc('servico_jae') }}"
         data_type: string
-        quote: true
       - name: descricao_servico_jae
         description: "{{ doc('descricao_servico_jae') }}"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido_bilhetagem') }}"
         data_type: string
-        quote: true
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
-        quote: true
       - name: id_validador
         description: "{{ doc('id_validador') }}"
         data_type: string
-        quote: true
       - name: id_cliente
         description: "{{ doc('id_cliente') }}"
         data_type: string
-        quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: hash_cartao
         description: "{{ doc('hash_cartao') }}"
         data_type: string
-        quote: true
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/1168584191451386864"
       - name: cadastro_cliente
         description: "{{ doc('cadastro_cliente') }}"
         data_type: string
-        quote: true
       - name: produto
         description: "{{ doc('produto') }}"
         data_type: string
-        quote: true
       - name: produto_jae
         description: "{{ doc('produto_jae') }}"
         data_type: string
-        quote: true
       - name: tipo_transacao_jae
         description: "{{ doc('tipo_transacao_jae') }}"
         data_type: string
-        quote: true
       - name: tipo_transacao
         description: "{{ doc('tipo_transacao') }}"
         data_type: string
-        quote: true
       - name: tipo_usuario
         description: "{{ doc('tipo_usuario') }}"
         data_type: string
-        quote: true
       - name: meio_pagamento
         description: "{{ doc('meio_pagamento') }}"
         data_type: string
-        quote: true
       - name: meio_pagamento_jae
         description: "{{ doc('meio_pagamento_jae') }}"
         data_type: string
-        quote: true
       - name: valor_transacao
         description: "{{ doc('valor_transacao') }}"
         data_type: float64
-        quote: true
       - name: classificacao_integracao_nao_realizada
         description: "Classificação da falha no processo de integração"
         data_type: string
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true
   - name: alerta_transacao
     description: Tabela contendo transações suspeitas de Van
     columns:
       - name: data
         description: "{{ doc('data_transacao') }} [partição]"
         data_type: date
-        quote: true
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
       - name: permissao
@@ -306,7 +257,7 @@ models:
       - name: documento_operadora
         description: "{{ doc('documento_operadora') }} [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+          - "projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059"
       - name: id_validador
         description: "{{ doc('id_validador') }}"
       - name: placa
@@ -314,19 +265,16 @@ models:
       - name: cliente_cartao
         description: "hash_cliente ou hash_cartao [protegido]"
         policy_tags:
-          - 'projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691'
+          - "projects/rj-smtr/locations/us/taxonomies/6071707853840412174/policyTags/3266350367297582691"
       - name: datetime_inicio_intervalo
         description: Data e hora da primeira transação do agrupamento [GMT-3]
         data_type: datetime
-        quote: true
       - name: datetime_fim_intervalo
         description: Data e hora da última transação do agrupamento [GMT-3]
         data_type: datetime
-        quote: true
       - name: quantidade_transacao
         description: Quantidade de transações
         data_type: int64
-        quote: true
       - name: ids_transacao
         description: Array com os ids das transações do agrupamento
       - name: latitude_ultima_transacao
@@ -336,12 +284,9 @@ models:
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
-        quote: true

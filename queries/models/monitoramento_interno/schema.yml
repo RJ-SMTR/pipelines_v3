@@ -7,79 +7,60 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
-        quote: true
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
-        quote: true
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         data_type: date
-        quote: true
       - name: id_empresa
         description: "Código identificador da empresa [extraído do id_veiculo]"
         data_type: string
-        quote: true
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
-        quote: true
       - name: servico_gps
         description: "Serviço informado pelo GPS no momento da partida"
         data_type: string
-        quote: true
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
-        quote: true
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-        quote: true
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
-        quote: true
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
-        quote: true
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
-        quote: true
       - name: shape_id
         description: "Identificador de um shape da tabela shapes do GTFS"
         data_type: string
-        quote: true
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
-        quote: true
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
-        quote: true
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
-        quote: true
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         data_type: datetime
-        quote: true
       - name: fonte_gps
         description: Fornecedor de dados de GPS a ser considerado para validar a viagem
         data_type: string
-        quote: true
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-        quote: true
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-        quote: true
   - name: view_viagem_monitoramento
     description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_inferida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus SPPO."
     columns:
