@@ -30,7 +30,7 @@ models:
         description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations.expect_column_values_to_match_regex__service_id__calendar_gtfs
+              name: dbt_expectations__expect_column_values_to_match_regex__service_id__calendar_gtfs
               config:
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
               arguments:
@@ -419,7 +419,7 @@ models:
     description: "Anexo da Ordem de Serviço [OS] com trajetos alternativos de serviços"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs
           config:
             where: "1=1"
           arguments:
@@ -465,7 +465,7 @@ models:
     description: "Junção da Ordem de Serviço [OS] com trips e shapes dos serviços"
     tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs
           config:
             where: "1=1"
           arguments:
@@ -491,7 +491,7 @@ models:
             row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
             compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND (quilometragem != 0 AND (partidas != 0 OR partidas IS NULL))"
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
+          name: dbt_utils__unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
           config:
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
@@ -504,7 +504,7 @@ models:
               - faixa_horaria_inicio
               - shape_id
       - dbt_expectations.expect_table_row_count_to_be_between:
-          name: dbt_expectations.expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs
+          name: dbt_expectations__expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs
           config:
             where: "1=1"
           arguments:
@@ -543,7 +543,7 @@ models:
       - name: distancia_planejada
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
+              name: dbt_expectations__expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
               config:
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
               arguments:

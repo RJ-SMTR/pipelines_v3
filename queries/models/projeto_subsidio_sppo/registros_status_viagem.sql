@@ -38,4 +38,4 @@ with
 -- 2. Filtra apenas registros de viagens identificadas
 select *, '{{ var("version") }}' as versao_modelo
 from registros_viagem
-where id_viagem is not null
+where id_viagem is not null and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")

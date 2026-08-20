@@ -1,5 +1,19 @@
 # Changelog - riorotativo
 
+## [1.2.0] - 2026-07-30
+
+### Adicionado
+
+- Cria modelos (https://github.com/RJ-SMTR/pipelines_v3/pull/458):
+  - `aux_verificacao_particao_captura_riorotativo.sql`
+  - `staging_fiscalizacao_veiculo_riorotativo.sql`
+  - `staging_veiculo_cliente_riorotativo.sql`
+  - `staging_veiculo_riorotativo.sql`
+  - `aux_ativacao_particao_captura_riorotativo.sql`
+  - `staging_estacionamento_veiculo_riorotativo.sql`
+  - `staging_movimento_estacionamento_veiculo_riorotativo.sql`
+  - `ativacao_riorotativo.sql`
+
 ## [1.1.0] - 2026-07-16
 
 ### Adicionado
