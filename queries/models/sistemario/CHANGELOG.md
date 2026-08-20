@@ -39,3 +39,13 @@
 - `viagem_valida_classificada`: base temporária `viagem_completa`
   (`servico_realizado`) para testes — `viagem_valida` ainda sem dados
 - Params OpenFisca com vigência a partir de `2026-07-01` (simulação A0)
+- Contrato `apurar(viagens, planejamento)`: lote/programadas em
+  `servico_oferta_faixa`; classificação só fatos + faixa; FCF lê
+  `operacao_lote`; RQ soma R$ 1.200 por faixa POR vazia nos dias
+  apurados; `prd=0` (stub IDT=1)
+- WIP/teste: `lote_padrao` = A0 na ausência de lote em
+  `servico_oferta_faixa` (macro `lote_padrao_teste`). Remover var +
+  macro + chamada após o teste.
+- `viagens_apuradas`: chave da simulação = `id_viagem` (`id_key`);
+  sem `id_apuracao`; o modelo só lê as duas tabelas, chama `apurar`
+  e persiste o schema BQ (coerção de tipos no pacote OF)

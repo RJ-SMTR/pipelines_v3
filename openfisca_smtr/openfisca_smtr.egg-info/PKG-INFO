@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: openfisca_smtr
-Version: 0.1.0
-Summary: Sistema OpenFisca da SMTR
-Requires-Python: <3.14,>=3.13
-Requires-Dist: openfisca-core>=43.0.0

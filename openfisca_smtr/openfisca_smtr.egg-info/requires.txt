@@ -1,1 +1,0 @@
-openfisca-core>=43.0.0

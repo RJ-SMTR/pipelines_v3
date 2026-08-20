@@ -15,7 +15,8 @@
   fcf = min(1, Σ min(media_operante_tech, estimada_tech) / Σ estimada_tech)
 
   Quinzena: 1 = dias 1–15; 2 = dias 16–fim.
-  QR / km_referencia continuam no grão lote (operacao_lote eco).
+  I.2 (frota/QR/km_referencia) via operacao_lote na data de referência
+  da quinzena — mesmo padrão de operacao_lote_tecnologia.
 #}
 with
     viagens as (
@@ -26,11 +27,7 @@ with
             id_veiculo,
             indicador_completa_pico_manha,
             indicador_completa_pico_tarde,
-            indicador_dia_util,
-            lote_frota_estimada,
-            lote_frota_determinada,
-            lote_qr_mensal,
-            lote_km_referencia
+            indicador_dia_util
         from {{ ref("viagens_apuradas") }}
     ),
     frota_dia_tech as (
@@ -44,11 +41,7 @@ with
             ) as frota_pico_manha,
             count(
                 distinct if(indicador_completa_pico_tarde, id_veiculo, null)
-            ) as frota_pico_tarde,
-            max(lote_frota_estimada) as lote_frota_estimada,
-            max(lote_frota_determinada) as lote_frota_determinada,
-            max(lote_qr_mensal) as lote_qr_mensal,
-            max(lote_km_referencia) as lote_km_referencia
+            ) as frota_pico_tarde
         from viagens
         where tecnologia_fcf is not null
         group by data, lote, tecnologia_fcf
@@ -64,10 +57,6 @@ with
                 then greatest(frota_pico_manha, frota_pico_tarde)
                 else 0.0
             end as frota_operante,
-            lote_frota_estimada,
-            lote_frota_determinada,
-            lote_qr_mensal,
-            lote_km_referencia,
             extract(year from data) as ano,
             extract(month from data) as mes,
             if(extract(day from data) <= 15, 1, 2) as quinzena
@@ -82,10 +71,6 @@ with
             tecnologia_fcf,
             avg(if(indicador_dia_util, frota_operante, null)) as frota_operante_media,
             countif(indicador_dia_util) as qtd_dias_uteis,
-            max(lote_frota_estimada) as lote_frota_estimada,
-            max(lote_frota_determinada) as lote_frota_determinada,
-            max(lote_qr_mensal) as lote_qr_mensal,
-            max(lote_km_referencia) as lote_km_referencia,
             min(data) as data_ref_quinzena
         from frota_dia_tech_fc
         group by ano, mes, quinzena, lote, tecnologia_fcf
@@ -96,35 +81,43 @@ with
         from media_tech
         group by ano, mes, quinzena, lote
     ),
-    eco_lote as (
-        select
-            ano,
-            mes,
-            quinzena,
-            lote,
-            max(lote_frota_estimada) as lote_frota_estimada,
-            max(lote_frota_determinada) as lote_frota_determinada,
-            max(lote_qr_mensal) as lote_qr_mensal,
-            max(lote_km_referencia) as lote_km_referencia,
-            min(data_ref_quinzena) as data_ref_quinzena
+    lote_quinzena as (
+        select ano, mes, quinzena, lote, min(data_ref_quinzena) as data_ref_quinzena
         from media_tech
         group by ano, mes, quinzena, lote
     ),
+    operacao as (
+        select
+            lq.ano,
+            lq.mes,
+            lq.quinzena,
+            lq.lote,
+            op.frota_estimada as lote_frota_estimada,
+            op.frota_determinada as lote_frota_determinada,
+            op.qr_mensal as lote_qr_mensal,
+            op.km_referencia as lote_km_referencia
+        from lote_quinzena lq
+        left join
+            {{ ref("operacao_lote") }} as op
+            on op.lote = lq.lote
+            and (op.data_inicio is null or lq.data_ref_quinzena >= op.data_inicio)
+            and (op.data_fim is null or lq.data_ref_quinzena <= op.data_fim)
+    ),
     estimada_tech as (
         select
-            e.ano,
-            e.mes,
-            e.quinzena,
-            e.lote,
+            lq.ano,
+            lq.mes,
+            lq.quinzena,
+            lq.lote,
             lower(olt.tipo_veiculo) as tecnologia_fcf,
             cast(olt.frota_estimada as float64) as frota_estimada_tech,
             cast(olt.frota_determinada as float64) as frota_determinada_tech
-        from eco_lote e
+        from lote_quinzena lq
         inner join
             {{ ref("operacao_lote_tecnologia") }} as olt
-            on olt.lote = e.lote
-            and (olt.data_inicio is null or e.data_ref_quinzena >= olt.data_inicio)
-            and (olt.data_fim is null or e.data_ref_quinzena <= olt.data_fim)
+            on olt.lote = lq.lote
+            and (olt.data_inicio is null or lq.data_ref_quinzena >= olt.data_inicio)
+            and (olt.data_fim is null or lq.data_ref_quinzena <= olt.data_fim)
     ),
     tipologico as (
         select
@@ -160,10 +153,10 @@ with
                 least(t.frota_operante_media, t.frota_estimada_tech)
             ) as frota_numerador,
             max(d.qtd_dias_uteis) as qtd_dias_uteis,
-            max(e.lote_frota_estimada) as lote_frota_estimada,
-            max(e.lote_frota_determinada) as lote_frota_determinada,
-            max(e.lote_qr_mensal) as lote_qr_mensal,
-            max(e.lote_km_referencia) as lote_km_referencia
+            max(op.lote_frota_estimada) as lote_frota_estimada,
+            max(op.lote_frota_determinada) as lote_frota_determinada,
+            max(op.lote_qr_mensal) as lote_qr_mensal,
+            max(op.lote_km_referencia) as lote_km_referencia
         from tipologico t
         left join
             dias_uteis_lote d
@@ -172,11 +165,11 @@ with
             and d.quinzena = t.quinzena
             and d.lote = t.lote
         left join
-            eco_lote e
-            on e.ano = t.ano
-            and e.mes = t.mes
-            and e.quinzena = t.quinzena
-            and e.lote = t.lote
+            operacao op
+            on op.ano = t.ano
+            and op.mes = t.mes
+            and op.quinzena = t.quinzena
+            and op.lote = t.lote
         group by t.ano, t.mes, t.quinzena, t.lote
     )
 select

@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """Viagens apuradas via ``openfisca_smtr.apurar`` (grão viagem).
 
-Lê ``viagem_classificacao_validacao``, chama OpenFisca e persiste Tab. 2,
-picos, frota diária, IPA/precária e OPEX por viagem.
+Lê ``viagem_classificacao_validacao`` (fatos) e ``servico_oferta_faixa``
+(POR por faixa, todas as faixas do recorte) e persiste a saída do OF.
 
-Frota diária e IPA passam a sair daqui — ``aux_frota_operante_dia_lote``
-fica depreciado.
+Nota: não usar ``from __future__`` — o Dataproc/dbt injeta código antes
+deste arquivo.
 """
 
-from __future__ import annotations
-
-from datetime import date, datetime
-from typing import Any
 from uuid import uuid4
 
+from openfisca_smtr import apurar
+from pyspark.sql.functions import col
+from pyspark.sql.functions import max as spark_max
+from pyspark.sql.functions import min as spark_min
 from pyspark.sql.types import (
     BooleanType,
     DateType,
@@ -25,13 +25,10 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from openfisca_smtr import apurar
-
-# Campos ecoados do placeholder + calculados pelo apurar (schema estável BQ).
+# Contrato BQ. Coerção de tipos / faixa / lote fica no openfisca_smtr.apurar.
 SCHEMA_VIAGENS_APURADAS = StructType(
     [
-        StructField("id_apuracao", StringType(), False),
-        StructField("id_viagem", StringType(), True),
+        StructField("id_viagem", StringType(), False),
         StructField("data", DateType(), False),
         StructField("datetime_partida", TimestampType(), False),
         StructField("datetime_chegada", TimestampType(), True),
@@ -47,12 +44,6 @@ SCHEMA_VIAGENS_APURADAS = StructType(
         StructField("sentido", StringType(), False),
         StructField("faixa_horaria_inicio", StringType(), False),
         StructField("faixa_horaria_fim", StringType(), True),
-        StructField("servico_viagens_programadas", IntegerType(), False),
-        StructField("lote_frota_estimada", DoubleType(), True),
-        StructField("lote_frota_determinada", DoubleType(), True),
-        StructField("lote_qr_mensal", DoubleType(), True),
-        StructField("lote_km_referencia", DoubleType(), True),
-        StructField("servico_tipo", StringType(), True),
         StructField("servico_tecnologia", StringType(), True),
         StructField("tecnologia_fcf", StringType(), True),
         StructField("tipo_dia", StringType(), True),
@@ -61,6 +52,7 @@ SCHEMA_VIAGENS_APURADAS = StructType(
         StructField("day_of_week", IntegerType(), False),
         StructField("indicador_quilometragem_pagamento", BooleanType(), False),
         StructField("indicador_percentual_atendimento", BooleanType(), False),
+        StructField("indicador_dentro_do_teto_programado", BooleanType(), False),
         StructField("km_remuneravel", DoubleType(), False),
         StructField("indicador_pico_manha", BooleanType(), False),
         StructField("indicador_pico_tarde", BooleanType(), False),
@@ -87,7 +79,7 @@ SCHEMA_VIAGENS_APURADAS = StructType(
     ]
 )
 
-COLUNAS_ENTRADA = [
+COLUNAS_VIAGEM = [
     "data",
     "id_viagem",
     "datetime_partida",
@@ -97,144 +89,37 @@ COLUNAS_ENTRADA = [
     "indicador_viagem_conforme",
     "km_programada",
     "km_percorrida",
-    "lote",
     "id_veiculo",
     "placa",
     "servico",
     "sentido",
     "faixa_horaria_inicio",
     "faixa_horaria_fim",
-    "servico_viagens_programadas",
-    "lote_frota_estimada",
-    "lote_frota_determinada",
-    "lote_qr_mensal",
-    "lote_km_referencia",
-    "servico_tipo",
     "servico_tecnologia",
     "tecnologia_fcf",
     "tipo_dia",
 ]
 
-
-def _para_python(valor: Any) -> Any:
-    if valor is None:
-        return None
-    if isinstance(valor, datetime):
-        return valor
-    if isinstance(valor, date):
-        return valor
-    return valor
-
-
-def _montar_id_apuracao(row: dict[str, Any]) -> str:
-    data = row["data"]
-    data_str = data.isoformat() if isinstance(data, date) else str(data)[:10]
-    partida = row["datetime_partida"]
-    if isinstance(partida, datetime):
-        partida_str = partida.isoformat(sep="T", timespec="seconds")
-    else:
-        partida_str = str(partida)
-    return "|".join(
-        [
-            data_str,
-            str(row["lote"]),
-            str(row["id_veiculo"]),
-            partida_str,
-        ]
-    )
+COLUNAS_PLANEJAMENTO = [
+    "data",
+    "servico",
+    "sentido",
+    "faixa_horaria_inicio",
+    "lote",
+    "viagens_programadas",
+]
 
 
-def _linha_entrada(row: dict[str, Any]) -> dict[str, Any]:
-    limpa = {chave: _para_python(row.get(chave)) for chave in COLUNAS_ENTRADA}
-    limpa["id_apuracao"] = _montar_id_apuracao(limpa)
-    limpa["servico_viagens_programadas"] = int(limpa["servico_viagens_programadas"])
-    limpa["km_programada"] = float(limpa["km_programada"])
-    limpa["km_percorrida"] = float(limpa["km_percorrida"])
-    return limpa
-
-
-def _opt_float(valor: Any) -> float | None:
-    if valor is None:
-        return None
-    return float(valor)
-
-
-def _como_date(valor: Any) -> date:
-    if isinstance(valor, datetime):
-        return valor.date()
-    if isinstance(valor, date):
-        return valor
-    return date.fromisoformat(str(valor)[:10])
-
-
-def _como_datetime(valor: Any) -> datetime | None:
-    if valor is None:
-        return None
-    if isinstance(valor, datetime):
-        return valor
-    if isinstance(valor, date):
-        return datetime.combine(valor, datetime.min.time())
-    texto = str(valor).strip().replace("Z", "+00:00").replace(" ", "T", 1)
-    return datetime.fromisoformat(texto)
-
-
-def _tupla_saida(viagem: dict[str, Any], *, versao_regra: str, id_execucao: str | None) -> tuple:
-    return (
-        str(viagem["id_apuracao"]),
-        viagem.get("id_viagem"),
-        _como_date(viagem.get("data") or viagem["period"]),
-        _como_datetime(viagem["datetime_partida"]),
-        _como_datetime(viagem.get("datetime_chegada")),
-        bool(viagem["indicador_viagem_completa"]),
-        bool(viagem["indicador_viagem_valida"]),
-        bool(viagem["indicador_viagem_conforme"]),
-        float(viagem["km_programada"]),
-        float(viagem["km_percorrida"]),
-        str(viagem["lote"]),
-        str(viagem["id_veiculo"]),
-        viagem.get("placa"),
-        str(viagem["servico"]),
-        str(viagem["sentido"]),
-        str(viagem["faixa_horaria_inicio"]),
-        viagem.get("faixa_horaria_fim"),
-        int(viagem["servico_viagens_programadas"]),
-        _opt_float(viagem.get("lote_frota_estimada")),
-        _opt_float(viagem.get("lote_frota_determinada")),
-        _opt_float(viagem.get("lote_qr_mensal")),
-        _opt_float(viagem.get("lote_km_referencia")),
-        viagem.get("servico_tipo"),
-        viagem.get("servico_tecnologia"),
-        viagem.get("tecnologia_fcf"),
-        viagem.get("tipo_dia"),
-        str(viagem["period"]),
-        int(viagem["hora_partida"]),
-        int(viagem["day_of_week"]),
-        bool(viagem["indicador_quilometragem_pagamento"]),
-        bool(viagem["indicador_percentual_atendimento"]),
-        float(viagem["km_remuneravel"]),
-        bool(viagem["indicador_pico_manha"]),
-        bool(viagem["indicador_pico_tarde"]),
-        bool(viagem["indicador_completa_pico_manha"]),
-        bool(viagem["indicador_completa_pico_tarde"]),
-        bool(viagem["indicador_dia_util"]),
-        float(viagem["frota_operante"]),
-        float(viagem["frota_pico_manha"]),
-        float(viagem["frota_pico_tarde"]),
-        int(viagem["viagens_atendimento_faixa"]),
-        int(viagem["viagens_programadas_faixa"]),
-        float(viagem["percentual_atendimento"]),
-        float(viagem["ipa"]),
-        float(viagem["desconto_operacao_precaria"]),
-        float(viagem["qc_km_faixa"]),
-        float(viagem["qc_km_ponderada_ipa"]),
-        float(viagem["km_ponderada_ipa_viagem"]),
-        float(viagem["remuneracao_opex_viagem"]),
-        float(viagem["tarifa_remuneracao"]),
-        float(viagem["alpha"]),
-        float(viagem["beta"]),
-        versao_regra,
-        id_execucao,
-    )
+def _linhas_saida(resultado, id_execucao):
+    versao_regra = str(resultado["versao_regra"])
+    nomes = [field.name for field in SCHEMA_VIAGENS_APURADAS]
+    linhas = []
+    for viagem in resultado["viagens"]:
+        linha = dict(viagem)
+        linha["versao_regra"] = versao_regra
+        linha["id_execucao"] = id_execucao
+        linhas.append({nome: linha.get(nome) for nome in nomes})
+    return linhas
 
 
 def model(dbt, session):
@@ -248,18 +133,28 @@ def model(dbt, session):
         tags=["remuneracao", "openfisca", "wip"],
     )
 
-    viagens_df = dbt.ref("viagem_classificacao_validacao").select(*COLUNAS_ENTRADA)
-    linhas_brutas = [row.asDict(recursive=True) for row in viagens_df.collect()]
-    id_execucao = f"dbt-{uuid4()}"
+    viagens_df = dbt.ref("viagem_classificacao_validacao").select(*COLUNAS_VIAGEM)
+    planejamento_df = dbt.ref("servico_oferta_faixa").select(*COLUNAS_PLANEJAMENTO)
 
-    if not linhas_brutas:
+    limites = viagens_df.agg(
+        spark_min("data").alias("data_inicio"),
+        spark_max("data").alias("data_fim"),
+    ).collect()
+    if not limites or limites[0]["data_inicio"] is None:
         return session.createDataFrame([], SCHEMA_VIAGENS_APURADAS)
 
-    entradas = [_linha_entrada(row) for row in linhas_brutas]
-    resultado = apurar(viagens=entradas, id_execucao=id_execucao)
-    versao_regra = str(resultado["versao_regra"])
-    tuplas = [
-        _tupla_saida(viagem, versao_regra=versao_regra, id_execucao=id_execucao)
-        for viagem in resultado["viagens"]
-    ]
-    return session.createDataFrame(tuplas, SCHEMA_VIAGENS_APURADAS)
+    planejamento_df = planejamento_df.filter(
+        (col("data") >= limites[0]["data_inicio"]) & (col("data") <= limites[0]["data_fim"])
+    )
+
+    id_execucao = f"dbt-{uuid4()}"
+    resultado = apurar(
+        viagens=[row.asDict(recursive=True) for row in viagens_df.collect()],
+        planejamento=[row.asDict(recursive=True) for row in planejamento_df.collect()],
+        id_key="id_viagem",
+        id_execucao=id_execucao,
+    )
+    return session.createDataFrame(
+        _linhas_saida(resultado, id_execucao),
+        SCHEMA_VIAGENS_APURADAS,
+    )

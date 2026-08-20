@@ -1,6 +1,0 @@
-description: Menor dayofweek Spark considerado dia util (2 = segunda).
-metadata:
-  reference: Anexo I.8 - Remuneracao pelo Servico da Concessionaria, item 4
-values:
-  2026-07-01:
-    value: 2
