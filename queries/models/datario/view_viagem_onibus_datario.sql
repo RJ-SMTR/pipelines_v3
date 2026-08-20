@@ -5,7 +5,7 @@ with
         select
             data,
             consorcio,
-            "Ônibus SPPO" as modo,
+            "Ônibus" as modo,
             tipo_dia,
             id_empresa,
             id_veiculo,
