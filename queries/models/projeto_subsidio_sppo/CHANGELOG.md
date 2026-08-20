@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona teste de unicidade da chave utilizada pelo snapshot no modelo `viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona teste de unicidade da chave utilizada pelo snapshot no modelo `viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/457)
 
 ## [9.4.1] - 2026-07-08
 
