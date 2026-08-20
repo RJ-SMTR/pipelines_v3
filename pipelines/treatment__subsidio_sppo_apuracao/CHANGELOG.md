@@ -1,6 +1,6 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
-## [1.0.4] - 2026-08-17
+## [1.0.4] - 2026-08-20
 
 ### Adicionado
 
