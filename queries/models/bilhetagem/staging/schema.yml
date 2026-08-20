@@ -40,7 +40,7 @@ models:
   - name: aux_gratuidade_info
     tests:
       - dbt_expectations.expect_table_row_count_to_be_between:
-          name: dbt_expectations.expect_table_row_count_to_be_between__aux_gratuidade_info
+          name: dbt_expectations__expect_table_row_count_to_be_between__aux_gratuidade_info
           config:
             where: "1=1"
           arguments:
