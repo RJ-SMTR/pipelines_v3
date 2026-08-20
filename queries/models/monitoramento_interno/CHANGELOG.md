@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.5] - 2026-08-06
+
+### Alterado
+
+- Amplia `view_viagem_monitoramento` com `servico_informado`, `servico_realizado`, `tipo_dia`, `vista`, `inicio_periodo`, `fim_periodo` e `tempo_viagem` para painéis internos; no pós-V25, obtém `tipo_dia` de `calendario` e `vista` de `ordem_servico_trips_shapes_gtfs` por `feed_start_date` e `shape_id`, mantendo os períodos nulos e os dois novos campos de serviço alinhados a `servico`
+
 ## [1.0.4] - 2026-07-31
 
 ### Adicionado
