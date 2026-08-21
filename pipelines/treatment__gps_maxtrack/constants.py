@@ -36,7 +36,7 @@ GPS_DAILY_TEST = DBTTest(
 
 GPS_MAXTRACK_SELECTOR = DBTSelector(
     name="gps_v2",
-    initial_datetime=datetime(2026, 8, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 8, 22, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_maxtrack",
     incremental_delay_hours=1,
     redis_key_suffix="maxtrack",

@@ -15,7 +15,7 @@ VIAGEM_INFORMADA_TABLE_ID = "viagem_informada"
 VIAGEM_INFORMADA_SOURCE = SourceTable(
     source_name=MAXTRACK_SOURCE_NAME,
     table_id=VIAGEM_INFORMADA_TABLE_ID,
-    first_timestamp=datetime(2026, 8, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    first_timestamp=datetime(2026, 8, 22, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__maxtrack_viagem_informada",
     partition_date_only=True,
     max_recaptures=5,
