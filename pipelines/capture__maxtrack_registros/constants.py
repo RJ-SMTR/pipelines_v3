@@ -13,6 +13,6 @@ MAXTRACK_REGISTROS_SOURCE = SourceTable(
     table_id=gps_constants.REGISTROS_TABLE_ID,
     first_timestamp=datetime(2026, 8, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__maxtrack_registros",
-    primary_keys=["id_veiculo", "datetime_servidor"],
+    primary_keys=["id_registro"],
     pretreatment_reader_args={"dtype": "object", "convert_dates": False},
 )
