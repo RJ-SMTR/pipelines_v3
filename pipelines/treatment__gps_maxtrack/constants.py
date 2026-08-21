@@ -15,11 +15,11 @@ ADDITIONAL_VARS = {
 }
 
 GPS_POST_CHECKS_LIST = {
-    "gps": {
-        "check_gps_treatment__gps": {
+    "gps_v2": {
+        "check_gps_treatment__gps_v2": {
             "description": "Todos os dados de GPS foram devidamente tratados"
         },
-        "dbt_utils.unique_combination_of_columns__gps": {
+        "dbt_utils__unique_combination_of_columns__id_registro__gps_v2": {
             "description": "Todos os registros são únicos"
         },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -27,7 +27,7 @@ GPS_POST_CHECKS_LIST = {
 }
 
 GPS_DAILY_TEST = DBTTest(
-    test_select="gps",
+    test_select="gps.v2",
     test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,
@@ -35,7 +35,7 @@ GPS_DAILY_TEST = DBTTest(
 )
 
 GPS_MAXTRACK_SELECTOR = DBTSelector(
-    name="gps",
+    name="gps_v2",
     initial_datetime=datetime(2026, 8, 17, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_maxtrack",
     incremental_delay_hours=1,
