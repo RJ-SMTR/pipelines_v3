@@ -61,7 +61,6 @@ with
     servico_planejado as (
         select
             data,
-            feed_version,
             feed_start_date,
             servico,
             consorcio,
@@ -76,7 +75,6 @@ with
     servico_planejado_expandido as (
         select
             sp.data,
-            sp.feed_version,
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
@@ -93,7 +91,6 @@ with
 
         select
             sp.data,
-            sp.feed_version,
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
@@ -109,7 +106,6 @@ with
     servico_planejado_unnested as (
         select
             data,
-            feed_version,
             feed_start_date,
             servico,
             consorcio,
@@ -128,7 +124,7 @@ with
     servico_planejado_shapes as (
         select spu.*, s.shape, s.start_pt, s.end_pt
         from servico_planejado_unnested as spu
-        left join shapes as s using (feed_version, feed_start_date, shape_id)
+        left join shapes as s using (feed_start_date, shape_id)
     ),
     -- 4. Classifica a posição do veículo em todos os shapes possíveis de
     -- serviços de uma mesma empresa
