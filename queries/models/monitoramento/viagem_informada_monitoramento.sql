@@ -180,17 +180,14 @@ with
         {% endif %}
     ),
     deduplicado as (
-        select * except (rn, priority)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by id_viagem order by datetime_captura desc, priority
-                    ) as rn
-                from complete_partitions
+        select * except (priority)
+        from complete_partitions
+        qualify
+            row_number() over (
+                partition by id_viagem
+                order by datetime_captura desc, datetime_processamento desc, priority
             )
-        where rn = 1
+            = 1
     ),
     calendario as (
         select *
