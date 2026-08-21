@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -148,7 +149,57 @@ def preserve_dbt_run_results(
         return None
 
 
-def _run_cli(manifest_path: Path, run_results_path: Path, config_path: Path) -> bool:
+def _prepare_dbt_artifact_pair(
+    manifest_path: Path,
+    run_results_path: Path,
+    ingestion_directory: Path,
+) -> tuple[Path, Path]:
+    """Prepara os artefatos e contorna o bug open-metadata/OpenMetadata#29824."""
+    ingestion_directory.mkdir(parents=True, exist_ok=True)
+    ingestion_manifest_path = ingestion_directory / "manifest.json"
+    ingestion_run_results_path = ingestion_directory / "run_results.json"
+    shutil.copyfile(manifest_path, ingestion_manifest_path)
+
+    run_results = json.loads(run_results_path.read_text(encoding="utf-8"))
+    normalized_results = 0
+    for result in run_results.get("results") or []:
+        if not isinstance(result, dict):
+            continue
+
+        unique_id = result.get("unique_id", "")
+        status = result.get("status")
+        if (
+            unique_id.startswith("test.")
+            and isinstance(status, str)
+            and status
+            and status != "success"
+            and not result.get("message")
+        ):
+            # O OpenMetadata 1.13.3 descarta indevidamente testes executados quando
+            # message=null. O valor não é persistido para resultados com sucesso.
+            result["message"] = f"dbt test finished with status '{status}'"
+            normalized_results += 1
+
+    ingestion_run_results_path.write_text(
+        json.dumps(run_results, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    if normalized_results:
+        print(
+            "OpenMetadata: workaround para message=null aplicado a "
+            f"{normalized_results} resultado(s) de {run_results_path.name}"
+        )
+
+    return ingestion_manifest_path, ingestion_run_results_path
+
+
+def _run_cli(
+    manifest_path: Path,
+    run_results_path: Path,
+    config_path: Path,
+    artifact_name: Optional[str] = None,
+) -> bool:
+    artifact_name = artifact_name or run_results_path.name
     try:
         secret = get_env_secret("openmetadata")
         cli_env = os.environ.copy()
@@ -171,21 +222,21 @@ def _run_cli(manifest_path: Path, run_results_path: Path, config_path: Path) -> 
         )
         if result.returncode:
             print(
-                f"OpenMetadata: falha ao ingerir {run_results_path.name} "
+                f"OpenMetadata: falha ao ingerir {artifact_name} "
                 f"(código {result.returncode}):\n{result.stdout}\n{result.stderr}"
             )
             return False
     except subprocess.TimeoutExpired as error:
         print(
-            f"OpenMetadata: timeout ao ingerir {run_results_path.name}:\n"
+            f"OpenMetadata: timeout ao ingerir {artifact_name}:\n"
             f"{error.stdout or ''}\n{error.stderr or ''}"
         )
         return False
     except (KeyError, OSError, ValueError) as error:
-        print(f"OpenMetadata: falha ao ingerir {run_results_path.name}: {error}")
+        print(f"OpenMetadata: falha ao ingerir {artifact_name}: {error}")
         return False
 
-    print(f"OpenMetadata: {run_results_path.name} ingerido com sucesso")
+    print(f"OpenMetadata: {artifact_name} ingerido com sucesso")
     return True
 
 
@@ -217,23 +268,49 @@ def ingest_dbt_artifacts(
     """Tenta a ingestão direta e envia os artefatos ao GCS em caso de falha."""
     try:
         artifacts_dir = Path(target_path) / "openmetadata" / str(flow_run_id)
-        manifest_paths = sorted(artifacts_dir.glob("manifest_*.json"))
         run_results_paths = sorted(artifacts_dir.glob("run_results_*.json"))
         if not run_results_paths:
             print("OpenMetadata: nenhum run_results.json para ingerir")
             return
 
         failed_artifact_paths = []
-        for manifest_path, run_results_path in zip(manifest_paths, run_results_paths, strict=True):
-            try:
-                config_path = _create_dbt_ingestion_config(manifest_path, run_results_path)
-            except (KeyError, OSError, TypeError, ValueError, yaml.YAMLError) as error:
-                print(f"OpenMetadata: falha ao preparar {run_results_path.name}: {error}")
-                failed_artifact_paths.extend([manifest_path, run_results_path])
-                continue
+        with tempfile.TemporaryDirectory(prefix="openmetadata-ingestion-") as temporary_dir:
+            temporary_path = Path(temporary_dir)
+            for run_results_path in run_results_paths:
+                suffix = run_results_path.name.removeprefix("run_results_")
+                manifest_path = artifacts_dir / f"manifest_{suffix}"
+                if not manifest_path.is_file():
+                    print(
+                        "OpenMetadata: manifest correspondente não encontrado para "
+                        f"{run_results_path.name}"
+                    )
+                    failed_artifact_paths.append(run_results_path)
+                    continue
 
-            if not _run_cli(manifest_path, run_results_path, config_path):
-                failed_artifact_paths.extend([manifest_path, run_results_path])
+                try:
+                    ingestion_manifest_path, ingestion_run_results_path = (
+                        _prepare_dbt_artifact_pair(
+                            manifest_path,
+                            run_results_path,
+                            temporary_path / suffix.removesuffix(".json"),
+                        )
+                    )
+                    config_path = _create_dbt_ingestion_config(
+                        ingestion_manifest_path,
+                        ingestion_run_results_path,
+                    )
+                except (KeyError, OSError, TypeError, ValueError, yaml.YAMLError) as error:
+                    print(f"OpenMetadata: falha ao preparar {run_results_path.name}: {error}")
+                    failed_artifact_paths.extend([manifest_path, run_results_path])
+                    continue
+
+                if not _run_cli(
+                    ingestion_manifest_path,
+                    ingestion_run_results_path,
+                    config_path,
+                    artifact_name=run_results_path.name,
+                ):
+                    failed_artifact_paths.extend([manifest_path, run_results_path])
 
         if not failed_artifact_paths:
             print("OpenMetadata: ingestão concluída com sucesso")
