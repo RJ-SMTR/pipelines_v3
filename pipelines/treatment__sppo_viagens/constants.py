@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
+WEBHOOK_KEY = "subsidio_data_check"
+
 VIAGENS_SPPO_CHECKS_LIST = {
     "viagem_planejada": {
         "unique__snapshot_key__viagem_planejada": {

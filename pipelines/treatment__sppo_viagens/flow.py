@@ -27,6 +27,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
+from pipelines.treatment__sppo_viagens import constants
 from pipelines.treatment__sppo_viagens.tasks import prepare_sppo_viagens_contexts
 
 
@@ -88,6 +89,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
         post_tests_notify = task_dbt_selector_test_notify_discord.map(
             context=post_tests,
             mode=unmapped("post"),
+            webhook_key=unmapped(constants.WEBHOOK_KEY),
         ).result()
 
         run_dbt_snapshots(
