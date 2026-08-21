@@ -294,62 +294,203 @@ models:
 
   - name: gps
     description: "Tabela com os dados tratados de registros de GPS da API {{ var('fonte_gps') }}, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
-    tests:
-      - check_gps_treatment:
-          name: check_gps_treatment__gps
-      - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils__unique_combination_of_columns__gps
-          arguments:
-            combination_of_columns:
-              - datetime_gps
-              - id_veiculo
-              - latitude
-              - longitude
-    columns:
-      - name: data
-        description: "{{ doc('data_gps') }}"
-      - name: hora
-        description: "{{ doc('hora_gps') }}"
-      - name: datetime_gps
-        description: "{{ doc('datetime_gps') }}"
+    latest_version: 1
+    versions:
+      - v: 1
+        defined_in: gps
         tests:
-          - not_null:
-              name: not_null__datetime_gps__gps
-      - name: id_veiculo
-        description: "{{ doc('id_veiculo') }}"
+          - check_gps_treatment:
+              name: check_gps_treatment__gps
+          - dbt_utils.unique_combination_of_columns:
+              name: dbt_utils__unique_combination_of_columns__gps
+              arguments:
+                combination_of_columns:
+                  - datetime_gps
+                  - id_veiculo
+                  - latitude
+                  - longitude
+        columns:
+          - name: data
+            description: "{{ doc('data_gps') }}"
+          - name: hora
+            description: "{{ doc('hora_gps') }}"
+          - name: datetime_gps
+            description: "{{ doc('datetime_gps') }}"
+            tests:
+              - not_null:
+                  name: not_null__datetime_gps__gps
+          - name: id_veiculo
+            description: "{{ doc('id_veiculo') }}"
+            tests:
+              - not_null:
+                  name: not_null__id_veiculo__gps
+          - name: servico
+            description: "{{ doc('servico') }}"
+            tests:
+              - not_null:
+                  name: not_null__servico__gps
+          - name: latitude
+            description: "{{ doc('latitude_gps') }}"
+            tests:
+              - not_null:
+                  name: not_null__latitude__gps
+          - name: longitude
+            description: "{{ doc('longitude_gps') }}"
+            tests:
+              - not_null:
+                  name: not_null__longitude__gps
+          - name: status
+            description: "{{ doc('status_veiculo_gps') }}"
+            tests:
+              - not_null:
+                  name: not_null__status__gps
+          - name: velocidade_instantanea
+            description: "{{ doc('velocidade_instantanea') }}"
+          - name: velocidade_estimada_10_min
+            description: "{{ doc('velocidade_estimada_10_min') }}"
+          - name: distancia
+            description: "{{ doc('distancia_gps') }}"
+          - name: versao
+            description: "{{ doc('versao') }}"
+          - name: datetime_ultima_atualizacao
+            description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - v: 2
+        defined_in: gps_v2
+        description: "Tabela tratada com o payload integral e indicadores de monitoramento"
         tests:
-          - not_null:
-              name: not_null__id_veiculo__gps
-      - name: servico
-        description: "{{ doc('servico') }}"
-        tests:
-          - not_null:
-              name: not_null__servico__gps
-      - name: latitude
-        description: "{{ doc('latitude_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__latitude__gps
-      - name: longitude
-        description: "{{ doc('longitude_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__longitude__gps
-      - name: status
-        description: "{{ doc('status_veiculo_gps') }}"
-        tests:
-          - not_null:
-              name: not_null__status__gps
-      - name: velocidade_instantanea
-        description: "{{ doc('velocidade_instantanea') }}"
-      - name: velocidade_estimada_10_min
-        description: "{{ doc('velocidade_estimada_10_min') }}"
-      - name: distancia
-        description: "{{ doc('distancia_gps') }}"
-      - name: versao
-        description: "{{ doc('versao') }}"
-      - name: datetime_ultima_atualizacao
-        description: "{{ doc('datetime_ultima_atualizacao') }}"
+          - check_gps_treatment_v2:
+              name: check_gps_treatment__gps_v2
+              config:
+                severity: warn
+          - dbt_utils.unique_combination_of_columns:
+              name: dbt_utils__unique_combination_of_columns__id_registro__gps_v2
+              arguments:
+                combination_of_columns:
+                  - id_registro
+        columns:
+          - name: data
+            description: "{{ doc('data_gps') }}"
+            data_type: date
+          - name: hora
+            description: "{{ doc('hora_gps') }}"
+            data_type: int64
+          - name: id_registro
+            description: "{{ doc('id_registro_gps') }}"
+            data_type: string
+            tests:
+              - not_null:
+                  name: not_null__id_registro__gps_v2
+          - name: datetime_gps
+            description: "{{ doc('datetime_gps') }}"
+            data_type: datetime
+            tests:
+              - not_null:
+                  name: not_null__datetime_gps__gps_v2
+          - name: datetime_envio
+            description: "{{ doc('datetime_envio_gps') }}"
+            data_type: datetime
+            tests:
+              - not_null:
+                  name: not_null__datetime_envio__gps_v2
+          - name: datetime_servidor
+            description: "{{ doc('datetime_servidor_gps') }}"
+            data_type: datetime
+          - name: id_veiculo
+            description: "{{ doc('id_veiculo') }}"
+            data_type: string
+            tests:
+              - not_null:
+                  name: not_null__id_veiculo__gps_v2
+          - name: id_equipamento
+            description: "{{ doc('id_equipamento') }}"
+            data_type: string
+          - name: sequencial_equipamento
+            description: "{{ doc('sequencial_equipamento') }}"
+            data_type: int64
+          - name: route_id
+            description: "{{ doc('route_id') }}"
+            data_type: string
+          - name: servico
+            description: "{{ doc('servico') }}"
+            data_type: string
+          - name: id_viagem_planejada
+            description: "{{ doc('id_viagem_planejada') }}"
+            data_type: string
+          - name: trip_id
+            description: "{{ doc('trip_id') }}"
+            data_type: string
+          - name: shape_id
+            description: "{{ doc('shape_id') }}"
+            data_type: string
+          - name: direction_id
+            description: "{{ doc('direction_id') }}"
+            data_type: int64
+          - name: sentido
+            description: "{{ doc('sentido') }}"
+            data_type: string
+          - name: status
+            description: "{{ doc('status_veiculo_gps') }}"
+            data_type: string
+            tests:
+              - not_null:
+                  name: not_null__status__gps_v2
+          - name: qualidade_sinal
+            description: "{{ doc('qualidade_sinal') }}"
+            data_type: string
+          - name: fonte_posicao
+            description: "{{ doc('fonte_posicao') }}"
+            data_type: string
+          - name: fonte_velocidade
+            description: "{{ doc('fonte_velocidade') }}"
+            data_type: string
+          - name: latitude
+            description: "{{ doc('latitude_gps') }}"
+            data_type: float64
+            tests:
+              - not_null:
+                  name: not_null__latitude__gps_v2
+          - name: longitude
+            description: "{{ doc('longitude_gps') }}"
+            data_type: float64
+            tests:
+              - not_null:
+                  name: not_null__longitude__gps_v2
+          - name: altitude
+            description: "{{ doc('altitude_gps') }}"
+            data_type: float64
+          - name: direcao
+            description: "{{ doc('direcao_gps') }}"
+            data_type: float64
+          - name: velocidade_instantanea
+            description: "{{ doc('velocidade_instantanea') }}"
+            data_type: float64
+          - name: velocidade_estimada_10_min
+            description: "{{ doc('velocidade_estimada_10_min') }}"
+            data_type: float64
+          - name: distancia
+            description: "{{ doc('distancia_gps') }}"
+            data_type: float64
+          - name: quantidade_satelites
+            description: "{{ doc('quantidade_satelites') }}"
+            data_type: int64
+          - name: hdop
+            description: "{{ doc('hdop') }}"
+            data_type: float64
+          - name: vdop
+            description: "{{ doc('vdop') }}"
+            data_type: float64
+          - name: pdop
+            description: "{{ doc('pdop') }}"
+            data_type: float64
+          - name: datetime_captura
+            description: "{{ doc('datetime_captura') }}"
+            data_type: datetime
+          - name: datetime_ultima_atualizacao
+            description: "{{ doc('datetime_ultima_atualizacao') }}"
+            data_type: datetime
+          - name: versao
+            description: "{{ doc('versao') }}"
+            data_type: string
 
   - name: gps_15_minutos
     description: "Tabela com os dados tratados de registros de GPS da API {{ var('fonte_gps') }}, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
@@ -428,34 +569,97 @@ models:
             tags: ["freshness", "hourly"]
             severity: warn
     columns:
-      - name: fonte_gps
-        description: "Identificador do fornecedor de GPS"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
         description: "{{ doc('hora_gps') }}"
+      - name: fonte_gps
+        description: "{{ doc('fonte_gps') }}"
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
       - name: datetime_gps
         description: "{{ doc('datetime_gps') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
       - name: latitude
         description: "{{ doc('latitude_gps') }}"
       - name: longitude
         description: "{{ doc('longitude_gps') }}"
-      - name: status
-        description: "{{ doc('status_veiculo_gps') }}"
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+        data_type: float64
       - name: velocidade_instantanea
         description: "{{ doc('velocidade_instantanea') }}"
       - name: velocidade_estimada_10_min
         description: "{{ doc('velocidade_estimada_10_min') }}"
       - name: distancia
         description: "{{ doc('distancia_gps') }}"
-      - name: versao
-        description: "{{ doc('versao') }}"
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
 
   - name: veiculo_fiscalizacao_lacre
     description: Tabela com as informações do controle do lacre e deslacre de veículos
