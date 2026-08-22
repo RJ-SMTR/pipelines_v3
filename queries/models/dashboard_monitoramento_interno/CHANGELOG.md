@@ -1,5 +1,11 @@
 # Changelog - dashboard_monitoramento_interno
 
+## [1.0.5] - 2026-06-08
+
+### Adicionado
+
+- Cria a view `view_veiculo_operadora.sql`(https://github.com/RJ-SMTR/pipelines_v3/pull/219)
+
 ## [1.0.4] - 2026-05-19
 
 ### Alterado
