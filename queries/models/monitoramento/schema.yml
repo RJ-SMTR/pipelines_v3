@@ -230,7 +230,7 @@ models:
         data_type: string
       - name: trip_id
         description: "{{ doc('trip_id') }}"
-        data_type: int64
+        data_type: string
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
@@ -356,7 +356,7 @@ models:
             description: "{{ doc('datetime_ultima_atualizacao') }}"
       - v: 2
         defined_in: gps_v2
-        description: "Tabela tratada com o payload integral e indicadores de monitoramento"
+        description: "Um registro por sinal de GPS aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps` v2 e enriquecido pelos modelos `aux_gps_*` v2. Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
         tests:
           - check_gps_treatment_v2:
               name: check_gps_treatment__gps_v2
