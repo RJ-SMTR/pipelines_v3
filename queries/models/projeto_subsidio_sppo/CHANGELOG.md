@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.3] - 2026-08-20
+
+### Adicionado
+
+- Adiciona o teste `unique__snapshot_key__viagem_planejada` para refletir a `unique_key` do snapshot `snapshot_viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/400)
+-
 ## [9.5.2] - 2026-08-17
 
 ### Alterado
@@ -16,7 +22,6 @@
 ### Alterado
 
 - Altera o filtro incremental de `viagem_completa` para ler `D-2` e `D-1` (sobreposição com o dia anterior), materializando somente `D-1`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
-
 
 ## [9.5.0] - 2026-07-27
 
