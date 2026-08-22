@@ -595,6 +595,10 @@ Identificador do consórcio na tabela cadastro.consorcios
 ID do registro [HASH SHA256]
 {% enddocs %}
 
+{% docs id_registro_gps %}
+Identificador único imutável do pacote de GPS
+{% enddocs %}
+
 {% docs indicador_autuacao_limpeza %}
 Indicador se o veículo foi autuado por infração relacionada à limpeza do veículo
 {% enddocs %}
@@ -965,6 +969,54 @@ Data e hora em que o GPS enviou os dados de localização
 
 {% docs datetime_servidor_gps %}
 Data e hora em que o servidor recebeu os dados de localização do GPS
+{% enddocs %}
+
+{% docs id_equipamento %}
+Número único do equipamento da concessionária
+{% enddocs %}
+
+{% docs sequencial_equipamento %}
+Número sequencial gerado pelo hardware
+{% enddocs %}
+
+{% docs direction_id %}
+Sentido da viagem conforme o GTFS
+{% enddocs %}
+
+{% docs qualidade_sinal %}
+Qualidade padronizada do sinal posicional
+{% enddocs %}
+
+{% docs fonte_posicao %}
+Fonte da coordenada [GNSS ou INERCIAL]
+{% enddocs %}
+
+{% docs fonte_velocidade %}
+Fonte da velocidade [TELEMETRIA ou AVL]
+{% enddocs %}
+
+{% docs fonte_gps %}
+Identificador do fornecedor de GPS
+{% enddocs %}
+
+{% docs altitude_gps %}
+Altitude em metros
+{% enddocs %}
+
+{% docs quantidade_satelites %}
+Quantidade de satélites usados no posicionamento
+{% enddocs %}
+
+{% docs hdop %}
+Diluição de precisão horizontal
+{% enddocs %}
+
+{% docs vdop %}
+Diluição de precisão vertical
+{% enddocs %}
+
+{% docs pdop %}
+Diluição de precisão da posição
 {% enddocs %}
 
 {% docs datetime_saida %}
