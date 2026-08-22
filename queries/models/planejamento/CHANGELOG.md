@@ -89,6 +89,12 @@
 
 - Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para o dia `2026-05-17` -> `Oper_634`, conforme Processo SEi 000399.011715/2026-17, e `tipo_dia` para o dia `2026-06-04` -> `Domingo` devido ao feriado de Corpus Christi e `2026-06-05` -> `Ponto Facultativo` conforme DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/234)
 
+## [1.7.2] - 2026-06-02
+
+### Alterado
+
+- Altera o tratamento dos campos do intervalo 24h-03h no modelo `ordem_servico_faixa_horaria` para suportar as variações `dia_seguinte` e `diaseguinte` (https://github.com/RJ-SMTR/pipelines_v3/pull/226)
+
 ## [1.7.1] - 2026-05-22
 
 ### Alterado
