@@ -5,15 +5,120 @@
     )
 }}
 
-select *, 'conecta' as fonte_gps
+select
+    data,
+    hora,
+    "conecta" as fonte_gps,
+    cast(null as string) as id_registro,
+    datetime_gps,
+    cast(null as datetime) as datetime_envio,
+    cast(null as datetime) as datetime_servidor,
+    id_veiculo,
+    cast(null as string) as id_equipamento,
+    cast(null as int64) as sequencial_equipamento,
+    cast(null as string) as route_id,
+    servico,
+    cast(null as string) as id_viagem_planejada,
+    cast(null as string) as trip_id,
+    cast(null as string) as shape_id,
+    cast(null as int64) as direction_id,
+    cast(null as string) as sentido,
+    status,
+    cast(null as string) as qualidade_sinal,
+    cast(null as string) as fonte_posicao,
+    cast(null as string) as fonte_velocidade,
+    latitude,
+    longitude,
+    cast(null as float64) as altitude,
+    cast(null as float64) as direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    cast(null as int64) as quantidade_satelites,
+    cast(null as float64) as hdop,
+    cast(null as float64) as vdop,
+    cast(null as float64) as pdop,
+    cast(null as datetime) as datetime_captura,
+    datetime_ultima_atualizacao,
+    versao
 from {{ source("monitoramento", "gps_onibus_conecta") }}
 
 union all
 
-select *, 'zirix' as fonte_gps
-from
-    {{ source("monitoramento", "gps_onibus_zirix") }}
+select
+    data,
+    hora,
+    "zirix" as fonte_gps,
+    cast(null as string) as id_registro,
+    datetime_gps,
+    cast(null as datetime) as datetime_envio,
+    cast(null as datetime) as datetime_servidor,
+    id_veiculo,
+    cast(null as string) as id_equipamento,
+    cast(null as int64) as sequencial_equipamento,
+    cast(null as string) as route_id,
+    servico,
+    cast(null as string) as id_viagem_planejada,
+    cast(null as string) as trip_id,
+    cast(null as string) as shape_id,
+    cast(null as int64) as direction_id,
+    cast(null as string) as sentido,
+    status,
+    cast(null as string) as qualidade_sinal,
+    cast(null as string) as fonte_posicao,
+    cast(null as string) as fonte_velocidade,
+    latitude,
+    longitude,
+    cast(null as float64) as altitude,
+    cast(null as float64) as direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    cast(null as int64) as quantidade_satelites,
+    cast(null as float64) as hdop,
+    cast(null as float64) as vdop,
+    cast(null as float64) as pdop,
+    cast(null as datetime) as datetime_captura,
+    datetime_ultima_atualizacao,
+    versao
+from {{ source("monitoramento", "gps_onibus_zirix") }}
 
-    -- union all
-    -- select *, 'cittati' as fonte_gps
-    -- from {{ source("monitoramento", "gps_onibus_cittati") }}
+union all
+
+select
+    data,
+    hora,
+    "maxtrack" as fonte_gps,
+    id_registro,
+    datetime_gps,
+    datetime_envio,
+    datetime_servidor,
+    id_veiculo,
+    id_equipamento,
+    sequencial_equipamento,
+    route_id,
+    servico,
+    id_viagem_planejada,
+    trip_id,
+    shape_id,
+    direction_id,
+    sentido,
+    status,
+    qualidade_sinal,
+    fonte_posicao,
+    fonte_velocidade,
+    latitude,
+    longitude,
+    altitude,
+    direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    quantidade_satelites,
+    hdop,
+    vdop,
+    pdop,
+    datetime_captura,
+    datetime_ultima_atualizacao,
+    versao
+from {{ source("monitoramento", "gps_v2_onibus_maxtrack") }}
