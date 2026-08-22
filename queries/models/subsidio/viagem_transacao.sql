@@ -20,6 +20,8 @@ select
     distancia_planejada,
     quantidade_transacao,
     quantidade_transacao_riocard,
+    valor_transacao,
+    valor_transacao_riocard,
     percentual_estado_equipamento_aberto,
     indicador_estado_equipamento_aberto,
     datetime_partida_bilhetagem,
@@ -27,9 +29,9 @@ select
     datetime_chegada,
     datetime_ultima_atualizacao
 from {{ ref("viagem_transacao_aux_v2") }}
-where data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-full outer union all by name
-
+where
+    data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {# full outer union all by name
 select
     data,
     id_viagem,
@@ -51,4 +53,4 @@ select
     datetime_chegada,
     datetime_ultima_atualizacao
 from {{ ref("viagem_transacao_aux_v1") }}
-where data < date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+where data < date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}") #}

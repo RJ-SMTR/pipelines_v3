@@ -53,6 +53,7 @@ with
             status,
             tecnologia,
             subsidio_km,
+            irk,
             case
                 when tecnologia is null
                 then
@@ -66,6 +67,8 @@ with
                     )
             end as subsidio_km_teto,
             indicador_penalidade_judicial,
+            indicador_conformidade,
+            indicador_validade,
             ordem
         from {{ ref("valor_km_tipo_viagem") }}
     ),
@@ -101,6 +104,7 @@ with
             vt.tecnologia_remunerada,
             vt.id_viagem,
             vt.datetime_partida,
+            valor_transacao + valor_transacao_riocard as receita_tarifa_publica,
             vt.distancia_planejada,
             case
                 when vt.tipo_viagem = "Não autorizado por capacidade"
@@ -129,6 +133,9 @@ with
                 vt.tipo_viagem = "Não autorizado por capacidade", true, false
             ) as indicador_penalidade_tecnologia,
             sp.indicador_penalidade_judicial,
+            sp.indicador_conformidade,
+            sp.indicador_validade,
+            sp.irk,
             sp.ordem
         from viagem_transacao as vt
         left join
@@ -158,117 +165,166 @@ with
             and vt.datetime_partida
             between s.faixa_horaria_inicio and s.faixa_horaria_fim
 
-    ),
-    viagem_indicador_dentro_limite as (
-        -- Flag de viagens que serão consideradas ou não para fins de remuneração
-        -- (apuração de
-        -- valor de subsídio) - RESOLUÇÃO SMTR Nº 3645/2023
-        select
-            v.* except (
-                rn,
-                datetime_partida,
-                viagens_planejadas,
-                km_planejada,
-                tipo_dia,
-                consorcio
-            ),
-            case
-                when
-                    v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
-                    and v.tipo_dia in ("Sabado", "Domingo")
-                    and pof > 120
-                    and rn
-                    > greatest((viagens_planejadas * 1.2), (viagens_planejadas + 1))
-                then false
-                when
-                    v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
-                    and v.tipo_dia = "Ponto Facultativo"
-                    and pof > 150
-                    and rn
-                    > greatest((viagens_planejadas * 1.5), (viagens_planejadas + 1))
-                then false
-                when
-                    v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
-                    and v.tipo_dia = "Dia Útil"
-                    and pof > 110
-                    and rn
-                    > greatest((viagens_planejadas * 1.1), (viagens_planejadas + 1))
-                then false
-                else true
-            end as indicador_viagem_dentro_limite
-        from
-            (
-                select
-                    v.*,
-                    p.* except (data, servico, sentido),
-                    row_number() over (
-                        partition by
-                            v.data,
-                            v.servico,
-                            v.sentido,
-                            faixa_horaria_inicio,
-                            faixa_horaria_fim
-                        order by ordem, datetime_partida
-                    ) as rn
-                from viagem_km_tipo as v
-                left join
-                    planejado as p
-                    on p.data = v.data
-                    and p.servico = v.servico
-                    and p.sentido = v.sentido
-                    and v.datetime_partida
-                    between p.faixa_horaria_inicio and p.faixa_horaria_fim
-            ) as v
-        left join
-            servico_faixa_km_apuracao as s
-            on s.data = v.data
-            and s.servico = v.servico
-            and s.sentido = v.sentido
-            and v.datetime_partida
-            between s.faixa_horaria_inicio and s.faixa_horaria_fim
-    ),
-    viagem_indicador_ajustado as (
-        select
-            v.* except (
-                indicador_viagem_dentro_limite, faixa_horaria_inicio, faixa_horaria_fim
-            ),
-            ifnull(
-                e.indicador_viagem_dentro_limite, v.indicador_viagem_dentro_limite
-            ) as indicador_viagem_dentro_limite,
-            e.data_inicio as data_inicio_excecao,
-            e.faixa_horaria_inicio as faixa_horaria_inicio_excecao,
-            e.faixa_horaria_fim as faixa_horaria_fim_excecao,
-            e.servico as servico_excecao,
-            e.priority
-        from viagem_indicador_dentro_limite v
-        left join
-            {{ ref("aux_viagem_remunerada_excecao") }} e
-            on v.data between e.data_inicio and e.data_fim
-            and (
-                v.faixa_horaria_inicio >= e.faixa_horaria_inicio
-                or e.faixa_horaria_inicio is null
-            )
-            and (
-                v.faixa_horaria_fim <= e.faixa_horaria_fim
-                or e.faixa_horaria_fim is null
-            )
-            and (v.servico = e.servico or e.servico is null)
-    ),
-    viagem_indicador_ajustado_deduplicado as (
-        select
-            * except (
-                data_inicio_excecao,
-                faixa_horaria_inicio_excecao,
-                faixa_horaria_fim_excecao,
-                servico_excecao,
-                priority
-            )
-        from viagem_indicador_ajustado
-        qualify
-            row_number() over (partition by id_viagem order by priority nulls last) = 1
     )
+-- Flag de viagens que serão consideradas ou não para fins de remuneração (apuração de
+-- valor de subsídio) - RESOLUÇÃO SMTR Nº 3645/2023
 select
-    *,
+    v.* except (rn, viagens_planejadas, km_planejada, tipo_dia, consorcio),
+    case
+        when
+            (v.data between date('2026-01-16') and date('2026-02-15'))
+            and v.servico in (
+                "104",
+                "107",
+                "161",
+                "167",
+                "169",
+                "232",
+                "361",
+                "409",
+                "410",
+                "416",
+                "435",
+                "461",
+                "473",
+                "552",
+                "583",
+                "584",
+                "SP805",
+                "LECD127",
+                "LECD128",
+                "LECD129",
+                "LECD130",
+                "LECD131",
+                "LECD132",
+                "LECD133",
+                "LECD134"
+            )  -- Processo n° 000300.005989/2026-19
+        then true
+        when
+            (v.data between date('2026-02-01') and date('2026-02-15'))
+            and v.servico in ("805", "LECD136", "LECD137")  -- Processo n° 000300.005989/2026-19
+        then true
+        when
+            (v.data between date('2026-01-01') and date('2026-01-15'))
+            and v.servico in (
+                "104",
+                "107",
+                "109",
+                "161",
+                "167",
+                "169",
+                "409",
+                "410",
+                "435",
+                "473",
+                "583",
+                "584",
+                "LECD127",
+                "LECD128",
+                "552",
+                "SP805",
+                "361",
+                "LECD129",
+                "232"
+            )  -- Processo n° 000300.001720/2026-55
+        then true
+        when
+            (v.data between date('2025-12-22') and date('2025-12-26'))
+            and v.servico in (
+                "232",
+                "552",
+                "SP805",
+                "361",
+                "104",
+                "107",
+                "161",
+                "169",
+                "409",
+                "410",
+                "435",
+                "473",
+                "583",
+                "584",
+                "109"
+            )  -- Processo nº 000300.000641/2026-27
+        then true
+        when
+            (v.data between date('2025-12-29') and date('2025-12-31'))
+            and v.servico in (
+                "232",
+                "552",
+                "SP805",
+                "361",
+                "104",
+                "107",
+                "161",
+                "169",
+                "409",
+                "410",
+                "435",
+                "473",
+                "583",
+                "584",
+                "109",
+                "167",
+                "LECD127",
+                "LECD128",
+                "LECD129"
+            )  -- Processo nº 000300.000641/2026-27
+        then true
+        when
+            v.data = date('2025-09-16')
+            and v.servico in ("161", "LECD110", "583", "584", "109")  -- Processo.rio MTR-OFI-2025/06240
+        then true
+        when
+            v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
+            and v.tipo_dia in ("Sabado", "Domingo")
+            and pof > 120
+            and rn > greatest((viagens_planejadas * 1.2), (viagens_planejadas + 1))
+        then false
+        when
+            v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
+            and v.tipo_dia = "Ponto Facultativo"
+            and pof > 150
+            and rn > greatest((viagens_planejadas * 1.5), (viagens_planejadas + 1))
+        then false
+        when
+            v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
+            and v.tipo_dia = "Dia Útil"
+            and pof > 110
+            and rn > greatest((viagens_planejadas * 1.1), (viagens_planejadas + 1))
+        then false
+        else true
+    end as indicador_viagem_dentro_limite,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
-from viagem_indicador_ajustado_deduplicado
+from
+    (
+        select
+            v.*,
+            p.* except (data, servico, sentido),
+            row_number() over (
+                partition by
+                    v.data,
+                    v.servico,
+                    v.sentido,
+                    faixa_horaria_inicio,
+                    faixa_horaria_fim
+                order by ordem, datetime_partida
+            ) as rn
+        from viagem_km_tipo as v
+        left join
+            planejado as p
+            on p.data = v.data
+            and p.servico = v.servico
+            and p.sentido = v.sentido
+            and v.datetime_partida
+            between p.faixa_horaria_inicio and p.faixa_horaria_fim
+    ) as v
+left join
+    servico_faixa_km_apuracao as s
+    on s.data = v.data
+    and s.servico = v.servico
+    and s.sentido = v.sentido
+    and v.datetime_partida between s.faixa_horaria_inicio and s.faixa_horaria_fim
