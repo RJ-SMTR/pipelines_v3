@@ -114,6 +114,9 @@ def get_raw_api_paginated(  # noqa: PLR0913
     Returns:
         list[str]: Paths of the saved page files.
     """
+    if page_size <= 0:
+        raise ValueError("page_size must be greater than zero")
+
     filepaths = []
     page_index = 0
     page_data_len = page_size

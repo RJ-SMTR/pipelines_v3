@@ -65,6 +65,11 @@ def create_gps_authentication_kwargs(
         request_kwargs["headers"] = credentials
         return request_kwargs
 
+    if len(credentials) != 1:
+        raise ValueError(
+            "GPS authentication must define 'secret_name' when multiple credentials are available"
+        )
+
     credential_value = next(iter(credentials.values()))
     header = auth_config.get("header")
     if header is not None:

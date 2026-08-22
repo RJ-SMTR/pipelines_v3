@@ -21,7 +21,7 @@ def create_viagem_informada_extractor(context: SourceCaptureContext):
     token = get_env_secret(
         secret_path=constants.MAXTRACK_SECRET_PATH,
         secret_name="token",
-    ).get("token")
+    )["token"]
 
     params = {
         "datetime_processamento_inicio": f"{start_date.isoformat()}T00:00:00Z",
