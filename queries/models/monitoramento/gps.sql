@@ -9,7 +9,7 @@
     )
 }}
 
-{% set staging_gps = ref("staging_gps") %}
+{% set staging_gps = ref("staging_gps", v=1) %}
 {% if execute and is_incremental() %}
     {% set gps_partitions_query %}
     SELECT DISTINCT
@@ -35,7 +35,7 @@ with
             servico,
             latitude,
             longitude,
-        from {{ ref("aux_gps_filtrada") }}
+        from {{ ref("aux_gps_filtrada", v=1) }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -53,15 +53,15 @@ with
             velocidade,
             distancia,
             indicador_em_movimento
-        from {{ ref("aux_gps_velocidade") }}
+        from {{ ref("aux_gps_velocidade", v=1) }}
     ),
     paradas as (
         select id_veiculo, datetime_gps, servico, tipo_parada
-        from {{ ref("aux_gps_parada") }}
+        from {{ ref("aux_gps_parada", v=1) }}
     ),
     indicadores as (
         select id_veiculo, datetime_gps, servico, indicador_trajeto_correto
-        from {{ ref("aux_gps_trajeto_correto") }}
+        from {{ ref("aux_gps_trajeto_correto", v=1) }}
     ),
     novos_dados as (
         select
