@@ -1,81 +1,100 @@
 {{ config(alias=this.name ~ "_" ~ var("fonte_gps")) }}
 
-with
-    source_data as (
-        select
-            data,
-            safe_cast(hora as int64) hora,
-            datetime(
-                parse_timestamp(
-                    '%Y-%m-%dT%H:%M:%SZ',
-                    safe_cast(json_value(content, '$.datetime_operacao') as string)
-                ),
-                "America/Sao_Paulo"
-            ) datetime_operacao,
-            safe_cast(id_veiculo as string) id_veiculo,
-            concat(
-                ifnull(
-                    regexp_extract(
-                        safe_cast(json_value(content, '$.servico') as string), r'[A-Z]+'
+{% if var("fonte_gps") == "maxtrack" %}
+    select
+        cast(null as date) as data,
+        cast(null as int64) as hora,
+        cast(null as datetime) as datetime_operacao,
+        cast(null as string) as id_veiculo,
+        cast(null as string) as servico,
+        cast(null as datetime) as datetime_entrada,
+        cast(null as datetime) as datetime_saida,
+        cast(null as datetime) as datetime_processamento,
+        cast(null as datetime) as datetime_execucao_flow,
+        cast(null as datetime) as datetime_captura
+    where false
+{% else %}
+    with
+        source_data as (
+            select
+                data,
+                safe_cast(hora as int64) hora,
+                datetime(
+                    parse_timestamp(
+                        '%Y-%m-%dT%H:%M:%SZ',
+                        safe_cast(json_value(content, '$.datetime_operacao') as string)
                     ),
-                    ""
-                ),
-                ifnull(
-                    regexp_extract(
-                        safe_cast(json_value(content, '$.servico') as string), r'[0-9]+'
-                    ),
-                    ""
-                )
-            ) as servico,
-            datetime(
-                parse_timestamp(
-                    '%Y-%m-%dT%H:%M:%SZ',
-                    safe_cast(json_value(content, '$.datetime_entrada') as string)
-                ),
-                "America/Sao_Paulo"
-            ) datetime_entrada,
-            case
-                when
-                    safe_cast(json_value(content, '$.datetime_saida') as string)
-                    in ('1971-01-01 00:00:00-0300', '1971-01-01T03:00:00Z')
-                then null
-                else
-                    datetime(
-                        parse_timestamp(
-                            '%Y-%m-%dT%H:%M:%SZ',
-                            safe_cast(json_value(content, '$.datetime_saida') as string)
+                    "America/Sao_Paulo"
+                ) datetime_operacao,
+                safe_cast(id_veiculo as string) id_veiculo,
+                concat(
+                    ifnull(
+                        regexp_extract(
+                            safe_cast(json_value(content, '$.servico') as string),
+                            r'[A-Z]+'
                         ),
-                        "America/Sao_Paulo"
+                        ""
+                    ),
+                    ifnull(
+                        regexp_extract(
+                            safe_cast(json_value(content, '$.servico') as string),
+                            r'[0-9]+'
+                        ),
+                        ""
                     )
-            end as datetime_saida,
-            datetime(
-                parse_timestamp('%Y-%m-%dT%H:%M:%SZ', datetime_processamento),
-                "America/Sao_Paulo"
-            ) datetime_processamento,
-            datetime(
-                parse_timestamp(
-                    '%Y-%m-%d %H:%M:%S%Ez',
-                    safe_cast(
-                        json_value(content, '$._datetime_execucao_flow') as string
-                    )
-                ),
-                "America/Sao_Paulo"
-            ) datetime_execucao_flow,
-            datetime(
-                parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
-                "America/Sao_Paulo"
-            ) datetime_captura
-        from {{ source("source_" ~ var("fonte_gps"), "realocacao") }}
-    )
-select distinct
-    data,
-    hora,
-    datetime_operacao,
-    id_veiculo,
-    servico,
-    datetime_entrada,
-    datetime_saida,
-    datetime_processamento,
-    datetime_execucao_flow,
-    datetime_captura
-from source_data
+                ) as servico,
+                datetime(
+                    parse_timestamp(
+                        '%Y-%m-%dT%H:%M:%SZ',
+                        safe_cast(json_value(content, '$.datetime_entrada') as string)
+                    ),
+                    "America/Sao_Paulo"
+                ) datetime_entrada,
+                case
+                    when
+                        safe_cast(json_value(content, '$.datetime_saida') as string)
+                        in ('1971-01-01 00:00:00-0300', '1971-01-01T03:00:00Z')
+                    then null
+                    else
+                        datetime(
+                            parse_timestamp(
+                                '%Y-%m-%dT%H:%M:%SZ',
+                                safe_cast(
+                                    json_value(content, '$.datetime_saida') as string
+                                )
+                            ),
+                            "America/Sao_Paulo"
+                        )
+                end as datetime_saida,
+                datetime(
+                    parse_timestamp('%Y-%m-%dT%H:%M:%SZ', datetime_processamento),
+                    "America/Sao_Paulo"
+                ) datetime_processamento,
+                datetime(
+                    parse_timestamp(
+                        '%Y-%m-%d %H:%M:%S%Ez',
+                        safe_cast(
+                            json_value(content, '$._datetime_execucao_flow') as string
+                        )
+                    ),
+                    "America/Sao_Paulo"
+                ) datetime_execucao_flow,
+                datetime(
+                    parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
+                    "America/Sao_Paulo"
+                ) datetime_captura
+            from {{ source("source_" ~ var("fonte_gps"), "realocacao") }}
+        )
+    select distinct
+        data,
+        hora,
+        datetime_operacao,
+        id_veiculo,
+        servico,
+        datetime_entrada,
+        datetime_saida,
+        datetime_processamento,
+        datetime_execucao_flow,
+        datetime_captura
+    from source_data
+{% endif %}

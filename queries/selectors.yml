@@ -452,28 +452,39 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps.v1
         - method: fqn
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
         - method: fqn
-          value: aux_gps_filtrada
+          value: aux_gps_filtrada.v1
         - method: fqn
-          value: gps
+          value: gps.v1
 
   - name: gps_15_minutos
     description: Materialização das tabelas de gps 15 minutos
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps.v1
         - method: fqn
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
         - method: fqn
           value: gps_15_minutos
+
+  - name: gps_v2
+    description: Materialização das tabelas de GPS v2
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps.v2
+        - method: fqn
+          value: aux_gps_filtrada.v2
+        - method: fqn
+          value: gps.v2
 
   - name: snapshot_viagem
     definition:

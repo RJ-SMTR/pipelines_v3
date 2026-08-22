@@ -1,9 +1,11 @@
 {{ config(materialized="ephemeral") }}
 
+{% set aux_gps_filtrada = ref("aux_gps_filtrada", v=2) %}
+
 with
     registros as (
-        select id_veiculo, servico, data, posicao_veiculo_geo, datetime_gps
-        from {{ ref("aux_gps_filtrada", v=1) }}
+        select id_registro, id_veiculo, servico, data, posicao_veiculo_geo, datetime_gps
+        from {{ aux_gps_filtrada }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -16,7 +18,6 @@ with
     servico_planejado as (
         select data, feed_start_date, servico, sentido, trip_info, trajetos_alternativos
         from {{ ref("servico_planejado_faixa_horaria") }}
-        {# from `rj-smtr.planejamento.servico_planejado_faixa_horaria` #}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -59,11 +60,7 @@ with
             ) as indicador_intersecao
         from registros r
         left join shape_union s using (servico, data)
-        left join
-            {{ ref("shapes_geom_gtfs") }} sg using (
-                {# `rj-smtr`.`gtfs`.`shapes_geom` sg using ( #}
-                feed_start_date, shape_id
-            )
+        left join {{ ref("shapes_geom_gtfs") }} sg using (feed_start_date, shape_id)
     ),
     indicador as (
         select
@@ -80,10 +77,11 @@ with
         from intersec
     )
 select
+    id_registro,
     data,
     datetime_gps,
     id_veiculo,
     servico,
     logical_or(indicador_trajeto_correto) as indicador_trajeto_correto
 from indicador
-group by id_veiculo, servico, data, datetime_gps
+group by id_registro, id_veiculo, servico, data, datetime_gps
