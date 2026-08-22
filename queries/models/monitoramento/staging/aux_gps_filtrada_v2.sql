@@ -10,9 +10,8 @@
     )
 }}
 
-{% set staging_gps = ref("staging_gps", v=1) %}
--- depends_on: {{ ref("staging_gps", v=1) }}
--- depends_on: {{ ref("aux_gps_realocacao") }}
+{% set staging_gps = ref("staging_gps", v=2) %}
+-- depends_on: {{ ref("staging_gps", v=2) }}
 {% if execute and is_incremental() %}
     {% set gps_partitions_query %}
     select distinct concat("'", date(data), "'") as data
@@ -36,20 +35,10 @@ with
     ),
     gps as (
         select *, st_geogpoint(longitude, latitude) posicao_veiculo_geo
-        from {{ ref("aux_gps_realocacao") }}
+        from {{ staging_gps }}
     ),
     filtrada as (
-        select
-            data,
-            hora,
-            datetime_gps,
-            id_veiculo,
-            servico,
-            latitude,
-            longitude,
-            posicao_veiculo_geo,
-            datetime_captura,
-            velocidade,
+        select gps.*
         from gps
         cross join box
         where
@@ -75,4 +64,4 @@ with
     )
 select * except (priority)
 from particoes_completas
-qualify row_number() over (partition by id_veiculo, datetime_gps order by priority) = 1
+qualify row_number() over (partition by id_registro order by priority) = 1
