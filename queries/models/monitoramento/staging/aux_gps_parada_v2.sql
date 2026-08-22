@@ -1,5 +1,7 @@
 {{ config(materialized="ephemeral") }}
 
+{% set aux_gps_filtrada = ref("aux_gps_filtrada", v=2) %}
+
 {% set incremental_filter %}
     data between
         date('{{ var("date_range_start") }}')
@@ -7,7 +9,6 @@
 {% endset %}
 
 {% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
 {% if execute %}
     {% set gtfs_feeds_query %}
         select distinct concat("'", feed_start_date, "'") as feed_start_date
@@ -24,7 +25,6 @@ with
             stop_name as nome_parada,
             'terminal' as tipo_parada
         from {{ ref("stops_gtfs") }}
-        {# from `rj-smtr`.`gtfs`.`stops` #}
         where location_type = "1" and feed_start_date in ({{ gtfs_feeds | join(", ") }})
     ),
     garagens as (
@@ -39,8 +39,8 @@ with
             )
     ),
     posicoes_veiculos as (
-        select id_veiculo, datetime_gps, data, servico, posicao_veiculo_geo
-        from {{ ref("aux_gps_filtrada", v=1) }}
+        select id_registro, id_veiculo, datetime_gps, data, servico, posicao_veiculo_geo
+        from {{ aux_gps_filtrada }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -52,6 +52,7 @@ with
     ),
     veiculos_em_garagens as (
         select
+            v.id_registro,
             v.id_veiculo,
             v.datetime_gps,
             v.data,
@@ -68,6 +69,7 @@ with
     ),
     terminais_proximos as (
         select
+            v.id_registro,
             v.id_veiculo,
             v.datetime_gps,
             v.data,
@@ -95,13 +97,14 @@ with
             )
         qualify
             row_number() over (
-                partition by v.datetime_gps, v.id_veiculo, v.servico
+                partition by v.id_registro
                 order by st_distance(v.posicao_veiculo_geo, t.ponto_parada)
             )
             = 1
     ),
     resultados_combinados as (
         select
+            v.id_registro,
             v.id_veiculo,
             v.datetime_gps,
             v.data,
@@ -109,14 +112,8 @@ with
             coalesce(g.tipo_parada, t.status_terminal) as tipo_parada,
             coalesce(g.nome_parada, t.nome_parada) as nome_parada
         from posicoes_veiculos v
-        left join
-            veiculos_em_garagens g
-            on v.id_veiculo = g.id_veiculo
-            and v.datetime_gps = g.datetime_gps
-        left join
-            terminais_proximos t
-            on v.id_veiculo = t.id_veiculo
-            and v.datetime_gps = t.datetime_gps
+        left join veiculos_em_garagens g using (id_registro)
+        left join terminais_proximos t using (id_registro)
     )
-select data, datetime_gps, id_veiculo, servico, tipo_parada, nome_parada
+select id_registro, data, datetime_gps, id_veiculo, servico, tipo_parada, nome_parada
 from resultados_combinados
