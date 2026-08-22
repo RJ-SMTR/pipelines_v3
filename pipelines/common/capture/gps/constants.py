@@ -141,7 +141,7 @@ GPS_SOURCE_CONFIGS = {
         },
     },
     SPPO_SOURCE_NAME: {
-        "base_url": "http://ccomobility.com.br/WebServices/Binder/wsconecta",
+        "base_url": "https://ccomobility.com.br/WebServices/Binder/wsconecta",
         "requests": {
             REGISTROS_TABLE_ID: {
                 "endpoint": "EnvioIplan",
