@@ -1,8 +1,11 @@
 {{ config(materialized="ephemeral") }}
 
+{% set aux_gps_filtrada = ref("aux_gps_filtrada", v=2) %}
+
 with
     anterior as (
         select
+            id_registro,
             data,
             hora,
             id_veiculo,
@@ -15,7 +18,7 @@ with
             velocidade as velocidade_original,
             lag(posicao_veiculo_geo) over w as posicao_anterior,
             lag(datetime_gps) over w as datetime_anterior
-        from {{ ref("aux_gps_filtrada", v=1) }}
+        from {{ aux_gps_filtrada }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -42,13 +45,13 @@ with
     ),
     media as (
         select
+            id_registro,
             data,
             datetime_gps,
             id_veiculo,
             servico,
             distancia,
             velocidade,
-            -- Calcula média móvel
             avg(velocidade) over (
                 partition by id_veiculo, servico
                 order by
@@ -60,6 +63,7 @@ with
         from calculo_velocidade
     )
 select
+    id_registro,
     data,
     datetime_gps,
     id_veiculo,
