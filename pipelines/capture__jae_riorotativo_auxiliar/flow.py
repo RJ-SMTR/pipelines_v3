@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Flow para captura de dados auxiliares do Rio Rotativo Digital
+
+Common: 2026-08-22
+"""
+
 from typing import Optional
 
 from pipelines.capture__jae_riorotativo_auxiliar import constants
