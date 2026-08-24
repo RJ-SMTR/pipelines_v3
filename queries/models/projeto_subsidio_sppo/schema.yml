@@ -33,6 +33,12 @@ models:
               - sentido
               - faixa_horaria_inicio
               - shape_id
+      - unique:
+          name: unique__snapshot_key__viagem_planejada
+          config:
+            where: "data between date_sub(date('{{ var('date_range_start') }}'), interval 1 day) and date_sub(date('{{ var('date_range_end') }}'), interval 1 day) and distancia_total_planejada != 0"
+          arguments:
+            column_name: "concat(data, '-', servico, '-', sentido, '-', faixa_horaria_inicio, '-', ifnull(trip_id, ''), '-', ifnull(trip_id_planejado, ''), '-', ifnull(shape_id, ''), '-', ifnull(shape_id_planejado, ''))"
       - check_km_planejada:
           name: check_km_planejada__viagem_planejada
       - check_partidas_planejadas:
