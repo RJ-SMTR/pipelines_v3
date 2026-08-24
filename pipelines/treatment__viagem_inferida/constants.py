@@ -18,6 +18,7 @@ VIAGEM_INFERIDA_SELECTOR = DBTSelector(
     name="viagem_inferida",
     initial_datetime=datetime(2026, 8, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__viagem_inferida",
+    incremental_delay_hours=1,
     data_sources=[
         planejamento_constants.PLANEJAMENTO_DIARIO_SELECTOR,
         gps_conecta_constants.GPS_CONECTA_SELECTOR,
