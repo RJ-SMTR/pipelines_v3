@@ -32,6 +32,7 @@ GPS_DAILY_TEST = DBTTest(
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,
+    additional_vars=ADDITIONAL_VARS,
 )
 
 GPS_MAXTRACK_SELECTOR = DBTSelector(
