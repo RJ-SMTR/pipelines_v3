@@ -41,7 +41,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__viagem_inferida/flow.py:treatment__viagem_inferida
     schedules:
-      - cron: "0 8 * * *"
+      - cron: "0 */3 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
