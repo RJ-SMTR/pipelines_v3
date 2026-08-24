@@ -14,7 +14,7 @@ JAE_SOURCE_NAME = "jae"
 JAE_DATABASE_SETTINGS = {
     "principal_db": {
         "engine": "mysql",
-        "host": "10.128.0.119",
+        "host": "10.128.0.148",
     },
     "tarifa_db": {
         "engine": "postgresql",
