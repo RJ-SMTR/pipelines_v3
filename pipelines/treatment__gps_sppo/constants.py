@@ -30,11 +30,12 @@ GPS_POST_CHECKS_LIST = {
 }
 
 GPS_DAILY_TEST = DBTTest(
-    test_select="gps",
+    test_select="gps.v1",
     test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,
+    additional_vars=ADDITIONAL_VARS,
 )
 
 GPS_SPPO_SELECTOR = DBTSelector(
