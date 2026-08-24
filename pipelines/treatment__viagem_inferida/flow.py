@@ -7,7 +7,7 @@ a partir do GPS e sua cadeia de validação no modo monitoramento, enquanto as
 operadoras ainda não enviaram a viagem informada (prazo de 5 dias).
 
 Schedule:
-- Diariamente às 8h (horário de São Paulo)
+- A cada 3 horas (horário de São Paulo)
 - Depende de dados do Planejamento Diário e do GPS (Conecta e Zirix)
 
 DBT: 2026-07-29
