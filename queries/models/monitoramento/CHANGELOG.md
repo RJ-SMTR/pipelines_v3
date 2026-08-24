@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera a descrição da tabela `viagem_valida` conforme o tipo de materialização, identificando quando a tabela no `monitoramento_interno` deve ser utilizada exclusivamente para fins de monitoramento, com quebra de linha entre a descrição e o aviso de uso (https://github.com/RJ-SMTR/pipelines_v3/pull/540)
+- Altera a descrição da tabela `viagem_valida` conforme o tipo de materialização, identificando quando a tabela no `monitoramento_interno` deve ser utilizada exclusivamente para fins de monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/540)
 
 ## [2.2.8] - 2026-08-13
 
