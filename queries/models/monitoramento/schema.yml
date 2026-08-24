@@ -1368,7 +1368,7 @@ models:
       - name: valor
         description: "Valor"
   - name: viagem_valida
-    description: "Tabela filtrada contendo apenas viagens informadas válidas conforme os parâmetros definidos"
+    description: "{% if var('tipo_materializacao') == 'monitoramento' %}Dados de viagens válidas gerados exclusivamente para fins de monitoramento interno.\n\nNão devem ser utilizados para apuração de subsídio.{% else %}Tabela filtrada contendo apenas viagens informadas válidas conforme os parâmetros definidos{% endif %}"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
