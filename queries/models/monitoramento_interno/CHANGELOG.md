@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.5] - 2026-08-25
+
+### Alterado
+
+- Atualiza `view_viagem_monitoramento` para usar `viagem_valida` a partir de `DATA_SUBSIDIO_V25_INICIO` e expor `sistema` na nova linhagem (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+
 ## [1.0.4] - 2026-07-31
 
 ### Adicionado
