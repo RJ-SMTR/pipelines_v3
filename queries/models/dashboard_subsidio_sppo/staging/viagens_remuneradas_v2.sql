@@ -1,20 +1,5 @@
 {{ config(materialized="ephemeral") }}
 
-{%- if execute %}
-    {% set query = (
-        "SELECT DISTINCT feed_start_date FROM "
-        ~ ref("subsidio_data_versao_efetiva")
-        ~ " WHERE data BETWEEN DATE('"
-        ~ var("start_date")
-        ~ "') AND DATE('"
-        ~ var("end_date")
-        ~ "')"
-    ) %}
-    {{- log(query, info=True) -}}
-    {% set feed_start_dates = run_query(query).columns[0].values() %}
-    {{- log(feed_start_dates, info=True) -}}
-{% endif -%}
-
 {% set incremental_filter %}
     data between greatest(date("{{var('start_date')}}"), date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}"))  and date("{{ var('end_date') }}")
 {% endset %}
@@ -35,15 +20,42 @@ with
         -- from `rj-smtr.projeto_subsidio_sppo.viagem_planejada`
         where
             {{ incremental_filter }}
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             and (distancia_total_planejada > 0 or distancia_total_planejada is null)
             and (id_tipo_trajeto = 0 or id_tipo_trajeto is null)
+
+        union all
+
+        select distinct
+            data,
+            tipo_dia,
+            consorcio,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            partidas as viagens_planejadas,
+            quilometragem as km_planejada,
+        from {{ ref("servico_planejado_faixa_horaria") }}
+        where
+            {{ incremental_filter }}
+            and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            and quilometragem > 0
     ),
     data_versao_efetiva as (
         select data, tipo_dia, tipo_os, feed_start_date
         from {{ ref("subsidio_data_versao_efetiva") }}
-        -- from `rj-smtr.projeto_subsidio_sppo.subsidio_data_versao_efetiva`
-        -- (alterar também query no bloco execute)
-        where {{ incremental_filter }}
+        where
+            {{ incremental_filter }}
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+        union all
+
+        select data, tipo_dia, tipo_os, feed_start_date
+        from {{ ref("calendario") }}
+        where
+            {{ incremental_filter }}
+            and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     -- Parâmetros de subsídio
     subsidio_parametros as (
