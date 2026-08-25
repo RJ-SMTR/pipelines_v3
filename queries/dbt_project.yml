@@ -131,6 +131,8 @@ vars:
   data_inclusao_autuacao_disciplinar: "2025-07-10"
   data_processamento_veiculo_licenciamento_dia:
     ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
+  # Idade máxima padrão das partições reprocessadas na validação de viagens
+  viagem_validacao_max_age_days: 5
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
