@@ -181,8 +181,11 @@ with
                 datetime_processamento >= datetime_chegada_considerada, true
             ) as indicador_processamento_apos_chegada,
             ifnull(
-                datetime_processamento is not null
-                and date(datetime_processamento) <= date_add(data, interval 5 day),
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
+                or (
+                    datetime_processamento is not null
+                    and date(datetime_processamento) <= date_add(data, interval 5 day)
+                ),
                 false
             ) as indicador_prazo_envio,
             service_ids,

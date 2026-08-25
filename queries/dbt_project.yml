@@ -185,6 +185,8 @@ vars:
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
   # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
   DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
+  # Início da vigência do prazo de envio de até 5 dias corridos
+  DATA_SUBSIDIO_V26_INICIO: "2026-08-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
