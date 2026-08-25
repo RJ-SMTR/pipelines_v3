@@ -34,7 +34,7 @@ with
             data,
             regexp_extract(upper(id_veiculo), r"^[A-Z]([0-9]{3})") as id_empresa,
             id_veiculo,
-            cast(null as string) as servico_gps,
+            servico as servico_gps,
             servico,
             consorcio,
             sistema,
