@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.10] - 2026-08-25
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.not_constant` em `veiculo_dia.status` agrupado por `data` para falhar quando todos os veículos de um dia têm o mesmo status(https://github.com/RJ-SMTR/pipelines_v3/pull/558)
+
 ## [2.2.9] - 2026-08-24
 
 ### Alterado
