@@ -69,6 +69,7 @@ with
             servico_gps,
             servico,
             consorcio,
+            sistema,
             case
                 when
                     r.agency_id in ("22005", "22002", "22004", "22003")

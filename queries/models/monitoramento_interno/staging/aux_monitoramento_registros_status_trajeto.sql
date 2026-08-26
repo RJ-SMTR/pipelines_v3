@@ -27,7 +27,11 @@ with
         select
             g.* except (longitude, latitude, servico),
             servico,
-            substr(id_veiculo, 2, 3) as id_empresa,
+            case
+                when strpos(id_veiculo, '-') > 0
+                then split(id_veiculo, '-')[safe_offset(0)]
+                else substr(id_veiculo, 2, 3)
+            end as id_empresa,
             st_geogpoint(longitude, latitude) as geo_point_gps,
             case
                 when extract(hour from datetime_gps) < 3
@@ -64,6 +68,7 @@ with
             feed_start_date,
             servico,
             consorcio,
+            sistema,
             sentido,
             extensao,
             faixa_horaria_inicio,
@@ -78,6 +83,7 @@ with
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
             sp.sentido,
             sp.extensao,
             trip.trip_id,
@@ -94,6 +100,7 @@ with
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
             sp.sentido,
             alt.extensao,
             alt.trip_id,
@@ -109,6 +116,7 @@ with
             feed_start_date,
             servico,
             consorcio,
+            sistema,
             sentido,
             extensao,
             trip_id,
@@ -139,6 +147,7 @@ with
             trim(g.servico, " ") as servico_gps,
             s.servico as servico_viagem,
             s.consorcio,
+            s.sistema,
             s.shape_id,
             s.sentido,
             s.trip_id,

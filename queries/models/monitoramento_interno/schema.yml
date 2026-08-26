@@ -28,6 +28,9 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
