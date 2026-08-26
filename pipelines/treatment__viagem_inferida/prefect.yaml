@@ -27,6 +27,16 @@ deployments:
   - name: rj-treatment--viagem_inferida--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/treatment__viagem_inferida/flow.py:treatment__viagem_inferida
+    schedules:
+      - cron: "0 */3 * * *"
+        timezone: "America/Sao_Paulo"
+        parameters:
+          flags:
+            - "--defer"
+            - "--state"
+            - "/opt/prefect/pipelines_v3/queries/state"
+            - "--favor-state"
+          skip_source_check: true
     work_pool:
       name: smtr-pool
       work_queue_name: default
