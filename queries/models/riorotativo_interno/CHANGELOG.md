@@ -1,5 +1,11 @@
 # Changelog - riorotativo_interno
 
+## [1.0.1] - 2026-08-26
+
+### Removido
+
+- Remove adição de 3h na coluna `data_fiscalizacao` do modelo `staging_fiscalizacao_veiculo_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/562)
+
 ## [1.0.0] - 2026-07-30
 
 ### Adicionado
