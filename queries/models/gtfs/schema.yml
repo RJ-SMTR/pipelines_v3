@@ -141,6 +141,11 @@ models:
         description: "Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro"
       - name: feed_start_date
         description: "O conjunto de dados fornece informações de programação completas e confiáveis ​​para serviço no período que vai do início do dia feed_start_date até o final do dia feed_end_date"
+        tests:
+          - unique:
+              name: unique__feed_start_date__feed_info_gtfs
+              config:
+                where: "1=1"
       - name: feed_end_date
         description: "{{ doc('feed_end_date') }}"
       - name: feed_version
