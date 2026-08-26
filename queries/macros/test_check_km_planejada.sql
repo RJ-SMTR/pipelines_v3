@@ -13,6 +13,41 @@
                 data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select distinct
+                data,
+                servico,
+                sentido,
+                faixa_horaria_inicio,
+                round(quilometragem, 3) as distancia_total_planejada
+            from {{ ref("servico_planejado_faixa_horaria") }}
+            where
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        ),
+        data_versao_efetiva as (
+            select data, feed_start_date, tipo_os, tipo_dia
+            from {{ ref("subsidio_data_versao_efetiva") }}
+            where
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select data, feed_start_date, tipo_os, tipo_dia
+            from {{ ref("calendario") }}
+            where
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
         ),
         os as (
             select
@@ -24,7 +59,7 @@
                 tipo_dia,
                 faixa_horaria_inicio,
                 quilometragem
-            from {{ ref("subsidio_data_versao_efetiva") }}
+            from data_versao_efetiva
             left join
                 {{ ref("ordem_servico_faixa_horaria_sentido") }} using (
                     feed_start_date, tipo_os, tipo_dia
@@ -43,7 +78,7 @@
                 tipo_dia,
                 faixa_horaria_inicio,
                 quilometragem
-            from {{ ref("subsidio_data_versao_efetiva") }}
+            from data_versao_efetiva
             left join
                 {{ ref("ordem_servico_faixa_horaria") }} using (
                     feed_start_date, tipo_os, tipo_dia
