@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from queries.dev.utils import run_dbt_model, run_dbt_selector
+from queries.dev.utils import run_dbt_selector
 
 # Copy this file to run.py and edit locally:
 #   cp run.example.py run.py
@@ -17,9 +17,7 @@ from queries.dev.utils import run_dbt_model, run_dbt_selector
 # Lote A0 cobre 2026-07-01 … 2026-07-31 (452 serviços).
 
 run_dbt_selector(
-    selector_name=(
-        "remuneracao_openfisca"
-    ),
+    selector_name=("remuneracao_openfisca"),
     flags="--target dev --defer --state target-base -x --profiles-dir ./dev ",
     _vars={
         "date_range_start": "2026-07-01",
