@@ -22,7 +22,7 @@ GPS_POST_CHECKS_LIST = {
         "check_gps_treatment__gps": {
             "description": "Todos os dados de GPS foram devidamente tratados"
         },
-        "dbt_utils.unique_combination_of_columns__gps": {
+        "dbt_utils__unique_combination_of_columns__gps": {
             "description": "Todos os registros são únicos"
         },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -30,11 +30,12 @@ GPS_POST_CHECKS_LIST = {
 }
 
 GPS_DAILY_TEST = DBTTest(
-    test_select="gps",
+    test_select="gps.v1",
     test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,
+    additional_vars=ADDITIONAL_VARS,
 )
 
 GPS_SPPO_SELECTOR = DBTSelector(

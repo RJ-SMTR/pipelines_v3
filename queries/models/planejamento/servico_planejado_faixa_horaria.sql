@@ -41,30 +41,28 @@ with
         select
             data,
             modo,
+            consorcio,
+            sistema,
+            vista,
             servico,
             sentido,
             trip_id,
             route_id,
             shape_id,
-            evento,
             datetime_partida,
-            trajetos_alternativos,
-            case
-                when evento is not null then true else false
-            end as indicador_trajeto_alternativo
+            trajetos_alternativos
         from {{ ref("viagem_planejada_planejamento_dia") }}
         {# from `rj-smtr.planejamento.viagem_planejada` #}
-        where {{ incremental_filter }} and {{ feed_filter }}
+        where {{ incremental_filter }}
     ),
     viagens_na_faixa as (
         select
             o.data,
-            o.feed_version,
             o.feed_start_date,
             o.tipo_dia,
             o.tipo_os,
             o.servico,
-            o.consorcio,
+            v.consorcio,
             o.sentido,
             o.extensao,
             o.partidas,
@@ -72,11 +70,11 @@ with
             o.faixa_horaria_inicio,
             o.faixa_horaria_fim,
             v.modo,
+            v.sistema,
+            v.vista,
             v.trip_id,
             v.route_id,
             v.shape_id,
-            v.evento,
-            v.indicador_trajeto_alternativo,
             v.trajetos_alternativos,
             min(datetime_partida) over (
                 partition by
@@ -98,7 +96,6 @@ with
     deduplicado as (
         select
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -111,11 +108,11 @@ with
             faixa_horaria_inicio,
             faixa_horaria_fim,
             modo,
+            sistema,
+            vista,
             trip_id,
             route_id,
             shape_id,
-            evento,
-            indicador_trajeto_alternativo,
             trajetos_alternativos,
             primeiro_horario,
             ultimo_horario,
@@ -129,16 +126,13 @@ with
                     faixa_horaria_inicio,
                     trip_id,
                     route_id,
-                    shape_id,
-                    evento,
-                    indicador_trajeto_alternativo
+                    shape_id
             )
             = 1
     ),
     viagens_agrupadas as (
         select
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -151,22 +145,21 @@ with
             faixa_horaria_inicio,
             faixa_horaria_fim,
             modo,
+            sistema,
+            vista,
             array_agg(
                 struct(
                     primeiro_horario as primeiro_horario,
                     ultimo_horario as ultimo_horario,
                     trip_id as trip_id,
                     route_id as route_id,
-                    shape_id as shape_id,
-                    evento as evento,
-                    indicador_trajeto_alternativo as indicador_trajeto_alternativo
+                    shape_id as shape_id
                 )
             ) as trip_info,
             trajetos_alternativos
         from deduplicado
         group by
             data,
-            feed_version,
             feed_start_date,
             tipo_dia,
             tipo_os,
@@ -179,16 +172,19 @@ with
             faixa_horaria_inicio,
             faixa_horaria_fim,
             modo,
+            sistema,
+            vista,
             trajetos_alternativos
     )
 select
     data,
-    feed_version,
     feed_start_date,
     tipo_dia,
     tipo_os,
     servico,
     consorcio,
+    sistema,
+    vista,
     sentido,
     extensao,
     partidas,

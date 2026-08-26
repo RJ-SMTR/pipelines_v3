@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.4.1] - 2026-07-29
+
+### Corrigido
+
+- Permite preservar o checkpoint de materialização no Redis e, quando `save_redis=None`, atualizá-lo somente em execuções criadas automaticamente pelo agendamento do Prefect. (https://github.com/RJ-SMTR/pipelines_v3/pull/437)
+
 ## [1.4.0] - 2026-06-23
 
 ### Alterado

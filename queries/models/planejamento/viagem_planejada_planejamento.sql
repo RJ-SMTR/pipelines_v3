@@ -10,7 +10,6 @@
     )
 }}
 
--- depends_on: {{ ref('feed_info_gtfs') }}
 {% if execute and is_incremental() %}
     {% set columns = (
         list_columns()
@@ -32,11 +31,8 @@
             )
         )
     {% endset %}
-    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
     {% set feed_filter %}
-        feed_start_date in (
-            date('{{ last_feed_version }}'), date('{{ var("data_versao_gtfs") }}')
-        )
+        feed_start_date = date('{{ var("data_versao_gtfs") }}')
     {% endset %}
 {% else %}
     {% set sha_column %}
@@ -95,14 +91,15 @@ with
         select
             tf.trip_id,
             tf.modo,
+            tf.consorcio,
+            tf.sistema,
+            tf.vista,
             tf.route_id,
             tf.service_id,
             tf.servico,
             tf.direction_id,
             tf.shape_id,
-            tf.feed_version,
             tf.feed_start_date,
-            tf.evento,
             partida_seconds
         from
             trips_frequencies tf,
@@ -119,14 +116,15 @@ with
         select
             t.trip_id,
             t.modo,
+            t.consorcio,
+            t.sistema,
+            t.vista,
             t.route_id,
             t.service_id,
             t.servico,
             t.direction_id,
             t.shape_id,
-            t.feed_version,
             t.feed_start_date,
-            t.evento,
             st.arrival_seconds as partida_seconds
         from trips t
         join
@@ -154,8 +152,7 @@ with
     dia e tipo de OS. Fonte do tipo_dia e da extensão da viagem.
     */
     ordem_servico_extensao as (
-        select
-            feed_start_date, feed_version, servico, tipo_os, tipo_dia, sentido, extensao
+        select feed_start_date, servico, tipo_os, tipo_dia, sentido, extensao
         from {{ ref("aux_ordem_servico_diaria") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
@@ -176,19 +173,23 @@ with
     ),
     /*
     Monta a base da viagem planejada: converte partida_seconds em horário
-    HH:MM:SS, deriva tipo_dia do service_id (Útil/Sábado/Domingo) e o sentido
-    (C = circular, I = ida quando direction_id 0, V = volta caso contrário).
+    HH:MM:SS normalizado com módulo 24, deriva tipo_dia do service_id
+    (Útil/Sábado/Domingo) e o sentido (C = circular, I = ida quando
+    direction_id 0, V = volta caso contrário).
     */
     viagem_planejada_base as (
         select
             concat(
-                lpad(cast(div(partida_seconds, 3600) as string), 2, '0'),
+                lpad(cast(mod(div(partida_seconds, 3600), 24) as string), 2, '0'),
                 ':',
                 lpad(cast(mod(div(partida_seconds, 60), 60) as string), 2, '0'),
                 ':',
                 lpad(cast(mod(partida_seconds, 60) as string), 2, '0')
             ) as horario_partida,
             modo,
+            consorcio,
+            sistema,
+            vista,
             service_id,
             case
                 when service_id like "%U_%"
@@ -211,8 +212,6 @@ with
                 then "I"
                 else "V"
             end as sentido,
-            evento,
-            feed_version,
             feed_start_date
         from viagens_unidas v
         left join servico_circular c using (shape_id, feed_start_date)
@@ -239,13 +238,12 @@ with
             and {{ ordem_servico_excecoes_join("ose", "v") }}
     ),
     /*
-    Constrói o array de trajetos alternativos (trip, shape, evento e extensão)
+    Constrói o array de trajetos alternativos (trip, shape, vista, evento e extensão)
     por serviço/sentido/tipo_os, ignorando alternativas sem extensão válida.
     */
     trips_alternativas as (
         select
             t.feed_start_date,
-            t.feed_version,
             t.servico,
             t.direction_id,
             tas.tipo_os,
@@ -256,6 +254,7 @@ with
                         struct(
                             t.trip_id as trip_id,
                             t.shape_id as shape_id,
+                            t.vista || " " || t.evento as vista,
                             t.evento as evento,
                             tas.extensao as extensao
                         )
@@ -268,8 +267,8 @@ with
             and t.servico = tas.servico
             and t.evento = tas.evento
             and t.direction_id = tas.direction_id
-        where t.trip_id not in (select trip_id from frequencies_tratada)
-        group by 1, 2, 3, 4, 5
+        where t.service_id = 'EXCEP'
+        group by 1, 2, 3, 4
     ),
     /*
     Une o array de trajetos alternativos a cada viagem planejada.

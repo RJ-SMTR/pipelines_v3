@@ -1,5 +1,43 @@
 # Changelog - monitoramento
 
+## [2.2.10] - 2026-08-25
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.not_constant` em `veiculo_dia.status` agrupado por `data` para falhar quando todos os veículos de um dia têm o mesmo status(https://github.com/RJ-SMTR/pipelines_v3/pull/558)
+
+### Alterado
+
+- Adiciona `sistema` e `route_id` aos modelos `viagem_validacao` e `viagem_valida`, aplica o prazo de envio de cinco dias corridos a partir de `DATA_SUBSIDIO_V26_INICIO` e parametriza a janela de reprocessamento incremental da cadeia de validação (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+- Altera `aux_veiculo_gps_dia` para usar `view_gps_onibus` a partir de `DATA_SUBSIDIO_V25_INICIO`, mantendo `view_gps_sppo_completo` para o período legado (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+
+## [2.2.9] - 2026-08-24
+
+### Alterado
+
+- Altera a descrição da tabela `viagem_valida` conforme o tipo de materialização, identificando quando a tabela no `monitoramento_interno` deve ser utilizada exclusivamente para fins de monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/540)
+
+## [2.2.8] - 2026-08-13
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-07-16` e `2026-07-31` com `data_processamento` entre `2026-07-16` e `2026-08-12` devido à falha no processamento dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/499)
+
+## [2.2.7] - 2026-07-31
+
+### Alterado
+
+- Altera `view_gps_onibus` para consolidar `gps_onibus_conecta` e `gps_onibus_zirix` (remove `gps_onibus_sppo`) (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+- Usa `id_viagem_planejada` de `viagem_inferida` em `gps_segmento_viagem` no modo monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
+## [2.2.6] - 2026-07-29
+
+### Alterado
+
+- Altera o modelo `viagem_validacao` para considerar o prazo de envio de até 5 dias corridos, usar `CEIL` no cálculo de segmentos tolerados e desconsiderar viagens com inconsistências temporais na verificação de sobreposição conforme Resolução SMTR 3934/2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Altera `gps_viagem`, `gps_segmento_viagem` e `viagem_validacao` para processar partições modificadas de `viagem_informada` via macro `get_modified_partitions_filter`, utilizando as partições adjacentes apenas como contexto na verificação de viagens sobrepostas, e altera `viagem_valida` para processar as partições modificadas de `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Renomeia indicadores de `viagem_validacao` / `gps_segmento_viagem` para polaridade única (`true` = critério atendido) e inclui `indicador_servico_convergente` na composição de `indicador_viagem_valida`(https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+
 ## [2.2.5] - 2026-07-16
 
 ### Alterado

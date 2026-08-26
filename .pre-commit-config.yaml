@@ -1,3 +1,8 @@
+# Pin to 3.13: pre-commit.ci defaults to the newest available Python (3.14),
+# but dbt-checkpoint → mixpanel → pydantic<2.12 cannot build on 3.14 yet.
+default_language_version:
+  python: python3.13
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

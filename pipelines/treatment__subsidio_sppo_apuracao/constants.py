@@ -26,13 +26,13 @@ ADDITIONAL_VARS = {"tipo_teste": "subsidio"}
 PRE_TEST_SELECT = (
     "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
     " veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
-    " gps_validador test_completude__temperatura test_jae_captura_subsidio"
+    " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_completa"
 )
 PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
     " not_null__data_ordem__transacao"
     " sincronizacao_tabelas__transacao_gratuidade_estudante_municipal"
-    " dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador"
+    " dbt_expectations__expect_row_values_to_have_recent_data__datetime_captura__gps_validador"
 )
 
 PRE_CHECKS_LIST = {
@@ -56,25 +56,25 @@ PRE_CHECKS_LIST = {
         "check_gps_treatment__gps_sppo": {
             "description": "Todos os dados de GPS foram devidamente tratados"
         },
-        "dbt_utils.unique_combination_of_columns__gps_sppo": {
+        "dbt_utils__unique_combination_of_columns__gps_sppo": {
             "description": "Todos os registros são únicos"
         },
     },
     "sppo_veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__data_id_veiculo__sppo_veiculo_dia": {
+        "dbt_utils__unique_combination_of_columns__data_id_veiculo__sppo_veiculo_dia": {
             "description": "Todos os registros são únicos"
         },
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sppo_veiculo_dia": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__sppo_veiculo_dia": {
             "description": "Todas as datas possuem dados"
         },
     },
     "veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
             "description": "Todas as datas possuem dados"
         },
-        "dbt_utils.unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
+        "dbt_utils__unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
             "description": "Todos os registros são únicos"
         },
         "test_check_veiculo_lacre__veiculo_dia": {
@@ -83,25 +83,38 @@ PRE_CHECKS_LIST = {
     },
     "tecnologia_servico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.unique_combination_of_columns__tecnologia_servico": {
+        "dbt_utils__unique_combination_of_columns__tecnologia_servico": {
             "description": "Todos os registros são únicos"
+        },
+    },
+    "viagem_completa": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "accepted_values": {
+            "description": "Todos os valores da coluna `{column_name}` são aceitos"
+        },
+        "greater_than_zero": {
+            "description": "Todos os valores da coluna `{column_name}` maiores que zero"
+        },
+        "unique__id_viagem__viagem_completa": {"description": "Todos os registros são únicos"},
+        "dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa": {
+            "description": "Todos os registros de viagem não se sobrepõem"
         },
     },
     "viagem_planejada": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.accepted_range": {
+        "dbt_utils__accepted_range": {
             "description": "Todos os valores da coluna `{column_name}` maiores ou iguais a zero"
         },
         "accepted_values": {
             "description": "Todos os valores da coluna `{column_name}` são aceitos"
         },
-        "dbt_utils.unique_combination_of_columns__viagem_planejada": {
+        "dbt_utils__unique_combination_of_columns__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart": {
             "description": "Todas as datas possuem dados"
         },
-        "dbt_expectations.expect_table_aggregation_to_equal_other_table__viagem_planejada": {
+        "dbt_expectations__expect_table_aggregation_to_equal_other_table__viagem_planejada": {
             "description": "Todos os dados de `tipo_os` correspondem 1:1 entre as tabelas `subsidio_data_versao_efetiva` e `viagem_planejada`."
         },
         "test_tecnologia_servico_planejado__viagem_planejada": {
@@ -144,18 +157,31 @@ POST_TEST_V14_SELECT = (
 )
 
 POST_CHECKS_LIST = {
+    "sumario_servico_dia_tipo": {
+        "sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo": {
+            "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
+        },
+    },
+    "sumario_servico_dia_pagamento": {
+        "sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento": {
+            "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
+        },
+        "dbt_utils__expression_is_true__sumario_servico_dia_pagamento": {
+            "description": "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
+        },
+    },
     "sumario_faixa_servico_dia_pagamento": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.accepted_range__km_planejada_faixa__sumario_faixa_servico_dia_pagamento": {
+        "dbt_utils__accepted_range__km_planejada_faixa__sumario_faixa_servico_dia_pagamento": {
             "description": "Todos os valores da coluna `{column_name}` maiores que zero"
         },
-        "dbt_utils.accepted_range": {
+        "dbt_utils__accepted_range": {
             "description": "Todos os valores da coluna `{column_name}` maiores ou iguais a zero"
         },
-        "dbt_utils.unique_combination_of_columns__sumario_faixa_servico_dia_pagamento": {
+        "dbt_utils__unique_combination_of_columns__sumario_faixa_servico_dia_pagamento": {
             "description": "Todos os registros são únicos"
         },
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_faixa_servico_dia_pagamento": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__sumario_faixa_servico_dia_pagamento": {
             "description": "Todas as datas possuem dados"
         },
         "check_km_planejada__sumario_faixa_servico_dia_pagamento": {
@@ -164,25 +190,25 @@ POST_CHECKS_LIST = {
         "teto_pagamento_valor_subsidio_pago__sumario_faixa_servico_dia_pagamento": {
             "description": "Todos serviços abaixo do teto de pagamento de valor do subsídio"
         },
-        "dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_faixa_servico_dia_pagamento": {
+        "dbt_expectations__expect_table_aggregation_to_equal_other_table__sumario_faixa_servico_dia_pagamento": {
             "description": "Todos serviços com valores de penalidade aceitos"
         },
         "sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_faixa_servico_dia_pagamento": {
             "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
         },
-        "expression_is_true__sumario_faixa_servico_dia_pagamento": {
+        "dbt_utils__expression_is_true__sumario_faixa_servico_dia_pagamento": {
             "description": "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
         },
     },
     "viagens_remuneradas": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils.accepted_range": {
+        "dbt_utils__accepted_range": {
             "description": "Todos os valores da coluna `{column_name}` maiores ou iguais a zero"
         },
-        "dbt_utils.unique_combination_of_columns__viagens_remuneradas": {
+        "dbt_utils__unique_combination_of_columns__viagens_remuneradas": {
             "description": "Todas as viagens são únicas"
         },
-        "dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__viagens_remuneradas": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__viagens_remuneradas": {
             "description": "Todas as datas possuem dados"
         },
         "check_viagem_completa__viagens_remuneradas": {
@@ -199,7 +225,7 @@ POST_CHECKS_LIST = {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
     "viagem_classificada": {
-        "dbt_utils.unique_combination_of_columns__viagem_classificada": {
+        "dbt_utils__unique_combination_of_columns__viagem_classificada": {
             "description": "Todos os registros são únicos"
         },
         "test_check_tecnologia_minima__viagem_classificada": {
@@ -208,13 +234,13 @@ POST_CHECKS_LIST = {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
     "viagem_regularidade_temperatura": {
-        "dbt_utils.unique_combination_of_columns__viagem_regularidade_temperatura": {
+        "dbt_utils__unique_combination_of_columns__viagem_regularidade_temperatura": {
             "description": "Todos os registros são únicos"
         },
         "test_check_regularidade_temperatura__viagem_regularidade_temperatura": {
             "description": "Todos os registros têm o indicador de regularidade do ar-condicionado consistente com as regras da resolução vigente"
         },
-        "dbt_utils.relationships_where__id_viagem__viagem_regularidade_temperatura": {
+        "dbt_utils__relationships_where__id_viagem__viagem_regularidade_temperatura": {
             "description": "Todos os dados de `id_viagem` correspondem 1:1 entre as tabelas `viagem_classificada` e `viagem_regularidade_temperatura`."
         },
         "test_consistencia_indicadores_temperatura__viagem_regularidade_temperatura": {

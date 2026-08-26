@@ -16,7 +16,27 @@ with
             distancia_total_planejada as km_planejada
         from {{ ref("viagem_planejada") }}
         -- from `rj-smtr.projeto_subsidio_sppo.viagem_planejada`
-        where {{ incremental_filter }} and distancia_total_planejada > 0
+        where
+            {{ incremental_filter }}
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            and distancia_total_planejada > 0
+
+        union all
+
+        select distinct
+            data,
+            tipo_dia,
+            consorcio,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            quilometragem as km_planejada,
+        from {{ ref("servico_planejado_faixa_horaria") }}
+        where
+            {{ incremental_filter }}
+            and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            and quilometragem > 0
     ),
     -- 2. Viagens realizadas
     viagem as (

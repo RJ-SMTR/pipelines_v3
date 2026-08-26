@@ -3,7 +3,7 @@
 with
     registros as (
         select id_veiculo, servico, data, posicao_veiculo_geo, datetime_gps
-        from {{ ref("aux_gps_filtrada") }}
+        from {{ ref("aux_gps_filtrada", v=1) }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'

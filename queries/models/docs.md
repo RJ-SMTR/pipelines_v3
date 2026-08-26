@@ -158,6 +158,10 @@ Velocidade instantânea do veículo, conforme informado pelo GPS (km/h)
 Velocidade média nos últimos 10 minutos de operação (km/h)
 {% enddocs %}
 
+{% docs velocidade_media_viagem %}
+Velocidade média da viagem (km/h)
+{% enddocs %}
+
 {% docs distancia_gps %}
 Distância da última posição do GPS em relação à posição atual (m)
 {% enddocs %}
@@ -222,8 +226,16 @@ Dados brutos capturados aninhados em formato JSON
 Tipo de transporte [Ônibus, Van, BRT]
 {% enddocs %}
 
+{% docs sistema %}
+Sistema de transporte [SPPO, BRT ou RIO]
+{% enddocs %}
+
 {% docs vista %}
 Itinerário do serviço [ex: Bananal ↔ Saens Peña]
+{% enddocs %}
+
+{% docs trajetos_alternativos %}
+Trajetos alternativos para a viagem
 {% enddocs %}
 
 {% docs viagens_planejadas %}
@@ -583,6 +595,10 @@ Identificador do consórcio na tabela cadastro.consorcios
 ID do registro [HASH SHA256]
 {% enddocs %}
 
+{% docs id_registro_gps %}
+Identificador único imutável do pacote de GPS
+{% enddocs %}
+
 {% docs indicador_autuacao_limpeza %}
 Indicador se o veículo foi autuado por infração relacionada à limpeza do veículo
 {% enddocs %}
@@ -695,8 +711,8 @@ Indica se o primeiro segmento da viagem é considerado e possui registros de GPS
 Indica se o último segmento da viagem é considerado e possui registros de GPS
 {% enddocs %}
 
-{% docs indicador_servico_divergente %}
-Indica se o serviço indicado nos dados de GPS estava diferente do serviço informado na viagem
+{% docs indicador_servico_convergente %}
+Indica se o serviço nos dados de GPS é convergente com o serviço informado na viagem
 {% enddocs %}
 
 {% docs taxa_conversao_real %}
@@ -955,6 +971,54 @@ Data e hora em que o GPS enviou os dados de localização
 Data e hora em que o servidor recebeu os dados de localização do GPS
 {% enddocs %}
 
+{% docs id_equipamento %}
+Número único do equipamento da concessionária
+{% enddocs %}
+
+{% docs sequencial_equipamento %}
+Número sequencial gerado pelo hardware
+{% enddocs %}
+
+{% docs direction_id %}
+Sentido da viagem conforme o GTFS
+{% enddocs %}
+
+{% docs qualidade_sinal %}
+Qualidade padronizada do sinal posicional
+{% enddocs %}
+
+{% docs fonte_posicao %}
+Fonte da coordenada [GNSS ou INERCIAL]
+{% enddocs %}
+
+{% docs fonte_velocidade %}
+Fonte da velocidade [TELEMETRIA ou AVL]
+{% enddocs %}
+
+{% docs fonte_gps %}
+Identificador do fornecedor de GPS
+{% enddocs %}
+
+{% docs altitude_gps %}
+Altitude em metros
+{% enddocs %}
+
+{% docs quantidade_satelites %}
+Quantidade de satélites usados no posicionamento
+{% enddocs %}
+
+{% docs hdop %}
+Diluição de precisão horizontal
+{% enddocs %}
+
+{% docs vdop %}
+Diluição de precisão vertical
+{% enddocs %}
+
+{% docs pdop %}
+Diluição de precisão da posição
+{% enddocs %}
+
 {% docs datetime_saida %}
 Datetime de saída do veículo na linha realocada
 {% enddocs %}
@@ -1020,11 +1084,19 @@ Data e hora do processamento da viagem
 {% enddocs %}
 
 {% docs indicador_prazo_envio %}
-Indica se a viagem foi enviada dentro do prazo de até 2 dias úteis após a data de partida
+Indica se a viagem foi enviada dentro do prazo de até 5 dias corridos após a data de partida
 {% enddocs %}
 
-{% docs indicador_viagem_sobreposta %}
-Indica se a viagem se sobrepõe a outra viagem do mesmo veículo
+{% docs indicador_viagem_nao_sobreposta %}
+Indica se a viagem não se sobrepõe a outra viagem do mesmo veículo
+{% enddocs %}
+
+{% docs indicador_shape_valido %}
+Indica se o shape_id existe no GTFS no feed vigente durante a data da viagem
+{% enddocs %}
+
+{% docs indicador_abaixo_velocidade_max %}
+Indica se a velocidade média da viagem está abaixo do limite máximo estabelecido
 {% enddocs %}
 
 {% docs id_transmissao_gps %}
@@ -1047,12 +1119,12 @@ Data do recebimento da transmissão do GPS
 Hora do recebimento da transmissão do GPS
 {% enddocs %}
 
-{% docs indicador_processamento_posterior_captura %}
-Indica se o datetime de processamento é posterior ao datetime de captura, caracterizando alteração retroativa indevida [Art. 8º, I]
+{% docs indicador_sem_alteracao_retroativa %}
+Indica se o datetime de processamento não é posterior ao datetime de captura
 {% enddocs %}
 
-{% docs indicador_processamento_anterior_chegada %}
-Indica se o datetime de processamento é anterior ao datetime de chegada, indicando processamento antes da conclusão da viagem [Art. 8º, II]
+{% docs indicador_processamento_apos_chegada %}
+Indica se o datetime de processamento é posterior ou igual à chegada considerada
 {% enddocs %}
 
 {% docs especie_veiculo %}
@@ -1903,4 +1975,48 @@ Identificador do último editor do registro na fonte
 
 {% docs ultima_atualizacao_fonte %}
 Data e hora da última atualização do registro na fonte
+{% enddocs %}
+
+{% docs id_ativacao_riorotativo %}
+Identificador único da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_inicio_periodo_ativacao_riorotativo %}
+Data e hora inicial da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_fim_periodo_ativacao_riorotativo %}
+Data e hora final da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs id_veiculo_riorotativo %}
+Identificador único do veículo no Rio Rotativo
+{% enddocs %}
+
+{% docs cpf_motorista_riorotativo %}
+CPF do motorista
+{% enddocs %}
+
+{% docs valor_pago_bruto_ativacao_riorotativo %}
+Valor bruto pago pela ativação (R$)
+{% enddocs %}
+
+{% docs valor_retido_jae_ativacao_riorotativo %}
+Valor da ativação retido pela Jaé (R$)
+{% enddocs %}
+
+{% docs valor_pago_liquido_ativacao_riorotativo %}
+Valor bruto subtraído pelo valor retido (R$)
+{% enddocs %}
+
+{% docs status_guardador %}
+Status do guardador de veículo
+{% enddocs %}
+
+{% docs cpf_guardador %}
+CPF do guardador de veículo
+{% enddocs %}
+
+{% docs datetime_inclusao_ordem_pagamento_riorotativo %}
+Datetime da geração da ordem de pagamento
 {% enddocs %}

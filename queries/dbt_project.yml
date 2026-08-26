@@ -135,6 +135,8 @@ vars:
   data_inclusao_autuacao_disciplinar: "2025-07-10"
   data_processamento_veiculo_licenciamento_dia:
     ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
+  # Idade máxima padrão das partições reprocessadas na validação de viagens
+  viagem_validacao_max_age_days: 5
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
@@ -187,6 +189,10 @@ vars:
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
   # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
+  # Início da vigência do prazo de envio de até 5 dias corridos
+  DATA_SUBSIDIO_V26_INICIO: "2026-08-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
@@ -311,6 +317,9 @@ vars:
   data_final_veiculo_arquitetura_1: "2025-03-31"
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
+
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
 
@@ -566,6 +575,12 @@ models:
       staging:
         +materialized: view
         +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
@@ -633,47 +648,9 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
-seeds:
-  rj_smtr:
-    sistema_referencia_servico:
-      +schema: sistemario
-      +column_types:
-        servico: string
-        data_inicio: string
-        data_fim: string
-        extensao_ida_km: float64
-        extensao_volta_km: float64
-        tempo_ciclo_min: float64
-        frota_hp: int64
-        frota_noturna: int64
-        intervalo_hp_min: float64
-        frequencia_hp: float64
-        viagens_ida_dia: int64
-        viagens_volta_dia: int64
-        viagens_mes: int64
-        producao_km_mes: float64
-    sistema_referencia_lote:
-      +schema: sistemario
-      +column_types:
-        data_inicio: string
-        data_fim: string
-        frota_operante_hp: float64
-        frota_determinada: float64
-        viagens_dia_util: float64
-        km_comercial_dia_util: float64
-        qr_mensal: float64
-    sistema_referencia_lote_tecnologia:
-      +schema: sistemario
-      +column_types:
-        data_inicio: string
-        data_fim: string
-        frota_operante_hp: float64
-        frota_determinada: float64
-        viagens_dia_util: float64
-        km_comercial_dia_util: float64
-        pmd_comercial_dia_util: float64
-        pmm_comercial: float64
-
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

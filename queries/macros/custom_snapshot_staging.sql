@@ -9,7 +9,7 @@
     {% set use_partition_filter = partition_by is not none and has_ref and config.get("use_partition_filter", true) %}
     {% if use_partition_filter %}
         {% set source_relation = ref(model.refs[0].name) %}
-        {% set partition_filter = get_modified_partitions_filter(source_relation, partition_column=partition_by.field) %}
+        {% set partition_filter = get_modified_partitions_snapshot(source_relation, partition_column=partition_by.field) %}
     {% endif %}
     with snapshot_query as (
 

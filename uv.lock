@@ -18,11 +18,13 @@ members = [
     "capture-jae-auxiliar",
     "capture-jae-backup-billingpay",
     "capture-jae-estacionamento-veiculo",
+    "capture-jae-fiscalizacao-veiculo",
     "capture-jae-gps-validador",
     "capture-jae-integracao",
     "capture-jae-lancamento",
     "capture-jae-movimento-estacionamento-veiculo",
     "capture-jae-ordem-pagamento",
+    "capture-jae-riorotativo-auxiliar",
     "capture-jae-transacao",
     "capture-jae-transacao-erro",
     "capture-jae-transacao-ordem",
@@ -97,6 +99,7 @@ members = [
     "treatment-transito-autuacao",
     "treatment-validacao-dados-jae",
     "treatment-veiculo-dia",
+    "treatment-viagem-inferida",
     "treatment-viagem-informada",
     "treatment-viagem-validacao",
 ]
@@ -421,6 +424,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_estacionamento_veiculo" }
 
 [[package]]
+name = "capture-jae-fiscalizacao-veiculo"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_fiscalizacao_veiculo" }
+
+[[package]]
 name = "capture-jae-gps-validador"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_gps_validador" }
@@ -444,6 +452,11 @@ source = { virtual = "pipelines/capture__jae_movimento_estacionamento_veiculo" }
 name = "capture-jae-ordem-pagamento"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_ordem_pagamento" }
+
+[[package]]
+name = "capture-jae-riorotativo-auxiliar"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_riorotativo_auxiliar" }
 
 [[package]]
 name = "capture-jae-transacao"
@@ -3394,6 +3407,11 @@ source = { virtual = "pipelines/treatment__validacao_dados_jae" }
 name = "treatment-veiculo-dia"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__veiculo_dia" }
+
+[[package]]
+name = "treatment-viagem-inferida"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__viagem_inferida" }
 
 [[package]]
 name = "treatment-viagem-informada"

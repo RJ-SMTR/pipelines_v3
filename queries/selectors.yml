@@ -96,6 +96,29 @@ selectors:
         - method: fqn
           value: planejamento
 
+  - name: viagem_inferida
+    description: Materialização e validação das viagens inferidas para monitoramento
+    definition:
+      union:
+        - method: fqn
+          value: viagem_inferida
+          parents: true
+        - method: fqn
+          value: registros_status_viagem_inferida
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        - method: fqn
+          value: view_viagem_monitoramento
+        - exclude:
+            - method: fqn
+              value: gtfs
+            - method: fqn
+              value: planejamento
+
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
     definition:
@@ -110,6 +133,8 @@ selectors:
           value: viagem_valida
         - method: fqn
           value: dicionario_monitoramento
+        - method: fqn
+          value: view_viagem_onibus_datario
 
   - name: planejamento_diario
     description: Materialização das tabelas de planejamento que devem rodar diariamente
@@ -427,28 +452,39 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps.v1
         - method: fqn
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
         - method: fqn
-          value: aux_gps_filtrada
+          value: aux_gps_filtrada.v1
         - method: fqn
-          value: gps
+          value: gps.v1
 
   - name: gps_15_minutos
     description: Materialização das tabelas de gps 15 minutos
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps.v1
         - method: fqn
           value: staging_realocacao
         - method: fqn
           value: staging_garagens
         - method: fqn
           value: gps_15_minutos
+
+  - name: gps_v2
+    description: Materialização das tabelas de GPS v2
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps.v2
+        - method: fqn
+          value: aux_gps_filtrada.v2
+        - method: fqn
+          value: gps.v2
 
   - name: snapshot_viagem
     definition:
@@ -647,9 +683,9 @@ selectors:
       method: fqn
       value: aux_operadora_cnpj
 
-  - name: riorotativo_diario
+  - name: riorotativo_auxiliar
     description: >
-      Materialização do Rio Rotativo: stagings, modelos de estado atual
+      Materialização dos dados auxiliares Rio Rotativo: stagings, modelos de estado atual
       (última captura da janela date_range_start/end), históricos diários
       e o histórico de vigência das entidades credenciadoras
       (razão social/nome fantasia a partir de pessoa_juridica).
@@ -658,10 +694,43 @@ selectors:
       backfills executam apenas stagings e históricos, sem regredir o
       estado atual.
     definition:
-      method: path
-      value: models/riorotativo
+      union:
+        - method: fqn
+          value: staging_agente_verificacao_riorotativo
+        - method: fqn
+          value: staging_area_estacionamento_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_riorotativo
+        - method: fqn
+          value: staging_lista_bloqueio_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_excecao_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo
+        - method: fqn
+          value: area_estacionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo_historico
+        - method: fqn
+          value: entidade_credenciadora_riorotativo_historico
+        - method: fqn
+          value: guardador_veiculo_riorotativo
+        - method: fqn
+          value: guardador_veiculo_riorotativo_historico
+        - method: fqn
+          value: perfil_funcionamento_riorotativo
+        - method: fqn
+          value: perfil_funcionamento_riorotativo_historico
+        - method: fqn
+          value: staging_veiculo_cliente_riorotativo
+        - method: fqn
+          value: staging_veiculo_riorotativo
+        - method: fqn
+          value: veiculo_riorotativo
 
-  - name: snapshot_riorotativo
+  - name: snapshot_riorotativo_auxiliar
     description: >
       Snapshots das tabelas área de estacionamento e
       perfil de funcionamento do Rio Rotativo Digital.
@@ -711,3 +780,43 @@ selectors:
         #   value: remuneracao_quinzena_lote
         # - method: fqn
         #   value: remuneracao_veiculo_quinzena
+
+  - name: riorotativo_operacao
+    description: Materialização de tabelas da operação do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: staging_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: staging_movimento_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: aux_ativacao_particao_captura_riorotativo
+        - method: fqn
+          value: ativacao_riorotativo
+        - method: fqn
+          value: staging_fiscalizacao_veiculo_riorotativo
+        - method: fqn
+          value: aux_verificacao_particao_captura_riorotativo
+        - method: fqn
+          value: verificacao_guardador_veiculo_riorotativo
+
+  - name: riorotativo_ordem_pagamento
+    description: Materialização de tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: ordem_pagamento_guardador_veiculo_dia_riorotativo
+        - method: fqn
+          value: ordem_pagamento_entidade_dia_riorotativo
+        - method: fqn
+          value: view_ordem_pagamento_riorotativo
+
+  - name: snapshot_riorotativo_ordem_pagamento
+    description: Snapshots das tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_ordem_pagamento_entidade_dia
+        - method: fqn
+          value: snapshot_ordem_pagamento_guardador_veiculo_dia
+

@@ -180,17 +180,14 @@ with
         {% endif %}
     ),
     deduplicado as (
-        select * except (rn, priority)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by id_viagem order by datetime_captura desc, priority
-                    ) as rn
-                from complete_partitions
+        select * except (priority)
+        from complete_partitions
+        qualify
+            row_number() over (
+                partition by id_viagem
+                order by datetime_captura desc, datetime_processamento desc, priority
             )
-        where rn = 1
+            = 1
     ),
     calendario as (
         select *
@@ -217,10 +214,10 @@ with
             case
                 when v.fonte_gps = 'brt'
                 then 'BRT'
-                when r.route_type = '200'
-                then 'Ônibus Executivo'
-                when r.route_type = '700'
-                then 'Ônibus SPPO'
+                when
+                    r.agency_id in ("22005", "22002", "22004", "22003")
+                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
+                then 'Ônibus'
             end as modo,
             if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
             if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,

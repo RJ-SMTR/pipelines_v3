@@ -1,5 +1,37 @@
 # Changelog - planejamento
 
+## [1.8.6] - 2026-08-17
+
+### Adicionado
+
+- Adiciona testes `dbt_expectations.expect_table_aggregation_to_equal_other_table` para os trajetos alternativos em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona o teste `planejamento_gtfs_freshness` para validar que feeds GTFS com `feed_update_datetime` na janela foram materializados em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` com o `feed_start_date` esperado e partição gravada após a atualização do feed (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona o teste `test_consistencia_servico_planejado_faixa_horaria` para comparar os totais de partidas e quilometragem dos serviços planejados com a Ordem de Serviço. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
+### Alterado
+
+- Adiciona as colunas `consorcio`, `sistema` e `vista` aos modelos `viagem_planejada_planejamento`, `viagem_planejada_planejamento_dia` e `servico_planejado_faixa_horaria`, inclui `vista` nos trajetos alternativos e remove os campos redundantes `evento` e `indicador_trajeto_alternativo` das estruturas de trajetos regulares (https://github.com/RJ-SMTR/pipelines_v3/pull/519)
+
+## [1.8.5] - 2026-08-14
+
+### Corrigido
+
+- Ajusta os modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` para processar somente o feed atual e manter partidas com horários iguais ou superiores a 24:00:00 associadas ao mesmo dia operacional, normalizando `horario_partida` com módulo 24 (https://github.com/RJ-SMTR/pipelines_v3/pull/516)
+
+## [1.8.4] - 2026-07-31
+
+### Corrigido
+
+- Corrigido o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para tratar corretamente os sentidos circulares, considerando-os como sentido de ida (I) ao invés de circular (C) (https://github.com/RJ-SMTR/pipelines_v3/pull/468)
+
+## [1.8.3] - 2026-07-30
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido` no modelo `ordem_servico_trajeto_alternativo_sentido` (planejamento) e registra `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido` para validar que todo `(servico, evento)` da OS existe em `trips_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para validar que a quantidade distinta de `evento` por `(servico, sentido)` em `ordem_servico_trajeto_alternativo_sentido` é igual à quantidade distinta de eventos extraídos de `vista` em `ordem_servico_trips_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.8.2] - 2026-07-09
 
 ### Alterado

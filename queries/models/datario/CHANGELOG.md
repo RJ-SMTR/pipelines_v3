@@ -1,5 +1,11 @@
 # Changelog - datario
 
+## [1.0.4] - 2026-07-27
+
+### Alterado
+
+- Renomeia `viagem_onibus_datario` para `view_viagem_onibus_datario` e passa a consolidar `viagem_completa` e `viagem_valida` sem alterar o contrato publicado em `viagem_onibus` (https://github.com/RJ-SMTR/pipelines_v3/pull/438).
+
 ## [1.0.3] - 2026-05-06
 
 ### Alterado

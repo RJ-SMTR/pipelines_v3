@@ -1,5 +1,23 @@
 # Changelog - gtfs
 
+## [1.4.3] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `unique` em `feed_info_gtfs.feed_start_date`. (https://github.com/RJ-SMTR/pipelines_v3/pull/569)
+
+## [1.4.2] - 2026-07-31
+
+### Corrigido
+
+- Corrigida a lógica do modelo `ordem_servico_trajeto_alternativo_sentido_atualizado_aux_gtfs_v3` para tratar corretamente os sentidos circulares (https://github.com/RJ-SMTR/pipelines_v3/pull/468)
+
+## [1.4.1] - 2026-07-30
+
+### Adicionado
+
+- Remove o teste de agregação de trajeto alternativo de `trips_gtfs` (substituído por `dbt_utils.relationships_where` em `ordem_servico_trajeto_alternativo_sentido`) (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
 ## [1.4.0] - 2026-07-13
 
 ### Corrigido

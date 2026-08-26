@@ -21,10 +21,48 @@
     }}
 {% endif %}
 
+{% set viagem_informada = ref("viagem_informada_monitoramento") %}
+{% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        viagem_informada,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+    {% set context_partitions = get_modified_partitions_filter(
+        viagem_informada,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between
-        date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
-        and date('{{ var("date_range_end") }}')
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        {% if context_partitions | length > 0 %}
+            data in ({{ context_partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
+        {% endif %}
+    {% else %}
+        data between date_sub(
+            date('{{ var("date_range_start") }}'), interval 1 day
+        ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
+    {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+{% endset %}
+
+{% set output_filter %}
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        {% if modified_partitions | length > 0 %}
+            data in ({{ modified_partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
+        {% endif %}
+    {% else %}
+        data between date('{{ var("date_range_start") }}') and date(
+            '{{ var("date_range_end") }}'
+        )
+    {% endif %}
+    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
 {% set calendario = ref("calendario") %}
@@ -64,7 +102,7 @@ with
             any_value(sentido) as sentido,
             countif(id_segmento is not null) as quantidade_segmentos_considerados,
             countif(quantidade_gps > 0) as quantidade_segmentos_validos,
-            round(
+            ceil(
                 countif(id_segmento is not null)
                 * safe_cast((1 - {{ var("parametro_validacao") }}) as numeric)
             ) as quantidade_segmentos_tolerados,
@@ -74,11 +112,12 @@ with
             logical_or(
                 indicador_ultimo_segmento_valido
             ) as indicador_ultimo_segmento_valido,
-            max(indicador_servico_divergente) as indicador_servico_divergente,
-            max(id_segmento is null) as indicador_shape_invalido,
+            logical_and(
+                ifnull(indicador_servico_convergente, true)
+            ) as indicador_servico_convergente,
+            logical_and(id_segmento is not null) as indicador_shape_valido,
             any_value(service_ids) as service_ids,
             any_value(tipo_dia) as tipo_dia,
-            any_value(feed_version) as feed_version,
             any_value(feed_start_date) as feed_start_date,
             any_value(datetime_processamento) as datetime_processamento,
             any_value(datetime_captura_viagem) as datetime_captura_viagem
@@ -95,7 +134,8 @@ with
         group by data, id_viagem
     ),
     /*
-    Calcula o índice de validação, quantidade mínima de segmentos necessários e indicador de campos obrigatórios por viagem
+    Calcula o índice de validação, segmentos necessários, campos obrigatórios e
+    indicadores de processamento/prazo
     */
     indice as (
         select
@@ -127,8 +167,8 @@ with
             ) as indice_validacao,
             indicador_primeiro_segmento_valido,
             indicador_ultimo_segmento_valido,
-            indicador_servico_divergente,
-            indicador_shape_invalido,
+            indicador_servico_convergente,
+            indicador_shape_valido,
             (
                 id_viagem is not null
                 and datetime_partida_considerada is not null
@@ -139,9 +179,22 @@ with
             ) as indicador_campos_obrigatorios,
             datetime_chegada_considerada
             > datetime_partida_considerada as indicador_chegada_posterior_partida,
+            ifnull(
+                datetime_processamento <= datetime_captura_viagem, true
+            ) as indicador_sem_alteracao_retroativa,
+            ifnull(
+                datetime_processamento >= datetime_chegada_considerada, true
+            ) as indicador_processamento_apos_chegada,
+            ifnull(
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
+                or (
+                    datetime_processamento is not null
+                    and date(datetime_processamento) <= date_add(data, interval 5 day)
+                ),
+                false
+            ) as indicador_prazo_envio,
             service_ids,
             tipo_dia,
-            feed_version,
             feed_start_date,
             datetime_processamento,
             datetime_captura_viagem
@@ -154,20 +207,16 @@ with
         select * from indice where indicador_campos_obrigatorios
     ),
     /*
-    Agregação dos service_ids por feed_start_date, feed_version e route_id
+    Agregação dos service_ids por feed_start_date e route_id
     */
     trips as (
-        select distinct
-            feed_start_date,
-            feed_version,
-            route_id,
-            array_agg(service_id) as service_ids,
+        select distinct feed_start_date, route_id, array_agg(service_id) as service_ids,
         from {{ ref("trips_gtfs") }}
         {# from `rj-smtr.gtfs.trips` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
             where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         {% endif %}
-        group by 1, 2, 3
+        group by 1, 2
     ),
     /*
     Verifica se o serviço da viagem está planejado no GTFS
@@ -182,7 +231,7 @@ with
             )
             > 0 as indicador_servico_planejado_gtfs
         from viagens_campos_obrigatorios v
-        left join trips t using (feed_start_date, feed_version, route_id)
+        left join trips t using (feed_start_date, route_id)
     ),
     /*
     Quilometragem planejada por serviço, faixa horária e sentido
@@ -192,12 +241,14 @@ with
             data,
             servico,
             consorcio,
+            sistema,
             sentido,
             extensao,
             quilometragem,
             faixa_horaria_inicio,
             faixa_horaria_fim,
-            trip_info
+            trip_info,
+            trajetos_alternativos
         from {{ ref("servico_planejado_faixa_horaria") }}
         {# from `rj-smtr`.`planejamento`.`servico_planejado_faixa_horaria` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
@@ -205,22 +256,41 @@ with
         {% endif %}
     ),
     /*
-    Desaninhamento da informação do shape_id e indicador_trajeto_alternativo do array trip_info
+    Desaninhamento do shape_id dos arrays trip_info (trajeto principal) e
+    trajetos_alternativos, com classificação do tipo de trajeto
     */
     servico_planejado_unnested as (
         select distinct
             sp.data,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
             sp.sentido,
             sp.extensao,
             sp.quilometragem,
             sp.faixa_horaria_inicio,
             sp.faixa_horaria_fim,
             trip.shape_id,
-            trip.indicador_trajeto_alternativo
+            false as indicador_trajeto_alternativo
         from servico_planejado sp, unnest(sp.trip_info) as trip
         where trip.shape_id is not null
+
+        union all
+
+        select distinct
+            sp.data,
+            sp.servico,
+            sp.consorcio,
+            sp.sistema,
+            sp.sentido,
+            alt.extensao,
+            sp.quilometragem,
+            sp.faixa_horaria_inicio,
+            sp.faixa_horaria_fim,
+            alt.shape_id,
+            true as indicador_trajeto_alternativo
+        from servico_planejado sp, unnest(sp.trajetos_alternativos) as alt
+        where alt.shape_id is not null
     ),
     /*
     Verifica se o serviço está planejado na OS e calcula a velocidade média da viagem
@@ -229,6 +299,7 @@ with
         select
             spg.*,
             spu.consorcio,
+            spu.sistema,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
@@ -239,7 +310,7 @@ with
                 then true
                 when
                     (spu.quilometragem is not null and spu.quilometragem <= 0)
-                    or (spu.quilometragem is null and spg.modo = "Ônibus SPPO")
+                    or (spu.quilometragem is null and spg.modo = "Ônibus")
                 then false
             end as indicador_servico_planejado_os
         from servicos_planejados_gtfs spg
@@ -252,18 +323,18 @@ with
             between spu.faixa_horaria_inicio and spu.faixa_horaria_fim
     ),
     /*
-    Verifica se a velocidade média da viagem está acima do limite máximo permitido
+    Verifica se a velocidade média da viagem está abaixo do limite máximo permitido
     */
     viagens_velocidade_media as (
         select
             *,
             velocidade_media
-            >= {{ var("conformidade_velocidade_min") }}
-            as indicador_acima_velocidade_max
+            < {{ var("conformidade_velocidade_min") }}
+            as indicador_abaixo_velocidade_max
         from servicos_planejados_os
     ),
     /*
-    Verifica se a viagem está sobreposta a outra viagem do mesmo veículo
+    Verifica se a viagem não está sobreposta a outra viagem elegível do mesmo veículo
     */
     viagens_sobrepostas as (
         select
@@ -272,33 +343,41 @@ with
             v1.id_veiculo,
             v2.id_viagem as id_viagem_sobreposta,
             v2.datetime_captura_viagem as datetime_captura_viagem_sobreposta,
-            case
-                when v2.id_viagem is not null
-                then
-                    case
-                        when v1.datetime_captura_viagem = v2.datetime_captura_viagem
-                        then true
-                        when v1.datetime_captura_viagem < v2.datetime_captura_viagem
-                        then true
-                        else false
-                    end
-                else false
-            end as indicador_viagem_sobreposta
+            v2.id_viagem is null as indicador_viagem_nao_sobreposta
         from viagens_velocidade_media v1
         left join
             viagens_velocidade_media v2
-            on (
-                v1.data between date_sub(v2.data, interval 1 day) and date_add(
-                    v2.data, interval 1 day
-                )
+            on v1.data between date_sub(v2.data, interval 1 day) and date_add(
+                v2.data, interval 1 day
             )
             and v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
-            /* tolerância inicial de 5 min: só conta sobreposição maior que 5 minutos */
-            and v1.datetime_partida_considerada
-            < datetime_sub(v2.datetime_chegada_considerada, interval 5 minute)
-            and v1.datetime_chegada_considerada
-            > datetime_add(v2.datetime_partida_considerada, interval 5 minute)
+            and v1.indicador_sem_alteracao_retroativa
+            and v1.indicador_processamento_apos_chegada
+            and v2.indicador_sem_alteracao_retroativa
+            and v2.indicador_processamento_apos_chegada
+            -- fmt: off
+            {% if var("tipo_materializacao") != "monitoramento" %}
+                and v1.indicador_prazo_envio
+                and v2.indicador_prazo_envio
+            {% endif %}
+            -- fmt: on
+            and datetime_diff(
+                least(v1.datetime_chegada_considerada, v2.datetime_chegada_considerada),
+                greatest(
+                    v1.datetime_partida_considerada, v2.datetime_partida_considerada
+                ),
+                second
+            )
+            > 300
+            and (
+                v2.datetime_captura_viagem > v1.datetime_captura_viagem
+                or (
+                    v2.datetime_captura_viagem = v1.datetime_captura_viagem
+                    and v2.datetime_partida_considerada
+                    < v1.datetime_partida_considerada
+                )
+            )
         qualify
             row_number() over (
                 partition by v1.id_viagem
@@ -306,30 +385,6 @@ with
                     v2.datetime_captura_viagem desc, v2.datetime_partida_considerada
             )
             = 1
-    ),
-    /*
-    Indicadores de processamento e prazo de envio da viagem informada
-    */
-    viagem_informada_indicadores as (
-        select
-            id_viagem,
-            ifnull(
-                datetime_processamento > datetime_captura_viagem, false
-            ) as indicador_processamento_posterior_captura,
-            ifnull(
-                datetime_processamento < datetime_chegada_considerada, false
-            ) as indicador_processamento_anterior_chegada,
-            ifnull(
-                datetime_processamento is not null
-                and (
-                    select countif(tipo_dia = 'Dia Útil')
-                    from {{ calendario }}
-                    where data > v.data and data <= date(v.datetime_processamento)
-                )
-                <= 2,
-                false
-            ) as indicador_prazo_envio
-        from viagens_velocidade_media v
     ),
     /*
     Agregação dos indicadores de validação da viagem
@@ -346,6 +401,7 @@ with
             vm.datetime_partida_considerada,
             vm.datetime_chegada_considerada,
             vm.modo,
+            vm.sistema,
             vm.id_veiculo,
             vm.trip_id,
             vm.route_id,
@@ -359,7 +415,7 @@ with
             vm.quantidade_segmentos_validos,
             vm.quantidade_segmentos_necessarios,
             vm.indice_validacao,
-            vs.indicador_viagem_sobreposta,
+            vs.indicador_viagem_nao_sobreposta,
             -- fmt: off
             vm.quantidade_segmentos_validos >= vm.quantidade_segmentos_necessarios as indicador_trajeto_valido,
             -- fmt: on
@@ -367,40 +423,39 @@ with
             vm.indicador_servico_planejado_os,
             vm.indicador_primeiro_segmento_valido,
             vm.indicador_ultimo_segmento_valido,
-            vm.indicador_servico_divergente,
-            vm.indicador_shape_invalido,
+            vm.indicador_servico_convergente,
+            vm.indicador_shape_valido,
             vm.indicador_campos_obrigatorios,
             vm.indicador_chegada_posterior_partida,
             vm.indicador_trajeto_alternativo,
-            vm.indicador_acima_velocidade_max,
-            vi.indicador_processamento_posterior_captura,
-            vi.indicador_processamento_anterior_chegada,
-            vi.indicador_prazo_envio,
+            vm.indicador_abaixo_velocidade_max,
+            vm.indicador_sem_alteracao_retroativa,
+            vm.indicador_processamento_apos_chegada,
+            vm.indicador_prazo_envio,
             (
                 vm.indicador_campos_obrigatorios
                 and vm.indicador_chegada_posterior_partida
-                and not vm.indicador_shape_invalido
+                and vm.indicador_shape_valido
                 -- fmt: off
                 and vm.quantidade_segmentos_validos >= vm.quantidade_segmentos_necessarios
-                -- fmt: on
                 and vm.indicador_servico_planejado_gtfs
                 {% if var("tipo_materializacao") != "monitoramento" %}
-                    and not vs.indicador_viagem_sobreposta
+                    and vs.indicador_viagem_nao_sobreposta
+                    and vm.indicador_prazo_envio
                 {% endif %}
-                and not vm.indicador_acima_velocidade_max
-                and ifnull(vm.indicador_primeiro_segmento_valido, false)
-                and ifnull(vm.indicador_ultimo_segmento_valido, false)
+                -- fmt: on
+                and ifnull(vm.indicador_abaixo_velocidade_max, false)
+                and vm.indicador_primeiro_segmento_valido
+                and vm.indicador_ultimo_segmento_valido
                 and ifnull(vm.indicador_servico_planejado_os, true)
-                and not vi.indicador_processamento_posterior_captura
-                and not vi.indicador_processamento_anterior_chegada
-                and vi.indicador_prazo_envio
+                and vm.indicador_servico_convergente
+                and vm.indicador_sem_alteracao_retroativa
+                and vm.indicador_processamento_apos_chegada
             ) as indicador_viagem_valida,
             vm.tipo_dia,
-            vm.feed_version,
             vm.feed_start_date
         from viagens_velocidade_media vm
         left join viagens_sobrepostas vs using (id_viagem)
-        left join viagem_informada_indicadores vi using (id_viagem)
     ),
     -- fmt: off
     /*
@@ -473,37 +528,37 @@ select
     datetime_partida_considerada,
     datetime_chegada_considerada,
     modo,
-    id_veiculo,
-    trip_id,
-    route_id,
-    shape_id,
-    servico,
     consorcio,
+    sistema,
+    tipo_dia,
+    servico,
+    route_id,
+    trip_id,
+    shape_id,
     sentido,
+    id_veiculo,
     distancia_planejada,
     velocidade_media,
     quantidade_segmentos_considerados,
     quantidade_segmentos_validos,
     quantidade_segmentos_necessarios,
     indice_validacao,
-    indicador_viagem_sobreposta,
+    indicador_viagem_nao_sobreposta,
     indicador_trajeto_valido,
     indicador_servico_planejado_gtfs,
     indicador_servico_planejado_os,
     indicador_primeiro_segmento_valido,
     indicador_ultimo_segmento_valido,
-    indicador_servico_divergente,
-    indicador_shape_invalido,
+    indicador_servico_convergente,
+    indicador_shape_valido,
     indicador_campos_obrigatorios,
     indicador_chegada_posterior_partida,
     indicador_trajeto_alternativo,
-    indicador_acima_velocidade_max,
-    indicador_processamento_posterior_captura,
-    indicador_processamento_anterior_chegada,
+    indicador_abaixo_velocidade_max,
+    indicador_sem_alteracao_retroativa,
+    indicador_processamento_apos_chegada,
     indicador_prazo_envio,
     indicador_viagem_valida,
-    tipo_dia,
-    feed_version,
     feed_start_date,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     "{{ var('version') }}" as versao,
@@ -511,7 +566,4 @@ select
 {% if var("tipo_materializacao") == "monitoramento" %} from filtro_chegada
 {% else %} from viagem_completa
 {% endif %}
-where
-    data between date('{{ var("date_range_start") }}') and date(
-        '{{ var("date_range_end") }}'
-    )
+where {{ output_filter }}

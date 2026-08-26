@@ -45,7 +45,7 @@ from pipelines.common.utils.prefect import flow, rename_flow_run
 from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
 
-@flow(log_prints=True, flow_run_name=rename_flow_run)
+@flow(log_prints=True, flow_run_name=rename_flow_run, timeout_seconds=7200)
 async def capture__gtfs(  # noqa: PLR0913, PLR0915
     env: Optional[str] = None,
     upload_from_gcs: bool = False,
@@ -179,10 +179,7 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
         dbt_test = DBTTest(
-            test_select=(
-                f"{constants.GTFS_MATERIALIZACAO_DATASET_ID} "
-                f"{constants.PLANEJAMENTO_MATERIALIZACAO_DATASET_ID}"
-            ),
+            test_select=constants.GTFS_DBT_TEST_SELECT,
             exclude=constants.GTFS_DBT_TEST_EXCLUDE,
             test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
         )
