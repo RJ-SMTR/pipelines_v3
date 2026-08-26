@@ -22,6 +22,9 @@
         where {{ incremental_filter }}
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% if gtfs_feeds | length == 0 %}
+        {% set gtfs_feeds = ["'2000-01-01'"] %}
+    {% endif %}
 {% endif %}
 
 with
