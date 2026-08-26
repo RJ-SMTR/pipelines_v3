@@ -105,6 +105,11 @@ GTFS_DATA_CHECKS_LIST = {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
         },
     },
+    "feed_info_gtfs": {
+        "unique__feed_start_date__feed_info_gtfs": {
+            "description": "Todos os registros de 'feed_start_date' são únicos."
+        },
+    },
     "viagem_planejada_planejamento": {
         "dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento": {
             "description": "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
