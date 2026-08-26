@@ -2,7 +2,7 @@
 
 {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
     {% set interval_minutes = 120 %}
-{% elif var("tipo_materializacao") == "treatment--subsidio-sppo-apuracao" %}
+{% elif var("flow_name") == "treatment--subsidio-sppo-apuracao" %}
     {% set interval_minutes = 30 %}
 {% endif %}
 
