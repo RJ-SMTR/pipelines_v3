@@ -1,5 +1,11 @@
 # Changelog - gtfs
 
+## [1.4.3] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `unique` em `feed_info_gtfs.feed_start_date`. (https://github.com/RJ-SMTR/pipelines_v3/pull/569)
+
 ## [1.4.2] - 2026-07-31
 
 ### Corrigido

@@ -1,5 +1,11 @@
 # Changelog - capture__gtfs
 
+## [1.3.1] - 2026-08-26
+
+### Adicionado
+
+- Adiciona ao pós-teste do GTFS o teste `unique__feed_start_date__feed_info_gtfs`.(https://github.com/RJ-SMTR/pipelines_v3/pull/569)
+
 ## [1.3.0] - 2026-08-17
 
 ### Adicionado
