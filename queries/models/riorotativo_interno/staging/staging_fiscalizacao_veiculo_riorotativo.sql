@@ -39,8 +39,7 @@ select
             safe_cast(json_value(content, '$.data_fiscalizacao') as string)
         ),
         "America/Sao_Paulo"
-    )
-    + interval 3 hour as data_fiscalizacao,
+    ) as data_fiscalizacao,
     datetime(
         safe_cast(json_value(content, '$.data_analise') as timestamp),
         "America/Sao_Paulo"
