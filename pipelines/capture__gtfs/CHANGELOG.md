@@ -1,5 +1,11 @@
 # Changelog - capture__gtfs
 
+## [1.3.1] - 2026-08-26
+
+### Adicionado
+
+- Adiciona ao pós-teste do GTFS o teste `dbt_utils__unique_combination_of_columns__ordem_servico_faixa_horaria_sentido`. (https://github.com/RJ-SMTR/pipelines_v3/pull/574)
+
 ## [1.3.0] - 2026-08-17
 
 ### Adicionado
