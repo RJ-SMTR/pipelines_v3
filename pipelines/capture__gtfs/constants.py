@@ -100,6 +100,11 @@ GTFS_DATA_CHECKS_LIST = {
             "description": "Todos os dados de 'feed_start_date', 'tipo_os', 'tipo_dia', 'servico' e 'faixa_horaria_inicio' correspondem 1:1 entre as tabelas 'ordem_servico_faixa_horaria' e 'ordem_servico_trips_shapes_gtfs'."
         },
     },
+    "ordem_servico_faixa_horaria_sentido": {
+        "dbt_utils__unique_combination_of_columns__ordem_servico_faixa_horaria_sentido": {
+            "description": "Todos os dados de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'sentido' e 'faixa_horaria_inicio' são únicos."
+        },
+    },
     "trips_gtfs": {
         "test_shape_id_gtfs__trips_gtfs": {
             "description": "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
