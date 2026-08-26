@@ -29,6 +29,9 @@ VEICULO_DIA_CHECKS_LIST = {
         "test_check_veiculo_lacre__veiculo_dia": {
             "description": "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e veiculo_fiscalizacao_lacre"
         },
+        "dbt_utils__not_constant__status__veiculo_dia": {
+            "description": "Nenhum dia possui o mesmo status para todos os veículos"
+        },
     }
 }
 

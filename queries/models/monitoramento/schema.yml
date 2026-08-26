@@ -997,6 +997,11 @@ models:
         tests:
           - not_null:
               name: not_null__status__veiculo_dia
+          - dbt_utils.not_constant:
+              name: dbt_utils__not_constant__status__veiculo_dia
+              arguments:
+                group_by_columns:
+                  - data
         data_type: string
       - name: indicadores
         description: "{{ doc('indicadores_veiculo') }}"

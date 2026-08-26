@@ -36,7 +36,8 @@ RUN UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
     && UV_CACHE_DIR=/tmp/openmetadata-uv-cache uv --no-config pip install --no-cache \
     --python /opt/openmetadata/bin/python \
     "openmetadata-ingestion[dbt]==1.13.3.0" \
-    && /opt/openmetadata/bin/metadata --version \
+    && PYTHONHOME=/usr/local PYTHONPATH=/usr/local/lib/python3.13 \
+    /opt/openmetadata/bin/python -I /opt/openmetadata/bin/metadata --version \
     && rm -rf /tmp/openmetadata-uv-cache
 
 RUN uv sync --all-packages
