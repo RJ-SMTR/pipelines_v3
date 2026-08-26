@@ -89,6 +89,9 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
@@ -1397,6 +1400,9 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
@@ -1405,6 +1411,9 @@ models:
         data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
+        data_type: string
+      - name: route_id
+        description: "{{ doc('route_id') }}"
         data_type: string
       - name: trip_id
         description: "{{ doc('trip_id') }}"

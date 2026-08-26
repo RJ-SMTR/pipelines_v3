@@ -6,6 +6,11 @@
 
 - Adiciona o teste `dbt_utils.not_constant` em `veiculo_dia.status` agrupado por `data` para falhar quando todos os veículos de um dia têm o mesmo status(https://github.com/RJ-SMTR/pipelines_v3/pull/558)
 
+### Alterado
+
+- Adiciona `sistema` e `route_id` aos modelos `viagem_validacao` e `viagem_valida`, aplica o prazo de envio de cinco dias corridos a partir de `DATA_SUBSIDIO_V26_INICIO` e parametriza a janela de reprocessamento incremental da cadeia de validação (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+- Altera `aux_veiculo_gps_dia` para usar `view_gps_onibus` a partir de `DATA_SUBSIDIO_V25_INICIO`, mantendo `view_gps_sppo_completo` para o período legado (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+
 ## [2.2.9] - 2026-08-24
 
 ### Alterado
