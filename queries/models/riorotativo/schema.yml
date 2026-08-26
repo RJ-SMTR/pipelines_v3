@@ -615,7 +615,7 @@ models:
     description: Tabela com os dados das ativações do Rio Rotativo Digital
     columns:
       - name: data
-        description: Data da ativação [Partição]
+        description: "{{ doc('data_ativacao_riorotativo') }} [Partição]"
         data_type: date
       - name: id_ativacao
         description: "{{ doc('id_ativacao_riorotativo') }}"
@@ -739,6 +739,30 @@ models:
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
         data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+  - name: ativacao_hora_riorotativo
+    description: Tabela com a quantidade de ativações agregada por data, hora e área de estacionamento
+    columns:
+      - name: data
+        description: "{{ doc('data_ativacao_riorotativo') }} [Partição]"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_ativacao_riorotativo') }}"
+        data_type: int64
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+      - name: quantidade_ativacao
+        description: "{{ doc('quantidade_ativacao_riorotativo') }}"
+        data_type: int64
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string

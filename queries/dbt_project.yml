@@ -637,6 +637,10 @@ models:
     projeto_riorotativo_cct:
       +materialized: view
       +schema: projeto_riorotativo_cct
+    dashboard_riorotativo:
+      +materialized: view
+      +schema: dashboard_riorotativo
+      +description: "Views para os Dashboards do Rio Rotativo Digital"
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

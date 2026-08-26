@@ -1,0 +1,58 @@
+models:
+  - name: view_ativacao_dia_riorotativo
+    description: View com os dados de ativação agregados por dia e área de estacionamento e com tratamentos para o dashboard do Rio Rotativo Digital
+    columns:
+      - name: data
+        data_type: date
+        description: "{{ doc('data_ativacao_riorotativo') }}"
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+      - name: nome_area
+        description: "{{ doc('area_nome_riorotativo') }}"
+        data_type: string
+      - name: logradouro_area
+        description: "{{ doc('area_logradouro_riorotativo') }}"
+        data_type: string
+      - name: centroide
+        description: "{{ doc('centroide_area_riorotativo') }}"
+        data_type: geography
+      - name: quantidade_vaga_fisica
+        description: "{{ doc('quantidade_vaga_fisica_riorotativo') }}"
+        data_type: int64
+      - name: capacidade_teorica
+        description: Capacidade máxima de ativações da área de estacionamento no dia, levando em conta a quantidade de vagas
+        data_type: float64
+      - name: quantidade_ativacao
+        description: "{{ doc('quantidade_ativacao_riorotativo') }}"
+        data_type: int64
+  - name: view_ativacao_hora_riorotativo
+    description: View com os dados de ativação agregados por dia, hora e área de estacionamento e com tratamentos para o dashboard do Rio Rotativo Digital
+    columns:
+      - name: data
+        description: "{{ doc('data_ativacao_riorotativo') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_ativacao_riorotativo') }}"
+        data_type: int64
+      - name: id_area
+        description: "{{ doc('area_codigo_riorotativo') }}"
+        data_type: string
+      - name: nome_area
+        description: "{{ doc('area_nome_riorotativo') }}"
+        data_type: string
+      - name: logradouro_area
+        description: "{{ doc('area_logradouro_riorotativo') }}"
+        data_type: string
+      - name: centroide
+        description: "{{ doc('centroide_area_riorotativo') }}"
+        data_type: geography
+      - name: quantidade_vaga_fisica
+        description: "{{ doc('quantidade_vaga_fisica_riorotativo') }}"
+        data_type: int64
+      - name: capacidade_teorica
+        description: Capacidade máxima de ativações da área de estacionamento no dia e hora, levando em conta a quantidade de vagas
+        data_type: int64
+      - name: quantidade_ativacao
+        description: "{{ doc('quantidade_ativacao_riorotativo') }}"
+        data_type: int64
