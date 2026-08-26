@@ -89,6 +89,9 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
@@ -982,6 +985,11 @@ models:
         tests:
           - not_null:
               name: not_null__status__veiculo_dia
+          - dbt_utils.not_constant:
+              name: dbt_utils__not_constant__status__veiculo_dia
+              arguments:
+                group_by_columns:
+                  - data
         data_type: string
       - name: indicadores
         description: "{{ doc('indicadores_veiculo') }}"
@@ -1392,6 +1400,9 @@ models:
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
@@ -1400,6 +1411,9 @@ models:
         data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
+        data_type: string
+      - name: route_id
+        description: "{{ doc('route_id') }}"
         data_type: string
       - name: trip_id
         description: "{{ doc('trip_id') }}"

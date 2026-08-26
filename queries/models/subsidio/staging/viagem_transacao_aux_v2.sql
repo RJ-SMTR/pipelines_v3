@@ -1,7 +1,9 @@
 {{ config(materialized="ephemeral") }}
 
-{% if var("tipo_materializacao") == "monitoramento" %} {% set interval_minutes = 120 %}
-{% elif var("tipo_materializacao") == "subsidio" %} {% set interval_minutes = 30 %}
+{% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+    {% set interval_minutes = 120 %}
+{% elif var("flow_name") == "treatment--subsidio-sppo-apuracao" %}
+    {% set interval_minutes = 30 %}
 {% endif %}
 
 {% set date_range_start %}

@@ -24,10 +24,15 @@
 {% set viagem_informada = ref("viagem_informada_monitoramento") %}
 {% if execute and is_incremental() and var("tipo_materializacao") != "monitoramento" %}
     {% set modified_partitions = get_modified_partitions_filter(
-        viagem_informada, truncate_date=true
+        viagem_informada,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
     ) %}
     {% set context_partitions = get_modified_partitions_filter(
-        viagem_informada, include_adjacent=true, truncate_date=true
+        viagem_informada,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
     ) %}
 {% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
 {% endif %}
@@ -181,8 +186,11 @@ with
                 datetime_processamento >= datetime_chegada_considerada, true
             ) as indicador_processamento_apos_chegada,
             ifnull(
-                datetime_processamento is not null
-                and date(datetime_processamento) <= date_add(data, interval 5 day),
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
+                or (
+                    datetime_processamento is not null
+                    and date(datetime_processamento) <= date_add(data, interval 5 day)
+                ),
                 false
             ) as indicador_prazo_envio,
             service_ids,
@@ -233,6 +241,7 @@ with
             data,
             servico,
             consorcio,
+            sistema,
             sentido,
             extensao,
             quilometragem,
@@ -255,6 +264,7 @@ with
             sp.data,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
             sp.sentido,
             sp.extensao,
             sp.quilometragem,
@@ -271,6 +281,7 @@ with
             sp.data,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
             sp.sentido,
             alt.extensao,
             sp.quilometragem,
@@ -288,6 +299,7 @@ with
         select
             spg.*,
             spu.consorcio,
+            spu.sistema,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
@@ -389,6 +401,7 @@ with
             vm.datetime_partida_considerada,
             vm.datetime_chegada_considerada,
             vm.modo,
+            vm.sistema,
             vm.id_veiculo,
             vm.trip_id,
             vm.route_id,
@@ -515,8 +528,9 @@ select
     datetime_partida_considerada,
     datetime_chegada_considerada,
     modo,
-    tipo_dia,
     consorcio,
+    sistema,
+    tipo_dia,
     servico,
     route_id,
     trip_id,

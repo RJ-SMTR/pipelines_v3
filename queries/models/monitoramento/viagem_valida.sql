@@ -24,7 +24,9 @@
 {% set viagem_validacao = ref("viagem_validacao") %}
 {% if execute and is_incremental() %}
     {% set partitions = get_modified_partitions_filter(
-        viagem_validacao, truncate_date=true
+        viagem_validacao,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
     ) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
@@ -66,9 +68,11 @@ select
     vv.datetime_partida_considerada as datetime_partida,
     vv.datetime_chegada_considerada as datetime_chegada,
     vv.modo,
-    vv.tipo_dia,
     vv.consorcio,
+    vv.sistema,
+    vv.tipo_dia,
     vv.servico,
+    vv.route_id,
     vv.trip_id,
     vv.shape_id,
     vv.sentido,
