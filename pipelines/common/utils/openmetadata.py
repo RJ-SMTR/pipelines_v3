@@ -17,6 +17,7 @@ from pipelines.common import constants
 from pipelines.common.utils.secret import get_env_secret
 
 CLI_PATH = "/opt/openmetadata/bin/metadata"
+CLI_PYTHON_PATH = "/opt/openmetadata/bin/python"
 CLI_TIMEOUT_SECONDS = 600
 CONFIG_PATH = Path(__file__).parents[1] / "config" / "openmetadata" / "dbt_run_results.yaml"
 GCS_BUCKET_NAME = "rj-smtr"
@@ -212,8 +213,10 @@ def _run_cli(
                 "OPENMETADATA_DBT_RUN_RESULTS_PATH": str(run_results_path),
             }
         )
+        # O modo isolado impede PYTHONPATH/PYTHONHOME do flow (Python 3.13) de
+        # contaminarem o virtualenv do OpenMetadata (Python 3.11).
         result = subprocess.run(
-            [CLI_PATH, "ingest", "-c", str(config_path)],
+            [CLI_PYTHON_PATH, "-I", CLI_PATH, "ingest", "-c", str(config_path)],
             check=False,
             capture_output=True,
             text=True,
