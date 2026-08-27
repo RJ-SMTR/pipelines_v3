@@ -633,9 +633,9 @@ JAE_TABLE_CAPTURE_PARAMS = {
                 FROM
                     movimento_estacionamento_veiculo m
                 JOIN estacionamento_veiculo e ON m.id_estacionamento_veiculo = e.id
-                /*WHERE
+                WHERE
                     data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'*/
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
             """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},

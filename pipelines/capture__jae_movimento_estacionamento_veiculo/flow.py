@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# a
 from typing import Optional
 
 from pipelines.capture__jae_movimento_estacionamento_veiculo import constants
