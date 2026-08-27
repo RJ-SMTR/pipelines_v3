@@ -71,7 +71,7 @@
 
 with
     movimento_estacionamento_veiculo as (
-        select *
+        select *, st_geogpoint(longitude, latitude) as geo_point_ativacao
         from {{ ref("staging_movimento_estacionamento_veiculo_riorotativo") }}
         {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
         qualify
@@ -137,16 +137,6 @@ with
             ) as numero_ativacao
 
     ),
-    estacionamento_veiculo as (
-        select *, st_geogpoint(longitude, latitude) as geo_point_ativacao
-        from {{ ref("staging_estacionamento_veiculo_riorotativo") }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
-        qualify
-            row_number() over (
-                partition by id_estacionamento_veiculo order by datetime_captura desc
-            )
-            = 1
-    ),
     veiculo_cliente as (
         select
             id_veiculo,
@@ -174,13 +164,11 @@ with
             vc.id_veiculo,
             vc.placa as placa_veiculo,
             vc.cpf_motorista,
-            e.latitude,
-            e.longitude,
-            e.geo_point_ativacao,
+            m.latitude,
+            m.longitude,
+            m.geo_point_ativacao,
             a.id_area,
             a.id_perfil_funcionamento as ids_perfil_funcionamento,
-            a.data_inicio_vigencia as data_inicio_vigencia_area,
-            a.data_fim_vigencia as data_fim_vigencia_area,
             m.id_tipo_periodo,
             m.datetime_pagamento,
             m.valor_pago as valor_pago_bruto,
@@ -189,7 +177,6 @@ with
             m.datetime_inclusao,
             m.datetime_captura
         from movimento_estacionamento_veiculo_desdobrado as m
-        left join estacionamento_veiculo as e using (id_estacionamento_veiculo)
         left join veiculo_cliente as vc using (id_veiculo_cliente)
         join
             {{ ref("area_estacionamento_riorotativo") }} a
