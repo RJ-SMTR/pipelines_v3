@@ -160,7 +160,7 @@ with
             m.datetime_periodo_final as datetime_fim_periodo,
             m.id_movimento_estacionamento_veiculo,
             m.id_estacionamento_veiculo,
-            e.id_veiculo_cliente,
+            m.id_veiculo_cliente,
             vc.id_veiculo,
             vc.placa as placa_veiculo,
             vc.cpf_motorista,
