@@ -1,5 +1,19 @@
 # Changelog - riorotativo
 
+## [1.2.1] - 2026-08-27
+
+### Adicionado
+
+- Adiciona colunas `id_veiculo_cliente`, `latitude`, `longitude` e `area_codigo` no modelo `staging_movimento_estacionamento_veiculo_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/578)
+
+### Alterado
+
+- Altera fonte das colunas `id_veiculo_cliente`, `latitude`, `longitude` e `area_codigo` no modelo `ativacao_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/578)
+
+### Removido
+
+- Remove colunas `data_inicio_vigencia_area` e `data_fim_vigencia_area` do modelo `ativacao_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/578)
+
 ## [1.2.0] - 2026-07-30
 
 ### Adicionado
