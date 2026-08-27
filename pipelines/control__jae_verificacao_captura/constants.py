@@ -4,9 +4,6 @@ Constantes para o flow de verificação da captura dos dados da Jaé
 """
 
 from pipelines.capture__jae_auxiliar import constants as auxiliar_constants
-from pipelines.capture__jae_estacionamento_veiculo import (
-    constants as estacionamento_veiculo_constants,
-)
 from pipelines.capture__jae_fiscalizacao_veiculo import constants as fiscalizacao_veiculo_constants
 from pipelines.capture__jae_gps_validador import constants as gps_validador_constants
 from pipelines.capture__jae_lancamento import constants as lancamento_constants
@@ -132,14 +129,6 @@ CHECK_CAPTURE_PARAMS = {
         "datalake_table": "rj-smtr.riorotativo_staging.movimento_estacionamento_veiculo",
         "timestamp_column": "data_inclusao",
         "primary_keys": ["id_movimento_estacionamento_veiculo"],
-        "final_timestamp_exclusive": True,
-        "datalake_timestamp_captura_column": "datetime_captura",
-    },
-    jae_constants.ESTACIONAMENTO_VEICULO_TABLE_ID: {
-        "source": estacionamento_veiculo_constants.ESTACIONAMENTO_VEICULO_SOURCE,
-        "datalake_table": "rj-smtr.riorotativo_staging.estacionamento_veiculo",
-        "timestamp_column": "data_inclusao",
-        "primary_keys": ["id_estacionamento_veiculo"],
         "final_timestamp_exclusive": True,
         "datalake_timestamp_captura_column": "datetime_captura",
     },
