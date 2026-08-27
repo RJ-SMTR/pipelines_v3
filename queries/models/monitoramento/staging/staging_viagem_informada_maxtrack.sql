@@ -39,9 +39,7 @@ select
     safe_cast(json_value(content, '$.id_veiculo') as string) as id_veiculo,
     safe_cast(json_value(content, '$.route_id') as string) as route_id,
     safe_cast(json_value(content, '$.sentido') as string) as sentido,
-    case
-        json_value(content, '$.sentido') when 'I' then 0 when 'C' then 0 when 'V' then 1
-    end as direction_id,
+    safe_cast(json_value(content, '$.direction_id') as int64) as direction_id,
     safe_cast(json_value(content, '$.servico') as string) as servico,
     safe_cast(json_value(content, '$.shape_id') as string) as shape_id,
     safe_cast(json_value(content, '$.trip_id') as string) as trip_id,
