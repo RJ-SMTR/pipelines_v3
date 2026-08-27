@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.5.0] - 2026-08-27
+
+### Alterado
+
+- Habilita por padrão a ingestão dos artefatos dbt no OpenMetadata nos flows genéricos de materialização (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
 ## [1.4.1] - 2026-07-29
 
 ### Corrigido
