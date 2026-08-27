@@ -625,12 +625,17 @@ JAE_TABLE_CAPTURE_PARAMS = {
     MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
         "query": """
                 SELECT
-                    *
+                    m.*,
+                    e.id_veiculo_cliente,
+                    e.latitude,
+                    e.longitude,
+                    e.area_codigo
                 FROM
-                    movimento_estacionamento_veiculo
+                    movimento_estacionamento_veiculo m
+                JOIN estacionamento_veiculo e ON m.id_estacionamento_veiculo = e.id
                 WHERE
-                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                    m.data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND m.data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
             """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},
