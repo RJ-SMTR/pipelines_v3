@@ -39,6 +39,12 @@ select
         safe_cast(json_value(content, '$.data_inclusao') as timestamp),
         "America/Sao_Paulo"
     ) as datetime_inclusao,
+    replace(
+        safe_cast(json_value(content, '$.id_veiculo_cliente') as string), ".0", ""
+    ) as id_veiculo_cliente,
+    safe_cast(json_value(content, '$.latitude') as float64) as latitude,
+    safe_cast(json_value(content, '$.longitude') as float64) as longitude,
+    safe_cast(json_value(content, '$.area_codigo') as string) as area_codigo,
     datetime(
         safe.parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
         "America/Sao_Paulo"
