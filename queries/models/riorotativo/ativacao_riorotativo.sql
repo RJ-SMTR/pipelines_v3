@@ -180,11 +180,11 @@ with
         left join veiculo_cliente as vc using (id_veiculo_cliente)
         join
             {{ ref("area_estacionamento_riorotativo") }} a
-            on st_dwithin(e.geo_point_ativacao, a.geometry, 1000)
+            on st_dwithin(m.geo_point_ativacao, a.geometry, 1000)
         qualify
             row_number() over (
                 partition by m.id_ativacao
-                order by st_distance(e.geo_point_ativacao, st_centroid(a.geometry)) asc
+                order by st_distance(m.geo_point_ativacao, st_centroid(a.geometry)) asc
             )
             = 1
     ),
