@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.5] - 2026-08-27
+
+### Adicionado
+
+- Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/583)
+
 ## [1.0.4] - 2026-08-20
 
 ### Adicionado
