@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/583)
+- Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/582)
 
 ## [1.0.4] - 2026-08-20
 
