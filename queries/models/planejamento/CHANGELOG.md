@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.7] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.unique_combination_of_columns` em `ordem_servico_faixa_horaria_sentido`(https://github.com/RJ-SMTR/pipelines_v3/pull/574)
+
 ## [1.8.6] - 2026-08-17
 
 ### Adicionado
