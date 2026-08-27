@@ -6,9 +6,6 @@ Valores constantes para materialização dos selectors dos dados de operação d
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from pipelines.capture__jae_estacionamento_veiculo import (
-    constants as estacionamento_veiculo_constants,
-)
 from pipelines.capture__jae_fiscalizacao_veiculo import constants as fiscalizacao_constants
 from pipelines.capture__jae_movimento_estacionamento_veiculo import (
     constants as movimento_estacionamento_veiculo_constants,
@@ -41,7 +38,6 @@ RIOROTATIVO_OPERACAO_SELECTOR = DBTSelector(
     flow_folder_name="treatment__riorotativo_operacao",
     data_sources=[
         movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE,
-        estacionamento_veiculo_constants.ESTACIONAMENTO_VEICULO_SOURCE,
         fiscalizacao_constants.FISCALIZACAO_VEICULO_SOURCE,
         riorotativo_auxiliar_constants.RIOROTATIVO_AUX_SELECTOR,
     ],
