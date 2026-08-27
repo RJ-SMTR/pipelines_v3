@@ -3,12 +3,7 @@ with
         select table_id
         from
             unnest(
-                [
-                    'movimento_estacionamento_veiculo',
-                    'estacionamento_veiculo',
-                    'veiculo',
-                    'fiscalizacao_veiculo'
-                ]
+                ['movimento_estacionamento_veiculo', 'veiculo', 'fiscalizacao_veiculo']
             ) as table_id
     ),
     inicio_fim as (
