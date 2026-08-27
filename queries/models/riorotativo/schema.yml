@@ -712,12 +712,6 @@ models:
       - name: ids_perfil_funcionamento
         description: "{{ doc('area_perfil_funcionamento_riorotativo') }}"
         data_type: string
-      - name: data_inicio_vigencia_area
-        description: "{{ doc('data_inicio_vigencia_area_estacionamento_riorotativo') }}"
-        data_type: date
-      - name: data_fim_vigencia_area
-        description: "{{ doc('data_fim_vigencia_area_estacionamento_riorotativo') }}"
-        data_type: date
       - name: id_tipo_periodo
         description: Identificador único do tipo de período da ativação [1 hora, 2 horas ou 3 horas]
         data_type: int64

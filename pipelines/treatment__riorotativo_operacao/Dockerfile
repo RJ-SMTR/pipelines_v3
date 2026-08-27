@@ -8,8 +8,6 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/capture__jae_movimento_estacionamento_veiculo/
 
-COPY ./pipelines/capture__jae_estacionamento_veiculo ./pipelines/capture__jae_estacionamento_veiculo/
-
 COPY ./pipelines/capture__jae_fiscalizacao_veiculo ./pipelines/capture__jae_fiscalizacao_veiculo/
 
 COPY ./pipelines/treatment__riorotativo_auxiliar ./pipelines/treatment__riorotativo_auxiliar/
