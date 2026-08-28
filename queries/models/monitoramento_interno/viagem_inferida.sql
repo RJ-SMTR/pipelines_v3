@@ -7,26 +7,6 @@
     )
 }}
 
-{% set incremental_filter %}
-    data between
-        date('{{ var("date_range_start") }}')
-        and date('{{ var("date_range_end") }}')
-{% endset %}
-
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
-{% if execute %}
-    {% set gtfs_feeds_query %}
-        select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ calendario }}
-        where {{ incremental_filter }}
-    {% endset %}
-    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-    {% if gtfs_feeds | length == 0 %}
-        {% set gtfs_feeds = ["'2000-01-01'"] %}
-    {% endif %}
-{% endif %}
-
 with
     aux_status as (
         select
@@ -46,14 +26,9 @@ with
         from {{ ref("aux_monitoramento_registros_status_trajeto") }}
         where indicador_intersecao_segmento = true
     ),
-    routes as (
-        select *
-        from {{ ref("routes_gtfs") }}
-        {# from `rj-smtr.gtfs.routes` #}
-        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-    ),
     viagens as (
         select
+            data,
             concat(
                 id_veiculo,
                 "-",
@@ -66,32 +41,24 @@ with
                 format_datetime("%Y%m%d%H%M%S", datetime_partida)
             ) as id_viagem,
             cast(null as string) as id_viagem_planejada,
-            data,
-            id_empresa,
-            id_veiculo,
-            servico_gps,
-            servico,
-            consorcio,
-            sistema,
-            case
-                when
-                    r.agency_id in ("22005", "22002", "22004", "22003")
-                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
-                then 'Ônibus'
-            end as modo,
-            trip_id,
-            route_id,
-            shape_id,
-            sentido,
-            distancia_planejada,
             datetime_partida,
             datetime_gps as datetime_chegada,
+            modo,
+            consorcio,
+            sistema,
+            servico_gps,
+            servico,
+            route_id,
+            trip_id,
+            shape_id,
+            sentido,
+            id_veiculo,
             fonte_gps,
-            '{{ var("version") }}' as versao,
+            distancia_planejada,
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+            '{{ var("version") }}' as versao,
             '{{ invocation_id }}' as id_execucao_dbt
         from aux_status
-        left join routes r using (route_id, feed_start_date)
         where
             status_viagem = 'end'
             and datetime_partida is not null

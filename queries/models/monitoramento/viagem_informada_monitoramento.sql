@@ -266,6 +266,7 @@ with
             v.sequencial_viagem,
             v.datetime_partida,
             v.datetime_chegada,
+            v.datetime_processamento,
             case
                 when v.fonte_gps = 'brt'
                 then 'BRT'
@@ -274,17 +275,16 @@ with
                     or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
                 then 'Ônibus'
             end as modo,
-            if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
-            if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
-            if(trim(v.route_id) = '', null, v.route_id) as route_id,
-            if(trim(v.shape_id) = '', null, v.shape_id) as shape_id,
             if(trim(v.servico) = '', null, v.servico) as servico,
-            if(trim(v.sentido) = '', null, v.sentido) as sentido,
+            if(trim(v.route_id) = '', null, v.route_id) as route_id,
+            if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
+            if(trim(v.shape_id) = '', null, v.shape_id) as shape_id,
             v.direction_id,
+            if(trim(v.sentido) = '', null, v.sentido) as sentido,
+            if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
             v.tipo_viagem,
             v.tipo_execucao_viagem,
             if(trim(v.fonte_gps) = '', null, v.fonte_gps) as fonte_gps,
-            v.datetime_processamento,
             v.datetime_captura
         from deduplicado v
         join calendario c using (data)
@@ -292,7 +292,7 @@ with
     )
 select
     *,
-    '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ var("version") }}' as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from viagem_modo
