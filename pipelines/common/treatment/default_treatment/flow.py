@@ -100,9 +100,17 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         wait_for=[tasks["setup_enviroment"]],
     )
 
-    dbt_packages_wait_for = [tasks["setup_dbt_queries"]]
+    dbt_packages_wait_for = [
+        tasks["setup_dbt_queries"],
+        *tasks_wait_for.get("install_dbt_packages", []),
+    ]
     if flags and "--state" in flags:
-        tasks["download_dbt_state"] = download_dbt_state(wait_for=[tasks["setup_dbt_queries"]])
+        tasks["download_dbt_state"] = download_dbt_state(
+            wait_for=[
+                tasks["setup_dbt_queries"],
+                *tasks_wait_for.get("download_dbt_state", []),
+            ]
+        )
         dbt_packages_wait_for.append(tasks["download_dbt_state"])
 
     tasks["install_dbt_packages"] = install_dbt_packages(
