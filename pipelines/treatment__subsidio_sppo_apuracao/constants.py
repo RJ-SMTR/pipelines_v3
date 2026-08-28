@@ -80,6 +80,9 @@ PRE_CHECKS_LIST = {
         "test_check_veiculo_lacre__veiculo_dia": {
             "description": "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e `veiculo_fiscalizacao_lacre`"
         },
+        "dbt_utils__not_constant__status__veiculo_dia": {
+            "description": "Todos os dados de `{column_name}` não são iguais para uma `data`"
+        },
     },
     "tecnologia_servico": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -96,8 +99,13 @@ PRE_CHECKS_LIST = {
             "description": "Todos os valores da coluna `{column_name}` maiores que zero"
         },
         "unique__id_viagem__viagem_completa": {"description": "Todos os registros são únicos"},
-        "dbt_utils.mutually_exclusive_ranges__id_veiculo__viagem_completa": {
+        "dbt_utils__mutually_exclusive_ranges__id_veiculo__viagem_completa": {
             "description": "Todos os registros de viagem não se sobrepõem"
+        },
+    },
+    "viagens_remuneradas": {
+        "check_viagem_completa__viagens_remuneradas": {
+            "description": "Todos os dados de `feed_start_date` e `datetime_ultima_atualizacao` correspondem ao feed GTFS vigente"
         },
     },
     "viagem_planejada": {
@@ -109,6 +117,9 @@ PRE_CHECKS_LIST = {
             "description": "Todos os valores da coluna `{column_name}` são aceitos"
         },
         "dbt_utils__unique_combination_of_columns__viagem_planejada": {
+            "description": "Todos os registros são únicos"
+        },
+        "unique__snapshot_key__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
         "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart": {
@@ -147,6 +158,11 @@ PRE_CHECKS_LIST = {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os registros são únicos"},
     },
+    "sumario_servico_dia_historico": {
+        "subsidio_viagens_atualizadas__sumario_servico_dia_historico": {
+            "description": "Todos os dados de `datetime_ultima_atualizacao` correspondem a `viagem_completa`"
+        },
+    },
 }
 
 POST_TEST_V8_SELECT = "dashboard_subsidio_sppo"
@@ -157,6 +173,11 @@ POST_TEST_V14_SELECT = (
 )
 
 POST_CHECKS_LIST = {
+    "sumario_servico_dia_historico": {
+        "subsidio_viagens_atualizadas__sumario_servico_dia_historico": {
+            "description": "Todos os dados de `datetime_ultima_atualizacao` correspondem a `viagem_completa`"
+        },
+    },
     "sumario_servico_dia_tipo": {
         "sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo": {
             "description": "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
@@ -212,7 +233,7 @@ POST_CHECKS_LIST = {
             "description": "Todas as datas possuem dados"
         },
         "check_viagem_completa__viagens_remuneradas": {
-            "description": "Todas viagens processadas com feed atualizado do GTFS"
+            "description": "Todos os dados de `feed_start_date` e `datetime_ultima_atualizacao` correspondem ao feed GTFS vigente"
         },
         "teto_viagens__viagens_remuneradas": {
             "description": "Todas as viagens foram corretamente identificadas dentro das regras de limite"
