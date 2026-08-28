@@ -61,6 +61,9 @@ models:
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
   - name: view_viagem_monitoramento
     description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus."
     columns:
