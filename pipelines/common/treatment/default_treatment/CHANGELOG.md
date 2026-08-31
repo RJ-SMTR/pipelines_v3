@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.4.2] - 2026-08-28
+
+### Adicionado
+
+- Adiciona o download do manifest dbt de produção quando o flow de materialização utiliza `--state`, habilitando o uso de defer (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
 ## [1.4.1] - 2026-07-29
 
 ### Corrigido
