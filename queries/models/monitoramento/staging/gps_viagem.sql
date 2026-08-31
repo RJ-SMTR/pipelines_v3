@@ -50,23 +50,16 @@ with
         {# from `rj-smtr.monitoramento.viagem_informada` #}
         where {{ incremental_filter }}
     ),
-    gps_conecta as (
-        select data, datetime_gps, servico, id_veiculo, latitude, longitude
-        {# from `rj-smtr.monitoramento.gps_onibus_conecta` #}
-        from {{ source("monitoramento", "gps_onibus_conecta") }}
-        where {{ incremental_filter }}
-
-    ),
-    gps_zirix as (
-        select data, datetime_gps, servico, id_veiculo, latitude, longitude
-        {# from `rj-smtr.monitoramento.gps_onibus_zirix` #}
-        from {{ source("monitoramento", "gps_onibus_zirix") }}
-        where {{ incremental_filter }}
-    ),
-    gps_cittati as (
-        select data, datetime_gps, servico, id_veiculo, latitude, longitude
-        {# from `rj-smtr.monitoramento.gps_onibus_cittati` #}
-        from {{ source("monitoramento", "gps_onibus_cittati") }}
+    gps_onibus as (
+        select
+            data,
+            datetime_gps,
+            servico,
+            id_veiculo,
+            latitude,
+            longitude,
+            fonte_gps as fornecedor
+        from {{ ref("view_gps_onibus") }}
         where {{ incremental_filter }}
     ),
     gps_brt as (
@@ -76,27 +69,18 @@ with
             servico,
             id_veiculo,
             latitude,
-            longitude
+            longitude,
+            'brt' as fornecedor
         from {{ ref("view_gps_brt_completo") }}
         where {{ incremental_filter }}
     ),
     gps_union as (
-        select *, 'conecta' as fornecedor
-        from gps_conecta
+        select *
+        from gps_onibus
 
         union all
 
-        select *, 'zirix' as fornecedor
-        from gps_zirix
-
-        union all
-
-        select *, 'cittati' as fornecedor
-        from gps_cittati
-
-        union all
-
-        select *, 'brt' as fornecedor
+        select *
         from gps_brt
     )
 select
