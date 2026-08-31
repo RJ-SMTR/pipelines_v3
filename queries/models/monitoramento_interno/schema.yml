@@ -95,7 +95,7 @@ models:
         description: "{{ doc('consorcio') }}"
         data_type: string
       - name: servico_gps
-        description: "Serviço informado pelo GPS no momento da partida."
+        description: "{{ doc('servico_gps') }}"
         data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
@@ -123,9 +123,6 @@ models:
         data_type: datetime
       - name: versao
         description: "{{ doc('versao') }}"
-        data_type: string
-      - name: id_execucao_dbt
-        description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
   - name: monitoramento_sumario_servico_dia_historico
     description: "Viagens sumario serviço dia histórico"
