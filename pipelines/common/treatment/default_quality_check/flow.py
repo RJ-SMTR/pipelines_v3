@@ -18,6 +18,7 @@ from pipelines.common.treatment.default_quality_check.tasks import (
     task_run_dbt_tests,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     setup_dbt_queries,
 )
@@ -115,6 +116,13 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
             tasks["install_dbt_packages"],
             *tasks_wait_for.get("run_dbt_tests", []),
         ],
+    )
+
+    tasks["ingest_openmetadata"] = ingest_dbt_artifacts_to_openmetadata(
+        env=tasks["env"],
+        deployment_name=deployment_name,
+        flow_run_id=runtime.flow_run.id,
+        wait_for=[tasks["run_dbt_tests"]],
     )
 
     tasks["notify_discord"] = task_dbt_test_notify_discord(
