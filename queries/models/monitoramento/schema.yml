@@ -8,6 +8,9 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
+      - name: sequencial_viagem
+        description: "{{ doc('sequencial_viagem') }}"
+        data_type: int64
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
@@ -17,42 +20,51 @@ models:
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         data_type: datetime
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento_viagem') }} [GMT-3]"
+        data_type: datetime
       - name: modo
         description: "{{ doc('modo') }}"
-        data_type: string
-      - name: id_veiculo
-        description: "{{ doc('id_veiculo') }}"
-        data_type: string
-      - name: trip_id
-        description: "{{ doc('trip_id') }}"
-        data_type: string
-      - name: route_id
-        description: "{{ doc('route_id') }}"
-        data_type: string
-      - name: shape_id
-        description: "{{ doc('shape_id') }}"
         data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
       - name: sentido
         description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: tipo_viagem
+        description: "{{ doc('tipo_viagem_informada') }}"
+        data_type: string
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
         data_type: string
       - name: fonte_gps
         description: Fornecedor de dados de GPS a ser considerado para validar a viagem
         data_type: string
-      - name: datetime_processamento
-        description: "{{ doc('datetime_processamento_viagem') }} [GMT-3]"
-        data_type: datetime
       - name: datetime_captura
         description: Data e hora da captura da integração [GMT-3]
+        data_type: datetime
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
-      - name: datetime_ultima_atualizacao
-        description: "{{ doc('datetime_ultima_atualizacao') }}"
-        data_type: datetime
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
