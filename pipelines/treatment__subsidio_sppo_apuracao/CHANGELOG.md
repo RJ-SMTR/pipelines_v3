@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.5] - 2026-08-28
+
+### Adicionado
+
+- Adiciona descrições dos testes `unique__snapshot_key__viagem_planejada`, `dbt_utils__mutually_exclusive_ranges__id_veiculo__viagem_completa`, `check_viagem_completa__viagens_remuneradas`, `dbt_utils__not_constant__status__veiculo_dia` e `subsidio_viagens_atualizadas__sumario_servico_dia_historico` para notificação no Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/588)
+
 ## [1.0.4] - 2026-08-20
 
 ### Adicionado
