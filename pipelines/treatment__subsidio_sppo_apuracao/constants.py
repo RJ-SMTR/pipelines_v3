@@ -114,7 +114,7 @@ PRE_CHECKS_LIST = {
         "dbt_utils__unique_combination_of_columns__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
-        "unique__snapshot_key__viagem_planejada": {
+        "unique_surrogate_key__viagem_planejada": {
             "description": "A chave composta usada pelo snapshot de `viagem_planejada` é única em todos os registros"
         },
         "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart": {
