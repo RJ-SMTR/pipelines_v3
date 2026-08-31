@@ -420,6 +420,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: gtfs
+      +meta:
+        openmetadata:
+          domain: "planejamento.planejamento_operacional"
       deprecated:
         +materialized: view
         +schema: dashboard_subsidio_van
