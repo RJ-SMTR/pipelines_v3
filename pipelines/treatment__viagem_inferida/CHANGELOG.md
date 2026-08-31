@@ -1,5 +1,11 @@
 # Changelog - treatment__viagem_inferida
 
+## [1.2.0] - 2026-08-28
+
+### Adicionado
+
+- Adiciona a fonte Maxtrack ao data_sources do flow `treatment__viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
 ## [1.1.0] - 2026-08-24
 
 ### Alterado
