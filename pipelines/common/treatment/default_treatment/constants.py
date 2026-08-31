@@ -6,3 +6,5 @@ Valores constantes flow de materialização genérico da rj-smtr
 REDIS_LAST_MATERIALIZATION_TS_KEY = "last_run_timestamp"
 MATERIALIZATION_LAST_RUN_PATTERN = "%Y-%m-%dT%H:%M:%S"
 REPO_URL = "https://api.github.com/repos/RJ-SMTR/pipelines_v3"
+DBT_STATE_BUCKET = "rj-smtr-public"
+DBT_STATE_BLOB = "dbt-docs/manifest.json"

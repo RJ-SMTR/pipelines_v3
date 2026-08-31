@@ -1,5 +1,15 @@
 # Changelog - monitoramento_interno
 
+## [1.0.6] - 2026-08-28
+
+### Adicionado
+
+- Adiciona a coluna `sistema` ao modelo `viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+### Alterado
+
+- Usa `modo` e `sistema` provenientes do serviço planejado, remove `id_empresa` e o join com `routes_gtfs` da cadeia de inferência e reordena as colunas conforme a ontologia (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
 ## [1.0.5] - 2026-08-25
 
 ### Alterado

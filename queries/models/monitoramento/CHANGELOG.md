@@ -1,5 +1,16 @@
 # Changelog - monitoramento
 
+## [2.2.11] - 2026-08-28
+
+### Adicionado
+
+- Adiciona suporte às viagens informadas da Maxtrack em `viagem_informada_monitoramento`, incluindo as colunas `sequencial_viagem`, `direction_id`, `tipo_viagem` e `tipo_execucao_viagem` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+### Alterado
+
+- Reordena as colunas de `viagem_informada_monitoramento` conforme a ontologia (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+- Adiciona fallback para a ausência de feeds GTFS recentes em `gps_segmento_viagem` e `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
 ## [2.2.10] - 2026-08-25
 
 ### Adicionado

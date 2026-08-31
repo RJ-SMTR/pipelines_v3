@@ -12,6 +12,8 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 
 COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__rioonibus_viagem_informada/
 
+COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 
