@@ -16,6 +16,7 @@
 {# {% set staging_viagem_informada_rioonibus = ("rj-smtr.monitoramento_staging.viagem_informada_rioonibus") %} #}
 {% set staging_viagem_informada_brt = ref("staging_viagem_informada_brt") %}
 {# {% set staging_viagem_informada_brt = ("rj-smtr.monitoramento_staging.viagem_informada_brt") %} #}
+{% set staging_viagem_informada_maxtrack = ref("staging_viagem_informada_maxtrack") %}
 {% set calendario = ref("calendario") %}
 {# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
 {% if execute %}
@@ -76,6 +77,20 @@
                 ) as data_viagem
             from {{ staging_viagem_informada_brt }}
             where {{ incremental_filter }}
+
+            union distinct
+
+            select distinct
+                concat(
+                    "'",
+                    extract(
+                        date
+                        from datetime_partida
+                    ),
+                    "'"
+                ) as data_viagem
+            from {{ staging_viagem_informada_maxtrack }}
+            where {{ incremental_filter }}
         {% endset %}
 
         {% set partitions = (
@@ -103,6 +118,7 @@ with
     staging_rioonibus as (
         select
             id_viagem,
+            cast(null as int64) as sequencial_viagem,
             id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
@@ -112,6 +128,9 @@ with
             shape_id,
             servico,
             sentido,
+            cast(null as int64) as direction_id,
+            cast(null as string) as tipo_viagem,
+            cast(null as string) as tipo_execucao_viagem,
             fornecedor as fonte_gps,
             datetime_processamento,
             datetime_captura
@@ -121,6 +140,7 @@ with
     staging_brt as (
         select
             id_viagem,
+            cast(null as int64) as sequencial_viagem,
             id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
@@ -130,6 +150,9 @@ with
             shape_id,
             servico,
             sentido,
+            cast(null as int64) as direction_id,
+            cast(null as string) as tipo_viagem,
+            cast(null as string) as tipo_execucao_viagem,
             "brt" as fonte_gps,
             datetime_processamento,
             datetime_captura
@@ -137,6 +160,28 @@ with
         where
             {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
             datetime_processamento >= "2024-09-10 13:00:00"
+    ),
+    staging_maxtrack as (
+        select
+            id_viagem,
+            sequencial_viagem,
+            id_viagem_planejada,
+            datetime_partida,
+            datetime_chegada,
+            id_veiculo,
+            trip_id,
+            route_id,
+            shape_id,
+            servico,
+            sentido,
+            direction_id,
+            tipo_viagem,
+            tipo_execucao_viagem,
+            fornecedor as fonte_gps,
+            datetime_processamento,
+            datetime_captura
+        from {{ staging_viagem_informada_maxtrack }}
+        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
     ),
     staging_union as (
         select *
@@ -146,11 +191,17 @@ with
 
         select *
         from staging_brt
+
+        union all
+
+        select *
+        from staging_maxtrack
     ),
     staging as (
         select
             extract(date from datetime_partida) as data,
             id_viagem,
+            sequencial_viagem,
             id_viagem_planejada,
             datetime_partida,
             datetime_chegada,
@@ -160,6 +211,9 @@ with
             shape_id,
             servico,
             sentido,
+            direction_id,
+            tipo_viagem,
+            tipo_execucao_viagem,
             fonte_gps,
             datetime_processamento,
             datetime_captura
@@ -209,8 +263,10 @@ with
             data,
             v.id_viagem,
             v.id_viagem_planejada,
+            v.sequencial_viagem,
             v.datetime_partida,
             v.datetime_chegada,
+            v.datetime_processamento,
             case
                 when v.fonte_gps = 'brt'
                 then 'BRT'
@@ -219,14 +275,16 @@ with
                     or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
                 then 'Ônibus'
             end as modo,
-            if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
-            if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
-            if(trim(v.route_id) = '', null, v.route_id) as route_id,
-            if(trim(v.shape_id) = '', null, v.shape_id) as shape_id,
             if(trim(v.servico) = '', null, v.servico) as servico,
+            if(trim(v.route_id) = '', null, v.route_id) as route_id,
+            if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
+            if(trim(v.shape_id) = '', null, v.shape_id) as shape_id,
+            v.direction_id,
             if(trim(v.sentido) = '', null, v.sentido) as sentido,
+            if(trim(v.id_veiculo) = '', null, v.id_veiculo) as id_veiculo,
+            v.tipo_viagem,
+            v.tipo_execucao_viagem,
             if(trim(v.fonte_gps) = '', null, v.fonte_gps) as fonte_gps,
-            v.datetime_processamento,
             v.datetime_captura
         from deduplicado v
         join calendario c using (data)
@@ -234,7 +292,7 @@ with
     )
 select
     *,
-    '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ var("version") }}' as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from viagem_modo

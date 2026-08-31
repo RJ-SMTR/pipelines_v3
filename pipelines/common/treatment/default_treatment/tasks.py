@@ -5,10 +5,12 @@ from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
+from google.cloud import storage
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
+from pipelines.common.treatment.default_treatment import constants
 from pipelines.common.treatment.default_treatment.utils import (
     DBTSelector,
     DBTSelectorMaterializationContext,
@@ -358,6 +360,21 @@ def setup_dbt_queries(env: str) -> Path:
         Path: Caminho para a pasta queries/.
     """
     return clone_queries_from_github(env=env)
+
+
+@task(cache_policy=NO_CACHE)
+def download_dbt_state() -> Path:
+    """Baixa o manifest de produção usado pelo defer do dbt."""
+    project_dir, _, _ = get_dbt_paths()
+    state_dir = project_dir / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = state_dir / "manifest.json"
+
+    blob = storage.Client().bucket(constants.DBT_STATE_BUCKET).blob(constants.DBT_STATE_BLOB)
+    blob.download_to_filename(str(manifest_path))
+
+    print(f"Manifest dbt baixado para {manifest_path}")
+    return manifest_path
 
 
 @task(cache_policy=NO_CACHE)

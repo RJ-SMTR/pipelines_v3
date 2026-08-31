@@ -6,6 +6,7 @@ Valores constantes para materialização dos dados de viagem informada
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__maxtrack_viagem_informada import constants as maxtrack_constants
 from pipelines.capture__rioonibus_viagem_informada import constants as rioonibus_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
@@ -18,5 +19,6 @@ VIAGEM_INFORMADA_SELECTOR = DBTSelector(
     data_sources=[
         planejamento_constants.PLANEJAMENTO_DIARIO_SELECTOR,
         rioonibus_constants.VIAGEM_INFORMADA_SOURCE,
+        maxtrack_constants.VIAGEM_INFORMADA_SOURCE,
     ],
 )
