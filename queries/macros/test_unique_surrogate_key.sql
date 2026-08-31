@@ -1,13 +1,5 @@
 {% test unique_surrogate_key(model, columns) %}
 
-    {% if columns | length == 0 %}
-        {{
-            exceptions.raise_compiler_error(
-                "The columns argument must contain at least one column."
-            )
-        }}
-    {% endif %}
-
     {% set surrogate_key = dbt_utils.generate_surrogate_key(columns) %}
 
     with
