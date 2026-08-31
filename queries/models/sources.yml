@@ -485,6 +485,7 @@ sources:
     database: rj-smtr-staging
 
     tables:
+      - name: viagem_informada
       - name: registros
 
   - name: clima_estacao_meteorologica
