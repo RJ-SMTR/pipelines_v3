@@ -124,6 +124,8 @@ selectors:
     definition:
       union:
         - method: fqn
+          value: view_gps_onibus
+        - method: fqn
           value: gps_viagem
         - method: fqn
           value: gps_segmento_viagem
