@@ -34,7 +34,15 @@ with
         from {{ ref("area_estacionamento_riorotativo") }} a
     ),
     area_estacionamento_data as (
-        select d.*, a.* from area_estacionamento a cross join datas d
+        select
+            d.*,
+            a.*,
+            d.data >= a.data_inicio_vigencia
+            and (
+                d.data <= a.data_fim_vigencia or a.data_fim_vigencia is null
+            ) as indicador_vaga_vigente
+        from area_estacionamento a
+        cross join datas d
     ),
     area_estacionamento_data_perfil as (
         select a.*,
@@ -55,11 +63,18 @@ with
             ae.nome_area,
             ae.logradouro_area,
             ae.centroide,
-            ae.quantidade_vaga_fisica,
-            ae.quantidade_vaga_fisica as capacidade_teorica,
+            st_y(ae.centroide) as latitude_centroide,
+            st_x(ae.centroide) as longitude_centroide,
+            if(
+                indicador_vaga_vigente, ae.quantidade_vaga_fisica, 0
+            ) as quantidade_vaga_fisica,
+            if(
+                indicador_vaga_vigente, ae.quantidade_vaga_fisica, 0
+            ) as capacidade_teorica,
             ifnull(atv.quantidade_ativacao, 0) as quantidade_ativacao
         from area_estacionamento_data_perfil ae
         left join {{ ref("ativacao_hora_riorotativo") }} atv using (data, hora, id_area)
+        where indicador_vaga_vigente
     )
 select *
 from data_area_ativacao
