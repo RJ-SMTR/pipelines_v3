@@ -2040,3 +2040,11 @@ Quantidade total de vagas da área de estacionamento
 {% docs centroide_area_riorotativo %}
 Centroide da geometria da área de estacionamento no sistema de referência WGS84
 {% enddocs %}
+
+{% docs latitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}
+
+{% docs longitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}

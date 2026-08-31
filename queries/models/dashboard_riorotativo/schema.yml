@@ -17,6 +17,12 @@ models:
       - name: centroide
         description: "{{ doc('centroide_area_riorotativo') }}"
         data_type: geography
+      - name: latitude_centroide
+        description: "{{ doc('latitude_centroide_area_riorotativo') }}"
+        data_type: float64
+      - name: longitude_centroide
+        description: "{{ doc('longitude_centroide_area_riorotativo') }}"
+        data_type: float64
       - name: quantidade_vaga_fisica
         description: "{{ doc('quantidade_vaga_fisica_riorotativo') }}"
         data_type: int64
@@ -47,6 +53,12 @@ models:
       - name: centroide
         description: "{{ doc('centroide_area_riorotativo') }}"
         data_type: geography
+      - name: latitude_centroide
+        description: "{{ doc('latitude_centroide_area_riorotativo') }}"
+        data_type: float64
+      - name: longitude_centroide
+        description: "{{ doc('longitude_centroide_area_riorotativo') }}"
+        data_type: float64
       - name: quantidade_vaga_fisica
         description: "{{ doc('quantidade_vaga_fisica_riorotativo') }}"
         data_type: int64
