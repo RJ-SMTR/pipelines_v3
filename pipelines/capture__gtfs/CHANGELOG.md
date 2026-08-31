@@ -1,9 +1,16 @@
 # Changelog - capture__gtfs
 
+## [1.4.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a materialização e os testes do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
 ## [1.3.1] - 2026-08-26
 
 ### Adicionado
 
+- Adiciona ao pós-teste do GTFS o teste `dbt_utils__unique_combination_of_columns__ordem_servico_faixa_horaria_sentido`. (https://github.com/RJ-SMTR/pipelines_v3/pull/574)
 - Adiciona ao pós-teste do GTFS o teste `unique__feed_start_date__feed_info_gtfs`.(https://github.com/RJ-SMTR/pipelines_v3/pull/569)
 
 ## [1.3.0] - 2026-08-17

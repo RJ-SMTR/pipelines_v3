@@ -13,6 +13,7 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    download_dbt_state,
     ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     run_dbt_selector_tests,
@@ -44,7 +45,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     fallback_run: bool = False,
     skip_pre_test: bool = False,
     test_only: bool = False,
-    ingest_openmetadata: bool = False,
+    ingest_openmetadata: bool = True,
     save_redis: Optional[bool] = True,
 ):
     """
@@ -99,8 +100,21 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         wait_for=[tasks["setup_enviroment"]],
     )
 
+    dbt_packages_wait_for = [
+        tasks["setup_dbt_queries"],
+        *tasks_wait_for.get("install_dbt_packages", []),
+    ]
+    if flags and "--state" in flags:
+        tasks["download_dbt_state"] = download_dbt_state(
+            wait_for=[
+                tasks["setup_dbt_queries"],
+                *tasks_wait_for.get("download_dbt_state", []),
+            ]
+        )
+        dbt_packages_wait_for.append(tasks["download_dbt_state"])
+
     tasks["install_dbt_packages"] = install_dbt_packages(
-        wait_for=[tasks["setup_dbt_queries"]],
+        wait_for=dbt_packages_wait_for,
     )
 
     # initialize sentry for error capturing

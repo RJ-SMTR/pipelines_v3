@@ -66,6 +66,18 @@ Serviço realizado pelo veículo após correção
 Código único identificador da viagem
 {% enddocs %}
 
+{% docs sequencial_viagem %}
+Número sequencial histórico, contínuo e crescente gerado nativamente pelo banco de dados de viagens da CONCESSIONÁRIA
+{% enddocs %}
+
+{% docs tipo_viagem_informada %}
+Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" (viagem planejada no PLANO OPERACIONAL) ou "AUTORIZADA" (viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL). Nos demais casos, este campo deve permanecer nulo.
+{% enddocs %}
+
+{% docs tipo_execucao_viagem %}
+Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" (viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final) ou "INCOMPLETA" (viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA).
+{% enddocs %}
+
 {% docs project_id %}
 Nome do projeto da GCP
 {% enddocs %}
@@ -980,7 +992,7 @@ Número sequencial gerado pelo hardware
 {% enddocs %}
 
 {% docs direction_id %}
-Sentido da viagem conforme o GTFS
+Sentido da viagem em formato numérico, conforme o campo direction_id do GTFS
 {% enddocs %}
 
 {% docs qualidade_sinal %}

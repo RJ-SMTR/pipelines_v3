@@ -1,5 +1,17 @@
 # Changelog - planejamento
 
+## [1.8.8] - 2026-08-28
+
+### Alterado
+
+- Ajusta `servico_planejado_faixa_horaria` para partir das viagens planejadas e preservar seus metadados de sistema, modo, feed e extensão ao associá-las às faixas horárias da Ordem de Serviço (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+## [1.8.7] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.unique_combination_of_columns` em `ordem_servico_faixa_horaria_sentido`(https://github.com/RJ-SMTR/pipelines_v3/pull/574)
+
 ## [1.8.6] - 2026-08-17
 
 ### Adicionado

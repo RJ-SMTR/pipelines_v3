@@ -40,6 +40,9 @@ with
     viagens_planejadas as (
         select
             data,
+            feed_start_date,
+            tipo_dia,
+            tipo_os,
             modo,
             consorcio,
             sistema,
@@ -50,6 +53,7 @@ with
             route_id,
             shape_id,
             datetime_partida,
+            extensao,
             trajetos_alternativos
         from {{ ref("viagem_planejada_planejamento_dia") }}
         {# from `rj-smtr.planejamento.viagem_planejada` #}
@@ -57,14 +61,14 @@ with
     ),
     viagens_na_faixa as (
         select
-            o.data,
-            o.feed_start_date,
-            o.tipo_dia,
-            o.tipo_os,
-            o.servico,
+            v.data,
+            v.feed_start_date,
+            v.tipo_dia,
+            v.tipo_os,
+            v.servico,
             v.consorcio,
-            o.sentido,
-            o.extensao,
+            v.sentido,
+            v.extensao,
             o.partidas,
             o.quilometragem,
             o.faixa_horaria_inicio,
@@ -78,18 +82,19 @@ with
             v.trajetos_alternativos,
             min(datetime_partida) over (
                 partition by
-                    o.data, o.servico, o.sentido, o.faixa_horaria_inicio, v.trip_id
+                    v.data, v.servico, v.sentido, o.faixa_horaria_inicio, v.trip_id
             ) as primeiro_horario,
             max(datetime_partida) over (
                 partition by
-                    o.data, o.servico, o.sentido, o.faixa_horaria_inicio, v.trip_id
+                    v.data, v.servico, v.sentido, o.faixa_horaria_inicio, v.trip_id
             ) as ultimo_horario
-        from os_sppo o
+        from viagens_planejadas v
         left join
-            viagens_planejadas v
-            on o.data = v.data
-            and o.servico = v.servico
-            and o.sentido = v.sentido
+            os_sppo o
+            on v.data = o.data
+            and v.feed_start_date = o.feed_start_date
+            and v.servico = o.servico
+            and v.sentido = o.sentido
             and v.datetime_partida
             between o.faixa_horaria_inicio and o.faixa_horaria_fim
     ),
