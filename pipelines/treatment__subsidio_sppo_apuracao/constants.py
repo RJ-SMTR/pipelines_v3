@@ -85,7 +85,12 @@ PRE_CHECKS_LIST = {
         },
     },
     "tecnologia_servico": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "not_null_planned_services__maior_tecnologia_permitida__tecnologia_servico": {
+            "description": "Todos os valores da coluna `maior_tecnologia_permitida` não nulos"
+        },
+        "not_null_planned_services__menor_tecnologia_permitida__tecnologia_servico": {
+            "description": "Todos os valores da coluna `menor_tecnologia_permitida` não nulos"
+        },
         "dbt_utils__unique_combination_of_columns__tecnologia_servico": {
             "description": "Todos os registros são únicos"
         },
@@ -114,7 +119,7 @@ PRE_CHECKS_LIST = {
         "dbt_utils__unique_combination_of_columns__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
-        "unique__snapshot_key__viagem_planejada": {
+        "unique_surrogate_key__viagem_planejada": {
             "description": "A chave composta usada pelo snapshot de `viagem_planejada` é única em todos os registros"
         },
         "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart": {

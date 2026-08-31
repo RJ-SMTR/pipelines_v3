@@ -450,6 +450,18 @@ models:
             combination_of_columns:
               - inicio_vigencia
               - servico
+      - not_null_planned_services:
+          name: not_null_planned_services__maior_tecnologia_permitida__tecnologia_servico
+          config:
+            where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+          arguments:
+            column_name: maior_tecnologia_permitida
+      - not_null_planned_services:
+          name: not_null_planned_services__menor_tecnologia_permitida__tecnologia_servico
+          config:
+            where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
+          arguments:
+            column_name: menor_tecnologia_permitida
     columns:
       - name: inicio_vigencia
         description: "Data de inicio da vigência"
@@ -479,19 +491,9 @@ models:
       - name: maior_tecnologia_permitida
         description: "Maior tipo de tecnologia permitida para o veículo"
         data_type: string
-        tests:
-          - not_null_for_planned_services:
-              name: not_null__maior_tecnologia_permitida__tecnologia_servico
-              config:
-                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
       - name: menor_tecnologia_permitida
         description: "Menor tipo de tecnologia permitida para o veículo"
         data_type: string
-        tests:
-          - not_null_for_planned_services:
-              name: not_null__menor_tecnologia_permitida__tecnologia_servico
-              config:
-                where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
   - name: servico_planejado_faixa_horaria
     description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
     columns:
