@@ -7,47 +7,49 @@
 with
     viagem_completa as (
         select
-            id_viagem,
             data,
+            id_viagem,
             id_empresa,
-            id_veiculo,
+            datetime_partida,
+            datetime_chegada,
+            "Ônibus" as modo,
+            "SPPO" as sistema,
+            tipo_dia,
+            consorcio,
             servico_informado as servico_gps,
             servico_realizado as servico,
-            consorcio,
-            "SPPO" as sistema,
-            "Ônibus" as modo,
             cast(null as string) as route_id,
             trip_id,
             shape_id,
             sentido,
+            id_veiculo,
             distancia_planejada,
-            datetime_partida,
-            datetime_chegada,
-            versao_modelo as versao,
-            datetime_ultima_atualizacao
+            datetime_ultima_atualizacao,
+            versao_modelo as versao
         from {{ ref("viagem_completa") }}
         where date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     viagem_valida as (
         select
-            id_viagem,
             data,
+            id_viagem,
             regexp_extract(upper(id_veiculo), r"^[A-Z]([0-9]{3})") as id_empresa,
-            id_veiculo,
+            datetime_partida,
+            datetime_chegada,
+            modo,
+            sistema,
+            tipo_dia,
+            consorcio,
             servico as servico_gps,
             servico,
-            consorcio,
-            sistema,
-            modo,
             route_id,
             trip_id,
             shape_id,
             sentido,
+            id_veiculo,
             distancia_planejada,
-            datetime_partida,
-            datetime_chegada,
-            versao,
-            datetime_ultima_atualizacao
+            datetime_ultima_atualizacao,
+            versao
         from {{ ref("viagem_valida") }}
         where date(datetime_partida) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
