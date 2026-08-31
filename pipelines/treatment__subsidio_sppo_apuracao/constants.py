@@ -85,8 +85,11 @@ PRE_CHECKS_LIST = {
         },
     },
     "tecnologia_servico": {
-        "not_null_planned_services": {
-            "description": "Todos os valores da coluna `{column_name}` não nulos"
+        "not_null_planned_services__maior_tecnologia_permitida__tecnologia_servico": {
+            "description": "Todos os valores da coluna `maior_tecnologia_permitida` não nulos"
+        },
+        "not_null_planned_services__menor_tecnologia_permitida__tecnologia_servico": {
+            "description": "Todos os valores da coluna `menor_tecnologia_permitida` não nulos"
         },
         "dbt_utils__unique_combination_of_columns__tecnologia_servico": {
             "description": "Todos os registros são únicos"
