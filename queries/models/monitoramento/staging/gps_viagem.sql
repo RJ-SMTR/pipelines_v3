@@ -69,6 +69,11 @@ with
         from {{ source("monitoramento", "gps_onibus_cittati") }}
         where {{ incremental_filter }}
     ),
+    gps_maxtrack as (
+        select data, datetime_gps, servico, id_veiculo, latitude, longitude
+        from {{ source("monitoramento", "gps_v2_onibus_maxtrack") }}
+        where {{ incremental_filter }}
+    ),
     gps_brt as (
         select
             data,
@@ -93,6 +98,11 @@ with
 
         select *, 'cittati' as fornecedor
         from gps_cittati
+
+        union all
+
+        select *, 'maxtrack' as fornecedor
+        from gps_maxtrack
 
         union all
 
