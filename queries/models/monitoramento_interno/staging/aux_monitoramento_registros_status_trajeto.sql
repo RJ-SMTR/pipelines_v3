@@ -19,6 +19,9 @@
         where {{ incremental_filter }}
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% if gtfs_feeds | length == 0 %}
+        {% set gtfs_feeds = ["'2000-01-01'"] %}
+    {% endif %}
 {% endif %}
 
 -- 1. Seleciona sinais de GPS registrados no período
@@ -27,7 +30,6 @@ with
         select
             g.* except (longitude, latitude, servico),
             servico,
-            substr(id_veiculo, 2, 3) as id_empresa,
             st_geogpoint(longitude, latitude) as geo_point_gps,
             case
                 when extract(hour from datetime_gps) < 3
@@ -64,6 +66,8 @@ with
             feed_start_date,
             servico,
             consorcio,
+            sistema,
+            modo,
             sentido,
             extensao,
             faixa_horaria_inicio,
@@ -78,6 +82,8 @@ with
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
+            sp.modo,
             sp.sentido,
             sp.extensao,
             trip.trip_id,
@@ -94,6 +100,8 @@ with
             sp.feed_start_date,
             sp.servico,
             sp.consorcio,
+            sp.sistema,
+            sp.modo,
             sp.sentido,
             alt.extensao,
             alt.trip_id,
@@ -109,6 +117,8 @@ with
             feed_start_date,
             servico,
             consorcio,
+            sistema,
+            modo,
             sentido,
             extensao,
             trip_id,
@@ -132,13 +142,14 @@ with
         select
             data_operacao as data,
             g.id_veiculo,
-            g.id_empresa,
             g.datetime_gps,
             g.fonte_gps,
             g.geo_point_gps,
             trim(g.servico, " ") as servico_gps,
             s.servico as servico_viagem,
             s.consorcio,
+            s.sistema,
+            s.modo,
             s.shape_id,
             s.sentido,
             s.trip_id,
