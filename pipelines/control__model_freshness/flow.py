@@ -20,6 +20,7 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     setup_dbt_queries,
 )
@@ -65,6 +66,12 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
         datetime_start=timestamp - lookback,
         datetime_end=timestamp,
         env=env,
+    )
+
+    ingest_dbt_artifacts_to_openmetadata(
+        env=env,
+        deployment_name=runtime.deployment.name,
+        flow_run_id=runtime.flow_run.id,
     )
 
     has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)

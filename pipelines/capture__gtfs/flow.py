@@ -36,6 +36,7 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_quality_check.tasks import task_dbt_test_notify_discord
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     setup_dbt_queries,
 )
@@ -184,6 +185,12 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
         )
         dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env, flags=flags)
+        ingest_dbt_artifacts_to_openmetadata(
+            env=env,
+            deployment_name=deployment_name,
+            flow_run_id=runtime.flow_run.id,
+            wait_for=[dbt_logs],
+        )
         task_dbt_test_notify_discord(
             dbt_test=dbt_test,
             dbt_vars={"data_versao_gtfs": data_versao_gtfs_final},

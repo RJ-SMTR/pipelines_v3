@@ -16,6 +16,7 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
@@ -45,6 +46,8 @@ def treatment__sppo_viagens(  # noqa: PLR0913
     skip_source_check: bool = False,
     force_current_day: bool = False,
 ):
+    deployment_name = runtime.deployment.name
+    flow_run_id = runtime.flow_run.id
     env_task = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env_task)
     sentry_task = initialize_sentry(env=env_task)
@@ -84,6 +87,13 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             mode="post",
             flags=flags,
             wait_for=[run_dbt],
+        )
+
+        ingest_dbt_artifacts_to_openmetadata(
+            env=env_task,
+            deployment_name=deployment_name,
+            flow_run_id=flow_run_id,
+            wait_for=[post_tests],
         )
 
         post_tests_notify = task_dbt_selector_test_notify_discord.map(
