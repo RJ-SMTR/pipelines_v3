@@ -1,6 +1,15 @@
 models:
   - name: viagem_informada_monitoramento
     description: "Detalhes das viagens informadas pelas operadoras de ônibus"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento
+          config:
+            where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}') and id_viagem_planejada is not null"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem_planejada
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -11,9 +20,38 @@ models:
       - name: sequencial_viagem
         description: "{{ doc('sequencial_viagem') }}"
         data_type: int64
+        tests:
+          - not_null:
+              name: not_null__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+          - unique:
+              name: unique__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+          - dbt_utils.sequential_values:
+              name: dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                interval: 1
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_viagem_planejada__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__id_viagem_planejada__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+              arguments:
+                to: ref("viagem_planejada_planejamento_dia")
+                field: id_viagem
+                from_condition: "fonte_gps = 'maxtrack'"
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
