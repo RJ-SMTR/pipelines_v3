@@ -78,6 +78,9 @@ models:
       - name: nome_fantasia
         description: "{{ doc('nome_fantasia_entidade_credenciadora_riorotativo') }}"
         data_type: string
+      - name: datetime_inclusao
+        description: Data e hora em que o guardador foi incluído na tabela `riorotativo.guardador_veiculo_historico`
+        data_type: datetime
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
