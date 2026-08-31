@@ -45,7 +45,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     fallback_run: bool = False,
     skip_pre_test: bool = False,
     test_only: bool = False,
-    ingest_openmetadata: bool = False,
+    ingest_openmetadata: bool = True,
     save_redis: Optional[bool] = True,
 ):
     """
