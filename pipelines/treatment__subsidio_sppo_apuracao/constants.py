@@ -103,11 +103,6 @@ PRE_CHECKS_LIST = {
             "description": "Todos os registros de viagem não se sobrepõem"
         },
     },
-    "viagens_remuneradas": {
-        "check_viagem_completa__viagens_remuneradas": {
-            "description": "Todos os dados de `feed_start_date` e `datetime_ultima_atualizacao` correspondem ao feed GTFS vigente"
-        },
-    },
     "viagem_planejada": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "dbt_utils__accepted_range": {
@@ -119,7 +114,9 @@ PRE_CHECKS_LIST = {
         "dbt_utils__unique_combination_of_columns__viagem_planejada": {
             "description": "Todos os registros são únicos"
         },
-        "unique__snapshot_key__viagem_planejada": {"description": "Todos os registros são únicos"},
+        "unique__snapshot_key__viagem_planejada": {
+            "description": "A chave composta usada pelo snapshot de `viagem_planejada` é única em todos os registros"
+        },
         "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart": {
             "description": "Todas as datas possuem dados"
         },
@@ -156,11 +153,6 @@ PRE_CHECKS_LIST = {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os registros são únicos"},
     },
-    "sumario_servico_dia_historico": {
-        "subsidio_viagens_atualizadas__sumario_servico_dia_historico": {
-            "description": "Todos os dados de `datetime_ultima_atualizacao` correspondem a `viagem_completa`"
-        },
-    },
 }
 
 POST_TEST_V8_SELECT = "dashboard_subsidio_sppo"
@@ -173,7 +165,7 @@ POST_TEST_V14_SELECT = (
 POST_CHECKS_LIST = {
     "sumario_servico_dia_historico": {
         "subsidio_viagens_atualizadas__sumario_servico_dia_historico": {
-            "description": "Todos os dados de `datetime_ultima_atualizacao` correspondem a `viagem_completa`"
+            "description": "O `sumario_servico_dia_historico` está atualizado em relação à `viagem_completa`"
         },
     },
     "sumario_servico_dia_tipo": {
@@ -231,7 +223,7 @@ POST_CHECKS_LIST = {
             "description": "Todas as datas possuem dados"
         },
         "check_viagem_completa__viagens_remuneradas": {
-            "description": "Todos os dados de `feed_start_date` e `datetime_ultima_atualizacao` correspondem ao feed GTFS vigente"
+            "description": "O `feed_start_date` corresponde ao feed GTFS vigente e `datetime_ultima_atualizacao` é igual ou posterior à atualização desse feed"
         },
         "teto_viagens__viagens_remuneradas": {
             "description": "Todas as viagens foram corretamente identificadas dentro das regras de limite"
