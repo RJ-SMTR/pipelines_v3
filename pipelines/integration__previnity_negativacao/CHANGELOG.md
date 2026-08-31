@@ -1,5 +1,11 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.3.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a materialização e os testes da integração (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
 ## [1.2.1] - 2026-06-23
 
 ### Alterado

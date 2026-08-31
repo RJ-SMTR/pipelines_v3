@@ -10,6 +10,7 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
@@ -108,6 +109,13 @@ def integration__upload_transacao_cct(  # noqa: PLR0913
         contexts=contexts,
         mode="post",
         wait_for=[run_sincronizacao_model],
+    )
+
+    ingest_dbt_artifacts_to_openmetadata(
+        env=env,
+        deployment_name=runtime.deployment.name,
+        flow_run_id=runtime.flow_run.id,
+        wait_for=[run_sincronizacao_test],
     )
 
     notify_discord = task_dbt_selector_test_notify_discord(
