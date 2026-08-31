@@ -1,5 +1,11 @@
 # Changelog - treatment__sppo_viagens
 
+## [1.3.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a materialização e os testes do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
 ## [1.2.1] - 2026-08-20
 
 ### Adicionado
