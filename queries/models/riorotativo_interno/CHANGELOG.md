@@ -1,5 +1,11 @@
 # Changelog - riorotativo_interno
 
+## [1.0.2] - 2026-09-01
+
+### Alterado
+
+- Altera condição do join da ativação com a validação para utilizar a placa do veículo no modelo `verificacao_guardador_veiculo_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/561)
+
 ## [1.0.1] - 2026-08-26
 
 ### Removido
