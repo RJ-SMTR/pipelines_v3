@@ -673,9 +673,9 @@ JAE_TABLE_CAPTURE_PARAMS = {
                 *
             FROM
                 denuncia
-            WHERE
+            /*WHERE
                 data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'*/
                 """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},
