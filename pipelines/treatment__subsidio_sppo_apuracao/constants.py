@@ -25,13 +25,11 @@ WEBHOOK_KEY = "subsidio_data_check"
 ADDITIONAL_VARS = {"tipo_teste": "subsidio"}
 
 PRE_TEST_SELECT = (
-    "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
-    " veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
+    "veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
     " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_completa"
 )
 PRE_TEST_V25_SELECT = (
-    "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
-    " veiculo_dia tecnologia_servico servico_planejado_faixa_horaria transacao transacao_riocard"
+    "veiculo_dia tecnologia_servico servico_planejado_faixa_horaria transacao transacao_riocard"
     " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_valida"
 )
 PRE_TEST_EXCLUDE = (
@@ -47,33 +45,6 @@ PRE_CHECKS_LIST = {
             "Captura da Jaé sem timestamps ausentes em `transacao`, `transacao_riocard`"
             " e `gps_validador`"
         )
-    },
-    "sppo_realocacao": {
-        "check_gps_capture__sppo_realocacao": {
-            "description": "Todos os dados de realocação foram capturados"
-        }
-    },
-    "sppo_registros": {
-        "check_gps_capture__sppo_registros": {
-            "description": "Todos os dados de GPS foram capturados"
-        }
-    },
-    "gps_sppo": {
-        "check_gps_treatment__gps_sppo": {
-            "description": "Todos os dados de GPS foram devidamente tratados"
-        },
-        "dbt_utils__unique_combination_of_columns__gps_sppo": {
-            "description": "Todos os registros são únicos"
-        },
-    },
-    "sppo_veiculo_dia": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils__unique_combination_of_columns__data_id_veiculo__sppo_veiculo_dia": {
-            "description": "Todos os registros são únicos"
-        },
-        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__sppo_veiculo_dia": {
-            "description": "Todas as datas possuem dados"
-        },
     },
     "veiculo_dia": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
@@ -352,9 +323,6 @@ APURACAO_SUBSIDIO_V14_SELECTOR = DBTSelector(
     post_test=APURACAO_SUBSIDIO_V14_POST_TEST,
 )
 
-# Reusa o selector dbt `apuracao_subsidio_v14`: os modelos de apuração não
-# mudaram no V25 (o corte Viagens 2.0 está nos SQLs). O nome compartilhado
-# mantém o estado no Redis a partir da última materialização V14.
 APURACAO_SUBSIDIO_V25_SELECTOR = DBTSelector(
     name="apuracao_subsidio_v14",
     initial_datetime=DATA_SUBSIDIO_V25_INICIO,

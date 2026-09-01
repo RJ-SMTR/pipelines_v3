@@ -1,5 +1,14 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.6] - 2026-09-01
+
+### Adicionado
+
+- Cria `PRE_TEST_V25_SELECT` e o selector `APURACAO_SUBSIDIO_V25_SELECTOR` para a apuração a partir de `DATA_SUBSIDIO_V25_INICIO`, substituindo `viagem_planejada` e `viagem_completa` por `servico_planejado_faixa_horaria` e `viagem_valida` (Viagens 2.0). (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
+### Removido
+- Remove os testes de GPS legado (`sppo_registros`, `sppo_realocacao`, `check_gps_treatment__gps_sppo`, `sppo_veiculo_dia`) dos pré-testes V14 e V25. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
 ## [1.0.5] - 2026-08-28
 
 ### Adicionado
