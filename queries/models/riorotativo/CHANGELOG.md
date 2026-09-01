@@ -1,5 +1,12 @@
 # Changelog - riorotativo
 
+## [1.0.1] - 2026-08-26## [1.0.1] - 2026-08-26
+
+### Adicionado
+
+- Cria modelo `ativacao_hora_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/561)
+- Adiciona coluna `datetime_inclusao` no modelo `guardador_veiculo_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/561)
+
 ## [1.2.1] - 2026-08-27
 
 ### Adicionado
