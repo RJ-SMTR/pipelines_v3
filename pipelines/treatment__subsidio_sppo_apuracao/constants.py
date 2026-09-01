@@ -13,6 +13,7 @@ TZ = ZoneInfo(smtr_constants.TIMEZONE)
 
 DATA_SUBSIDIO_V9_INICIO = datetime(2024, 8, 16, 7, 5, 0, tzinfo=TZ)
 DATA_SUBSIDIO_V14_INICIO = datetime(2025, 1, 5, 7, 5, 0, tzinfo=TZ)
+DATA_SUBSIDIO_V25_INICIO = datetime(2026, 8, 1, 7, 5, 0, tzinfo=TZ)
 SUBSIDIO_INITIAL_DATETIME = datetime(2022, 6, 1, 7, 5, 0, tzinfo=TZ)
 
 INCREMENTAL_DELAY_HOURS = 24 * 7  # D-7
@@ -27,6 +28,11 @@ PRE_TEST_SELECT = (
     "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
     " veiculo_dia tecnologia_servico viagem_planejada transacao transacao_riocard"
     " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_completa"
+)
+PRE_TEST_V25_SELECT = (
+    "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
+    " veiculo_dia tecnologia_servico servico_planejado_faixa_horaria transacao transacao_riocard"
+    " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_valida"
 )
 PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
@@ -137,6 +143,19 @@ PRE_CHECKS_LIST = {
         "check_partidas_planejadas": {
             "description": "Todas as viagens possuem `partidas_total_planejada` correspondente à OS"
         },
+    },
+    "servico_planejado_faixa_horaria": {
+        "test_consistencia_servico_planejado_faixa_horaria": {
+            "description": (
+                "Os totais de partidas e quilometragem dos serviços planejados "
+                "correspondem aos da Ordem de Serviço para cada "
+                "`feed_start_date`, `tipo_dia` e `tipo_os`"
+            )
+        },
+    },
+    "viagem_valida": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique__id_viagem__viagem_valida": {"description": "Todos os registros são únicos"},
     },
     "temperatura_inmet": {
         "test_completude__temperatura": {
@@ -275,6 +294,14 @@ APURACAO_SUBSIDIO_PRE_TEST = DBTTest(
     truncate_date=True,
 )
 
+APURACAO_SUBSIDIO_V25_PRE_TEST = DBTTest(
+    test_select=PRE_TEST_V25_SELECT,
+    exclude=PRE_TEST_EXCLUDE,
+    test_descriptions=PRE_CHECKS_LIST,
+    additional_vars=ADDITIONAL_VARS,
+    truncate_date=True,
+)
+
 APURACAO_SUBSIDIO_V8_POST_TEST = DBTTest(
     test_select=POST_TEST_V8_SELECT,
     test_descriptions=POST_CHECKS_LIST,
@@ -318,9 +345,22 @@ APURACAO_SUBSIDIO_V9_SELECTOR = DBTSelector(
 APURACAO_SUBSIDIO_V14_SELECTOR = DBTSelector(
     name="apuracao_subsidio_v14",
     initial_datetime=DATA_SUBSIDIO_V14_INICIO,
+    final_datetime=DATA_SUBSIDIO_V25_INICIO - timedelta(days=1),
     incremental_delay_hours=INCREMENTAL_DELAY_HOURS,
     flow_folder_name="treatment__subsidio_sppo_apuracao",
     pre_test=APURACAO_SUBSIDIO_PRE_TEST,
+    post_test=APURACAO_SUBSIDIO_V14_POST_TEST,
+)
+
+# Reusa o selector dbt `apuracao_subsidio_v14`: os modelos de apuração não
+# mudaram no V25 (o corte Viagens 2.0 está nos SQLs). O nome compartilhado
+# mantém o estado no Redis a partir da última materialização V14.
+APURACAO_SUBSIDIO_V25_SELECTOR = DBTSelector(
+    name="apuracao_subsidio_v14",
+    initial_datetime=DATA_SUBSIDIO_V25_INICIO,
+    incremental_delay_hours=INCREMENTAL_DELAY_HOURS,
+    flow_folder_name="treatment__subsidio_sppo_apuracao",
+    pre_test=APURACAO_SUBSIDIO_V25_PRE_TEST,
     post_test=APURACAO_SUBSIDIO_V14_POST_TEST,
 )
 
