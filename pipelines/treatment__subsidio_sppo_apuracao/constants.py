@@ -238,6 +238,9 @@ POST_CHECKS_LIST = {
         "date_overlap_tipo_viagem": {
             "description": "Todos os períodos de vigência não se sobrepõem"
         },
+        "dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem": {
+            "description": "Todos os valores de `irk_tarifa_publica` são iguais a `irk` - `subsidio_km`."
+        },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
     },
     "viagem_classificada": {
