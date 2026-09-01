@@ -16,6 +16,15 @@
 {% endif %}
 
 {% if is_current_state_enabled() %}
+    with
+        guardador_veiculo_riorotativo_historico as (
+            select
+                *,
+                min(datetime_ultima_atualizacao) over (
+                    partition by documento
+                ) as datetime_inclusao
+            from {{ ref("guardador_veiculo_riorotativo_historico") }}
+        ),
     select
         id_cliente,
         nome,
@@ -27,13 +36,11 @@
         cnpj,
         razao_social,
         nome_fantasia,
-        min(datetime_ultima_atualizacao) over (
-            partition by documento
-        ) as datetime_inclusao,
+        datetime_inclusao,
         '{{ var("version") }}' as versao,
         current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
         '{{ invocation_id }}' as id_execucao_dbt
-    from {{ ref("guardador_veiculo_riorotativo_historico") }}
+    from guardador_veiculo_riorotativo_historico
     where data = date("{{ last_partition }}") and status = "ativo"
 
 {% else %} select * from {{ this }}
