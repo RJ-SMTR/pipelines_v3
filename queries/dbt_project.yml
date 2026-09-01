@@ -27,6 +27,9 @@ vars:
   disable_dbt_artifacts_autoupload: true
   disable_dbt_invocation_autoupload: true
 
+  ### dbt utils ###
+  surrogate_key_treat_nulls_as_empty_strings: true
+
   ### Date default variables ###
   "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
@@ -420,6 +423,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: gtfs
+      +meta:
+        openmetadata:
+          domain: "planejamento.planejamento_operacional"
       deprecated:
         +materialized: view
         +schema: dashboard_subsidio_van
@@ -641,6 +647,10 @@ models:
     projeto_riorotativo_cct:
       +materialized: view
       +schema: projeto_riorotativo_cct
+    dashboard_riorotativo:
+      +materialized: view
+      +schema: dashboard_riorotativo
+      +description: "Views para os Dashboards do Rio Rotativo Digital"
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:
