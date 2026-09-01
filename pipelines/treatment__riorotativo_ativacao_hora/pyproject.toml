@@ -1,0 +1,4 @@
+[project]
+name = "treatment__riorotativo_ativacao_hora"
+version = "0.1.0"
+description = "Pipeline riorotativo_ativacao_hora da secretaria rj-smtr"
