@@ -70,6 +70,7 @@ select
     vv.modo,
     vv.consorcio,
     vv.sistema,
+    vv.vista,
     vv.tipo_dia,
     vv.servico,
     vv.route_id,
