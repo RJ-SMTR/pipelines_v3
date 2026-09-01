@@ -107,6 +107,7 @@ ESTACIONAMENTO_VEICULO_TABLE_ID = "estacionamento_veiculo"
 VEICULO_TABLE_ID = "veiculo"
 VEICULO_CLIENTE_TABLE_ID = "veiculo_cliente"
 FISCALIZACAO_VEICULO_TABLE_ID = "fiscalizacao_veiculo"
+DENUNCIA_TABLE_ID = "denuncia"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
@@ -663,6 +664,19 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
                     AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
             """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    DENUNCIA_TABLE_ID: {
+        "query": """
+            SELECT
+                *
+            FROM
+                denuncia
+            WHERE
+                data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                """,
         "database": "estacionamento_db",
         "capture_delay_minutes": {"0": 5},
     },

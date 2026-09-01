@@ -113,6 +113,7 @@ with
             datetime_inicio_periodo,
             datetime_fim_periodo,
             id_veiculo,
+            placa_veiculo,
             cpf_motorista,
             valor_pago_bruto,
             valor_retido_jae,
@@ -174,7 +175,10 @@ with
         from fiscalizacao_staging f
         left join
             ativacao a
-            on f.id_veiculo = a.id_veiculo
+            on (
+                f.id_veiculo = a.id_veiculo
+                or ifnull(f.placa_digitada, f.placa_ocr) = a.placa_veiculo
+            )
             and f.data_fiscalizacao >= a.datetime_inicio_periodo_tolerancia
             and f.data_fiscalizacao < a.datetime_fim_periodo
         left join
