@@ -24,7 +24,7 @@
                     partition by documento
                 ) as datetime_inclusao
             from {{ ref("guardador_veiculo_riorotativo_historico") }}
-        ),
+        )
     select
         id_cliente,
         nome,
