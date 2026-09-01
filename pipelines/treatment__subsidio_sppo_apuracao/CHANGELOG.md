@@ -5,6 +5,7 @@
 ### Adicionado
 
 - Cria `PRE_TEST_V25_SELECT` e o selector `APURACAO_SUBSIDIO_V25_SELECTOR` para a apuração a partir de `DATA_SUBSIDIO_V25_INICIO`, substituindo `viagem_planejada` e `viagem_completa` por `servico_planejado_faixa_horaria` e `viagem_valida` (Viagens 2.0). (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+- Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/582)
 
 ### Removido
 - Remove os testes de GPS legado (`sppo_registros`, `sppo_realocacao`, `check_gps_treatment__gps_sppo`, `sppo_veiculo_dia`) dos pré-testes V14 e V25. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
