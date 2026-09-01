@@ -88,6 +88,7 @@ members = [
     "treatment-pagamento-cct",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
+    "treatment-remuneracao-openfisca",
     "treatment-riorotativo",
     "treatment-sppo-viagens",
     "treatment-subsidio-sppo-apuracao",
@@ -3351,6 +3352,11 @@ source = { virtual = "pipelines/treatment__passageiro_hora" }
 name = "treatment-planejamento-diario"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__planejamento_diario" }
+
+[[package]]
+name = "treatment-remuneracao-openfisca"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__remuneracao_openfisca" }
 
 [[package]]
 name = "treatment-riorotativo"

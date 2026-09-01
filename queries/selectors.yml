@@ -743,6 +743,46 @@ selectors:
         - method: fqn
           value: snapshot_perfil_funcionamento
 
+  - name: remuneracao_openfisca
+    description: >
+      Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
+      dims oferta/lote + cadeia viagem_valida_* + viagens_apuradas.
+      Seeds I.2 exigem `dbt seed` (ou `dbt build`); `dbt run` não as carrega.
+    definition:
+      union:
+        # - method: fqn
+        #   value: sistema_referencia_servico
+        # - method: fqn
+        #   value: sistema_referencia_lote
+        # - method: fqn
+        #   value: sistema_referencia_lote_tecnologia
+        # - method: fqn
+        #   value: servico_oferta_faixa
+        # - method: fqn
+        #   value: lote_servico
+        # - method: fqn
+        #   value: operacao_lote
+        # - method: fqn
+        #   value: operacao_lote_tecnologia
+        # - method: fqn
+        #   value: viagem_valida_classificada
+        # - method: fqn
+        #   value: aux_viagem_valida_temperatura
+        # - method: fqn
+        #   value: viagem_valida_regularidade_temperatura
+        # - method: fqn
+        #   value: viagem_valida_bilhetagem
+        # - method: fqn
+        #   value: viagem_classificacao_validacao
+        - method: fqn
+          value: viagens_apuradas
+        # - method: fqn
+        #   value: fcf_quinzena_lote
+        # - method: fqn
+        #   value: remuneracao_quinzena_lote
+        # - method: fqn
+        #   value: remuneracao_veiculo_quinzena
+
   - name: riorotativo_operacao
     description: Materialização de tabelas da operação do Rio Rotativo Digital
     definition:
@@ -781,3 +821,4 @@ selectors:
           value: snapshot_ordem_pagamento_entidade_dia
         - method: fqn
           value: snapshot_ordem_pagamento_guardador_veiculo_dia
+

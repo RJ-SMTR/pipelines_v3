@@ -1,0 +1,9 @@
+lote,data_inicio,data_fim,frota_operante_hp,frota_determinada,viagens_dia_util,km_comercial_dia_util,qr_mensal,fonte
+A2,2026-08-01,2027-04-30,103,117,1344,28054,841620,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+A2,2027-05-01,,190,216,2658,46398,1342970.3,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+B1,2026-08-01,2027-04-30,112,128,1130,35250,1057500,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+B1,2027-05-01,,135,152,1284,39802,1085885.1,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+B2,2026-08-01,2027-04-30,45,52,664,9011,270330,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+B2,2027-05-01,2028-08-24,88,100,1181,17739,532170,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+B2,2028-08-25,,141,160,1897,27242,772144.2,Anexo I.2 Tab.24-26 (+ I.9 QR quando disponível)
+A0,2026-07-01,2026-07-31,190,216,2658,46398,1342970.3,simulação A0 stub (cópia A2 plena)

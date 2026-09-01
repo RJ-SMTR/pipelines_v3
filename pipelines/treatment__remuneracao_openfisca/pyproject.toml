@@ -1,0 +1,4 @@
+[project]
+name = "treatment__remuneracao_openfisca"
+version = "0.1.0"
+description = "Pipeline de remuneração I.8 / OpenFisca (rj-smtr)"
