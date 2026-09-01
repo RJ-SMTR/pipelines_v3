@@ -50,6 +50,12 @@ models:
           name: date_overlap_tipo_viagem__valor_km_tipo_viagem
           config:
             where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+      - dbt_utils.expression_is_true:
+          name: dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem
+          config:
+            where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            expression: irk_tarifa_publica = irk - subsidio_km
     columns:
       - name: status
         description: "{{ doc('tipo_viagem_status') }}"
@@ -74,6 +80,8 @@ models:
               name: not_null__irk__valor_km_tipo_viagem
               config:
                 where: "data_inicio between date('{date_range_start}') and date('{date_range_end}') or data_fim between date('{date_range_start}') and date('{date_range_end}')"
+      - name: irk_tarifa_publica
+        description: "{{ doc('irk_tarifa_publica') }}"
       - name: data_inicio
         description: "{{ doc('data_inicio_parametros') }}"
         tests:
