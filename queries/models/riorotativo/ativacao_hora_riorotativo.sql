@@ -77,7 +77,7 @@ with
                 {{ sha_column }} as sha_dado_atual,
                 datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
                 id_execucao_dbt as id_execucao_dbt_atual
-            from dados_atuais
+            from {{ this }}
 
         {% else %}
             select
