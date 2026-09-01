@@ -47,7 +47,7 @@ with
     area_estacionamento_data_perfil as (
         select a.*,
         from area_estacionamento_data a
-        left join
+        join
             {{ ref("perfil_funcionamento_riorotativo") }} p
             on p.id_perfil_funcionamento in unnest(a.id_perfil_funcionamento)
             and extract(dayofweek from a.data) in unnest(p.dias_semana)
