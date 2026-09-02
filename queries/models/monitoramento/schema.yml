@@ -1397,18 +1397,32 @@ models:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
         data_type: date
+        tests:
+          - not_null:
+              name: not_null__data__viagem_valida
       - name: id_viagem
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_viagem__viagem_valida
+          - unique:
+              name: unique__id_viagem__viagem_valida
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_partida__viagem_valida
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_chegada__viagem_valida
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
@@ -1418,45 +1432,90 @@ models:
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_dia__viagem_valida
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__consorcio__viagem_valida
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__servico__viagem_valida
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__route_id__viagem_valida
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__trip_id__viagem_valida
       - name: shape_id
         description: "{{ doc('shape_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__shape_id__viagem_valida
       - name: sentido
         description: "{{ doc('sentido') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__sentido__viagem_valida
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__viagem_valida
       - name: placa
         description: "{{ doc('placa') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__placa__viagem_valida
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
       - name: ano_fabricacao
         description: "{{ doc('ano_fabricacao') }}"
         data_type: int64
+        tests:
+          - not_null:
+              name: not_null__ano_fabricacao__viagem_valida
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
       - name: tecnologia_apurada
         description: "{{ doc('tecnologia') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__tecnologia_apurada__viagem_valida
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}') and tipo_viagem != 'Não licenciado'"
       - name: tipo_viagem
         description: "{{ doc('tipo_viagem_status') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__tipo_viagem__viagem_valida
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
+        tests:
+          - not_null:
+              name: not_null__distancia_planejada__viagem_valida
       - name: velocidade_media
         description: "{{ doc('velocidade_media_viagem') }}"
         data_type: float64
@@ -1466,6 +1525,9 @@ models:
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__versao__viagem_valida
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
