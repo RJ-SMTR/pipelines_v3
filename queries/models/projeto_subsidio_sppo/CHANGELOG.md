@@ -1,5 +1,11 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.4] - 2026-09-02
+
+### Adicionado
+
+- Restaura o teste `test_tecnologia_servico_planejado` em `viagem_planejada`(https://github.com/RJ-SMTR/pipelines_v3/pull/607)
+
 ## [9.5.3] - 2026-08-20
 
 ### Adicionado
