@@ -1,5 +1,16 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.7] - 2026-09-02
+
+### Adicionado
+
+- Cria `PRE_TEST_V25_SELECT` e o selector `APURACAO_SUBSIDIO_V25_SELECTOR` para a apuração a partir de `DATA_SUBSIDIO_V25_INICIO`, usando `servico_planejado_faixa_horaria` e `viagem_valida` no lugar de `viagem_planejada` e `viagem_completa` (Viagens 2.0). (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+- Adiciona no `PRE_CHECKS_LIST` as descrições do teste singular `test_consistencia_servico_planejado_faixa_horaria` e dos testes de `viagem_valida` para a notificação do Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
+### Alterado
+
+- Define `final_datetime` do selector V14 no dia anterior a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
 ## [1.0.6] - 2026-09-01
 
 ### Adicionado
