@@ -102,6 +102,7 @@ models:
                 severity: warn
           - dbt_utils.sequential_values:
               name: dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento
+              description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
               config:
                 where: "fonte_gps = 'maxtrack'"
                 severity: warn
