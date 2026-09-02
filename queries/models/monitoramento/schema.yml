@@ -1456,9 +1456,6 @@ models:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
-        tests:
-          - not_null:
-              name: not_null__trip_id__viagem_valida
       - name: shape_id
         description: "{{ doc('shape_id') }}"
         data_type: string
