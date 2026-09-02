@@ -14,45 +14,25 @@ from pipelines.treatment__planejamento_diario import constants as planejamento_c
 
 VIAGEM_INFORMADA_CHECKS_LIST = {
     "viagem_informada_monitoramento": {
-        (
-            "dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__"
-            "viagem_informada_monitoramento"
-        ): {
+        "dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento": {  # noqa: E501
             "description": ("Cada viagem planejada possui no máximo uma viagem realizada por data.")
         },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os valores da coluna `{column_name}` são únicos"},
         "dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento": {
-            "description": (
-                "Os valores de `sequencial_viagem` são contínuos, sem buracos, "
-                "no intervalo testado."
-            )
+            "description": "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."  # noqa: E501
         },
-        (
-            "dbt_utils__relationships_where__data_id_viagem_planejada__"
-            "viagem_informada_monitoramento"
-        ): {
-            "description": (
-                "Cada par `(data, id_viagem_planejada)` consta em `viagem_planejada_dia`."
-            )
+        "dbt_utils__relationships_where__data_id_viagem_planejada__viagem_informada_monitoramento": {  # noqa: E501
+            "description": "Cada par `(data, id_viagem_planejada)` consta em `viagem_planejada_dia`.",  # noqa: E501
         },
         "dbt_utils__relationships_where__route_id__viagem_informada_monitoramento": {
-            "description": (
-                "Todo `route_id` informado corresponde a um `route_id` do GTFS associado ao "
-                "período testado."
-            )
+            "description": "Todo `route_id` informado corresponde a um `route_id` do GTFS associado ao período testado.",  # noqa: E501
         },
         "dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento": {
-            "description": (
-                "Todo `trip_id` informado corresponde a um `trip_id` do GTFS associado ao "
-                "período testado."
-            )
+            "description": "Todo `trip_id` informado corresponde a um `trip_id` do GTFS associado ao período testado.",  # noqa: E501
         },
         "dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento": {
-            "description": (
-                "Todo `shape_id` informado corresponde a um `shape_id` do GTFS associado ao "
-                "período testado."
-            )
+            "description": "Todo `shape_id` informado corresponde a um `shape_id` do GTFS associado ao período testado.",  # noqa: E501
         },
     }
 }
