@@ -3,7 +3,7 @@
 Flow de apuração do subsídio SPPO
 
 Migrado de pipelines_rj_smtr (Prefect 1.4) — `subsidio_sppo_apuracao`.
-Executa selectors V8/V9/monitoramento conforme range de datas, snapshot final
+Executa selectors V8/V9/V14/V25/monitoramento conforme range de datas, snapshot final
 e pré-checagem de captura de dados da Jaé.
 
 Common: 2026-05-22
@@ -37,6 +37,7 @@ def treatment__subsidio_sppo_apuracao(  # noqa: PLR0913
             constants.APURACAO_SUBSIDIO_V8_SELECTOR,
             constants.APURACAO_SUBSIDIO_V9_SELECTOR,
             constants.APURACAO_SUBSIDIO_V14_SELECTOR,
+            constants.APURACAO_SUBSIDIO_V25_SELECTOR,
             constants.MONITORAMENTO_SUBSIDIO_SELECTOR,
         ],
         snapshot_selector=constants.SNAPSHOT_SUBSIDIO_SELECTOR,

@@ -203,7 +203,7 @@ with
         select
             data_ordem,
             id_ordem_pagamento_consorcio_operador_dia,
-            round(sum(valor_transacao_rateio) + 0.0001, 2) as valor_transacao
+            round(sum(valor_transacao_rateio) + 0.00001, 2) as valor_transacao
         from transacao_valor_ordem_completa
         group by 1, 2
     ),
