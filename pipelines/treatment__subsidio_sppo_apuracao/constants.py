@@ -143,14 +143,12 @@ PRE_CHECKS_LIST = {
             "description": "Todas as viagens possuem `partidas_total_planejada` correspondente à OS"
         },
     },
-    "servico_planejado_faixa_horaria": {
-        "test_consistencia_servico_planejado_faixa_horaria": {
-            "description": (
-                "Os totais de partidas e quilometragem dos serviços planejados "
-                "correspondem aos da Ordem de Serviço para cada "
-                "`feed_start_date`, `tipo_dia` e `tipo_os`"
-            )
-        },
+    "test_consistencia_servico_planejado_faixa_horaria": {
+        "description": (
+            "Os totais de partidas e quilometragem dos serviços planejados "
+            "correspondem aos da Ordem de Serviço para cada "
+            "feed_start_date, tipo_dia e tipo_os."
+        )
     },
     "viagem_valida": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
