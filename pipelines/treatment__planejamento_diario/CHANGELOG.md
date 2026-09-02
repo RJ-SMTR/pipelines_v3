@@ -1,10 +1,10 @@
 # Changelog
 
-## [1.1.1] - 2026-08-31
+## [1.1.1] - 2026-09-02
 
-### Adicionado
+### Corrigido
 
-- Adiciona descrições dos testes `check_km_planejada__sumario_faixa_servico_dia`, `check_km_planejada__sumario_faixa_servico_dia_pagamento`, `check_km_planejada__viagem_planejada` e `teto_viagens__viagens_remuneradas` para notificação no Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/607)
+
 
 ## [1.1.0] - 2026-08-17
 
