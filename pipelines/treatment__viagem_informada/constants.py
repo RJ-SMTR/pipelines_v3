@@ -28,9 +28,30 @@ VIAGEM_INFORMADA_CHECKS_LIST = {
                 "no intervalo testado."
             )
         },
-        "dbt_utils__relationships_where__id_viagem_planejada__viagem_informada_monitoramento": {
+        (
+            "dbt_utils__relationships_where__data_id_viagem_planejada__"
+            "viagem_informada_monitoramento"
+        ): {
             "description": (
-                "Toda viagem realizada Maxtrack possui uma viagem planejada correspondente."
+                "Cada par `(data, id_viagem_planejada)` consta em `viagem_planejada_dia`."
+            )
+        },
+        "dbt_utils__relationships_where__route_id__viagem_informada_monitoramento": {
+            "description": (
+                "Todo `route_id` informado corresponde a um `route_id` do GTFS associado ao "
+                "período testado."
+            )
+        },
+        "dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento": {
+            "description": (
+                "Todo `trip_id` informado corresponde a um `trip_id` do GTFS associado ao "
+                "período testado."
+            )
+        },
+        "dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento": {
+            "description": (
+                "Todo `shape_id` informado corresponde a um `shape_id` do GTFS associado ao "
+                "período testado."
             )
         },
     }
