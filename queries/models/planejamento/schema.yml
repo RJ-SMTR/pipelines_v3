@@ -496,6 +496,9 @@ models:
         data_type: string
   - name: servico_planejado_faixa_horaria
     description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
+    tests:
+      - test_consistencia_servico_planejado_faixa_horaria:
+          name: test_consistencia_servico_planejado_faixa_horaria__servico_planejado_faixa_horaria
     columns:
       - name: data
         description: "Data [partição]"

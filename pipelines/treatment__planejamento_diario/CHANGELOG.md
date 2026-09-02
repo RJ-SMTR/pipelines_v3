@@ -6,10 +6,6 @@
 
 - Adiciona descrições dos testes `check_km_planejada__sumario_faixa_servico_dia`, `check_km_planejada__sumario_faixa_servico_dia_pagamento`, `check_km_planejada__viagem_planejada` e `teto_viagens__viagens_remuneradas` para notificação no Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/607)
 
-### Corrigido
-
-- Corrige o casamento da descrição do teste `test_consistencia_servico_planejado_faixa_horaria` na notificação do Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/607)
-
 ## [1.1.0] - 2026-08-17
 
 ### Adicionado
