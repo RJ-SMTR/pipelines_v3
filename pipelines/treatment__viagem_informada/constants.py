@@ -15,7 +15,7 @@ from pipelines.treatment__planejamento_diario import constants as planejamento_c
 VIAGEM_INFORMADA_CHECKS_LIST = {
     "viagem_informada_monitoramento": {
         "dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento": {
-            "description": ("Cada viagem planejada possui no máximo uma viagem realizada por data.")
+            "description": "Cada viagem planejada possui no máximo uma viagem realizada por data."
         },
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
         "unique": {"description": "Todos os valores da coluna `{column_name}` são únicos"},
