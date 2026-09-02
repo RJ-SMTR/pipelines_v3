@@ -1,11 +1,5 @@
 # Changelog - planejamento
 
-## [1.8.9] - 2026-09-02
-
-### Adicionado
-
-- Declara o teste `test_consistencia_servico_planejado_faixa_horaria` no schema de `servico_planejado_faixa_horaria` (https://github.com/RJ-SMTR/pipelines_v3/pull/607)
-
 ## [1.8.8] - 2026-08-28
 
 ### Alterado
