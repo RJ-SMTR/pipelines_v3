@@ -8,7 +8,7 @@
 - Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/582)
 
 ### Removido
-- Remove os testes de GPS legado (`sppo_registros`, `sppo_realocacao`, `check_gps_treatment__gps_sppo`, `sppo_veiculo_dia`) dos pré-testes V14 e V25. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+- Remove os testes de GPS legado (`sppo_registros`, `sppo_realocacao`, `check_gps_treatment__gps_sppo`, `sppo_veiculo_dia`) do pré-teste V25.(https://github.com/RJ-SMTR/pipelines_v3/pull/614)
 
 ## [1.0.5] - 2026-08-28
 
