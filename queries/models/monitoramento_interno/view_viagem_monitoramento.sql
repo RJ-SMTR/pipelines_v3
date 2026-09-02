@@ -17,6 +17,8 @@ with
             vista,
             tipo_dia,
             consorcio,
+            servico_informado,
+            servico_realizado,
             servico_informado as servico_gps,
             servico_realizado as servico,
             cast(null as string) as route_id,
@@ -25,6 +27,9 @@ with
             sentido,
             id_veiculo,
             distancia_planejada,
+            inicio_periodo,
+            fim_periodo,
+            tempo_viagem,
             datetime_ultima_atualizacao,
             versao_modelo as versao
         from {{ ref("viagem_completa") }}
@@ -42,6 +47,8 @@ with
             vista,
             tipo_dia,
             consorcio,
+            servico as servico_informado,
+            servico as servico_realizado,
             servico as servico_gps,
             servico,
             route_id,
@@ -50,6 +57,9 @@ with
             sentido,
             id_veiculo,
             distancia_planejada,
+            cast(null as datetime) as inicio_periodo,
+            cast(null as datetime) as fim_periodo,
+            datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_viagem,
             datetime_ultima_atualizacao,
             versao
         from {{ ref("viagem_valida") }}

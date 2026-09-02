@@ -1,5 +1,11 @@
 # Changelog - datario
 
+## [1.0.5] - 2026-09-02
+
+### Alterado
+
+- Amplia `view_viagem_onibus_datario` com `servico_informado`, `servico_realizado`, `vista`, `inicio_periodo`, `fim_periodo` e mantém `servico` como alias de compatibilidade (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+
 ## [1.0.4] - 2026-07-27
 
 ### Alterado

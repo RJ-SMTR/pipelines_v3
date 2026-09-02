@@ -91,8 +91,17 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
+      - name: servico_informado
+        description: "{{ doc('servico_informado') }}"
+        data_type: string
+      - name: servico_realizado
+        description: "{{ doc('servico') }}"
+        data_type: string
       - name: servico
-        description: "{{ doc('servico') }} [com base na identificação do trajeto]"
+        description: "{{ doc('servico') }} [alias de compatibilidade]"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
         data_type: string
       - name: shape_id
         description: "{{ doc('shape_id') }}"
@@ -105,6 +114,12 @@ models:
         data_type: datetime
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
+        data_type: datetime
+      - name: inicio_periodo
+        description: "{{ doc('inicio_periodo') }}"
+        data_type: datetime
+      - name: fim_periodo
+        description: "{{ doc('fim_periodo') }}"
         data_type: datetime
       - name: tempo_viagem
         description: "Duração aferida da viagem em minutos."

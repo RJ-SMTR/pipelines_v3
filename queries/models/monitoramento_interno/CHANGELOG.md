@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.7] - 2026-09-02
+
+### Alterado
+
+- Amplia `view_viagem_monitoramento` com `servico_informado`, `servico_realizado`, `inicio_periodo`, `fim_periodo` e `tempo_viagem`, mantendo `servico_gps` e `servico` como aliases de compatibilidade (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+
 ## [1.0.6] - 2026-08-28
 
 ### Adicionado
