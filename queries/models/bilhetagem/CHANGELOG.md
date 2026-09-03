@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona o tipo transacao QRCode Evento no tratamento de transações do tipo Integral ()
+- Adiciona o tipo transacao QRCode Evento no tratamento de transações do tipo Integral (https://github.com/RJ-SMTR/pipelines_v3/pull/626)
 
 ## [3.3.12] - 2026-07-16
 
