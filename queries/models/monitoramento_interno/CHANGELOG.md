@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.7] - 2026-09-03
+
+### Alterado
+
+- Altera `monitoramento_servico_dia_v2` para obter `vista` de `aux_viagem_planejada_planejamento_dia_unnested` a partir de `DATA_SUBSIDIO_V25_INICIO`. Mantém `viagem_planejada` no período anterior. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [1.0.6] - 2026-08-28
 
 ### Adicionado
