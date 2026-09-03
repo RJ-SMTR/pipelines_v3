@@ -21,7 +21,7 @@ with
             o.indicador_operador_ativo_jae
         from {{ ref("aux_operadora_jae_historico") }} o
         left join
-            {{ ref("aux_operadora_jae_cliente_historico") }} c
+            {{ ref("aux_cliente_jae_historico") }} c
             on o.id_cliente = c.id_cliente
             and (
                 (
