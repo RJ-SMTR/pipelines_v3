@@ -9,7 +9,6 @@ with
         select
             data,
             id_viagem,
-            id_empresa,
             datetime_partida,
             datetime_chegada,
             "Ônibus" as modo,
@@ -33,7 +32,6 @@ with
         select
             data,
             id_viagem,
-            regexp_extract(upper(id_veiculo), r"^[A-Z]([0-9]{3})") as id_empresa,
             datetime_partida,
             datetime_chegada,
             modo,

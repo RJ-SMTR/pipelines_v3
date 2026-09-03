@@ -73,9 +73,6 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
-      - name: id_empresa
-        description: "{{ doc('id_empresa') }}"
-        data_type: string
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime

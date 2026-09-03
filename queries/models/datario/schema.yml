@@ -71,7 +71,7 @@ models:
       - name: versao
         description: "{{ doc('versao') }}"
   - name: view_viagem_onibus_datario
-    description: "Uma linha por viagem realizada no histórico publicado como `viagem_onibus` para o Data.Rio e painéis públicos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. Na nova arquitetura, `id_empresa` é extraído de `id_veiculo`, enquanto `perc_conformidade_shape` e `perc_conformidade_registros` não estão disponíveis."
+    description: "Uma linha por viagem realizada no histórico publicado como `viagem_onibus` para o Data.Rio e painéis públicos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. Na nova arquitetura, `perc_conformidade_shape` e `perc_conformidade_registros` não estão disponíveis."
     columns:
       - name: data
         description: "{{ doc('data_viagem') }}"
@@ -81,9 +81,6 @@ models:
         data_type: string
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
-        data_type: string
-      - name: id_empresa
-        description: "{{ doc('id_empresa') }}"
         data_type: string
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
