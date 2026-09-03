@@ -6,12 +6,52 @@
     )
 }}
 
+{% set viagem_valida = ref("viagem_valida") %}
+{% if execute and is_incremental() and var(
+    "flow_name"
+) == "treatment--monitoramento-temperatura" %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        viagem_valida,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+    {% set context_partitions = get_modified_partitions_filter(
+        viagem_valida,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date("{{var('date_range_start')}}") and date_add(date("{{ var('date_range_end') }}"), interval 1 day) and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    (
+        data between date("{{ var('date_range_start') }}") and date_add(
+            date("{{ var('date_range_end') }}"), interval 1 day
+        )
+        {% if is_incremental() and context_partitions | length > 0 %}
+            or (
+                data in ({{ context_partitions | join(", ") }})
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            )
+        {% endif %}
+    )
+    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset -%}
 
 {% set partition_filter %}
-    data between date("{{var('date_range_start')}}") and date("{{ var('date_range_end') }}") and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    (
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+        {% if is_incremental() and modified_partitions | length > 0 %}
+            or (
+                data in ({{ modified_partitions | join(", ") }})
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            )
+        {% endif %}
+    )
+    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset %}
 
 {% if execute %}
