@@ -91,14 +91,8 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         data_type: string
-      - name: servico_informado
-        description: "{{ doc('servico_informado') }}"
-        data_type: string
-      - name: servico_realizado
-        description: "{{ doc('servico') }}"
-        data_type: string
       - name: servico
-        description: "{{ doc('servico') }} [alias de compatibilidade]"
+        description: "{{ doc('servico') }}"
         data_type: string
       - name: vista
         description: "{{ doc('vista') }}"
@@ -115,27 +109,12 @@ models:
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         data_type: datetime
-      - name: inicio_periodo
-        description: "{{ doc('inicio_periodo') }}"
-        data_type: datetime
-      - name: fim_periodo
-        description: "{{ doc('fim_periodo') }}"
-        data_type: datetime
       - name: tempo_viagem
         description: "Duração aferida da viagem em minutos."
         data_type: int64
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
-      - name: perc_conformidade_shape
-        description: "{{ doc('perc_conformidade_shape') }}"
-        data_type: float64
-      - name: perc_conformidade_registros
-        description: "{{ doc('perc_conformidade_registros') }}"
-        data_type: float64
-      - name: versao_modelo
-        description: "{{ doc('versao') }}"
-        data_type: string
   - name: licenciamento_veiculo_datario
     description: Tabela histórica de dados cadastrais dos veículos que operam o sistema de transporte rodoviário, considerando tanto os licenciados no Sistema de Transporte Urbano [STU] quanto as solicitações válidas em andamento para ingresso no sistema
     columns:

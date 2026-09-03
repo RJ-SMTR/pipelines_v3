@@ -65,7 +65,7 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
   - name: view_viagem_monitoramento
-    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. A view expõe `servico_informado` e `servico_realizado`, mantendo `servico_gps` e `servico` como aliases de compatibilidade. No pós-V25, `inicio_periodo` e `fim_periodo` recebem nulo e `tempo_viagem` é calculado a partir dos horários de partida e chegada. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus."
+    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus."
     columns:
       - name: data
         description: "{{ doc('data_viagem') }}"
@@ -97,15 +97,6 @@ models:
       - name: consorcio
         description: "{{ doc('consorcio') }}"
         data_type: string
-      - name: servico_informado
-        description: "{{ doc('servico_informado') }}"
-        data_type: string
-      - name: servico_realizado
-        description: "{{ doc('servico') }}"
-        data_type: string
-      - name: servico_gps
-        description: "{{ doc('servico_gps') }}"
-        data_type: string
       - name: servico
         description: "{{ doc('servico') }}"
         data_type: string
@@ -127,21 +118,12 @@ models:
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
-      - name: inicio_periodo
-        description: "{{ doc('inicio_periodo') }}"
-        data_type: datetime
-      - name: fim_periodo
-        description: "{{ doc('fim_periodo') }}"
-        data_type: datetime
       - name: tempo_viagem
         description: "Duração aferida da viagem em minutos."
         data_type: int64
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
-      - name: versao
-        description: "{{ doc('versao') }}"
-        data_type: string
   - name: monitoramento_sumario_servico_dia_historico
     description: "Viagens sumario serviço dia histórico"
     columns:
