@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Ajusta `view_viagem_monitoramento` para expor os campos necessários aos painéis, mantendo `servico`, `vista` e `tempo_viagem` (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+- Ajusta `view_viagem_monitoramento` para expor os campos necessários aos painéis, mantendo `servico`, `vista` e `tempo_viagem`, e seguindo a ordem de colunas de `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
 
 ## [1.0.6] - 2026-08-28
 
