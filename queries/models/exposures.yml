@@ -35,6 +35,7 @@ exposures:
           team:
             - rodrigo.fcunha@prefeitura.rio
             - victormiguel@prefeitura.rio
+        open_metadata_fqn: Datalake.rj-smtr.transito.autuacao
 
   - name: PAINEL_SENSORES_AR_CONDICIONADO
     type: dashboard
@@ -62,3 +63,4 @@ exposures:
             - janaina.duarte@prefeitura.rio
             - adriano.neto@prefeitura.rio
             - rodrigo.fcunha@prefeitura.rio
+        open_metadata_fqn: Datalake.rj-smtr.dashboard_monitoramento_interno.view_viagem_climatizacao
