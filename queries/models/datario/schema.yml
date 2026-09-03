@@ -76,29 +76,8 @@ models:
       - name: data
         description: "{{ doc('data_viagem') }}"
         data_type: date
-      - name: consorcio
-        description: "{{ doc('consorcio') }}"
-        data_type: string
-      - name: tipo_dia
-        description: "{{ doc('tipo_dia') }}"
-        data_type: string
-      - name: id_veiculo
-        description: "{{ doc('id_veiculo') }}"
-        data_type: string
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
-        data_type: string
-      - name: servico
-        description: "{{ doc('servico') }}"
-        data_type: string
-      - name: vista
-        description: "{{ doc('vista') }}"
-        data_type: string
-      - name: shape_id
-        description: "{{ doc('shape_id') }}"
-        data_type: string
-      - name: sentido
-        description: "{{ doc('sentido') }}"
         data_type: string
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
@@ -106,12 +85,36 @@ models:
       - name: datetime_chegada
         description: "{{ doc('datetime_chegada') }}"
         data_type: datetime
-      - name: tempo_viagem
-        description: "Duração aferida da viagem em minutos."
-        data_type: int64
+      - name: modo
+        description: "{{ doc('modo') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+        data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
       - name: distancia_planejada
         description: "{{ doc('distancia_planejada') }}"
         data_type: float64
+      - name: tempo_viagem
+        description: "Duração aferida da viagem em minutos."
+        data_type: int64
   - name: licenciamento_veiculo_datario
     description: Tabela histórica de dados cadastrais dos veículos que operam o sistema de transporte rodoviário, considerando tanto os licenciados no Sistema de Transporte Urbano [STU] quanto as solicitações válidas em andamento para ingresso no sistema
     columns:

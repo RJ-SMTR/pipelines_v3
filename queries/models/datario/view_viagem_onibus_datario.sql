@@ -4,38 +4,38 @@ with
     viagem_completa as (
         select
             data,
-            consorcio,
-            "Ônibus" as modo,
-            tipo_dia,
-            id_veiculo,
             id_viagem,
-            servico_realizado as servico,
-            vista,
-            shape_id,
-            sentido,
             datetime_partida,
             datetime_chegada,
-            tempo_viagem,
-            distancia_planejada
+            "Ônibus" as modo,
+            vista,
+            tipo_dia,
+            consorcio,
+            servico_realizado as servico,
+            shape_id,
+            sentido,
+            id_veiculo,
+            distancia_planejada,
+            tempo_viagem
         from {{ ref("viagem_completa") }}
         where date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     viagem_valida as (
         select
             data,
-            consorcio,
-            modo,
-            tipo_dia,
-            id_veiculo,
             id_viagem,
-            servico,
-            vista,
-            shape_id,
-            sentido,
             datetime_partida,
             datetime_chegada,
-            datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_viagem,
-            distancia_planejada
+            modo,
+            vista,
+            tipo_dia,
+            consorcio,
+            servico,
+            shape_id,
+            sentido,
+            id_veiculo,
+            distancia_planejada,
+            datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_viagem
         from {{ ref("viagem_valida") }}
         where date(datetime_partida) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
