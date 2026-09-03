@@ -1,5 +1,12 @@
 # Changelog - dashboard_monitoramento_interno
 
+## [1.0.5] - 2026-09-02
+
+### Alterado
+
+- Atualiza `view_viagem_climatizacao` para usar `viagem_valida` a partir de `DATA_SUBSIDIO_V25_INICIO` na obtenção do consórcio, mantendo `viagem_planejada` no período anterior
+- Atualiza a exposure `PAINEL_SENSORES_AR_CONDICIONADO` para refletir o consumo de `view_viagem_climatizacao`.
+
 ## [1.0.4] - 2026-05-19
 
 ### Alterado
