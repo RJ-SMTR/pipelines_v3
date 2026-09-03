@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: view_viagem_climatizacao
-    description: "Dados do status dos veículos para o painel de climatização do Subsídio SPPO"
+    description: "Dados do status dos veículos para o painel de climatização do Subsídio SPPO."
     columns:
       - name: consorcio
         description: "{{ doc('nome_consorcio') }}"
