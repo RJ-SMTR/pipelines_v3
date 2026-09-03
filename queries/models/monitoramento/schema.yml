@@ -1,6 +1,61 @@
 models:
   - name: viagem_informada_monitoramento
-    description: "Detalhes das viagens informadas pelas operadoras de ônibus"
+    description: >-
+      Uma linha por viagem informada, identificada por `id_viagem`, representando o histórico de
+      viagens realizadas pelas operadoras. Use `id_viagem` para joins com viagens informadas.
+      Fonte: Conecta, Zirix, Sonda e Maxtrack.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento
+          config:
+            where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}') and id_viagem_planejada is not null"
+            severity: warn
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem_planejada
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__data_id_viagem_planejada__viagem_informada_monitoramento
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            severity: warn
+          arguments:
+            column_name: "concat(cast(data as string), '||', cast(id_viagem_planejada as string))"
+            to: ref("viagem_planejada_planejamento_dia")
+            field: "concat(cast(data as string), '||', cast(id_viagem as string))"
+            from_condition: "tipo_viagem = 'PROGRAMADA'"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__route_id__viagem_informada_monitoramento
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            severity: warn
+          arguments:
+            column_name: "concat(cast(data as string), '||', cast(route_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(route_id as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            severity: warn
+          arguments:
+            column_name: "concat(cast(data as string), '||', cast(trip_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(trip_id as string))"
+            from_condition: "tipo_viagem = 'PROGRAMADA'"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento
+          config:
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+            severity: warn
+          arguments:
+            column_name: "concat(cast(data as string), '||', cast(shape_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(shape_id as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -8,12 +63,43 @@ models:
       - name: id_viagem
         description: "{{ doc('id_viagem') }} [datetime partida em UTC]"
         data_type: string
+        tests:
+          - unique:
+              name: unique__id_viagem__viagem_informada_monitoramento
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: sequencial_viagem
         description: "{{ doc('sequencial_viagem') }}"
         data_type: int64
+        tests:
+          - not_null:
+              name: not_null__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
+          - unique:
+              name: unique__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
+          - dbt_utils.sequential_values:
+              name: dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento
+              description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
+              config:
+                where: "fonte_gps = 'maxtrack'"
+                severity: warn
+              arguments:
+                interval: 1
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_viagem_planejada__viagem_informada_monitoramento
+              config:
+                where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
         data_type: datetime
@@ -32,12 +118,30 @@ models:
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__route_id__viagem_informada_monitoramento
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__trip_id__viagem_informada_monitoramento
+              config:
+                where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: shape_id
         description: "{{ doc('shape_id') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__shape_id__viagem_informada_monitoramento
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: direction_id
         description: "{{ doc('direction_id') }}"
         data_type: int64
@@ -47,6 +151,12 @@ models:
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__viagem_informada_monitoramento
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
+                severity: warn
       - name: tipo_viagem
         description: "{{ doc('tipo_viagem_informada') }}"
         data_type: string
