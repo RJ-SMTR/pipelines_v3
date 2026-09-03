@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera schedule de produção de 6h para 9h (após `viagem_validacao` às 8h). (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+- Altera schedule de produção de 6h para 9h (após `viagem_validacao` às 8h) e inclui `viagem_validacao` nas fontes do flow. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ## [1.0.0] - 2026-04-29
 

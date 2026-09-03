@@ -4,7 +4,8 @@
 
 ### Alterado
 
-- Ajusta `aux_viagem_temperatura` e `viagem_classificada` (no flow `treatment--monitoramento-temperatura`) para reprocessar as partições de `viagem_valida` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`
+- Ajusta `viagem_classificada` (no flow `treatment--monitoramento-temperatura`) para reprocessar as partições de `viagem_valida` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular do flow fica limitada a datas anteriores a essa versão
+- Ajusta `aux_viagem_temperatura` para reprocessar as partições de `viagem_classificada` alteradas no mesmo critério, apenas a partir de `DATA_SUBSIDIO_V25_INICIO`
 
 ## [2.3.6] - 2026-08-27
 

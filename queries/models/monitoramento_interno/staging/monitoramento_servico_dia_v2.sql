@@ -65,9 +65,7 @@ with
 
         select data, servico, vista
         from {{ ref("aux_viagem_planejada_planejamento_dia_unnested") }}
-        where
-            data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}") and vista is not null
-        qualify row_number() over (partition by data, servico) = 1
+        where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     pagamento as (
         select

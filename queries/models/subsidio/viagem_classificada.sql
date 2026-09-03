@@ -24,6 +24,7 @@
             data between date("{{ var('date_range_start') }}") and date(
                 "{{ var('date_range_end') }}"
             )
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             {% if is_incremental() and modified_partitions | length > 0 %}
                 or (
                     data in ({{ modified_partitions | join(", ") }})
@@ -65,7 +66,7 @@ with
             id_viagem,
             distancia_planejada,
             sentido
-        from {{ ref("viagem_valida") }}
+        from {{ viagem_valida }}
         -- from `rj-smtr.monitoramento.viagem_valida`
         where
             {{ incremental_filter }}
