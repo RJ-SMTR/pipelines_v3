@@ -52,13 +52,22 @@ with
         from sumario_faixa_servico_dia
     ),
     planejada as (
-        select distinct data, consorcio, servico, vista
+        select distinct data, servico, vista
         from {{ ref("viagem_planejada") }}
         -- `rj-smtr.projeto_subsidio_sppo.viagem_planejada`
         where
             data >= date("{{ var('DATA_SUBSIDIO_V9_INICIO') }}")
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             and (id_tipo_trajeto = 0 or id_tipo_trajeto is null)
             and format_time("%T", time(faixa_horaria_inicio)) != "00:00:00"
+
+        union all
+
+        select data, servico, vista
+        from {{ ref("aux_viagem_planejada_planejamento_dia_unnested") }}
+        where
+            data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}") and vista is not null
+        qualify row_number() over (partition by data, servico) = 1
     ),
     pagamento as (
         select
@@ -73,7 +82,7 @@ with
             valor_a_pagar as valor_subsidio_pago,
             valor_penalidade
         from valores_subsidio as sdp
-        left join planejada as p using (data, servico, consorcio)
+        left join planejada as p using (data, servico)
         where
             data >= date("{{ var('DATA_SUBSIDIO_V9_INICIO') }}")
             and data between date("{{ var('start_date') }}") and date_add(
