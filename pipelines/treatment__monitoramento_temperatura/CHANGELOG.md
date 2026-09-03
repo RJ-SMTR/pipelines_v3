@@ -10,4 +10,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__monitoramento_temperatura`(https://github.com/RJ-SMTR/pipelines_v3/pull/120) 
+- Cria flow `treatment__monitoramento_temperatura`(https://github.com/RJ-SMTR/pipelines_v3/pull/120)
