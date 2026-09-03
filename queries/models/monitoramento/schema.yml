@@ -31,48 +31,30 @@ models:
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
-            column_name: route_id
-            to: ref("routes_gtfs")
-            field: route_id
-            to_condition: >-
-              feed_start_date in (
-                select distinct feed_start_date
-                from {{ ref("calendario") }}
-                where data between date('{{ var("date_range_start") }}')
-                and date('{{ var("date_range_end") }}')
-              )
+            column_name: "concat(cast(data as string), '||', cast(route_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(route_id as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento
           config:
             where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
-            column_name: trip_id
-            to: ref("trips_gtfs")
-            field: trip_id
-            to_condition: >-
-              feed_start_date in (
-                select distinct feed_start_date
-                from {{ ref("calendario") }}
-                where data between date('{{ var("date_range_start") }}')
-                and date('{{ var("date_range_end") }}')
-              )
+            column_name: "concat(cast(data as string), '||', cast(trip_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(trip_id as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
-            column_name: shape_id
-            to: ref("shapes_gtfs")
-            field: shape_id
-            to_condition: >-
-              feed_start_date in (
-                select distinct feed_start_date
-                from {{ ref("calendario") }}
-                where data between date('{{ var("date_range_start") }}')
-                and date('{{ var("date_range_end") }}')
-              )
+            column_name: "concat(cast(data as string), '||', cast(shape_id as string))"
+            to: ref("aux_viagem_planejada_planejamento_dia_unnested")
+            field: "concat(cast(data as string), '||', cast(shape_id as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -139,7 +121,7 @@ models:
           - not_null:
               name: not_null__route_id__viagem_informada_monitoramento
               config:
-                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
                 severity: warn
       - name: trip_id
         description: "{{ doc('trip_id') }}"
@@ -148,7 +130,7 @@ models:
           - not_null:
               name: not_null__trip_id__viagem_informada_monitoramento
               config:
-                where: "fonte_gps = 'maxtrack' and tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
+                where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
                 severity: warn
       - name: shape_id
         description: "{{ doc('shape_id') }}"
@@ -157,7 +139,7 @@ models:
           - not_null:
               name: not_null__shape_id__viagem_informada_monitoramento
               config:
-                where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
                 severity: warn
       - name: direction_id
         description: "{{ doc('direction_id') }}"
