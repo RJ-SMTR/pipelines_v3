@@ -104,9 +104,17 @@ with
         from {{ ref("veiculo_regularidade_temperatura_dia") }}
         where indicadores.indicador_ar_condicionado.valor is true
     ),
-    viagem_planejada as (
+    viagem_consorcio as (
         select servico, data, any_value(consorcio) as consorcio
         from {{ ref("viagem_planejada") }}
+        where data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        group by servico, data
+
+        union all
+
+        select servico, data, any_value(consorcio) as consorcio
+        from {{ ref("viagem_valida") }}
+        where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
         group by servico, data
     )
 select
@@ -138,7 +146,7 @@ select
     end as indicador_regularidade_temperatura
 from viagem v
 left join veiculo ve using (data, id_veiculo)
-left join viagem_planejada vp using (servico, data)
+left join viagem_consorcio vp using (servico, data)
 left join
     validador vl
     on v.id_validador = vl.id_validador
