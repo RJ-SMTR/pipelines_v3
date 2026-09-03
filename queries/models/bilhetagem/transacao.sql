@@ -380,7 +380,7 @@ with
                         "Débito EMV",
                         "Débito EMV emissor externo",
                         "Botoeira",
-                        "Débito PIX a bordo"
+                        "Débito PIX a bordo",
                         "QRCode Evento"
                     )
                 then "Integral"
