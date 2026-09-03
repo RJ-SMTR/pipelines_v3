@@ -8,7 +8,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento
           config:
-            where: "fonte_gps = 'maxtrack' and tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}') and id_viagem_planejada is not null"
+            where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}') and id_viagem_planejada is not null"
             severity: warn
           arguments:
             combination_of_columns:
@@ -17,7 +17,7 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__data_id_viagem_planejada__viagem_informada_monitoramento
           config:
-            where: "fonte_gps = 'maxtrack' and tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
             column_name: "concat(cast(data as string), '||', cast(id_viagem_planejada as string))"
@@ -38,12 +38,13 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento
           config:
-            where: "fonte_gps = 'maxtrack' and data between date('{date_range_start}') and date('{date_range_end}')"
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
             column_name: "concat(cast(data as string), '||', cast(trip_id as string))"
             to: ref("aux_viagem_planejada_planejamento_dia_unnested")
             field: "concat(cast(data as string), '||', cast(trip_id as string))"
+            from_condition: "tipo_viagem = 'PROGRAMADA'"
             to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento
@@ -97,7 +98,7 @@ models:
           - not_null:
               name: not_null__id_viagem_planejada__viagem_informada_monitoramento
               config:
-                where: "fonte_gps = 'maxtrack' and tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
+                where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}')"
                 severity: warn
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
