@@ -1,5 +1,11 @@
 # Changelog - bilhetagem
 
+## [3.3.13] - 2026-09-03
+
+### Adicionado
+
+- Adiciona o tipo transacao QRCode Evento no tratamento de transações do tipo Integral ()
+
 ## [3.3.12] - 2026-07-16
 
 ### Alterado
