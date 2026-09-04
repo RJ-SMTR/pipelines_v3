@@ -23,6 +23,12 @@ PLANEJAMENTO_DIARIO_CHECKS_LIST = {
             "feed_start_date, tipo_dia e tipo_os."
         )
     },
+    "test_completude_viagem_planejada_gtfs_sem_os": {
+        "description": (
+            "As viagens sem Ordem de Serviço estão materializadas no planejamento diário "
+            "conforme o calendário operacional."
+        )
+    },
     "viagem_planejada_planejamento_dia": {
         "dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento_dia": {
             "description": "Todos os registros de 'data' e 'id_viagem' são únicos."
