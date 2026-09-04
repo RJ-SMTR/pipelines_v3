@@ -12,6 +12,8 @@ COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitor
 
 COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veiculo_fiscalizacao_lacre/
 
+COPY ./pipelines/treatment__viagem_validacao ./pipelines/treatment__viagem_validacao/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 
