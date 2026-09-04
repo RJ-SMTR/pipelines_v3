@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypedDict
 
 import yaml
 from google.cloud import storage
@@ -23,6 +23,16 @@ CLI_TIMEOUT_SECONDS = 600
 CONFIG_PATH = Path(__file__).parents[1] / "config" / "openmetadata"
 GCS_BUCKET_NAME = "rj-smtr"
 GCS_PREFIX = "openmetadata/dbt"
+
+
+class PendingDbtArtifact(TypedDict):
+    """Caminhos locais e nomes remotos de um par de artefatos pendentes."""
+
+    manifest_path: str
+    run_results_path: str
+    manifest_blob_name: str
+    run_results_blob_name: str
+    artifacts_path: str
 
 
 def _exact_patterns(values: Iterable[str]) -> list[str]:
@@ -307,26 +317,29 @@ def _upload_artifacts_to_gcs(
     print(f"OpenMetadata: artefatos enviados para gs://{GCS_BUCKET_NAME}/{remote_prefix}")
 
 
-def ingest_dbt_artifacts(
-    target_path: Path,
-    env: str,
-    deployment_name: str,
-    flow_run_id: object,
-) -> None:
-    """Tenta a ingestão direta e envia os artefatos ao GCS em caso de falha."""
+def ingest_dbt_artifacts(  # noqa: PLR0913
+    artifacts_path: Path,
+    upload_to_gcs: bool = True,
+    env: Optional[str] = None,
+    deployment_name: Optional[str] = None,
+    flow_run_id: Optional[object] = None,
+    timeout_seconds: int = CLI_TIMEOUT_SECONDS,
+) -> list[Path]:
+    """Ingere artefatos dbt e opcionalmente envia falhas ao GCS."""
+    successful_artifact_paths = []
+    failed_artifact_paths = []
+
     try:
-        artifacts_dir = Path(target_path) / "openmetadata" / str(flow_run_id)
-        run_results_paths = sorted(artifacts_dir.glob("run_results_*.json"))
+        run_results_paths = sorted(Path(artifacts_path).rglob("run_results_*.json"))
         if not run_results_paths:
             print("OpenMetadata: nenhum run_results.json para ingerir")
-            return
+            return successful_artifact_paths
 
-        failed_artifact_paths = []
         with tempfile.TemporaryDirectory(prefix="openmetadata-ingestion-") as temporary_dir:
             temporary_path = Path(temporary_dir)
             for run_results_path in run_results_paths:
                 suffix = run_results_path.name.removeprefix("run_results_")
-                manifest_path = artifacts_dir / f"manifest_{suffix}"
+                manifest_path = run_results_path.with_name(f"manifest_{suffix}")
                 if not manifest_path.is_file():
                     print(
                         "OpenMetadata: manifest correspondente não encontrado para "
@@ -347,30 +360,34 @@ def ingest_dbt_artifacts(
                         ingestion_manifest_path,
                         ingestion_run_results_path,
                     )
+                    success = _run_cli(
+                        config_path=config_path,
+                        artifact_name=run_results_path.name,
+                        extra_environment={
+                            "OPENMETADATA_DBT_MANIFEST_PATH": str(ingestion_manifest_path),
+                            "OPENMETADATA_DBT_RUN_RESULTS_PATH": str(ingestion_run_results_path),
+                        },
+                        timeout_seconds=timeout_seconds,
+                    )
                 except (KeyError, OSError, TypeError, ValueError, yaml.YAMLError) as error:
                     print(f"OpenMetadata: falha ao preparar {run_results_path.name}: {error}")
-                    failed_artifact_paths.extend([manifest_path, run_results_path])
-                    continue
+                    success = False
 
-                if not _run_cli(
-                    config_path=config_path,
-                    artifact_name=run_results_path.name,
-                    extra_environment={
-                        "OPENMETADATA_DBT_MANIFEST_PATH": str(ingestion_manifest_path),
-                        "OPENMETADATA_DBT_RUN_RESULTS_PATH": str(ingestion_run_results_path),
-                    },
-                ):
+                if success:
+                    successful_artifact_paths.append(run_results_path)
+                else:
                     failed_artifact_paths.extend([manifest_path, run_results_path])
 
+        if failed_artifact_paths and upload_to_gcs:
+            _upload_artifacts_to_gcs(
+                failed_artifact_paths,
+                env,
+                deployment_name,
+                flow_run_id,
+            )
         if not failed_artifact_paths:
             print("OpenMetadata: ingestão concluída com sucesso")
-            return
-
-        _upload_artifacts_to_gcs(
-            failed_artifact_paths,
-            env,
-            deployment_name,
-            flow_run_id,
-        )
     except Exception as error:
         print(f"OpenMetadata: falha não fatal na ingestão: {error}")
+
+    return successful_artifact_paths
