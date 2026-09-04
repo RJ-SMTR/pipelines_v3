@@ -44,7 +44,8 @@ def ingest_dbt_artifacts_to_openmetadata(
 
     _, _, target_path = get_dbt_paths()
     ingest_dbt_artifacts(
-        target_path=target_path,
+        artifacts_path=Path(target_path) / "openmetadata" / str(flow_run_id),
+        upload_to_gcs=True,
         env=env,
         deployment_name=deployment_name,
         flow_run_id=flow_run_id,
