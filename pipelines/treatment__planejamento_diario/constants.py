@@ -10,6 +10,12 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 PLANEJAMENTO_DIARIO_CHECKS_LIST = {
+    "check_km_planejada__servico_planejado_faixa_horaria": {
+        "description": (
+            "A quilometragem dos serviços planejados corresponde à da Ordem de Serviço "
+            "para cada data, faixa horária e sentido."
+        )
+    },
     "test_consistencia_servico_planejado_faixa_horaria": {
         "description": (
             "Os totais de partidas e quilometragem dos serviços planejados "
@@ -24,9 +30,17 @@ PLANEJAMENTO_DIARIO_CHECKS_LIST = {
     },
 }
 
+PLANEJAMENTO_DIARIO_TEST_EXCLUDE = (
+    "tag:freshness "
+    "check_km_planejada__sumario_faixa_servico_dia "
+    "check_km_planejada__sumario_faixa_servico_dia_pagamento "
+    "check_km_planejada__viagem_planejada "
+    "tecnologia_servico viagem_informada_monitoramento viagens_remuneradas"
+)
+
 PLANEJAMENTO_DIARIO_TEST = DBTTest(
     test_select="servico_planejado_faixa_horaria viagem_planejada_planejamento_dia",
-    exclude="tag:freshness",
+    exclude=PLANEJAMENTO_DIARIO_TEST_EXCLUDE,
     test_descriptions=PLANEJAMENTO_DIARIO_CHECKS_LIST,
     truncate_date=True,
 )

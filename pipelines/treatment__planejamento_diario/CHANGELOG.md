@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 2026-09-04
+
+### Corrigido
+
+- Restringe os testes pós-materialização aos checks de `servico_planejado_faixa_horaria` e `viagem_planejada_planejamento_dia`, incluindo o `check_km_planejada` para os serviços planejados.
+
 ## [1.1.0] - 2026-08-17
 
 ### Adicionado
