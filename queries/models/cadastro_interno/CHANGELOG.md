@@ -1,5 +1,15 @@
 # Changelog - cadastro_interno
 
+## [1.2.2] - 2026-09-03
+
+### Adicionado
+
+- Renomeia modelo `aux_operadora_jae_cliente_historico.sql` para `aux_cliente_jae_historico.sql` e move para o `cadastro_interno` (https://github.com/RJ-SMTR/pipelines_v3/pull/633)
+
+### Removido
+
+- Remove filtro de `id_cliente` do modelo `aux_cliente_jae_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/633)
+
 ## [1.2.1] - 2025-09-17
 
 ### Alterado

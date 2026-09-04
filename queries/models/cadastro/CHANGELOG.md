@@ -1,5 +1,11 @@
 # Changelog - cadastro
 
+## [1.8.2] - 2026-09-03
+
+### Removido
+
+- Renomeia modelo `aux_operadora_jae_cliente_historico.sql` para `aux_cliente_jae_historico.sql` e move para o `cadastro_interno` (https://github.com/RJ-SMTR/pipelines_v3/pull/633)
+
 ## [1.8.1] - 2026-05-14
 
 ### Removido

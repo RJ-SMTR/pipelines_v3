@@ -244,7 +244,7 @@ selectors:
         - method: fqn
           value: aux_operadora_stu
         - method: fqn
-          value: aux_operadora_jae_cliente_historico
+          value: aux_cliente_jae_historico
         - method: fqn
           value: aux_operadora_jae_historico
         - method: fqn

@@ -46,8 +46,6 @@ with
             nm_cliente as nome
         from {{ ref("staging_cliente") }}
         where
-            cd_cliente
-            in (select cd_cliente from {{ ref("staging_operadora_transporte") }})
             {% if is_incremental() %}
                 and date(data) between date("{{var('date_range_start')}}") and date(
                     "{{var('date_range_end')}}"
