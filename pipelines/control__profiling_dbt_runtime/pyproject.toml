@@ -1,0 +1,4 @@
+[project]
+name = "control__profiling_dbt_runtime"
+version = "0.1.0"
+description = "Flow de teste: baixa queries em runtime e executa dbt em dev, com profiling"
