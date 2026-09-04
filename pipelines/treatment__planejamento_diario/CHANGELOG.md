@@ -4,7 +4,7 @@
 
 ### Corrigido
 
-- Restringe os testes pós-materialização aos checks de `servico_planejado_faixa_horaria` e `viagem_planejada_planejamento_dia`, incluindo o `check_km_planejada` para os serviços planejados.
+- Restringe os testes pós-materialização aos checks de `servico_planejado_faixa_horaria` e `viagem_planejada_planejamento_dia`, incluindo o `check_km_planejada` para os serviços planejados. ([PR #635](https://github.com/RJ-SMTR/pipelines_v3/pull/635))
 
 ## [1.1.0] - 2026-08-17
 

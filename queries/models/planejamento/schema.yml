@@ -495,7 +495,15 @@ models:
         description: "Menor tipo de tecnologia permitida para o veículo"
         data_type: string
   - name: servico_planejado_faixa_horaria
-    description: "Serviços planejados por data, faixa horária e sentido com informações de viagens"
+    description: >-
+      Uma linha por serviço, sentido e faixa horária em cada data, feed_start_date,
+      tipo_dia e tipo_os, com as viagens planejadas agregadas em trip_info. Use
+      (data, feed_start_date, servico, sentido) como chave de join com
+      viagem_planejada_planejamento_dia, associando datetime_partida à faixa
+      entre faixa_horaria_inicio e faixa_horaria_fim. A fonte de verdade das
+      viagens é viagem_planejada_planejamento_dia, e os dados da Ordem de Serviço
+      vêm de aux_os_sppo_faixa_horaria_sentido_dia. É um modelo incremental
+      particionado por data e não mantém histórico versionado.
     tests:
       - check_km_planejada:
           name: check_km_planejada__servico_planejado_faixa_horaria
