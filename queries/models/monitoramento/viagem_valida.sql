@@ -45,13 +45,6 @@
 {% endset %}
 
 with
-    veiculo as (
-        select data, id_veiculo, placa, ano_fabricacao, tecnologia, status
-        from {{ ref("aux_veiculo_dia_consolidada") }}
-        where
-            data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
-    ),
     viagem_valida as (
         select *
         from {{ viagem_validacao }}
@@ -70,6 +63,7 @@ select
     vv.modo,
     vv.consorcio,
     vv.sistema,
+    vv.vista,
     vv.tipo_dia,
     vv.servico,
     vv.route_id,
@@ -77,10 +71,6 @@ select
     vv.shape_id,
     vv.sentido,
     vv.id_veiculo,
-    ve.placa,
-    ve.ano_fabricacao,
-    ve.tecnologia as tecnologia_apurada,
-    ve.status as tipo_viagem,
     vv.feed_start_date,
     vv.distancia_planejada,
     vv.velocidade_media,
@@ -88,4 +78,3 @@ select
     '{{ var("version") }}' as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from viagem_valida as vv
-left join veiculo as ve using (data, id_veiculo)
