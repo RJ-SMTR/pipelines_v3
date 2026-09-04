@@ -124,8 +124,13 @@ with
             any_value(feed_start_date) as feed_start_date,
             any_value(datetime_processamento) as datetime_processamento,
             any_value(datetime_captura_viagem) as datetime_captura_viagem
-        from {{ ref("gps_segmento_viagem") }}
-        {# from `rj-smtr`.`monitoramento_staging`.`gps_segmento_viagem` #}
+        {% if var("tipo_materializacao") != "monitoramento" %}
+                ,
+                any_value(vi.fonte_gps) as fonte_gps,
+            from {{ ref("gps_segmento_viagem") }}
+            left join {{ viagem_informada }} vi using (data, id_viagem)
+        {% else %} from {{ ref("gps_segmento_viagem") }}
+        {% endif %}
         where
             (
                 not indicador_segmento_desconsiderado
@@ -189,10 +194,25 @@ with
                 datetime_processamento >= datetime_chegada_considerada, true
             ) as indicador_processamento_apos_chegada,
             ifnull(
-                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
-                or (
-                    datetime_processamento is not null
-                    and date(datetime_processamento) <= date_add(data, interval 5 day)
+                (
+                    c.data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
+                    or (
+                        c.datetime_processamento is not null
+                        and date(c.datetime_processamento)
+                        <= date_add(c.data, interval 5 day)
+                    )
+                    {% if var("tipo_materializacao") != "monitoramento" %}
+                        or exists (
+                            select 1
+                            from {{ ref("aux_viagem_validacao_excecao") }} e
+                            where
+                                c.data between e.data_inicio and e.data_fim
+                                and (e.fonte_gps is null or e.fonte_gps = c.fonte_gps)
+                                and c.datetime_processamento is not null
+                                and date(c.datetime_processamento)
+                                <= date_add(c.data, interval e.prazo_envio_dias day)
+                        )
+                    {% endif %}
                 ),
                 false
             ) as indicador_prazo_envio,
@@ -201,7 +221,7 @@ with
             feed_start_date,
             datetime_processamento,
             datetime_captura_viagem
-        from contagem
+        from contagem as c
     ),
     /*
     Filtra apenas viagens com todos os campos obrigatórios preenchidos
