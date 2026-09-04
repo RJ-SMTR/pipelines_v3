@@ -1,0 +1,8 @@
+# -*- coding: utf-8 -*-
+BIGQUERY_PROJECT_IDS = ["rj-smtr", "rj-smtr-staging"]
+BIGQUERY_DATASET_EXCLUDES = ["bq_logs"]
+BIGQUERY_TABLE_EXCLUDES: list[str] = []
+BILLING_PROJECT_ID = "rj-smtr"
+OPENMETADATA_SERVICE_NAME = "Datalake"
+
+OPENMETADATA_CLI_TIMEOUT_SECONDS = 7200
