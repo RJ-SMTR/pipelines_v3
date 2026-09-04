@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.13] - 2026-09-04
+
+### Adicionado
+
+- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor e prazo de envio no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+
 ## [2.2.12] - 2026-09-02
 
 ### Adicionado
