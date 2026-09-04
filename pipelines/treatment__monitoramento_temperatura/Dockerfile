@@ -12,6 +12,26 @@ COPY ./pipelines/treatment__monitoramento_veiculo ./pipelines/treatment__monitor
 
 COPY ./pipelines/capture__veiculo_fiscalizacao_lacre ./pipelines/capture__veiculo_fiscalizacao_lacre/
 
+COPY ./pipelines/treatment__viagem_validacao ./pipelines/treatment__viagem_validacao/
+
+COPY ./pipelines/treatment__viagem_informada ./pipelines/treatment__viagem_informada/
+
+COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
+
+COPY ./pipelines/treatment__gps_conecta ./pipelines/treatment__gps_conecta/
+
+COPY ./pipelines/treatment__gps_zirix ./pipelines/treatment__gps_zirix/
+
+COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__rioonibus_viagem_informada/
+
+COPY ./pipelines/capture__conecta_registros ./pipelines/capture__conecta_registros/
+
+COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realocacao/
+
+COPY ./pipelines/capture__zirix_registros ./pipelines/capture__zirix_registros/
+
+COPY ./pipelines/capture__zirix_realocacao ./pipelines/capture__zirix_realocacao/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 
