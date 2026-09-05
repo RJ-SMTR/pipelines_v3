@@ -4,12 +4,15 @@ Tasks para integração com a API da Previnity
 """
 
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
+from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import normalize_text
 from pipelines.common.utils.secret import get_env_secret
 from pipelines.integration__previnity_negativacao import constants
@@ -28,6 +31,30 @@ def get_previnity_credentials() -> tuple[str, str]:
         raise ValueError("Missing 'prev_key' or 'prev_token' in secrets.")
 
     return prev_key, prev_token
+
+
+@task(cache_policy=NO_CACHE)
+def ensure_source_file_does_not_exist(context: SourceCaptureContext) -> None:
+    """Impede a chamada à API quando o arquivo source da execução já existe."""
+    source_filepath = Path(context.source_filepath)
+    storage = Storage(
+        env=context.source.env,
+        dataset_id=context.source.dataset_id,
+        table_id=context.source.table_id,
+        bucket_names=context.source.bucket_names,
+    )
+    blob = storage.get_blob_obj(
+        mode="source",
+        filename=source_filepath.stem,
+        filetype=source_filepath.suffix.lstrip("."),
+        partition=context.partition,
+    )
+
+    if blob.exists():
+        raise FileExistsError(
+            "O arquivo source já existe e não será sobrescrito: "
+            f"gs://{storage.bucket_name}/{blob.name}"
+        )
 
 
 @task(cache_policy=NO_CACHE)

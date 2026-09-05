@@ -44,6 +44,7 @@ from pipelines.common.treatment.default_treatment.utils import IncompleteDataErr
 from pipelines.common.utils.prefect import flow
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
+    ensure_source_file_does_not_exist,
     get_previnity_credentials,
     get_previnity_date_range,
     prepare_previnity_payloads,
@@ -116,6 +117,8 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     if payloads_with_metadata:
+        ensure_source_file_does_not_exist(context=context)
+
         payloads, metadata_list = zip(*payloads_with_metadata, strict=True)
 
         api_results = await async_api_post_request(
