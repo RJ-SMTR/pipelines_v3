@@ -1,11 +1,11 @@
 -- =============================================================================
--- Teste de consistência: Autuações negativadas pagas sem baixa
--- Verifica se autuações negativadas que constam como pagas já foram baixadas
+-- Teste de consistência: Autuações negativadas pagas sem confirmação de baixa
+-- Verifica se autuações com inclusão e pagamento confirmados possuem baixa confirmada
 --
 -- Lógica:
--- 1. Identificar autuações negativadas sem baixa
+-- 1. Identificar autuações com inclusão confirmada e baixa não confirmada
 -- 2. Verificar se essas autuações foram pagas na tabela autuacao
--- 3. Se existir pagamento sem baixa = inconsistência
+-- 3. Se existir pagamento sem confirmação de baixa = inconsistência
 -- =============================================================================
 {% set autuacao_negativacao = ref("autuacao_negativacao") %}
 
@@ -13,7 +13,9 @@
     {% set partitions_query %}
         select distinct concat("'", data, "'") as partition_date
         from {{ autuacao_negativacao }}
-        where data_baixa is null
+        where indicador_nao_inclusao is false
+            and data_confirmacao_inclusao is not null
+            and data_confirmacao_baixa is null
     {% endset %}
     {% set partitions = run_query(partitions_query).columns[0].values() %}
 {% endif %}
@@ -25,7 +27,10 @@ with
         where
             {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
             {% else %} false
-            {% endif %} and data_baixa is null
+            {% endif %}
+            and indicador_nao_inclusao is false
+            and data_confirmacao_inclusao is not null
+            and data_confirmacao_baixa is null
     ),
 
     autuacoes_pagas as (
