@@ -40,6 +40,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     setup_dbt_queries,
     task_dbt_selector_test_notify_discord,
 )
+from pipelines.common.treatment.default_treatment.utils import IncompleteDataError
 from pipelines.common.utils.prefect import flow
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
@@ -47,6 +48,7 @@ from pipelines.integration__previnity_negativacao.tasks import (
     get_previnity_date_range,
     prepare_previnity_payloads,
 )
+from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
 
 @flow(log_prints=True, timeout_seconds=10800)
@@ -75,6 +77,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     }
 
     ts = get_scheduled_timestamp(timestamp=timestamp)
+
+    if not TRANSITO_AUTUACAO_SELECTOR.is_up_to_date(env=env, timestamp=ts):
+        raise IncompleteDataError(
+            f"{type(TRANSITO_AUTUACAO_SELECTOR)} {TRANSITO_AUTUACAO_SELECTOR.name} incompleto"
+        )
 
     datetime_start, datetime_end = get_previnity_date_range(
         env=env,
@@ -164,12 +171,12 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             wait_for=[run_tests_future],
         )
 
-        task_dbt_selector_test_notify_discord.map(
+        post_tests_notify_future = task_dbt_selector_test_notify_discord.map(
             context=materialization_contexts,
             mode=unmapped("post"),
             wait_for=unmapped([run_tests_future]),
         )
 
         save_materialization_datetime_redis(
-            contexts=materialization_contexts, wait_for=[run_dbt_future]
+            contexts=materialization_contexts, wait_for=[post_tests_notify_future]
         )
