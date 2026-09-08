@@ -13,6 +13,9 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 INMET_SOURCE_NAME = "inmet"
 INMET_SECRET_PATH = "inmet_api"
 INMET_BASE_URL = "https://apitempo.inmet.gov.br/token/estacao"
+INMET_FIRST_HALF_SCHEDULE_DAY = 22
+INMET_SECOND_HALF_SCHEDULE_DAY = 7
+INMET_MAX_DAYS_PER_REQUEST = 3
 
 INMET_ESTACOES = [
     "A602",
