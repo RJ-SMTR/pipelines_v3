@@ -6,8 +6,8 @@ on:
       - master
       - staging/*
     paths:
-      - 'queries/**'
-      - '.github/workflows/cd_dbt_docs.yaml'
+      - "queries/**"
+      - ".github/workflows/cd_dbt_docs.yaml"
   workflow_dispatch:
 
 env:
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload docs to GCS
         run: |
-          gsutil -m cp queries/target/index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp queries/target/static_index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
           gsutil -m cp queries/target/manifest.json gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
 
       - name: Check OpenMetadata API
