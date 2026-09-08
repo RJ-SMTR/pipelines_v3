@@ -87,59 +87,59 @@ with
     */
     contagem as (
         select
-            data,
-            id_viagem,
-            any_value(id_viagem_planejada) as id_viagem_planejada,
-            any_value(datetime_partida_informada) as datetime_partida_informada,
-            any_value(datetime_chegada_informada) as datetime_chegada_informada,
-            any_value(datetime_partida_automatica) as datetime_partida_automatica,
-            any_value(datetime_chegada_automatica) as datetime_chegada_automatica,
-            any_value(datetime_partida_considerada) as datetime_partida_considerada,
-            any_value(datetime_chegada_considerada) as datetime_chegada_considerada,
-            any_value(modo) as modo,
-            any_value(id_veiculo) as id_veiculo,
-            any_value(trip_id) as trip_id,
-            any_value(route_id) as route_id,
-            any_value(shape_id) as shape_id,
-            any_value(servico) as servico,
-            any_value(sentido) as sentido,
-            countif(id_segmento is not null) as quantidade_segmentos_considerados,
-            countif(quantidade_gps > 0) as quantidade_segmentos_validos,
+            gsv.data,
+            gsv.id_viagem,
+            any_value(gsv.id_viagem_planejada) as id_viagem_planejada,
+            any_value(gsv.datetime_partida_informada) as datetime_partida_informada,
+            any_value(gsv.datetime_chegada_informada) as datetime_chegada_informada,
+            any_value(gsv.datetime_partida_automatica) as datetime_partida_automatica,
+            any_value(gsv.datetime_chegada_automatica) as datetime_chegada_automatica,
+            any_value(gsv.datetime_partida_considerada) as datetime_partida_considerada,
+            any_value(gsv.datetime_chegada_considerada) as datetime_chegada_considerada,
+            any_value(gsv.modo) as modo,
+            any_value(gsv.id_veiculo) as id_veiculo,
+            any_value(gsv.trip_id) as trip_id,
+            any_value(gsv.route_id) as route_id,
+            any_value(gsv.shape_id) as shape_id,
+            any_value(gsv.servico) as servico,
+            any_value(gsv.sentido) as sentido,
+            countif(gsv.id_segmento is not null) as quantidade_segmentos_considerados,
+            countif(gsv.quantidade_gps > 0) as quantidade_segmentos_validos,
             ceil(
-                countif(id_segmento is not null)
+                countif(gsv.id_segmento is not null)
                 * safe_cast((1 - {{ var("parametro_validacao") }}) as numeric)
             ) as quantidade_segmentos_tolerados,
             logical_or(
-                indicador_primeiro_segmento_valido
+                gsv.indicador_primeiro_segmento_valido
             ) as indicador_primeiro_segmento_valido,
             logical_or(
-                indicador_ultimo_segmento_valido
+                gsv.indicador_ultimo_segmento_valido
             ) as indicador_ultimo_segmento_valido,
             logical_and(
-                ifnull(indicador_servico_convergente, true)
+                ifnull(gsv.indicador_servico_convergente, true)
             ) as indicador_servico_convergente,
-            logical_and(id_segmento is not null) as indicador_shape_valido,
-            any_value(service_ids) as service_ids,
-            any_value(tipo_dia) as tipo_dia,
-            any_value(feed_start_date) as feed_start_date,
-            any_value(datetime_processamento) as datetime_processamento,
-            any_value(datetime_captura_viagem) as datetime_captura_viagem
+            logical_and(gsv.id_segmento is not null) as indicador_shape_valido,
+            any_value(gsv.service_ids) as service_ids,
+            any_value(gsv.tipo_dia) as tipo_dia,
+            any_value(gsv.feed_start_date) as feed_start_date,
+            any_value(gsv.datetime_processamento) as datetime_processamento,
+            any_value(gsv.datetime_captura_viagem) as datetime_captura_viagem
         {% if var("tipo_materializacao") != "monitoramento" %}
                 ,
                 any_value(vi.fonte_gps) as fonte_gps,
-            from {{ ref("gps_segmento_viagem") }}
-            left join {{ viagem_informada }} vi using (data, id_viagem)
-        {% else %} from {{ ref("gps_segmento_viagem") }}
+            from {{ ref("gps_segmento_viagem") }} as gsv
+            left join {{ viagem_informada }} as vi using (data, id_viagem)
+        {% else %} from {{ ref("gps_segmento_viagem") }} as gsv
         {% endif %}
         where
             (
-                not indicador_segmento_desconsiderado
-                or indicador_segmento_desconsiderado is null
+                not gsv.indicador_segmento_desconsiderado
+                or gsv.indicador_segmento_desconsiderado is null
             )
             {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
                 and {{ incremental_filter }}
             {% endif %}
-        group by data, id_viagem
+        group by gsv.data, gsv.id_viagem
     ),
     /*
     Calcula o índice de validação, segmentos necessários, campos obrigatórios e
