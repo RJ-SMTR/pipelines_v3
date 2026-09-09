@@ -13,12 +13,18 @@ with
             unnest(
                 cast(
                     [
-                    -- struct(
-                    -- date("2026-09-01") as data_inicio,
-                    -- date("2026-09-03") as data_fim,
-                    -- cast(null as string) as fonte_gps,
-                    -- 10 as prazo_envio_dias
-                    -- )
+                        -- struct(
+                        -- date("2026-09-01") as data_inicio,
+                        -- date("2026-09-03") as data_fim,
+                        -- cast(null as string) as fonte_gps,
+                        -- 10 as prazo_envio_dias
+                        -- )
+                        struct(
+                            date("2026-08-23") as data_inicio,
+                            date("2026-08-31") as data_fim,
+                            "maxtrack" as fonte_gps,
+                            17 as prazo_envio_dias
+                        )
                     ] as array<
                         struct<
                             data_inicio date,

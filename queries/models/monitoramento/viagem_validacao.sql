@@ -82,6 +82,25 @@
 {% endif %}
 
 with
+    {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        viagens_reprocessadas as (
+            select distinct vi.data, vi.id_viagem
+            from {{ viagem_informada }} as vi
+            where
+                {{ output_filter }}
+                and (
+                    vi.data
+                    >= date_sub(date('{{ var("date_range_end") }}'), interval 5 day)
+                    or exists (
+                        select 1
+                        from {{ ref("aux_viagem_validacao_excecao") }} as e
+                        where
+                            vi.data between e.data_inicio and e.data_fim
+                            and (e.fonte_gps is null or e.fonte_gps = vi.fonte_gps)
+                    )
+                )
+        ),
+    {% endif %}
     /*
     Agregação para cálculo da quantidade de segmentos verificados, válidos e tolerados por viagem
     */
@@ -587,6 +606,25 @@ select
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 {% if var("tipo_materializacao") == "monitoramento" %} from filtro_chegada
-{% else %} from viagem_completa
+{% else %} from viagem_completa as v
 {% endif %}
 where {{ output_filter }}
+{% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+        and exists (
+            select 1
+            from viagens_reprocessadas as r
+            where r.data = v.data and r.id_viagem = v.id_viagem
+        )
+
+    union all by name
+
+    select atual.*
+    from {{ this }} as atual
+    where
+        {{ output_filter }}
+        and not exists (
+            select 1
+            from viagens_reprocessadas as r
+            where r.data = atual.data and r.id_viagem = atual.id_viagem
+        )
+{% endif %}
