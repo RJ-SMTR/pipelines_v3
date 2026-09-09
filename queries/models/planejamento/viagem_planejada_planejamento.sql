@@ -239,7 +239,10 @@ with
             and ose.servico = v.servico
             and ose.sentido = v.sentido
             and {{ ordem_servico_excecoes_join("ose", "v") }}
-        left join {{ ref("extensao_shape") }} se using (feed_start_date, shape_id)
+        left join
+            {{ ref("extensao_shape") }} se
+            on v.feed_start_date = se.feed_start_date
+            and v.shape_id = se.shape_id
     ),
     /*
     Constrói o array de trajetos alternativos (trip, shape, vista, evento e extensão)
