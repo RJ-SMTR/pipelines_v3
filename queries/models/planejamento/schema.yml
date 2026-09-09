@@ -155,6 +155,27 @@ models:
       - name: end_pt
         description: Último ponto do shape
         data_type: geography
+  - name: extensao_shape
+    description: Uma linha por shape e feed GTFS, com a extensão do shape calculada pela soma do comprimento dos segmentos.
+    columns:
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+        data_type: date
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: numeric
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
   - name: viagem_planejada_planejamento
     description: Quadro horário de viagens planejadas por tipo de dia, com base no GTFS
     tests:
