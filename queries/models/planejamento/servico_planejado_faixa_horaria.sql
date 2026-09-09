@@ -14,6 +14,23 @@
         and date('{{ var("date_range_end") }}')
 {% endset %}
 
+{% set intervalos = [
+    {"inicio": 0, "fim": 1},
+    {"inicio": 1, "fim": 2},
+    {"inicio": 2, "fim": 3},
+    {"inicio": 3, "fim": 4},
+    {"inicio": 4, "fim": 5},
+    {"inicio": 5, "fim": 6},
+    {"inicio": 6, "fim": 9},
+    {"inicio": 9, "fim": 12},
+    {"inicio": 12, "fim": 15},
+    {"inicio": 15, "fim": 18},
+    {"inicio": 18, "fim": 21},
+    {"inicio": 21, "fim": 22},
+    {"inicio": 22, "fim": 23},
+    {"inicio": 23, "fim": 24},
+] %}
+
 {% set calendario = ref("calendario") %}
 {# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
 {% if execute %}
@@ -37,6 +54,39 @@ with
         from {{ ref("aux_os_sppo_faixa_horaria_sentido_dia") }}
         where {{ incremental_filter }} and {{ feed_filter }}
     ),
+    faixas_horarias_gtfs as (
+        select *
+        from
+            unnest(
+                [
+                    {% for intervalo in intervalos %}
+                        struct(
+                            {{ intervalo.inicio }} as hora_inicio,
+                            {{ intervalo.fim }} as hora_fim
+                        )
+                        {% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            )
+    ),
+    viagens_planejadas_com_faixa as (
+        select
+            v.*,
+            datetime(v.data)
+            + make_interval(hour => f.hora_inicio) as faixa_horaria_inicio_gtfs,
+            datetime(v.data)
+            + make_interval(hour => f.hora_fim)
+            - interval 1 second as faixa_horaria_fim_gtfs
+        from {{ ref("viagem_planejada_planejamento_dia") }} v
+        left join
+            faixas_horarias_gtfs f
+            on v.datetime_partida
+            >= datetime(v.data) + make_interval(hour => f.hora_inicio)
+            and v.datetime_partida
+            < datetime(v.data) + make_interval(hour => f.hora_fim)
+        {# from `rj-smtr.planejamento.viagem_planejada` #}
+        where {{ incremental_filter }}
+    ),
     viagens_planejadas as (
         select
             data,
@@ -54,10 +104,24 @@ with
             shape_id,
             datetime_partida,
             extensao,
-            trajetos_alternativos
-        from {{ ref("viagem_planejada_planejamento_dia") }}
-        {# from `rj-smtr.planejamento.viagem_planejada` #}
-        where {{ incremental_filter }}
+            trajetos_alternativos,
+            faixa_horaria_inicio_gtfs,
+            faixa_horaria_fim_gtfs,
+            count(*) over (win) as partidas_gtfs,
+            sum(extensao) over (win) as quilometragem_gtfs
+        from viagens_planejadas_com_faixa
+        window
+            win as (
+                partition by
+                    data,
+                    feed_start_date,
+                    tipo_dia,
+                    tipo_os,
+                    servico,
+                    sentido,
+                    faixa_horaria_inicio_gtfs,
+                    faixa_horaria_fim_gtfs
+            )
     ),
     viagens_na_faixa as (
         select
@@ -69,10 +133,14 @@ with
             v.consorcio,
             v.sentido,
             v.extensao,
-            o.partidas,
-            o.quilometragem,
-            o.faixa_horaria_inicio,
-            o.faixa_horaria_fim,
+            coalesce(o.partidas, v.partidas_gtfs) as partidas,
+            coalesce(o.quilometragem, v.quilometragem_gtfs) as quilometragem,
+            coalesce(
+                o.faixa_horaria_inicio, v.faixa_horaria_inicio_gtfs
+            ) as faixa_horaria_inicio,
+            coalesce(
+                o.faixa_horaria_fim, v.faixa_horaria_fim_gtfs
+            ) as faixa_horaria_fim,
             v.modo,
             v.sistema,
             v.vista,
