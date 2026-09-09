@@ -105,7 +105,7 @@
             from os
             group by all
         )
-        {% if "viagem_planejada" not in model %}
+        {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
             ,
             sumario as (
                 select
@@ -149,12 +149,12 @@
             from os_faixa
             where quilometragem != 0
         ) using (data, servico, faixa_horaria_inicio, sentido)
-    {% if "viagem_planejada" not in model %}
+    {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
         full join sumario using (data, servico, faixa_horaria_inicio, sentido)
     {% endif %}
     where
         quilometragem != distancia_total_planejada
-        {% if "viagem_planejada" not in model %}
+        {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
             or distancia_total_planejada != km_planejada_faixa
         {% endif %}
 {%- endtest %}
