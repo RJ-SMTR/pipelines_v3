@@ -13,6 +13,7 @@ with
                 '{{ var("date_range_end") }}'
             )
             and modo = 'Ônibus'
+            and tipo_os is not null
         group by all
     ),
     feeds as (select distinct feed_start_date from servico_planejado_faixa_horaria),
