@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera o schedule do flow de 5h45 para 6h45 (America/Sao_Paulo), após a captura de infração
+- Altera o schedule do flow de 5h45 para 6h45 (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ### Adicionado
 

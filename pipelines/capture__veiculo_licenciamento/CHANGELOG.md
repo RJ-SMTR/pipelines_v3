@@ -4,11 +4,11 @@
 
 ### Alterado
 
-- Alterado o schedule do flow de 5h para 6h (America/Sao_Paulo)
+- Alterado o schedule do flow de 5h para 6h (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ### Adicionado
 
-- Adiciona schedule de recaptura às 6h15 (`recapture_days: 1`) para o dia anterior
+- Adiciona schedule de recaptura às 6h15 (`recapture_days: 1`) para o dia anterior (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ## [1.0.1] - 2026-06-12
 

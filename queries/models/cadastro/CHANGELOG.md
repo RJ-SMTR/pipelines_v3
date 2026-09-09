@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona o teste `dbt_utils.recency` em `data` de `staging_licenciamento_stu` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de licenciamento STU não for ingerido no último dia
+- Adiciona o teste `dbt_utils.recency` em `data` de `staging_licenciamento_stu` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de licenciamento STU não for ingerido no último dia (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ## [1.8.1] - 2026-05-14
 

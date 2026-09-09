@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Alterado o schedule do flow de 6h para 7h (America/Sao_Paulo), após a captura de licenciamento
+- Alterado o schedule do flow de 6h para 7h (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ### Adicionado
 

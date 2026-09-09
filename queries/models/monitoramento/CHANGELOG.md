@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona o teste `dbt_utils.recency` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de infração não for ingerido no último dia
+- Adiciona o teste `dbt_utils.recency` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de infração não for ingerido no último dia (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ## [2.2.12] - 2026-09-02
 
