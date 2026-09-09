@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.12] - 2026-09-02
+
+### Adicionado
+
+- Adiciona testes `not_null` e `unique` em `viagem_valida` para o pré-teste da apuração V25. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
 ## [2.2.11] - 2026-08-28
 
 ### Adicionado
