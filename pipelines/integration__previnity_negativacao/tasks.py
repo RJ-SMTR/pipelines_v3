@@ -50,7 +50,7 @@ def ensure_source_file_does_not_exist(context: SourceCaptureContext) -> None:
         partition=context.partition,
     )
 
-    if blob.exists():
+    if blob is not None:
         raise FileExistsError(
             "O arquivo source já existe e não será sobrescrito: "
             f"gs://{storage.bucket_name}/{blob.name}"

@@ -138,7 +138,7 @@ class Storage(GCPBase):
         filename: str,
         filetype: Optional[str] = None,
         partition: Optional[str] = None,
-    ) -> Blob:
+    ) -> Optional[Blob]:
         """
         Pega um blob no storage e retorna no formato de objeto Blob
 
