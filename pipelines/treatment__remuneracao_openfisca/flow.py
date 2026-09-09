@@ -2,7 +2,7 @@
 """Materialização da cadeia remuneração I.8 até apuração OpenFisca.
 
 Selector dbt: ``remuneracao_openfisca``
-(base WIP: viagem_completa → viagem_valida_* → viagens_apuradas → FCF/RQ).
+(base: viagem_valida → ramos flags → viagem_classificacao_validacao → viagens_apuradas).
 """
 
 from typing import Optional
@@ -30,6 +30,6 @@ def treatment__remuneracao_openfisca(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars={"sistema": "rio", **(additional_vars or {})},
         skip_source_check=skip_source_check,
     )

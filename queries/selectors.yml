@@ -746,7 +746,9 @@ selectors:
   - name: remuneracao_openfisca
     description: >
       Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
-      dims oferta/lote + cadeia viagem_valida_* + viagens_apuradas.
+      dims oferta/lote + ramos flags (`aux_veiculo_status_viagem`,
+      `viagem_valida_temperatura`, `viagem_valida_bilhetagem`) +
+      `viagem_classificacao_validacao` + `viagens_apuradas`.
       Seeds I.2 exigem `dbt seed` (ou `dbt build`); `dbt run` não as carrega.
     definition:
       union:
@@ -764,16 +766,14 @@ selectors:
         #   value: operacao_lote
         # - method: fqn
         #   value: operacao_lote_tecnologia
-        # - method: fqn
-        #   value: viagem_valida_classificada
-        # - method: fqn
-        #   value: aux_viagem_valida_temperatura
-        # - method: fqn
-        #   value: viagem_valida_regularidade_temperatura
-        # - method: fqn
-        #   value: viagem_valida_bilhetagem
-        # - method: fqn
-        #   value: viagem_classificacao_validacao
+        - method: fqn
+          value: aux_veiculo_status_viagem
+        - method: fqn
+          value: viagem_valida_temperatura
+        - method: fqn
+          value: viagem_valida_bilhetagem
+        - method: fqn
+          value: viagem_classificacao_validacao
         - method: fqn
           value: viagens_apuradas
         # - method: fqn
