@@ -218,7 +218,8 @@ with
     ),
     /*
     Enriquece a base com dados da Ordem de Serviço (tipo_os e extensão),
-    unindo por feed/serviço/sentido. O tipo_dia é resolvido pela
+    unindo por feed/serviço/sentido. Para viagens sem OS, usa a extensão do
+    shape segmentado do GTFS. O tipo_dia é resolvido pela
     macro ordem_servico_excecoes_join, que trata o caso padrão (mesmo tipo_dia)
     e as exceções de calendário (Ponto Facultativo, ENEM, Verão, Réveillon
     etc.). O tipo_dia da OS prevalece quando há correspondência.
@@ -228,7 +229,9 @@ with
             v.* except (tipo_dia),
             coalesce(ose.tipo_dia, v.tipo_dia) as tipo_dia,
             ose.tipo_os,
-            ose.extensao
+            case
+                when ose.tipo_os is null then se.extensao else ose.extensao
+            end as extensao
         from viagem_planejada_base v
         left join
             ordem_servico_extensao ose
@@ -236,6 +239,7 @@ with
             and ose.servico = v.servico
             and ose.sentido = v.sentido
             and {{ ordem_servico_excecoes_join("ose", "v") }}
+        left join {{ ref("extensao_shape") }} se using (feed_start_date, shape_id)
     ),
     /*
     Constrói o array de trajetos alternativos (trip, shape, vista, evento e extensão)
