@@ -390,3 +390,22 @@ models:
         description: "{{ doc('versao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
+  - name: staging_infracao
+    description: Staging dos arquivos diários de infração capturados via FTP
+    tests:
+      - dbt_utils.recency:
+          name: dbt_utils__recency__data__staging_infracao
+          arguments:
+            datepart: day
+            field: timestamp(data)
+            interval: 1
+          config:
+            tags: ["freshness", "daily"]
+            severity: warn
+    columns:
+      - name: data
+        description: Data do arquivo de infração [partição]
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime

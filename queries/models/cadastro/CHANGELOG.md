@@ -1,5 +1,11 @@
 # Changelog - cadastro
 
+## [1.8.2] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.recency` em `data` de `staging_licenciamento_stu` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de licenciamento STU não for ingerido no último dia
+
 ## [1.8.1] - 2026-05-14
 
 ### Removido

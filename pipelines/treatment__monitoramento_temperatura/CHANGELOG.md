@@ -1,5 +1,11 @@
 # Changelog - treatment__monitoramento_temperatura
 
+## [1.0.1] - 2026-09-09
+
+### Alterado
+
+- Alterado o schedule do flow de 6h para 7h 
+
 ## [1.0.0] - 2026-04-29
 
 ### Adicionado

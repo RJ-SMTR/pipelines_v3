@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.13] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.recency` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando o arquivo de infração não for ingerido no último dia
+
 ## [2.2.12] - 2026-09-02
 
 ### Adicionado

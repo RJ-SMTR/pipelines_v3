@@ -42,3 +42,22 @@ models:
       - name: id_cliente
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
+  - name: staging_licenciamento_stu
+    description: Staging dos arquivos diários de licenciamento STU capturados via FTP
+    tests:
+      - dbt_utils.recency:
+          name: dbt_utils__recency__data__staging_licenciamento_stu
+          arguments:
+            datepart: day
+            field: timestamp(data)
+            interval: 1
+          config:
+            tags: ["freshness", "daily"]
+            severity: warn
+    columns:
+      - name: data
+        description: Data do arquivo de licenciamento [partição]
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
