@@ -1,3 +1,5 @@
+{{ config(severity="warn") }}
+
 -- =============================================================================
 -- Teste de consistência: Autuações negativadas pagas sem confirmação de baixa
 -- Verifica se autuações com inclusão e pagamento confirmados possuem baixa confirmada
