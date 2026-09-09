@@ -135,11 +135,12 @@ with
             and vp.service_id in unnest(c.service_ids)
             and vp.tipo_dia = c.tipo_dia
             and (
-                vp.tipo_os = c.tipo_os
+                vp.tipo_os is null
+                or vp.tipo_os = c.tipo_os
                 or vp.modo != 'Ônibus'
                 or (
                     length(regexp_extract(vp.servico, r"[0-9]+")) = 4
-                    and regexp_extract(servico, r"[0-9]+") like "2%"
+                    and regexp_extract(vp.servico, r"[0-9]+") like "2%"
                 )
             )
         left join
