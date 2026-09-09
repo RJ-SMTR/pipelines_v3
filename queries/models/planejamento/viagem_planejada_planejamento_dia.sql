@@ -120,7 +120,7 @@ with
             c.data as data_referencia,
             c.tipo_dia,
             c.subtipo_dia,
-            c.tipo_os,
+            if(vp.tipo_os is null, null, c.tipo_os) as tipo_os,
             os.distancia_total_planejada,
             os.feed_start_date is not null as indicador_possui_os,
             os.horario_inicio,
