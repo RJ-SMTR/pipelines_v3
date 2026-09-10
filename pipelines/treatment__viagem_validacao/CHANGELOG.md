@@ -1,5 +1,12 @@
 # Changelog - treatment__viagem_validacao
 
+## [1.0.3] - 2026-09-10
+
+### Alterado
+
+- Remove o atraso de 24 horas da validação de viagens e usa diretamente o selector de `viagem_informada` como fonte de dados.
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS.
+
 ## [1.0.2] - 2026-07-29
 
 ### Alterado
