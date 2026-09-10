@@ -304,7 +304,8 @@ def _upload_artifacts_to_gcs(
     deployment_name: str,
     flow_run_id: object,
 ) -> None:
-    remote_prefix = f"{GCS_PREFIX}/pending/{deployment_name}/{flow_run_id}"
+    deployment_folder = deployment_name or "local"
+    remote_prefix = f"{GCS_PREFIX}/pending/{deployment_folder}/{flow_run_id}"
     client = storage.Client(project=constants.PROJECT_NAME[env])
     bucket = client.bucket(GCS_BUCKET_NAME)
     for path in artifact_paths:
