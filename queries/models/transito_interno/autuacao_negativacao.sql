@@ -93,12 +93,25 @@ with
             a.data_inclusao,
             a.data_baixa,
             case
-                when r.resultado = '00 - INCLUSAO' then date(r.datetime_retorno)
+                when
+                    a.data_inclusao = date('2025-12-23')
+                    and r.data = date('2025-12-23')
+                    and r.datetime_retorno is null
+                    and r.resultado in ('00 - INCLUSAO', '22 - CONTRATO EM DUPLICIDADE')
+                then date('2025-12-23')
+                when r.resultado = '00 - INCLUSAO'
+                then date(r.datetime_retorno)
             end as data_confirmacao_inclusao_nova,
             case
                 when r.resultado = '00 - EXCLUSAO' then date(r.datetime_retorno)
             end as data_confirmacao_baixa_nova,
             case
+                when
+                    a.data_inclusao = date('2025-12-23')
+                    and r.data = date('2025-12-23')
+                    and r.datetime_retorno is null
+                    and r.resultado in ('00 - INCLUSAO', '22 - CONTRATO EM DUPLICIDADE')
+                then false
                 when a.indicador_nao_inclusao is true
                 then true
                 when r.resultado not in ('00 - INCLUSAO', '00 - EXCLUSAO')
