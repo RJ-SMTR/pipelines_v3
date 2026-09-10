@@ -50,7 +50,7 @@ PREVINITY_SOURCES = [
 
 NEGATIVACAO_POST_CHECKS_LIST = {
     "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
-        "description": ("Todas as autuacoes pagas com inclusao confirmada possuem baixa confirmada")
+        "description": ("Todas as autuações pagas com inclusão confirmada possuem baixa confirmada")
     },
 }
 
