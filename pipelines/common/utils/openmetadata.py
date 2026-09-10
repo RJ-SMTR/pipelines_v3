@@ -26,6 +26,7 @@ GCS_PREFIX = "openmetadata/dbt"
 
 
 def _exact_patterns(values: Iterable[str]) -> list[str]:
+    """Cria padrões regex para correspondência exata dos valores informados."""
     return [f"^{re.escape(value)}$" for value in sorted(values)]
 
 
@@ -33,6 +34,7 @@ def _get_dbt_filter_patterns(
     manifest_path: Path,
     run_results_path: Path,
 ) -> dict[str, dict[str, list[str]]]:
+    """Extrai dos resultados dbt os filtros das tabelas físicas testadas."""
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     run_results = json.loads(run_results_path.read_text(encoding="utf-8"))
     manifest_nodes = manifest.get("nodes") or {}
@@ -90,6 +92,7 @@ def _create_dbt_ingestion_config(
     manifest_path: Path,
     run_results_path: Path,
 ) -> Path:
+    """Cria o YAML de ingestão dbt com filtros derivados dos artefatos."""
     config = yaml.safe_load((CONFIG_PATH / "dbt_run_results.yaml").read_text(encoding="utf-8"))
     source_config = config["source"]["sourceConfig"]["config"]
     filter_patterns = _get_dbt_filter_patterns(manifest_path, run_results_path)
@@ -300,6 +303,7 @@ def _upload_artifacts_to_gcs(
     deployment_name: str,
     flow_run_id: object,
 ) -> None:
+    """Envia para o GCS os artefatos cuja ingestão direta falhou."""
     remote_prefix = f"{GCS_PREFIX}/pending/{deployment_name}/{flow_run_id}"
     client = storage.Client(project=constants.PROJECT_NAME[env])
     bucket = client.bucket(GCS_BUCKET_NAME)
