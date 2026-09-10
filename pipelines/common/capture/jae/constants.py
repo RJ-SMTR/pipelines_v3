@@ -225,19 +225,6 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "database": "financeiro_db",
         "capture_delay_minutes": {"0": 5, "2025-12-12 22:53:00": 1440},
     },
-    MOVIMENTO_TABLE_ID: {
-        "query": """
-            SELECT
-                *
-            FROM
-                movimento
-            WHERE
-                dt_movimento >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                AND dt_movimento < timestamp '{end}' - INTERVAL '{delay} minutes'
-        """,
-        "database": "financeiro_db",
-        "capture_delay_minutes": {"0": 1440},
-    },
     "linha": {
         "query": """
             SELECT
