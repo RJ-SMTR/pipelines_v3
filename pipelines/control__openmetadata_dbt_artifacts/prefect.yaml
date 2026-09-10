@@ -1,4 +1,4 @@
-name: integration__openmetadata_bigquery
+name: control__openmetadata_dbt_artifacts
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "integration__openmetadata_bigquery-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/integration__openmetadata_bigquery/Dockerfile
+      tag: "control__openmetadata_dbt_artifacts-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/control__openmetadata_dbt_artifacts/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,28 +24,29 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-integration--openmetadata_bigquery--staging
+  - name: rj-control--openmetadata_dbt_artifacts--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/integration__openmetadata_bigquery/flow.py:integration__openmetadata_bigquery
+    entrypoint: pipelines/control__openmetadata_dbt_artifacts/flow.py:control__openmetadata_dbt_artifacts
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package integration__openmetadata_bigquery -- prefect flow-run execute
+        command: uv run --package control__openmetadata_dbt_artifacts -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-integration--openmetadata_bigquery--prod
+  - name: rj-control--openmetadata_dbt_artifacts--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/integration__openmetadata_bigquery/flow.py:integration__openmetadata_bigquery
+    entrypoint: pipelines/control__openmetadata_dbt_artifacts/flow.py:control__openmetadata_dbt_artifacts
     schedules:
-      - cron: "0 1 * * 2"
+      - cron: "30 1 * * 2"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package integration__openmetadata_bigquery -- prefect flow-run execute
+        command: uv run --package control__openmetadata_dbt_artifacts -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+    concurrency_limit: 1
