@@ -6,8 +6,9 @@ Executa o selector DBT 'monitoramento_veiculo' para materializar dados de veícu
 fiscalizados no BigQuery, incluindo lacres e autuações disciplinares.
 
 Schedule:
-- Diariamente às 5h45 (horário de São Paulo)
+- Diariamente às 6h45 (horário de São Paulo)
 - Depende de dados de fiscalização de veículos
+- Pós-teste de ingestão diária do arquivo de infração
 
 DBT 2026-05-19
 """
