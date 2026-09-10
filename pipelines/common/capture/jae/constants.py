@@ -212,12 +212,16 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "query": """
             SELECT
                 l.*,
-                m.cd_tipo_movimento
+                m.cd_tipo_movimento,
+                tm.ds_tipo_movimento
             FROM
                 lancamento l
             LEFT JOIN
                 movimento m
             USING(id_movimento)
+            LEFT JOIN
+                tipo_movimento tm
+            USING(cd_tipo_movimento)
             WHERE
                 l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
                 AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
