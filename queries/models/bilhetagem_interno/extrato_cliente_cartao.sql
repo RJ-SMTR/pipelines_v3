@@ -57,7 +57,6 @@
 {% endif %}
 
 with
-with
     lancamento_extracao_id_conta as (
         select
             *,
