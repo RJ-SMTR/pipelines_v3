@@ -1,0 +1,4 @@
+[project]
+name = "integration__openmetadata_bigquery"
+version = "0.1.0"
+description = "Pipeline de ingestão de metadados do BigQuery no OpenMetadata da secretaria rj-smtr"

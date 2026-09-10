@@ -1,0 +1,31 @@
+source:
+  type: bigquery
+  serviceName: ${OPENMETADATA_SERVICE_NAME}
+  serviceConnection:
+    config:
+      type: BigQuery
+      billingProjectId: null
+      credentials:
+        gcpConfig:
+          type: gcp_adc
+          projectId: []
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+      includeTables: true
+      includeViews: false
+      includeTags: false
+      useFqnForFiltering: false
+      databaseFilterPattern:
+        includes: []
+sink:
+  type: metadata-rest
+  config: {}
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: ${OPENMETADATA_HOST_PORT}
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: ${OPENMETADATA_JWT_TOKEN}
+    storeServiceConnection: true
