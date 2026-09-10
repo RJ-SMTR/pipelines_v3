@@ -53,8 +53,8 @@ with
             sentido,
             faixa_horaria_inicio,
             faixa_horaria_fim,
-            {# valor_penalidade, #}
-            valor_penalidade * 1.144812527 as valor_penalidade  -- [Teórico considerando hipotético out/25 em 2026]
+            valor_penalidade,
+            -- valor_penalidade*1.144812527 as valor_penalidade -- [Teórico considerando hipotético out/25 em 2026]
         from {{ ref("subsidio_penalidade_servico_faixa") }}
         where
             data
@@ -70,10 +70,10 @@ with
             p.servico,
             p.sentido,
             p.pof,
-            {# any_value(irk) over (partition by p.data) as irk,
-            any_value(subsidio_km) over (partition by p.data) as subsidio_km, #}
-            9 as irk,  -- [Teórico considerando hipotético out/25 em 2026]
-            3.06 as subsidio_km,  -- [Teórico considerando hipotético out/25 em 2026]
+            any_value(irk) over (partition by p.data) as irk,
+            any_value(subsidio_km) over (partition by p.data) as subsidio_km,
+            -- 9 as irk, -- [Teórico considerando hipotético out/25 em 2026]
+            -- 3.06 as subsidio_km, -- [Teórico considerando hipotético out/25 em 2026]
             v.id_viagem,
             receita_tarifa_publica,
             p.km_planejada_faixa,
@@ -112,10 +112,8 @@ with
                 )
             ) as km_conforme_faixa,
             sum(if(indicador_validade, distancia_planejada, 0)) as km_atendida_faixa,
-            {# coalesce(sum(receita_tarifa_publica), 0) as receita_tarifa_publica_faixa, #}
-            coalesce(
-                sum((receita_tarifa_publica / 4.7) * 5), 0
-            ) as receita_tarifa_publica_faixa,  -- [receita/tarifa = passageiro_equivalente - Teórico considerando hipotético out/25 em 2026]
+            coalesce(sum(receita_tarifa_publica), 0) as receita_tarifa_publica_faixa,
+            -- coalesce(sum((receita_tarifa_publica/4.7)*5), 0) as receita_tarifa_publica_faixa, -- [receita/tarifa = passageiro_equivalente - Teórico considerando hipotético out/25 em 2026]
         from subsidio_servico
         group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
     )
@@ -150,22 +148,32 @@ select
 
     -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de
     -- 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
-    if(
-        pof >= 80,
-        (km_conforme_faixa * s.subsidio_km)
-        + (km_atendida_faixa * (irk - s.subsidio_km))
-        - receita_tarifa_publica_faixa,
-        (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
-    )
-    + coalesce(valor_penalidade, 0) as delta_tr_c2,
-    -- Cenário C3 - ADT por faixa horária com corte de 80% (sem penalidade)
-    if(
-        pof >= 80,
-        (km_conforme_faixa * s.subsidio_km)
-        + (km_atendida_faixa * (irk - s.subsidio_km))
-        - receita_tarifa_publica_faixa,
-        0
-    ) as delta_tr_c3,
+    -- if(
+    --     pof >= 80,
+    --     (km_conforme_faixa * s.subsidio_km)
+    --     + (km_atendida_faixa * (irk - s.subsidio_km))
+    --     - receita_tarifa_publica_faixa,
+    --     (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
+    -- )
+    -- + coalesce(valor_penalidade, 0) as delta_tr_c2,
+    -- -- Cenário C3 - ADT por faixa horária com corte de 80% (sem penalidade)
+    -- if(
+    --     pof >= 80,
+    --     (km_conforme_faixa * s.subsidio_km)
+    --     + (km_atendida_faixa * (irk - s.subsidio_km))
+    --     - receita_tarifa_publica_faixa,
+    --     0
+    -- ) as delta_tr_c3,
+    -- + valor_penalidade as delta_tr,
+
+    -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
+
+    -- if(
+    --     pof >= 80,
+    --     (km_conforme_faixa * s.subsidio_km) + (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa,
+    --     (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
+    -- )
+    -- + valor_penalidade as delta_tr_c2,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt

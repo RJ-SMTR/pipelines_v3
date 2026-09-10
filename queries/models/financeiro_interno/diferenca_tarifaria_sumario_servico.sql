@@ -56,20 +56,14 @@ select
         - receita_tarifa_publica_dia,
         0
     )
-    + valor_penalidade_dia as delta_tr_b1,
-    -- Cenário B2 - Resultado final ADT por dia, incluindo os dias abaixo de 80%,
-    -- comparando com a km conforme*IRK. Não paga quando for positivo.
-    if(
-        percentual_atendimento_dia >= 80,
-        (km_conforme_dia * subsidio_km)
-        + (km_atendida_dia * (irk - subsidio_km))
-        - receita_tarifa_publica_dia,
-        (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia
-    )
-    + valor_penalidade_dia as delta_tr_b2,
-    -- Cenário B3 - Soma do ADT C3 por faixa (corte de 80% no POF, sem segundo corte
-    -- no dia)
-    delta_tr_b3,
+    + valor_penalidade_dia as delta_tr,
+    -- Cenário B2 - Resultado final ADT por dia, incluindo os dias abaixo de 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
+    -- if(
+    --     percentual_atendimento_dia >= 80,
+    --     (km_conforme_dia * subsidio_km) + (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia,
+    --     (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia
+    -- )
+    -- + valor_penalidade_dia as delta_tr_b2,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
