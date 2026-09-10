@@ -1,5 +1,11 @@
 # Changelog - capture__inmet_temperatura
 
+## [1.0.3] - 2026-09-10
+
+### Alterado
+
+- Altera o schedule para capturar as janelas mensais nos dias 7 e 22, criando uma partição e uma requisição por data de medição (https://github.com/RJ-SMTR/pipelines_v3/pull/650).
+
 ## [1.0.2] - 2026-07-20
 
 ### Adicionado
