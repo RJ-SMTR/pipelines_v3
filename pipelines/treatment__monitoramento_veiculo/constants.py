@@ -32,8 +32,8 @@ MONITORAMENTO_VEICULO_CHECKS_LIST = {
         },
     },
     "staging_infracao": {
-        "dbt_utils__recency__data__staging_infracao": {
-            "description": "Arquivo de infração ingerido nas últimas 24 horas"
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_infracao": {
+            "description": "Arquivo de infração ingerido em todas as datas da janela"
         },
     },
 }

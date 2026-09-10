@@ -43,14 +43,21 @@ models:
         policy_tags:
           - 'projects/rj-smtr/locations/us/taxonomies/388050497607535163/policyTags/3935188996031375059'
   - name: staging_licenciamento_stu
-    description: Staging dos arquivos diários de licenciamento STU capturados via FTP
+    description: |
+      Uma linha por veículo (`id_veiculo`) por data do arquivo FTP (`data`).
+      Mantém o histórico de todas as partições de captura: cada `data` é o recorte do cadastro STU naquele dia, não o estado vigente consolidado.
+      Use (`data`, `id_veiculo`) para junções com o arquivo do dia; use (`id_veiculo`, `placa`) ao acompanhar o veículo entre arquivos.
+      Fonte: FTP RDO `LICENCIAMENTO/CadastrodeVeiculos`. Lê `veiculo_staging.licenciamento_stu` antes de `data_inicio_source_veiculo` e `source_veiculo.licenciamento_stu` a partir dessa data.
+      Premissas: `data` permanece string; datas vazias no JSON viram nulo; `timestamp_captura` é truncado ao segundo em America/Sao_Paulo; não há deduplicação além da chave de captura.
+
     tests:
-      - dbt_utils.recency:
-          name: dbt_utils__recency__data__staging_licenciamento_stu
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_licenciamento_stu
           arguments:
-            datepart: day
-            field: timestamp(data)
-            interval: 1
+            date_col: data
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           config:
             tags: ["freshness", "daily"]
             severity: warn

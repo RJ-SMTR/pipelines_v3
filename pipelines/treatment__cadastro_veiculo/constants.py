@@ -14,8 +14,8 @@ from pipelines.treatment__monitoramento_veiculo import (
 
 CADASTRO_VEICULO_CHECKS_LIST = {
     "staging_licenciamento_stu": {
-        "dbt_utils__recency__data__staging_licenciamento_stu": {
-            "description": "Arquivo de licenciamento STU ingerido nas últimas 24 horas"
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_licenciamento_stu": {
+            "description": "Arquivo de licenciamento STU ingerido em todas as datas da janela"
         },
     },
 }

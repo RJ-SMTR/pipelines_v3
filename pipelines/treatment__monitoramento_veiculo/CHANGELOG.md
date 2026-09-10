@@ -8,7 +8,7 @@
 
 ### Adicionado
 
-- Adiciona pós-teste `dbt_utils.recency` no arquivo de infração (`dbt_utils__recency__data__staging_infracao`, severity `warn`)
+- Adiciona pós-teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` no arquivo de infração (`dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_infracao`, severity `warn`) (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
 
 ## [1.0.0] - 2026-04-29
 
