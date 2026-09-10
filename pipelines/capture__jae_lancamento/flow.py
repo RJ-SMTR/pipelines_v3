@@ -7,7 +7,6 @@ Executa a captura de dados de lançamentos financeiros do sistema Jaé.
 Common: 2026-05-20
 """
 
-# A
 from typing import Optional
 
 from pipelines.capture__jae_lancamento import constants
