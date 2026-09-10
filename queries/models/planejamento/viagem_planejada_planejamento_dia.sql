@@ -120,7 +120,7 @@ with
             c.data as data_referencia,
             c.tipo_dia,
             c.subtipo_dia,
-            c.tipo_os,
+            if(vp.tipo_os is null, null, c.tipo_os) as tipo_os,
             os.distancia_total_planejada,
             os.feed_start_date is not null as indicador_possui_os,
             os.horario_inicio,
@@ -135,11 +135,12 @@ with
             and vp.service_id in unnest(c.service_ids)
             and vp.tipo_dia = c.tipo_dia
             and (
-                vp.tipo_os = c.tipo_os
+                vp.tipo_os is null
+                or vp.tipo_os = c.tipo_os
                 or vp.modo != 'Ônibus'
                 or (
                     length(regexp_extract(vp.servico, r"[0-9]+")) = 4
-                    and regexp_extract(servico, r"[0-9]+") like "2%"
+                    and regexp_extract(vp.servico, r"[0-9]+") like "2%"
                 )
             )
         left join
