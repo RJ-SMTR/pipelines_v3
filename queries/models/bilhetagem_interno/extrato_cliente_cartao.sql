@@ -75,12 +75,12 @@ with
         select
             *,
             if(
-                regexp_contains(l.id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$'),
+                regexp_contains(id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$'),
                 id_extraido,
                 null
             ) as hash_cartao,
             if(
-                regexp_contains(l.id_conta, r'^2\.2\.1\.[A-Za-z0-9]+\.(1|2|6)$'),
+                regexp_contains(id_conta, r'^2\.2\.1\.[A-Za-z0-9]+\.(1|2|6)$'),
                 id_extraido,
                 null
             ) as id_cliente,
