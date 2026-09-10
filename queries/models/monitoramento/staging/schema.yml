@@ -390,3 +390,29 @@ models:
         description: "{{ doc('versao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
+  - name: staging_infracao
+    description: |
+      Uma linha por auto de infração (`id_auto_infracao`) por data do arquivo FTP (`data`).
+      Mantém o histórico de todas as partições de captura: o mesmo auto pode reaparecer em arquivos posteriores enquanto permanecer na base STU, não sendo um estado atual único.
+      Use (`data`, `id_auto_infracao`) para o recorte do arquivo do dia; use `id_auto_infracao` para o histórico do auto.
+      Fonte: FTP RDO `MULTAS/MULTAS`. Lê `veiculo_staging.infracao` antes de `data_inicio_source_veiculo` e `source_veiculo.infracao` a partir dessa data.
+      Premissas: `data_infracao`/`datetime_infracao` são parseados de dd/mm/yyyy com hora opcional; `data_pagamento` vazia vira nulo; `timestamp_captura` é truncado ao segundo em America/Sao_Paulo; `data` permanece string.
+
+    tests:
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_infracao
+          arguments:
+            date_col: data
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+          config:
+            tags: ["freshness", "daily"]
+            severity: warn
+    columns:
+      - name: data
+        description: Data do arquivo de infração [partição]
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
