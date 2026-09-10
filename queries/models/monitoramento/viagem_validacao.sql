@@ -259,6 +259,18 @@ with
         {% endif %}
     ),
     /*
+    Informações do serviço planejado
+    */
+    servico_planejado_info as (
+        select
+            data,
+            servico,
+            any_value(sistema) as sistema,
+            any_value(consorcio) as consorcio
+        from servico_planejado
+        group by data, servico
+    ),
+    /*
     Desaninhamento do shape_id dos arrays trip_info (trajeto principal) e
     trajetos_alternativos, com classificação do tipo de trajeto
     */
@@ -301,22 +313,30 @@ with
     servicos_planejados_os as (
         select
             spg.*,
-            spu.consorcio,
-            spu.sistema,
+            ss.sistema,
+            ss.consorcio,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
             safe_divide(spu.extensao*3600, datetime_diff(datetime_chegada_considerada, datetime_partida_considerada, second)) as velocidade_media,
             -- fmt: on
             case
-                when spu.quilometragem is not null and spu.quilometragem > 0
+                when
+                    ss.sistema = "SPPO"
+                    and spu.quilometragem is not null
+                    and spu.quilometragem > 0
                 then true
                 when
-                    (spu.quilometragem is not null and spu.quilometragem <= 0)
-                    or (spu.quilometragem is null and spg.modo = "Ônibus")
+                    ss.sistema = "SPPO"
+                    and (
+                        (spu.quilometragem is not null and spu.quilometragem <= 0)
+                        or (spu.quilometragem is null and spg.modo = "Ônibus")
+                    )
                 then false
             end as indicador_servico_planejado_os
         from servicos_planejados_gtfs spg
+        left join
+            servico_planejado_info ss on ss.data = spg.data and ss.servico = spg.servico
         left join
             servico_planejado_unnested spu
             on spu.servico = spg.servico
