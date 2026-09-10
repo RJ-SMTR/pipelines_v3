@@ -46,3 +46,4 @@ deployments:
         command: uv run --package control__openmetadata_dbt_artifacts -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
+    concurrency_limit: 1
