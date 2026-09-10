@@ -108,7 +108,6 @@ VEICULO_TABLE_ID = "veiculo"
 VEICULO_CLIENTE_TABLE_ID = "veiculo_cliente"
 FISCALIZACAO_VEICULO_TABLE_ID = "fiscalizacao_veiculo"
 DENUNCIA_TABLE_ID = "denuncia"
-MOVIMENTO_TABLE_ID = "movimento"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
