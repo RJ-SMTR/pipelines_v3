@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.8] - 2026-09-10
+
+### Corrigido
+
+- Substitui os dois testes genéricos de nulidade das tecnologias permitidas por um teste singular que valida ambas as colunas e identifica a coluna com nulidade no resultado ([PR #638](https://github.com/RJ-SMTR/pipelines_v3/pull/638), [commit 5a1ca494](https://github.com/RJ-SMTR/pipelines_v3/commit/5a1ca494)).
+
 ## [1.0.7] - 2026-09-02
 
 ### Adicionado
