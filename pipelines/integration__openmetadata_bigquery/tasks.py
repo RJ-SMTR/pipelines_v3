@@ -3,6 +3,7 @@
 
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from prefect import task
@@ -10,27 +11,33 @@ from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.utils.openmetadata import (
     _create_bigquery_ingestion_config,
-    _exact_patterns,
     _run_cli,
 )
 from pipelines.integration__openmetadata_bigquery import constants
 
 
 @task(cache_policy=NO_CACHE)
-def run_openmetadata_ingestion() -> None:
+def run_openmetadata_ingestion(
+    project_ids: Optional[list[str]] = None,
+    schema_filter_pattern: Optional[dict[str, list[str]]] = None,
+    table_filter_pattern: Optional[dict[str, list[str]]] = None,
+) -> None:
     """Executa a ingestão BigQuery pelo CLI isolado do OpenMetadata."""
-    schema_filter_pattern = (
-        {"excludes": _exact_patterns(constants.BIGQUERY_DATASET_EXCLUDES)}
-        if constants.BIGQUERY_DATASET_EXCLUDES
-        else None
-    )
-    table_filter_pattern = (
-        {"excludes": _exact_patterns(constants.BIGQUERY_TABLE_EXCLUDES)}
-        if constants.BIGQUERY_TABLE_EXCLUDES
-        else None
-    )
+    project_ids = constants.BIGQUERY_PROJECT_IDS if project_ids is None else project_ids
+    if schema_filter_pattern is None:
+        schema_filter_pattern = (
+            {"excludes": constants.BIGQUERY_DATASET_EXCLUDES}
+            if constants.BIGQUERY_DATASET_EXCLUDES
+            else None
+        )
+    if table_filter_pattern is None:
+        table_filter_pattern = (
+            {"excludes": constants.BIGQUERY_TABLE_EXCLUDES}
+            if constants.BIGQUERY_TABLE_EXCLUDES
+            else None
+        )
     config = _create_bigquery_ingestion_config(
-        project_ids=constants.BIGQUERY_PROJECT_IDS,
+        project_ids=project_ids,
         billing_project_id=constants.BILLING_PROJECT_ID,
         schema_filter_pattern=schema_filter_pattern,
         table_filter_pattern=table_filter_pattern,

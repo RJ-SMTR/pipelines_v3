@@ -11,9 +11,18 @@ from pipelines.integration__openmetadata_bigquery.tasks import run_openmetadata_
 
 
 @flow(log_prints=True, timeout_seconds=21600)
-def integration__openmetadata_bigquery(env: Optional[str] = None) -> None:
-    """Ingere metadados dos projetos BigQuery configurados."""
+def integration__openmetadata_bigquery(
+    env: Optional[str] = None,
+    project_ids: Optional[list[str]] = None,
+    schema_filter_pattern: Optional[dict[str, list[str]]] = None,
+    table_filter_pattern: Optional[dict[str, list[str]]] = None,
+) -> None:
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env=env)
-    run_openmetadata_ingestion(wait_for=[setup_env, sentry])
+    run_openmetadata_ingestion(
+        project_ids=project_ids,
+        schema_filter_pattern=schema_filter_pattern,
+        table_filter_pattern=table_filter_pattern,
+        wait_for=[setup_env, sentry],
+    )
