@@ -127,9 +127,15 @@ def _create_bigquery_ingestion_config(
     source_config["databaseFilterPattern"] = {"includes": _exact_patterns(project_ids)}
 
     if schema_filter_pattern:
-        source_config["schemaFilterPattern"] = schema_filter_pattern
+        source_config["schemaFilterPattern"] = {
+            filter_type: _exact_patterns(values)
+            for filter_type, values in schema_filter_pattern.items()
+        }
     if table_filter_pattern:
-        source_config["tableFilterPattern"] = table_filter_pattern
+        source_config["tableFilterPattern"] = {
+            filter_type: _exact_patterns(values)
+            for filter_type, values in table_filter_pattern.items()
+        }
 
     return config
 
