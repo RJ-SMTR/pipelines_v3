@@ -346,7 +346,6 @@ def ingest_dbt_artifacts(  # noqa: PLR0913
                         "OpenMetadata: manifest correspondente não encontrado para "
                         f"{run_results_path.name}"
                     )
-                    failed_artifact_paths.append(run_results_path)
                     continue
 
                 try:
