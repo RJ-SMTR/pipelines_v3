@@ -57,34 +57,54 @@
 {% endif %}
 
 with
+    lancamento_extracao_id_conta as (
+        select
+            *,
+            regexp_extract(
+                id_conta, r'^2\.2\.[13]\.([A-Za-z0-9]+)\.(?:1|2|6)$'
+            ) as id_extraido
+        from {{ ref("staging_lancamento") }}
+        where
+            (
+                regexp_contains(id_conta, r'^2\.2\.1\.[A-Za-z0-9]+\.(1|2|6)$')
+                or regexp_contains(id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$')
+            )
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+    ),
+    lancamento_cliente_cartao as (
+        select
+            *,
+            if(
+                regexp_contains(id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$'),
+                id_extraido,
+                null
+            ) as hash_cartao,
+            if(
+                regexp_contains(id_conta, r'^2\.2\.1\.[A-Za-z0-9]+\.(1|2|6)$'),
+                id_extraido,
+                null
+            ) as id_cliente,
+        from lancamento_extracao_id_conta
+    ),
     dados_novos as (
         select
             date(l.dt_lancamento) as data,
             l.dt_lancamento as datetime_lancamento,
             cast(l.id_conta as string) as id_conta,
-            case
-                when regexp_contains(l.id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$')
-                then split(l.id_conta, ".")[offset(3)]
-            end as hash_cartao,
+            l.hash_cartao,
             ifnull(
                 l.id_lancamento, concat(string(l.dt_lancamento), '_', l.id_movimento)
             ) as id_unico_lancamento,
             l.id_lancamento,
-            l.cd_cliente as id_cliente,
+            l.id_cliente,
             j.nome as nome_cliente,
             j.documento as documento_cliente,
             j.tipo_documento as tipo_documento_cliente,
             l.ds_tipo_movimento as tipo_movimento,
             l.vl_lancamento as valor_lancamento,
             l.timestamp_captura as datetime_captura
-        from {{ ref("staging_lancamento") }} as l
-        left join {{ ref("cliente_jae") }} j on j.id_cliente = l.cd_cliente
-        where
-            (
-                regexp_contains(l.id_conta, r'^2\.2\.1\.[A-Za-z0-9]+\.(1|2|6)$')
-                or regexp_contains(l.id_conta, r'^2\.2\.3\.[A-Za-z0-9]+\.1$')
-            )
-            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        from lancamento_cliente_cartao as l
+        left join {{ ref("cliente_jae") }} j using (id_cliente)
     ),
     dados_novos_deduplicado as (
         select *
