@@ -112,14 +112,14 @@ DENUNCIA_TABLE_ID = "denuncia"
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
         "query": """
-                SELECT
-                    *
-                FROM
-                    transacao
-                WHERE
-                    data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
-            """,
+            SELECT
+                *
+            FROM
+                transacao
+            WHERE
+                data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
+        """,
         "database": "transacao_db",
         "capture_delay_minutes": {"0": 0, "2025-03-26 15:36:00": 5},
     },
@@ -209,37 +209,21 @@ JAE_TABLE_CAPTURE_PARAMS = {
     },
     LANCAMENTO_TABLE_ID: {
         "query": """
-                SELECT
-                    l.*,
-                    m.cd_tipo_movimento,
-                    tm.ds_tipo_movimento,
-                    tc.ds_tipo_conta,
-                    tc.id_tipo_moeda,
-                    tmo.descricao as tipo_moeda,
-                    c.cd_cliente,
-                    c.nr_logico_midia
-                FROM
-                    lancamento l
-                LEFT JOIN
-                    movimento m
-                USING(id_movimento)
-                LEFT JOIN
-                    tipo_movimento tm
-                USING(cd_tipo_movimento)
-                LEFT JOIN
-                    conta c
-                USING(id_conta)
-                LEFT JOIN
-                    tipo_conta tc
-                USING(cd_tipo_conta)
-                LEFT JOIN
-                    tipo_moeda tmo
-                ON tc.id_tipo_moeda = tmo.id
-                WHERE
-                    l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
-                ORDER BY l.dt_lancamento DESC
-
+            SELECT
+                l.*,
+                m.cd_tipo_movimento,
+                tm.ds_tipo_movimento
+            FROM
+                lancamento l
+            LEFT JOIN
+                movimento m
+            USING(id_movimento)
+            LEFT JOIN
+                tipo_movimento tm
+            USING(cd_tipo_movimento)
+            WHERE
+                l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
             """,
         "database": "financeiro_db",
         "capture_delay_minutes": {"0": 5, "2025-12-12 22:53:00": 1440},
