@@ -47,8 +47,8 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('viagem_completa')
-      - ref('viagem_planejada')
+      - ref('view_viagem_monitoramento')
+      - ref('viagem_planejada_planejamento')
     config:
       meta:
         data_product_name: Apuração de Viagens e Itinerários do SPPO
@@ -103,8 +103,8 @@ exposures:
         - Business Data Steward
     depends_on:
       - ref('view_gps_sppo_completo')
-      - ref('viagem_planejada')
-      - ref('sumario_servico_dia_historico')
+      - ref('viagem_planejada_planejamento')
+      - ref('monitoramento_sumario_servico_dia_historico')
     config:
       meta:
         data_product_name: GPS dos Ônibus (Histórico)
@@ -130,9 +130,9 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('viagem_completa')
-      - ref('sumario_servico_dia_tipo_viagem_historico')
-      - ref('sumario_servico_dia_historico')
+      - ref('view_viagem_monitoramento')
+      - ref('monitoramento_sumario_servico_dia_tipo_viagem_historico')
+      - ref('monitoramento_sumario_servico_dia_historico')
     config:
       meta:
         data_product_name: Subsídio dos Ônibus
@@ -158,13 +158,13 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('sumario_servico_dia_historico')
-      - ref('viagem_planejada')
+      - ref('monitoramento_sumario_servico_dia_historico')
+      - ref('viagem_planejada_planejamento')
       - ref('sumario_faixa_servico_dia')
       - ref('sumario_faixa_servico_dia_pagamento')
       # - source('cmtd_projetos', 'forms-teste')
-      - ref('viagem_completa')
-      - ref('ordem_servico_diaria')
+      - ref('view_viagem_monitoramento')
+      - ref('ordem_servico_gtfs')
       - ref('licenciamento')
       - ref('veiculo_licenciamento_dia')
     config:
@@ -249,7 +249,7 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('estacao_brt')
+      - source('br_rj_riodejaneiro_transporte_staging', 'estacoes_e_terminais_brt')
       - source('br_rj_riodejaneiro_rdo', 'rdo40_tratado')
     config:
       meta:
@@ -380,7 +380,7 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('view_gps_validador_van')
+      - ref('gps_validador_van')
     config:
       meta:
         data_product_name: GPS das Vans
