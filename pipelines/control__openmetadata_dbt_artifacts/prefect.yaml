@@ -33,7 +33,7 @@ deployments:
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
         command: uv run --package control__openmetadata_dbt_artifacts -- prefect flow-run execute
-        secretName: prefect-jobs-secrets-staging
+        secretName: prefect-jobs-secrets
         image_pull_policy: Always
   - name: rj-control--openmetadata_dbt_artifacts--prod
     version: "{{ get-commit-hash.stdout }}"
