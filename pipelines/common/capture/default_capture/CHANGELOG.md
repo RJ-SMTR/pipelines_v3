@@ -1,5 +1,11 @@
 # Changelog - default_capture
 
+## [1.0.4] - 2026-09-10 
+
+### Alterado
+
+- Reutiliza o retry de `get_api_data` quando uma resposta esperada como JSON é inválida (https://github.com/RJ-SMTR/pipelines_v3/pull/650).
+
 ## [1.0.3] - 2026-06-23
 
 ### Adicionado
