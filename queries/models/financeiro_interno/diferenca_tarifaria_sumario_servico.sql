@@ -26,7 +26,7 @@ with
                 ) as numeric
             ) as percentual_atendimento_dia,
             sum(valor_penalidade_faixa) as valor_penalidade_dia,
-            sum(delta_tr_c3) as delta_tr_b3,
+            sum(delta_tr) as delta_tr,
         from {{ ref("diferenca_tarifaria_sumario_servico_faixa_sentido") }}
         {# `rj-smtr-dev`.`rodrigo__financeiro_interno`.`diferenca_tarifaria_sumario_servico_faixa_sentido` #}
         where

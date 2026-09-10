@@ -38,7 +38,7 @@ with
             and date(datetime_processamento) - date(datetime_transacao)
             <= interval 6 day
             and modo = "Ônibus"
-            and tipo_transacao != "Botoeira"
+            and tipo_transacao_jae != "Botoeira"
     ),
     -- Transações RioCard
     transacao_riocard as (

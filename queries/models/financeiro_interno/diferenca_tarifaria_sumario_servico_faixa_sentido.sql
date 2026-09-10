@@ -144,7 +144,7 @@ select
         - receita_tarifa_publica_faixa,
         0
     )
-    + coalesce(valor_penalidade, 0) as delta_tr_c1,
+    + coalesce(valor_penalidade, 0) as delta_tr,
 
     -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de
     -- 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
