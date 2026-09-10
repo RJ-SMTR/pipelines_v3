@@ -57,11 +57,13 @@ select
         0
     )
     + valor_penalidade_dia as delta_tr,
-    -- Cenário B2 - Resultado final ADT por dia, incluindo os dias abaixo de 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
+    -- Cenário B2 - Resultado final ADT por dia, incluindo os dias abaixo de 80%,
+    -- comparando com a km conforme*IRK. Não paga quando for positivo.
     -- if(
-    --     percentual_atendimento_dia >= 80,
-    --     (km_conforme_dia * subsidio_km) + (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia,
-    --     (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia
+    -- percentual_atendimento_dia >= 80,
+    -- (km_conforme_dia * subsidio_km) + (km_atendida_dia * (irk - subsidio_km)) -
+    -- receita_tarifa_publica_dia,
+    -- (km_atendida_dia * (irk - subsidio_km)) - receita_tarifa_publica_dia
     -- )
     -- + valor_penalidade_dia as delta_tr_b2,
     '{{ var("version") }}' as versao,

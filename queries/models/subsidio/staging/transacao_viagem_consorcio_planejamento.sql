@@ -45,9 +45,7 @@ with
             servico_jae as servico,
             consorcio,
             valor_transacao,
-            cast(
-                if(data < '2025-08-02', null, 5) as numeric
-            ) as valor_transacao_rateio,
+            cast(if(data < '2025-08-02', null, 5) as numeric) as valor_transacao_rateio,
             datetime_transacao
         -- from {{ ref("transacao_riocard") }}
         from `rj-smtr.bilhetagem.transacao_riocard`

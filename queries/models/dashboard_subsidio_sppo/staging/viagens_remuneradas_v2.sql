@@ -184,13 +184,7 @@ with
         -- (apuração de
         -- valor de subsídio) - RESOLUÇÃO SMTR Nº 3645/2023
         select
-            v.* except (
-                rn,
-                viagens_planejadas,
-                km_planejada,
-                tipo_dia,
-                consorcio
-            ),
+            v.* except (rn, viagens_planejadas, km_planejada, tipo_dia, consorcio),
             case
                 when
                     v.data >= date('{{ var("DATA_SUBSIDIO_V17_INICIO") }}')
@@ -248,9 +242,7 @@ with
     ),
     viagem_indicador_ajustado as (
         select
-            v.* except (
-                indicador_viagem_dentro_limite
-            ),
+            v.* except (indicador_viagem_dentro_limite),
             ifnull(
                 e.indicador_viagem_dentro_limite, v.indicador_viagem_dentro_limite
             ) as indicador_viagem_dentro_limite,

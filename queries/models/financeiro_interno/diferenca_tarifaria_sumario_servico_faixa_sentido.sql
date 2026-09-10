@@ -39,8 +39,8 @@ with
             indicador_conformidade,
             indicador_validade
         from
-        -- {{ ref("viagens_remuneradas") }}
-        `rj-smtr-dev.rodrigo__dashboard_subsidio_sppo.viagens_remuneradas`
+            -- {{ ref("viagens_remuneradas") }}
+            `rj-smtr-dev.rodrigo__dashboard_subsidio_sppo.viagens_remuneradas`
         where
             data
             between date('{{ var("start_date") }}') and date('{{ var("end_date") }}')
@@ -54,7 +54,8 @@ with
             faixa_horaria_inicio,
             faixa_horaria_fim,
             valor_penalidade,
-            -- valor_penalidade*1.144812527 as valor_penalidade -- [Teórico considerando hipotético out/25 em 2026]
+        -- valor_penalidade*1.144812527 as valor_penalidade -- [Teórico considerando
+        -- hipotético out/25 em 2026]
         from {{ ref("subsidio_penalidade_servico_faixa") }}
         where
             data
@@ -106,14 +107,18 @@ with
             any_value(km_planejada_faixa) as km_planejada_faixa,
             sum(
                 if(
-                    indicador_conformidade and indicador_viagem_dentro_limite and pof >= 80,
+                    indicador_conformidade
+                    and indicador_viagem_dentro_limite
+                    and pof >= 80,
                     distancia_planejada,
                     0
                 )
             ) as km_conforme_faixa,
             sum(if(indicador_validade, distancia_planejada, 0)) as km_atendida_faixa,
             coalesce(sum(receita_tarifa_publica), 0) as receita_tarifa_publica_faixa,
-            -- coalesce(sum((receita_tarifa_publica/4.7)*5), 0) as receita_tarifa_publica_faixa, -- [receita/tarifa = passageiro_equivalente - Teórico considerando hipotético out/25 em 2026]
+        -- coalesce(sum((receita_tarifa_publica/4.7)*5), 0) as
+        -- receita_tarifa_publica_faixa, -- [receita/tarifa = passageiro_equivalente -
+        -- Teórico considerando hipotético out/25 em 2026]
         from subsidio_servico
         group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
     )
@@ -136,49 +141,43 @@ select
     km_conforme_faixa * irk as receita_irk_faixa,
     coalesce(valor_penalidade, 0) as valor_penalidade_faixa,
     pof >= 80 as indicador_elegivel_adt,
-    if(
-        pof >= 80,
-        (km_conforme_faixa * irk)
-        - receita_tarifa_publica_faixa,
-        0
-    )
+    if(pof >= 80, (km_conforme_faixa * irk) - receita_tarifa_publica_faixa, 0)
     + coalesce(valor_penalidade, 0) as delta_tr,
     -- Cenário C1 - Resultado final ADT por faixa horária, ignorando abaixo de 80%
     -- if(
-    --     pof >= 80,
-    --     (km_conforme_faixa * s.subsidio_km)
-    --     + (km_atendida_faixa * (irk - s.subsidio_km))
-    --     - receita_tarifa_publica_faixa,
-    --     0
+    -- pof >= 80,
+    -- (km_conforme_faixa * s.subsidio_km)
+    -- + (km_atendida_faixa * (irk - s.subsidio_km))
+    -- - receita_tarifa_publica_faixa,
+    -- 0
     -- )
     -- + coalesce(valor_penalidade, 0) as delta_tr,
-
     -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de
     -- 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
     -- if(
-    --     pof >= 80,
-    --     (km_conforme_faixa * s.subsidio_km)
-    --     + (km_atendida_faixa * (irk - s.subsidio_km))
-    --     - receita_tarifa_publica_faixa,
-    --     (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
+    -- pof >= 80,
+    -- (km_conforme_faixa * s.subsidio_km)
+    -- + (km_atendida_faixa * (irk - s.subsidio_km))
+    -- - receita_tarifa_publica_faixa,
+    -- (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
     -- )
     -- + coalesce(valor_penalidade, 0) as delta_tr_c2,
     -- -- Cenário C3 - ADT por faixa horária com corte de 80% (sem penalidade)
     -- if(
-    --     pof >= 80,
-    --     (km_conforme_faixa * s.subsidio_km)
-    --     + (km_atendida_faixa * (irk - s.subsidio_km))
-    --     - receita_tarifa_publica_faixa,
-    --     0
+    -- pof >= 80,
+    -- (km_conforme_faixa * s.subsidio_km)
+    -- + (km_atendida_faixa * (irk - s.subsidio_km))
+    -- - receita_tarifa_publica_faixa,
+    -- 0
     -- ) as delta_tr_c3,
     -- + valor_penalidade as delta_tr,
-
-    -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
-
+    -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de
+    -- 80%, comparando com a km conforme*IRK. Não paga quando for positivo.
     -- if(
-    --     pof >= 80,
-    --     (km_conforme_faixa * s.subsidio_km) + (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa,
-    --     (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
+    -- pof >= 80,
+    -- (km_conforme_faixa * s.subsidio_km) + (km_atendida_faixa * (irk -
+    -- s.subsidio_km)) - receita_tarifa_publica_faixa,
+    -- (km_atendida_faixa * (irk - s.subsidio_km)) - receita_tarifa_publica_faixa
     -- )
     -- + valor_penalidade as delta_tr_c2,
     '{{ var("version") }}' as versao,
