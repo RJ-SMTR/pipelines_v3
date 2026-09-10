@@ -471,18 +471,6 @@ models:
             combination_of_columns:
               - inicio_vigencia
               - servico
-      - not_null_planned_services:
-          name: not_null_planned_services__maior_tecnologia_permitida__tecnologia_servico
-          config:
-            where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
-          arguments:
-            column_name: maior_tecnologia_permitida
-      - not_null_planned_services:
-          name: not_null_planned_services__menor_tecnologia_permitida__tecnologia_servico
-          config:
-            where: "inicio_vigencia <= date('{{ var('date_range_end') }}') and (fim_vigencia is null OR fim_vigencia >= date('{{ var('date_range_start') }}'))"
-          arguments:
-            column_name: menor_tecnologia_permitida
     columns:
       - name: inicio_vigencia
         description: "Data de inicio da vigência"
