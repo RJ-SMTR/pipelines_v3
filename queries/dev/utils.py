@@ -20,6 +20,30 @@ import requests
 # import pandas as pd
 # bd.config.from_file = True
 
+REPO_URL = "https://api.github.com/repos/RJ-SMTR/pipelines_v3"
+
+
+def _get_current_git_ref() -> str:
+    repo_root = Path(__file__).resolve().parents[2]
+    branch = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+    if branch != "HEAD":
+        return branch
+
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
 
 def run_dbt(
     resource: str,
@@ -208,17 +232,15 @@ def run_dbt_selector(
     os.system(run_command)
 
 
-def fetch_dataset_sha(dataset_id: str):
-    """Fetches the SHA of a branch from Github"""
-    url = "https://api.github.com/repos/prefeitura-rio/queries-rj-smtr"
-    url += f"/commits?queries-rj-smtr/rj_smtr/{dataset_id}"
-    response = requests.get(url)
-
-    if response.status_code != 200:
-        return None
-
-    dataset_version = response.json()[0]["sha"]
-    return {"version": dataset_version}
+def fetch_dataset_sha() -> dict:
+    """Fetches the SHA of the latest commit on the current git branch from GitHub."""
+    response = requests.get(
+        f"{REPO_URL}/commits",
+        params={"sha": _get_current_git_ref()},
+        timeout=60,
+    )
+    response.raise_for_status()
+    return {"version": response.json()[0]["sha"]}
 
 
 def run_dbt_tests(

@@ -26,6 +26,7 @@ from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.openmetadata import preserve_dbt_run_results
 from pipelines.common.utils.prefect import rename_flow_run
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
@@ -773,25 +774,31 @@ def run_dbt(  # noqa: PLR0913
     os.environ["DBT_TARGET_PATH"] = str(target_path)
     os.environ.setdefault("DBT_USER", "prefect")
 
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=raise_on_failure,
-    ).invoke(invoke)
+    (Path(target_path) / "run_results.json").unlink(missing_ok=True)
+    (Path(target_path) / "manifest.json").unlink(missing_ok=True)
+    try:
+        PrefectDbtRunner(
+            settings=PrefectDbtSettings(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                target_path=target_path,
+            ),
+            raise_on_failure=raise_on_failure,
+        ).invoke(invoke)
+    finally:
+        preserve_dbt_run_results(target_path, runtime.flow_run.id)
 
     with (Path(log_dir) / "dbt.log").open("r") as logs:
         return logs.read()
 
 
-def run_dbt_tests(
+def run_dbt_tests(  # noqa: PLR0913
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
     env: Optional[str] = None,
+    flags: Optional[list[str]] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -802,13 +809,14 @@ def run_dbt_tests(
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
         env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
 
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
     """
 
-    flags = []
+    flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     if dbt_test.exclude is not None:
         flags += ["--exclude", dbt_test.exclude]
     dbt_vars = dbt_test.get_test_vars(
@@ -1002,8 +1010,11 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     for test_id, test_result in checks_results.items():
         parts = test_id.split("__")
+        # Strip sanitized package prefix (dbt_utils__..., dbt_expectations__...)
+        if parts and parts[0] in ("dbt_utils", "dbt_expectations"):
+            parts = parts[1:]
         if len(parts) >= 3:  # noqa: PLR2004
-            table_name = parts[2]
+            table_name = parts[-1]
         elif len(parts) == 2:  # noqa: PLR2004
             table_name = parts[1]
         else:
@@ -1032,7 +1043,14 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
                 if table_name in key:
                     for existing_test_id, test_info in value.items():
                         if existing_test_id in test_id:
-                            column = test_id.split("__")[1] if "__" in test_id else test_id
+                            name_parts = test_id.split("__")
+                            if name_parts and name_parts[0] in ("dbt_utils", "dbt_expectations"):
+                                name_parts = name_parts[1:]
+                            column = (
+                                name_parts[1]
+                                if len(name_parts) >= 3  # noqa: PLR2004
+                                else (name_parts[0] if name_parts else test_id)
+                            )
                             matched_description = test_info.get("description", test_id).replace(
                                 "{column_name}", column
                             )

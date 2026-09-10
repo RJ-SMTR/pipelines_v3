@@ -1,7 +1,9 @@
 {{ config(materialized="ephemeral") }}
 
-{% if var("tipo_materializacao") == "monitoramento" %} {% set interval_minutes = 120 %}
-{% elif var("tipo_materializacao") == "subsidio" %} {% set interval_minutes = 30 %}
+{% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+    {% set interval_minutes = 120 %}
+{% elif var("flow_name") == "treatment--subsidio-sppo-apuracao" %}
+    {% set interval_minutes = 30 %}
 {% endif %}
 
 {% set incremental_filter %}
@@ -52,7 +54,7 @@ with
             id_viagem,
             distancia_planejada,
             sentido,
-            "Ônibus SPPO" as modo,
+            "Ônibus" as modo,
             ve.status as tipo_viagem,
             ve.tecnologia as tecnologia_apurada
         from {{ ref("viagem_completa") }}

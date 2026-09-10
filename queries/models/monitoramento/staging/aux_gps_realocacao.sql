@@ -34,7 +34,7 @@ with
     -- 2. Altera registros de GPS com servicos realocados
     gps as (
         select *
-        from {{ ref("staging_gps") }}
+        from {{ ref("staging_gps", v=1) }}
         where
             {{ partition_filter }}
             and datetime_gps

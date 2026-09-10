@@ -45,7 +45,6 @@ deployments:
           test_select: "tag:hourly"
       - cron: "30 12 * * *"
         timezone: "America/Sao_Paulo"
-        active: false
         parameters:
           test_select: "tag:daily"
     work_pool:

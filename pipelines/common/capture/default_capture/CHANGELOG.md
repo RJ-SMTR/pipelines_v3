@@ -1,5 +1,11 @@
 # Changelog - default_capture
 
+## [1.0.3] - 2026-06-23
+
+### Adicionado
+
+- Adiciona suporte ao parâmetro opcional `should_capture_task` em `create_capture_flows_default_tasks`, permitindo interromper a captura antes da extração quando a fonte não tiver dados novos. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
 ## [1.0.2] - 2026-06-12
 
 ### Alterado

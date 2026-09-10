@@ -6,13 +6,13 @@
 
 with
     prioridade_tecnologia as (
-        select "MINI" as tecnologia, 1 as prioridade, "Ônibus SPPO" as modo
+        select "MINI" as tecnologia, 1 as prioridade, "Ônibus" as modo
         union all
-        select "MIDI" as tecnologia, 2 as prioridade, "Ônibus SPPO" as modo
+        select "MIDI" as tecnologia, 2 as prioridade, "Ônibus" as modo
         union all
-        select "BASICO" as tecnologia, 3 as prioridade, "Ônibus SPPO" as modo
+        select "BASICO" as tecnologia, 3 as prioridade, "Ônibus" as modo
         union all
-        select "PADRON" as tecnologia, 4 as prioridade, "Ônibus SPPO" as modo
+        select "PADRON" as tecnologia, 4 as prioridade, "Ônibus" as modo
     )
 select *
 from prioridade_tecnologia

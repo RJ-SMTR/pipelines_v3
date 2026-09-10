@@ -10,7 +10,9 @@
     )
 }}
 
-{% set staging_gps = ref("staging_gps") %}
+{% set staging_gps = ref("staging_gps", v=1) %}
+-- depends_on: {{ ref("staging_gps", v=1) }}
+-- depends_on: {{ ref("aux_gps_realocacao") }}
 {% if execute and is_incremental() %}
     {% set gps_partitions_query %}
     select distinct concat("'", date(data), "'") as data

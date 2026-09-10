@@ -57,7 +57,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__subsidio_sumario_servico_dia_pagamento
+              name: dbt_expectations__expect_column_values_to_be_between__data__subsidio_sumario_servico_dia_pagamento
               arguments:
                 min_value: "'2024-08-15'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V14_INICIO') }}'"

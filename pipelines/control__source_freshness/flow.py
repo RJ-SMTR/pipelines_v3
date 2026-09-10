@@ -15,6 +15,7 @@ from prefect import runtime
 
 from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     setup_dbt_queries,
 )
@@ -49,6 +50,13 @@ def control__source_freshness(env: Optional[str] = None, flags: Optional[list[st
     dbt_deps = install_dbt_packages(wait_for=[queries])
 
     dbt_output = run_source_freshness(flags=flags, env=env, wait_for=[dbt_deps])
+
+    ingest_dbt_artifacts_to_openmetadata(
+        env=env,
+        deployment_name=runtime.deployment.name,
+        flow_run_id=runtime.flow_run.id,
+        wait_for=[dbt_output],
+    )
 
     has_issues, failed_sources = parse_source_freshness_output(dbt_output=dbt_output)
 

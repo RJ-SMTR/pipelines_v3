@@ -7,23 +7,6 @@
     )
 }}
 
-{% set incremental_filter %}
-    data between
-        date('{{ var("date_range_start") }}')
-        and date('{{ var("date_range_end") }}')
-{% endset %}
-
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
-{% if execute %}
-    {% set gtfs_feeds_query %}
-        select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ calendario }}
-        where {{ incremental_filter }}
-    {% endset %}
-    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-{% endif %}
-
 with
     aux_status as (
         select
@@ -33,24 +16,19 @@ with
                 when status_viagem = 'end'
                 then
                     last_value(
-                        case when status_viagem = 'start' then timestamp_gps end
+                        case when status_viagem = 'start' then datetime_gps end
                     ) over (
                         partition by id_veiculo, shape_id
-                        order by timestamp_gps
+                        order by datetime_gps
                         rows between unbounded preceding and 1 preceding
                     )
             end as datetime_partida
         from {{ ref("aux_monitoramento_registros_status_trajeto") }}
         where indicador_intersecao_segmento = true
     ),
-    routes as (
-        select *
-        from {{ ref("routes_gtfs") }}
-        {# from `rj-smtr.gtfs.routes` #}
-        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-    ),
     viagens as (
         select
+            data,
             concat(
                 id_veiculo,
                 "-",
@@ -62,37 +40,33 @@ with
                 "-",
                 format_datetime("%Y%m%d%H%M%S", datetime_partida)
             ) as id_viagem,
-            data,
-            id_empresa,
-            id_veiculo,
+            cast(null as string) as id_viagem_planejada,
+            datetime_partida,
+            datetime_gps as datetime_chegada,
+            modo,
+            consorcio,
+            sistema,
             servico_gps,
             servico,
-            consorcio,
-            case
-                when r.route_type = '200'
-                then 'Ônibus Executivo'
-                when r.route_type = '700'
-                then 'Ônibus SPPO'
-            end as modo,
-            trip_id,
             route_id,
+            trip_id,
             shape_id,
             sentido,
+            id_veiculo,
+            fonte_gps,
             distancia_planejada,
-            datetime_partida,
-            timestamp_gps as datetime_chegada,
+            current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
             '{{ var("version") }}' as versao,
-            current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
+            '{{ invocation_id }}' as id_execucao_dbt
         from aux_status
-        left join routes r using (route_id, feed_start_date)
         where
             status_viagem = 'end'
             and datetime_partida is not null
-            and datetime_partida < timestamp_gps
+            and datetime_partida < datetime_gps
         qualify
             row_number() over (
                 partition by id_veiculo, shape_id, datetime_partida
-                order by timestamp_gps
+                order by datetime_gps
             )
             = 1
     )

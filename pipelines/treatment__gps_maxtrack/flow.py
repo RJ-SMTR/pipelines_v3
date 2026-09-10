@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+"""
+Flow de materialização de dados do GPS Maxtrack.
+
+Executa o selector DBT 'gps' para materializar os dados no BigQuery.
+"""
+
+from datetime import time
+from typing import Optional
+
+from pipelines.common.treatment.default_treatment.flow import (
+    create_materialization_flows_default_tasks,
+)
+from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow, handler_notify_failure
+from pipelines.treatment__gps_maxtrack import constants
+
+
+@flow(
+    log_prints=True,
+    flow_run_name=rename_treatment_flow_run,
+    on_failure=[handler_notify_failure(webhook="dataplex")],
+    on_crashed=[handler_notify_failure(webhook="dataplex")],
+)
+def treatment__gps_maxtrack(  # noqa: PLR0913
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    skip_source_check: bool = False,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+):
+    create_materialization_flows_default_tasks(
+        env=env,
+        selectors=[constants.GPS_MAXTRACK_SELECTOR],
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        skip_source_check=skip_source_check,
+        flags=flags,
+        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
+        test_scheduled_time=time(2, 6, 0),
+        force_test_run=force_test_run,
+    )

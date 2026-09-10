@@ -50,8 +50,8 @@
             where logs.sucesso is not true
         {%- else -%}
             {%- if table_id == "registros" -%}
-                -- depends_on: {{ ref('staging_gps') }}
-                {% set table_ref = ref("staging_gps") %}
+                -- depends_on: {{ ref('staging_gps', v=1) }}
+                {% set table_ref = ref("staging_gps", v=1) %}
             {%- else -%}
                 -- depends_on: {{ ref('staging_realocacao') }}
                 {% set table_ref = ref("staging_realocacao") %}
@@ -90,5 +90,45 @@
             select *
             from missing_timestamps
         {%- endif -%}
+    {%- endif -%}
+{%- endtest %}
+
+{% test check_gps_capture_v2(model, table_id, interval) -%}
+    -- depends_on: {{ ref('staging_gps', v=2) }}
+    {% set table_ref = ref("staging_gps", v=2) %}
+    {%- if execute -%}
+        with
+            t as (
+                select datetime(timestamp_array) as timestamp_array
+                from
+                    unnest(
+                        generate_timestamp_array(
+                            timestamp("{{ var('date_range_start') }}"),
+                            timestamp("{{ var('date_range_end') }}"),
+                            interval {{ interval }} minute
+                        )
+                    ) as timestamp_array
+                where timestamp_array < timestamp("{{ var('date_range_end') }}")
+            ),
+            capture as (
+                select distinct datetime_captura
+                from {{ table_ref }}
+                where
+                    (
+                        {{
+                            generate_date_hour_partition_filter(
+                                var("date_range_start"), var("date_range_end")
+                            )
+                        }}
+                    )
+            ),
+            missing_timestamps as (
+                select t.timestamp_array as datetime_captura
+                from t
+                left join capture c on t.timestamp_array = c.datetime_captura
+                where c.datetime_captura is null
+            )
+        select *
+        from missing_timestamps
     {%- endif -%}
 {%- endtest %}

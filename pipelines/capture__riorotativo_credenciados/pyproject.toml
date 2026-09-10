@@ -1,0 +1,4 @@
+[project]
+name = "capture__riorotativo_credenciados"
+version = "0.1.0"
+description = "Pipeline de captura de credenciados do Rio Rotativo Digital"

@@ -10,8 +10,20 @@
     )
 }}
 
+with
+    gps as (
+        select data, id_veiculo
+        from {{ ref("view_gps_sppo_completo") }}
+        where data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+        union all
+
+        select data, id_veiculo
+        from {{ ref("view_gps_onibus") }}
+        where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    )
 select data, id_veiculo, count(*) as quantidade_gps
-from {{ ref("view_gps_sppo_completo") }}
+from gps
 where
     data > '{{ var("data_final_veiculo_arquitetura_1") }}'
     {% if is_incremental() %}

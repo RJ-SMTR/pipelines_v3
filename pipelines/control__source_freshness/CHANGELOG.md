@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a execução do freshness das fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
 ## [1.1.2] - 2026-06-23
 
 ### Alterado

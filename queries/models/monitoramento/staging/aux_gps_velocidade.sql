@@ -15,7 +15,7 @@ with
             velocidade as velocidade_original,
             lag(posicao_veiculo_geo) over w as posicao_anterior,
             lag(datetime_gps) over w as datetime_anterior
-        from {{ ref("aux_gps_filtrada") }}
+        from {{ ref("aux_gps_filtrada", v=1) }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'

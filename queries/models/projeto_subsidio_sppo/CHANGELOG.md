@@ -1,5 +1,52 @@
 # Changelog - projeto_subsidio_sppo
 
+## [9.5.4] - 2026-09-02
+
+### Adicionado
+
+- Restaura o teste `test_tecnologia_servico_planejado` em `viagem_planejada`(https://github.com/RJ-SMTR/pipelines_v3/pull/607)
+
+## [9.5.3] - 2026-08-20
+
+### Adicionado
+
+- Adiciona o teste `unique__snapshot_key__viagem_planejada` para refletir a `unique_key` do snapshot `snapshot_viagem_planejada` (https://github.com/RJ-SMTR/pipelines_v3/pull/400)
+-
+## [9.5.2] - 2026-08-17
+
+### Alterado
+
+- Nomeia os testes dbt de `viagem_completa` no padrão `tipo__coluna__viagem_completa` para exibir descrições na notificação do Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/522)
+
+## [9.5.1] - 2026-08-12
+
+### Adicionado
+
+- Adiciona no modelo `viagem_completa` a CTE `viagens_concorrentes` para remover viagens sobrepostas do mesmo veículo, conforme processo SEI nº 006400.000803/2026-85 (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+- Adiciona o teste `dbt_utils.mutually_exclusive_ranges` em `viagem_completa` para validar ausência de sobreposição por `id_veiculo`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+
+### Alterado
+
+- Altera o filtro incremental de `viagem_completa` para ler `D-2` e `D-1` (sobreposição com o dia anterior), materializando somente `D-1`. (https://github.com/RJ-SMTR/pipelines_v3/pull/490)
+
+## [9.5.0] - 2026-07-27
+
+### Alterado
+
+- Limita `viagem_planejada`, `registros_status_viagem`, `viagem_conformidade` e `viagem_completa` às viagens anteriores a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
+## [9.4.1] - 2026-07-08
+
+### Adicionado
+
+- Adiciona filtro de `id_tipo_trajeto` nas ctes `filtro_partida` e `filtro_chegada do modelo` no modelo de ` viagem_completa`. (https://github.com/RJ-SMTR/pipelines_v3/pull/363)
+
+## [9.4.0] - 2026-07-06
+
+### Adicionado
+
+- Adiciona campo `shape_id_planejado` no join para identificar viagens circulares consecutivas no modelo `aux_viagem_circular`. (https://github.com/RJ-SMTR/pipelines_v3/pull/349)
+
 ## [9.3.9] - 2026-06-11
 
 ### Adicionado

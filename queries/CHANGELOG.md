@@ -1,5 +1,30 @@
 # Changelog - queries
 
+## [1.1.10] - 2026-07-28
+
+### Adicionado
+
+- Cria selector `viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
+## [1.1.9] - 2026-07-15
+
+### Adicionado
+
+- Cria selector `snapshot_riorotativo` (https://github.com/RJ-SMTR/pipelines_v3/pull/378)
+
+## [1.1.8] - 2026-07-08
+
+### Adicionado
+
+- Cria macro `is_current_state_enabled` para desligar modelos de estado atual em backfills com janela antiga (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+- Cria selector `riorotativo_diario` (materialização dos modelos; backfills com janela antiga executam apenas stagings e históricos via `is_current_state_enabled`) (https://github.com/RJ-SMTR/pipelines_v3/pull/355)
+
+## [1.1.7] - 2026-06-26
+
+### Corrigido
+
+- Corrige nomes dos modelos `autuacao_citran` e `autuacao_serpro` para `view_autuacao_citran` e `view_autuacao_serpro` no selector `transito_autuacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/317)
+
 ## [1.1.6] - 2026-06-24
 
 ### Alterado

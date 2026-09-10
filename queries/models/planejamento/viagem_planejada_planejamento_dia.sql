@@ -22,7 +22,7 @@
 
 {% set source_filter %}
     data between
-        date_sub(date('{{ var("date_range_start") }}'), interval 1 day)
+        date('{{ var("date_range_start") }}')
         and {{ date_range_end_extended }}
 {% endset %}
 
@@ -68,14 +68,7 @@
 
 with
     calendario as (
-        select
-            data,
-            tipo_dia,
-            subtipo_dia,
-            tipo_os,
-            service_ids,
-            feed_version,
-            feed_start_date
+        select data, tipo_dia, subtipo_dia, tipo_os, service_ids, feed_start_date
         from {{ calendario }}
         where {{ source_filter }}
     ),
@@ -89,7 +82,6 @@ with
     ordem_servico as (
         select
             feed_start_date,
-            feed_version,
             servico,
             sentido,
             tipo_dia,
@@ -101,19 +93,7 @@ with
     ),
     viagem_dia as (
         select
-            date(
-                datetime(
-                    timestamp(
-                        c.data + make_interval(
-                            hour => cast(split(vp.horario_partida, ':')[0] as int64),
-                            minute => cast(split(vp.horario_partida, ':')[1] as int64),
-                            second => cast(split(vp.horario_partida, ':')[2] as int64)
-                        ),
-                        "America/Sao_Paulo"
-                    ),
-                    "America/Sao_Paulo"
-                )
-            ) as data,
+            c.data as data,
             datetime(
                 timestamp(
                     c.data + make_interval(
@@ -126,26 +106,27 @@ with
                 "America/Sao_Paulo"
             ) as datetime_partida,
             vp.modo,
+            vp.consorcio,
+            vp.sistema,
+            vp.vista,
             vp.service_id,
             vp.trip_id,
             vp.route_id,
             vp.shape_id,
             vp.servico,
             vp.sentido,
-            vp.evento,
             vp.extensao,
             vp.trajetos_alternativos,
             c.data as data_referencia,
             c.tipo_dia,
             c.subtipo_dia,
-            c.tipo_os,
+            if(vp.tipo_os is null, null, c.tipo_os) as tipo_os,
             os.distancia_total_planejada,
             os.feed_start_date is not null as indicador_possui_os,
             os.horario_inicio,
             os.horario_fim,
             vp.horario_partida,
             vp.id_viagem,
-            vp.feed_version,
             vp.feed_start_date
         from calendario c
         join
@@ -154,11 +135,12 @@ with
             and vp.service_id in unnest(c.service_ids)
             and vp.tipo_dia = c.tipo_dia
             and (
-                vp.tipo_os = c.tipo_os
+                vp.tipo_os is null
+                or vp.tipo_os = c.tipo_os
                 or vp.modo != 'Ônibus'
                 or (
                     length(regexp_extract(vp.servico, r"[0-9]+")) = 4
-                    and regexp_extract(servico, r"[0-9]+") like "2%"
+                    and regexp_extract(vp.servico, r"[0-9]+") like "2%"
                 )
             )
         left join

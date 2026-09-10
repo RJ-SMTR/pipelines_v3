@@ -3,12 +3,7 @@ version: 2
 models:
   - name: staging_gps
     description: "Tabela com todos os registros de GPS da API {{ var('fonte_gps') }}"
-    tests:
-      - check_gps_capture:
-          name: check_gps_capture__staging_gps
-          arguments:
-            table_id: registros
-            interval: 1
+    latest_version: 1
     columns:
       - name: data
         description: "{{ doc('data_captura') }}"
@@ -42,6 +37,218 @@ models:
         description: "{{ doc('datetime_servidor_gps') }}"
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
+    versions:
+      - v: 1
+        defined_in: staging_gps
+        tests:
+          - check_gps_capture:
+              name: check_gps_capture__staging_gps
+              arguments:
+                table_id: registros
+                interval: 1
+        columns:
+          - include: all
+          - name: datetime_execucao_flow
+            description: Data e hora de execução do flow de captura
+            data_type: datetime
+      - v: 2
+        defined_in: staging_gps_v2
+        description: "Tabela com todos os registros de GPS do payload versionado"
+        tests:
+          - check_gps_capture_v2:
+              name: check_gps_capture__staging_gps_v2
+              arguments:
+                table_id: registros
+                interval: 1
+              config:
+                severity: warn
+        columns:
+          - include: all
+          - name: id_registro
+            description: "{{ doc('id_registro_gps') }}"
+            data_type: string
+            tests:
+              - not_null:
+                  name: not_null__id_registro__staging_gps_v2
+              - unique:
+                  name: unique__id_registro__staging_gps_v2
+          - name: datetime_envio
+            description: "{{ doc('datetime_envio_gps') }}"
+            data_type: datetime
+          - name: datetime_servidor
+            description: "{{ doc('datetime_servidor_gps') }}"
+            data_type: datetime
+          - name: id_equipamento
+            description: "{{ doc('id_equipamento') }}"
+            data_type: string
+          - name: sequencial_equipamento
+            description: "{{ doc('sequencial_equipamento') }}"
+            data_type: int64
+          - name: id_viagem_planejada
+            description: "{{ doc('id_viagem_planejada') }}"
+            data_type: string
+          - name: direction_id
+            description: "{{ doc('direction_id') }}"
+            data_type: int64
+          - name: qualidade_sinal
+            description: "{{ doc('qualidade_sinal') }}"
+            data_type: string
+          - name: fonte_posicao
+            description: "{{ doc('fonte_posicao') }}"
+            data_type: string
+          - name: fonte_velocidade
+            description: "{{ doc('fonte_velocidade') }}"
+            data_type: string
+          - name: altitude
+            description: "{{ doc('altitude_gps') }}"
+            data_type: float64
+          - name: quantidade_satelites
+            description: "{{ doc('quantidade_satelites') }}"
+            data_type: int64
+          - name: hdop
+            description: "{{ doc('hdop') }}"
+            data_type: float64
+          - name: vdop
+            description: "{{ doc('vdop') }}"
+            data_type: float64
+          - name: pdop
+            description: "{{ doc('pdop') }}"
+            data_type: float64
+  - name: aux_gps_filtrada
+    description: "Registros de GPS filtrados pela caixa geográfica do município"
+    latest_version: 1
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+    versions:
+      - v: 1
+        defined_in: aux_gps_filtrada
+      - v: 2
+        defined_in: aux_gps_filtrada_v2
+        description: "Registros do payload GPS v2 dentro da caixa geográfica do município"
+        columns:
+          - include: all
+          - name: id_registro
+            description: "{{ doc('id_registro_gps') }}"
+            data_type: string
+            tests:
+              - not_null:
+                  name: not_null__id_registro__aux_gps_filtrada_v2
+              - unique:
+                  name: unique__id_registro__aux_gps_filtrada_v2
+          - name: datetime_envio
+            description: "{{ doc('datetime_envio_gps') }}"
+            data_type: datetime
+          - name: datetime_servidor
+            description: "{{ doc('datetime_servidor_gps') }}"
+            data_type: datetime
+          - name: id_equipamento
+            description: "{{ doc('id_equipamento') }}"
+            data_type: string
+          - name: sequencial_equipamento
+            description: "{{ doc('sequencial_equipamento') }}"
+            data_type: int64
+          - name: route_id
+            description: "{{ doc('route_id') }}"
+            data_type: string
+          - name: id_viagem_planejada
+            description: "{{ doc('id_viagem_planejada') }}"
+            data_type: string
+          - name: trip_id
+            description: "{{ doc('trip_id') }}"
+            data_type: string
+          - name: shape_id
+            description: "{{ doc('shape_id') }}"
+            data_type: string
+          - name: direction_id
+            description: "{{ doc('direction_id') }}"
+            data_type: int64
+          - name: sentido
+            description: "{{ doc('sentido') }}"
+            data_type: string
+          - name: qualidade_sinal
+            description: "{{ doc('qualidade_sinal') }}"
+            data_type: string
+          - name: fonte_posicao
+            description: "{{ doc('fonte_posicao') }}"
+            data_type: string
+          - name: fonte_velocidade
+            description: "{{ doc('fonte_velocidade') }}"
+            data_type: string
+          - name: altitude
+            description: "{{ doc('altitude_gps') }}"
+            data_type: float64
+          - name: direcao
+            description: "{{ doc('direcao_gps') }}"
+            data_type: float64
+          - name: quantidade_satelites
+            description: "{{ doc('quantidade_satelites') }}"
+            data_type: int64
+          - name: hdop
+            description: "{{ doc('hdop') }}"
+            data_type: float64
+          - name: vdop
+            description: "{{ doc('vdop') }}"
+            data_type: float64
+          - name: pdop
+            description: "{{ doc('pdop') }}"
+            data_type: float64
+
+  - name: aux_gps_velocidade
+    description: "Cálculo de velocidade, distância e movimento dos registros de GPS"
+    latest_version: 1
+    versions:
+      - v: 1
+        defined_in: aux_gps_velocidade
+      - v: 2
+        defined_in: aux_gps_velocidade_v2
+
+  - name: aux_gps_parada
+    description: "Classificação das paradas dos registros de GPS"
+    latest_version: 1
+    versions:
+      - v: 1
+        defined_in: aux_gps_parada
+      - v: 2
+        defined_in: aux_gps_parada_v2
+
+  - name: aux_gps_trajeto_correto
+    description: "Identificação da aderência dos registros de GPS ao trajeto planejado"
+    latest_version: 1
+    versions:
+      - v: 1
+        defined_in: aux_gps_trajeto_correto
+      - v: 2
+        defined_in: aux_gps_trajeto_correto_v2
+
   - name: staging_realocacao
     description: "Tabela com todas as realocações de linha informadas pela API {{ var('fonte_gps') }}"
     tests:

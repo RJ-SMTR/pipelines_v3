@@ -1,6 +1,29 @@
 # Changelog - default_treatment
 
+
+## [1.5.0] - 2026-08-31
+
+### Alterado
+
+- Habilita por padrão a ingestão dos artefatos dbt no OpenMetadata nos flows genéricos de materialização (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
+## [1.4.2] - 2026-08-28
+
+### Adicionado
+
+- Adiciona o download do manifest dbt de produção quando o flow de materialização utiliza `--state`, habilitando o uso de defer (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+## [1.4.1] - 2026-07-29
+
+### Corrigido
+
+- Permite preservar o checkpoint de materialização no Redis e, quando `save_redis=None`, atualizá-lo somente em execuções criadas automaticamente pelo agendamento do Prefect. (https://github.com/RJ-SMTR/pipelines_v3/pull/437)
+
 ## [1.4.0] - 2026-06-23
+
+### Alterado
+
+- Propaga `flags` para testes dbt pré e pós-materialização. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
 
 ### Adicionado
 

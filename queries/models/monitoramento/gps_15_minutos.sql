@@ -20,7 +20,7 @@ with
             servico,
             latitude,
             longitude,
-        from {{ ref("aux_gps_filtrada") }}
+        from {{ ref("aux_gps_filtrada", v=1) }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'
@@ -39,17 +39,17 @@ with
             velocidade,
             distancia,
             indicador_em_movimento
-        from {{ ref("aux_gps_velocidade") }}
+        from {{ ref("aux_gps_velocidade", v=1) }}
     ),
     paradas as (
         -- 3. paradas
         select id_veiculo, datetime_gps, servico, tipo_parada
-        from {{ ref("aux_gps_parada") }}
+        from {{ ref("aux_gps_parada", v=1) }}
     ),
     indicadores as (
         -- 4. indicador_trajeto_correto
         select id_veiculo, datetime_gps, servico, indicador_trajeto_correto
-        from {{ ref("aux_gps_trajeto_correto") }}
+        from {{ ref("aux_gps_trajeto_correto", v=1) }}
     )
 -- 5. Junção final
 select

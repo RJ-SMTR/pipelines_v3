@@ -8,12 +8,13 @@ from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
-from pipelines.treatment__gps_cittati import constants as gps_cittati_constants
+
+# from pipelines.treatment__gps_cittati import constants as gps_cittati_constants
 from pipelines.treatment__gps_conecta import constants as gps_conecta_constants
 from pipelines.treatment__gps_zirix import constants as gps_zirix_constants
 from pipelines.treatment__planejamento_diario import constants as planejamento_constants
 
-VIAGEM_VALIDACAO_DELAY_HOURS = 48
+VIAGEM_VALIDACAO_DELAY_HOURS = 24
 
 WAIT_VIAGEM_INFORMADA_SELECTOR = DBTSelector(
     name="viagem_informada",
@@ -24,14 +25,14 @@ WAIT_VIAGEM_INFORMADA_SELECTOR = DBTSelector(
 
 VIAGEM_VALIDACAO_SELECTOR = DBTSelector(
     name="viagem_validacao",
-    initial_datetime=datetime(2024, 10, 12, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    initial_datetime=datetime(2026, 8, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__viagem_validacao",
     incremental_delay_hours=VIAGEM_VALIDACAO_DELAY_HOURS,
     data_sources=[
         WAIT_VIAGEM_INFORMADA_SELECTOR,
         planejamento_constants.PLANEJAMENTO_DIARIO_SELECTOR,
         gps_conecta_constants.GPS_CONECTA_SELECTOR,
-        gps_cittati_constants.GPS_CITTATI_SELECTOR,
+        # gps_cittati_constants.GPS_CITTATI_SELECTOR,
         gps_zirix_constants.GPS_ZIRIX_SELECTOR,
     ],
 )

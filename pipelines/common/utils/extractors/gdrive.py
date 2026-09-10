@@ -2,7 +2,7 @@
 """Module to get data from Google Drive"""
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import pandas as pd
 from google.auth import default
@@ -46,12 +46,14 @@ def get_google_api_service(service_name: str, version: str, scopes: Optional[lis
     return build(service_name, version, credentials=creds)
 
 
-def get_google_sheet_xlsx(
+def get_google_sheet_xlsx(  # noqa: PLR0913
     spread_sheet_id: str,
     sheet_name: str,
     filter_expr: Optional[str] = None,
     raw_filepath: Optional[str] = None,
     rename_mapping: Optional[dict[str, str]] = None,
+    dtypes: Optional[str | type | dict[str, Any]] = None,
+    parse_dates: Optional[dict[str, dict]] = None,
 ) -> pd.DataFrame | list[str]:
     """Extrai dados de uma planilha Google Sheets
 
@@ -61,6 +63,9 @@ def get_google_sheet_xlsx(
         filter_expr: Expressão de filtro opcional
         raw_filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
         rename_mapping: Dicionário com mapeamento de renomeação de colunas
+        dtypes: Mapeamento ``coluna -> dtype``
+        parse_dates: Mapeamento ``coluna -> kwargs`` repassados a ``pd.to_datetime`` (ex.:
+            ``{"dia": {"format": "%d/%m/%Y"}}``)
 
     Returns:
         DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
@@ -78,7 +83,21 @@ def get_google_sheet_xlsx(
         .execute()
     )["values"]
 
-    df = pd.DataFrame(file[1:], columns=file[0])
+    if not file:
+        raise ValueError(f"A aba '{sheet_name}' está vazia ou não retornou dados.")
+
+    columns = file[0]
+    rows = []
+    for row_number, row in enumerate(file[1:], start=2):
+        if len(row) > len(columns):
+            raise ValueError(
+                f"A linha {row_number} da aba {sheet_name} tem {len(row)} valores, "
+                f"mas o cabeçalho tem {len(columns)} colunas"
+            )
+
+        rows.append([*row, *([""] * (len(columns) - len(row)))])
+
+    df = pd.DataFrame(rows, columns=columns)
 
     df.columns = [
         normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True)
@@ -87,6 +106,13 @@ def get_google_sheet_xlsx(
 
     if rename_mapping:
         df = df.rename(columns=rename_mapping)
+
+    if dtypes:
+        df = df.astype(dtypes)
+
+    if parse_dates:
+        for column, kwargs in parse_dates.items():
+            df[column] = pd.to_datetime(df[column], **kwargs)
 
     if filter_expr:
         df = df.query(filter_expr)

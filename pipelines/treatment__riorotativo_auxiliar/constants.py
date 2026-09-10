@@ -1,0 +1,107 @@
+# -*- coding: utf-8 -*-
+"""
+Valores constantes para materialização dos selectors dos dados auxiliares Rio Rotativo Digital.
+"""
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from pipelines.capture__jae_riorotativo_auxiliar import constants as riorotativo_aux_constants
+from pipelines.capture__riorotativo_credenciados import (
+    constants as riorotativo_credenciados_constants,
+)
+from pipelines.capture__riorotativo_vagas import constants as riorotativo_vagas_constants
+from pipelines.common import constants as smtr_constants
+from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
+
+RIOROTATIVO_AUX_CHECKS_LIST = {
+    "guardador_veiculo_riorotativo": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo": {
+            "description": "Cada combinação de documento e CNPJ é única"
+        },
+        "dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo": {
+            "description": "Cada combinação de CNPJ e número de identificação é única"
+        },
+        "dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo": {
+            "description": "Todos os documentos possuem exatamente 11 dígitos numéricos"
+        },
+    },
+    "guardador_veiculo_riorotativo_historico": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique": {"description": "Todos os registros são únicos"},
+        "dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico": {
+            "description": "Todos os documentos possuem exatamente 11 dígitos numéricos"
+        },
+    },
+    "agente_verificacao_riorotativo": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+    },
+    "agente_verificacao_riorotativo_historico": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique": {"description": "Todos os registros são únicos"},
+        "dbt_utils__expression_is_true__agente_verificacao_riorotativo_historico": {
+            "description": (
+                "Nenhum agente de verificação coincide com guardador de veículo na mesma data"
+            )
+        },
+    },
+    "entidade_credenciadora_riorotativo_historico": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "dbt_utils__unique_combination_of_columns__entidade_credenciadora_riorotativo_historico": {
+            "description": "Cada combinação de CNPJ e data de início de vigência é única"
+        },
+    },
+    "area_estacionamento_riorotativo": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+    },
+    "perfil_funcionamento_riorotativo": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique": {"description": "Todos os registros são únicos"},
+        "dbt_utils__expression_is_true__perfil_funcionamento_riorotativo": {
+            "description": "Todos os dias da semana estão entre 1 e 7"
+        },
+    },
+    "perfil_funcionamento_riorotativo_historico": {
+        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
+        "unique__id_perfil_funcionamento_historico__perfil_funcionamento_riorotativo_historico": {
+            "description": "Todos os registros são únicos"
+        },
+        "dbt_utils__expression_is_true__perfil_funcionamento_riorotativo_historico": {
+            "description": "Exatamente um entre id_area e id_perfil_funcionamento é preenchido"
+        },
+    },
+}
+
+RIOROTATIVO_AUX_TEST = DBTTest(
+    test_select=(
+        "guardador_veiculo_riorotativo "
+        "guardador_veiculo_riorotativo_historico "
+        "agente_verificacao_riorotativo "
+        "agente_verificacao_riorotativo_historico "
+        "entidade_credenciadora_riorotativo_historico "
+        "area_estacionamento_riorotativo "
+        "perfil_funcionamento_riorotativo "
+        "perfil_funcionamento_riorotativo_historico"
+    ),
+    test_descriptions=RIOROTATIVO_AUX_CHECKS_LIST,
+    truncate_date=True,
+)
+
+RIOROTATIVO_AUX_SELECTOR = DBTSelector(
+    name="riorotativo_auxiliar",
+    initial_datetime=datetime(2026, 7, 14, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__riorotativo_auxiliar",
+    data_sources=[
+        *riorotativo_credenciados_constants.RIOROTATIVO_CREDENCIADOS_SOURCES,
+        *riorotativo_vagas_constants.RIOROTATIVO_VAGAS_SOURCES,
+        *riorotativo_aux_constants.JAE_RIOROTATIVO_AUXILIAR_SOURCES,
+    ],
+    post_test=RIOROTATIVO_AUX_TEST,
+)
+
+SNAPSHOT_RIOROTATIVO_AUX_SELECTOR = DBTSelector(
+    name="snapshot_riorotativo_auxiliar",
+    initial_datetime=datetime(2026, 7, 14, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__riorotativo_auxiliar",
+)

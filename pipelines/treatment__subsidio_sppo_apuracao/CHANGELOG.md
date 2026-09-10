@@ -1,5 +1,40 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.7] - 2026-09-02
+
+### Adicionado
+
+- Cria `PRE_TEST_V25_SELECT` e o selector `APURACAO_SUBSIDIO_V25_SELECTOR` para a apuração a partir de `DATA_SUBSIDIO_V25_INICIO`, usando `servico_planejado_faixa_horaria` e `viagem_valida` no lugar de `viagem_planejada` e `viagem_completa` (Viagens 2.0). (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+- Adiciona no `PRE_CHECKS_LIST` as descrições do teste singular `test_consistencia_servico_planejado_faixa_horaria` e dos testes de `viagem_valida` para a notificação do Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
+### Alterado
+
+- Define `final_datetime` do selector V14 no dia anterior a `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
+## [1.0.6] - 2026-09-01
+
+### Adicionado
+
+- Adiciona ao pós-teste o teste `dbt_utils__expression_is_true__irk_tarifa_publica__valor_km_tipo_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/582)
+
+## [1.0.5] - 2026-08-28
+
+### Adicionado
+
+- Adiciona descrições dos testes `unique__snapshot_key__viagem_planejada`, `dbt_utils__mutually_exclusive_ranges__id_veiculo__viagem_completa`, `check_viagem_completa__viagens_remuneradas`, `dbt_utils__not_constant__status__veiculo_dia` e `subsidio_viagens_atualizadas__sumario_servico_dia_historico` para notificação no Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/588)
+
+## [1.0.4] - 2026-08-20
+
+### Adicionado
+
+- Adiciona descrições dos testes de `viagem_completa` no `PRE_CHECKS_LIST` para notificação no Discord. (https://github.com/RJ-SMTR/pipelines_v3/pull/522)
+
+## [1.0.3] - 2026-07-28
+
+### Adicionado
+
+- Adiciona descrições dos testes `sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo` e `sumario_servico_dia_tipo_soma_km__km_apurada_dia__sumario_servico_dia_pagamento`. (https://github.com/RJ-SMTR/pipelines_v3/pull/443)
+
 ## [1.0.2] - 2026-06-02
 
 ### Adicionado

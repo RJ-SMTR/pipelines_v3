@@ -27,7 +27,7 @@ def create_viagem_informada_extractor(context: SourceCaptureContext):
     """
 
     end_date = context.timestamp.date()
-    start_date = end_date - timedelta(days=2)
+    start_date = end_date - timedelta(days=1)
 
     credentials = get_env_secret(constants.RIO_ONIBUS_SECRET_PATH)
     api_key = credentials["guididentificacao"]

@@ -13,9 +13,10 @@
         ~ var("end_date")
         ~ "')"
     ) %}
-    {{- log(query, info=True) -}}
     {% set feed_start_dates = run_query(query).columns[0].values() %}
-    {{- log(feed_start_dates, info=True) -}}
+{% endif -%}
+{% if feed_start_dates | length == 0 %}
+    {% set feed_start_dates = ["2000-01-01"] %}
 {% endif -%}
 {% set incremental_filter %}
     data between date("{{var('start_date')}}") and date("{{ var('end_date') }}") and data < date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
@@ -281,7 +282,8 @@ with
             between s.faixa_horaria_inicio and s.faixa_horaria_fim
 
     )
--- Flag de viagens que serão consideradas ou não para fins de remuneração (apuração de
+-- Flag de viagens que serão consideradas ou não para fins de remuneração
+-- (apuração de
 -- valor de subsídio) - RESOLUÇÃO SMTR Nº 3645/2023
 select
     v.* except (

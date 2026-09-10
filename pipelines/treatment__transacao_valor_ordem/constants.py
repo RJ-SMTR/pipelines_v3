@@ -17,7 +17,7 @@ TRANSACAO_VALOR_ORDEM_DAILY_TEST = DBTTest(
     test_descriptions={
         "transacao_valor_ordem": {
             "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "dbt_utils.unique_combination_of_columns__transacao_valor_ordem": {
+            "dbt_utils__unique_combination_of_columns__transacao_valor_ordem": {
                 "description": "Todos os registros são únicos"
             },
             "transacao_valor_ordem_completa__transacao_valor_ordem": {

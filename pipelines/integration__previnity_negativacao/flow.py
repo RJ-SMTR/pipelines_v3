@@ -32,6 +32,7 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    ingest_dbt_artifacts_to_openmetadata,
     install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
@@ -154,6 +155,13 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             contexts=materialization_contexts,
             mode="post",
             wait_for=[run_dbt_future],
+        )
+
+        ingest_dbt_artifacts_to_openmetadata(
+            env=env,
+            deployment_name=runtime.deployment.name,
+            flow_run_id=runtime.flow_run.id,
+            wait_for=[run_tests_future],
         )
 
         task_dbt_selector_test_notify_discord.map(

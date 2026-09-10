@@ -66,6 +66,18 @@ Serviço realizado pelo veículo após correção
 Código único identificador da viagem
 {% enddocs %}
 
+{% docs sequencial_viagem %}
+Número sequencial histórico, contínuo e crescente gerado nativamente pelo banco de dados de viagens da CONCESSIONÁRIA
+{% enddocs %}
+
+{% docs tipo_viagem_informada %}
+Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" (viagem planejada no PLANO OPERACIONAL) ou "AUTORIZADA" (viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL). Nos demais casos, este campo deve permanecer nulo.
+{% enddocs %}
+
+{% docs tipo_execucao_viagem %}
+Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" (viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final) ou "INCOMPLETA" (viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA).
+{% enddocs %}
+
 {% docs project_id %}
 Nome do projeto da GCP
 {% enddocs %}
@@ -158,6 +170,10 @@ Velocidade instantânea do veículo, conforme informado pelo GPS (km/h)
 Velocidade média nos últimos 10 minutos de operação (km/h)
 {% enddocs %}
 
+{% docs velocidade_media_viagem %}
+Velocidade média da viagem (km/h)
+{% enddocs %}
+
 {% docs distancia_gps %}
 Distância da última posição do GPS em relação à posição atual (m)
 {% enddocs %}
@@ -184,6 +200,10 @@ Tipo de pagamento utilizado
 
 {% docs tipo_dia %}
 Dia da semana - categorias: Dia Útil, Sábado, Domingo e Ponto Facultativo
+{% enddocs %}
+
+{% docs subtipo_dia %}
+Subtipo de dia [ex: 'Verão']
 {% enddocs %}
 
 {% docs faixa_horaria_inicio %}
@@ -218,8 +238,16 @@ Dados brutos capturados aninhados em formato JSON
 Tipo de transporte [Ônibus, Van, BRT]
 {% enddocs %}
 
+{% docs sistema %}
+Sistema de transporte [SPPO, BRT ou RIO]
+{% enddocs %}
+
 {% docs vista %}
 Itinerário do serviço [ex: Bananal ↔ Saens Peña]
+{% enddocs %}
+
+{% docs trajetos_alternativos %}
+Trajetos alternativos para a viagem
 {% enddocs %}
 
 {% docs viagens_planejadas %}
@@ -579,6 +607,10 @@ Identificador do consórcio na tabela cadastro.consorcios
 ID do registro [HASH SHA256]
 {% enddocs %}
 
+{% docs id_registro_gps %}
+Identificador único imutável do pacote de GPS
+{% enddocs %}
+
 {% docs indicador_autuacao_limpeza %}
 Indicador se o veículo foi autuado por infração relacionada à limpeza do veículo
 {% enddocs %}
@@ -691,8 +723,8 @@ Indica se o primeiro segmento da viagem é considerado e possui registros de GPS
 Indica se o último segmento da viagem é considerado e possui registros de GPS
 {% enddocs %}
 
-{% docs indicador_servico_divergente %}
-Indica se o serviço indicado nos dados de GPS estava diferente do serviço informado na viagem
+{% docs indicador_servico_convergente %}
+Indica se o serviço nos dados de GPS é convergente com o serviço informado na viagem
 {% enddocs %}
 
 {% docs taxa_conversao_real %}
@@ -951,6 +983,54 @@ Data e hora em que o GPS enviou os dados de localização
 Data e hora em que o servidor recebeu os dados de localização do GPS
 {% enddocs %}
 
+{% docs id_equipamento %}
+Número único do equipamento da concessionária
+{% enddocs %}
+
+{% docs sequencial_equipamento %}
+Número sequencial gerado pelo hardware
+{% enddocs %}
+
+{% docs direction_id %}
+Sentido da viagem em formato numérico, conforme o campo direction_id do GTFS
+{% enddocs %}
+
+{% docs qualidade_sinal %}
+Qualidade padronizada do sinal posicional
+{% enddocs %}
+
+{% docs fonte_posicao %}
+Fonte da coordenada [GNSS ou INERCIAL]
+{% enddocs %}
+
+{% docs fonte_velocidade %}
+Fonte da velocidade [TELEMETRIA ou AVL]
+{% enddocs %}
+
+{% docs fonte_gps %}
+Identificador do fornecedor de GPS
+{% enddocs %}
+
+{% docs altitude_gps %}
+Altitude em metros
+{% enddocs %}
+
+{% docs quantidade_satelites %}
+Quantidade de satélites usados no posicionamento
+{% enddocs %}
+
+{% docs hdop %}
+Diluição de precisão horizontal
+{% enddocs %}
+
+{% docs vdop %}
+Diluição de precisão vertical
+{% enddocs %}
+
+{% docs pdop %}
+Diluição de precisão da posição
+{% enddocs %}
+
 {% docs datetime_saida %}
 Datetime de saída do veículo na linha realocada
 {% enddocs %}
@@ -1016,11 +1096,19 @@ Data e hora do processamento da viagem
 {% enddocs %}
 
 {% docs indicador_prazo_envio %}
-Indica se a viagem foi enviada dentro do prazo de até 2 dias úteis após a data de partida
+Indica se a viagem foi enviada dentro do prazo de até 5 dias corridos após a data de partida
 {% enddocs %}
 
-{% docs indicador_viagem_sobreposta %}
-Indica se a viagem se sobrepõe a outra viagem do mesmo veículo
+{% docs indicador_viagem_nao_sobreposta %}
+Indica se a viagem não se sobrepõe a outra viagem do mesmo veículo
+{% enddocs %}
+
+{% docs indicador_shape_valido %}
+Indica se o shape_id existe no GTFS no feed vigente durante a data da viagem
+{% enddocs %}
+
+{% docs indicador_abaixo_velocidade_max %}
+Indica se a velocidade média da viagem está abaixo do limite máximo estabelecido
 {% enddocs %}
 
 {% docs id_transmissao_gps %}
@@ -1043,12 +1131,12 @@ Data do recebimento da transmissão do GPS
 Hora do recebimento da transmissão do GPS
 {% enddocs %}
 
-{% docs indicador_processamento_posterior_captura %}
-Indica se o datetime de processamento é posterior ao datetime de captura, caracterizando alteração retroativa indevida [Art. 8º, I]
+{% docs indicador_sem_alteracao_retroativa %}
+Indica se o datetime de processamento não é posterior ao datetime de captura
 {% enddocs %}
 
-{% docs indicador_processamento_anterior_chegada %}
-Indica se o datetime de processamento é anterior ao datetime de chegada, indicando processamento antes da conclusão da viagem [Art. 8º, II]
+{% docs indicador_processamento_apos_chegada %}
+Indica se o datetime de processamento é posterior ou igual à chegada considerada
 {% enddocs %}
 
 {% docs especie_veiculo %}
@@ -1723,4 +1811,256 @@ Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 
 {% docs tipo_bilhete_unico %}
 Tipo do bilhete único [BUM ou BUC]
+{% enddocs %}
+
+{% docs cnpj_entidade_credenciadora_riorotativo %}
+CNPJ da entidade credenciadora associada ao guardador de veículo
+{% enddocs %}
+
+{% docs cnpj_entidade_vinculo_agente_verificacao_riorotativo %}
+CNPJ da entidade à qual o agente de verificação é vinculado
+{% enddocs %}
+
+{% docs data_inicio_riorotativo %}
+Data de início do período informado para o cadastro do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs data_fim_riorotativo %}
+Data de fim do período informado para o cadastro do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs tipo_documento_guardador_veiculo_riorotativo %}
+Tipo do documento do guardador de veículo
+{% enddocs %}
+
+{% docs numero_identificacao_guardador_veiculo_riorotativo %}
+Número de identificação do guardador de veículo
+{% enddocs %}
+
+{% docs tipo_documento_agente_verificacao_riorotativo %}
+Tipo do documento do agente de verificação
+{% enddocs %}
+
+{% docs email_guardador_veiculo_riorotativo %}
+Email do guardador de veículo
+{% enddocs %}
+
+{% docs email_agente_verificacao_riorotativo %}
+Email do agente de verificação
+{% enddocs %}
+
+{% docs razao_social_entidade_credenciadora_riorotativo %}
+Razão social no cadastro do CNPJ da entidade credenciadora
+{% enddocs %}
+
+{% docs nome_fantasia_entidade_credenciadora_riorotativo %}
+Nome fantasia no cadastro do CNPJ da entidade credenciadora
+{% enddocs %}
+
+{% docs razao_social_entidade_vinculo_agente_verificacao_riorotativo %}
+Razão social no cadastro do CNPJ da entidade de vínculo
+{% enddocs %}
+
+{% docs nome_fantasia_entidade_vinculo_agente_verificacao_riorotativo %}
+Nome fantasia no cadastro do CNPJ da entidade de vínculo
+{% enddocs %}
+
+{% docs motivo_bloqueio_riorotativo %}
+Motivo do bloqueio
+{% enddocs %}
+
+{% docs decisao_bloqueio_riorotativo %}
+Processo administrativo ou judicial que culminou no bloqueio
+{% enddocs %}
+
+{% docs data_inicio_bloqueio_riorotativo %}
+Data de início do bloqueio
+{% enddocs %}
+
+{% docs data_fim_bloqueio_riorotativo %}
+Data de fim do bloqueio
+{% enddocs %}
+
+{% docs area_codigo_riorotativo %}
+Código único da área de estacionamento
+{% enddocs %}
+
+{% docs area_nome_riorotativo %}
+Nome legível da área de estacionamento
+{% enddocs %}
+
+{% docs area_logradouro_riorotativo %}
+Nome oficial do logradouro ao qual a área de estacionamento se encontra
+{% enddocs %}
+
+{% docs area_endereco_referencia_riorotativo %}
+Endereço oficial do logradouro ao qual a área de estacionamento se encontra
+{% enddocs %}
+
+{% docs area_poligono_riorotativo %}
+Polígono WKT que representa a área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs area_geometry_riorotativo %}
+Geometria da área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs area_observacao_riorotativo %}
+Observação sobre a área de estacionamento
+{% enddocs %}
+
+{% docs area_vaga_total_riorotativo %}
+Quantidade total de vagas
+{% enddocs %}
+
+{% docs area_vaga_moto_riorotativo %}
+Quantidade de vagas regulamentadas para motocicletas
+{% enddocs %}
+
+{% docs area_vaga_idoso_riorotativo %}
+Quantidade de vagas regulamentadas para idosos
+{% enddocs %}
+
+{% docs area_vaga_pcd_riorotativo %}
+Quantidade de vagas regulamentadas para Pessoas com Deficiência [PcD]
+{% enddocs %}
+
+{% docs area_tempo_permanencia_hora_riorotativo %}
+Tempo de permanência em horas
+{% enddocs %}
+
+{% docs area_perfil_funcionamento_riorotativo %}
+Lista de perfis de funcionamento da área de estacionamento
+{% enddocs %}
+
+{% docs data_inicio_vigencia_area_estacionamento_riorotativo %}
+Data de início de vigência da área de estacionamento
+{% enddocs %}
+
+{% docs data_fim_vigencia_area_estacionamento_riorotativo %}
+Data de fim de vigência da área de estacionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_codigo_riorotativo %}
+Código de referência do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_nome_riorotativo %}
+Nome do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_dia_semana_riorotativo %}
+Lista de dias da semana em que o perfil está vigente, considerando 1 como domingo
+{% enddocs %}
+
+{% docs perfil_funcionamento_horario_inicio_riorotativo %}
+Horário de início do funcionamento do perfil
+{% enddocs %}
+
+{% docs perfil_funcionamento_horario_fim_riorotativo %}
+Horário de fim do funcionamento do perfil
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_area_codigo_riorotativo %}
+Área de estacionamento sujeita à exceção [nulo quando a exceção se aplica a um perfil de funcionamento]
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_perfil_codigo_riorotativo %}
+Perfil de funcionamento sujeito à exceção [nulo quando a exceção se aplica a uma área de estacionamento]
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_datetime_inicio_riorotativo %}
+Data e hora iniciais de vigência da exceção
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_datetime_fim_riorotativo %}
+Data e hora finais de vigência da exceção
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_motivo_riorotativo %}
+Motivo da exceção do perfil de funcionamento
+{% enddocs %}
+
+{% docs perfil_funcionamento_excecao_decisao_riorotativo %}
+Processo administrativo, judicial, portaria ou decreto que culminou na exceção
+{% enddocs %}
+
+{% docs ultimo_editor_fonte %}
+Identificador do último editor do registro na fonte
+{% enddocs %}
+
+{% docs ultima_atualizacao_fonte %}
+Data e hora da última atualização do registro na fonte
+{% enddocs %}
+
+{% docs id_ativacao_riorotativo %}
+Identificador único da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_inicio_periodo_ativacao_riorotativo %}
+Data e hora inicial da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs datetime_fim_periodo_ativacao_riorotativo %}
+Data e hora final da ativação do Rio Rotativo Digital
+{% enddocs %}
+
+{% docs id_veiculo_riorotativo %}
+Identificador único do veículo no Rio Rotativo
+{% enddocs %}
+
+{% docs cpf_motorista_riorotativo %}
+CPF do motorista
+{% enddocs %}
+
+{% docs valor_pago_bruto_ativacao_riorotativo %}
+Valor bruto pago pela ativação (R$)
+{% enddocs %}
+
+{% docs valor_retido_jae_ativacao_riorotativo %}
+Valor da ativação retido pela Jaé (R$)
+{% enddocs %}
+
+{% docs valor_pago_liquido_ativacao_riorotativo %}
+Valor bruto subtraído pelo valor retido (R$)
+{% enddocs %}
+
+{% docs status_guardador %}
+Status do guardador de veículo
+{% enddocs %}
+
+{% docs cpf_guardador %}
+CPF do guardador de veículo
+{% enddocs %}
+
+{% docs datetime_inclusao_ordem_pagamento_riorotativo %}
+Datetime da geração da ordem de pagamento
+{% enddocs %}
+
+{% docs data_ativacao_riorotativo %}
+Data da ativação
+{% enddocs %}
+
+{% docs hora_ativacao_riorotativo %}
+Hora da ativação
+{% enddocs %}
+
+{% docs quantidade_ativacao_riorotativo %}
+Quantidade de ativações
+{% enddocs %}
+
+{% docs quantidade_vaga_fisica_riorotativo %}
+Quantidade total de vagas da área de estacionamento
+{% enddocs %}
+
+{% docs centroide_area_riorotativo %}
+Centroide da geometria da área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs latitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}
+
+{% docs longitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
 {% enddocs %}

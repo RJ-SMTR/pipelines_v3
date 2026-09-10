@@ -101,17 +101,19 @@ def get_capture_gaps(
     else:
         primary_keys = f"DISTINCT TO_JSON_STRING(STRUCT({', '.join(primary_keys)}))"
 
+    timstamp_captura_column = params.get("datalake_timestamp_captura_column", "timestamp_captura")
+
     query_datalake = f"""
     WITH contagens AS (
         SELECT
-            timestamp_captura,
+            {timstamp_captura_column} as timestamp_captura,
             COUNT({primary_keys}) AS total_datalake
         FROM
             {params["datalake_table"]}
         WHERE
             DATA BETWEEN '{timestamp_captura_start.date().isoformat()}'
             AND '{timestamp_captura_end.date().isoformat()}'
-            AND timestamp_captura BETWEEN '{timestamp_captura_start.strftime("%Y-%m-%d %H:%M:%S")}'
+            AND {timstamp_captura_column} BETWEEN '{timestamp_captura_start.strftime("%Y-%m-%d %H:%M:%S")}'
             AND '{timestamp_captura_end.strftime("%Y-%m-%d %H:%M:%S")}'
         GROUP BY
             1

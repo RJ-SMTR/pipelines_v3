@@ -38,9 +38,6 @@ deployments:
   - name: rj-control--bilhetagem_ordem_atrasada--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/control__bilhetagem_ordem_atrasada/flow.py:control__bilhetagem_ordem_atrasada
-    schedules:
-      - cron: "0 0 * * *"
-        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default

@@ -1,5 +1,17 @@
 # Changelog - subsidio
 
+## [2.3.6] - 2026-08-27
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.expression_is_true` em `valor_km_tipo_viagem` para validar `irk_tarifa_publica = irk - subsidio_km`. (https://github.com/RJ-SMTR/pipelines_v3/pull/582)
+
+## [2.3.5] - 2026-06-25
+
+### Alterado
+
+- Altera os modelos `viagem_classificada` e `viagem_transacao_aux_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
 ## [2.3.4] - 2026-05-04
 
 ### Alterado

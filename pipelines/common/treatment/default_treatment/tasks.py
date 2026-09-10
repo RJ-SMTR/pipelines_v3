@@ -5,10 +5,12 @@ from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import task
+from google.cloud import storage
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
+from pipelines.common.treatment.default_treatment import constants
 from pipelines.common.treatment.default_treatment.utils import (
     DBTSelector,
     DBTSelectorMaterializationContext,
@@ -16,6 +18,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     IncompleteDataError,
     clone_queries_from_github,
     dbt_test_notify_discord,
+    get_dbt_paths,
     run_dbt,
     run_dbt_deps,
     run_dbt_empty_for_missing_relations,
@@ -23,8 +26,29 @@ from pipelines.common.treatment.default_treatment.utils import (
 )
 from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
+
+
+@task(cache_policy=NO_CACHE)
+def ingest_dbt_artifacts_to_openmetadata(
+    env: str,
+    deployment_name: str,
+    flow_run_id: object,
+) -> None:
+    """Ingere os artefatos dbt preservados ou os envia ao fallback GCS."""
+    if env != "prod":
+        print(f"OpenMetadata: ingestão ignorada no ambiente {env}")
+        return
+
+    _, _, target_path = get_dbt_paths()
+    ingest_dbt_artifacts(
+        target_path=target_path,
+        env=env,
+        deployment_name=deployment_name,
+        flow_run_id=flow_run_id,
+    )
 
 
 @task(cache_policy=NO_CACHE)
@@ -219,13 +243,14 @@ def run_dbt_snapshots(
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
+    snapshot_flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     for context in contexts:
         if context.snapshot_selector is None:
             continue
         run_dbt(
             dbt_obj=context.snapshot_selector,
             dbt_vars=context.dbt_vars,
-            flags=flags,
+            flags=snapshot_flags,
             is_snapshot=True,
             env=context.env,
         )
@@ -237,13 +262,15 @@ def run_dbt_snapshots(
 def run_dbt_selector_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
+    flags: Optional[list[str]] = None,
 ):
     """
     Executa os testes do dbt para cada contexto de materialização.
 
     Args:
-        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        contexts (list[DBTSelectorMaterializationContext]): Contextos de materialização.
         mode (str): Modo de execução do teste (pre ou post).
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
     """
     for context in contexts:
         if not context[f"should_run_{mode}_test"]:
@@ -257,6 +284,7 @@ def run_dbt_selector_tests(
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
                 env=context.env,
+                flags=flags,
             )
         context[f"{mode}_test_log"] = log
 
@@ -298,13 +326,20 @@ def task_dbt_selector_test_notify_discord(
 @task(cache_policy=NO_CACHE)
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
+    save_redis: Optional[bool] = True,
 ):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+        save_redis (Optional[bool]): Se True, atualiza o checkpoint; se False, preserva;
+            se None, decide pela origem agendada da flow run.
     """
+    if not (save_redis if save_redis is not None else "auto-scheduled" in runtime.flow_run.tags):
+        print("Checkpoint de materialização no Redis preservado")
+        return
+
     for context in contexts:
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end
@@ -325,6 +360,21 @@ def setup_dbt_queries(env: str) -> Path:
         Path: Caminho para a pasta queries/.
     """
     return clone_queries_from_github(env=env)
+
+
+@task(cache_policy=NO_CACHE)
+def download_dbt_state() -> Path:
+    """Baixa o manifest de produção usado pelo defer do dbt."""
+    project_dir, _, _ = get_dbt_paths()
+    state_dir = project_dir / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = state_dir / "manifest.json"
+
+    blob = storage.Client().bucket(constants.DBT_STATE_BUCKET).blob(constants.DBT_STATE_BLOB)
+    blob.download_to_filename(str(manifest_path))
+
+    print(f"Manifest dbt baixado para {manifest_path}")
+    return manifest_path
 
 
 @task(cache_policy=NO_CACHE)

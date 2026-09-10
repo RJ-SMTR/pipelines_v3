@@ -1,7 +1,7 @@
 {% test check_viagem_completa(model) -%}
     with
         data_versao_efetiva as (
-            select *
+            select data, feed_start_date
             from
                 -- rj-smtr.projeto_subsidio_sppo.subsidio_data_versao_efetiva
                 {{ ref("subsidio_data_versao_efetiva") }}
@@ -10,9 +10,20 @@
                 and data between date("{{ var('start_date') }}") and date(
                     "{{ var('end_date') }}"
                 )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select data, feed_start_date
+            from {{ ref("calendario") }}
+            where
+                data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
         ),
         viagem_completa as (
-            select *
+            select data, datetime_ultima_atualizacao
             from
                 -- rj-smtr.projeto_subsidio_sppo.viagem_completa
                 {{ ref("viagem_completa") }}
@@ -21,13 +32,24 @@
                 and data between date("{{ var('start_date') }}") and date(
                     "{{ var('end_date') }}"
                 )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select data, datetime_ultima_atualizacao
+            from {{ ref("viagem_valida") }}
+            where
+                data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
         ),
         feed_info as (
             select *
             from
                 -- rj-smtr.gtfs.feed_info
                 {{ ref("feed_info_gtfs") }}
-            where feed_version in (select feed_version from data_versao_efetiva)
+            where feed_start_date in (select feed_start_date from data_versao_efetiva)
         )
     select distinct data
     from viagem_completa

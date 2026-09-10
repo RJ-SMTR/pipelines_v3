@@ -19,9 +19,19 @@ dispatch:
     search_order: ["dbt_project_evaluator", "dbt"]
 
 vars:
-  "dbt_date:time_zone": "America/Sao_Paulo"
+  ### Elementary ###
+  # Sample of failing rows persisted by elementary in elementary.elementary_test_result_rows.
+  test_sample_row_count: 100
+  disable_run_results: true
+  disable_tests_results: "{{ target.name != 'prod' }}"
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
+
+  ### dbt utils ###
+  surrogate_key_treat_nulls_as_empty_strings: true
 
   ### Date default variables ###
+  "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"
   start_date: "2022-01-01T01:00:00"
@@ -124,6 +134,8 @@ vars:
   data_inclusao_autuacao_disciplinar: "2025-07-10"
   data_processamento_veiculo_licenciamento_dia:
     ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
+  # Idade máxima padrão das partições reprocessadas na validação de viagens
+  viagem_validacao_max_age_days: 5
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
@@ -176,6 +188,10 @@ vars:
   DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
   # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
   DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
+  # Início da vigência do prazo de envio de até 5 dias corridos
+  DATA_SUBSIDIO_V26_INICIO: "2026-08-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
@@ -289,6 +305,7 @@ vars:
 
   ### Planejamento ###
   feed_inicial_viagem_planejada: "2024-09-29"
+  data_inicio_calendario_sheets: "2026-06-29"
 
   ### Infraestrutura ###
   data_inicial_logs_bigquery: "2024-09-30"
@@ -299,6 +316,9 @@ vars:
   data_final_veiculo_arquitetura_1: "2025-03-31"
   datetime_gps_sppo_2: "2026-04-29T10:00:00"
   datetime_gps_brt_2: "2026-05-06T12:00:00"
+
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
 
@@ -320,6 +340,9 @@ models:
   +persist_docs:
     relation: true
     columns: true
+  elementary:
+    +schema: elementary
+    +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     projeto_subsidio_sppo:
       +materialized: view
@@ -400,6 +423,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: gtfs
+      +meta:
+        openmetadata:
+          domain: "planejamento.planejamento_operacional"
       deprecated:
         +materialized: view
         +schema: dashboard_subsidio_van
@@ -501,6 +527,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: bilhetagem
+      +meta:
+        openmetadata:
+          domain: "bilhetagem_receita.transacao"
       staging:
         +materialized: view
         +schema: bilhetagem_staging
@@ -508,6 +537,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: bilhetagem_interno
+      +meta:
+        openmetadata:
+          domain: "bilhetagem_receita.transacao"
       staging:
         +materialized: view
         +schema: bilhetagem_interno_staging
@@ -539,6 +571,18 @@ models:
       staging:
         +materialized: view
         +schema: cadastro_interno_staging
+    riorotativo:
+      +materialized: table
+      +schema: riorotativo
+      staging:
+        +materialized: view
+        +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
@@ -606,6 +650,13 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
+    dashboard_riorotativo:
+      +materialized: view
+      +schema: dashboard_riorotativo
+      +description: "Views para os Dashboards do Rio Rotativo Digital"
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

@@ -40,7 +40,7 @@ with
     ),
     posicoes_veiculos as (
         select id_veiculo, datetime_gps, data, servico, posicao_veiculo_geo
-        from {{ ref("aux_gps_filtrada") }}
+        from {{ ref("aux_gps_filtrada", v=1) }}
         where
             data between date('{{ var("date_range_start") }}') and date(
                 '{{ var("date_range_end") }}'

@@ -5,7 +5,7 @@ models:
     description: "Sumário do subsídio dos serviços de ônibus [SPPO] por dia [Dados entre 2023-01-16 e 2024-08-16]"
     tests:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia
           arguments:
             date_col: data
             row_condition: "1=1"
@@ -17,13 +17,13 @@ models:
             table_id: sumario_servico_dia
             expression: ROUND(valor_subsidio_pago/subsidio_km_teto,2) <= ROUND(km_apurada+0.01,2)
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__sumario_servico_dia
+          name: dbt_utils__unique_combination_of_columns__sumario_servico_dia
           arguments:
             combination_of_columns:
               - data
               - servico
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
-          name: dbt_expectations.expect_table_aggregation_to_equal_other_table__sumario_servico_dia
+          name: dbt_expectations__expect_table_aggregation_to_equal_other_table__sumario_servico_dia
           config:
             where: "1=1"
           arguments:
@@ -41,7 +41,7 @@ models:
           - not_null:
               name: not_null__data__sumario_servico_dia
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_servico_dia
               arguments:
                 min_value: "'2023-01-15'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -67,7 +67,7 @@ models:
           - not_null:
               name: not_null__viagens__sumario_servico_dia
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens__sumario_servico_dia
+              name: dbt_utils__accepted_range__viagens__sumario_servico_dia
               arguments:
                 min_value: 0
       - name: km_apurada
@@ -76,7 +76,7 @@ models:
           - not_null:
               name: not_null__km_apurada__sumario_servico_dia
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada__sumario_servico_dia
+              name: dbt_utils__accepted_range__km_apurada__sumario_servico_dia
               arguments:
                 min_value: 0
       - name: km_planejada
@@ -85,7 +85,7 @@ models:
           - not_null:
               name: not_null__km_planejada__sumario_servico_dia
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_planejada__sumario_servico_dia
+              name: dbt_utils__accepted_range__km_planejada__sumario_servico_dia
               arguments:
                 min_value: 0
       - name: perc_km_planejada
@@ -94,7 +94,7 @@ models:
           - not_null:
               name: not_null__perc_km_planejada__sumario_servico_dia
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__perc_km_planejada__sumario_servico_dia
+              name: dbt_utils__accepted_range__perc_km_planejada__sumario_servico_dia
               arguments:
                 min_value: 0
       - name: valor_subsidio_pago
@@ -103,7 +103,7 @@ models:
           - not_null:
               name: not_null__valor_subsidio_pago__sumario_servico_dia
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__valor_subsidio_pago__sumario_servico_dia
+              name: dbt_utils__accepted_range__valor_subsidio_pago__sumario_servico_dia
               arguments:
                 min_value: 0
       - name: valor_penalidade
@@ -118,7 +118,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia_historico
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_servico_dia_historico
               arguments:
                 min_value: "'2022-05-31'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -152,7 +152,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_tipo_viagem_dia
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_servico_tipo_viagem_dia
               arguments:
                 min_value: "'2022-05-31'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -180,7 +180,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_dia
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_dia
               arguments:
                 min_value: "'2022-05-31'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -212,7 +212,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia_tipo
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_servico_dia_tipo
               arguments:
                 min_value: "'2023-01-15'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -318,7 +318,7 @@ models:
         description: "{{ doc('data_gps') }}"
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__viagens_realizadas
+              name: dbt_expectations__expect_column_values_to_be_between__data__viagens_realizadas
               arguments:
                 min_value: "'2022-05-31'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -387,7 +387,7 @@ models:
     description: "Tabela temporária sem as glosas e com os detalhes de viagens subsidiadas por serviço-dia [Dados entre 2023-01-16 e 2024-08-16]"
     tests:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia_tipo_sem_glosa
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__sumario_servico_dia_tipo_sem_glosa
           arguments:
             date_col: data
             row_condition: "1=1"
@@ -399,7 +399,7 @@ models:
             table_id: sumario_servico_dia_tipo_sem_glosa
             expression: ROUND(valor_total_subsidio/subsidio_km_teto,2) <= ROUND(distancia_total_subsidio+0.01,2)
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__sumario_servico_dia_tipo_sem_glosa
+          name: dbt_utils__unique_combination_of_columns__sumario_servico_dia_tipo_sem_glosa
           arguments:
             combination_of_columns:
               - data
@@ -411,7 +411,7 @@ models:
           - not_null:
               name: not_null__data__sumario_servico_dia_tipo_sem_glosa
           - dbt_expectations.expect_column_values_to_be_between:
-              name: dbt_expectations.expect_column_values_to_be_between__data__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_expectations__expect_column_values_to_be_between__data__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: "'2023-01-15'"
                 max_value: "'{{ var('DATA_SUBSIDIO_V9_INICIO') }}'"
@@ -437,7 +437,7 @@ models:
           - not_null:
               name: not_null__viagens_subsidio__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_subsidio__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_subsidio__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: distancia_total_planejada
@@ -446,7 +446,7 @@ models:
           - not_null:
               name: not_null__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: distancia_total_subsidio
@@ -455,7 +455,7 @@ models:
           - not_null:
               name: not_null__distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__distancia_total_planejada__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: valor_total_aferido
@@ -466,7 +466,7 @@ models:
           - not_null:
               name: not_null__perc_distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__perc_distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__perc_distancia_total_subsidio__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: valor_total_subsidio
@@ -475,7 +475,7 @@ models:
           - not_null:
               name: not_null__valor_total_subsidio__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__valor_total_subsidio__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__valor_total_subsidio__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_n_licenciado
@@ -486,7 +486,7 @@ models:
           - not_null:
               name: not_null__km_apurada_n_licenciado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_n_licenciado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_n_licenciado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_autuado_ar_inoperante
@@ -495,7 +495,7 @@ models:
           - not_null:
               name: not_null__viagens_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_autuado_ar_inoperante
@@ -504,7 +504,7 @@ models:
           - not_null:
               name: not_null__km_apurada_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_autuado_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_autuado_seguranca
@@ -513,7 +513,7 @@ models:
           - not_null:
               name: not_null__viagens_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_autuado_seguranca
@@ -522,7 +522,7 @@ models:
           - not_null:
               name: not_null__km_apurada_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_autuado_seguranca__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_autuado_limpezaequipamento
@@ -531,7 +531,7 @@ models:
           - not_null:
               name: not_null__viagens_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_autuado_limpezaequipamento
@@ -540,7 +540,7 @@ models:
           - not_null:
               name: not_null__km_apurada_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_autuado_limpezaequipamento__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_licenciado_sem_ar_n_autuado
@@ -549,7 +549,7 @@ models:
           - not_null:
               name: not_null__viagens_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_licenciado_sem_ar_n_autuado
@@ -558,7 +558,7 @@ models:
           - not_null:
               name: not_null__km_apurada_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_licenciado_sem_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_licenciado_com_ar_n_autuado
@@ -567,7 +567,7 @@ models:
           - not_null:
               name: not_null__viagens_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_licenciado_com_ar_n_autuado
@@ -576,7 +576,7 @@ models:
           - not_null:
               name: not_null__km_apurada_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_licenciado_com_ar_n_autuado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_n_vistoriado
@@ -585,7 +585,7 @@ models:
           - not_null:
               name: not_null__viagens_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_n_vistoriado
@@ -594,7 +594,7 @@ models:
           - not_null:
               name: not_null__km_apurada_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_n_vistoriado__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: viagens_registrado_com_ar_inoperante
@@ -603,7 +603,7 @@ models:
           - not_null:
               name: not_null__viagens_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__viagens_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__viagens_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
       - name: km_apurada_registrado_com_ar_inoperante
@@ -612,21 +612,21 @@ models:
           - not_null:
               name: not_null__km_apurada_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__km_apurada_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
+              name: dbt_utils__accepted_range__km_apurada_registrado_com_ar_inoperante__sumario_servico_dia_tipo_sem_glosa
               arguments:
                 min_value: 0
   - name: viagens_remuneradas
     description: "Tabela com indicação de remuneração de viagens para fins de verificação de teto de pagamento conforme regra de 110%/120%/200% [Dados a partir de 2023-09-16]"
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils.unique_combination_of_columns__viagens_remuneradas
+          name: dbt_utils__unique_combination_of_columns__viagens_remuneradas
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
             combination_of_columns:
               - id_viagem
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
-          name: dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart__viagens_remuneradas
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__viagens_remuneradas
           config:
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
@@ -677,7 +677,7 @@ models:
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__distancia_planejada__viagens_remuneradas
+              name: dbt_utils__accepted_range__distancia_planejada__viagens_remuneradas
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
               arguments:
@@ -695,7 +695,7 @@ models:
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
           - dbt_utils.accepted_range:
-              name: dbt_utils.accepted_range__subsidio_km__viagens_remuneradas
+              name: dbt_utils__accepted_range__subsidio_km__viagens_remuneradas
               config:
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
               arguments:

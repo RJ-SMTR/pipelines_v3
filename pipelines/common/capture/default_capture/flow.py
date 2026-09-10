@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Optional
+from typing import Any, Optional
 
 from prefect import runtime, unmapped
 from prefect.tasks import Task
@@ -32,7 +32,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     extra_parameters: Optional[dict[str, dict]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",
-):
+    should_capture_task: Optional[Task] = None,
+) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
 
@@ -49,9 +50,14 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             argumento wait_for das tasks retornadas por esta função.
         extra_parameters (Optional[dict[str, dict]]): Parametros extras mapeados no padrão
             {"table_id": {"key": "value", ...}, ...}.
+        should_capture_task (Optional[Task]): Task de gate (opcional) que retorna um
+            `ShouldCapture`. Executa após o setup do ambiente e, se `value` for False, interrompe
+            a captura cedo. Se None, mantém o comportamento padrão (sempre captura).
 
     Returns:
-        dict: Dicionário com o retorno das tasks.
+        dict: Dicionário com o retorno das tasks. Sempre inclui `should_capture` (bool) e
+            `should_capture_result` (ShouldCapture | None). Quando o gate retorna False, o
+            dicionário é retornado antes da criação de `timestamp`, `contexts` e tasks de upload.
     """
     tasks = {}
     tasks_wait_for = tasks_wait_for or {}
@@ -68,6 +74,20 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     # initialize sentry for error capturing
     tasks["initialize_sentry"] = initialize_sentry(env=env)
+
+    if should_capture_task is not None:
+        result = should_capture_task(
+            env=tasks["env"],
+            wait_for=[tasks["setup_enviroment"]],
+        )
+        tasks["should_capture_result"] = result
+        tasks["should_capture"] = result.value
+        if not result.value:
+            print("Gate de captura: fonte sem alteração, pulando captura.")
+            return tasks
+    else:
+        tasks["should_capture_result"] = None
+        tasks["should_capture"] = True
 
     tasks["timestamp"] = get_scheduled_timestamp(
         timestamp=timestamp,

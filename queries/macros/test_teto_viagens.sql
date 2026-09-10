@@ -13,19 +13,52 @@
                 data between date('{{ var("date_range_start") }}') and date(
                     '{{ var("date_range_end") }}'
                 )
+                and data < date('{{ var("DATA_SUBSIDIO_V25_INICIO") }}')
                 and (distancia_total_planejada > 0 or distancia_total_planejada is null)
                 and (id_tipo_trajeto = 0 or id_tipo_trajeto is null)
                 and data >= date('{{ var("DATA_SUBSIDIO_V3A_INICIO") }}')
+
+            union all
+
+            select distinct
+                data,
+                servico,
+                faixa_horaria_inicio,
+                faixa_horaria_fim,
+                partidas as partidas_total_planejada
+            from {{ ref("servico_planejado_faixa_horaria") }}
+            where
+                data between date('{{ var("date_range_start") }}') and date(
+                    '{{ var("date_range_end") }}'
+                )
+                and data >= date('{{ var("DATA_SUBSIDIO_V25_INICIO") }}')
+                and quilometragem > 0
+        ),
+        viagem as (
+            select data, id_viagem, datetime_partida
+            from {{ ref("viagem_completa") }}
+            where
+                data between date('{{ var("date_range_start") }}') and date(
+                    '{{ var("date_range_end") }}'
+                )
+                and data < date('{{ var("DATA_SUBSIDIO_V25_INICIO") }}')
+
+            union all
+
+            select data, id_viagem, datetime_partida
+            from {{ ref("viagem_valida") }}
+            where
+                data between date('{{ var("date_range_start") }}') and date(
+                    '{{ var("date_range_end") }}'
+                )
+                and data >= date('{{ var("DATA_SUBSIDIO_V25_INICIO") }}')
         ),
         viagens_remuneradas as (
             select
                 r.data, r.servico, faixa_horaria_inicio, indicador_viagem_dentro_limite
             from {{ model }} r
             -- `rj-smtr-dev.abr_reprocessamento__dashboard_subsidio_sppo.viagens_remuneradas` r
-            left join
-                {{ ref("viagem_completa") }} c
-                -- `rj-smtr.projeto_subsidio_sppo.viagem_completa` c
-                using (data, id_viagem)
+            left join viagem c using (data, id_viagem)
             left join
                 planejado p
                 on p.data = c.data

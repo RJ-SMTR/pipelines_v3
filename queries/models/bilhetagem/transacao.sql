@@ -380,7 +380,8 @@ with
                         "Débito EMV",
                         "Débito EMV emissor externo",
                         "Botoeira",
-                        "Débito PIX a bordo"
+                        "Débito PIX a bordo",
+                        "QRCode Evento"
                     )
                 then "Integral"
                 when t.tipo_transacao_jae = "Transferência EMV"
@@ -441,7 +442,9 @@ with
                 then "Dinheiro (Botoeira)"
                 when tipo_transacao_jae like "Gratuidade operador%"
                 then "Gratuidade Operadora"
-                when t.meio_pagamento_jae = "PIX"
+                when
+                    t.meio_pagamento_jae = "PIX"
+                    or t.tipo_transacao_jae = "Débito PIX a bordo"
                 then "PIX"
             end as produto,
             case

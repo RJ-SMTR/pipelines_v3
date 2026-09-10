@@ -55,6 +55,11 @@ with
             {% endif %}
             date(timestamp, 'America/Sao_Paulo')
             >= date('{{ var("data_inicial_logs_bigquery") }}')
+            and coalesce(
+                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.statementtype,
+                ''
+            )
+            != 'SCRIPT'
     ),
     label_dbt as (
         select data, projeto, id_job, label.value as id_execucao_dbt
