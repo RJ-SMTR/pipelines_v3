@@ -10,10 +10,25 @@ with
     logs as (
         select
             date(timestamp, 'America/Sao_Paulo') as data,
+            datetime(timestamp, 'America/Sao_Paulo') as datetime_evento_log,
             resource.labels.project_id as projeto,
             protopayload_auditlog.authenticationinfo.principalemail as usuario,
             protopayload_auditlog.methodname as metodo,
             protopayload_auditlog.resourcename as id_job,
+            datetime(
+                safe_cast(
+                    protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.starttime
+                    as timestamp
+                ),
+                'America/Sao_Paulo'
+            ) as datetime_inicio_job,
+            datetime(
+                safe_cast(
+                    protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.endtime
+                    as timestamp
+                ),
+                'America/Sao_Paulo'
+            ) as datetime_fim_job,
             protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.labels
             as labels,
             regexp_extract(
@@ -55,15 +70,29 @@ with
             {% endif %}
             date(timestamp, 'America/Sao_Paulo')
             >= date('{{ var("data_inicial_logs_bigquery") }}')
+            and protopayload_auditlog.methodname = 'jobservice.jobcompleted'
             and coalesce(
                 protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.statementtype,
                 ''
             )
             != 'SCRIPT'
     ),
+    logs_deduplicados as (
+        select *
+        from logs
+        qualify
+            row_number() over (
+                partition by id_job
+                order by
+                    datetime_fim_job desc nulls last,
+                    datetime_inicio_job desc nulls last,
+                    datetime_evento_log desc nulls last
+            )
+            = 1
+    ),
     label_dbt as (
         select data, projeto, id_job, label.value as id_execucao_dbt
-        from logs, unnest(labels) as label
+        from logs_deduplicados, unnest(labels) as label
         where label.key = 'dbt_invocation_id'
     )
 select
@@ -72,6 +101,8 @@ select
     l.usuario,
     l.metodo,
     l.id_job,
+    l.datetime_inicio_job,
+    l.datetime_fim_job,
     d.id_execucao_dbt,
     l.query,
     coalesce(l.nome_flow, l.nome_dashboard) as processo_execucao,
@@ -92,6 +123,6 @@ select
     p.origem as origem_valor,
     '{{ var("version") }}' as versao,
     current_datetime('America/Sao_Paulo') as datetime_ultima_atualizacao
-from logs l
+from logs_deduplicados l
 left join {{ ref("aux_preco_bigquery") }} p using (data)
 left join label_dbt d using (data, projeto, id_job)
