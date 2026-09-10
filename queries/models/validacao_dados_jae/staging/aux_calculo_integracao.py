@@ -200,12 +200,4 @@ def model(dbt, session):  # noqa: ARG001, PLR0915
 
     df_integracao = spark.createDataFrame(rdd_integracao, schema=schema_integracao)  # noqa
 
-    print("CHEGUEI AQUI")
-
-    print("Quantidade:", df_integracao.count())
-
-    df_integracao.printSchema()
-
-    print("FIM")
-
     return df_integracao

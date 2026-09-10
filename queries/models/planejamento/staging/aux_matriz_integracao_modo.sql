@@ -10,7 +10,7 @@ with
         select
             data_inicio_matriz as data_inicio,
             data_fim_matriz as data_fim,
-            row_number() over (partition by integracao) as idx_modo,
+            row_number() over (partition by integracao, tipo_bilhete_unico) as idx_modo,
             integracao,
             modo,
             tempo_integracao_minutos,

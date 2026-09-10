@@ -10,9 +10,6 @@ models:
       - name: id_integracao
         description: "{{ doc('id_integracao') }}"
         data_type: string
-      - name: integracao_realizada
-        description: String representando a integração realizada [sequência modos da integração separados por "-"]
-        data_type: string
       - name: tempo_integracao_minutos_realizado
         description: Tempo entre a primeira e a última perna da integração
         data_type: int64

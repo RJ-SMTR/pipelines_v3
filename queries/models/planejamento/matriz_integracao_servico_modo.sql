@@ -20,7 +20,7 @@ with
     )
 select
     date(data_inicio) as data_inicio_validade,
-    date(data_fim) as data_fim_validade,
+    date(if(data_fim = '', null, data_fim)) as data_fim_validade,
     id_servico_jae,
     s.servico_jae,
     s.descricao_servico_jae,

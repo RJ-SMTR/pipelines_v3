@@ -527,7 +527,8 @@ with
         from transferencia_id t
         left join
             matriz_integracao m
-            on m.tipo_integracao != "Transferência"
+            on m.tipo_integracao = "Transferência"
+            and t.data_lead >= m.data_inicio
             and t.tipo_bilhete_unico = m.tipo_bilhete_unico
             and (t.data_lead <= m.data_fim or m.data_fim is null)
             and m.modo_origem in unnest(t.modos_origem)
