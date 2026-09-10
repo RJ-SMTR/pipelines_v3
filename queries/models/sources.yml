@@ -313,6 +313,8 @@ sources:
       - name: linha_tarifa
       - name: transacao_retificada
       - name: lancamento
+      - name: movimento
+      - name: conta
       - name: estudante
       - name: escola
       - name: laudo_pcd
