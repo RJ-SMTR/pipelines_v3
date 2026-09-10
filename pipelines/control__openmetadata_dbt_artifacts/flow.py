@@ -19,13 +19,18 @@ from pipelines.control__openmetadata_dbt_artifacts.tasks import (
     timeout_seconds=21600,
     on_failure=[handler_notify_failure(webhook="dataplex")],
 )
-def control__openmetadata_dbt_artifacts(env: Optional[str] = None) -> None:
-    """Reprocessa os artefatos dbt pendentes no bucket do OpenMetadata."""
+def control__openmetadata_dbt_artifacts(
+    env: Optional[str] = None,
+    target_deployment_name: Optional[str] = None,
+    target_flow_run_id: Optional[str] = None,
+) -> None:
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env=env)
     pending_artifacts = get_pending_dbt_artifacts(
         env=env,
+        target_deployment_name=target_deployment_name,
+        target_flow_run_id=target_flow_run_id,
         wait_for=[setup_env, sentry],
     )
     successful_artifacts = ingest_pending_dbt_artifacts(

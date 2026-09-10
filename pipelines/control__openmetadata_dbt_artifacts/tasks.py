@@ -3,6 +3,7 @@
 
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 from google.cloud import storage
 from prefect import task
@@ -18,7 +19,11 @@ from pipelines.common.utils.openmetadata import (
 
 
 @task(cache_policy=NO_CACHE, name="Get Pending dbt Artifacts")
-def get_pending_dbt_artifacts(env: str) -> list[PendingDbtArtifact]:
+def get_pending_dbt_artifacts(
+    env: str,
+    target_deployment_name: Optional[str] = None,
+    target_flow_run_id: Optional[str] = None,
+) -> list[PendingDbtArtifact]:
     """Consulta no GCS os pares de artefatos dbt pendentes."""
     if env != "prod":
         print(f"OpenMetadata: consulta de pendências ignorada no ambiente {env}")
@@ -27,6 +32,12 @@ def get_pending_dbt_artifacts(env: str) -> list[PendingDbtArtifact]:
     client = storage.Client(project=common_constants.PROJECT_NAME[env])
     bucket = client.bucket(GCS_BUCKET_NAME)
     pending_prefix = f"{GCS_PREFIX}/pending/"
+    if target_flow_run_id is not None:
+        if target_deployment_name is None:
+            raise ValueError(
+                "target_deployment_name é obrigatório quando target_flow_run_id é informado"
+            )
+        pending_prefix = f"{pending_prefix}{target_deployment_name}/{target_flow_run_id}/"
     blobs = list(bucket.list_blobs(prefix=pending_prefix))
     blobs_by_name = {blob.name: blob for blob in blobs}
     run_results_blobs = sorted(
