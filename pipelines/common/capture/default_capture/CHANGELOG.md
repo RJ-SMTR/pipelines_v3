@@ -1,6 +1,6 @@
 # Changelog - default_capture
 
-## [1.0.4] - 2026-09-10 
+## [1.0.4] - 2026-09-10
 
 ### Alterado
 
