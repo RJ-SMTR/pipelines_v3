@@ -1,5 +1,12 @@
 # Changelog - monitoramento
 
+## [2.2.14] - 2026-09-10
+
+### Alterado
+
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+- Obtém `sistema` e `consorcio` do serviço planejado por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
 ## [2.2.13] - 2026-09-09
 
 ### Adicionado
