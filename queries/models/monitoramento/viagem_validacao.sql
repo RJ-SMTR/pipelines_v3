@@ -259,10 +259,14 @@ with
         {% endif %}
     ),
     /*
-    Sistema do serviço planejado
+    Informações do serviço planejado
     */
-    sistema_servico as (
-        select data, servico, any_value(sistema) as sistema
+    servico_planejado_info as (
+        select
+            data,
+            servico,
+            any_value(sistema) as sistema,
+            any_value(consorcio) as consorcio
         from servico_planejado
         group by data, servico
     ),
@@ -310,7 +314,7 @@ with
         select
             spg.*,
             ss.sistema,
-            spu.consorcio,
+            ss.consorcio,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
@@ -331,7 +335,8 @@ with
                 then false
             end as indicador_servico_planejado_os
         from servicos_planejados_gtfs spg
-        left join sistema_servico ss on ss.data = spg.data and ss.servico = spg.servico
+        left join
+            servico_planejado_info ss on ss.data = spg.data and ss.servico = spg.servico
         left join
             servico_planejado_unnested spu
             on spu.servico = spg.servico
