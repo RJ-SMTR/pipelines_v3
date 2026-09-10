@@ -38,6 +38,7 @@ with
             and date(datetime_processamento) - date(datetime_transacao)
             <= interval 6 day
             and modo = "Ônibus"
+            and tipo_transacao != "Botoeira"
     ),
     -- Transações RioCard
     transacao_riocard as (
@@ -45,7 +46,7 @@ with
             id_veiculo,
             servico_jae,
             cast(
-                if(data < '2025-08-02', null, 4.7) as numeric
+                if(data < '2025-08-02', null, 5) as numeric
             ) as valor_transacao_rateio,
             datetime_transacao
         from {{ ref("transacao_riocard") }}
