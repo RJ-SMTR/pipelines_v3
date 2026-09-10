@@ -10,6 +10,8 @@ Common 2026-05-13
 
 from typing import Optional
 
+from prefect import tags
+
 from pipelines.capture__inmet_temperatura import constants
 from pipelines.capture__inmet_temperatura.tasks import create_temperatura_extractor
 from pipelines.common.capture.default_capture.flow import (
@@ -27,12 +29,13 @@ def capture__inmet_temperatura(
     recapture_days: int = 2,
     recapture_timestamps: Optional[list[str]] = None,
 ):
-    create_capture_flows_default_tasks(
-        env=env,
-        sources=[constants.INMET_TEMPERATURA_SOURCE],
-        timestamp=timestamp,
-        create_extractor_task=create_temperatura_extractor,
-        recapture=recapture,
-        recapture_days=recapture_days,
-        recapture_timestamps=recapture_timestamps,
-    )
+    with tags("inmet-api"):
+        create_capture_flows_default_tasks(
+            env=env,
+            sources=[constants.INMET_TEMPERATURA_SOURCE],
+            timestamp=timestamp,
+            create_extractor_task=create_temperatura_extractor,
+            recapture=recapture,
+            recapture_days=recapture_days,
+            recapture_timestamps=recapture_timestamps,
+        )
