@@ -1,5 +1,14 @@
 # Changelog - planejamento
 
+## [1.8.9] - 2026-09-10
+
+### Adicionado
+
+- Adiciona `tipo_bilhete_unico` nos modelos `aux_matriz_integracao_modo.sql`, `matriz_reparticao_tarifaria.sql` e `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona transferências BUM no modelo `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona tratamento das colunas de quarta perna no modelo `matriz_reparticao_tarifaria.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Cria modelo `matriz_integracao_servico_modo.sql`
+
 ## [1.8.8] - 2026-08-28
 
 ### Alterado

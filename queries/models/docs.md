@@ -1809,6 +1809,10 @@ Indicador de atividade do operador no sistema da Jaé
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
 {% enddocs %}
 
+{% docs tipo_bilhete_unico %}
+Tipo do bilhete único [BUM ou BUC]
+{% enddocs %}
+
 {% docs cnpj_entidade_credenciadora_riorotativo %}
 CNPJ da entidade credenciadora associada ao guardador de veículo
 {% enddocs %}
