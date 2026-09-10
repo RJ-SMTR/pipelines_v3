@@ -3,43 +3,49 @@
 
 from datetime import date, datetime, timedelta
 
-from pipelines.capture__inmet_temperatura import constants
+from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.utils import convert_timezone
+
+INMET_FIRST_HALF_SCHEDULE_DAY = 22
+INMET_SECOND_HALF_SCHEDULE_DAY = 7
 
 
 def get_inmet_capture_window(timestamp: datetime) -> tuple[date, date]:
     """Retorna a janela de dados correspondente à data agendada."""
 
     current_date = timestamp.date()
-    if current_date.day == constants.INMET_FIRST_HALF_SCHEDULE_DAY:
+    if current_date.day == INMET_FIRST_HALF_SCHEDULE_DAY:
         return current_date.replace(day=1), current_date.replace(day=15)
 
-    if current_date.day == constants.INMET_SECOND_HALF_SCHEDULE_DAY:
+    if current_date.day == INMET_SECOND_HALF_SCHEDULE_DAY:
         previous_month_end = current_date.replace(day=1) - timedelta(days=1)
         return previous_month_end.replace(day=16), previous_month_end
 
     return current_date - timedelta(days=1), current_date
 
 
-def split_date_range(
-    start_date: date,
-    end_date: date,
-    max_days_per_request: int = constants.INMET_MAX_DAYS_PER_REQUEST,
-) -> list[tuple[date, date]]:
-    """Divide uma janela inclusiva em intervalos menores para a API do INMET."""
+class InmetSourceTable(SourceTable):
+    """Expande os agendamentos do INMET em capturas diárias da quinzena."""
 
-    if max_days_per_request <= 0:
-        raise ValueError("max_days_per_request deve ser maior que zero")
-    if start_date > end_date:
-        raise ValueError("start_date deve ser menor ou igual a end_date")
+    def get_uncaptured_timestamps(
+        self, timestamp: datetime, retroactive_days: int = 2
+    ) -> list[datetime]:
+        """Recaptura a quinzena inteira nos dias 7 e 22, mesmo se já houver arquivos.
 
-    date_ranges = []
-    current_start = start_date
-    while current_start <= end_date:
-        current_end = min(
-            current_start + timedelta(days=max_days_per_request - 1),
-            end_date,
-        )
-        date_ranges.append((current_start, current_end))
-        current_start = current_end + timedelta(days=1)
+        Fora desses dias, mantém a busca padrão por capturas pendentes.
+        """
+        timestamp = convert_timezone(timestamp)
+        if timestamp.day not in (INMET_FIRST_HALF_SCHEDULE_DAY, INMET_SECOND_HALF_SCHEDULE_DAY):
+            return super().get_uncaptured_timestamps(timestamp, retroactive_days)
 
-    return date_ranges
+        start_date, end_date = get_inmet_capture_window(timestamp)
+        timestamps = []
+        for offset in range((end_date - start_date).days + 1):
+            capture_date = start_date + timedelta(days=offset)
+            capture_timestamp = timestamp.replace(
+                year=capture_date.year, month=capture_date.month, day=capture_date.day
+            )
+            if capture_timestamp >= self.first_timestamp:
+                timestamps.append(capture_timestamp)
+
+        return timestamps[: self.max_recaptures]
