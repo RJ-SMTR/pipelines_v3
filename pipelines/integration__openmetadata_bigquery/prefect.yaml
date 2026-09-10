@@ -27,6 +27,14 @@ deployments:
   - name: rj-integration--openmetadata_bigquery--staging
     version: "{{ build-image.tag }}"
     entrypoint: pipelines/integration__openmetadata_bigquery/flow.py:integration__openmetadata_bigquery
+    parameters:
+      project_ids:
+        - rj-smtr
+        - rj-smtr-staging
+      schema_filter_pattern:
+        includes:
+          - planejamento
+          - planejamento_staging
     work_pool:
       name: smtr-pool
       work_queue_name: default
