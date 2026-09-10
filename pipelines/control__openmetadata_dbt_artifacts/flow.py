@@ -24,10 +24,7 @@ def control__openmetadata_dbt_artifacts(
     target_deployment_name: Optional[str] = None,
     target_flow_run_id: Optional[str] = None,
 ) -> None:
-    env = get_run_env(
-        env=env,
-        deployment_name=runtime.deployment.name if env is None else None,
-    )
+    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env=env)
     pending_artifacts = get_pending_dbt_artifacts(
