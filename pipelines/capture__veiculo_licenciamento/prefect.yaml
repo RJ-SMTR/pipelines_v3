@@ -39,8 +39,13 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__veiculo_licenciamento/flow.py:capture__veiculo_licenciamento
     schedules:
-      - cron: "0 5 * * *"
+      - cron: "0 6 * * *"
         timezone: "America/Sao_Paulo"
+      - cron: "15 6 * * *"
+        timezone: "America/Sao_Paulo"
+        parameters:
+          recapture: true
+          recapture_days: 1
     work_pool:
       name: smtr-pool
       work_queue_name: default
