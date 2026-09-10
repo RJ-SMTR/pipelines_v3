@@ -6,9 +6,33 @@
     )
 }}
 
+{% set viagem_valida = ref("viagem_valida") %}
+{% if execute and is_incremental() and var(
+    "flow_name"
+) == "treatment--monitoramento-temperatura" %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        viagem_valida,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+{% else %} {% set modified_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
     {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
-        data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}") and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
+        (
+            data between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
+            )
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
     {% else %}
         data between date("{{var('start_date')}}") and date("{{var('end_date')}}") and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
     {% endif %}
@@ -42,7 +66,7 @@ with
             id_viagem,
             distancia_planejada,
             sentido
-        from {{ ref("viagem_valida") }}
+        from {{ viagem_valida }}
         -- from `rj-smtr.monitoramento.viagem_valida`
         where
             {{ incremental_filter }}

@@ -1,5 +1,11 @@
 # Changelog - dashboard_monitoramento_interno
 
+## [1.0.6] - 2026-09-03
+
+### Alterado
+
+- Inclui `view_viagem_climatizacao` no selector `monitoramento_temperatura`(https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [1.0.5] - 2026-09-02
 
 ### Alterado

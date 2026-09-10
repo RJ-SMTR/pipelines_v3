@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.13] - 2026-09-09
+
+### Alterado
+
+- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar as partições de `aux_viagem_temperatura` / `aux_veiculo_falha_ar_condicionado` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular fica limitada a datas anteriores a essa versão.
+
 ## [2.2.12] - 2026-09-02
 
 ### Adicionado

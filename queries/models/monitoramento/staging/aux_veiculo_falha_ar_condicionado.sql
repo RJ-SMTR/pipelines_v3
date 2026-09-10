@@ -10,8 +10,29 @@
     )
 }}
 
+{% set aux_viagem_temperatura = ref("aux_viagem_temperatura") %}
+{% if execute and is_incremental() %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        aux_viagem_temperatura,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+{% else %} {% set modified_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+    (
+        data between date("{{var('date_range_start')}}") and date(
+            "{{var('date_range_end')}}"
+        )
+        and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        {% if is_incremental() and modified_partitions | length > 0 %}
+            or (
+                data in ({{ modified_partitions | join(", ") }})
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            )
+        {% endif %}
+    )
     and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset %}
 
@@ -63,7 +84,7 @@ with
                     '$.indicador_temperatura_pos_tratamento_descartada_viagem.datetime_verificacao_regularidade'
                 ) as datetime
             ) as datetime_verificacao_regularidade,
-        from {{ ref("aux_viagem_temperatura") }}
+        from {{ aux_viagem_temperatura }}
         where
             {{ incremental_filter }}
             and (
@@ -137,11 +158,30 @@ with
             > 50 as indicador_viagem_temperatura_descartada_veiculo
         from agg_viagem_temperatura
     ),
+    datas as (
+        select data
+        from
+            unnest(
+                generate_date_array(
+                    date("{{var('date_range_start')}}"),
+                    date("{{var('date_range_end')}}")
+                )
+            ) as data
+        where
+            data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        {% if is_incremental() and modified_partitions | length > 0 %}
+            union distinct
+            select date(partition_date) as data
+            from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
+            where date(partition_date) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        {% endif %}
+    ),
     {% if is_incremental() %}
         dia_anterior as (
             select id_veiculo, quantidade_dia_falha_operacional
             from {{ this }}
-            where data = date_sub(date("{{ var('date_range_start') }}"), interval 1 day)
+            where data = date_sub((select min(data) from datas), interval 1 day)
         ),
         veiculos as (
             select distinct id_veiculo
@@ -152,16 +192,6 @@ with
         ),
     {% else %} veiculos as (select distinct id_veiculo from viagem_temperatura),
     {% endif %}
-    datas as (
-        select data
-        from
-            unnest(
-                generate_date_array(
-                    date("{{var('date_range_start')}}"),
-                    date("{{var('date_range_end')}}")
-                )
-            ) as data
-    ),
     datas_veiculos as (select data, id_veiculo from datas cross join veiculos),
     falha_dia as (
         select

@@ -596,6 +596,8 @@ selectors:
           value: dicionario_subsidio
         - method: fqn
           value: monitoramento_viagem_transacao
+        - method: fqn
+          value: view_viagem_climatizacao
 
   - name: snapshot_temperatura
     definition:

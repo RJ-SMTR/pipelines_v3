@@ -1,5 +1,13 @@
 # Changelog - subsidio
 
+## [2.3.7] - 2026-09-03
+
+### Alterado
+
+- Ajusta `viagem_classificada` (no flow `treatment--monitoramento-temperatura`) para reprocessar as partições de `viagem_valida` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular do flow fica limitada a datas anteriores a essa versão. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
+- Ajusta `aux_viagem_temperatura` para reprocessar as partições de `viagem_classificada` alteradas no mesmo critério, apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [2.3.6] - 2026-08-27
 
 ### Adicionado
