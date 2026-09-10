@@ -38,9 +38,9 @@ with
             indicador_viagem_dentro_limite,
             indicador_conformidade,
             indicador_validade
-        from {{ ref("viagens_remuneradas") }}
-        {# from `rj-smtr-dev`.`victor__dashboard_subsidio_sppo`.`viagens_remuneradas` #}
-        -- `rj-smtr.dashboard_subsidio_sppo.viagens_remuneradas`
+        from
+        -- {{ ref("viagens_remuneradas") }}
+        `rj-smtr-dev.rodrigo__dashboard_subsidio_sppo.viagens_remuneradas`
         where
             data
             between date('{{ var("start_date") }}') and date('{{ var("end_date") }}')
@@ -106,7 +106,7 @@ with
             any_value(km_planejada_faixa) as km_planejada_faixa,
             sum(
                 if(
-                    indicador_conformidade and indicador_viagem_dentro_limite,
+                    indicador_conformidade and indicador_viagem_dentro_limite and pof >= 80,
                     distancia_planejada,
                     0
                 )
@@ -136,15 +136,22 @@ select
     km_conforme_faixa * irk as receita_irk_faixa,
     coalesce(valor_penalidade, 0) as valor_penalidade_faixa,
     pof >= 80 as indicador_elegivel_adt,
-    -- Cenário C1 - Resultado final ADT por faixa horária, ignorando abaixo de 80%
     if(
         pof >= 80,
-        (km_conforme_faixa * s.subsidio_km)
-        + (km_atendida_faixa * (irk - s.subsidio_km))
+        (km_conforme_faixa * irk)
         - receita_tarifa_publica_faixa,
         0
     )
     + coalesce(valor_penalidade, 0) as delta_tr,
+    -- Cenário C1 - Resultado final ADT por faixa horária, ignorando abaixo de 80%
+    -- if(
+    --     pof >= 80,
+    --     (km_conforme_faixa * s.subsidio_km)
+    --     + (km_atendida_faixa * (irk - s.subsidio_km))
+    --     - receita_tarifa_publica_faixa,
+    --     0
+    -- )
+    -- + coalesce(valor_penalidade, 0) as delta_tr,
 
     -- Cenário C2 - Resultado final ADT por faixa horária, incluindo os dias abaixo de
     -- 80%, comparando com a km conforme*IRK. Não paga quando for positivo.

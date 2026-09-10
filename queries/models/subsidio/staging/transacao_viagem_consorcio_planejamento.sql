@@ -33,6 +33,7 @@ with
                 and ifnull(regexp_extract(servico_jae, r"[0-9]+"), "") like "2%"
             )  -- Remove rodoviários
             and consorcio in ("Internorte", "Intersul", "Santa Cruz", "Transcarioca")
+            and tipo_transacao_jae != "Botoeira"
     ),
     -- Transações RioCard
     transacao_riocard as (
@@ -45,7 +46,7 @@ with
             consorcio,
             valor_transacao,
             cast(
-                if(data < '2025-08-02', null, 4.7) as numeric
+                if(data < '2025-08-02', null, 5) as numeric
             ) as valor_transacao_rateio,
             datetime_transacao
         -- from {{ ref("transacao_riocard") }}
