@@ -582,3 +582,9 @@ sources:
 
     tables:
       - name: excecao_teste_transacao_valor_ordem
+
+  - name: mit_ipea_project
+    database: rj-smtr-dev
+
+    tables:
+      - name: origin_destination_res9
