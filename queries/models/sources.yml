@@ -588,3 +588,9 @@ sources:
 
     tables:
       - name: origin_destination_res9
+
+  - name: cloudcosts
+    database: rj-smtr
+
+    tables:
+      - name: cloud_pricing_export
