@@ -143,6 +143,15 @@ select
     pof >= 80 as indicador_elegivel_adt,
     if(pof >= 80, (km_conforme_faixa * irk) - receita_tarifa_publica_faixa, 0)
     + coalesce(valor_penalidade, 0) as delta_tr,
+    -- Cenário A1
+    -- ΔTR = (QC IRK) - RTP, se PAT 80%
+    -- ΔTR = min((QP IRK) - RTP,0), se PAT <80%
+    if(
+        pof >= 80,
+        (km_conforme_faixa * irk) - receita_tarifa_publica_faixa,
+        least((km_planejada_faixa * irk) - receita_tarifa_publica_faixa, 0)
+    )
+    + coalesce(valor_penalidade, 0) as delta_tr_a1,
     -- Cenário C1 - Resultado final ADT por faixa horária, ignorando abaixo de 80%
     -- if(
     -- pof >= 80,
