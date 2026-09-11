@@ -17,7 +17,7 @@
     {% set staging_partitions_query %}
         select distinct cast(documento as int64)
         from {{ ref("staging_guardador_veiculo_riorotativo") }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where documento is not null {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     {% endset %}
     {% set cpf_partitions = (
         run_query(staging_partitions_query).columns[0].values()
@@ -65,7 +65,9 @@ with
     credenciados as (
         select data, documento, tipo_documento, numero_identificacao, cnpj
         from {{ ref("staging_guardador_veiculo_riorotativo") }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where
+            documento is not null
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     bloqueios as (
         {#
