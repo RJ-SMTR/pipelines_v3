@@ -4,7 +4,8 @@ models:
   - name: aux_frota_operante_dia_lote
     description: >
       DEPRECATED — frota diária agora sai de `viagens_apuradas` via
-      `openfisca_smtr.apurar`. Mantido só por compatibilidade temporária.
+      `rio_rac_bus_subsidy.process_trip_calculations`. Mantido só por
+      compatibilidade temporária.
       Frota operante diária por lote (Anexo I.8 item 4): maior quantitativo
       de veículos com viagem completa em pico manhã [05h, 09h) ou tarde [16h, 20h).
     tests:

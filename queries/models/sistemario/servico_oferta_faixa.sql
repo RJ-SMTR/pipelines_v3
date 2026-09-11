@@ -9,7 +9,8 @@
 
 {#
   Oferta planejada por faixa — contrato IPA (viagens_programadas) + lote
-  do POR (`lote_servico`). Entrada `planejamento` do openfisca_smtr.apurar.
+  do POR (`lote_servico`). Entrada `planejamento` do
+  `rio_rac_bus_subsidy.process_trip_calculations`.
   Fonte: planejamento.servico_planejado_faixa_horaria (partidas → viagens_programadas).
   WIP/teste: lote A0 na ausência de POR (`lote_padrao_teste` / var `lote_padrao`).
 #}

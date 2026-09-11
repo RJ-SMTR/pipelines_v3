@@ -4,7 +4,7 @@ models:
   - name: servico_oferta_faixa
     description: >
       Planejamento POR por faixa (entrada `planejamento` do
-      `openfisca_smtr.apurar`). Derivado de
+      `rio_rac_bus_subsidy.process_trip_calculations`). Derivado de
       `servico_planejado_faixa_horaria` (`partidas` → `viagens_programadas`)
       com lote via `lote_servico` (WIP/teste: `lote_padrao_teste` = A0).
       Grão data × servico × sentido × faixa_horaria_inicio.
@@ -131,10 +131,12 @@ models:
     description: >
       Fatos da viagem (completa / válida / conforme) + faixa da partida
       + auditoria (`tipo_viagem`, `indicadores`, tipologia) — entrada
-      `viagens` do `openfisca_smtr.apurar`. Inner join na oferta só para
-      carimbar `faixa_horaria_inicio`/`fim`; viagem sem faixa não entra.
+      `viagens` do `rio_rac_bus_subsidy.process_trip_calculations`.
+      Inner join na oferta só para carimbar
+      `faixa_horaria_inicio`/`fim`; viagem sem faixa não entra.
       Lote e programadas vivem em `servico_oferta_faixa`. Stub:
-      incompleta / nao_apurada.
+      incompleta / nao_apurada; `indicador_dentro_do_teto_programado`
+      = true (OF não ranqueia teto).
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -150,6 +152,10 @@ models:
         description: "true = validação válida (conforme ou não conforme)"
       - name: indicador_viagem_conforme
         description: "true = validação conforme (exige valida)"
+      - name: indicador_dentro_do_teto_programado
+        description: >
+          Stub WIP: true (programada ou autorizada). Extra não
+          autorizada ainda não é ranqueada; o OF exige o fato.
       - name: km_programada
         description: "Km planejada da viagem"
       - name: km_percorrida
@@ -192,11 +198,11 @@ models:
 
   - name: viagens_apuradas
     description: >
-      Saída do `openfisca_smtr.apurar`(viagens, planejamento) no grão
-      viagem: Tab. 2, picos, frota diária (MAX picos), teto de
-      programadas, IPA/precária e OPEX. Lote e
-      `viagens_programadas_faixa` vêm do POR. FCF quinzena / CAPEX / RQ
-      no dbt a jusante (WIP).
+      Saída do `rio_rac_bus_subsidy.process_trip_calculations`
+      (viagens, planejamento) no grão viagem: Tab. 2, picos, frota
+      diária (MAX picos), teto de programadas, IPA/precária e OPEX.
+      Lote e `viagens_programadas_faixa` vêm do POR. FCF quinzena /
+      CAPEX / RQ no dbt a jusante (WIP).
     columns:
       - name: id_viagem
         description: "{{ doc('id_viagem') }} — chave da entidade OpenFisca (`id_key`)"
@@ -279,10 +285,10 @@ models:
         description: "Índice de produtividade/atendimento da faixa"
       - name: desconto_operacao_precaria
         description: "Desconto precária da faixa (somar distinct no dbt)"
-      - name: qc_km_faixa
-        description: "Σ km_remuneravel da faixa"
-      - name: qc_km_ponderada_ipa
-        description: "qc_km_faixa × ipa"
+      - name: km_remuneravel_faixa
+        description: "Σ km_remuneravel da faixa (broadcast OF)"
+      - name: km_ponderada_ipa_faixa
+        description: "km_remuneravel_faixa × ipa (broadcast OF)"
       - name: km_ponderada_ipa_viagem
         description: "km_remuneravel × ipa"
       - name: remuneracao_opex_viagem
@@ -372,7 +378,7 @@ models:
       - name: qtd_dias_uteis
         description: "Dias úteis na quinzena"
       - name: km_ponderada_ipa
-        description: "Σ qc_km_ponderada_ipa distinct por faixa"
+        description: "Σ km_ponderada_ipa_faixa distinct por faixa"
       - name: km_remuneravel_total
         description: "Σ km_remuneravel das viagens"
       - name: qtd_viagens

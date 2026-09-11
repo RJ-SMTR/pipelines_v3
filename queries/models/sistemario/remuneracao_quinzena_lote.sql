@@ -33,7 +33,7 @@ with
             servico,
             sentido,
             faixa_horaria_inicio,
-            qc_km_ponderada_ipa,
+            km_ponderada_ipa_faixa,
             desconto_operacao_precaria
         from viagens
     ),
@@ -43,7 +43,7 @@ with
             mes,
             quinzena,
             lote,
-            sum(qc_km_ponderada_ipa) as km_ponderada_ipa,
+            sum(km_ponderada_ipa_faixa) as km_ponderada_ipa,
             sum(desconto_operacao_precaria) as desconto_operacao_precaria_total
         from faixas
         group by ano, mes, quinzena, lote

@@ -1,4 +1,5 @@
 queries:
+  target: dev
   outputs:
     dev:
       type: bigquery
@@ -16,7 +17,6 @@ queries:
       submission_method: serverless
       dataproc_batch:
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -37,7 +37,6 @@ queries:
       submission_method: serverless
       dataproc_batch:
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -56,9 +55,7 @@ queries:
       submission_method: serverless
       dataproc_batch:
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
             spark.driver.memoryOverhead: 1g
-  target: dev

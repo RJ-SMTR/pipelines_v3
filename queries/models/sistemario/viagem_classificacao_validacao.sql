@@ -16,7 +16,8 @@
   Fan-in RIO: viagem_valida + veículo + temperatura + bilhetagem.
   Tab. 2 (valida / conforme) a partir das flags vs valor_km (dicionário).
   Sem join em um tipo_viagem. Sem inner join de oferta (faixa só carimbo).
-  Stub: indicador_viagem_completa = true; km_percorrida = 0.
+  Stub: indicador_viagem_completa = true; km_percorrida = 0;
+  indicador_dentro_do_teto_programado = true.
 #}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
@@ -92,7 +93,9 @@ with
             coalesce(
                 s.tecnologia_apurada, t.tecnologia_apurada, v.tecnologia_apurada
             ) as tecnologia_apurada,
-            coalesce(s.tecnologia_remunerada, t.tecnologia_remunerada) as tecnologia_remunerada,
+            coalesce(
+                s.tecnologia_remunerada, t.tecnologia_remunerada
+            ) as tecnologia_remunerada,
             coalesce(s.indicador_nao_licenciado, false) as indicador_nao_licenciado,
             coalesce(s.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
             coalesce(s.indicador_lacrado, false) as indicador_lacrado,
@@ -129,8 +132,12 @@ with
             coalesce(
                 t.indicador_regularidade_ar_condicionado_viagem, true
             ) as indicador_regularidade_ar_condicionado_viagem,
-            coalesce(b.indicador_sem_transacao_tipo, false) as indicador_sem_transacao_tipo,
-            coalesce(b.indicador_validador_fechado, false) as indicador_validador_fechado,
+            coalesce(
+                b.indicador_sem_transacao_tipo, false
+            ) as indicador_sem_transacao_tipo,
+            coalesce(
+                b.indicador_validador_fechado, false
+            ) as indicador_validador_fechado,
             coalesce(
                 b.indicador_validador_associado_incorretamente, false
             ) as indicador_validador_associado_incorretamente,
@@ -142,9 +149,8 @@ with
     ),
     flag_status as (
         select b.data, b.id_viagem, f.status
-        from
-            base b
-            cross join
+        from base b
+        cross join
             unnest(
                 [
                     struct(
@@ -244,6 +250,7 @@ select
     c.datetime_partida,
     c.datetime_chegada,
     true as indicador_viagem_completa,
+    true as indicador_dentro_do_teto_programado,
     coalesce(f.indicador_viagem_valida, true) as indicador_viagem_valida,
     case
         when coalesce(f.indicador_viagem_valida, true)

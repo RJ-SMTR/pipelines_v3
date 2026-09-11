@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Viagens apuradas via ``openfisca_smtr.apurar`` (grão viagem).
+"""Viagens apuradas via ``rio_rac_bus_subsidy.process_trip_calculations``.
 
 Lê ``viagem_classificacao_validacao`` (fatos) e ``servico_oferta_faixa``
 (POR por faixa, todas as faixas do recorte) e persiste a saída do OF.
@@ -8,9 +8,9 @@ Nota: não usar ``from __future__`` — o Dataproc/dbt injeta código antes
 deste arquivo.
 """
 
+from datetime import date, datetime
 from uuid import uuid4
 
-from openfisca_smtr import apurar
 from pyspark.sql.functions import col
 from pyspark.sql.functions import max as spark_max
 from pyspark.sql.functions import min as spark_min
@@ -24,8 +24,9 @@ from pyspark.sql.types import (
     StructType,
     TimestampType,
 )
+from rio_rac_bus_subsidy import process_trip_calculations
 
-# Contrato BQ. Coerção de tipos / faixa / lote fica no openfisca_smtr.apurar.
+# Contrato BQ. Coerção Spark (date/datetime/numpy) fica em ``_linhas_saida``.
 SCHEMA_VIAGENS_APURADAS = StructType(
     [
         StructField("id_viagem", StringType(), False),
@@ -67,8 +68,8 @@ SCHEMA_VIAGENS_APURADAS = StructType(
         StructField("percentual_atendimento", DoubleType(), False),
         StructField("ipa", DoubleType(), False),
         StructField("desconto_operacao_precaria", DoubleType(), False),
-        StructField("qc_km_faixa", DoubleType(), False),
-        StructField("qc_km_ponderada_ipa", DoubleType(), False),
+        StructField("km_remuneravel_faixa", DoubleType(), False),
+        StructField("km_ponderada_ipa_faixa", DoubleType(), False),
         StructField("km_ponderada_ipa_viagem", DoubleType(), False),
         StructField("remuneracao_opex_viagem", DoubleType(), False),
         StructField("tarifa_remuneracao", DoubleType(), False),
@@ -87,6 +88,7 @@ COLUNAS_VIAGEM = [
     "indicador_viagem_completa",
     "indicador_viagem_valida",
     "indicador_viagem_conforme",
+    "indicador_dentro_do_teto_programado",
     "km_programada",
     "km_percorrida",
     "id_veiculo",
@@ -110,15 +112,59 @@ COLUNAS_PLANEJAMENTO = [
 ]
 
 
+def _escalar_python(valor):
+    if valor is None:
+        return None
+    if hasattr(valor, "item"):
+        valor = valor.item()
+    return valor
+
+
+def _como_data(valor):
+    valor = _escalar_python(valor)
+    if valor is None:
+        return None
+    if isinstance(valor, datetime):
+        return valor.date()
+    if isinstance(valor, date):
+        return valor
+    return date.fromisoformat(str(valor)[:10])
+
+
+def _como_timestamp(valor):
+    valor = _escalar_python(valor)
+    if valor is None:
+        return None
+    if isinstance(valor, datetime):
+        return valor.replace(tzinfo=None) if valor.tzinfo else valor
+    texto = str(valor).strip().replace("Z", "+00:00")
+    convertido = datetime.fromisoformat(texto.replace(" ", "T", 1))
+    return convertido.replace(tzinfo=None) if convertido.tzinfo else convertido
+
+
+def _coagir_campo(tipo, valor):
+    valor = _escalar_python(valor)
+    if isinstance(tipo, DateType):
+        return _como_data(valor)
+    if isinstance(tipo, TimestampType):
+        return _como_timestamp(valor)
+    conversor = {BooleanType: bool, IntegerType: int, DoubleType: float}.get(type(tipo), str)
+    return None if valor is None else conversor(valor)
+
+
 def _linhas_saida(resultado, id_execucao):
     versao_regra = str(resultado["versao_regra"])
-    nomes = [field.name for field in SCHEMA_VIAGENS_APURADAS]
     linhas = []
     for viagem in resultado["viagens"]:
         linha = dict(viagem)
         linha["versao_regra"] = versao_regra
         linha["id_execucao"] = id_execucao
-        linhas.append({nome: linha.get(nome) for nome in nomes})
+        linhas.append(
+            {
+                campo.name: _coagir_campo(campo.dataType, linha.get(campo.name))
+                for campo in SCHEMA_VIAGENS_APURADAS
+            }
+        )
     return linhas
 
 
@@ -148,7 +194,7 @@ def model(dbt, session):
     )
 
     id_execucao = f"dbt-{uuid4()}"
-    resultado = apurar(
+    resultado = process_trip_calculations(
         viagens=[row.asDict(recursive=True) for row in viagens_df.collect()],
         planejamento=[row.asDict(recursive=True) for row in planejamento_df.collect()],
         id_key="id_viagem",
