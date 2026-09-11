@@ -63,7 +63,7 @@ with
 
         union all
 
-        select data, servico, vista
+        select distinct data, servico, vista
         from {{ ref("aux_viagem_planejada_planejamento_dia_unnested") }}
         where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
