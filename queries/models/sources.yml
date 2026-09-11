@@ -442,6 +442,9 @@ sources:
 
     tables:
       - name: shapes_geom
+      - name: stops_desaninhada
+      - name: agg_stops_vistoriadas
+      - name: stop_details_desaninhada
 
   - name: source_veiculo_fiscalizacao
     database: rj-smtr-staging
@@ -579,3 +582,15 @@ sources:
 
     tables:
       - name: excecao_teste_transacao_valor_ordem
+
+  - name: mit_ipea_project
+    database: rj-smtr-dev
+
+    tables:
+      - name: origin_destination_res9
+
+  - name: cloudcosts
+    database: rj-smtr
+
+    tables:
+      - name: cloud_pricing_export
