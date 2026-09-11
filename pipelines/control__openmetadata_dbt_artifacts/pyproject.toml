@@ -1,0 +1,4 @@
+[project]
+name = "control__openmetadata_dbt_artifacts"
+version = "0.1.0"
+description = "Pipeline de reprocessamento de artefatos dbt no OpenMetadata"

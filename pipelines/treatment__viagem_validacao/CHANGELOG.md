@@ -1,5 +1,17 @@
 # Changelog - treatment__viagem_validacao
 
+## [1.0.4] - 2026-09-11
+
+### Corrigido
+
+- Inclui a fonte Maxtrack no selector de validação de viagens e as dependências correspondentes no Dockerfile do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/665)
+
+## [1.0.3] - 2026-09-10
+
+### Alterado
+
+- Remove o atraso de 24 horas da validação de viagens e usa diretamente o selector de `viagem_informada` como fonte de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
 ## [1.0.2] - 2026-07-29
 
 ### Alterado

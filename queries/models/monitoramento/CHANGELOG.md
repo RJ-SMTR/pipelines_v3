@@ -1,5 +1,18 @@
 # Changelog - monitoramento
 
+## [2.2.14] - 2026-09-10
+
+### Alterado
+
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+- Obtém `sistema` e `consorcio` do serviço planejado por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
+## [2.2.13] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de infração em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
 ## [2.2.12] - 2026-09-02
 
 ### Adicionado

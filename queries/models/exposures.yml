@@ -397,7 +397,7 @@ exposures:
   - name: PAINEL_SENSORES_AR_CONDICIONADO
     type: dashboard
     description: >
-      PAINEL DE SENSORES DE AR-CONDICIONADO
+      Painel de Sensores de Ar-Condicionado. Consome `view_viagem_climatizacao`.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
