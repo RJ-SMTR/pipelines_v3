@@ -55,4 +55,4 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
 from diferenca_tarifaria_cosorcio_agg
-join transacao_viagem_consorcio_agg using (data, consorcio)
+full outer join transacao_viagem_consorcio_agg using (data, consorcio)

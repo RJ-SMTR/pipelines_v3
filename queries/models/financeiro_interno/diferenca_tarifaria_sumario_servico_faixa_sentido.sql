@@ -103,13 +103,14 @@ with
             pof,
             irk,
             subsidio_km,
-            count(*) as viagens_faixa,
+            count(id_viagem) as viagens_faixa,
             any_value(km_planejada_faixa) as km_planejada_faixa,
             sum(
                 if(
                     indicador_conformidade
                     and indicador_viagem_dentro_limite
-                    and pof >= 80,
+                    -- and pof >= 80
+                    ,
                     distancia_planejada,
                     0
                 )
@@ -141,17 +142,75 @@ select
     km_conforme_faixa * irk as receita_irk_faixa,
     coalesce(valor_penalidade, 0) as valor_penalidade_faixa,
     pof >= 80 as indicador_elegivel_adt,
+    /*
+        Cenário Base
+        Se PAT >= 80%: ΔTR = (QC * IRK) - RTP (paga-se apenas a km conforme)
+        Se PAT < 80%: ΔTR = 0
+    */
     if(pof >= 80, (km_conforme_faixa * irk) - receita_tarifa_publica_faixa, 0)
     + coalesce(valor_penalidade, 0) as delta_tr,
-    -- Cenário A1
-    -- ΔTR = (QC IRK) - RTP, se PAT 80%
-    -- ΔTR = min((QP IRK) - RTP,0), se PAT <80%
+    /*
+        Cenário A1
+        Se PAT >= 80%: ΔTR = (QC * IRK) - RTP (paga-se apenas a km conforme)
+        Se PAT < 80%: ΔTR = min((QP * IRK) - RTP,0) (retem-se receita apenas se a receita tarifária for maior que a
+        receita teórica de km planejada * IRK, caso contrário não há retenção)
+    */
     if(
         pof >= 80,
         (km_conforme_faixa * irk) - receita_tarifa_publica_faixa,
         least((km_planejada_faixa * irk) - receita_tarifa_publica_faixa, 0)
     )
     + coalesce(valor_penalidade, 0) as delta_tr_a1,
+    /*
+        Cenário A2
+        Se PAT >= 80%: ΔTR = (QC * IRK) - RTP (paga-se apenas a km conforme)
+        Se PAT < 80%: ΔTR = min((QC * (IRK-subsidio_km) - RTP,0), se PAT <80% (retem-se receita apenas se a receita tarifária for maior que
+        a receita teórica de km conforme * (IRK_tarifario), caso contrário não há retenção)
+    */
+    if(
+        pof >= 80,
+        (km_conforme_faixa * irk) - receita_tarifa_publica_faixa,
+        least(
+            (coalesce(km_conforme_faixa, 0) * (irk - subsidio_km))
+            - receita_tarifa_publica_faixa,
+            0
+        )
+    )
+    + coalesce(valor_penalidade, 0) as delta_tr_a2,
+    /*
+        Cenário A3
+        Se PAT >= 80%: ΔTR = (QC * IRK)+((QA-QC) (IRK-subsidio_km)) - RTP, se PAT 80%
+        Se PAT < 80%: ΔTR = (QA * (IRK-subsidio_km)) - RTP, se PAT < 80% (retem-se receita apenas se a receita tarifária for maior que
+        a receita de km atendida * (IRK_tarifario), caso contrário não há retenção)
+    */
+    if(
+        pof >= 80,
+        (km_conforme_faixa * irk)
+        + ((km_atendida_faixa - km_conforme_faixa) * (irk - subsidio_km))
+        - receita_tarifa_publica_faixa,
+        least(
+            (coalesce(km_atendida_faixa, 0) * (irk - subsidio_km))
+            - receita_tarifa_publica_faixa,
+            0
+        )
+    )
+    + coalesce(valor_penalidade, 0) as delta_tr_a3,
+    /*
+        Cenário A4
+        Se PAT >= 80%: ΔTR = (QC * IRK) - RTP (paga-se apenas a km conforme)
+        Se PAT < 80%: ΔTR = (QA * (IRK-subsidio_km)) - RTP, se PAT < 80% (independente do resultado, paga-se a
+        receita de km atendida * (IRK_tarifario) menos a receita tarifária)
+    */
+    if(
+        pof >= 80,
+        (km_conforme_faixa * irk)
+        + ((km_atendida_faixa - km_conforme_faixa) * (irk - subsidio_km))
+        - receita_tarifa_publica_faixa,
+        (coalesce(km_atendida_faixa, 0) * (irk - subsidio_km))
+        - receita_tarifa_publica_faixa
+    )
+
+    + coalesce(valor_penalidade, 0) as delta_tr_a4,
     -- Cenário C1 - Resultado final ADT por faixa horária, ignorando abaixo de 80%
     -- if(
     -- pof >= 80,

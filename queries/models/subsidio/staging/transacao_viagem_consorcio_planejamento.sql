@@ -17,7 +17,11 @@ with
             servico_jae as servico,
             consorcio,
             valor_pagamento as valor_transacao,
-            cast((valor_pagamento / 0.96) as numeric) as valor_transacao_rateio,
+            case
+                when tipo_transacao_jae = "Botoeira" and data >= "2026-06-28"
+                then cast(0 as numeric)
+                else cast((valor_pagamento / 0.96) as numeric)
+            end as valor_transacao_rateio,
             datetime_transacao
         from {{ ref("transacao") }}
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
@@ -33,7 +37,6 @@ with
                 and ifnull(regexp_extract(servico_jae, r"[0-9]+"), "") like "2%"
             )  -- Remove rodoviários
             and consorcio in ("Internorte", "Intersul", "Santa Cruz", "Transcarioca")
-            and tipo_transacao_jae != "Botoeira"
     ),
     -- Transações RioCard
     transacao_riocard as (

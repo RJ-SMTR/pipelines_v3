@@ -27,7 +27,11 @@ with
         select
             id_veiculo,
             servico_jae,
-            cast((valor_pagamento / 0.96) as numeric) as valor_transacao_rateio,
+            case
+                when tipo_transacao_jae = "Botoeira" and data >= "2026-06-28"
+                then cast(0 as numeric)
+                else cast((valor_pagamento / 0.96) as numeric)
+            end as valor_transacao_rateio,
             datetime_transacao
         from {{ ref("transacao") }}
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
@@ -38,14 +42,19 @@ with
             and date(datetime_processamento) - date(datetime_transacao)
             <= interval 6 day
             and modo = "Ônibus"
-            and tipo_transacao_jae != "Botoeira"
     ),
     -- Transações RioCard
     transacao_riocard as (
         select
             id_veiculo,
             servico_jae,
-            cast(if(data < '2025-08-02', null, 5) as numeric) as valor_transacao_rateio,
+            case
+                when data between "2025-01-05" and "2026-01-03"
+                then cast(4.7 as numeric)
+                when data >= "2026-01-04"
+                then cast(5 as numeric)
+                else cast(null as numeric)
+            end as valor_transacao_rateio,
             datetime_transacao
         from {{ ref("transacao_riocard") }}
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
