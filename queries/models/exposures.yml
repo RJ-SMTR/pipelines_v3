@@ -39,7 +39,10 @@ exposures:
   - name: PAINEL_APURACAO_VIAGENS_ONIBUS
     type: dashboard
     description: >
-      APURACAO DE VIAGENS E ITINERÁRIOS DO SPPO
+      Painel interno com a finalidade de acompanhar a apuração de viagens e
+      itinerários do SPPO, confrontando as viagens realizadas com o quadro
+      planejado, de forma a subsidiar a análise operacional e o monitoramento
+      da execução dos serviços.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -66,7 +69,9 @@ exposures:
   - name: PAINEL_GPS_ONIBUS
     type: dashboard
     description: >
-      GPS DOS ÔNIBUS (ÚLTIMOS 8 DIAS)
+      Painel com a finalidade de monitorar a posição dos ônibus em operação nos
+      últimos oito dias, permitindo a visualização das trajetórias em relação ao
+      itinerário planejado e o acompanhamento da frota em tempo quase real.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -94,7 +99,9 @@ exposures:
   - name: PAINEL_GPS_ONIBUS_HISTORICO
     type: dashboard
     description: >
-      GPS DOS ÔNIBUS (HISTÓRICO)
+      Painel com a finalidade de consultar o histórico de posições GPS dos ônibus
+      do SPPO, permitindo a análise retrospectiva das trajetórias, do planejamento
+      e do desempenho diário dos serviços.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -122,7 +129,9 @@ exposures:
   - name: PAINEL_SUBSIDIO_ONIBUS
     type: dashboard
     description: >
-      SUBSÍDIO DOS ÔNIBUS
+      Painel com a finalidade de acompanhar a apuração do subsídio dos ônibus,
+      consolidando viagens realizadas e indicadores diários por serviço e tipo de
+      viagem para apoiar o cálculo, a conferência e a transparência dos pagamentos.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -150,7 +159,10 @@ exposures:
   - name: PAINEL_OPERACAO_ONIBUS
     type: dashboard
     description: >
-      OPERAÇÃO DOS ÔNIBUS
+      Painel com a finalidade de monitorar a operação dos ônibus, reunindo
+      planejamento, viagens realizadas, indicadores de subsídio por faixa horária
+      e cadastro de veículos, de forma a apoiar a gestão cotidiana da frota e dos
+      serviços.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -184,7 +196,9 @@ exposures:
   - name: PAINEL_BILHETAGEM_DIGITAL
     type: dashboard
     description: >
-      BILHETAGEM DIGITAL - JAÉ
+      Painel com a finalidade de acompanhar a bilhetagem digital Jaé, apresentando
+      volumes de passageiros, distribuição territorial das transações e integrações
+      entre modos, de forma a apoiar a análise da demanda e da operação tarifária.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -215,7 +229,9 @@ exposures:
   - name: PAINEL_CCT
     type: dashboard
     description: >
-      CCT - CÂMARA DE COMPENSAÇÃO TARIFÁRIA
+      Painel com a finalidade de acompanhar os lançamentos da Câmara de Compensação
+      Tarifária, permitindo a conferência dos movimentos financeiros entre consórcios
+      e modos e o apoio à gestão da compensação tarifária.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -241,7 +257,10 @@ exposures:
   - name: PAINEL_OPERACAO_MENSAL
     type: dashboard
     description: >
-      RELATÓRIO DE OPERAÇÃO MENSAL - RDO D+40
+      Painel com a finalidade de disponibilizar o Relatório de Operação Mensal
+      (RDO D+40), consolidando a operação declarada pelos consórcios com defasagem
+      de quarenta dias, de forma a apoiar o acompanhamento mensal da produção
+      e da malha de estações e terminais.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -267,7 +286,9 @@ exposures:
   - name: PAINEL_PONTOS_ONIBUS
     type: dashboard
     description: >
-      PAINEL SIGMOB - PONTOS MAPEADOS
+      Painel com a finalidade de visualizar os pontos de ônibus mapeados no SIGMOB,
+      incluindo detalhes cadastrais e o histórico de vistorias, de forma a apoiar
+      a gestão da infraestrutura de paradas.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -293,7 +314,9 @@ exposures:
   - name: PAINEL_MATRIZ_OD
     type: dashboard
     description: >
-      MATRIZ OD (ORIGEM-DESTINO)
+      Painel com a finalidade de analisar a matriz origem-destino de deslocamentos
+      no município, representando fluxos entre áreas geográficas para subsidiar
+      estudos de demanda e o planejamento da rede de transporte.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -319,7 +342,9 @@ exposures:
   - name: PAINEL_CADASTRO_STU
     type: dashboard
     description: >
-      CADASTRO STU
+      Painel com a finalidade de consultar o cadastro de veículos no Sistema de
+      Transporte Urbano, reunindo licenciamentos e solicitações válidas em
+      andamento para ingresso no sistema, de forma a apoiar a gestão da frota.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -345,7 +370,9 @@ exposures:
   - name: PAINEL_CUSTOS_GOOGLE_CLOUD
     type: dashboard
     description: >
-      PAINEL DE CUSTOS - GOOGLE CLOUD
+      Painel com a finalidade de acompanhar os custos da Google Cloud, consolidando
+      faturamento, catálogo de preços e execução de jobs no BigQuery, de forma a
+      apoiar o controle orçamentário da infraestrutura.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -372,7 +399,9 @@ exposures:
   - name: PAINEL_GPS_VAN
     type: dashboard
     description: >
-      GPS DAS VANS
+      Painel com a finalidade de monitorar a posição das vans a partir do GPS dos
+      validadores Jaé, permitindo o acompanhamento da operação, do serviço
+      informado e do estado dos equipamentos.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -397,7 +426,9 @@ exposures:
   - name: PAINEL_SENSORES_AR_CONDICIONADO
     type: dashboard
     description: >
-      Painel de Sensores de Ar-Condicionado. Consome `view_viagem_climatizacao`.
+      Painel com a finalidade de monitorar a regularidade da climatização das
+      viagens de ônibus, apoiando a fiscalização do ar-condicionado e a análise
+      da operação da frota.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
