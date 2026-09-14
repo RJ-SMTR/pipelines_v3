@@ -421,31 +421,6 @@ exposures:
             - adriano.neto@prefeitura.rio
             - rodrigo.fcunha@prefeitura.rio
 
-  - name: PAINEL_OUVIDORIA
-    type: dashboard
-    description: >
-      PAINEL DA OUVIDORIA
-    owner:
-      name: TR/SUBTT/CMO
-      email: marcio.caldeira@prefeitura.rio
-      roles:
-        - Owner
-        - Business Data Steward
-    depends_on:
-      - source('adm_central_atendimento_1746', 'chamado')
-      - source('dados_mestres', 'logradouro')
-    config:
-      meta:
-        data_product_name: Painel da Ouvidoria
-        data_usage_frequency: null
-        business_value: null
-        data_contract: null
-        technical_data_steward:
-          email: null
-          unit: IPLANRIO/PRE/VPIA/DTDI
-          core: null
-          team: null
-
   # - name: PAINEL_RIO_ROTATIVO_DIGITAL
   #   type: dashboard
   #   description: >
