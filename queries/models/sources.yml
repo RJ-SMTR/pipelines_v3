@@ -594,3 +594,9 @@ sources:
 
     tables:
       - name: cloud_pricing_export
+
+  - name: dashboard_bilhetagem_jae
+    database: rj-smtr
+
+    tables:
+      - name: ultimo_datetime_captura_confiavel

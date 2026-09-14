@@ -198,7 +198,7 @@ exposures:
       - ref('subsidio_data_versao_efetiva')
       - source('br_rj_riodejaneiro_geo', 'h3_res9')
       - ref('servicos')
-      - ref('ultimo_datetime_captura_confiavel')
+      - source('dashboard_bilhetagem_jae', 'ultimo_datetime_captura_confiavel')
     config:
       meta:
         data_product_name: Bilhetagem Digital - Jaé
