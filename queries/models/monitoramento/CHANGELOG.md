@@ -1,10 +1,10 @@
 # Changelog - monitoramento
 
-## [2.2.15] - 2026-09-14
+## [2.2.15] - 2026-09-15
 
 ### Alterado
 
-- Altera `viagem_validacao` para aplicar, no modo monitoramento, a mesma regra de desempate de `viagem_completa`: desempate por tipo de trajeto em `filtro_partida` e `filtro_chegada` e exclusão de viagens concorrentes sobrepostas do mesmo veículo, apenas entre viagens válidas e sem usar o dia seguinte à janela de saída(https://github.com/RJ-SMTR/pipelines_v3/pull/673)
+- Altera `viagem_validacao` no modo monitoramento (`treatment__viagem_inferida`) para aplicar o desempate de `filtro_desvio`, `filtro_partida` e `filtro_chegada` (índice, distância e tipo de trajeto) e exclusão de viagens concorrentes sobrepostas do mesmo veículo. Só entram na disputa viagens com `indicador_viagem_valida` e match no planejado (`indicador_trajeto_alternativo` não nulo); inválidas e sem match permanecem na saída.(https://github.com/RJ-SMTR/pipelines_v3/pull/673)
 
 ## [2.2.14] - 2026-09-10
 

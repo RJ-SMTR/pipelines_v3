@@ -496,11 +496,20 @@ with
     ),
     -- fmt: on
     /*
+    Só viagens válidas com match no planejado entram no pareamento.
+    Inválidas e sem OS/shape/faixa não disputam slot.
+    */
+    viagens_em_disputa as (
+        select *
+        from viagens
+        where indicador_viagem_valida and indicador_trajeto_alternativo is not null
+    ),
+    /*
     Filtra viagens duplicadas considerando melhor índice de validação e maior distância
     */
     filtro_desvio as (
         select *
-        from viagens
+        from viagens_em_disputa
         qualify
             row_number() over (
                 partition by
@@ -509,7 +518,7 @@ with
                     datetime_chegada_considerada
                 order by
                     indice_validacao desc,
-                    ifnull(indicador_trajeto_alternativo, true),
+                    indicador_trajeto_alternativo,
                     distancia_planejada desc
             )
             = 1
@@ -523,9 +532,7 @@ with
         qualify
             row_number() over (
                 partition by id_veiculo, datetime_partida_considerada
-                order by
-                    distancia_planejada desc,
-                    ifnull(indicador_trajeto_alternativo, true)
+                order by distancia_planejada desc, indicador_trajeto_alternativo
             )
             = 1
     ),
@@ -538,16 +545,14 @@ with
         qualify
             row_number() over (
                 partition by id_veiculo, datetime_chegada_considerada
-                order by
-                    distancia_planejada desc,
-                    ifnull(indicador_trajeto_alternativo, true)
+                order by distancia_planejada desc, indicador_trajeto_alternativo
             )
             = 1
     ),
     /*
-    Identifica viagens válidas sobrepostas do mesmo veículo e marca as que perdem
-    o desempate. Inválidas não entram na disputa. O dia seguinte à janela de
-    saída não entra como concorrente (evita buraco na virada do dia).
+    Identifica viagens sobrepostas do mesmo veículo e marca as que perdem o desempate.
+    Sem isso, partida/chegada iguais não cobrem intervalos cruzados.
+    O dia seguinte à janela de saída não entra como concorrente.
     */
     viagens_concorrentes as (
         select
@@ -556,40 +561,30 @@ with
                 -- Regra 1: Se a viagem concorrente for data mais recente, perde.
                 v1.data > v2.data
                 -- Regra 2: Perde se a concorrente tiver melhor indice_validacao
-                or (
-                    v1.data <= v2.data
-                    and ifnull(v1.indice_validacao, -1)
-                    < ifnull(v2.indice_validacao, -1)
-                )
+                or (v1.data <= v2.data and v1.indice_validacao < v2.indice_validacao)
                 -- Regra 3: Desempate pela Distância (maior distância ganha)
                 or (
                     v1.data <= v2.data
-                    and ifnull(v1.indice_validacao, -1)
-                    = ifnull(v2.indice_validacao, -1)
-                    and ifnull(v1.distancia_planejada, -1)
-                    < ifnull(v2.distancia_planejada, -1)
+                    and v1.indice_validacao = v2.indice_validacao
+                    and v1.distancia_planejada < v2.distancia_planejada
                 )
                 -- Regra 4: Desempate pelo Tipo de Trajeto (false = principal,
                 -- logo menor ganha)
                 or (
                     v1.data <= v2.data
-                    and ifnull(v1.indice_validacao, -1)
-                    = ifnull(v2.indice_validacao, -1)
-                    and ifnull(v1.distancia_planejada, -1)
-                    = ifnull(v2.distancia_planejada, -1)
-                    and ifnull(v1.indicador_trajeto_alternativo, true)
-                    > ifnull(v2.indicador_trajeto_alternativo, true)
+                    and v1.indice_validacao = v2.indice_validacao
+                    and v1.distancia_planejada = v2.distancia_planejada
+                    and v1.indicador_trajeto_alternativo
+                    > v2.indicador_trajeto_alternativo
                 )
                 -- Regra 5: Desempate técnico final para evitar que ambas sejam nulas
                 -- em caso idêntico
                 or (
                     v1.data <= v2.data
-                    and ifnull(v1.indice_validacao, -1)
-                    = ifnull(v2.indice_validacao, -1)
-                    and ifnull(v1.indicador_trajeto_alternativo, true)
-                    = ifnull(v2.indicador_trajeto_alternativo, true)
-                    and ifnull(v1.distancia_planejada, -1)
-                    = ifnull(v2.distancia_planejada, -1)
+                    and v1.indice_validacao = v2.indice_validacao
+                    and v1.indicador_trajeto_alternativo
+                    = v2.indicador_trajeto_alternativo
+                    and v1.distancia_planejada = v2.distancia_planejada
                     and v1.id_viagem > v2.id_viagem
                 )
             ) as indicador_exclusao_concorrente
@@ -598,8 +593,6 @@ with
             filtro_chegada v2
             on v1.id_veiculo = v2.id_veiculo
             and v1.id_viagem != v2.id_viagem
-            and v1.indicador_viagem_valida
-            and v2.indicador_viagem_valida
             -- Não usa o dia seguinte à janela (D+1 só entra como contexto de GPS)
             and v2.data <= date('{{ var("date_range_end") }}')
             -- Lógica central de Sobreposição no Tempo:
@@ -612,6 +605,25 @@ with
         from filtro_chegada as v
         left join viagens_concorrentes as vc using (id_viagem)
         where coalesce(vc.indicador_exclusao_concorrente, false) = false
+    ),
+    /*
+    Inválidas e sem match no planejado não entram no pareamento e seguem na saída
+    */
+    viagens_fora_disputa as (
+        select *
+        from viagens
+        where
+            not ifnull(indicador_viagem_valida, false)
+            or indicador_trajeto_alternativo is null
+    ),
+    viagens_monitoramento as (
+        select *
+        from filtro_concorrentes
+
+        union all
+
+        select *
+        from viagens_fora_disputa
     )
 select
     data,
@@ -659,7 +671,7 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
-{% if var("tipo_materializacao") == "monitoramento" %} from filtro_concorrentes
+{% if var("tipo_materializacao") == "monitoramento" %} from viagens_monitoramento
 {% else %} from viagem_completa
 {% endif %}
 where {{ output_filter }}
