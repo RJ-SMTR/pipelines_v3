@@ -4,7 +4,8 @@
 
 ### Adicionado
 
-- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor e prazo de envio no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor, prazo de envio e data limite no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona exceções de prazo de envio das viagens informadas das quinzenas 15 a 31/08/2026 (limite 06/09/2026, Ofício SMTR nº 8656/2026, processo 000301.015075/2026-48) e 01 a 15/09/2026 (limite 21/09/2026, Ofício SMTR nº 9523/2026, processo 000301.015961/2026-71) (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
 
 ## [2.2.12] - 2026-09-02
 

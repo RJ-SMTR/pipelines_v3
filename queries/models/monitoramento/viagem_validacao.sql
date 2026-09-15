@@ -228,8 +228,12 @@ with
                                 c.data between e.data_inicio and e.data_fim
                                 and (e.fonte_gps is null or e.fonte_gps = c.fonte_gps)
                                 and c.datetime_processamento is not null
-                                and date(c.datetime_processamento)
-                                <= date_add(c.data, interval e.prazo_envio_dias day)
+                                and (
+                                    date(c.datetime_processamento)
+                                    <= e.data_limite_envio
+                                    or date(c.datetime_processamento)
+                                    <= date_add(c.data, interval e.prazo_envio_dias day)
+                                )
                         )
                     {% endif %}
                 ),
