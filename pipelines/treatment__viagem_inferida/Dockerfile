@@ -16,6 +16,16 @@ COPY ./pipelines/treatment__gps_maxtrack ./pipelines/treatment__gps_maxtrack/
 
 COPY ./pipelines/treatment__gps_zirix ./pipelines/treatment__gps_zirix/
 
+COPY ./pipelines/treatment__gps_cittati ./pipelines/treatment__gps_cittati/
+
+COPY ./pipelines/treatment__gps_sonda ./pipelines/treatment__gps_sonda/
+
+COPY ./pipelines/treatment__gps_validador ./pipelines/treatment__gps_validador/
+
+COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
+
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/capture__conecta_registros ./pipelines/capture__conecta_registros/
 
 COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realocacao/
@@ -25,6 +35,16 @@ COPY ./pipelines/capture__maxtrack_registros ./pipelines/capture__maxtrack_regis
 COPY ./pipelines/capture__zirix_registros ./pipelines/capture__zirix_registros/
 
 COPY ./pipelines/capture__zirix_realocacao ./pipelines/capture__zirix_realocacao/
+
+COPY ./pipelines/capture__cittati_registros ./pipelines/capture__cittati_registros/
+
+COPY ./pipelines/capture__cittati_realocacao ./pipelines/capture__cittati_realocacao/
+
+COPY ./pipelines/capture__sonda_registros ./pipelines/capture__sonda_registros/
+
+COPY ./pipelines/capture__jae_gps_validador ./pipelines/capture__jae_gps_validador/
+
+COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
 
 COPY ./pipelines/common/ ./pipelines/common/
 

@@ -28,30 +28,14 @@
 with
     gps as (
         select
-            g.* except (longitude, latitude, servico),
-            servico,
-            st_geogpoint(longitude, latitude) as geo_point_gps,
+            g.* except (longitude, latitude),
+            st_geogpoint(g.longitude, g.latitude) as geo_point_gps,
             case
                 when extract(hour from datetime_gps) < 3
                 then date_sub(extract(date from datetime_gps), interval 1 day)
                 else extract(date from datetime_gps)
             end as data_operacao
-        from {{ ref("view_gps_onibus") }} g
-        where
-            data between date('{{ var("date_range_start") }}') and date_add(
-                date('{{ var("date_range_end") }}'), interval 1 day
-            )
-            and datetime_gps
-            between datetime_trunc(
-                date('{{ var("date_range_start") }}'),
-                day
-            ) and datetime_add(
-                datetime_trunc(
-                    date_add(date('{{ var("date_range_end") }}'), interval 1 day), day
-                ),
-                interval 3 hour
-            )
-            and status != "Parado garagem"
+        from {{ ref("aux_gps_viagem_inferida") }} g
     ),
     -- 2. Busca os shapes em formato geográfico
     shapes as (
