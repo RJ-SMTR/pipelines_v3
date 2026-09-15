@@ -8,7 +8,7 @@ operadoras ainda não enviaram a viagem informada (prazo de 5 dias).
 
 Schedule:
 - A cada 3 horas (horário de São Paulo)
-- Depende de dados do Planejamento Diário e do GPS (Conecta, Cittati, Maxtrack, Zirix, Sonda e Jaé)
+- Depende de dados do Planejamento Diário e do GPS (Conecta, Maxtrack, Zirix, Sonda e Jaé)
 
 DBT: 2026-07-29
 """

@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona Cittati, Sonda e GPS do validador Jaé aos `data_sources` do flow `treatment__viagem_inferida`.(https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Adiciona Sonda e GPS do validador Jaé aos `data_sources` do flow `treatment__viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
 
 ## [1.2.0] - 2026-08-28
 
