@@ -11,7 +11,7 @@
 with
     viagens as (  -- Viagens realizadas no período de apuração
         select
-            {% if var("sistema") == "rio" %}
+        {% if var("sistema") == "rio" %}
                 vv.data,
                 vv.servico,
                 vv.datetime_partida,
@@ -24,17 +24,26 @@ with
                 cast(null as string) as tipo_viagem,
                 ve.indicadores,
                 safe_cast(
-                    json_value(ve.indicadores, '$.indicador_ar_condicionado.valor') as bool
+                    json_value(
+                        ve.indicadores, '$.indicador_ar_condicionado.valor'
+                    ) as bool
                 ) as indicador_ar_condicionado,
                 vv.distancia_planejada,
                 ve.tecnologia as tecnologia_apurada,
                 cast(null as string) as tecnologia_remunerada,
                 vv.sentido,
                 vv.modo
-                from {{ ref("viagem_valida") }} as vv
-                left join {{ ref("aux_veiculo_dia_consolidada") }} as ve
-                    on vv.data = ve.data and vv.id_veiculo = ve.id_veiculo
-            {% else %}
+            from {{ ref("viagem_valida") }} as vv
+            left join
+                {{ ref("aux_veiculo_dia_consolidada") }} as ve
+                on vv.data = ve.data
+                and vv.id_veiculo = ve.id_veiculo
+            where
+                vv.data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+                and vv.data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+        {% else %}
                 data,
                 servico,
                 datetime_partida,
@@ -54,9 +63,9 @@ with
                 tecnologia_remunerada,
                 sentido,
                 modo
-                from {{ ref("viagem_classificada") }}
-            {% endif %}
+            from {{ ref("viagem_classificada") }}
             where {{ partition_filter }}
+        {% endif %}
     ),
     endereco_manutencao_validador as (  -- Geometria correspondente ao endereço de manutenção dos validadores conforme Ofício nº 165/2025/CBD
         select
@@ -629,4 +638,5 @@ with
             ) as indicadores_str
         from dados_novos
     )
-select * from indicadores_concatenados
+select *
+from indicadores_concatenados

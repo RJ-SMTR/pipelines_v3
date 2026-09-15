@@ -4,6 +4,16 @@
     data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}") and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset %}
 
+{#
+  SPPO: lê aux_viagem_temperatura (tabela do monitoramento) para a apuração
+  não inline eph_viagem_temperatura.
+  RIO: não há aux persistido; o flow passa sistema=rio.
+#}
+{% if var("sistema") == "rio" %}
+    {% set indicadores_expr = "parse_json(indicadores_str)" %}
+{% else %} {% set indicadores_expr = "indicadores" %}
+{% endif %}
+
 {% set condicao_veiculo %}
 (
     (
@@ -20,120 +30,117 @@
 )
 {% endset %}
 
-WITH
-viagem_temperatura AS (
-  SELECT
-    data,
-    id_viagem,
-    id_veiculo,
-    datetime_partida,
-    datetime_chegada,
-    modo,
-    ano_fabricacao,
-    tecnologia_apurada,
-    tecnologia_remunerada,
-    tipo_viagem,
-    servico,
-    sentido,
-    distancia_planejada,
-    parse_json(indicadores_str) AS indicadores,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_variacao_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_variacao_viagem,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_transmitida_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_transmitida_viagem,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_pos_tratamento_descartada_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_pos_tratamento_descartada_viagem,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_zero_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_zero_viagem,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_nula_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_nula_viagem,
-    safe_cast(
-      json_value(
-        parse_json(indicadores_str),
-        '$.indicador_temperatura_regular_viagem.valor'
-      ) AS bool
-    ) AS indicador_temperatura_regular_viagem
-  FROM {{ ref("eph_viagem_temperatura") }}
-  WHERE {{ incremental_filter }}
-),
-
-veiculo_regularidade AS (
-  SELECT
-    data,
-    id_veiculo,
-    indicadores.indicador_falha_recorrente.valor AS indicador_falha_recorrente,
-    indicadores.indicador_falha_recorrente.data_verificacao_falha
-      AS data_verificacao_falha
-  FROM {{ ref("veiculo_regularidade_temperatura_dia") }}
-  WHERE {{ incremental_filter }}
-)
-
-SELECT
-  vt.data,
-  vt.id_viagem,
-  vt.id_veiculo,
-  vt.datetime_partida,
-  vt.datetime_chegada,
-  vt.modo,
-  vt.ano_fabricacao,
-  vt.tecnologia_apurada,
-  vt.tecnologia_remunerada,
-  vt.tipo_viagem,
-  {{ condicao_veiculo }}
-  AND (
-    (
-      vt.data >= date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
-      AND coalesce(vr.indicador_falha_recorrente, false)
+with
+    viagem_temperatura as (
+        select
+            data,
+            id_viagem,
+            id_veiculo,
+            datetime_partida,
+            datetime_chegada,
+            modo,
+            ano_fabricacao,
+            tecnologia_apurada,
+            tecnologia_remunerada,
+            tipo_viagem,
+            servico,
+            sentido,
+            distancia_planejada,
+            {{ indicadores_expr }} as indicadores,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }},
+                    '$.indicador_temperatura_variacao_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_variacao_viagem,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }},
+                    '$.indicador_temperatura_transmitida_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_transmitida_viagem,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }},
+                    '$.indicador_temperatura_pos_tratamento_descartada_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_pos_tratamento_descartada_viagem,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }}, '$.indicador_temperatura_zero_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_zero_viagem,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }}, '$.indicador_temperatura_nula_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_nula_viagem,
+            safe_cast(
+                json_value(
+                    {{ indicadores_expr }},
+                    '$.indicador_temperatura_regular_viagem.valor'
+                ) as bool
+            ) as indicador_temperatura_regular_viagem
+        {% if var("sistema") == "rio" %} from {{ ref("eph_viagem_temperatura") }}
+        {% else %} from {{ ref("aux_viagem_temperatura") }}
+        {% endif %}
+        where {{ incremental_filter }}
+    ),
+    veiculo_regularidade as (
+        select
+            data,
+            id_veiculo,
+            indicadores.indicador_falha_recorrente.valor as indicador_falha_recorrente,
+            indicadores.indicador_falha_recorrente.data_verificacao_falha
+            as data_verificacao_falha
+        from {{ ref("veiculo_regularidade_temperatura_dia") }}
+        where {{ incremental_filter }}
     )
-    OR vt.indicador_temperatura_zero_viagem
-    OR NOT vt.indicador_temperatura_transmitida_viagem
-    OR NOT vt.indicador_temperatura_regular_viagem
-  ) AS indicador_detectado_ar_inoperante,
-  CASE
-    WHEN {{ condicao_veiculo }}
-      THEN
+select
+    vt.data,
+    vt.id_viagem,
+    vt.id_veiculo,
+    vt.datetime_partida,
+    vt.datetime_chegada,
+    vt.modo,
+    vt.ano_fabricacao,
+    vt.tecnologia_apurada,
+    vt.tecnologia_remunerada,
+    vt.tipo_viagem,
+    {{ condicao_veiculo }}
+    and (
         (
-          (
-            vt.data < date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
-            OR (
-              vt.data >= date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
-              AND NOT coalesce(vr.indicador_falha_recorrente, false)
-            )
-          )
-          AND NOT vt.indicador_temperatura_zero_viagem
-          AND vt.indicador_temperatura_transmitida_viagem
-          AND vt.indicador_temperatura_regular_viagem
+            vt.data >= date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
+            and coalesce(vr.indicador_falha_recorrente, false)
         )
-    WHEN vt.indicador_temperatura_nula_viagem = true
-      THEN true
-  END AS indicador_regularidade_ar_condicionado_viagem,
-  vr.indicador_falha_recorrente,
-  vr.data_verificacao_falha,
-  vt.indicadores,
-  vt.servico,
-  vt.sentido,
-  vt.distancia_planejada
-FROM viagem_temperatura AS vt
-LEFT JOIN
-  veiculo_regularidade AS vr
-  ON vt.data = vr.data AND vt.id_veiculo = vr.id_veiculo
+        or vt.indicador_temperatura_zero_viagem
+        or not vt.indicador_temperatura_transmitida_viagem
+        or not vt.indicador_temperatura_regular_viagem
+    ) as indicador_detectado_ar_inoperante,
+    case
+        when {{ condicao_veiculo }}
+        then
+            (
+                (
+                    vt.data < date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
+                    or (
+                        vt.data >= date('{{ var("DATA_SUBSIDIO_V20_INICIO") }}')
+                        and not coalesce(vr.indicador_falha_recorrente, false)
+                    )
+                )
+                and not vt.indicador_temperatura_zero_viagem
+                and vt.indicador_temperatura_transmitida_viagem
+                and vt.indicador_temperatura_regular_viagem
+            )
+        when vt.indicador_temperatura_nula_viagem = true
+        then true
+    end as indicador_regularidade_ar_condicionado_viagem,
+    vr.indicador_falha_recorrente,
+    vr.data_verificacao_falha,
+    vt.indicadores,
+    vt.servico,
+    vt.sentido,
+    vt.distancia_planejada
+from viagem_temperatura as vt
+left join
+    veiculo_regularidade as vr on vt.data = vr.data and vt.id_veiculo = vr.id_veiculo

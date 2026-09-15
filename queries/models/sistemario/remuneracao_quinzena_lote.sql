@@ -1,6 +1,7 @@
 {{
     config(
         materialized="table",
+        enabled=false,
         tags=["remuneracao", "openfisca", "wip"],
     )
 }}

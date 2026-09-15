@@ -1,6 +1,7 @@
 {{
     config(
         materialized="table",
+        enabled=false,
         tags=["remuneracao", "openfisca", "wip"],
     )
 }}
@@ -8,15 +9,16 @@
 {#
   FCF tipológico por lote × quinzena (Anexo I.8 item 4).
   Frota operante observada a tipología: distinct veículos completa+pico
-  por tecnologia_fcf; denominador = operacao_lote_tecnologia.
+  por tecnologia_fcf.
+
+  Desligado (`enabled=false`): denominador I.2 (operacao_lote*) saiu com
+  as seeds. Reativar quando houver frota/QR planejada (GTFS ou I.2).
 
   tecnologia_fcf = coalesce(apurada, mínima) — eco de
   viagem_classificacao_validacao / viagens_apuradas.
   fcf = min(1, Σ min(media_operante_tech, estimada_tech) / Σ estimada_tech)
 
   Quinzena: 1 = dias 1–15; 2 = dias 16–fim.
-  I.2 (frota/QR/km_referencia) via operacao_lote na data de referência
-  da quinzena — mesmo padrão de operacao_lote_tecnologia.
 #}
 with
     viagens as (
@@ -92,16 +94,11 @@ with
             lq.mes,
             lq.quinzena,
             lq.lote,
-            op.frota_estimada as lote_frota_estimada,
-            op.frota_determinada as lote_frota_determinada,
-            op.qr_mensal as lote_qr_mensal,
-            op.km_referencia as lote_km_referencia
+            cast(null as float64) as lote_frota_estimada,
+            cast(null as float64) as lote_frota_determinada,
+            cast(null as float64) as lote_qr_mensal,
+            cast(null as float64) as lote_km_referencia
         from lote_quinzena lq
-        left join
-            {{ ref("operacao_lote") }} as op
-            on op.lote = lq.lote
-            and (op.data_inicio is null or lq.data_ref_quinzena >= op.data_inicio)
-            and (op.data_fim is null or lq.data_ref_quinzena <= op.data_fim)
     ),
     estimada_tech as (
         select
@@ -109,15 +106,11 @@ with
             lq.mes,
             lq.quinzena,
             lq.lote,
-            lower(olt.tipo_veiculo) as tecnologia_fcf,
-            cast(olt.frota_estimada as float64) as frota_estimada_tech,
-            cast(olt.frota_determinada as float64) as frota_determinada_tech
+            cast(null as string) as tecnologia_fcf,
+            cast(null as float64) as frota_estimada_tech,
+            cast(null as float64) as frota_determinada_tech
         from lote_quinzena lq
-        inner join
-            {{ ref("operacao_lote_tecnologia") }} as olt
-            on olt.lote = lq.lote
-            and (olt.data_inicio is null or lq.data_ref_quinzena >= olt.data_inicio)
-            and (olt.data_fim is null or lq.data_ref_quinzena <= olt.data_fim)
+        where false
     ),
     tipologico as (
         select

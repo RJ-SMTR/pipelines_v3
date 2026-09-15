@@ -49,7 +49,7 @@ vars:
 
   ### Espinha dos efêmeros de classificação (temperatura / bilhetagem).
   ### Default SPPO; o flow treatment__remuneracao_openfisca passa sistema=rio.
-  sistema: "sppo"
+  sistema: "rio"
 
   ### GPS ###
   brt_terminais: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
