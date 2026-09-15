@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.8.9] - 2026-09-10
+
+### Alterado
+
+- Substitui os testes genéricos de nulidade das tecnologias permitidas por um teste singular que valida as colunas `maior_tecnologia_permitida` e `menor_tecnologia_permitida` ([PR #638](https://github.com/RJ-SMTR/pipelines_v3/pull/638), [commit 5a1ca494](https://github.com/RJ-SMTR/pipelines_v3/commit/5a1ca494)).
+
 ## [1.8.8] - 2026-08-28
 
 ### Alterado

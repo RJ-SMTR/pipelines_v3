@@ -10,9 +10,15 @@ COPY ./pipelines/treatment__viagem_validacao ./pipelines/treatment__viagem_valid
 
 COPY ./pipelines/treatment__viagem_informada ./pipelines/treatment__viagem_informada/
 
+COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
+
+COPY ./pipelines/capture__maxtrack_registros ./pipelines/capture__maxtrack_registros/
+
 COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
 
 COPY ./pipelines/treatment__gps_conecta ./pipelines/treatment__gps_conecta/
+
+COPY ./pipelines/treatment__gps_maxtrack ./pipelines/treatment__gps_maxtrack/
 
 # COPY ./pipelines/treatment__gps_cittati ./pipelines/treatment__gps_cittati/
 
