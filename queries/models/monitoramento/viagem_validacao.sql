@@ -143,13 +143,12 @@ with
             any_value(gsv.feed_start_date) as feed_start_date,
             any_value(gsv.datetime_processamento) as datetime_processamento,
             any_value(gsv.datetime_captura_viagem) as datetime_captura_viagem
-        {% if var("tipo_materializacao") != "monitoramento" %}
+            {% if var("tipo_materializacao") != "monitoramento" %}
                 ,
-                any_value(vi.fonte_gps) as fonte_gps,
-            from {{ ref("gps_segmento_viagem") }} as gsv
-            left join {{ viagem_informada }} as vi using (data, id_viagem)
-        {% else %} from {{ ref("gps_segmento_viagem") }} as gsv
-        {% endif %}
+                any_value(gsv.fonte_gps) as fonte_gps,
+                any_value(gsv.fonte_viagem) as fonte_viagem
+            {% endif %}
+        from {{ ref("gps_segmento_viagem") }} as gsv
         where
             (
                 not gsv.indicador_segmento_desconsiderado
@@ -244,6 +243,9 @@ with
             feed_start_date,
             datetime_processamento,
             datetime_captura_viagem
+            {% if var("tipo_materializacao") != "monitoramento" %}
+                , fonte_viagem
+            {% endif %}
         from contagem as c
     ),
     /*
@@ -356,8 +358,21 @@ with
     servicos_planejados_os as (
         select
             spg.*,
-            ss.sistema,
             ss.consorcio,
+            {% if var("tipo_materializacao") != "monitoramento" %}
+                coalesce(
+                    case
+                        when spg.fonte_viagem = "rioonibus"
+                        then "RIO"
+                        when spg.fonte_viagem = "maxtrack"
+                        then "SPPO"
+                        when spg.fonte_viagem = "mobirio"
+                        then "BRT"
+                    end,
+                    ss.sistema
+                ) as sistema,
+            {% else %} ss.sistema,
+            {% endif %}
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
