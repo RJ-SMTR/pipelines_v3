@@ -360,17 +360,15 @@ with
             spg.*,
             ss.consorcio,
             {% if var("tipo_materializacao") != "monitoramento" %}
-                coalesce(
-                    case
-                        when spg.fonte_viagem = "rioonibus"
-                        then "RIO"
-                        when spg.fonte_viagem = "maxtrack"
-                        then "SPPO"
-                        when spg.fonte_viagem = "mobirio"
-                        then "BRT"
-                    end,
-                    ss.sistema
-                ) as sistema,
+                case
+                    when spg.fonte_viagem = "rioonibus"
+                    then "SPPO"
+                    when spg.fonte_viagem = "maxtrack"
+                    then "RIO"
+                    when spg.fonte_viagem = "mobirio"
+                    then cast(null as string)
+                    else ss.sistema
+                end as sistema,
             {% else %} ss.sistema,
             {% endif %}
             spu.extensao as distancia_planejada,
