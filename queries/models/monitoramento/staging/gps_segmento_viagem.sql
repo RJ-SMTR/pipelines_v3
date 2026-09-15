@@ -279,11 +279,15 @@ with
             c.feed_version,
         {% if var("tipo_materializacao") == "monitoramento" %}
                 cast(null as datetime) as datetime_processamento,
-                v.datetime_ultima_atualizacao as datetime_captura_viagem
+                v.datetime_ultima_atualizacao as datetime_captura_viagem,
+                cast(null as string) as fonte_viagem,
+                cast(null as string) as fonte_gps
             from {{ ref("viagem_inferida") }} v
         {% else %}
                 v.datetime_processamento,
-                v.datetime_captura as datetime_captura_viagem
+                v.datetime_captura as datetime_captura_viagem,
+                v.fonte_viagem,
+                v.fonte_gps
             from {{ ref("viagem_informada_monitoramento") }} v
         {% endif %}
         join calendario c using (data)
@@ -389,7 +393,9 @@ with
             v.feed_version,
             v.feed_start_date,
             v.datetime_processamento,
-            v.datetime_captura_viagem
+            v.datetime_captura_viagem,
+            v.fonte_viagem,
+            v.fonte_gps
         from viagem v
         left join
             segmento s
@@ -487,6 +493,8 @@ select
     v.tipo_dia,
     v.datetime_processamento,
     v.datetime_captura_viagem,
+    v.fonte_viagem,
+    v.fonte_gps,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from segmento_com_datetime v

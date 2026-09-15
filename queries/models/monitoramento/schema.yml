@@ -166,6 +166,9 @@ models:
       - name: fonte_gps
         description: Fornecedor de dados de GPS a ser considerado para validar a viagem
         data_type: string
+      - name: fonte_viagem
+        description: "{{ doc('fonte_viagem') }}"
+        data_type: string
       - name: datetime_captura
         description: Data e hora da captura da integração [GMT-3]
         data_type: datetime
@@ -410,6 +413,12 @@ models:
       - name: datetime_captura_viagem
         description: "Data e hora da captura da viagem"
         data_type: datetime
+      - name: fonte_viagem
+        description: "{{ doc('fonte_viagem') }}"
+        data_type: string
+      - name: fonte_gps
+        description: "{{ doc('fonte_gps') }}"
+        data_type: string
       - name: versao
         description: "{{ doc('versao') }}"
         data_type: string

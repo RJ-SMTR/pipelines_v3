@@ -45,7 +45,8 @@ with
             shape_id,
             servico,
             sentido,
-            fonte_gps
+            fonte_gps,
+            fonte_viagem
         from {{ ref("viagem_informada_monitoramento") }}
         {# from `rj-smtr.monitoramento.viagem_informada` #}
         where {{ incremental_filter }}
@@ -101,6 +102,7 @@ select
     v.route_id,
     v.shape_id,
     v.fonte_gps,
+    v.fonte_viagem,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from gps_union g
