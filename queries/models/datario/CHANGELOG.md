@@ -1,5 +1,11 @@
 # Changelog - datario
 
+## [1.0.5] - 2026-09-02
+
+### Alterado
+
+- Ajusta `view_viagem_onibus_datario` para expor os campos necessários aos painéis, mantendo `servico`, `vista` e `tempo_viagem`, adicionando `sistema`, `route_id` e `trip_id`, e seguindo a ordem de colunas de `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+
 ## [1.0.4] - 2026-07-27
 
 ### Alterado
