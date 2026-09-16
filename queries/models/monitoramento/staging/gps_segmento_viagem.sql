@@ -84,8 +84,9 @@ with
             gv.datetime_gps,
             gv.datetime_partida,
             gv.datetime_chegada,
+            gv.fonte_gps
             c.feed_version,
-            c.feed_start_date
+            c.feed_start_date,
         {% if var("tipo_materializacao") == "monitoramento" %}
             from {{ ref("registros_status_viagem_inferida") }} gv
         {% else %} from {{ ref("gps_viagem") }} gv
@@ -150,7 +151,7 @@ with
         select
             id_viagem,
             ifnull(
-                logical_and(servico_viagem = servico_gps), true
+                logical_and(servico_viagem = servico_gps or fonte_gps = 'jae'), true
             ) as indicador_servico_convergente
         from gps_viagem
         group by 1

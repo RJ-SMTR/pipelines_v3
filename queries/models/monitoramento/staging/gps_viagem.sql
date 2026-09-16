@@ -74,6 +74,28 @@ with
         from {{ ref("view_gps_brt_completo") }}
         where {{ incremental_filter }}
     ),
+    gps_jae as (
+        select
+            data,
+            datetime_gps,
+            servico_jae as servico,
+            case
+                when id_operadora = '2801'
+                then 'A2-' || right(id_veiculo, 3)
+                when id_operadora = '2802'
+                then 'B2-' || right(id_veiculo, 3)
+                else null
+            end as id_veiculo,
+            latitude,
+            longitude,
+            'jae' as fornecedor
+        from {{ ref("gps_validador") }}
+        where {{ incremental_filter }} and id_operadora in ('2801', '2802')
+    /*
+            2801 - GTU (A2)
+            2802 - TUSE (B2)
+        */
+    ),
     gps_union as (
         select *
         from gps_onibus
@@ -82,6 +104,11 @@ with
 
         select *
         from gps_brt
+
+        union all
+
+        select *
+        from gps_jae
     )
 select
     v.data,
@@ -108,7 +135,10 @@ join
     viagem v
     on g.datetime_gps between v.datetime_partida and v.datetime_chegada
     and g.id_veiculo = v.id_veiculo
-    and g.fornecedor = v.fonte_gps
+    and (
+        g.fornecedor = v.fonte_gps
+        or (g.fornecedor = 'jae' and v.fonte_gps = 'maxtrack')
+    )
 {% if not is_incremental() %}
     where v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}
