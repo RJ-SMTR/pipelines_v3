@@ -96,7 +96,10 @@ with
                         from {{ ref("aux_viagem_validacao_excecao") }} as e
                         where
                             vi.data between e.data_inicio and e.data_fim
-                            and (e.fonte_gps is null or e.fonte_gps = vi.fonte_gps)
+                            and (
+                                e.fonte_viagem is null
+                                or e.fonte_viagem = vi.fonte_viagem
+                            )
                     )
                 )
         ),
@@ -142,12 +145,9 @@ with
             any_value(gsv.tipo_dia) as tipo_dia,
             any_value(gsv.feed_start_date) as feed_start_date,
             any_value(gsv.datetime_processamento) as datetime_processamento,
-            any_value(gsv.datetime_captura_viagem) as datetime_captura_viagem
-            {% if var("tipo_materializacao") != "monitoramento" %}
-                ,
-                any_value(gsv.fonte_gps) as fonte_gps,
-                any_value(gsv.fonte_viagem) as fonte_viagem
-            {% endif %}
+            any_value(gsv.datetime_captura_viagem) as datetime_captura_viagem,
+            any_value(gsv.fonte_gps) as fonte_gps,
+            any_value(gsv.fonte_viagem) as fonte_viagem
         from {{ ref("gps_segmento_viagem") }} as gsv
         where
             (
@@ -225,14 +225,13 @@ with
                             from {{ ref("aux_viagem_validacao_excecao") }} e
                             where
                                 c.data between e.data_inicio and e.data_fim
-                                and (e.fonte_gps is null or e.fonte_gps = c.fonte_gps)
-                                and c.datetime_processamento is not null
                                 and (
-                                    date(c.datetime_processamento)
-                                    <= e.data_limite_envio
-                                    or date(c.datetime_processamento)
-                                    <= date_add(c.data, interval e.prazo_envio_dias day)
+                                    e.fonte_viagem is null
+                                    or e.fonte_viagem = c.fonte_viagem
                                 )
+                                and c.datetime_processamento is not null
+                                and date(c.datetime_processamento)
+                                <= e.data_limite_envio
                         )
                     {% endif %}
                 ),
@@ -242,10 +241,8 @@ with
             tipo_dia,
             feed_start_date,
             datetime_processamento,
-            datetime_captura_viagem
-            {% if var("tipo_materializacao") != "monitoramento" %}
-                , fonte_viagem
-            {% endif %}
+            datetime_captura_viagem,
+            fonte_viagem
         from contagem as c
     ),
     /*
@@ -359,18 +356,15 @@ with
         select
             spg.*,
             ss.consorcio,
-            {% if var("tipo_materializacao") != "monitoramento" %}
-                case
-                    when spg.fonte_viagem = "rioonibus"
-                    then "SPPO"
-                    when spg.fonte_viagem = "maxtrack"
-                    then "RIO"
-                    when spg.fonte_viagem = "mobirio"
-                    then cast(null as string)
-                    else ss.sistema
-                end as sistema,
-            {% else %} ss.sistema,
-            {% endif %}
+            case
+                when spg.fonte_viagem = "rioonibus"
+                then "SPPO"
+                when spg.fonte_viagem = "maxtrack"
+                then "RIO"
+                when spg.fonte_viagem = "mobirio"
+                then cast(null as string)
+                else ss.sistema
+            end as sistema,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off

@@ -491,10 +491,10 @@ select
     v.feed_start_date,
     v.service_ids,
     v.tipo_dia,
+    v.fonte_gps,
+    v.fonte_viagem,
     v.datetime_processamento,
     v.datetime_captura_viagem,
-    v.fonte_viagem,
-    v.fonte_gps,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from segmento_com_datetime v
