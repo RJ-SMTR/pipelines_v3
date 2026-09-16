@@ -143,20 +143,83 @@ with
             s.extensao as distancia_planejada,
             ifnull(g.distancia, 0) as distancia,
             s.feed_start_date,
+            (
+                s.sentido = "C"
+                or {{
+                    is_shape_circular(
+                        "start_pt", "end_pt", "s.feed_start_date", "s.shape_id"
+                    )
+                }}
+            ) as indicador_circular,
             case
                 when st_dwithin(g.geo_point_gps, start_pt, {{ var("buffer") }})
-                then 'start'
+                then "start"
                 when st_dwithin(g.geo_point_gps, end_pt, {{ var("buffer") }})
-                then 'end'
+                then "end"
                 when st_dwithin(g.geo_point_gps, shape, {{ var("buffer") }})
-                then 'middle'
-                else 'out'
-            end status_viagem
+                then "middle"
+                else "out"
+            end as status_viagem
         from gps g
         inner join
             servico_planejado_shapes s
             on g.data_operacao = s.data
             and g.servico = s.servico
+    ),
+    -- 5. Marca partida (starts) e chegada (ends) pela transição com middle,
+    -- como em aux_viagem_inicio_fim.
+    aux_status as (
+        select
+            *,
+            string_agg(status_viagem, "") over (
+                partition by id_veiculo, shape_id
+                order by datetime_gps, fonte_gps
+                rows between current row and 1 following
+            )
+            = "startmiddle" as starts,
+            (
+                string_agg(status_viagem, "") over (
+                    partition by id_veiculo, shape_id
+                    order by datetime_gps, fonte_gps
+                    rows between 1 preceding and current row
+                )
+                = "middleend"
+                or (
+                    indicador_circular
+                    and string_agg(status_viagem, "") over (
+                        partition by id_veiculo, shape_id
+                        order by datetime_gps, fonte_gps
+                        rows between 1 preceding and current row
+                    )
+                    = "middlestart"
+                )
+            ) as ends
+        from status_viagem
+    ),
+    aux_inicio_fim as (
+        select
+            * except (indicador_circular, starts, ends, status_viagem),
+            case
+                when ends then "end" when starts then "start" else status_viagem
+            end as status_viagem
+        from aux_status
+        where not (starts and ends)
+
+        union all
+
+        select
+            * except (indicador_circular, starts, ends, status_viagem),
+            "end" as status_viagem
+        from aux_status
+        where starts and ends
+
+        union all
+
+        select
+            * except (indicador_circular, starts, ends, status_viagem),
+            "start" as status_viagem
+        from aux_status
+        where starts and ends
     ),
     segmentos_filtrados as (
         select
@@ -189,7 +252,7 @@ with
                 then true
                 else false
             end as indicador_intersecao_segmento,
-        from status_viagem sv
+        from aux_inicio_fim sv
         left join
             segmentos_filtrados sf
             on sv.shape_id = sf.shape_id
