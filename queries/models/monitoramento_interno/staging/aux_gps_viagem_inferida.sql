@@ -73,7 +73,19 @@ with
         select *
         from gps_brt
     ),
-    veiculos_bordo as (select distinct data, id_veiculo from gps_bordo),
+    /*
+    GPS de bordo usa prefixo (C47476); Jaé manda só a ordem (47476).
+    Mesmo padrão de aux_viagem_temperatura: substr(id_veiculo, 2).
+    As duas fontes entram: quanto mais GPS, melhor para inferir a viagem.
+    */
+    veiculos_bordo as (
+        select
+            data,
+            substr(id_veiculo, 2) as id_veiculo_join,
+            any_value(id_veiculo) as id_veiculo
+        from gps_bordo
+        group by data, id_veiculo_join
+    ),
     gps_validador_filtrado as (
         select
             data,
@@ -95,10 +107,19 @@ with
             and longitude is not null
     ),
     gps_validador as (
-        select j.*
+        select
+            j.data,
+            j.datetime_gps,
+            coalesce(b.id_veiculo, j.id_veiculo) as id_veiculo,
+            j.servico,
+            j.latitude,
+            j.longitude,
+            j.fonte_gps,
+            j.status,
+            j.distancia
         from gps_validador_filtrado as j
-        left join veiculos_bordo as b using (data, id_veiculo)
-        where b.id_veiculo is null
+        left join
+            veiculos_bordo as b on j.data = b.data and j.id_veiculo = b.id_veiculo_join
     )
 select *
 from gps_bordo
