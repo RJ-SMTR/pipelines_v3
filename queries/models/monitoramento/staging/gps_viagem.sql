@@ -95,6 +95,7 @@ with
             and id_operadora in ('2801', '2802')
             and latitude != 0
             and longitude != 0
+            and id_veiculo != '99999'
     /*
         2801 - GTU (A2)
         2802 - TUSE (B2)
