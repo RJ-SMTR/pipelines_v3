@@ -16,7 +16,7 @@ with
                         struct(
                             date("2026-08-16") as data_inicio,
                             date("2026-08-31") as data_fim,
-                            cast(null as string) as fonte_viagem,
+                            "rioonibus" as fonte_viagem,
                             date("2026-09-14") as data_limite_envio
                         ),
                         -- Ofício SMTR nº 9523/2026 (Consórcios nº 159/2026)
@@ -24,7 +24,7 @@ with
                         struct(
                             date("2026-09-01") as data_inicio,
                             date("2026-09-15") as data_fim,
-                            cast(null as string) as fonte_viagem,
+                            "rioonibus" as fonte_viagem,
                             date("2026-09-21") as data_limite_envio
                         )
                     ] as array<
