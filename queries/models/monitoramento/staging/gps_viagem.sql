@@ -81,16 +81,20 @@ with
             servico_jae as servico,
             case
                 when id_operadora = '2801'
-                then 'A2-' || right(id_veiculo, 3)
+                then 'A2-' || lpad(right(id_veiculo, 3), 3, '0')
                 when id_operadora = '2802'
-                then 'B2-' || right(id_veiculo, 3)
+                then 'B2-' || lpad(right(id_veiculo, 3), 3, '0')
                 else null
             end as id_veiculo,
             latitude,
             longitude,
             'jae' as fornecedor
         from {{ ref("gps_validador") }}
-        where {{ incremental_filter }} and id_operadora in ('2801', '2802')
+        where
+            {{ incremental_filter }}
+            and id_operadora in ('2801', '2802')
+            and latitude != 0
+            and longitude != 0
     /*
         2801 - GTU (A2)
         2802 - TUSE (B2)
