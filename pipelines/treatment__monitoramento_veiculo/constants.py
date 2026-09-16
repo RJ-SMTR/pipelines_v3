@@ -31,10 +31,15 @@ MONITORAMENTO_VEICULO_CHECKS_LIST = {
             "description": "Todos as autuações geraram lacre corretamente"
         },
     },
+    "staging_infracao": {
+        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_infracao": {
+            "description": "Arquivo de infração ingerido em todas as datas da janela"
+        },
+    },
 }
 
 MONITORAMENTO_VEICULO_TEST = DBTTest(
-    test_select="veiculo_fiscalizacao_lacre autuacao_disciplinar_historico",
+    test_select="veiculo_fiscalizacao_lacre autuacao_disciplinar_historico staging_infracao",
     exclude="test_check_veiculo_lacre__veiculo_dia",
     test_descriptions=MONITORAMENTO_VEICULO_CHECKS_LIST,
     truncate_date=True,

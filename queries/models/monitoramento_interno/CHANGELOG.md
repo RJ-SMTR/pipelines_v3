@@ -1,10 +1,16 @@
 # Changelog - monitoramento_interno
 
-## [1.0.7] - 2026-09-02
+## [1.0.8] - 2026-09-16
 
 ### Alterado
 
 - Ajusta `view_viagem_monitoramento` para expor os campos necessários aos painéis, mantendo `servico`, `vista` e `tempo_viagem`, e seguindo a ordem de colunas de `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+
+## [1.0.7] - 2026-09-03
+
+### Alterado
+
+- Altera `monitoramento_servico_dia_v2` para obter `vista` de `aux_viagem_planejada_planejamento_dia_unnested` a partir de `DATA_SUBSIDIO_V25_INICIO`. Mantém `viagem_planejada` no período anterior. (https://github.com/RJ-SMTR/pipelines_v3/pull/657)
 
 ## [1.0.6] - 2026-08-28
 

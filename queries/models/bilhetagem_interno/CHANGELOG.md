@@ -1,5 +1,11 @@
 # Changelog - bilhetagem_interno
 
+## [1.3.2] - 2026-09-10
+
+### Alterado
+
+- Altera fonte das colunas `id_cliente` e `hash_cartao` no modelo `extrato_cliente_cartao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/661)
+
 ## [1.3.1] - 2026-05-14
 
 ### Alterado
