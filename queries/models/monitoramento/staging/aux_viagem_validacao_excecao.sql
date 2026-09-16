@@ -10,14 +10,18 @@ with
         from
             unnest(
                 cast(
-                    [
-                        -- Ofício SMTR nº 8656/2026 (Consórcios nº 143/2026)
-                        -- Processo 000301.015075/2026-48
+                    [                      
                         struct(
                             date("2026-08-16") as data_inicio,
                             date("2026-08-31") as data_fim,
                             "rioonibus" as fonte_viagem,
-                            date("2026-09-14") as data_limite_envio
+                            date("2026-09-06") as data_limite_envio -- Processo 000301.015075/2026-48
+                        ),
+                        struct(
+                            date("2026-08-16") as data_inicio,
+                            date("2026-08-31") as data_fim,
+                            "maxtrack" as fonte_viagem,
+                            date("2026-09-15") as data_limite_envio
                         ),
                         -- Ofício SMTR nº 9523/2026 (Consórcios nº 159/2026)
                         -- Processo 000301.015961/2026-71
