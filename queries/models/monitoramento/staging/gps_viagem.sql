@@ -92,9 +92,9 @@ with
         from {{ ref("gps_validador") }}
         where {{ incremental_filter }} and id_operadora in ('2801', '2802')
     /*
-            2801 - GTU (A2)
-            2802 - TUSE (B2)
-        */
+        2801 - GTU (A2)
+        2802 - TUSE (B2)
+    */
     ),
     gps_union as (
         select *

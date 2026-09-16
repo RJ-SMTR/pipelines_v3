@@ -84,7 +84,7 @@ with
             gv.datetime_gps,
             gv.datetime_partida,
             gv.datetime_chegada,
-            gv.fonte_gps
+            gv.fonte_gps,
             c.feed_version,
             c.feed_start_date,
         {% if var("tipo_materializacao") == "monitoramento" %}
