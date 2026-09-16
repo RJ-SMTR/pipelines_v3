@@ -93,9 +93,7 @@ with
             coalesce(
                 s.tecnologia_apurada, t.tecnologia_apurada, v.tecnologia_apurada
             ) as tecnologia_apurada,
-            coalesce(
-                s.tecnologia_remunerada, t.tecnologia_remunerada
-            ) as tecnologia_remunerada,
+            s.tecnologia_remunerada,
             coalesce(s.indicador_nao_licenciado, false) as indicador_nao_licenciado,
             coalesce(s.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
             coalesce(s.indicador_lacrado, false) as indicador_lacrado,

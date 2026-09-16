@@ -17,27 +17,30 @@ with
                 vv.datetime_partida,
                 vv.datetime_chegada,
                 vv.id_veiculo,
-                substr(vv.id_veiculo, 2) as id_veiculo_join,
-                ve.placa,
-                ve.ano_fabricacao,
+                coalesce(
+                    {{ lote_consorcio_rio("vv.consorcio") }},
+                    regexp_extract(vv.id_veiculo, r"^([A-Z][0-9])")
+                ) as lote,
+                vv.placa,
+                vv.ano_fabricacao,
                 vv.id_viagem,
-                cast(null as string) as tipo_viagem,
-                ve.indicadores,
+                vv.tipo_viagem,
+                vs.indicadores,
                 safe_cast(
                     json_value(
-                        ve.indicadores, '$.indicador_ar_condicionado.valor'
+                        vs.indicadores, '$.indicador_ar_condicionado.valor'
                     ) as bool
                 ) as indicador_ar_condicionado,
                 vv.distancia_planejada,
-                ve.tecnologia as tecnologia_apurada,
+                vv.tecnologia_apurada,
                 cast(null as string) as tecnologia_remunerada,
                 vv.sentido,
                 vv.modo
             from {{ ref("viagem_valida") }} as vv
             left join
-                {{ ref("aux_veiculo_dia_consolidada") }} as ve
-                on vv.data = ve.data
-                and vv.id_veiculo = ve.id_veiculo
+                {{ ref("aux_veiculo_status_viagem") }} as vs
+                on vv.data = vs.data
+                and vv.id_viagem = vs.id_viagem
             where
                 vv.data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
@@ -168,7 +171,11 @@ with
         from viagens as v
         left join
             estado_equipamento_aux as e
-            on e.id_veiculo = v.id_veiculo_join
+            on {{
+                id_veiculo_jae_join(
+                    "e.id_veiculo", "v.id_veiculo", "v.lote", "v.id_veiculo_join"
+                )
+            }}
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_bilhetagem_viagem_filtrada as (  -- Filtra pontos de GPS fora das garagens e endereços de manutenção dos validadores
@@ -229,7 +236,11 @@ with
         from viagens as v
         left join
             gps_validador as e
-            on e.id_veiculo = v.id_veiculo_join
+            on {{
+                id_veiculo_jae_join(
+                    "e.id_veiculo", "v.id_veiculo", "v.lote", "v.id_veiculo_join"
+                )
+            }}
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_indicadores as (  -- Indicadores de temperatura por veículo
@@ -629,8 +640,11 @@ with
                 (
                     parse_json(
                         concat(
-                            left(indicadores_str, length(indicadores_str) - 1),
-                            ',',
+                            left(
+                                coalesce(indicadores_str, "{}"),
+                                length(coalesce(indicadores_str, "{}")) - 1
+                            ),
+                            ",",
                             substr(indicadores_novos, 2)
                         )
                     )

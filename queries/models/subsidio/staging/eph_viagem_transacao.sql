@@ -6,14 +6,14 @@
 {% endif %}
 
 {% set date_range_start %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
         "{{ var('date_range_start') }}"
     {% else %}
        "{{ var('start_date') }}"
     {% endif %}
 {% endset %}
 {% set date_range_end %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
         "{{ var('date_range_end') }}"
     {% else %}
        "{{ var('end_date') }}"
@@ -23,30 +23,42 @@
 with
     -- Transações Jaé
     transacao as (
-        select id_veiculo, servico_jae, datetime_transacao
-        from {{ ref("transacao") }}
+        select
+            t.id_veiculo,
+            t.servico_jae,
+            t.datetime_transacao
+            {% if var("sistema") == "rio" %}
+                , {{ lote_consorcio_rio("t.consorcio") }} as lote
+            {% endif %}
+        from {{ ref("transacao") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
-            data between date({{ date_range_start }}) and date_add(
+            t.data between date({{ date_range_start }}) and date_add(
                 date({{ date_range_end }}), interval 1 day
             )
-            and date(datetime_processamento) - date(datetime_transacao)
+            and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
-            and modo = "Ônibus"
+            and t.modo = "Ônibus"
     ),
 
     -- Transações RioCard
     transacao_riocard as (
-        select id_veiculo, servico_jae, datetime_transacao
-        from {{ ref("transacao_riocard") }}
+        select
+            t.id_veiculo,
+            t.servico_jae,
+            t.datetime_transacao
+            {% if var("sistema") == "rio" %}
+                , {{ lote_consorcio_rio("t.consorcio") }} as lote
+            {% endif %}
+        from {{ ref("transacao_riocard") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
-            data between date({{ date_range_start }}) and date_add(
+            t.data between date({{ date_range_start }}) and date_add(
                 date({{ date_range_end }}), interval 1 day
             )
-            and date(datetime_processamento) - date(datetime_transacao)
+            and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
-            and modo = "Ônibus"
+            and t.modo = "Ônibus"
     ),
 
     -- -- Viagens realizadas
@@ -55,6 +67,9 @@ with
             data,
             id_viagem,
             id_veiculo,
+            {% if var("sistema") == "rio" %} id_validador,
+            {% else %} cast(null as string) as id_validador,
+            {% endif %}
             datetime_partida,
             datetime_chegada,
             modo,
@@ -161,7 +176,14 @@ with
         from transacao as t
         inner join
             viagem_com_tolerancia as v
-            on t.id_veiculo = substr(v.id_veiculo, 2)
+            on {{
+                id_veiculo_jae_join(
+                    "t.id_veiculo",
+                    "v.id_veiculo",
+                    "t.lote",
+                    "substr(v.id_veiculo, 2)",
+                )
+            }}
             and t.datetime_transacao
             between v.datetime_partida_com_tolerancia and v.datetime_chegada
         group by 1, 2
@@ -180,7 +202,14 @@ with
         from transacao_riocard as tr
         inner join
             viagem_com_tolerancia as v
-            on tr.id_veiculo = substr(v.id_veiculo, 2)
+            on {{
+                id_veiculo_jae_join(
+                    "tr.id_veiculo",
+                    "v.id_veiculo",
+                    "tr.lote",
+                    "substr(v.id_veiculo, 2)",
+                )
+            }}
             and tr.datetime_transacao
             between v.datetime_partida_com_tolerancia and v.datetime_chegada
         group by 1, 2
@@ -193,7 +222,9 @@ with
         select
             v.data,
             v.id_viagem,
-            safe_cast(json_value(item, '$.id_validador') as string) as id_validador,
+            coalesce(
+                safe_cast(json_value(item, "$.id_validador") as string), v.id_validador
+            ) as id_validador,
             coalesce(t.quantidade_transacao, 0) as quantidade_transacao,
             coalesce(
                 tr.quantidade_transacao_riocard, 0

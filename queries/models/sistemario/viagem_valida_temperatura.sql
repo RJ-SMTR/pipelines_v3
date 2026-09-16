@@ -15,6 +15,7 @@ select
     data,
     id_viagem,
     id_veiculo,
+    id_validador,
     datetime_partida,
     datetime_chegada,
     modo,

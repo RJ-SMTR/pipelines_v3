@@ -30,11 +30,14 @@ members = [
     "capture-jae-transacao-ordem",
     "capture-jae-transacao-retificada",
     "capture-jae-transacao-riocard",
+    "capture-maxtrack-registros",
+    "capture-maxtrack-viagem-informada",
     "capture-rioonibus-rdo-rho",
     "capture-rioonibus-viagem-informada",
     "capture-riorotativo-credenciados",
     "capture-riorotativo-vagas",
     "capture-serpro-autuacao",
+    "capture-smtr-controle-financeiro",
     "capture-sonda-registros",
     "capture-sonda-viagem-informada",
     "capture-sppo-realocacao",
@@ -74,6 +77,7 @@ members = [
     "treatment-gps-15-minutos-zirix",
     "treatment-gps-cittati",
     "treatment-gps-conecta",
+    "treatment-gps-maxtrack",
     "treatment-gps-sonda",
     "treatment-gps-sppo",
     "treatment-gps-validador",
@@ -89,7 +93,9 @@ members = [
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
     "treatment-remuneracao-openfisca",
-    "treatment-riorotativo",
+    "treatment-riorotativo-auxiliar",
+    "treatment-riorotativo-operacao",
+    "treatment-riorotativo-ordem-pagamento",
     "treatment-sppo-viagens",
     "treatment-subsidio-sppo-apuracao",
     "treatment-transacao",
@@ -484,6 +490,16 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_transacao_riocard" }
 
 [[package]]
+name = "capture-maxtrack-registros"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__maxtrack_registros" }
+
+[[package]]
+name = "capture-maxtrack-viagem-informada"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__maxtrack_viagem_informada" }
+
+[[package]]
 name = "capture-rioonibus-rdo-rho"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__rioonibus_rdo_rho" }
@@ -517,6 +533,11 @@ requires-dist = [
     { name = "impyla", specifier = ">=0.22.0" },
     { name = "jaydebeapi", specifier = ">=1.2.3" },
 ]
+
+[[package]]
+name = "capture-smtr-controle-financeiro"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__smtr_controle_financeiro" }
 
 [[package]]
 name = "capture-sonda-registros"
@@ -3284,6 +3305,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_conecta" }
 
 [[package]]
+name = "treatment-gps-maxtrack"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_maxtrack" }
+
+[[package]]
 name = "treatment-gps-sonda"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_sonda" }
@@ -3359,9 +3385,19 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__remuneracao_openfisca" }
 
 [[package]]
-name = "treatment-riorotativo"
+name = "treatment-riorotativo-auxiliar"
 version = "0.1.0"
-source = { virtual = "pipelines/treatment__riorotativo" }
+source = { virtual = "pipelines/treatment__riorotativo_auxiliar" }
+
+[[package]]
+name = "treatment-riorotativo-operacao"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__riorotativo_operacao" }
+
+[[package]]
+name = "treatment-riorotativo-ordem-pagamento"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__riorotativo_ordem_pagamento" }
 
 [[package]]
 name = "treatment-sppo-viagens"

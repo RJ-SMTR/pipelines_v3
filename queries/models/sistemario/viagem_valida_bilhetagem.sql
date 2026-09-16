@@ -23,7 +23,6 @@ select
     datetime_chegada,
     modo,
     tecnologia_apurada,
-    tecnologia_remunerada,
     indicador_sem_transacao,
     indicador_sem_transacao_tipo,
     indicador_validador_fechado,
