@@ -86,7 +86,7 @@ with
             gv.datetime_chegada,
             gv.fonte_gps,
             c.feed_version,
-            c.feed_start_date,
+            c.feed_start_date
         {% if var("tipo_materializacao") == "monitoramento" %}
             from {{ ref("registros_status_viagem_inferida") }} gv
         {% else %} from {{ ref("gps_viagem") }} gv
