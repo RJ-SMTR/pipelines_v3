@@ -287,6 +287,7 @@ with
             servico,
             consorcio,
             sistema,
+            vista,
             sentido,
             extensao,
             quilometragem,
@@ -322,6 +323,7 @@ with
             sp.servico,
             sp.consorcio,
             sp.sistema,
+            sp.vista,
             sp.sentido,
             sp.extensao,
             sp.quilometragem,
@@ -339,6 +341,7 @@ with
             sp.servico,
             sp.consorcio,
             sp.sistema,
+            alt.vista,
             sp.sentido,
             alt.extensao,
             sp.quilometragem,
@@ -365,6 +368,7 @@ with
                 then cast(null as string)
                 else ss.sistema
             end as sistema,
+            spu.vista,
             spu.extensao as distancia_planejada,
             spu.indicador_trajeto_alternativo,
             -- fmt: off
@@ -481,6 +485,7 @@ with
             vm.shape_id,
             vm.servico,
             vm.consorcio,
+            vm.vista,
             vm.sentido,
             vm.distancia_planejada,
             vm.velocidade_media,
@@ -603,6 +608,7 @@ select
     modo,
     consorcio,
     sistema,
+    vista,
     tipo_dia,
     servico,
     route_id,
