@@ -10,7 +10,7 @@ with
         from
             unnest(
                 cast(
-                    [                      
+                    [
                         struct(
                             date("2026-08-16") as data_inicio,
                             date("2026-08-31") as data_fim,
