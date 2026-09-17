@@ -212,7 +212,7 @@ with
         join
             segmento_primeiro_ultimo spu using (feed_version, feed_start_date, shape_id)
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
-        where g.servico_gps = g.servico_viagem
+        where (g.servico_gps = g.servico_viagem or g.fonte_gps = 'jae')
         group by g.data, g.id_viagem
     ),
     /*
@@ -340,7 +340,7 @@ with
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
-            g.servico_gps = g.servico_viagem
+            (g.servico_gps = g.servico_viagem or g.fonte_gps = 'jae')
             and g.datetime_gps
             between v.datetime_partida_considerada and v.datetime_chegada_considerada
             -- Desambiguação temporal para rotas circulares
