@@ -84,6 +84,7 @@ with
             gv.datetime_gps,
             gv.datetime_partida,
             gv.datetime_chegada,
+            gv.fonte_gps,
             c.feed_version,
             c.feed_start_date
         {% if var("tipo_materializacao") == "monitoramento" %}
@@ -150,7 +151,14 @@ with
         select
             id_viagem,
             ifnull(
-                logical_and(servico_viagem = servico_gps), true
+                logical_and(
+                    servico_viagem = servico_gps
+                    or (
+                        data between '2026-08-24' and '2026-09-15'
+                        and fonte_gps in ('jae', 'maxtrack')
+                    )
+                ),
+                true
             ) as indicador_servico_convergente
         from gps_viagem
         group by 1
@@ -211,7 +219,14 @@ with
         join
             segmento_primeiro_ultimo spu using (feed_version, feed_start_date, shape_id)
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
-        where g.servico_gps = g.servico_viagem
+        where
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    g.data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
         group by g.data, g.id_viagem
     ),
     /*
@@ -339,7 +354,13 @@ with
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
-            g.servico_gps = g.servico_viagem
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    v.data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
             and g.datetime_gps
             between v.datetime_partida_considerada and v.datetime_chegada_considerada
             -- Desambiguação temporal para rotas circulares

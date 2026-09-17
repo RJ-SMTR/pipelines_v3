@@ -91,6 +91,34 @@ with
         from {{ ref("view_gps_brt_completo") }}
         where {{ gps_filter }}
     ),
+    gps_jae as (
+        select
+            data,
+            datetime_gps,
+            servico_jae as servico,
+            case
+                when id_operadora = '2801'
+                then 'A2-' || lpad(right(id_veiculo, 3), 3, '0')
+                when id_operadora = '2802'
+                then 'B2-' || lpad(right(id_veiculo, 3), 3, '0')
+                else null
+            end as id_veiculo,
+            latitude,
+            longitude,
+            'jae' as fornecedor
+        from {{ ref("gps_validador") }}
+        where
+            {{ gps_filter }}
+            and id_operadora in ('2801', '2802')
+            and latitude != 0
+            and longitude != 0
+            and id_veiculo != '99999'
+            and data <= "2026-09-16"
+    /*
+        2801 - GTU (A2)
+        2802 - TUSE (B2)
+    */
+    ),
     gps_union as (
         select *
         from gps_onibus
@@ -99,6 +127,11 @@ with
 
         select *
         from gps_brt
+
+        union all
+
+        select *
+        from gps_jae
     )
 select
     v.data,
@@ -117,7 +150,7 @@ select
     v.trip_id,
     v.route_id,
     v.shape_id,
-    v.fonte_gps,
+    g.fornecedor as fonte_gps,
     v.fonte_viagem,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
@@ -126,7 +159,10 @@ join
     viagem v
     on g.datetime_gps between v.datetime_partida and v.datetime_chegada
     and g.id_veiculo = v.id_veiculo
-    and g.fornecedor = v.fonte_gps
+    and (
+        g.fornecedor = v.fonte_gps
+        or (g.fornecedor = 'jae' and v.fonte_gps = 'maxtrack')
+    )
 {% if not is_incremental() %}
     where v.data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endif %}
