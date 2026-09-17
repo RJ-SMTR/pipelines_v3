@@ -2,9 +2,9 @@
 
 ## [2.2.16] - 2026-09-16
 
-### Corrigido
+### Alterado
 
-- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_infracao` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-08-16` e `2026-08-31` com `data_processamento` entre `2026-08-16` e `2026-09-10` devido à falha na captura dos dados de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/684)
 
 ## [2.2.15] - 2026-09-15
 
