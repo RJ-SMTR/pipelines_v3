@@ -154,7 +154,7 @@ with
                 logical_and(
                     servico_viagem = servico_gps
                     or (
-                        data_viagem between '2026-08-24' and '2026-09-15'
+                        data between '2026-08-24' and '2026-09-15'
                         and fonte_gps in ('jae', 'maxtrack')
                     )
                 ),
@@ -223,7 +223,7 @@ with
             (
                 g.servico_gps = g.servico_viagem
                 or (
-                    data between '2026-08-24' and '2026-09-15'
+                    g.data between '2026-08-24' and '2026-09-15'
                     and g.fonte_gps in ('jae', 'maxtrack')
                 )
             )
@@ -357,7 +357,7 @@ with
             (
                 g.servico_gps = g.servico_viagem
                 or (
-                    data between '2026-08-24' and '2026-09-15'
+                    v.data between '2026-08-24' and '2026-09-15'
                     and g.fonte_gps in ('jae', 'maxtrack')
                 )
             )
