@@ -61,6 +61,7 @@ models:
           config:
             tags: ["freshness", "daily"]
             severity: warn
+            where: "safe_cast(data as date) between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
         description: Data do arquivo de licenciamento [partição]
