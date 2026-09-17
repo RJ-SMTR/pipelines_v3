@@ -223,7 +223,7 @@ models:
       - name: id_auto_infracao
         description: "Código do auto de infração [protegido]"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/9144409830782426993"
       - name: fonte
         description: "Origem dos dados"
       - name: datetime_ultima_atualizacao
@@ -239,7 +239,7 @@ models:
       - name: id_auto_infracao
         description: "{{ doc('id_auto_infracao') }} [protegido]"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/2206976536320458062"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/9144409830782426993"
       - name: datetime_autuacao
         description: "Data e hora da autuação"
       - name: data_limite_defesa_previa
@@ -343,7 +343,7 @@ models:
       - name: endereco_autuacao
         description: "Endereço da autuação [protegido]"
         policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/5243840798726507169"
+          - "projects/rj-smtr/locations/us/taxonomies/7968932463054912793/policyTags/9144409830782426993"
       - name: tile_autuacao
         description: "Hexágono da autuação"
       - name: processo_defesa_autuacao

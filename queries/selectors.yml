@@ -244,7 +244,7 @@ selectors:
         - method: fqn
           value: aux_operadora_stu
         - method: fqn
-          value: aux_operadora_jae_cliente_historico
+          value: aux_cliente_jae_historico
         - method: fqn
           value: aux_operadora_jae_historico
         - method: fqn
@@ -807,4 +807,15 @@ selectors:
           value: snapshot_ordem_pagamento_entidade_dia
         - method: fqn
           value: snapshot_ordem_pagamento_guardador_veiculo_dia
+
+  - name: riorotativo_ativacao_hora
+    description: Tabelas agregadas do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: ativacao_hora_riorotativo
+        - method: fqn
+          value: view_ativacao_hora_riorotativo
+        - method: fqn
+          value: view_ativacao_dia_riorotativo
 

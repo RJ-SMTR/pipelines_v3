@@ -83,6 +83,7 @@ models:
               - id_execucao_dbt
               - nome_cliente
               - nome_escola
+              - numero_matricula
             filtro_particao_modificada: true
     columns:
       - name: data

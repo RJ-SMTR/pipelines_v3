@@ -1011,6 +1011,10 @@ Fonte da velocidade [TELEMETRIA ou AVL]
 Identificador do fornecedor de GPS
 {% enddocs %}
 
+{% docs fonte_viagem %}
+Fonte que enviou a viagem informada [rioonibus, maxtrack ou mobirio]
+{% enddocs %}
+
 {% docs altitude_gps %}
 Altitude em metros
 {% enddocs %}
@@ -2031,4 +2035,32 @@ CPF do guardador de veículo
 
 {% docs datetime_inclusao_ordem_pagamento_riorotativo %}
 Datetime da geração da ordem de pagamento
+{% enddocs %}
+
+{% docs data_ativacao_riorotativo %}
+Data da ativação
+{% enddocs %}
+
+{% docs hora_ativacao_riorotativo %}
+Hora da ativação
+{% enddocs %}
+
+{% docs quantidade_ativacao_riorotativo %}
+Quantidade de ativações
+{% enddocs %}
+
+{% docs quantidade_vaga_fisica_riorotativo %}
+Quantidade total de vagas da área de estacionamento
+{% enddocs %}
+
+{% docs centroide_area_riorotativo %}
+Centroide da geometria da área de estacionamento no sistema de referência WGS84
+{% enddocs %}
+
+{% docs latitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}
+
+{% docs longitude_centroide_area_riorotativo %}
+Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
 {% enddocs %}

@@ -35,3 +35,30 @@ exposures:
           team:
             - rodrigo.fcunha@prefeitura.rio
             - victormiguel@prefeitura.rio
+
+  - name: PAINEL_SENSORES_AR_CONDICIONADO
+    type: dashboard
+    description: >
+      Painel de Sensores de Ar-Condicionado. Consome `view_viagem_climatizacao`.
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_viagem_climatizacao')
+    config:
+      meta:
+        data_product_name: Painel de Sensores de Ar-Condicionado
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: victormiguel@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Subsídio
+          team:
+            - janaina.duarte@prefeitura.rio
+            - adriano.neto@prefeitura.rio
+            - rodrigo.fcunha@prefeitura.rio

@@ -18,12 +18,28 @@
         truncate_date=true,
         max_age_days=var("viagem_validacao_max_age_days", 5),
     ) %}
-{% else %} {% set partitions = [] %}
+    {% set expanded_partitions = get_modified_partitions_filter(
+        viagem_informada,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 5),
+    ) %}
+{% else %} {% set partitions = [] %} {% set expanded_partitions = [] %}
 {% endif %}
 
 {% set incremental_filter %}
     {% if is_incremental() %}
         {% if partitions | length > 0 %} data in ({{ partitions | join(", ") }})
+        {% else %} data = date("2000-01-01")
+        {% endif %}
+        and
+    {% endif %}
+    data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+{% endset %}
+
+{% set gps_filter %}
+    {% if is_incremental() %}
+        {% if expanded_partitions | length > 0 %} data in ({{ expanded_partitions | join(", ") }})
         {% else %} data = date("2000-01-01")
         {% endif %}
         and
@@ -45,7 +61,8 @@ with
             shape_id,
             servico,
             sentido,
-            fonte_gps
+            fonte_gps,
+            fonte_viagem
         from {{ ref("viagem_informada_monitoramento") }}
         {# from `rj-smtr.monitoramento.viagem_informada` #}
         where {{ incremental_filter }}
@@ -60,7 +77,7 @@ with
             longitude,
             fonte_gps as fornecedor
         from {{ ref("view_gps_onibus") }}
-        where {{ incremental_filter }}
+        where {{ gps_filter }}
     ),
     gps_brt as (
         select
@@ -72,7 +89,7 @@ with
             longitude,
             'brt' as fornecedor
         from {{ ref("view_gps_brt_completo") }}
-        where {{ incremental_filter }}
+        where {{ gps_filter }}
     ),
     gps_union as (
         select *
@@ -101,6 +118,7 @@ select
     v.route_id,
     v.shape_id,
     v.fonte_gps,
+    v.fonte_viagem,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from gps_union g

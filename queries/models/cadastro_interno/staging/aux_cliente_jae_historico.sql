@@ -45,11 +45,9 @@ with
             nr_documento as documento,
             nm_cliente as nome
         from {{ ref("staging_cliente") }}
-        where
-            cd_cliente
-            in (select cd_cliente from {{ ref("staging_operadora_transporte") }})
-            {% if is_incremental() %}
-                and date(data) between date("{{var('date_range_start')}}") and date(
+        {% if is_incremental() %}
+            where
+                date(data) between date("{{var('date_range_start')}}") and date(
                     "{{var('date_range_end')}}"
                 )
                 and timestamp_captura
@@ -57,7 +55,7 @@ with
                     "{{var('date_range_end')}}"
                 )
 
-            {% endif %}
+        {% endif %}
     ),
     dados_completos as (
         select *, 0 as priority
