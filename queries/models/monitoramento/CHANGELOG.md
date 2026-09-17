@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.17] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_infracao` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
 ## [2.2.16] - 2026-09-16
 
 ### Alterado
