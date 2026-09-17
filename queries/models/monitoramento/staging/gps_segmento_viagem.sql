@@ -152,7 +152,11 @@ with
             id_viagem,
             ifnull(
                 logical_and(
-                    servico_viagem = servico_gps or fonte_gps in ('jae', 'maxtrack')
+                    servico_viagem = servico_gps
+                    or (
+                        data_viagem between '2026-08-24' and '2026-09-15'
+                        and fonte_gps in ('jae', 'maxtrack')
+                    )
                 ),
                 true
             ) as indicador_servico_convergente
@@ -215,7 +219,14 @@ with
         join
             segmento_primeiro_ultimo spu using (feed_version, feed_start_date, shape_id)
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
-        where (g.servico_gps = g.servico_viagem or fonte_gps in ('jae', 'maxtrack'))
+        where
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
         group by g.data, g.id_viagem
     ),
     /*
@@ -343,7 +354,13 @@ with
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
-            (g.servico_gps = g.servico_viagem or g.fonte_gps in ('jae', 'maxtrack'))
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
             and g.datetime_gps
             between v.datetime_partida_considerada and v.datetime_chegada_considerada
             -- Desambiguação temporal para rotas circulares
