@@ -1,5 +1,11 @@
 # Changelog - subsidio
 
+## [2.3.7] - 2026-09-17
+
+### Alterado
+
+- Altera o modelo `percentual_operacao_faixa_horaria_v2` para excluir os consórcios `GTU` e `TUSA` a partir de `DATA_SUBSIDIO_V26_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/688)
+
 ## [2.3.6] - 2026-08-27
 
 ### Adicionado
