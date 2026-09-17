@@ -37,6 +37,9 @@ with
             {{ incremental_filter }}
             and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             and quilometragem > 0
+            and (
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}") or sistema != "RIO"
+            )
     ),
     -- 2. Viagens realizadas
     viagem as (
@@ -131,6 +134,3 @@ select
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from servico_km_apuracao
-where
-    data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}")
-    or consorcio not in ("GTU", "TUSA")
