@@ -17,10 +17,7 @@ with
                 vv.datetime_partida,
                 vv.datetime_chegada,
                 vv.id_veiculo,
-                coalesce(
-                    {{ lote_consorcio_rio("vv.consorcio") }},
-                    regexp_extract(vv.id_veiculo, r"^([A-Z][0-9])")
-                ) as lote,
+                left(vv.id_veiculo, 2) as lote,
                 vv.placa,
                 vv.ano_fabricacao,
                 vv.id_viagem,

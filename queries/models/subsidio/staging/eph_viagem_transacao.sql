@@ -23,13 +23,7 @@
 with
     -- Transações Jaé
     transacao as (
-        select
-            t.id_veiculo,
-            t.servico_jae,
-            t.datetime_transacao
-            {% if var("sistema") == "rio" %}
-                , {{ lote_consorcio_rio("t.consorcio") }} as lote
-            {% endif %}
+        select t.id_veiculo, t.servico_jae, t.datetime_transacao
         from {{ ref("transacao") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
@@ -43,13 +37,7 @@ with
 
     -- Transações RioCard
     transacao_riocard as (
-        select
-            t.id_veiculo,
-            t.servico_jae,
-            t.datetime_transacao
-            {% if var("sistema") == "rio" %}
-                , {{ lote_consorcio_rio("t.consorcio") }} as lote
-            {% endif %}
+        select t.id_veiculo, t.servico_jae, t.datetime_transacao
         from {{ ref("transacao_riocard") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
@@ -180,7 +168,7 @@ with
                 id_veiculo_jae_join(
                     "t.id_veiculo",
                     "v.id_veiculo",
-                    "t.lote",
+                    "left(v.id_veiculo, 2)",
                     "substr(v.id_veiculo, 2)",
                 )
             }}
@@ -206,7 +194,7 @@ with
                 id_veiculo_jae_join(
                     "tr.id_veiculo",
                     "v.id_veiculo",
-                    "tr.lote",
+                    "left(v.id_veiculo, 2)",
                     "substr(v.id_veiculo, 2)",
                 )
             }}

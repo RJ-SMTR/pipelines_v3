@@ -97,7 +97,7 @@ with
             cast(null as float64) as lote_frota_estimada,
             cast(null as float64) as lote_frota_determinada,
             cast(null as float64) as lote_qr_mensal,
-            cast(null as float64) as lote_km_referencia
+            cast(null as float64) as lote_km_referencia_quinzena
         from lote_quinzena lq
     ),
     estimada_tech as (
@@ -149,7 +149,7 @@ with
             max(op.lote_frota_estimada) as lote_frota_estimada,
             max(op.lote_frota_determinada) as lote_frota_determinada,
             max(op.lote_qr_mensal) as lote_qr_mensal,
-            max(op.lote_km_referencia) as lote_km_referencia
+            max(op.lote_km_referencia_quinzena) as lote_km_referencia_quinzena
         from tipologico t
         left join
             dias_uteis_lote d
@@ -176,10 +176,14 @@ select
     least(
         1.0, coalesce(safe_divide(frota_numerador, frota_estimada), 0.0)
     ) as fcf_quinzena,
-    coalesce(lote_km_referencia, safe_divide(lote_qr_mensal, 2.0)) as km_referencia,
-    coalesce(safe_divide(lote_qr_mensal, 2.0), lote_km_referencia) as qr_quinzena,
+    coalesce(
+        lote_km_referencia_quinzena, safe_divide(lote_qr_mensal, 2.0)
+    ) as km_referencia,
+    coalesce(
+        safe_divide(lote_qr_mensal, 2.0), lote_km_referencia_quinzena
+    ) as qr_quinzena,
     lote_frota_estimada,
     lote_frota_determinada,
     lote_qr_mensal,
-    lote_km_referencia
+    lote_km_referencia_quinzena
 from agregado

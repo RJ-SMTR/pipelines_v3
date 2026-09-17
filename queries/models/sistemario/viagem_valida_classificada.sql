@@ -16,8 +16,7 @@
   Fan-in RIO: viagem_valida + veículo + temperatura + bilhetagem.
   Tab. 2 (valida / conforme) a partir das flags vs valor_km (dicionário).
   Sem join em um tipo_viagem. Sem inner join de oferta (faixa só carimbo).
-  Stub: indicador_viagem_completa = true; km_percorrida = 0;
-  indicador_dentro_do_teto_programado = true.
+  Stub: indicador_viagem_completa = true; km_percorrida = 0.
 #}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
@@ -248,7 +247,6 @@ select
     c.datetime_partida,
     c.datetime_chegada,
     true as indicador_viagem_completa,
-    true as indicador_dentro_do_teto_programado,
     coalesce(f.indicador_viagem_valida, true) as indicador_viagem_valida,
     case
         when coalesce(f.indicador_viagem_valida, true)
@@ -271,9 +269,8 @@ select
         extract(hour from c.faixa_horaria_fim),
         extract(minute from c.faixa_horaria_fim)
     ) as faixa_horaria_fim,
-    ts.menor_tecnologia_permitida as servico_tecnologia,
-    ts.menor_tecnologia_permitida as servico_tecnologia_minima,
-    ts.maior_tecnologia_permitida as servico_tecnologia_maxima,
+    ts.menor_tecnologia_permitida as tecnologia_minima_servico,
+    ts.maior_tecnologia_permitida as tecnologia_maxima_servico,
     coalesce(c.tipo_dia_oferta, c.tipo_dia) as tipo_dia,
     c.indicadores,
     c.tecnologia_apurada,
