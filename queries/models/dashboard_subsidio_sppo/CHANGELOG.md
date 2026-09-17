@@ -1,5 +1,11 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.2.10] - 2026-09-17
+
+### Alterado
+
+- Altera o modelo `viagens_remuneradas_v2` para excluir serviços com `sistema = "RIO"` a partir de `DATA_SUBSIDIO_V26_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/688)
+
 ## [8.2.9] - 2026-09-09
 
 ### Alterado
