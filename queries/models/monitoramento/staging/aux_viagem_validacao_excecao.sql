@@ -17,7 +17,7 @@ with
                             date("2026-08-16") as data_inicio,
                             date("2026-08-31") as data_fim,
                             "rioonibus" as fonte_viagem,
-                            date("2026-09-06") as data_limite_envio
+                            date("2026-09-08") as data_limite_envio
                         ),
                         struct(
                             date("2026-08-16") as data_inicio,
