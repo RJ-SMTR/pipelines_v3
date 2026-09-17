@@ -34,3 +34,101 @@ models:
         description: "Quantidade distinta de veículos com viagem completa partida no pico tarde"
       - name: frota_operante
         description: "Maior frota entre pico manhã e pico tarde no dia/lote"
+
+  - name: aux_veiculo_status_viagem
+    description: >
+      Status do veículo em cada viagem válida do Sistema RIO: atributos do
+      cadastro (placa, ano de fabricação, tecnologia), tecnologia apurada e
+      remunerada conforme a vigência de `tecnologia_servico`, e indicadores de
+      licenciamento, vistoria e autuações disciplinares ocorridas durante a
+      viagem.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__aux_veiculo_status_viagem
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__aux_veiculo_status_viagem
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        tests:
+          - not_null:
+              name: not_null__id_viagem__aux_veiculo_status_viagem
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__aux_veiculo_status_viagem
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+      - name: indicador_nao_licenciado
+        description: "Indica se o veículo não estava licenciado na data da viagem"
+      - name: indicador_nao_vistoriado
+        description: "Indica se o veículo não estava vistoriado na data da viagem"
+      - name: indicador_lacrado
+        description: "Indica se o veículo estava lacrado na data da viagem"
+      - name: indicador_nao_autorizado_ausencia_ar
+        description: >
+          Indica se o veículo não estava autorizado a operar por ausência de ar
+          condicionado
+      - name: indicador_nao_autorizado_capacidade
+        description: >
+          Indica se o veículo não estava autorizado a operar por tecnologia de
+          capacidade inferior à mínima permitida para o serviço
+      - name: indicador_autuado_ar_inoperante
+        description: "Indica se o veículo foi autuado por ar condicionado inoperante"
+      - name: indicador_autuado_alterar_itinerario
+        description: >
+          Indica se o veículo foi autuado por alterar o itinerário durante a
+          viagem (infração 017.III)
+      - name: indicador_autuado_vista_inoperante
+        description: >
+          Indica se o veículo foi autuado por vista inoperante durante a viagem
+          (infração 023.X)
+      - name: indicador_autuado_nao_atender_parada
+        description: >
+          Indica se o veículo foi autuado por não atender ponto de parada
+          durante a viagem (infração 029.I)
+      - name: indicador_autuado_iluminacao_insuficiente
+        description: >
+          Indica se o veículo foi autuado por iluminação insuficiente durante a
+          viagem (infração 029.XIII)
+      - name: indicador_autuado_nao_concluir_itinerario
+        description: >
+          Indica se o veículo foi autuado por não concluir o itinerário durante
+          a viagem (infração 040.I)
+      - name: indicador_registrado_ar_inoperante
+        description: >
+          Indica se o veículo estava registrado com ar condicionado inoperante
+      - name: indicadores
+        description: "{{ doc('indicadores_veiculo') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"

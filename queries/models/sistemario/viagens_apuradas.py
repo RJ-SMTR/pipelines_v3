@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Viagens apuradas via ``rio_rac_bus_subsidy.process_trip_calculations``.
 
-Lê ``viagem_classificacao_validacao`` (fatos) e ``servico_oferta_faixa``
+Lê ``viagem_valida_classificada`` (fatos) e ``servico_oferta_faixa``
 (POR por faixa, todas as faixas do recorte) e persiste a saída do OF.
 
 Nota: não usar ``from __future__`` — o Dataproc/dbt injeta código antes
@@ -177,7 +177,7 @@ def model(dbt, session):
         tags=["remuneracao", "openfisca", "wip"],
     )
 
-    viagens_df = dbt.ref("viagem_classificacao_validacao").select(*COLUNAS_VIAGEM)
+    viagens_df = dbt.ref("viagem_valida_classificada").select(*COLUNAS_VIAGEM)
     planejamento_df = dbt.ref("servico_oferta_faixa").select(*COLUNAS_PLANEJAMENTO)
 
     limites = viagens_df.agg(

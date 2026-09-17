@@ -5,9 +5,10 @@ models:
     description: >
       Planejamento POR por faixa (entrada `planejamento` do
       `rio_rac_bus_subsidy.process_trip_calculations`). Derivado de
-      `servico_planejado_faixa_horaria` (`partidas` → `viagens_programadas`)
-      com lote via `lote_servico` (WIP/teste: `lote_padrao_teste` = A0).
-      Grão data × servico × sentido × faixa_horaria_inicio.
+      `servico_planejado_faixa_horaria` (`partidas` → `viagens_programadas`),
+      só `sistema = RIO`. Lote = `agency_id` GTFS do serviço (`A0`/`A2`/`B1`/`B2`);
+      `lote_padrao_teste` só se faltar. Grão data × servico × sentido ×
+      faixa_horaria_inicio.
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -24,79 +25,17 @@ models:
       - name: viagens_programadas
         description: "Partidas programadas na faixa (denominador IPA / teto I.8)"
       - name: lote
-        description: "Lote contratual do POR (`lote_servico`; A0 se ausente no teste)"
-
-  - name: lote_servico
-    description: >
-      Associação serviço → lote das tabelas do Anexo I.2 (POR por serviço),
-      via seed `sistema_referencia_servico`. Vigência por data (fases de
-      implantação I.2 §4.1). OpenFisca I.9 só parametriza A2/B2.
-    columns:
-      - name: servico
-        description: "{{ doc('servico') }}"
-      - name: lote
-        description: "Lote contratual (A2/B1/B2 no POR)"
-      - name: servico_tipo
-        description: "Tipo do serviço no POR"
-      - name: servico_tecnologia
-        description: "Tecnologia prevista no plano"
-      - name: data_inicio
-        description: "Início de vigência da fase POR"
-      - name: data_fim
-        description: "Fim de vigência (null = aberta)"
-
-  - name: operacao_lote
-    description: >
-      Frota/QR do lote (Anexo I.2 Tab.24–26) via seed `sistema_referencia_lote`.
-      Grão lote × vigência. `frota_estimada` = frota_operante_hp;
-      `km_referencia` = qr/2.
-    columns:
-      - name: lote
-        description: "Lote contratual"
-      - name: frota_estimada
-        description: "Frota operante HP planejada (denominador FCF)"
-      - name: frota_determinada
-        description: "Frota determinada (teto)"
-      - name: qr_mensal
-        description: "QR mensal (km)"
-      - name: km_referencia
-        description: "Km referência CAPEX (qr_mensal / 2)"
-      - name: data_inicio
-        description: "Início de vigência da fase POR"
-      - name: data_fim
-        description: "Fim de vigência (null = aberta)"
-
-  - name: operacao_lote_tecnologia
-    description: >
-      Frota do lote por tecnologia (Anexo I.2 Tab.24–26) via seed
-      `sistema_referencia_lote_tecnologia`. Eco/auditoria.
-    columns:
-      - name: lote
-        description: "Lote contratual"
-      - name: tipo_veiculo
-        description: "Tecnologia (basico / midi / mini)"
-      - name: frota_estimada
-        description: "Frota operante HP planejada"
-      - name: data_inicio
-        description: "Início de vigência da fase POR"
-      - name: data_fim
-        description: "Fim de vigência (null = aberta)"
-
-  - name: viagem_valida_classificada
-    description: >
-      Classificação (veículo, autuação, tecnologia) — espelho de
-      `viagem_classificada` para a cadeia de remuneração I.8.
-      WIP/teste: base temporária `viagem_completa`; voltar a
-      `viagem_valida` quando houver dados.
-    columns:
-      - name: data
-        description: "{{ doc('data_viagem') }} [partição]"
-      - name: id_viagem
-        description: "{{ doc('id_viagem') }}"
-      - name: tipo_viagem
-        description: "{{ doc('tipo_viagem_status') }}"
-      - name: indicadores
-        description: "{{ doc('indicadores_veiculo') }}"
+        description: "Lote contratual (agency_id GTFS do Sistema RIO; A0 se ausente no teste)"
+      - name: km
+        description: "Km planejada da faixa"
+      - name: lote_frota_estimada
+        description: "Frota estimada do lote (I.2; stub nulo)"
+      - name: lote_frota_determinada
+        description: "Frota determinada do lote (I.2; stub nulo)"
+      - name: lote_qr_mensal
+        description: "QR mensal do lote (I.2; stub nulo)"
+      - name: lote_km_referencia
+        description: "Km de referência CAPEX do lote (I.2; stub nulo)"
 
   - name: viagem_valida_regularidade_temperatura
     description: >
@@ -127,7 +66,7 @@ models:
       - name: indicador_sem_transacao
         description: "Sem embarque Jaé/RioCard na janela da viagem"
 
-  - name: viagem_classificacao_validacao
+  - name: viagem_valida_classificada
     description: >
       Fatos da viagem (completa / válida / conforme) + faixa da partida
       + auditoria (`tipo_viagem`, `indicadores`, tipologia) — entrada
@@ -135,8 +74,7 @@ models:
       Inner join na oferta só para carimbar
       `faixa_horaria_inicio`/`fim`; viagem sem faixa não entra.
       Lote e programadas vivem em `servico_oferta_faixa`. Stub:
-      incompleta / nao_apurada; `indicador_dentro_do_teto_programado`
-      = true (OF não ranqueia teto).
+      incompleta / nao_apurada.
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"
@@ -152,10 +90,6 @@ models:
         description: "true = validação válida (conforme ou não conforme)"
       - name: indicador_viagem_conforme
         description: "true = validação conforme (exige valida)"
-      - name: indicador_dentro_do_teto_programado
-        description: >
-          Stub WIP: true (programada ou autorizada). Extra não
-          autorizada ainda não é ranqueada; o OF exige o fato.
       - name: km_programada
         description: "Km planejada da viagem"
       - name: km_percorrida
@@ -172,14 +106,14 @@ models:
         description: "Início da faixa horária (HH:MM, grão IPA)"
       - name: faixa_horaria_fim
         description: "Fim da faixa horária (HH:MM, eco)"
-      - name: servico_tecnologia
+      - name: tecnologia_minima_servico
         description: >
-          Tecnologia mínima permitida do serviço (`tecnologia_servico.menor_tecnologia_permitida`),
-          por enquanto — não usa seed POR.
-      - name: servico_tecnologia_minima
-        description: "menor_tecnologia_permitida (tecnologia_servico)"
-      - name: servico_tecnologia_maxima
-        description: "maior_tecnologia_permitida (tecnologia_servico)"
+          Tecnologia mínima permitida do serviço
+          (`tecnologia_servico.menor_tecnologia_permitida`)
+      - name: tecnologia_maxima_servico
+        description: >
+          Tecnologia máxima permitida do serviço
+          (`tecnologia_servico.maior_tecnologia_permitida`)
       - name: tipo_dia
         description: "Tipo de dia da oferta no join"
       - name: tipo_viagem
@@ -191,7 +125,7 @@ models:
       - name: tecnologia_fcf
         description: >
           Tipología para FCF (I.8 §4): coalesce(tecnologia_apurada,
-          servico_tecnologia_minima); acima da máxima mantém apurada.
+          tecnologia_minima_servico); acima da máxima mantém apurada.
           Sem tecnologia_remunerada no contrato I.8.
       - name: tecnologia_remunerada
         description: "Eco/auditoria da classificação legada; não usada no FCF I.8"
@@ -236,11 +170,11 @@ models:
         description: "Início da faixa (HH:MM, grão IPA)"
       - name: faixa_horaria_fim
         description: "Fim da faixa (eco)"
-      - name: servico_tecnologia
-        description: "Tecnologia do serviço (eco)"
+      - name: tecnologia_minima_servico
+        description: "Tecnologia mínima do serviço (eco)"
       - name: tecnologia_fcf
         description: >
-          Tipología para FCF tipológico (eco de viagem_classificacao_validacao)
+          Tipología para FCF tipológico (eco de viagem_valida_classificada)
       - name: tipo_dia
         description: "Tipo de dia (eco)"
       - name: period
@@ -249,14 +183,10 @@ models:
         description: "Hora derivada de datetime_partida (0-23)"
       - name: day_of_week
         description: "Dia da semana Spark (1=domingo … 7=sábado)"
-      - name: indicador_quilometragem_pagamento
+      - name: indicador_km_pagamento
         description: "Tab. 2 — conta para km de pagamento"
       - name: indicador_percentual_atendimento
         description: "Tab. 2 — conta para % atendimento"
-      - name: indicador_dentro_do_teto_programado
-        description: >
-          true = viagem dentro do teto I.8 (no máximo viagens_programadas
-          por faixa em QC e no numerador do IPA); extra → OPEX 0
       - name: km_remuneravel
         description: "Km da viagem para QC (0 se extra além do teto)"
       - name: indicador_pico_manha
@@ -307,10 +237,8 @@ models:
   - name: fcf_quinzena_lote
     description: >
       FCF tipológico (I.8 §4) por lote × quinzena: frota operante por
-      tecnologia_fcf vs operacao_lote_tecnologia;
-      min(1, Σ min(media_tech, estimada_tech) / Σ estimada_tech).
-      I.2 via `operacao_lote` na data de referência da quinzena; viagens
-      só para picos / tecnologia_fcf.
+      tecnologia_fcf. Desligado até haver frota/QR planejada (GTFS ou
+      I.2); seeds `sistema_referencia_*` removidas.
     columns:
       - name: ano
         description: "Ano civil"
@@ -329,7 +257,7 @@ models:
       - name: fcf_quinzena
         description: "min(1, Σ min(media_tech, estimada_tech) / Σ estimada_tech)"
       - name: km_referencia
-        description: "Base CAPEX: lote_km_referencia ou QR mensal / 2"
+        description: "Base CAPEX: lote_km_referencia_quinzena ou QR mensal / 2"
       - name: qr_quinzena
         description: "QR da quinzena (QR mensal / 2 ou km_referencia)"
       - name: lote_frota_estimada
@@ -338,8 +266,8 @@ models:
         description: "Eco I.2 — frota determinada (teto)"
       - name: lote_qr_mensal
         description: "Eco I.2 — QR mensal"
-      - name: lote_km_referencia
-        description: "Eco I.2 — km referência CAPEX"
+      - name: lote_km_referencia_quinzena
+        description: "Eco I.2 — km referência CAPEX da quinzena"
 
   - name: remuneracao_quinzena_lote
     description: >

@@ -748,7 +748,7 @@ selectors:
       Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
       `servico_oferta_faixa` + ramos flags (`aux_veiculo_status_viagem`,
       `viagem_valida_temperatura`, `viagem_valida_bilhetagem`) +
-      `viagem_classificacao_validacao` + `viagens_apuradas` + views de
+      `viagem_valida_classificada` + `viagens_apuradas` + views de
       monitoramento.
     definition:
       union:
@@ -761,7 +761,7 @@ selectors:
         - method: fqn
           value: viagem_valida_bilhetagem
         - method: fqn
-          value: viagem_classificacao_validacao
+          value: viagem_valida_classificada
         # - method: fqn
         #   value: viagens_apuradas
         # - method: fqn

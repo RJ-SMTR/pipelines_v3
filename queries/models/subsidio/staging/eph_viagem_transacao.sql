@@ -55,6 +55,16 @@ with
             data,
             id_viagem,
             id_veiculo,
+            -- Chave de join com a Jaé, que guarda o `id_veiculo` sem o prefixo de
+            -- lote (RIO, `{lote}-{prefixo}`) ou sem o primeiro dígito (SPPO). Tem
+            -- que ser expressão de uma só tabela, senão o BigQuery não extrai chave
+            -- de hash e o join com a transação vira produto cartesiano.
+            {% if var("sistema") == "rio" %}
+                if(
+                    substr(id_veiculo, 3, 1) = "-", substr(id_veiculo, 4), null
+                ) as id_veiculo_join,
+            {% else %} substr(id_veiculo, 2) as id_veiculo_join,
+            {% endif %}
             {% if var("sistema") == "rio" %} id_validador,
             {% else %} cast(null as string) as id_validador,
             {% endif %}
@@ -164,14 +174,7 @@ with
         from transacao as t
         inner join
             viagem_com_tolerancia as v
-            on {{
-                id_veiculo_jae_join(
-                    "t.id_veiculo",
-                    "v.id_veiculo",
-                    "left(v.id_veiculo, 2)",
-                    "substr(v.id_veiculo, 2)",
-                )
-            }}
+            on t.id_veiculo = v.id_veiculo_join
             and t.datetime_transacao
             between v.datetime_partida_com_tolerancia and v.datetime_chegada
         group by 1, 2
@@ -190,14 +193,7 @@ with
         from transacao_riocard as tr
         inner join
             viagem_com_tolerancia as v
-            on {{
-                id_veiculo_jae_join(
-                    "tr.id_veiculo",
-                    "v.id_veiculo",
-                    "left(v.id_veiculo, 2)",
-                    "substr(v.id_veiculo, 2)",
-                )
-            }}
+            on tr.id_veiculo = v.id_veiculo_join
             and tr.datetime_transacao
             between v.datetime_partida_com_tolerancia and v.datetime_chegada
         group by 1, 2

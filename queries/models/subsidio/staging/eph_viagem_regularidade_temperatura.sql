@@ -9,11 +9,6 @@
   não inline eph_viagem_temperatura.
   RIO: não há aux persistido; o flow passa sistema=rio.
 #}
-{% if var("sistema") == "rio" %}
-    {% set indicadores_expr = "parse_json(indicadores_str)" %}
-{% else %} {% set indicadores_expr = "indicadores" %}
-{% endif %}
-
 {% set condicao_veiculo %}
 (
     (
@@ -31,6 +26,30 @@
 {% endset %}
 
 with
+    fonte as (  -- Normaliza indicadores para JSON independente do sistema de origem
+        select
+            data,
+            id_viagem,
+            id_veiculo,
+            id_validador,
+            datetime_partida,
+            datetime_chegada,
+            modo,
+            ano_fabricacao,
+            tecnologia_apurada,
+            tecnologia_remunerada,
+            tipo_viagem,
+            servico,
+            sentido,
+            distancia_planejada,
+            {% if var("sistema") == "rio" %} parse_json(indicadores_str) as indicadores
+            {% else %} indicadores
+            {% endif %}
+        {% if var("sistema") == "rio" %} from {{ ref("eph_viagem_temperatura") }}
+        {% else %} from {{ ref("aux_viagem_temperatura") }}
+        {% endif %}
+        where {{ incremental_filter }}
+    ),
     viagem_temperatura as (
         select
             data,
@@ -47,45 +66,39 @@ with
             servico,
             sentido,
             distancia_planejada,
-            {{ indicadores_expr }} as indicadores,
+            indicadores,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }},
-                    '$.indicador_temperatura_variacao_viagem.valor'
+                    indicadores, '$.indicador_temperatura_variacao_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_variacao_viagem,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }},
-                    '$.indicador_temperatura_transmitida_viagem.valor'
+                    indicadores, '$.indicador_temperatura_transmitida_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_transmitida_viagem,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }},
+                    indicadores,
                     '$.indicador_temperatura_pos_tratamento_descartada_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_pos_tratamento_descartada_viagem,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }}, '$.indicador_temperatura_zero_viagem.valor'
+                    indicadores, '$.indicador_temperatura_zero_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_zero_viagem,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }}, '$.indicador_temperatura_nula_viagem.valor'
+                    indicadores, '$.indicador_temperatura_nula_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_nula_viagem,
             safe_cast(
                 json_value(
-                    {{ indicadores_expr }},
-                    '$.indicador_temperatura_regular_viagem.valor'
+                    indicadores, '$.indicador_temperatura_regular_viagem.valor'
                 ) as bool
             ) as indicador_temperatura_regular_viagem
-        {% if var("sistema") == "rio" %} from {{ ref("eph_viagem_temperatura") }}
-        {% else %} from {{ ref("aux_viagem_temperatura") }}
-        {% endif %}
-        where {{ incremental_filter }}
+        from fonte
     ),
     veiculo_regularidade as (
         select

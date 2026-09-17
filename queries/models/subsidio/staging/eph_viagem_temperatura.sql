@@ -9,6 +9,15 @@
 {% endset %}
 
 with
+    {% if var("sistema") == "rio" %}
+        operadora_consorcio as (  -- Sigla do consórcio da viagem → id_operadora da Jaé
+            -- `operadoras.operadora` vem como "GTU - GUARATIBA ...", e a viagem traz
+            -- só a sigla em `consorcio`. Dim pequena, resolvida uma vez fora dos
+            -- joins grandes.
+            select distinct id_operadora, split(operadora, " ")[offset(0)] as consorcio
+            from {{ ref("operadoras") }}
+        ),
+    {% endif %}
     viagens as (  -- Viagens realizadas no período de apuração
         select
         {% if var("sistema") == "rio" %}
@@ -17,11 +26,19 @@ with
                 vv.datetime_partida,
                 vv.datetime_chegada,
                 vv.id_veiculo,
-                left(vv.id_veiculo, 2) as lote,
-                vv.placa,
-                vv.ano_fabricacao,
+                -- `id_veiculo` da viagem é `{lote}-{prefixo}` (ex. `A2-001`) e o da
+                -- Jaé é um número de 5 dígitos que termina no mesmo prefixo. Só os 3
+                -- dígitos não bastam: na cidade inteira há ~13 veículos Jaé por
+                -- prefixo. Com o operador na chave o casamento fica único.
+                -- Precisa ser expressão de uma só tabela, senão o BigQuery não extrai
+                -- chave de hash e o join com o GPS vira produto cartesiano.
+                concat(
+                    oc.id_operadora, "-", right(vv.id_veiculo, 3)
+                ) as id_veiculo_join,
+                vs.placa,
+                vs.ano_fabricacao,
                 vv.id_viagem,
-                vv.tipo_viagem,
+                cast(null as string) as tipo_viagem,
                 vs.indicadores,
                 safe_cast(
                     json_value(
@@ -29,7 +46,7 @@ with
                     ) as bool
                 ) as indicador_ar_condicionado,
                 vv.distancia_planejada,
-                vv.tecnologia_apurada,
+                vs.tecnologia_apurada,
                 cast(null as string) as tecnologia_remunerada,
                 vv.sentido,
                 vv.modo
@@ -38,11 +55,13 @@ with
                 {{ ref("aux_veiculo_status_viagem") }} as vs
                 on vv.data = vs.data
                 and vv.id_viagem = vs.id_viagem
+            left join operadora_consorcio as oc on vv.consorcio = oc.consorcio
             where
                 vv.data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
                 and vv.data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+                and vv.sistema = "RIO"
         {% else %}
                 data,
                 servico,
@@ -105,6 +124,10 @@ with
             datetime_gps,
             servico_jae,
             id_veiculo,
+            {% if var("sistema") == "rio" %}
+                concat(id_operadora, "-", right(id_veiculo, 3)) as id_veiculo_join,
+            {% else %} id_veiculo as id_veiculo_join,
+            {% endif %}
             id_validador,
             estado_equipamento,
             latitude,
@@ -124,6 +147,7 @@ with
                         servico_jae,
                         id_validador,
                         id_veiculo,
+                        id_veiculo_join,
                         latitude,
                         longitude,
                         if(
@@ -144,6 +168,7 @@ with
                         servico_jae,
                         id_validador,
                         id_veiculo,
+                        id_veiculo_join,
                         latitude,
                         longitude,
                         estado_equipamento,
@@ -168,11 +193,7 @@ with
         from viagens as v
         left join
             estado_equipamento_aux as e
-            on {{
-                id_veiculo_jae_join(
-                    "e.id_veiculo", "v.id_veiculo", "v.lote", "v.id_veiculo_join"
-                )
-            }}
+            on e.id_veiculo_join = v.id_veiculo_join
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_bilhetagem_viagem_filtrada as (  -- Filtra pontos de GPS fora das garagens e endereços de manutenção dos validadores
@@ -233,11 +254,7 @@ with
         from viagens as v
         left join
             gps_validador as e
-            on {{
-                id_veiculo_jae_join(
-                    "e.id_veiculo", "v.id_veiculo", "v.lote", "v.id_veiculo_join"
-                )
-            }}
+            on e.id_veiculo_join = v.id_veiculo_join
             and e.datetime_gps between v.datetime_partida and v.datetime_chegada
     ),
     gps_validador_indicadores as (  -- Indicadores de temperatura por veículo
@@ -634,17 +651,20 @@ with
         select
             * except (indicadores_str, indicadores_novos),
             to_json_string(
-                (
-                    parse_json(
-                        concat(
-                            left(
-                                coalesce(indicadores_str, "{}"),
-                                length(coalesce(indicadores_str, "{}")) - 1
-                            ),
-                            ",",
-                            substr(indicadores_novos, 2)
-                        )
-                    )
+                parse_json(
+                    -- to_json_string devolve a string "null" quando indicadores é
+                    -- nulo; sem base a mesclar, indicadores_novos já é objeto válido
+                    case
+                        when
+                            indicadores_str is null or indicadores_str in ("null", "{}")
+                        then indicadores_novos
+                        else
+                            concat(
+                                left(indicadores_str, length(indicadores_str) - 1),
+                                ",",
+                                substr(indicadores_novos, 2)
+                            )
+                    end
                 )
             ) as indicadores_str
         from dados_novos

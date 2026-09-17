@@ -15,7 +15,7 @@
   as seeds. Reativar quando houver frota/QR planejada (GTFS ou I.2).
 
   tecnologia_fcf = coalesce(apurada, mínima) — eco de
-  viagem_classificacao_validacao / viagens_apuradas.
+  viagem_valida_classificada / viagens_apuradas.
   fcf = min(1, Σ min(media_operante_tech, estimada_tech) / Σ estimada_tech)
 
   Quinzena: 1 = dias 1–15; 2 = dias 16–fim.

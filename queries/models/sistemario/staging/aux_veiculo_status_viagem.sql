@@ -24,7 +24,7 @@ with
             sentido,
             modo
         from {{ ref("viagem_valida") }}
-        where {{ incremental_filter }}
+        where {{ incremental_filter }} and sistema = "RIO"
     ),
     veiculos as (
         select data, id_veiculo, placa, ano_fabricacao, tecnologia, status, indicadores
@@ -133,7 +133,9 @@ with
         select
             vt.data,
             vt.id_viagem,
-            logical_or(va.id_infracao = "017.III") as indicador_autuado_alterar_itinerario,
+            logical_or(
+                va.id_infracao = "017.III"
+            ) as indicador_autuado_alterar_itinerario,
             logical_or(va.id_infracao = "023.X") as indicador_autuado_vista_inoperante,
             logical_or(
                 va.id_infracao = "029.I"
@@ -171,22 +173,29 @@ select
     vt.status = "Lacrado" as indicador_lacrado,
     vt.status = "Licenciado sem ar e não autuado"
     and vt.servico not in (select servico from {{ ref("servico_contrato_abreviado") }})
-    and vt.data >= date("{{ var('DATA_SUBSIDIO_V19_INICIO') }}")
-    as indicador_nao_autorizado_ausencia_ar,
+    and vt.data >= date(
+        "{{ var('DATA_SUBSIDIO_V19_INICIO') }}"
+    ) as indicador_nao_autorizado_ausencia_ar,
     vt.indicador_penalidade_tecnologia
-    and vt.data >= date('{{ var("DATA_SUBSIDIO_V16_INICIO") }}')
-    as indicador_nao_autorizado_capacidade,
+    and vt.data >= date(
+        '{{ var("DATA_SUBSIDIO_V16_INICIO") }}'
+    ) as indicador_nao_autorizado_capacidade,
     vt.status = "Autuado por ar inoperante" as indicador_autuado_ar_inoperante,
-    coalesce(af.indicador_autuado_alterar_itinerario, false)
-    as indicador_autuado_alterar_itinerario,
-    coalesce(af.indicador_autuado_vista_inoperante, false)
-    as indicador_autuado_vista_inoperante,
-    coalesce(af.indicador_autuado_nao_atender_parada, false)
-    as indicador_autuado_nao_atender_parada,
-    coalesce(af.indicador_autuado_iluminacao_insuficiente, false)
-    as indicador_autuado_iluminacao_insuficiente,
-    coalesce(af.indicador_autuado_nao_concluir_itinerario, false)
-    as indicador_autuado_nao_concluir_itinerario,
+    coalesce(
+        af.indicador_autuado_alterar_itinerario, false
+    ) as indicador_autuado_alterar_itinerario,
+    coalesce(
+        af.indicador_autuado_vista_inoperante, false
+    ) as indicador_autuado_vista_inoperante,
+    coalesce(
+        af.indicador_autuado_nao_atender_parada, false
+    ) as indicador_autuado_nao_atender_parada,
+    coalesce(
+        af.indicador_autuado_iluminacao_insuficiente, false
+    ) as indicador_autuado_iluminacao_insuficiente,
+    coalesce(
+        af.indicador_autuado_nao_concluir_itinerario, false
+    ) as indicador_autuado_nao_concluir_itinerario,
     vt.status = "Registrado com ar inoperante" as indicador_registrado_ar_inoperante,
     json_set(
         json_set(

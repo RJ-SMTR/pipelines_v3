@@ -30,16 +30,13 @@ with
             datetime_partida,
             datetime_chegada,
             id_veiculo,
-            placa,
-            ano_fabricacao,
             servico,
             sentido,
             distancia_planejada,
             modo,
-            tipo_dia,
-            tecnologia_apurada
+            tipo_dia
         from {{ ref("viagem_valida") }}
-        where {{ incremental_filter }}
+        where {{ incremental_filter }} and sistema = "RIO"
     ),
     status_veiculo as (
         select *
@@ -82,16 +79,14 @@ with
             v.datetime_partida,
             v.datetime_chegada,
             v.id_veiculo,
-            coalesce(s.placa, v.placa) as placa,
-            coalesce(s.ano_fabricacao, v.ano_fabricacao) as ano_fabricacao,
+            s.placa,
+            s.ano_fabricacao,
             v.servico,
             v.sentido,
             v.distancia_planejada,
             v.modo,
             v.tipo_dia,
-            coalesce(
-                s.tecnologia_apurada, t.tecnologia_apurada, v.tecnologia_apurada
-            ) as tecnologia_apurada,
+            coalesce(s.tecnologia_apurada, t.tecnologia_apurada) as tecnologia_apurada,
             s.tecnologia_remunerada,
             coalesce(s.indicador_nao_licenciado, false) as indicador_nao_licenciado,
             coalesce(s.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
