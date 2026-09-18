@@ -393,7 +393,7 @@ def install_dbt_packages() -> None:
 def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
     for context in contexts:
         tables = get_model_table(models=context.selector.copy_private_models)
-        for table in tables:
+        for table in tables.values():
             BQTable(
                 env=env,
                 dataset_id=table["dataset_id"],
