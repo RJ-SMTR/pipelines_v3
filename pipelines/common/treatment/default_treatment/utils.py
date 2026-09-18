@@ -1221,6 +1221,16 @@ def run_dbt_deps() -> None:
 
 
 def get_model_table(models: list[str]) -> dict[str, dict[str, str]]:
+    """
+    Retorna informações da tabela correspondente a um modelo DBT
+
+    Args:
+        models (list[str]): Lista com nomes dos modelos DBT
+
+    Returns:
+        dict[str, dict[str, str]]: Dicionario no formato:
+            {<nome_modelo>: {"project_id": <nome>, "dataset_id": <nome>, "table_id": <nome>}, ...}
+    """
     _, _, target_path = get_dbt_paths()
     with (target_path / "manifest.json").open("r") as fi:
         manifest = json.load(fi)
