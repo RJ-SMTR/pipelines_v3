@@ -200,7 +200,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                 )
 
                 tasks["copy_to_private"] = copy_tables_to_private(
-                    env=env,
+                    env=tasks["env"],
                     contexts=contexts,
                     wait_for=[
                         tasks["run_dbt"],
