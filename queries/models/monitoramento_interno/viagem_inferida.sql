@@ -19,7 +19,9 @@ with
                         case when status_viagem = 'start' then datetime_gps end
                     ) over (
                         partition by id_veiculo, shape_id
-                        order by datetime_gps
+                        order by
+                            datetime_gps,
+                            case when status_viagem = "end" then 0 else 1 end
                         rows between unbounded preceding and 1 preceding
                     )
             end as datetime_partida
