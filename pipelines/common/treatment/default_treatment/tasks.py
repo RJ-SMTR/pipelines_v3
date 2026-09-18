@@ -392,15 +392,18 @@ def install_dbt_packages() -> None:
 @task(cache_policy=NO_CACHE)
 def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
     for context in contexts:
-        tables = get_model_table(models=context.selector.copy_private_models)
-        for table in tables.values():
-            BQTable(
-                env=env,
-                dataset_id=table["dataset_id"],
-                table_id=table["table_id"],
-                project_id=table["project_id"],
-            ).copy_table(
-                copy_project_id=smtr_constants.PRIVATE_PROJECT_NAME,
-                copy_dataset_id=table["dataset_id"],
-                copy_table_id=table["table_id"],
-            ).remove_policy_tags()
+        if env == "prod":
+            tables = get_model_table(models=context.selector.copy_private_models)
+            for table in tables.values():
+                BQTable(
+                    env=env,
+                    dataset_id=table["dataset_id"],
+                    table_id=table["table_id"],
+                    project_id=table["project_id"],
+                ).copy_table(
+                    copy_project_id=smtr_constants.PRIVATE_PROJECT_NAME,
+                    copy_dataset_id=table["dataset_id"],
+                    copy_table_id=table["table_id"],
+                ).remove_policy_tags()
+        else:
+            print("Cópia para projeto private ignorada no ambiente dev")

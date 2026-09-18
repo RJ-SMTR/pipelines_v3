@@ -4,7 +4,6 @@ Flow de materialização dos dados de transação
 
 DBT: 2026-05-15
 """
-# a
 
 from datetime import time
 from typing import Optional
