@@ -14,6 +14,7 @@ import yaml
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery.external_config import HivePartitioningOptions
+from google.cloud.bigquery.schema import SchemaField
 
 from pipelines.common import constants
 from pipelines.common.utils.gcp.base import GCPBase
@@ -148,8 +149,23 @@ class BQTable(GCPBase):
         return result.iloc[0][0]
 
     def copy_table(
-        self, copy_project_id: str, copy_dataset_id: str, copy_table_id: str
+        self,
+        copy_project_id: str,
+        copy_dataset_id: str,
+        copy_table_id: str,
     ) -> "BQTable":
+        """
+        Copia a tabela para outra localização do BigQuery
+
+        Args:
+            copy_project_id (str): Nome do projeto da tabela cópia.
+            copy_dataset_id (str): Nome do dataset da tabela cópia.
+            copy_table_id (str): Nome da tabela cópia.
+
+        Returns:
+            BQTable: Objeto representando a cópia da tabela.
+
+        """
         copy_table = BQTable(
             env=self.env,
             dataset_id=copy_dataset_id,
@@ -169,16 +185,17 @@ class BQTable(GCPBase):
         """
         Remove todas as policy tags de uma tabela
         """
+
+        def clear_policy_tags(field: SchemaField):
+            field_dict = field.to_api_repr()
+            field_dict["policyTags"] = {"names": []}
+            field_dict["fields"] = [clear_policy_tags(child) for child in field.fields]
+            return bigquery.SchemaField.from_api_repr(field_dict)
+
         client = self.client("bigquery")
         table = client.get_table(self.table_full_name)
-        new_schema = []
 
-        for field in table.schema:
-            field_dict = field.to_api_repr()
-
-            field_dict["policyTags"] = {"names": []}
-
-            new_schema.append(bigquery.SchemaField.from_api_repr(field_dict))
+        new_schema = [clear_policy_tags(field) for field in table.schema]
 
         table.schema = new_schema
         table = client.update_table(table, ["schema"])

@@ -391,6 +391,12 @@ def install_dbt_packages() -> None:
 
 @task(cache_policy=NO_CACHE)
 def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
+    """
+    Copia tabelas definidas no DBTSelector para o projeto private
+
+    env (str): Ambiente de execução, prod ou dev.
+    contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+    """
     for context in contexts:
         if env == "prod":
             tables = get_model_table(models=context.selector.copy_private_models)
