@@ -748,8 +748,9 @@ selectors:
       Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
       `servico_oferta_faixa` + ramos flags (`aux_veiculo_status_viagem`,
       `viagem_valida_temperatura`, `viagem_valida_bilhetagem`) +
-      `viagem_valida_classificada` + `viagens_apuradas` + views de
-      monitoramento.
+      `viagem_valida_classificada` + `aux_viagem_apurada` + recortes
+      (`viagem_apurada`, `faixa_apurada`, `data_apurada`) + sumários +
+      views de monitoramento.
     definition:
       union:
         - method: fqn
@@ -762,8 +763,23 @@ selectors:
           value: viagem_valida_bilhetagem
         - method: fqn
           value: viagem_valida_classificada
+        # Depende do pacote `rio_rac_bus_subsidy` no Dataproc.
         # - method: fqn
-        #   value: viagens_apuradas
+        #   value: aux_viagem_apurada_openfisca
+        # - method: fqn
+        #   value: aux_viagem_apurada
+        # - method: fqn
+        #   value: viagem_apurada
+        # - method: fqn
+        #   value: faixa_apurada
+        # - method: fqn
+        #   value: data_apurada
+        # - method: fqn
+        #   value: sumario_servico_sentido_faixa
+        # - method: fqn
+        #   value: sumario_servico_sentido_dia
+        # - method: fqn
+        #   value: sumario_consorcio_quinzena
         # - method: fqn
         #   value: view_monitoramento_viagem_transacao
         # - method: fqn

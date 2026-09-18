@@ -16,5 +16,5 @@ select
     max(frota_pico_manha) as frota_pico_manha,
     max(frota_pico_tarde) as frota_pico_tarde,
     max(frota_operante) as frota_operante
-from {{ ref("viagens_apuradas") }}
+from {{ ref("aux_viagem_apurada") }}
 group by data, lote

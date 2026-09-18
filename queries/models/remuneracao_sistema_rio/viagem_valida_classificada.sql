@@ -32,6 +32,7 @@ with
             id_veiculo,
             servico,
             sentido,
+            shape_id,
             distancia_planejada,
             modo,
             tipo_dia
@@ -83,6 +84,7 @@ with
             s.ano_fabricacao,
             v.servico,
             v.sentido,
+            v.shape_id,
             v.distancia_planejada,
             v.modo,
             v.tipo_dia,
@@ -254,6 +256,7 @@ select
     c.placa,
     c.servico,
     c.sentido,
+    c.shape_id,
     format(
         '%02d:%02d',
         extract(hour from c.faixa_horaria_inicio),

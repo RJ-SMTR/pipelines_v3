@@ -43,7 +43,7 @@ vars:
   ### Version default variable (replaced on deploy) ###
   version: ""
 
-  ### WIP teste sistemario (I.8): lote padrão na ausência de POR.
+  ### WIP teste remuneracao_sistema_rio (I.8): lote padrão na ausência de POR.
   ### Remover esta var, o macro `lote_padrao_teste` e as chamadas após o teste.
   lote_padrao: "A0"
 
@@ -514,12 +514,12 @@ models:
       +schema: subsidio
       staging:
         +schema: subsidio_staging
-    sistemario:
+    remuneracao_sistema_rio:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
-      +schema: sistemario
+      +schema: remuneracao_sistema_rio
       staging:
-        +schema: sistemario_staging
+        +schema: remuneracao_sistema_rio_staging
     catalogo:
       +materialized: view
       +schema: catalogo

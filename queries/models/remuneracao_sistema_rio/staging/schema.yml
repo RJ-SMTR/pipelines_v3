@@ -1,9 +1,49 @@
 version: 2
 
 models:
+  - name: aux_viagem_apurada_openfisca
+    description: >
+      Saída crua do `rio_rac_bus_subsidy.process_trip_calculations`
+      (viagens, planejamento) no grão viagem: Tab. 2, picos, frota diária
+      (MAX picos), teto de programadas, IPA/precária e OPEX. Só o que o OF
+      calcula — o contrato completo está em `aux_viagem_apurada`.
+
+  - name: aux_viagem_apurada
+    description: >
+      Tabela larga da apuração (52 colunas da planilha Tabelas Remuneração
+      Sistema RIO, 2026-09-14). Soma à saída do OpenFisca o que ele não
+      calcula: `shape_id` (do fan-in), stubs de lote (de
+      `servico_oferta_faixa`) e `id_apuracao`. Origem de `viagem_apurada`,
+      `faixa_apurada` e `data_apurada`.
+
+      Stubs nulos: `indicador_dentro_do_teto_programado` (o OF não ranqueia
+      teto) e `servico_tipo` (sem fonte no projeto).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__aux_viagem_apurada
+          arguments:
+            combination_of_columns:
+              - id_apuracao
+    columns:
+      - name: id_apuracao
+        description: "Identificador único da apuração — data|lote|id_veiculo|partida"
+        tests:
+          - not_null:
+              name: not_null__id_apuracao__aux_viagem_apurada
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: indicador_dentro_do_teto_programado
+        description: "Stub nulo — o OpenFisca não ranqueia teto de programadas"
+      - name: servico_tipo
+        description: "Stub nulo — sem fonte no projeto"
+
   - name: aux_frota_operante_dia_lote
     description: >
-      DEPRECATED — frota diária agora sai de `viagens_apuradas` via
+      DEPRECATED — frota diária agora sai de `aux_viagem_apurada` via
       `rio_rac_bus_subsidy.process_trip_calculations`. Mantido só por
       compatibilidade temporária.
       Frota operante diária por lote (Anexo I.8 item 4): maior quantitativo

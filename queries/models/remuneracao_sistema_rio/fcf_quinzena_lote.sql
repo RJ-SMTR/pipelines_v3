@@ -30,7 +30,7 @@ with
             indicador_completa_pico_manha,
             indicador_completa_pico_tarde,
             indicador_dia_util
-        from {{ ref("viagens_apuradas") }}
+        from {{ ref("aux_viagem_apurada") }}
     ),
     frota_dia_tech as (
         select

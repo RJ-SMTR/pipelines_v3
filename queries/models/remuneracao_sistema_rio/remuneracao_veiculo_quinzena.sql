@@ -19,7 +19,7 @@ with
             extract(year from data) as ano,
             extract(month from data) as mes,
             if(extract(day from data) <= 15, 1, 2) as quinzena
-        from {{ ref("viagens_apuradas") }}
+        from {{ ref("aux_viagem_apurada") }}
     ),
     por_veiculo as (
         select

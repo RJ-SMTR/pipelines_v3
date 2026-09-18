@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Viagens apuradas via ``rio_rac_bus_subsidy.process_trip_calculations``.
+"""Saída crua do ``rio_rac_bus_subsidy.process_trip_calculations``.
 
 Lê ``viagem_valida_classificada`` (fatos) e ``servico_oferta_faixa``
-(POR por faixa, todas as faixas do recorte) e persiste a saída do OF.
+(POR por faixa, todas as faixas do recorte) e persiste o que o OF calcula.
+Colunas do contrato que o OF não calcula (``id_apuracao``, ``shape_id``,
+``consorcio``, ``servico_tipo``, ``lote_*``) entram em ``aux_viagem_apurada``.
 
 Nota: não usar ``from __future__`` — o Dataproc/dbt injeta código antes
 deste arquivo.
@@ -27,7 +29,7 @@ from pyspark.sql.types import (
 from rio_rac_bus_subsidy import process_trip_calculations
 
 # Contrato BQ. Coerção Spark (date/datetime/numpy) fica em ``_linhas_saida``.
-SCHEMA_VIAGENS_APURADAS = StructType(
+SCHEMA_AUX_VIAGEM_APURADA = StructType(
     [
         StructField("id_viagem", StringType(), False),
         StructField("data", DateType(), False),
@@ -51,7 +53,7 @@ SCHEMA_VIAGENS_APURADAS = StructType(
         StructField("period", StringType(), False),
         StructField("hora_partida", IntegerType(), False),
         StructField("day_of_week", IntegerType(), False),
-        StructField("indicador_km_pagamento", BooleanType(), False),
+        StructField("indicador_quilometragem_pagamento", BooleanType(), False),
         StructField("indicador_percentual_atendimento", BooleanType(), False),
         StructField("km_remuneravel", DoubleType(), False),
         StructField("indicador_pico_manha", BooleanType(), False),
@@ -160,7 +162,7 @@ def _linhas_saida(resultado, id_execucao):
         linhas.append(
             {
                 campo.name: _coagir_campo(campo.dataType, linha.get(campo.name))
-                for campo in SCHEMA_VIAGENS_APURADAS
+                for campo in SCHEMA_AUX_VIAGEM_APURADA
             }
         )
     return linhas
@@ -185,7 +187,7 @@ def model(dbt, session):
         spark_max("data").alias("data_fim"),
     ).collect()
     if not limites or limites[0]["data_inicio"] is None:
-        return session.createDataFrame([], SCHEMA_VIAGENS_APURADAS)
+        return session.createDataFrame([], SCHEMA_AUX_VIAGEM_APURADA)
 
     planejamento_df = planejamento_df.filter(
         (col("data") >= limites[0]["data_inicio"]) & (col("data") <= limites[0]["data_fim"])
@@ -200,5 +202,5 @@ def model(dbt, session):
     )
     return session.createDataFrame(
         _linhas_saida(resultado, id_execucao),
-        SCHEMA_VIAGENS_APURADAS,
+        SCHEMA_AUX_VIAGEM_APURADA,
     )
