@@ -63,9 +63,13 @@ with
 
         union all
 
+        -- Equivale a id_tipo_trajeto = 0: vistas com [evento] são trajetos
+        -- alternativos e duplicariam os totais no join com valores_subsidio.
         select distinct data, servico, vista
         from {{ ref("aux_viagem_planejada_planejamento_dia_unnested") }}
-        where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        where
+            data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            and not regexp_contains(vista, r"\[.*?\]")
     ),
     pagamento as (
         select

@@ -42,6 +42,9 @@ with
             {{ incremental_filter }}
             and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             and quilometragem > 0
+            and (
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}") or sistema != "RIO"
+            )
     ),
     data_versao_efetiva as (
         select data, tipo_dia, tipo_os, feed_start_date
