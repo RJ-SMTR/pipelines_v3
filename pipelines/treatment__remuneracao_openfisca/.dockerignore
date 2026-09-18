@@ -1,0 +1,8 @@
+**
+!pipelines/treatment__remuneracao_openfisca/**
+!pipelines/treatment__planejamento_diario/**
+!pipelines/common/**
+!queries/**
+!openfisca_smtr/**
+!pyproject.toml
+!uv.lock
