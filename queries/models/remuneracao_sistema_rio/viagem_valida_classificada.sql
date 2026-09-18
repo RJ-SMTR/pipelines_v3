@@ -7,8 +7,6 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
-        on_schema_change="append_new_columns",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
@@ -55,7 +53,14 @@ with
         where {{ incremental_filter }}
     ),
     oferta as (
-        select data, tipo_dia, servico, sentido, faixa_horaria_inicio, faixa_horaria_fim
+        select
+            data,
+            tipo_dia,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            lote
         from {{ ref("servico_oferta_faixa") }}
         where {{ incremental_filter }}
     ),
@@ -223,6 +228,7 @@ with
         select
             b.*,
             o.tipo_dia as tipo_dia_oferta,
+            o.lote,
             o.faixa_horaria_inicio,
             o.faixa_horaria_fim,
             row_number() over (
@@ -239,6 +245,15 @@ with
     ),
     carimbo as (select * except (rn_faixa) from com_oferta where rn_faixa = 1)
 select
+    concat(
+        format_date('%Y-%m-%d', c.data),
+        '|',
+        c.lote,
+        '|',
+        c.id_veiculo,
+        '|',
+        format_datetime('%Y-%m-%dT%H:%M:%S', c.datetime_partida)
+    ) as id_apuracao,
     c.data,
     c.id_viagem,
     c.datetime_partida,
@@ -257,16 +272,8 @@ select
     c.servico,
     c.sentido,
     c.shape_id,
-    format(
-        '%02d:%02d',
-        extract(hour from c.faixa_horaria_inicio),
-        extract(minute from c.faixa_horaria_inicio)
-    ) as faixa_horaria_inicio,
-    format(
-        '%02d:%02d',
-        extract(hour from c.faixa_horaria_fim),
-        extract(minute from c.faixa_horaria_fim)
-    ) as faixa_horaria_fim,
+    c.faixa_horaria_inicio,
+    c.faixa_horaria_fim,
     ts.menor_tecnologia_permitida as tecnologia_minima_servico,
     ts.maior_tecnologia_permitida as tecnologia_maxima_servico,
     coalesce(c.tipo_dia_oferta, c.tipo_dia) as tipo_dia,

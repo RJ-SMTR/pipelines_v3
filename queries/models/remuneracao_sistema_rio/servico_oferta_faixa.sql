@@ -3,7 +3,6 @@
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
@@ -59,9 +58,10 @@ select
     ls.lote,
     o.extensao,
     o.km,
-    cast(null as float64) as lote_frota_estimada,
-    cast(null as float64) as lote_frota_determinada,
+    cast(0 as int64) as lote_frota_estimada,
+    cast(0 as int64) as lote_frota_determinada,
     cast(null as float64) as lote_qr_mensal,
+    cast(null as float64) as lote_km_referencia_mensal,
     cast(null as float64) as lote_km_referencia,
     o.consorcio,
     o.modo,
