@@ -678,6 +678,6 @@ select
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 {% if var("tipo_materializacao") == "monitoramento" %} from viagens_monitoramento
-{% else %} from viagem_completa
+{% else %} from viagem_completa as v
 {% endif %}
 where {{ output_filter }}
