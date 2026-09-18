@@ -19,13 +19,14 @@ from pipelines.common.treatment.default_treatment.utils import (
     clone_queries_from_github,
     dbt_test_notify_discord,
     get_dbt_paths,
+    get_model_table,
     run_dbt,
     run_dbt_deps,
     run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.gcp.bigquery import BQTable, SourceTable
 from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
@@ -386,3 +387,20 @@ def install_dbt_packages() -> None:
     Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
     """
     run_dbt_deps()
+
+
+@task(cache_policy=NO_CACHE)
+def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
+    for context in contexts:
+        tables = get_model_table(models=context.selector.copy_private_models)
+        for table in tables:
+            BQTable(
+                env=env,
+                dataset_id=table["dataset_id"],
+                table_id=table["table_id"],
+                project_id=table["project_id"],
+            ).copy_table(
+                copy_project_id=smtr_constants.PRIVATE_PROJECT_NAME,
+                copy_dataset_id=table["dataset_id"],
+                copy_table_id=table["table_id"],
+            ).remove_policy_tags()

@@ -31,7 +31,7 @@ TRANSACAO_POST_TEST = DBTTest(
 )
 
 TRANSACAO_SELECTOR = DBTSelector(
-    name="transacao",
+    name="cadastro",
     initial_datetime=datetime(2025, 3, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__transacao",
     incremental_delay_hours=1,
@@ -42,4 +42,5 @@ TRANSACAO_SELECTOR = DBTSelector(
         integracao_constants.INTEGRACAO_SELECTOR,
     ],
     post_test=TRANSACAO_POST_TEST,
+    copy_private_models=["transacao"],
 )
