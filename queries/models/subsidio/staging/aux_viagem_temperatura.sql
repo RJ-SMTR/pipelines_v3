@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('viagem_classificada') }}
 {{
     config(
         materialized="incremental",
@@ -65,9 +66,7 @@
 {% endif %}
 
 with
-    indicadores_concatenados as (
-        select * from {{ ref("eph_viagem_temperatura") }}
-    ),
+    indicadores_concatenados as (select * from {{ ref("eph_viagem_temperatura") }}),
     {% if is_incremental() %}
         dados_atuais as (
             select
