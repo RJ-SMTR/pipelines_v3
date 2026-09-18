@@ -31,7 +31,7 @@ TRANSACAO_POST_TEST = DBTTest(
 )
 
 TRANSACAO_SELECTOR = DBTSelector(
-    name="cadastro",
+    name="matriz_integracao_smtr",
     initial_datetime=datetime(2025, 3, 26, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__transacao",
     incremental_delay_hours=1,
