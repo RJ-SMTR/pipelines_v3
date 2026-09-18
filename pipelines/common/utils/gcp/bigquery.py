@@ -14,6 +14,7 @@ import yaml
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.bigquery.external_config import HivePartitioningOptions
+from google.cloud.bigquery.schema import SchemaField
 
 from pipelines.common import constants
 from pipelines.common.utils.gcp.base import GCPBase
@@ -77,6 +78,7 @@ class BQTable(GCPBase):
         dataset_id (str): dataset_id no BigQuery
         table_id (str): table_id no BigQuery
         bucket_names (dict): nome dos buckets de prod e dev associados ao objeto
+        project_id (str): identificador do projeto da GCP
     """
 
     def __init__(  # pylint: disable=R0913
@@ -85,8 +87,10 @@ class BQTable(GCPBase):
         dataset_id: str,
         table_id: str,
         bucket_names: Optional[dict] = None,
+        project_id: Optional[str] = None,
     ) -> None:
         self.table_full_name = None
+        self.project_id = project_id
         super().__init__(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -106,7 +110,9 @@ class BQTable(GCPBase):
         """
         super().set_env(env=env)
 
-        self.table_full_name = f"{constants.PROJECT_NAME[env]}.{self.dataset_id}.{self.table_id}"
+        project_id = self.project_id or constants.PROJECT_NAME[env]
+
+        self.table_full_name = f"{project_id}.{self.dataset_id}.{self.table_id}"
         return self
 
     def exists(self) -> bool:
@@ -141,6 +147,60 @@ class BQTable(GCPBase):
         result = pandas_gbq.read_gbq(query, project_id=constants.PROJECT_NAME[self.env])
 
         return result.iloc[0][0]
+
+    def copy_table(
+        self,
+        copy_project_id: str,
+        copy_dataset_id: str,
+        copy_table_id: str,
+    ) -> "BQTable":
+        """
+        Copia a tabela para outra localização do BigQuery
+
+        Args:
+            copy_project_id (str): Nome do projeto da tabela cópia.
+            copy_dataset_id (str): Nome do dataset da tabela cópia.
+            copy_table_id (str): Nome da tabela cópia.
+
+        Returns:
+            BQTable: Objeto representando a cópia da tabela.
+
+        """
+        copy_table = BQTable(
+            env=self.env,
+            dataset_id=copy_dataset_id,
+            table_id=copy_table_id,
+            project_id=copy_project_id,
+        )
+        query = f"""
+        CREATE OR REPLACE TABLE `{copy_table.table_full_name}`
+        COPY `{self.table_full_name}`
+        """
+        print("Executando query:\n" + query)
+        self.client(service="bigquery").query(query).result()
+
+        return copy_table
+
+    def remove_policy_tags(self):
+        """
+        Remove todas as policy tags de uma tabela
+        """
+
+        def clear_policy_tags(field: SchemaField):
+            field_dict = field.to_api_repr()
+            field_dict["policyTags"] = {"names": []}
+            field_dict["fields"] = [clear_policy_tags(child) for child in field.fields]
+            return bigquery.SchemaField.from_api_repr(field_dict)
+
+        client = self.client("bigquery")
+        table = client.get_table(self.table_full_name)
+
+        new_schema = [clear_policy_tags(field) for field in table.schema]
+
+        table.schema = new_schema
+        table = client.update_table(table, ["schema"])
+
+        print(f"Policy tags da tabela {self.table_full_name} removidas!")
 
 
 class SourceTable(BQTable):

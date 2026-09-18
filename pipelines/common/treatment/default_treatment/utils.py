@@ -166,6 +166,7 @@ class DBTSelector:
         pre_test: Optional[DBTTest] = None,
         post_test: Optional[DBTTest] = None,
         data_sources: Optional[list[Union["DBTSelector", SourceTable, dict]]] = None,
+        copy_private_models: Optional[list[str]] = None,
     ):
         self.name = name
         self.flow_folder_name = flow_folder_name
@@ -180,6 +181,7 @@ class DBTSelector:
         self.post_test = post_test
 
         self.data_sources = data_sources or []
+        self.copy_private_models = copy_private_models or []
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -1216,3 +1218,31 @@ def run_dbt_deps() -> None:
         ),
         raise_on_failure=True,
     ).invoke(["deps"])
+
+
+def get_model_table(models: list[str]) -> dict[str, dict[str, str]]:
+    """
+    Retorna informações da tabela correspondente a um modelo DBT
+
+    Args:
+        models (list[str]): Lista com nomes dos modelos DBT
+
+    Returns:
+        dict[str, dict[str, str]]: Dicionario no formato:
+            {<nome_modelo>: {"project_id": <nome>, "dataset_id": <nome>, "table_id": <nome>}, ...}
+    """
+    _, _, target_path = get_dbt_paths()
+    with (target_path / "manifest.json").open("r") as fi:
+        manifest = json.load(fi)
+
+    nodes = manifest["nodes"]
+
+    result = {}
+    for model in models:
+        model_info = nodes[f"model.rj_smtr.{model}"]
+        result[model] = {
+            "project_id": model_info["database"],
+            "dataset_id": model_info["schema"],
+            "table_id": model_info["name"],
+        }
+    return result
