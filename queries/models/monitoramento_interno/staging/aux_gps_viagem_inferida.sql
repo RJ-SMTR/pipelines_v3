@@ -74,9 +74,11 @@ with
         from gps_brt
     ),
     /*
-    GPS de bordo usa prefixo (C47476); Jaé manda só a ordem (47476).
-    Mesmo padrão de aux_viagem_temperatura: substr(id_veiculo, 2).
-    As duas fontes entram: quanto mais GPS, melhor para inferir a viagem.
+    GPS de bordo SPPO usa prefixo (C47476); Jaé manda só a ordem (47476).
+    Maxtrack (GTU/TUSA) usa A2-/B2-; hardcode das operadoras 2801/2802,
+    mesmo padrão do gps_viagem.
+    2801 - GTU (A2)
+    2802 - TUSA (B2)
     */
     veiculos_bordo as (
         select
@@ -90,7 +92,13 @@ with
         select
             data,
             datetime_gps,
-            id_veiculo,
+            case
+                when id_operadora = "2801"
+                then "A2-" || lpad(right(id_veiculo, 3), 3, "0")
+                when id_operadora = "2802"
+                then "B2-" || lpad(right(id_veiculo, 3), 3, "0")
+                else id_veiculo
+            end as id_veiculo,
             trim(servico_jae) as servico,
             latitude,
             longitude,
@@ -101,10 +109,13 @@ with
         where
             {{ gps_data_filter }}
             and id_veiculo is not null
+            and id_veiculo != "99999"
             and modo = "Ônibus"
             and servico_jae is not null
             and latitude is not null
             and longitude is not null
+            and latitude != 0
+            and longitude != 0
     ),
     gps_validador as (
         select
