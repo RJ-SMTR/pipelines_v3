@@ -452,27 +452,32 @@ exposures:
             - adriano.neto@prefeitura.rio
             - rodrigo.fcunha@prefeitura.rio
 
-  # - name: PAINEL_RIO_ROTATIVO_DIGITAL
-  #   type: dashboard
-  #   description: >
-  #     PAINEL RIO ROTATIVO DIGITAL
-  #   owner:
-  #     name: TR/SUBTT/CMO
-  #     email: marcio.caldeira@prefeitura.rio
-  #     roles:
-  #       - Owner
-  #       - Business Data Steward
-  #   depends_on:
-  #     - ref('ativacao_dia')
-  #     - ref('ativacao_hora')
-  #   config:
-  #     meta:
-  #       data_product_name: Painel Rio Rotativo Digital
-  #       data_usage_frequency: null
-  #       business_value: null
-  #       data_contract: null
-  #       technical_data_steward:
-  #         email: null
-  #         unit: IPLANRIO/PRE/VPIA/DTDI
-  #         core: Bilhetagem
-  #         team: null
+  - name: PAINEL_RIO_ROTATIVO_DIGITAL
+    type: dashboard
+    description: >
+      Painel com a finalidade de monitorar as ativações do Rio Rotativo Digital
+      por dia, hora e área de estacionamento, apoiando o acompanhamento da
+      ocupação das vagas e da operação do sistema.
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_ativacao_dia_riorotativo')
+      - ref('view_ativacao_hora_riorotativo')
+    config:
+      meta:
+        data_product_name: Painel Rio Rotativo Digital
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - rafael.pinheiro@prefeitura.rio
+            - adriano.neto@prefeitura.rio
+
