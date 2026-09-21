@@ -42,4 +42,5 @@ TRANSACAO_SELECTOR = DBTSelector(
         integracao_constants.INTEGRACAO_SELECTOR,
     ],
     post_test=TRANSACAO_POST_TEST,
+    copy_private_models=["transacao"],
 )
