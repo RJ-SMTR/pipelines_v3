@@ -79,9 +79,7 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('view_gps_onibus')
-      - ref('viagem_planejada_planejamento_dia')
-      - ref('shapes_geom_planejamento')
+      - ref('view_gps_onibus_8_dias')
     config:
       meta:
         data_product_name: GPS dos Ônibus (Últimos 8 Dias)

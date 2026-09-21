@@ -1,5 +1,11 @@
 # Changelog - dashboard_monitoramento_interno
 
+## [1.0.6] - 2026-09-21
+
+### Adicionado
+
+- Cria `view_gps_onibus_8_dias` com posições GPS dos ônibus dos últimos 8 dias (exceto parado em garagem) para o painel `PAINEL_GPS_ONIBUS`. (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/693)
+
 ## [1.0.5] - 2026-09-02
 
 ### Alterado

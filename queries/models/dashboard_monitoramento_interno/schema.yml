@@ -26,3 +26,24 @@ models:
         description: "Indicador de regularidade da temperatura da viagem"
       - name: operadora
         description: "{{ doc('operadora') }}"
+
+  - name: view_gps_onibus_8_dias
+    description: >
+      Posições GPS dos ônibus em operação nos últimos 8 dias, excluindo veículos
+      parados em garagem, para o painel GPS dos Ônibus.
+    columns:
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
+
