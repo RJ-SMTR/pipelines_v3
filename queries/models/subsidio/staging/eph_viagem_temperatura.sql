@@ -96,12 +96,8 @@ with
             servico_jae,
             id_veiculo,
             {% if var("sistema") == "rio" %}
-                case
-                    when id_operadora = '2801'
-                    then 'A2-' || lpad(right(id_veiculo, 3), 3, '0')
-                    when id_operadora = '2802'
-                    then 'B2-' || lpad(right(id_veiculo, 3), 3, '0')
-                end as id_veiculo_join,
+                {{ id_veiculo_jae_rio("id_operadora", "id_veiculo") }}
+                as id_veiculo_join,
             {% else %} id_veiculo as id_veiculo_join,
             {% endif %}
             id_validador,

@@ -25,12 +25,8 @@ with
     transacao as (
         select
             {% if var("sistema") == "rio" %}
-                case
-                    when t.id_operadora = '2801'
-                    then 'A2-' || lpad(right(t.id_veiculo, 3), 3, '0')
-                    when t.id_operadora = '2802'
-                    then 'B2-' || lpad(right(t.id_veiculo, 3), 3, '0')
-                end as id_veiculo,
+                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
+                as id_veiculo,
             {% else %} t.id_veiculo,
             {% endif %}
             t.servico_jae,
@@ -50,12 +46,8 @@ with
     transacao_riocard as (
         select
             {% if var("sistema") == "rio" %}
-                case
-                    when t.id_operadora = '2801'
-                    then 'A2-' || lpad(right(t.id_veiculo, 3), 3, '0')
-                    when t.id_operadora = '2802'
-                    then 'B2-' || lpad(right(t.id_veiculo, 3), 3, '0')
-                end as id_veiculo,
+                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
+                as id_veiculo,
             {% else %} t.id_veiculo,
             {% endif %}
             t.servico_jae,
