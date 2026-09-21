@@ -8,20 +8,38 @@
 }}
 
 with
+    -- Partida linear: último start antes do end.
+    -- Partida circular: middle_start (primeira comunicação no shape)
+    -- anterior ao middle_end (primeira comunicação no end).
     aux_status as (
         select
             * except (servico_viagem),
             servico_viagem as servico,
             case
-                when status_viagem = 'end'
+                when status_viagem = "end"
                 then
                     last_value(
-                        case when status_viagem = 'start' then datetime_gps end
+                        case
+                            when status_viagem = "start" then datetime_gps
+                        end ignore nulls
                     ) over (
                         partition by id_veiculo, shape_id
                         order by
                             datetime_gps,
                             case when status_viagem = "end" then 0 else 1 end
+                        rows between unbounded preceding and 1 preceding
+                    )
+                when status_viagem = "middle_end"
+                then
+                    last_value(
+                        case
+                            when status_viagem = "middle_start" then datetime_gps
+                        end ignore nulls
+                    ) over (
+                        partition by id_veiculo, shape_id
+                        order by
+                            datetime_gps,
+                            case when status_viagem = "middle_end" then 0 else 1 end
                         rows between unbounded preceding and 1 preceding
                     )
             end as datetime_partida
@@ -62,7 +80,7 @@ with
             '{{ invocation_id }}' as id_execucao_dbt
         from aux_status
         where
-            status_viagem = 'end'
+            status_viagem in ("end", "middle_end")
             and datetime_partida is not null
             and datetime_partida < datetime_gps
         qualify

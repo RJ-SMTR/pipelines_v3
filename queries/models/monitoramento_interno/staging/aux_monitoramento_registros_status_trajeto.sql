@@ -120,9 +120,24 @@ with
         from servico_planejado_unnested as spu
         left join shapes as s using (feed_start_date, shape_id)
     ),
-    -- 4. Classifica a posição do veículo em todos os shapes possíveis de
-    -- serviços de uma mesma empresa
-    status_viagem as (
+    -- 4. Primeiro e último segmento de cada shape, antes de classificar o status
+    segmentos_filtrados as (
+        select
+            shape_id,
+            feed_start_date,
+            array_agg(buffer order by safe_cast(id_segmento as int64) asc limit 1)[
+                offset(0)
+            ] as buffer_inicio,
+            array_agg(buffer order by safe_cast(id_segmento as int64) desc limit 1)[
+                offset(0)
+            ] as buffer_fim
+        from {{ ref("segmento_shape") }}
+        {# from `rj-smtr.planejamento.segmento_shape` #}
+        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
+        group by shape_id, feed_start_date
+    ),
+    -- 5. Posição do GPS no primeiro segmento, no último e no shape
+    posicao_segmento as (
         select
             data_operacao as data,
             g.id_veiculo,
@@ -151,112 +166,92 @@ with
                     )
                 }}
             ) as indicador_circular,
-            case
-                when st_dwithin(g.geo_point_gps, start_pt, {{ var("buffer") }})
-                then "start"
-                when st_dwithin(g.geo_point_gps, end_pt, {{ var("buffer") }})
-                then "end"
-                when st_dwithin(g.geo_point_gps, shape, {{ var("buffer") }})
-                then "middle"
-                else "out"
-            end as status_viagem
+            ifnull(
+                st_intersects(g.geo_point_gps, sf.buffer_inicio), false
+            ) as indicador_segmento_inicio,
+            ifnull(
+                st_intersects(g.geo_point_gps, sf.buffer_fim), false
+            ) as indicador_segmento_fim,
+            st_dwithin(
+                g.geo_point_gps, s.shape, {{ var("buffer") }}
+            ) as indicador_no_shape
         from gps g
         inner join
             servico_planejado_shapes s
             on g.data_operacao = s.data
             and g.servico = s.servico
-    ),
-    -- 5. Marca partida (starts) e chegada (ends) pela transição com middle,
-    -- como em aux_viagem_inicio_fim.
-    aux_status as (
-        select
-            *,
-            string_agg(status_viagem, "") over (
-                partition by id_veiculo, shape_id
-                order by datetime_gps, fonte_gps
-                rows between current row and 1 following
-            )
-            = "startmiddle" as starts,
-            (
-                string_agg(status_viagem, "") over (
-                    partition by id_veiculo, shape_id
-                    order by datetime_gps, fonte_gps
-                    rows between 1 preceding and current row
-                )
-                = "middleend"
-                or (
-                    indicador_circular
-                    and string_agg(status_viagem, "") over (
-                        partition by id_veiculo, shape_id
-                        order by datetime_gps, fonte_gps
-                        rows between 1 preceding and current row
-                    )
-                    = "middlestart"
-                )
-            ) as ends
-        from status_viagem
-    ),
-    aux_inicio_fim as (
-        select
-            * except (indicador_circular, starts, ends, status_viagem),
-            case
-                when ends then "end" when starts then "start" else status_viagem
-            end as status_viagem
-        from aux_status
-        where not (starts and ends)
-
-        union all
-
-        select
-            * except (indicador_circular, starts, ends, status_viagem),
-            "end" as status_viagem
-        from aux_status
-        where starts and ends
-
-        union all
-
-        select
-            * except (indicador_circular, starts, ends, status_viagem),
-            "start" as status_viagem
-        from aux_status
-        where starts and ends
-    ),
-    segmentos_filtrados as (
-        select
-            shape_id,
-            feed_start_date,
-            array_agg(buffer order by safe_cast(id_segmento as int64) asc limit 1)[
-                offset(0)
-            ] as buffer_inicio,
-            array_agg(buffer order by safe_cast(id_segmento as int64) desc limit 1)[
-                offset(0)
-            ] as buffer_fim
-        from {{ ref("segmento_shape") }}
-        {# from `rj-smtr.planejamento.segmento_shape` #}
-        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        group by shape_id, feed_start_date
-    ),
-    -- Adiciona o indicador de interseção com o primeiro e último segmento, meio
-    -- sempre true
-    status_viagem_segmentos as (
-        select
-            sv.*,
-            case
-                when
-                    sv.status_viagem = 'start'
-                    and st_intersects(sv.geo_point_gps, sf.buffer_inicio)
-                then true
-                when
-                    sv.status_viagem = 'end'
-                    and st_intersects(sv.geo_point_gps, sf.buffer_fim)
-                then true
-                else false
-            end as indicador_intersecao_segmento,
-        from aux_inicio_fim sv
         left join
             segmentos_filtrados sf
-            on sv.shape_id = sf.shape_id
-            and sv.feed_start_date = sf.feed_start_date
+            on s.shape_id = sf.shape_id
+            and s.feed_start_date = sf.feed_start_date
+    ),
+    -- 6. Status a partir do primeiro e último segmento.
+    -- Circular: fim do shape é end; o restante do shape é middle.
+    -- Linear: primeiro segmento é start e último é end.
+    status_base as (
+        select
+            * except (
+                indicador_segmento_inicio, indicador_segmento_fim, indicador_no_shape
+            ),
+            case
+                when indicador_circular and indicador_segmento_fim
+                then "end"
+                when
+                    indicador_circular
+                    and (indicador_no_shape or indicador_segmento_inicio)
+                then "middle"
+                when not indicador_circular and indicador_segmento_inicio
+                then "start"
+                when not indicador_circular and indicador_segmento_fim
+                then "end"
+                when indicador_no_shape
+                then "middle"
+                else "out"
+            end as status_viagem
+        from posicao_segmento
+    ),
+    -- 7. Circular: primeira comunicação no shape (middle_start) e
+    -- primeira no end vinda do shape (middle_end).
+    transicao_circular as (
+        select
+            * except (status_viagem),
+            case
+                when
+                    indicador_circular
+                    and status_viagem = "middle"
+                    and ifnull(
+                        lag(status_viagem) over (
+                            partition by id_veiculo, shape_id
+                            order by datetime_gps, fonte_gps
+                        ),
+                        ""
+                    )
+                    != "middle"
+                then "middle_start"
+                when
+                    indicador_circular
+                    and status_viagem = "end"
+                    and lag(status_viagem) over (
+                        partition by id_veiculo, shape_id
+                        order by datetime_gps, fonte_gps
+                    )
+                    = "middle"
+                then "middle_end"
+                else status_viagem
+            end as status_viagem
+        from status_base
+    ),
+    status_viagem as (
+        select
+            * except (indicador_circular),
+            case
+                when status_viagem in ("middle_start", "middle_end")
+                then true
+                when not indicador_circular and status_viagem in ("start", "end")
+                then true
+                else false
+            end as indicador_intersecao_segmento
+        from transicao_circular
     )
 select *
-from status_viagem_segmentos
+from status_viagem
