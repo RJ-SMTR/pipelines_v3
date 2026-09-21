@@ -24,7 +24,7 @@ def capture__veiculo_infracao(
     env: Optional[str] = None,
     timestamp: Optional[str] = None,
     recapture: bool = False,
-    recapture_days: int = 1,
+    recapture_days: int = 2,
     recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(

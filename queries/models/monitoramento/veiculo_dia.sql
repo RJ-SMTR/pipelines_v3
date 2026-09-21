@@ -118,6 +118,10 @@ with
                     data between "2026-07-16" and "2026-07-31"  -- Exceção devido a falha na captura dos dados de licenciamento
                     and data_processamento between "2026-07-16" and "2026-08-12"
                 )
+                or (
+                    data between "2026-08-16" and "2026-08-31"  -- Exceção devido a falha na captura dos dados de licenciamento
+                    and data_processamento between "2026-08-16" and "2026-09-10"
+                )
             )
             {% if is_incremental() %}
                 and data between date("{{ var('date_range_start') }}") and date(

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.3] - 2026-09-11
+
+### Alterado
+
+- Alterado recapture_days de 1 para 2 (https://github.com/RJ-SMTR/pipelines_v3/pull/667)
+
 ## [1.0.2] - 2026-09-09
 
 ### Alterado

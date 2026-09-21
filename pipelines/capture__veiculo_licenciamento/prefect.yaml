@@ -45,7 +45,6 @@ deployments:
         timezone: "America/Sao_Paulo"
         parameters:
           recapture: true
-          recapture_days: 1
     work_pool:
       name: smtr-pool
       work_queue_name: default
