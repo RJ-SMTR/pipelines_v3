@@ -6,30 +6,9 @@
             "data_type": "date",
             "granularity": "day",
         },
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
-{#
-  Fechamento por consórcio × quinzena (planilha Tabelas Remuneração
-  Sistema RIO, 2026-09-14).
-
-  OPEX e desconto somam `sumario_servico_sentido_dia`. FCF e CAPEX saem de
-  `data_apurada`. Não usa `fcf_quinzena_lote` / `remuneracao_quinzena_lote`,
-  que seguem com `enabled=false`.
-
-  CAPEX sai zerado enquanto `lote_frota_estimada` e `lote_km_referencia`
-  forem stubs nulos em `servico_oferta_faixa` (fonte I.2 não ligada): sem
-  frota estimada não há denominador de FCF.
-
-  Receita da tarifa pública: `bilhetagem_servico_operador_dia` restrita aos
-  serviços do lote. Essa tabela já traz o rateio de integração somado ao
-  total, então não precisa do tratamento que `transacao_valor_ordem` faz na
-  mão. Usa o valor BRUTO (antes da taxa de administração) — trocar para
-  `valor_total_transacao_liquido` se a taxa tiver de ser abatida.
-
-  Quinzena: 1 = dias 1–15; 2 = dia 16 ao fim do mês.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
@@ -76,7 +55,7 @@ with
             indicador_dia_util,
             frota_operante,
             lote_frota_estimada,
-            lote_km_referencia,
+            lote_km_referencia_quinzena,
             tarifa_remuneracao,
             alpha
         from {{ ref("data_apurada") }}
@@ -88,13 +67,13 @@ with
             lote,
             avg(if(indicador_dia_util, frota_operante, null)) as frota_operante_media,
             max(lote_frota_estimada) as lote_frota_estimada,
-            max(lote_km_referencia) as lote_km_referencia,
+            max(lote_km_referencia_quinzena) as lote_km_referencia_quinzena,
             max(tarifa_remuneracao) as tarifa_remuneracao,
             max(alpha) as alpha
         from dia_lote
         group by data_inicio_quinzena, lote
     ),
-    servico_lote as (  -- Serviços do lote, para recortar a receita da Jaé
+    servico_lote as (
         select distinct lote, servico
         from {{ ref("servico_oferta_faixa") }}
         where {{ incremental_filter }} and lote is not null
@@ -133,7 +112,7 @@ with
             ) as fator_cumprimento_frota,
             f.tarifa_remuneracao,
             f.alpha,
-            f.lote_km_referencia,
+            f.lote_km_referencia_quinzena,
             coalesce(
                 r.receita_tarifa_publica_quinzena, 0.0
             ) as receita_tarifa_publica_quinzena
@@ -153,7 +132,7 @@ with
             *,
             tarifa_remuneracao
             * alpha
-            * coalesce(lote_km_referencia, 0.0)
+            * coalesce(lote_km_referencia_quinzena, 0.0)
             * fator_cumprimento_frota as remuneracao_capex_quinzena
         from base
     ),

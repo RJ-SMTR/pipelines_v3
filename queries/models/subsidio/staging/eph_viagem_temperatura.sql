@@ -9,59 +9,30 @@
 {% endset %}
 
 with
-    {% if var("sistema") == "rio" %}
-        operadora_consorcio as (  -- Sigla do consórcio da viagem → id_operadora da Jaé
-            -- `operadoras.operadora` vem como "GTU - GUARATIBA ...", e a viagem traz
-            -- só a sigla em `consorcio`. Dim pequena, resolvida uma vez fora dos
-            -- joins grandes.
-            select distinct id_operadora, split(operadora, " ")[offset(0)] as consorcio
-            from {{ ref("operadoras") }}
-        ),
-    {% endif %}
     viagens as (  -- Viagens realizadas no período de apuração
         select
         {% if var("sistema") == "rio" %}
-                vv.data,
-                vv.servico,
-                vv.datetime_partida,
-                vv.datetime_chegada,
-                vv.id_veiculo,
-                -- `id_veiculo` da viagem é `{lote}-{prefixo}` (ex. `A2-001`) e o da
-                -- Jaé é um número de 5 dígitos que termina no mesmo prefixo. Só os 3
-                -- dígitos não bastam: na cidade inteira há ~13 veículos Jaé por
-                -- prefixo. Com o operador na chave o casamento fica único.
-                -- Precisa ser expressão de uma só tabela, senão o BigQuery não extrai
-                -- chave de hash e o join com o GPS vira produto cartesiano.
-                concat(
-                    oc.id_operadora, "-", right(vv.id_veiculo, 3)
-                ) as id_veiculo_join,
-                vs.placa,
-                vs.ano_fabricacao,
-                vv.id_viagem,
+                data,
+                servico,
+                datetime_partida,
+                datetime_chegada,
+                id_veiculo,
+                id_veiculo as id_veiculo_join,
+                placa,
+                ano_fabricacao,
+                id_viagem,
                 cast(null as string) as tipo_viagem,
-                vs.indicadores,
+                indicadores,
                 safe_cast(
-                    json_value(
-                        vs.indicadores, '$.indicador_ar_condicionado.valor'
-                    ) as bool
+                    json_value(indicadores, '$.indicador_ar_condicionado.valor') as bool
                 ) as indicador_ar_condicionado,
-                vv.distancia_planejada,
-                vs.tecnologia_apurada,
+                distancia_planejada,
+                tecnologia_apurada,
                 cast(null as string) as tecnologia_remunerada,
-                vv.sentido,
-                vv.modo
-            from {{ ref("viagem_valida") }} as vv
-            left join
-                {{ ref("aux_veiculo_status_viagem") }} as vs
-                on vv.data = vs.data
-                and vv.id_viagem = vs.id_viagem
-            left join operadora_consorcio as oc on vv.consorcio = oc.consorcio
-            where
-                vv.data between date("{{ var('date_range_start') }}") and date(
-                    "{{ var('date_range_end') }}"
-                )
-                and vv.data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-                and vv.sistema = "RIO"
+                sentido,
+                modo
+            from {{ ref("aux_viagem_status") }}
+            where {{ partition_filter }}
         {% else %}
                 data,
                 servico,
@@ -125,7 +96,12 @@ with
             servico_jae,
             id_veiculo,
             {% if var("sistema") == "rio" %}
-                concat(id_operadora, "-", right(id_veiculo, 3)) as id_veiculo_join,
+                case
+                    when id_operadora = '2801'
+                    then 'A2-' || lpad(right(id_veiculo, 3), 3, '0')
+                    when id_operadora = '2802'
+                    then 'B2-' || lpad(right(id_veiculo, 3), 3, '0')
+                end as id_veiculo_join,
             {% else %} id_veiculo as id_veiculo_join,
             {% endif %}
             id_validador,
@@ -650,23 +626,18 @@ with
     indicadores_concatenados as (  -- Concatena indicadores antes da comparação SHA
         select
             * except (indicadores_str, indicadores_novos),
-            to_json_string(
-                parse_json(
-                    -- to_json_string devolve a string "null" quando indicadores é
-                    -- nulo; sem base a mesclar, indicadores_novos já é objeto válido
-                    case
-                        when
-                            indicadores_str is null or indicadores_str in ("null", "{}")
-                        then indicadores_novos
-                        else
-                            concat(
-                                left(indicadores_str, length(indicadores_str) - 1),
-                                ",",
-                                substr(indicadores_novos, 2)
-                            )
-                    end
-                )
-            ) as indicadores_str
+            parse_json(
+                case
+                    when indicadores_str is null or indicadores_str in ("null", "{}")
+                    then indicadores_novos
+                    else
+                        concat(
+                            left(indicadores_str, length(indicadores_str) - 1),
+                            ",",
+                            substr(indicadores_novos, 2)
+                        )
+                end
+            ) as indicadores
         from dados_novos
     )
 select *

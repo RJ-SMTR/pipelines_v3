@@ -66,7 +66,10 @@
 {% endif %}
 
 with
-    indicadores_concatenados as (select * from {{ ref("eph_viagem_temperatura") }}),
+    indicadores_concatenados as (
+        select * except (indicadores), to_json_string(indicadores) as indicadores_str
+        from {{ ref("eph_viagem_temperatura") }}
+    ),
     {% if is_incremental() %}
         dados_atuais as (
             select

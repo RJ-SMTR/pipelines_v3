@@ -4,11 +4,6 @@
     data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}") and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset %}
 
-{#
-  SPPO: lê aux_viagem_temperatura (tabela do monitoramento) para a apuração
-  não inline eph_viagem_temperatura.
-  RIO: não há aux persistido; o flow passa sistema=rio.
-#}
 {% set condicao_veiculo %}
 (
     (
@@ -42,9 +37,7 @@ with
             servico,
             sentido,
             distancia_planejada,
-            {% if var("sistema") == "rio" %} parse_json(indicadores_str) as indicadores
-            {% else %} indicadores
-            {% endif %}
+            indicadores
         {% if var("sistema") == "rio" %} from {{ ref("eph_viagem_temperatura") }}
         {% else %} from {{ ref("aux_viagem_temperatura") }}
         {% endif %}

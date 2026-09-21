@@ -10,12 +10,6 @@
     )
 }}
 
-{#
-  Fan-in RIO: viagem_valida + veículo + temperatura + bilhetagem.
-  Tab. 2 (valida / conforme) a partir das flags vs valor_km (dicionário).
-  Sem join em um tipo_viagem. Sem inner join de oferta (faixa só carimbo).
-  Stub: indicador_viagem_completa = true; km_percorrida = 0.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
@@ -37,10 +31,13 @@ with
         from {{ ref("viagem_valida") }}
         where {{ incremental_filter }} and sistema = "RIO"
     ),
-    status_veiculo as (
-        select *
-        from {{ ref("aux_veiculo_status_viagem") }}
+    processamento as (
+        select data, id_viagem, datetime_processamento
+        from {{ ref("viagem_informada_monitoramento") }}
         where {{ incremental_filter }}
+    ),
+    status_veiculo as (
+        select * from {{ ref("aux_viagem_status") }} where {{ incremental_filter }}
     ),
     temperatura as (
         select *
@@ -73,17 +70,13 @@ with
             maior_tecnologia_permitida
         from {{ ref("tecnologia_servico") }}
     ),
-    valor_km as (
-        select distinct
-            data_inicio, data_fim, status, indicador_validade, indicador_conformidade
-        from {{ ref("valor_km_tipo_viagem") }}
-    ),
     base as (
         select
             v.data,
             v.id_viagem,
             v.datetime_partida,
             v.datetime_chegada,
+            p.datetime_processamento,
             v.id_veiculo,
             s.placa,
             s.ano_fabricacao,
@@ -99,9 +92,6 @@ with
             coalesce(s.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
             coalesce(s.indicador_lacrado, false) as indicador_lacrado,
             coalesce(
-                s.indicador_nao_autorizado_ausencia_ar, false
-            ) as indicador_nao_autorizado_ausencia_ar,
-            coalesce(
                 s.indicador_nao_autorizado_capacidade, false
             ) as indicador_nao_autorizado_capacidade,
             coalesce(
@@ -116,9 +106,6 @@ with
             coalesce(
                 s.indicador_autuado_nao_atender_parada, false
             ) as indicador_autuado_nao_atender_parada,
-            coalesce(
-                s.indicador_autuado_iluminacao_insuficiente, false
-            ) as indicador_autuado_iluminacao_insuficiente,
             coalesce(
                 s.indicador_autuado_nao_concluir_itinerario, false
             ) as indicador_autuado_nao_concluir_itinerario,
@@ -142,86 +129,46 @@ with
             ) as indicador_validador_associado_incorretamente,
             coalesce(b.indicadores, t.indicadores, s.indicadores) as indicadores
         from viagens v
+        left join processamento p using (data, id_viagem)
         left join status_veiculo s using (data, id_viagem)
         left join temperatura t using (data, id_viagem)
         left join bilhetagem b using (data, id_viagem)
     ),
     flag_status as (
-        select b.data, b.id_viagem, f.status
+        select b.data, b.id_viagem, f.impacto
         from base b
         cross join
             unnest(
                 [
                     struct(
-                        b.indicador_nao_licenciado as flag, "Não licenciado" as status
+                        b.indicador_validador_associado_incorretamente as flag,
+                        "invalida" as impacto
                     ),
-                    struct(b.indicador_nao_vistoriado, "Não vistoriado"),
-                    struct(b.indicador_lacrado, "Lacrado"),
-                    struct(
-                        b.indicador_nao_autorizado_ausencia_ar,
-                        "Não autorizado por ausência de ar-condicionado"
-                    ),
-                    struct(
-                        b.indicador_nao_autorizado_capacidade,
-                        "Não autorizado por capacidade"
-                    ),
-                    struct(
-                        b.indicador_autuado_ar_inoperante, "Autuado por ar inoperante"
-                    ),
-                    struct(
-                        b.indicador_autuado_alterar_itinerario,
-                        "Autuado por alterar itinerário"
-                    ),
-                    struct(
-                        b.indicador_autuado_vista_inoperante,
-                        "Autuado por vista inoperante"
-                    ),
-                    struct(
-                        b.indicador_autuado_nao_atender_parada,
-                        "Autuado por não atender solicitação de parada"
-                    ),
-                    struct(
-                        b.indicador_autuado_iluminacao_insuficiente,
-                        "Autuado por iluminação insuficiente"
-                    ),
-                    struct(
-                        b.indicador_autuado_nao_concluir_itinerario,
-                        "Autuado por não concluir itinerário"
-                    ),
-                    struct(
-                        b.indicador_registrado_ar_inoperante,
-                        "Registrado com ar inoperante"
-                    ),
-                    struct(
-                        b.indicador_detectado_ar_inoperante,
-                        "Detectado com ar inoperante"
-                    ),
-                    struct(b.indicador_sem_transacao_tipo, "Sem transação"),
-                    struct(b.indicador_validador_fechado, "Validador fechado"),
-                    struct(
-                        b.indicador_validador_associado_incorretamente,
-                        "Validador associado incorretamente"
-                    )
+                    struct(b.indicador_autuado_vista_inoperante, "invalida"),
+                    struct(b.indicador_nao_licenciado, "invalida"),
+                    struct(b.indicador_nao_vistoriado, "invalida"),
+                    struct(b.indicador_lacrado, "invalida"),
+                    struct(b.indicador_sem_transacao_tipo, "invalida"),
+                    struct(b.indicador_validador_fechado, "invalida"),
+                    struct(b.indicador_autuado_nao_atender_parada, "invalida"),
+                    struct(b.indicador_autuado_alterar_itinerario, "invalida"),
+                    struct(b.indicador_autuado_nao_concluir_itinerario, "invalida"),
+                    struct(b.indicador_nao_autorizado_capacidade, "nao_conforme"),
+                    struct(b.indicador_autuado_ar_inoperante, "nao_conforme"),
+                    struct(b.indicador_registrado_ar_inoperante, "nao_conforme"),
+                    struct(b.indicador_detectado_ar_inoperante, "nao_conforme")
                 ]
             ) as f
         where f.flag
     ),
     fechamento as (
         select
-            fs.data,
-            fs.id_viagem,
-            logical_and(
-                coalesce(vk.indicador_validade, true)
-            ) as indicador_viagem_valida,
-            logical_and(
-                coalesce(vk.indicador_conformidade, true)
-            ) as indicador_viagem_conforme_flags
-        from flag_status fs
-        left join
-            valor_km vk
-            on fs.status = vk.status
-            and fs.data >= vk.data_inicio
-            and (vk.data_fim is null or fs.data <= vk.data_fim)
+            data,
+            id_viagem,
+            countif(impacto = "invalida") = 0 as indicador_viagem_valida,
+            countif(impacto = "invalida") = 0
+            and countif(impacto = "nao_conforme") = 0 as indicador_viagem_conforme
+        from flag_status
         group by 1, 2
     ),
     com_oferta as (
@@ -252,7 +199,7 @@ select
         '|',
         c.id_veiculo,
         '|',
-        format_datetime('%Y-%m-%dT%H:%M:%S', c.datetime_partida)
+        format_datetime('%Y-%m-%dT%H:%M:%S', c.datetime_processamento)
     ) as id_apuracao,
     c.data,
     c.id_viagem,
@@ -260,11 +207,7 @@ select
     c.datetime_chegada,
     true as indicador_viagem_completa,
     coalesce(f.indicador_viagem_valida, true) as indicador_viagem_valida,
-    case
-        when coalesce(f.indicador_viagem_valida, true)
-        then coalesce(f.indicador_viagem_conforme_flags, true)
-        else false
-    end as indicador_viagem_conforme,
+    coalesce(f.indicador_viagem_conforme, true) as indicador_viagem_conforme,
     cast(c.distancia_planejada as float64) as km_programada,
     cast(0 as float64) as km_percorrida,
     c.id_veiculo,

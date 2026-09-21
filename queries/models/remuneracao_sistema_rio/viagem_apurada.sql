@@ -7,15 +7,9 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
-{#
-  Recorte de viagem de `aux_viagem_apurada` — colunas de `granularity`
-  "viagem" na planilha Tabelas Remuneração Sistema RIO (2026-09-14).
-  Grão: uma linha por `id_apuracao`.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}

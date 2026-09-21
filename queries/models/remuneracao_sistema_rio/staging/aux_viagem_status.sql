@@ -3,7 +3,6 @@
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
@@ -171,11 +170,6 @@ select
     vt.status = "Não licenciado" as indicador_nao_licenciado,
     vt.status = "Não vistoriado" as indicador_nao_vistoriado,
     vt.status = "Lacrado" as indicador_lacrado,
-    vt.status = "Licenciado sem ar e não autuado"
-    and vt.servico not in (select servico from {{ ref("servico_contrato_abreviado") }})
-    and vt.data >= date(
-        "{{ var('DATA_SUBSIDIO_V19_INICIO') }}"
-    ) as indicador_nao_autorizado_ausencia_ar,
     vt.indicador_penalidade_tecnologia
     and vt.data >= date(
         '{{ var("DATA_SUBSIDIO_V16_INICIO") }}'

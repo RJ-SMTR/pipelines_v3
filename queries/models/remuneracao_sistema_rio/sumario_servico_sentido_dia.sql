@@ -7,15 +7,9 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
-{#
-  Sumário por serviço × sentido × dia (planilha Tabelas Remuneração
-  Sistema RIO, 2026-09-14). Soma as faixas de
-  `sumario_servico_sentido_faixa`.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}

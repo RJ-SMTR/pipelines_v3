@@ -7,23 +7,9 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
-{#
-  Sumário por serviço × sentido × faixa (planilha Tabelas Remuneração
-  Sistema RIO, 2026-09-14). Base: `faixa_apurada`.
-
-  `consorcio` não existe na cadeia de apuração — vem de
-  `servico_oferta_faixa`, a mesma fonte que define o lote, para lote e
-  consórcio não divergirem.
-
-  OPEX da faixa = tarifa × β × km ponderada pelo IPA. Como
-  `km_ponderada_ipa_faixa` já é `km_remuneravel_faixa * ipa`, a fórmula da
-  planilha [tarifa_remuneracao * beta * km_remuneravel * ipa] reduz a isso.
-  Tarifa e β são do dia, então vêm de `data_apurada`.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}

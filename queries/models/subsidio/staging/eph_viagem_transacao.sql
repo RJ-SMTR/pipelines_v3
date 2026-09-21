@@ -23,7 +23,18 @@
 with
     -- Transações Jaé
     transacao as (
-        select t.id_veiculo, t.servico_jae, t.datetime_transacao
+        select
+            {% if var("sistema") == "rio" %}
+                case
+                    when t.id_operadora = '2801'
+                    then 'A2-' || lpad(right(t.id_veiculo, 3), 3, '0')
+                    when t.id_operadora = '2802'
+                    then 'B2-' || lpad(right(t.id_veiculo, 3), 3, '0')
+                end as id_veiculo,
+            {% else %} t.id_veiculo,
+            {% endif %}
+            t.servico_jae,
+            t.datetime_transacao
         from {{ ref("transacao") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
@@ -37,7 +48,18 @@ with
 
     -- Transações RioCard
     transacao_riocard as (
-        select t.id_veiculo, t.servico_jae, t.datetime_transacao
+        select
+            {% if var("sistema") == "rio" %}
+                case
+                    when t.id_operadora = '2801'
+                    then 'A2-' || lpad(right(t.id_veiculo, 3), 3, '0')
+                    when t.id_operadora = '2802'
+                    then 'B2-' || lpad(right(t.id_veiculo, 3), 3, '0')
+                end as id_veiculo,
+            {% else %} t.id_veiculo,
+            {% endif %}
+            t.servico_jae,
+            t.datetime_transacao
         from {{ ref("transacao_riocard") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
@@ -55,19 +77,10 @@ with
             data,
             id_viagem,
             id_veiculo,
-            -- Chave de join com a Jaé, que guarda o `id_veiculo` sem o prefixo de
-            -- lote (RIO, `{lote}-{prefixo}`) ou sem o primeiro dígito (SPPO). Tem
-            -- que ser expressão de uma só tabela, senão o BigQuery não extrai chave
-            -- de hash e o join com a transação vira produto cartesiano.
-            {% if var("sistema") == "rio" %}
-                if(
-                    substr(id_veiculo, 3, 1) = "-", substr(id_veiculo, 4), null
-                ) as id_veiculo_join,
+            {% if var("sistema") == "rio" %} id_veiculo as id_veiculo_join,
             {% else %} substr(id_veiculo, 2) as id_veiculo_join,
             {% endif %}
-            {% if var("sistema") == "rio" %} id_validador,
-            {% else %} cast(null as string) as id_validador,
-            {% endif %}
+            cast(null as string) as id_validador,
             datetime_partida,
             datetime_chegada,
             modo,
@@ -80,7 +93,7 @@ with
             servico,
             sentido,
             distancia_planejada
-        {% if var("sistema") == "rio" %} from {{ ref("viagem_valida_temperatura") }}
+        {% if var("sistema") == "rio" %} from {{ ref("aux_viagem_status") }}
         {% else %} from {{ ref("viagem_regularidade_temperatura") }}
         {% endif %}
         where

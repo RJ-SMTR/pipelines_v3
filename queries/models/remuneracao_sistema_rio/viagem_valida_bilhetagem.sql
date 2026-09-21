@@ -3,14 +3,9 @@
         materialized="incremental",
         partition_by={"field": "data", "data_type": "date", "granularity": "day"},
         incremental_strategy="insert_overwrite",
-        tags=["remuneracao", "openfisca", "wip"],
     )
 }}
 
-{#
-  Flags de bilhetagem (sem transação / validador) a partir do efêmero
-  compartilhado. Sem prioridade de tipo_viagem.
-#}
 {% set incremental_filter %}
     data between date("{{ var('date_range_start') }}") and date("{{ var('date_range_end') }}")
 {% endset %}

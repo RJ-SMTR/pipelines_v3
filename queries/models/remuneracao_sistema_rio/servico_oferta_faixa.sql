@@ -6,16 +6,24 @@
     )
 }}
 
-{#
-  Oferta planejada por faixa — contrato IPA (viagens_programadas) + lote.
-  Entrada `planejamento` do `rio_rac_bus_subsidy.process_trip_calculations`.
-  Fonte: planejamento.servico_planejado_faixa_horaria (partidas → viagens_programadas).
-  Lote = agency_id GTFS do Sistema RIO (`A0`/`A2`/`B1`/`B2`).
-  WIP: `lote_padrao_teste` só se o serviço não tiver agency_id de lote.
-#}
 {% set incremental_filter %}
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
+
+{% set calendario = ref("calendario") %}
+{% if execute %}
+    {% set gtfs_feeds_query %}
+        select distinct concat("'", feed_start_date, "'") as feed_start_date
+        from {{ calendario }}
+        where {{ incremental_filter }}
+    {% endset %}
+    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+    {% set feed_filter %}
+    {% if gtfs_feeds | length > 0 %} feed_start_date in ({{ gtfs_feeds | join(", ") }})
+    {% else %} 1 = 0
+    {% endif %}
+    {% endset %}
+{% endif %}
 
 with
     oferta as (
@@ -45,7 +53,7 @@ with
                 partition by feed_start_date, route_short_name order by agency_id
             ) as rn
         from {{ ref("routes_gtfs") }}
-        where regexp_contains(agency_id, r"^[A-Z][0-9]$")
+        where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
     )
 select
     o.data,
