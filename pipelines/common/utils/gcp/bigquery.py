@@ -188,8 +188,11 @@ class BQTable(GCPBase):
 
         def clear_policy_tags(field: SchemaField):
             field_dict = field.to_api_repr()
-            field_dict["policyTags"] = {"names": []}
-            field_dict["fields"] = [clear_policy_tags(child) for child in field.fields]
+            if field_dict.get("policyTags"):
+                field_dict["policyTags"] = {"names": []}
+            field_dict["fields"] = [
+                clear_policy_tags(child).to_api_repr() for child in field.fields
+            ]
             return bigquery.SchemaField.from_api_repr(field_dict)
 
         client = self.client("bigquery")

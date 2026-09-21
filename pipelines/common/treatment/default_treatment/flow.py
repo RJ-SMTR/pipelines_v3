@@ -204,7 +204,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                     contexts=contexts,
                     wait_for=[
                         tasks["run_dbt"],
-                        *tasks_wait_for.get("post_tests", []),
+                        *tasks_wait_for.get("copy_to_private", []),
                     ],
                 )
             else:
