@@ -105,6 +105,10 @@ SQL_TREATMENTS = [
                 c.tipo_documento as tipo_documento_cliente,
                 CASE
                     WHEN
+                    t.data >= '2026-06-28'
+                    AND t.tipo_transacao_jae = "Botoeira"
+                    THEN "Botoeira"
+                    WHEN
                     t.tipo_transacao_jae NOT LIKE "%Gratuidade%"
                     AND (
                         t.produto_jae != "Conta Jaé Gratuidade" OR t.produto_jae IS NULL)
