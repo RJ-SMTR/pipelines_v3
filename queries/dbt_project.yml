@@ -331,6 +331,9 @@ tests:
     bilhetagem:
       +where: "data in ({partitions})"
     +where: "data between date('{date_range_start}') and date('{date_range_end}')"
+    gtfs:
+      unique_staging_feed_info_data_versao:
+        +where: null
 snapshots:
   +persist_docs:
     relation: true
