@@ -22,7 +22,7 @@ queries:
             service_account: prefect@rj-smtr-dev.iam.gserviceaccount.com
 
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -49,7 +49,7 @@ queries:
             service_account: prefect@rj-smtr-dev.iam.gserviceaccount.com
 
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
@@ -76,7 +76,7 @@ queries:
             service_account: prefect@rj-smtr.iam.gserviceaccount.com
 
         runtime_config:
-          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/openfisca-smtr:latest
+          container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python:latest
           properties:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
