@@ -132,6 +132,7 @@ with
             cast(null as string) as tipo_viagem,
             cast(null as string) as tipo_execucao_viagem,
             fornecedor as fonte_gps,
+            "rioonibus" as fonte_viagem,
             datetime_processamento,
             datetime_captura
         from {{ staging_viagem_informada_rioonibus }}
@@ -154,6 +155,7 @@ with
             cast(null as string) as tipo_viagem,
             cast(null as string) as tipo_execucao_viagem,
             "brt" as fonte_gps,
+            "mobirio" as fonte_viagem,
             datetime_processamento,
             datetime_captura
         from {{ staging_viagem_informada_brt }}
@@ -178,6 +180,7 @@ with
             tipo_viagem,
             tipo_execucao_viagem,
             fornecedor as fonte_gps,
+            "maxtrack" as fonte_viagem,
             datetime_processamento,
             datetime_captura
         from {{ staging_viagem_informada_maxtrack }}
@@ -216,6 +219,7 @@ with
             tipo_viagem,
             tipo_execucao_viagem,
             fonte_gps,
+            fonte_viagem,
             datetime_captura
         from staging_union
     ),
@@ -285,6 +289,7 @@ with
             v.tipo_viagem,
             v.tipo_execucao_viagem,
             if(trim(v.fonte_gps) = '', null, v.fonte_gps) as fonte_gps,
+            v.fonte_viagem,
             v.datetime_captura
         from deduplicado v
         join calendario c using (data)

@@ -1,5 +1,23 @@
 # Changelog - cadastro
 
+## [1.8.4] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_licenciamento_stu` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
+## [1.8.3] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_licenciamento_stu` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de licenciamento STU em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
+## [1.8.2] - 2026-09-03
+
+### Removido
+
+- Renomeia modelo `aux_operadora_jae_cliente_historico.sql` para `aux_cliente_jae_historico.sql` e move para o `cadastro_interno` (https://github.com/RJ-SMTR/pipelines_v3/pull/633)
+
 ## [1.8.1] - 2026-05-14
 
 ### Removido

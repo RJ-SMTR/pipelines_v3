@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Amplia `view_viagem_onibus_datario` com `servico_informado`, `servico_realizado`, `vista`, `inicio_periodo`, `fim_periodo` e mantém `servico` como alias de compatibilidade (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
+- Ajusta `view_viagem_onibus_datario` para expor os campos necessários aos painéis, mantendo `servico`, `vista` e `tempo_viagem`, adicionando `sistema`, `route_id` e `trip_id`, e seguindo a ordem de colunas de `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/610)
 
 ## [1.0.4] - 2026-07-27
 

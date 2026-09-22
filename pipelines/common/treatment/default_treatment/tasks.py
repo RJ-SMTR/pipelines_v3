@@ -19,13 +19,14 @@ from pipelines.common.treatment.default_treatment.utils import (
     clone_queries_from_github,
     dbt_test_notify_discord,
     get_dbt_paths,
+    get_model_table,
     run_dbt,
     run_dbt_deps,
     run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.gcp.bigquery import BQTable, SourceTable
 from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
@@ -44,7 +45,8 @@ def ingest_dbt_artifacts_to_openmetadata(
 
     _, _, target_path = get_dbt_paths()
     ingest_dbt_artifacts(
-        target_path=target_path,
+        artifacts_path=Path(target_path) / "openmetadata" / str(flow_run_id),
+        upload_to_gcs=True,
         env=env,
         deployment_name=deployment_name,
         flow_run_id=flow_run_id,
@@ -385,3 +387,29 @@ def install_dbt_packages() -> None:
     Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
     """
     run_dbt_deps()
+
+
+@task(cache_policy=NO_CACHE)
+def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
+    """
+    Copia tabelas definidas no DBTSelector para o projeto private
+
+    env (str): Ambiente de execução, prod ou dev.
+    contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+    """
+    for context in contexts:
+        if env == "prod":
+            tables = get_model_table(models=context.selector.copy_private_models)
+            for table in tables.values():
+                BQTable(
+                    env=env,
+                    dataset_id=table["dataset_id"],
+                    table_id=table["table_id"],
+                    project_id=table["project_id"],
+                ).copy_table(
+                    copy_project_id=smtr_constants.PRIVATE_PROJECT_NAME,
+                    copy_dataset_id=table["dataset_id"],
+                    copy_table_id=table["table_id"],
+                ).remove_policy_tags()
+        else:
+            print("Cópia para projeto private ignorada no ambiente dev")

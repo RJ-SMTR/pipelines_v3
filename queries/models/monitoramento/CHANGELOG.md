@@ -1,5 +1,38 @@
 # Changelog - monitoramento
 
+## [2.2.17] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_infracao` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
+## [2.2.16] - 2026-09-16
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-08-16` e `2026-08-31` com `data_processamento` entre `2026-08-16` e `2026-09-10` devido à falha na captura dos dados de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/684)
+
+## [2.2.15] - 2026-09-15
+
+### Adicionado
+
+- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor, prazo de envio e data limite no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona exceções de prazo de envio das viagens informadas das quinzenas 15 a 31/08/2026 (limite 06/09/2026, Ofício SMTR nº 8656/2026, processo 000301.015075/2026-48) e 01 a 15/09/2026 (limite 21/09/2026, Ofício SMTR nº 9523/2026, processo 000301.015961/2026-71) (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona a coluna `fonte_viagem` em `viagem_informada`, `gps_viagem` e `gps_segmento_viagem` (`rioonibus`, `maxtrack`, `mobirio`) e a coluna `fonte_gps` em `gps_segmento_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+
+## [2.2.14] - 2026-09-10
+
+### Alterado
+
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+- Obtém `sistema` e `consorcio` do serviço planejado por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
+## [2.2.13] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de infração em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
 ## [2.2.12] - 2026-09-02
 
 ### Adicionado
