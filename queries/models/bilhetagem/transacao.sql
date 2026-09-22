@@ -426,33 +426,58 @@ with
                 else "Cadastrado"
             end as cadastro_cliente,
             case
-                when t.produto_jae in ("Conta Jaé", "Conta digital")
-                then "Carteira"
-                when t.produto_jae = "Conta Jaé Gratuidade"
+                when
+                    t.produto_jae = "Conta Jaé Gratuidade"
+                    or lower(tipo_transacao_jae) like "%gratuidade%"
                 then "Gratuidade"
+                when
+                    t.produto_jae in ("Conta Jaé", "Conta digital")
+                    or t.tipo_transacao_jae = 'QRCode Evento'
+                then "Carteira"
                 when t.produto_jae = "Conta Jaé VT"
                 then "VT"
                 when t.produto_jae = "Avulso"
                 then "Cartão Avulso"
                 when
-                    t.tipo_transacao_jae like "% EMV %"
-                    or t.tipo_transacao_jae like "% EMV"
-                then "Visa Internacional"
-                when t.tipo_transacao_jae = "Botoeira"
+                    (
+                        t.tipo_transacao_jae like "% EMV %"
+                        or t.tipo_transacao_jae like "% EMV"
+                    )
+                    and t.tipo_transacao_jae not like "%Crédito%"
+                then "Cartão Bancário Débito"
+                when
+                    (
+                        t.tipo_transacao_jae like "% EMV %"
+                        or t.tipo_transacao_jae like "% EMV"
+                    )
+                    and t.tipo_transacao_jae like "%Crédito%"
+                then "Cartão Bancário Crédito"
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro (Botoeira)"
-                when tipo_transacao_jae like "Gratuidade operador%"
-                then "Gratuidade Operadora"
+                when t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
                 when
                     t.meio_pagamento_jae = "PIX"
                     or t.tipo_transacao_jae = "Débito PIX a bordo"
                 then "PIX"
             end as produto,
             case
-                when t.produto_jae = "Conta Jaé Gratuidade"
+                when
+                    t.produto_jae = "Conta Jaé Gratuidade"
+                    or (
+                        t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                        and t.tipo_transacao_jae = "Botoeira"
+                    )
                 then "Gratuidade"
                 else t.tipo_transacao_atualizado
             end as tipo_transacao,
             case
+                when
+                    t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                    and t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
                 when
                     t.tipo_transacao_jae not like "%Gratuidade%"
                     and (
@@ -478,7 +503,7 @@ with
                 when
                     t.tipo_transacao_jae = "Gratuidade acompanhante"
                     or (
-                        t.tipo_transacao_jae not like "%Gratuidade%"
+                        lower(t.tipo_transacao_jae) not like "%gratuidade%"
                         and (
                             t.produto_jae != "Conta Jaé Gratuidade"
                             or t.produto_jae is null
@@ -512,14 +537,26 @@ with
                 then "DC"
             end as subtipo_usuario_protegido,
             case
-                when t.tipo_transacao_jae = "Botoeira"
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro"
+                when t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
+                when
+                    t.tipo_transacao_jae = 'Débito PIX a bordo'
+                    and t.meio_pagamento_jae = 'PIX'
+                then 'QRCode'
                 when
                     t.meio_pagamento_jae like "Cartão%"
+                    or t.tipo_transacao_jae like "% EMV %"
                     or t.tipo_transacao_jae like "% EMV"
+                    or t.tipo_transacao_jae = "Gratuidade operadora"
+                    or (
+                        lower(t.tipo_transacao_jae) like "%gratuidade%"
+                        and t.meio_pagamento_jae is null
+                    )
                 then "Cartão"
-                when t.tipo_transacao_jae = "Gratuidade operadora"
-                then "Gratuidade operadora"
                 else t.meio_pagamento_jae
             end as meio_pagamento,
             g.id_cre_escola
