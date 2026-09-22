@@ -452,7 +452,9 @@ with
                     )
                     and t.tipo_transacao_jae like "%Crédito%"
                 then "Cartão Bancário Crédito"
-                when t.tipo_transacao_jae = "Botoeira" and t.data < '2026-06-28'
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro (Botoeira)"
                 when t.tipo_transacao_jae = "Botoeira"
                 then "Botoeira"
@@ -464,12 +466,17 @@ with
             case
                 when
                     t.produto_jae = "Conta Jaé Gratuidade"
-                    or (t.data >= '2026-06-28' and t.tipo_transacao_jae = "Botoeira")
+                    or (
+                        t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                        and t.tipo_transacao_jae = "Botoeira"
+                    )
                 then "Gratuidade"
                 else t.tipo_transacao_atualizado
             end as tipo_transacao,
             case
-                when t.data >= '2026-06-28' and t.tipo_transacao_jae = "Botoeira"
+                when
+                    t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                    and t.tipo_transacao_jae = "Botoeira"
                 then "Botoeira"
                 when
                     t.tipo_transacao_jae not like "%Gratuidade%"
@@ -530,7 +537,9 @@ with
                 then "DC"
             end as subtipo_usuario_protegido,
             case
-                when t.tipo_transacao_jae = "Botoeira" and t.data < '2026-06-28'
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro"
                 when t.tipo_transacao_jae = "Botoeira"
                 then "Botoeira"
