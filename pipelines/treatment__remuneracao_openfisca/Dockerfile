@@ -12,7 +12,4 @@ COPY ./pipelines/common/ ./pipelines/common/
 
 COPY ./queries ./queries
 
-COPY ./openfisca_smtr ./openfisca_smtr/
-
-RUN uv sync --all-packages \
-    && uv pip install --python .venv/bin/python ./openfisca_smtr
+RUN uv sync --all-packages 
