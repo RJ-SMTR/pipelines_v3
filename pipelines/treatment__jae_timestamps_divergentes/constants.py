@@ -89,7 +89,7 @@ SQL_TREATMENTS = [
             documento_cliente = nv.documento_cliente,
             tipo_documento_cliente = nv.tipo_documento_cliente,
             datetime_ultima_atualizacao = IF(
-                t.subtipo_usuario IS DISTINCT FROM nv.subtipo_usuario
+                t.tipo_usuario IS DISTINCT FROM nv.tipo_usuario
                 OR t.documento_cliente IS DISTINCT FROM nv.documento_cliente
                 OR t.tipo_documento_cliente IS DISTINCT FROM nv.tipo_documento_cliente
                 OR t.subtipo_usuario IS DISTINCT FROM nv.subtipo_usuario
