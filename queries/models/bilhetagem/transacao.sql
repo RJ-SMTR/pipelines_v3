@@ -429,11 +429,11 @@ with
                 when
                     t.produto_jae = "Conta Jaé Gratuidade"
                     or lower(tipo_transacao_jae) like "%gratuidade%"
+                then "Gratuidade"
                 when
                     t.produto_jae in ("Conta Jaé", "Conta digital")
                     or t.tipo_transacao_jae = 'QRCode Evento'
                 then "Carteira"
-                then "Gratuidade"
                 when t.produto_jae = "Conta Jaé VT"
                 then "VT"
                 when t.produto_jae = "Avulso"
