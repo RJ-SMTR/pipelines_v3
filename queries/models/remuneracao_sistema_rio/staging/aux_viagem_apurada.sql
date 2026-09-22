@@ -48,7 +48,7 @@ select
     o.tecnologia_minima_servico,
     cast(o.lote_frota_determinada as int64) as lote_frota_determinada,
     o.lote_km_referencia_mensal,
-    o.lote_km_referencia as lote_km_referencia_quinzena,
+    o.lote_km_referencia_quinzena,
     o.tipo_dia,
     extract(hour from o.datetime_partida) as hora_partida,
     o.data,
