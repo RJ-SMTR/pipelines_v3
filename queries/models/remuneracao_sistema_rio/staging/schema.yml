@@ -3,18 +3,24 @@ version: 2
 models:
   - name: aux_viagem_apurada_openfisca
     description: >
-      Saída crua do `rio_rac_bus_subsidy.process_trip_calculations`
+      Saída crua do `rio_rac_bus_subsidy.calculate_remuneration`
       (viagens, planejamento) no grão viagem: Tab. 2, picos, frota diária
-      (MAX picos), teto de programadas, IPA/precária e OPEX. Só o que o OF
-      calcula — o contrato completo está em `aux_viagem_apurada`.
+      (MAX picos), IPA/precária e OPEX. Só o que o OF calcula — o contrato
+      completo está em `aux_viagem_apurada`. O pacote devolve
+      `indicador_km_pagamento` e não ecoa `period` / `hora_partida` /
+      `day_of_week` / `indicador_completa_pico_*`.
+    config:
+      date_range_start: "{{ var('date_range_start') }}"
+      date_range_end: "{{ var('date_range_end') }}"
 
   - name: aux_viagem_apurada
     description: >
       Tabela larga da apuração (52 colunas da planilha Tabelas Remuneração
-      Sistema RIO, 2026-09-14). Soma à saída do OpenFisca o que ele não
-      calcula: `shape_id` (do fan-in), stubs de lote (de
-      `servico_oferta_faixa`) e `id_apuracao`. Origem de `viagem_apurada`,
-      `faixa_apurada` e `data_apurada`.
+      Sistema RIO, 2026-09-14). Soma à saída do
+      `calculate_remuneration` o que o pacote não devolve: `shape_id`,
+      stubs de lote, `id_apuracao`, e deriva `hora_partida` /
+      `day_of_week` / `period` / `indicador_completa_pico_*`. Origem de
+      `viagem_apurada`, `faixa_apurada` e `data_apurada`.
 
       Stubs nulos: `indicador_dentro_do_teto_programado` (o OF não ranqueia
       teto) e `servico_tipo` (sem fonte no projeto).
@@ -44,7 +50,7 @@ models:
   - name: aux_frota_operante_dia_lote
     description: >
       DEPRECATED — frota diária agora sai de `aux_viagem_apurada` via
-      `rio_rac_bus_subsidy.process_trip_calculations`. Mantido só por
+      `rio_rac_bus_subsidy.calculate_remuneration`. Mantido só por
       compatibilidade temporária.
       Frota operante diária por lote (Anexo I.8 item 4): maior quantitativo
       de veículos com viagem completa em pico manhã [05h, 09h) ou tarde [16h, 20h).
