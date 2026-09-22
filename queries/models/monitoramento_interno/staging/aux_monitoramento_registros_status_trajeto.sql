@@ -158,14 +158,6 @@ with
             s.extensao as distancia_planejada,
             ifnull(g.distancia, 0) as distancia,
             s.feed_start_date,
-            (
-                s.sentido = "C"
-                or {{
-                    is_shape_circular(
-                        "start_pt", "end_pt", "s.feed_start_date", "s.shape_id"
-                    )
-                }}
-            ) as indicador_circular,
             ifnull(
                 st_intersects(g.geo_point_gps, sf.buffer_inicio), false
             ) as indicador_segmento_inicio,
@@ -185,73 +177,24 @@ with
             on s.shape_id = sf.shape_id
             and s.feed_start_date = sf.feed_start_date
     ),
-    -- 6. Status a partir do primeiro e último segmento.
-    -- Circular: fim do shape é end; o restante do shape é middle.
-    -- Linear: primeiro segmento é start e último é end.
-    status_base as (
+    -- 6. Status só com os extremos (primeiro/último segmento). O meio do
+    -- trajeto não entra no emparelhamento.
+    status_viagem as (
         select
-            * except (
-                indicador_segmento_inicio, indicador_segmento_fim, indicador_no_shape
-            ),
+            * except (indicador_no_shape),
             case
-                when indicador_circular and indicador_segmento_fim
-                then "end"
-                when
-                    indicador_circular
-                    and (indicador_no_shape or indicador_segmento_inicio)
-                then "middle"
-                when not indicador_circular and indicador_segmento_inicio
+                when indicador_segmento_inicio and not indicador_segmento_fim
                 then "start"
-                when not indicador_circular and indicador_segmento_fim
+                when indicador_segmento_fim
                 then "end"
                 when indicador_no_shape
                 then "middle"
                 else "out"
-            end as status_viagem
+            end as status_viagem,
+            (
+                indicador_segmento_inicio or indicador_segmento_fim
+            ) as indicador_intersecao_segmento
         from posicao_segmento
-    ),
-    -- 7. Circular: primeira comunicação no shape (middle_start) e
-    -- primeira no end vinda do shape (middle_end).
-    transicao_circular as (
-        select
-            * except (status_viagem),
-            case
-                when
-                    indicador_circular
-                    and status_viagem = "middle"
-                    and ifnull(
-                        lag(status_viagem) over (
-                            partition by id_veiculo, shape_id
-                            order by datetime_gps, fonte_gps
-                        ),
-                        ""
-                    )
-                    != "middle"
-                then "middle_start"
-                when
-                    indicador_circular
-                    and status_viagem = "end"
-                    and lag(status_viagem) over (
-                        partition by id_veiculo, shape_id
-                        order by datetime_gps, fonte_gps
-                    )
-                    = "middle"
-                then "middle_end"
-                else status_viagem
-            end as status_viagem
-        from status_base
-    ),
-    status_viagem as (
-        select
-            * except (indicador_circular),
-            case
-                when status_viagem in ("middle_start", "middle_end")
-                then true
-                when not indicador_circular and status_viagem in ("start", "end")
-                then true
-                else false
-            end as indicador_intersecao_segmento
-        from transicao_circular
     )
 select *
 from status_viagem

@@ -8,43 +8,46 @@
 }}
 
 with
-    -- Partida linear: último start antes do end.
-    -- Partida circular: middle_start (primeira comunicação no shape)
-    -- anterior ao middle_end (primeira comunicação no end).
-    aux_status as (
+    -- Extremos sem sobreposição: ponto só no primeiro segmento ou só no
+    -- último. GPS no terminal circular (os dois buffers) não atualiza
+    -- partida nem abre viagem a cada ping.
+    aux_extremos as (
         select
             * except (servico_viagem),
             servico_viagem as servico,
+            indicador_segmento_inicio
+            and not indicador_segmento_fim as indicador_partida,
+            indicador_segmento_fim
+            and not indicador_segmento_inicio as indicador_chegada
+        from {{ ref("aux_monitoramento_registros_status_trajeto") }}
+        where
+            (indicador_segmento_inicio and not indicador_segmento_fim)
+            or (indicador_segmento_fim and not indicador_segmento_inicio)
+    ),
+    -- Partida: último GPS só no buffer de início. Chegada: primeiro GPS
+    -- só no buffer de fim depois de um intervalo fora dele.
+    aux_status as (
+        select
+            * except (indicador_partida, indicador_chegada),
             case
-                when status_viagem = "end"
-                then
-                    last_value(
-                        case
-                            when status_viagem = "start" then datetime_gps
-                        end ignore nulls
-                    ) over (
-                        partition by id_veiculo, shape_id
-                        order by
-                            datetime_gps,
-                            case when status_viagem = "end" then 0 else 1 end
-                        rows between unbounded preceding and 1 preceding
+                when
+                    indicador_chegada
+                    and not ifnull(
+                        lag(indicador_chegada) over (
+                            partition by id_veiculo, shape_id order by datetime_gps
+                        ),
+                        false
                     )
-                when status_viagem = "middle_end"
                 then
                     last_value(
-                        case
-                            when status_viagem = "middle_start" then datetime_gps
-                        end ignore nulls
+                        case when indicador_partida then datetime_gps end ignore nulls
                     ) over (
                         partition by id_veiculo, shape_id
-                        order by
-                            datetime_gps,
-                            case when status_viagem = "middle_end" then 0 else 1 end
+                        order by datetime_gps
                         rows between unbounded preceding and 1 preceding
                     )
             end as datetime_partida
-        from {{ ref("aux_monitoramento_registros_status_trajeto") }}
-        where indicador_intersecao_segmento = true
+        from aux_extremos
     ),
     viagens as (
         select
@@ -79,10 +82,7 @@ with
             '{{ var("version") }}' as versao,
             '{{ invocation_id }}' as id_execucao_dbt
         from aux_status
-        where
-            status_viagem in ("end", "middle_end")
-            and datetime_partida is not null
-            and datetime_partida < datetime_gps
+        where datetime_partida is not null and datetime_partida < datetime_gps
         qualify
             row_number() over (
                 partition by id_veiculo, shape_id, datetime_partida
