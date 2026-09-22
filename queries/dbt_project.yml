@@ -262,6 +262,7 @@ vars:
       "valor_transacao": { "type": "FLOAT64", "select": true },
       "veiculo_id": { "type": "ID", "select": false },
     }
+  data_final_pagamento_dinheiro: "2026-06-28"
 
   ### Diretorios ###
   ids_consorcios:
