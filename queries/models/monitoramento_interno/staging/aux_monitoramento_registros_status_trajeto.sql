@@ -116,7 +116,7 @@ with
             = 1
     ),
     servico_planejado_shapes as (
-        select spu.*, s.shape, s.start_pt, s.end_pt
+        select spu.*, s.start_pt, s.end_pt
         from servico_planejado_unnested as spu
         left join shapes as s using (feed_start_date, shape_id)
     ),
@@ -136,7 +136,7 @@ with
         where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         group by shape_id, feed_start_date
     ),
-    -- 5. Posição do GPS no primeiro segmento, no último e no shape
+    -- 5. Posição do GPS só no primeiro e no último segmento
     posicao_segmento as (
         select
             data_operacao as data,
@@ -163,10 +163,7 @@ with
             ) as indicador_segmento_inicio,
             ifnull(
                 st_intersects(g.geo_point_gps, sf.buffer_fim), false
-            ) as indicador_segmento_fim,
-            st_dwithin(
-                g.geo_point_gps, s.shape, {{ var("buffer") }}
-            ) as indicador_no_shape
+            ) as indicador_segmento_fim
         from gps g
         inner join
             servico_planejado_shapes s
@@ -177,18 +174,15 @@ with
             on s.shape_id = sf.shape_id
             and s.feed_start_date = sf.feed_start_date
     ),
-    -- 6. Status só com os extremos (primeiro/último segmento). O meio do
-    -- trajeto não entra no emparelhamento.
+    -- 6. Status só com os extremos. O meio do trajeto não entra no emparelhamento.
     status_viagem as (
         select
-            * except (indicador_no_shape),
+            *,
             case
                 when indicador_segmento_inicio and not indicador_segmento_fim
                 then "start"
                 when indicador_segmento_fim
                 then "end"
-                when indicador_no_shape
-                then "middle"
                 else "out"
             end as status_viagem,
             (
