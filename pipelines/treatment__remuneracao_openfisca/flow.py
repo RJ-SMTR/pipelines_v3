@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Materialização da cadeia remuneração I.8 até apuração OpenFisca.
+"""
+Flow de materialização da remuneração do Sistema RIO
 
-Selector dbt: ``remuneracao_openfisca``
-(base: viagem_valida → ramos flags → viagem_classificacao_validacao → viagens_apuradas).
+Executa o selector DBT 'remuneracao_openfisca' para materializar dados no BigQuery.
 """
 
 from typing import Optional
@@ -30,6 +30,6 @@ def treatment__remuneracao_openfisca(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars={"sistema": "rio", **(additional_vars or {})},
+        additional_vars={**constants.ADDITIONAL_VARS, **(additional_vars or {})},
         skip_source_check=skip_source_check,
     )
