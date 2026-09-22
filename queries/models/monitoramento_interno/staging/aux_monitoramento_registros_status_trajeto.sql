@@ -169,7 +169,7 @@ with
             servico_planejado_shapes s
             on g.data_operacao = s.data
             and g.servico = s.servico
-        left join
+        inner join
             segmentos_filtrados sf
             on s.shape_id = sf.shape_id
             and s.feed_start_date = sf.feed_start_date
