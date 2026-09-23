@@ -54,6 +54,28 @@ with
             ) as rn
         from {{ ref("routes_gtfs") }}
         where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
+    ),
+    oferta_mes as (
+        select data, servico, quilometragem as km, feed_start_date
+        from {{ ref("servico_planejado_faixa_horaria") }}
+        where
+            data between date_trunc(
+                date('{{ var("date_range_start") }}'), month
+            ) and last_day(date('{{ var("date_range_end") }}'), month)
+            and sistema = "RIO"
+    ),
+    km_lote_mes as (
+        select
+            date_trunc(m.data, month) as mes,
+            ls.lote,
+            sum(m.km) as lote_km_referencia_mensal
+        from oferta_mes as m
+        inner join
+            lote_servico as ls
+            on ls.feed_start_date = m.feed_start_date
+            and ls.servico = m.servico
+            and ls.rn = 1
+        group by mes, ls.lote
     )
 select
     o.data,
@@ -68,8 +90,8 @@ select
     o.km,
     cast(0 as int64) as lote_frota_estimada,
     cast(0 as int64) as lote_frota_determinada,
-    cast(null as float64) as lote_km_referencia_mensal,
-    cast(null as float64) as lote_km_referencia_quinzena,
+    km.lote_km_referencia_mensal,
+    km.lote_km_referencia_mensal / 2 as lote_km_referencia_quinzena,
     o.consorcio,
     o.modo,
     o.feed_start_date,
@@ -83,3 +105,4 @@ left join
     on ls.feed_start_date = o.feed_start_date
     and ls.servico = o.servico
     and ls.rn = 1
+left join km_lote_mes as km on km.mes = date_trunc(o.data, month) and km.lote = ls.lote
