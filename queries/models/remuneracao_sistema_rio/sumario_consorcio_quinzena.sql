@@ -73,28 +73,37 @@ with
         from dia_lote
         group by data_inicio_quinzena, lote
     ),
-    servico_lote as (
-        select distinct lote, servico
-        from {{ ref("servico_oferta_faixa") }}
-        where {{ incremental_filter }} and lote is not null
+    transacao as (
+        select data, id_operadora, consorcio, valor_transacao
+        from {{ ref("transacao") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and modo = "Ônibus"
+            and date(datetime_processamento) - date(datetime_transacao) <= interval 6 day
+        union all
+        select data, id_operadora, consorcio, valor_transacao
+        from {{ ref("transacao_riocard") }}
+        where
+            data between date('{{ var("date_range_start") }}') and date(
+                '{{ var("date_range_end") }}'
+            )
+            and modo = "Ônibus"
+            and date(datetime_processamento) - date(datetime_transacao) <= interval 6 day
     ),
     receita_quinzena as (
         select
             if(
-                extract(day from b.data_ordem) <= 15,
-                date_trunc(b.data_ordem, month),
-                date_add(date_trunc(b.data_ordem, month), interval 15 day)
+                extract(day from data) <= 15,
+                date_trunc(data, month),
+                date_add(date_trunc(data, month), interval 15 day)
             ) as data_inicio_quinzena,
-            s.lote,
-            b.consorcio,
-            sum(b.valor_total_transacao_bruto) as receita_tarifa_publica_quinzena
-        from {{ ref("bilhetagem_servico_operador_dia") }} as b
-        inner join servico_lote as s on s.servico = b.servico_jae
-        where
-            b.data_ordem between date('{{ var("date_range_start") }}') and date(
-                '{{ var("date_range_end") }}'
-            )
-        group by data_inicio_quinzena, s.lote, b.consorcio
+            case id_operadora when '2801' then 'A2' when '2802' then 'B2' end as lote,
+            consorcio,
+            sum(valor_transacao) as receita_tarifa_publica_quinzena
+        from transacao
+        group by data_inicio_quinzena, lote, consorcio
     ),
     base as (
         select
@@ -104,10 +113,14 @@ with
             o.consorcio,
             o.desconto_operacao_precaria_quinzena,
             o.remuneracao_opex_quinzena,
-            least(
+            if(
+                o.data_fim_quinzena <= date('2026-09-30'),
                 1.0,
-                coalesce(
-                    safe_divide(f.frota_operante_media, f.lote_frota_estimada), 0.0
+                least(
+                    1.0,
+                    coalesce(
+                        safe_divide(f.frota_operante_media, f.lote_frota_estimada), 0.0
+                    )
                 )
             ) as fator_cumprimento_frota,
             f.tarifa_remuneracao,
