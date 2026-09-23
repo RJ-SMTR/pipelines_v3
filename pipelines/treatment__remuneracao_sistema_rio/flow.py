@@ -12,11 +12,11 @@ from pipelines.common.treatment.default_treatment.flow import (
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
 from pipelines.common.utils.prefect import flow
-from pipelines.treatment__remuneracao_openfisca import constants
+from pipelines.treatment__remuneracao_sistema_rio import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
-def treatment__remuneracao_openfisca(  # noqa: PLR0913
+def treatment__remuneracao_sistema_rio(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,

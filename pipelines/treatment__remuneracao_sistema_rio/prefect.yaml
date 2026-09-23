@@ -1,4 +1,4 @@
-name: treatment__remuneracao_openfisca
+name: treatment__remuneracao_sistema_rio
 prefect-version: 3.4.8
 
 build:
@@ -10,8 +10,8 @@ build:
       id: build-image
       requires: prefect-docker>=0.6.5
       image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
-      tag: "treatment__remuneracao_openfisca-{{ get-commit-hash.stdout }}"
-      dockerfile: pipelines/treatment__remuneracao_openfisca/Dockerfile
+      tag: "treatment__remuneracao_sistema_rio-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/treatment__remuneracao_sistema_rio/Dockerfile
 
 push:
   - prefect_docker.deployments.steps.push_docker_image:
@@ -24,26 +24,26 @@ pull:
       directory: /opt/prefect/pipelines_v3
 
 deployments:
-  - name: rj-treatment--remuneracao_openfisca--staging
+  - name: rj-treatment--remuneracao_sistema_rio--staging
     version: "{{ build-image.tag }}"
-    entrypoint: pipelines/treatment__remuneracao_openfisca/flow.py:treatment__remuneracao_openfisca
+    entrypoint: pipelines/treatment__remuneracao_sistema_rio/flow.py:treatment__remuneracao_sistema_rio
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__remuneracao_openfisca -- prefect flow-run execute
+        command: uv run --package treatment__remuneracao_sistema_rio -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-  - name: rj-treatment--remuneracao_openfisca--prod
+  - name: rj-treatment--remuneracao_sistema_rio--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/treatment__remuneracao_openfisca/flow.py:treatment__remuneracao_openfisca
+    entrypoint: pipelines/treatment__remuneracao_sistema_rio/flow.py:treatment__remuneracao_sistema_rio
     work_pool:
       name: smtr-pool
       work_queue_name: default
       job_variables:
         image: "{{ build-image.image_name }}:{{ build-image.tag }}"
-        command: uv run --package treatment__remuneracao_openfisca -- prefect flow-run execute
+        command: uv run --package treatment__remuneracao_sistema_rio -- prefect flow-run execute
         secretName: prefect-jobs-secrets
         image_pull_policy: Always
     concurrency_limit: 1

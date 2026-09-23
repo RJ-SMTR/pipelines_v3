@@ -6,7 +6,7 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/treatment__remuneracao_openfisca ./pipelines/treatment__remuneracao_openfisca/
+COPY ./pipelines/treatment__remuneracao_sistema_rio ./pipelines/treatment__remuneracao_sistema_rio/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
