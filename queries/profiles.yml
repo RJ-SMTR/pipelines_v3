@@ -49,6 +49,7 @@ queries:
             service_account: prefect@rj-smtr-dev.iam.gserviceaccount.com
 
         runtime_config:
+          version: "2.3"
           container_image: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python:latest
           properties:
             spark.executor.instances: "2"
