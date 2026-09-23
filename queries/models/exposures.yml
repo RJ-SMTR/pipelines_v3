@@ -71,7 +71,7 @@ exposures:
     description: >
       Painel com a finalidade de monitorar a posição dos ônibus em operação nos
       últimos oito dias, permitindo a visualização das trajetórias em relação ao
-      itinerário planejado e o acompanhamento da frota em tempo quase real.
+      itinerário planejado e o acompanhamento da frota.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -80,6 +80,7 @@ exposures:
         - Business Data Steward
     depends_on:
       - ref('view_gps_onibus_8_dias')
+      - ref('view_shape_onibus')
     config:
       meta:
         data_product_name: GPS dos Ônibus (Últimos 8 Dias)
