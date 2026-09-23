@@ -381,7 +381,9 @@ with
                         "Débito EMV emissor externo",
                         "Botoeira",
                         "Débito PIX a bordo",
-                        "QRCode Evento"
+                        "QRCode Evento",
+                        "Crédito EMV Bancário",
+                        "Débito EMV Bancário"
                     )
                 then "Integral"
                 when t.tipo_transacao_jae = "Transferência EMV"
