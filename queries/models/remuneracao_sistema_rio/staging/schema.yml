@@ -12,6 +12,7 @@ models:
     config:
       date_range_start: "{{ var('date_range_start') }}"
       date_range_end: "{{ var('date_range_end') }}"
+      invocation_id: "{{ invocation_id }}"
 
   - name: aux_viagem_apurada
     description: >

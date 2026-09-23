@@ -19,13 +19,4 @@ def model(dbt, session):  # noqa: ARG001 - assinatura do dbt
     resultado["versao_regra"] = get_rule_version()
     resultado["id_execucao"] = dbt.config.get("invocation_id")
 
-    print("DEBUG resultado:", resultado.shape)
-    print("DEBUG tipos:", {col: str(tipo) for col, tipo in resultado.dtypes.items()})
-
-    colunas_nulas = (
-        {col: str(resultado[col].dtype) for col in resultado.columns if resultado[col].isna().all()}
-        if not resultado.empty
-        else "resultado vazio"
-    )
-    print("DEBUG colunas totalmente nulas:", colunas_nulas)
     return resultado
