@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+import pandas as pd
 from pyspark.sql.functions import col
 from rio_rac_bus_subsidy import calculate_remuneration, get_rule_version
+
+if not hasattr(pd.DataFrame, "iteritems"):
+    pd.DataFrame.iteritems = pd.DataFrame.items
 
 
 def model(dbt, session):  # noqa: ARG001 - assinatura do dbt
