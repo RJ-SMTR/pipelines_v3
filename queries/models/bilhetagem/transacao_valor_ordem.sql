@@ -104,7 +104,11 @@ with
             consorcio,
             id_operadora,
             id_servico_jae,
-            valor_transacao as valor_transacao_rateio,
+            if(
+                tipo_transacao_jae = 'Crédito EMV Bancário',
+                valor_transacao - 0.3,
+                valor_transacao
+            ) as valor_transacao_rateio,
             id_ordem_pagamento,
             id_ordem_pagamento_consorcio_dia,
             id_ordem_pagamento_consorcio_operador_dia
