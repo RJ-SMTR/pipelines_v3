@@ -49,11 +49,13 @@ with
             feed_version,
             route_short_name as servico,
             agency_id as lote,
-            row_number() over (
-                partition by feed_start_date, route_short_name order by agency_id
-            ) as rn
         from {{ ref("routes_gtfs") }}
         where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
+        qualify
+            row_number() over (
+                partition by feed_start_date, route_short_name order by agency_id
+            )
+            = 1
     ),
     oferta_mes as (
         select data, servico, quilometragem as km, feed_start_date
@@ -74,7 +76,6 @@ with
             lote_servico as ls
             on ls.feed_start_date = m.feed_start_date
             and ls.servico = m.servico
-            and ls.rn = 1
         group by mes, ls.lote
     )
 select
@@ -104,5 +105,4 @@ left join
     lote_servico as ls
     on ls.feed_start_date = o.feed_start_date
     and ls.servico = o.servico
-    and ls.rn = 1
 left join km_lote_mes as km on km.mes = date_trunc(o.data, month) and km.lote = ls.lote
