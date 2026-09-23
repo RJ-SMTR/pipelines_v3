@@ -1,0 +1,42 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: my-data-contract
+name: rj_smtr
+status: draft
+schema:
+- name: base_feed_info
+  physicalType: ephemeral
+  description: Espelho do source GTFS usado como base para os testes do contrato
+  logicalType: object
+  physicalName: base_feed_info
+  properties:
+  - name: feed_publisher_name
+    description: Nome do publicador usado como chave do registro bruto
+    logicalType: string
+  - name: feed_publisher_url
+    description: URL do site da organização que publica o conjunto de dados
+    logicalType: string
+  - name: feed_lang
+    description: Idioma padrão usado para o texto neste conjunto de dados
+    logicalType: string
+  - name: default_lang
+    description: Idioma padrão quando o consumidor não conhece o idioma do passageiro
+    logicalType: string
+  - name: feed_contact_email
+    description: Endereço de e-mail para comunicação sobre o conjunto de dados GTFS
+    logicalType: string
+  - name: feed_contact_url
+    description: URL para informações de contato sobre o conjunto de dados GTFS
+    logicalType: string
+  quality:
+  - type: library
+    metric: rowCount
+    mustBe: 1
+  - name: dbt_expectations_expect_table_row_count_to_equal_base_feed_info_1
+    type: library
+    metric: rowCount
+    mustBe: 1
+customProperties:
+- property: dbt_version
+  value: 1.10.11

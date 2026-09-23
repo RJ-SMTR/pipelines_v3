@@ -15,8 +15,8 @@
 with
     feed_info as (
         select
-            safe_cast(timestamp_captura as string) as feed_version,
-            safe_cast(data_versao as date) as feed_start_date,
+            feed_version,
+            feed_start_date,
             null as feed_end_date,
             feed_publisher_name,
             feed_publisher_url,
@@ -28,7 +28,7 @@ with
             '{{ var("version") }}' as versao_modelo
         from {{ ref("staging_feed_info") }}
         {% if is_incremental() %}
-            where data_versao = date('{{ var("data_versao_gtfs") }}')
+            where feed_start_date = date('{{ var("data_versao_gtfs") }}')
             union all
             select *
             from {{ this }}
