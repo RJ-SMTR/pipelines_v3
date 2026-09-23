@@ -2,7 +2,7 @@
 """
 Flow de materialização da remuneração do Sistema RIO
 
-Executa o selector DBT 'remuneracao_openfisca' para materializar dados no BigQuery
+Materialização dos dados da remuneração do Sistema RIO.
 """
 
 from typing import Optional
