@@ -1,6 +1,6 @@
 # Changelog - monitoramento
 
-## [2.2.18] - 2026-09-18
+## [2.3.0] - 2026-09-22
 
 ### Alterado
 
