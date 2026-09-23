@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """Funções auxiliares para adaptar contratos ODCS ao arquivo bruto."""
 
+import json
+import os
 import shutil
 import subprocess
+import sys
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable
@@ -14,46 +17,51 @@ from pipelines.common.utils.fs import get_project_root_path
 CAPTURE_METADATA_COLUMNS = frozenset({"timestamp_captura"})
 
 
-def get_default_contract_path(
+def get_contract_path_from_manifest(
+    manifest_path: str | Path,
     model_name: str,
-    dataset_name: str,
-    layer_name: str,
 ) -> Path:
-    """Retorna o caminho padrão do contrato de um modelo dbt.
+    """Retorna o contrato ao lado do arquivo SQL localizado no manifest.
 
     Args:
+        manifest_path (str | Path): Caminho do manifest dbt compilado.
         model_name (str): Nome do modelo dbt que representa o contrato.
-        dataset_name (str): Nome do dataset dbt.
-        layer_name (str): Camada do modelo, como ``staging`` ou ``trusted``.
 
     Returns:
-        Path: Caminho em ``queries/models/<dataset>/<camada>/data_contracts``.
-    """
-    return (
-        get_project_root_path()
-        / "queries"
-        / "models"
-        / dataset_name
-        / layer_name
-        / "data_contracts"
-        / f"{model_name}.odcs.yaml"
-    )
-
-
-def get_datacontract_command() -> str:
-    """Localiza o executável do Data Contract CLI.
-
-    Returns:
-        str: Caminho do executável encontrado no ambiente.
+        Path: Caminho em ``<diretório do modelo>/data_contracts``.
 
     Raises:
-        RuntimeError: Se o CLI não estiver instalado.
+        FileNotFoundError: Se o manifest não existir.
+        ValueError: Se o modelo não existir no manifest.
     """
-    command = shutil.which("datacontract")
+    manifest = Path(manifest_path)
+    if not manifest.is_file():
+        raise FileNotFoundError(f"Manifest dbt não encontrado em {manifest}.")
+
+    manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+    model_node = next(
+        (
+            node
+            for node in manifest_data.get("nodes", {}).values()
+            if node.get("resource_type") == "model" and node.get("name") == model_name
+        ),
+        None,
+    )
+    if model_node is None:
+        raise ValueError(f"Modelo dbt '{model_name}' não encontrado no manifest {manifest}.")
+
+    relative_model_path = Path(model_node["original_file_path"]).relative_to("models")
+
+    models_path = get_project_root_path() / "queries" / "models"
+    return models_path / relative_model_path.parent / "data_contracts" / f"{model_name}.odcs.yaml"
+
+
+def get_datacontract_python() -> str:
+    """Resolve o Python do importer e do CLI via DATACONTRACT_PYTHON ou do processo atual."""
+    command = shutil.which(os.environ.get("DATACONTRACT_PYTHON", sys.executable))
     if command is None:
         raise RuntimeError(
-            "Executável 'datacontract' não encontrado. "
-            "Instale o pacote datacontract-cli na imagem do pipeline."
+            "Python do Data Contract CLI não encontrado. Verifique DATACONTRACT_PYTHON."
         )
     return command
 
@@ -113,44 +121,26 @@ def write_contract(contract: dict[str, Any], contract_path: str | Path) -> None:
     )
 
 
-def import_contract_if_missing(
+def generate_contract(
     manifest_path: str | Path,
     model_name: str,
     contract_path: str | Path,
-    datacontract_command: str,
-) -> bool:
-    """Importa o contrato do manifest somente quando o arquivo não existe.
-
-    Args:
-        manifest_path (str | Path): Caminho do manifest dbt.
-        model_name (str): Nome do modelo dbt.
-        contract_path (str | Path): Caminho persistente do contrato.
-        datacontract_command (str): Executável do Data Contract CLI.
-
-    Returns:
-        bool: ``True`` quando o contrato foi importado; ``False`` quando já existia.
-
-    Raises:
-        FileNotFoundError: Se o manifest não existir e o contrato precisar ser importado.
-    """
-    contract = Path(contract_path)
-    if contract.exists():
-        return False
-
+    datacontract_python: str,
+) -> None:
+    """Gera o ODCS pelo importer personalizado, sempre a partir do manifest dbt."""
     manifest = Path(manifest_path)
     if not manifest.is_file():
         raise FileNotFoundError(
             f"Manifest dbt não encontrado em {manifest}; execute dbt parse antes "
             "de importar o contrato."
         )
-
+    contract = Path(contract_path)
     contract.parent.mkdir(parents=True, exist_ok=True)
     run_datacontract(
         [
-            datacontract_command,
-            "import",
-            "dbt",
-            "--source",
+            datacontract_python,
+            str(Path(__file__).with_name("dbt_importer.py")),
+            "--manifest",
             str(manifest),
             "--model",
             model_name,
@@ -158,7 +148,6 @@ def import_contract_if_missing(
             str(contract),
         ]
     )
-    return True
 
 
 def remove_columns_from_contract(
@@ -190,48 +179,23 @@ def remove_columns_from_contract(
     return adapted_contract
 
 
-def remove_primary_keys_from_contract(contract: dict[str, Any]) -> dict[str, Any]:
-    """Remove chaves primárias inferidas ou declaradas do contrato.
-
-    O importer do dbt transforma um teste ``unique`` em ``unique: true`` e
-    também pode marcar a propriedade como ``primaryKey``. As duas informações
-    têm significados diferentes; esta função remove somente o metadado de chave
-    primária e preserva o teste de unicidade.
-
-    Args:
-        contract (dict[str, Any]): Contrato ODCS.
-
-    Returns:
-        dict[str, Any]: Cópia sem metadados de chave primária.
-    """
-    adapted_contract = deepcopy(contract)
-
-    for schema in adapted_contract.get("schema", []):
-        for property_ in schema.get("properties", []):
-            property_.pop("primaryKey", None)
-            property_.pop("primaryKeyPosition", None)
-
-        custom_properties = schema.get("customProperties")
-        if isinstance(custom_properties, list):
-            schema["customProperties"] = [
-                item for item in custom_properties if item.get("property") != "primaryKey"
-            ]
-
-    return adapted_contract
-
-
-def add_primary_keys_to_contract(
+def adjust_primary_keys_in_contract(
     contract: dict[str, Any],
     primary_keys: Iterable[str] | None,
 ) -> dict[str, Any]:
-    """Adiciona as chaves primárias reais informadas pela captura.
+    """Ajusta as chaves primárias do contrato às chaves reais da captura.
+
+    O importer pode inferir como chave um campo que possui teste ``unique``.
+    Aqui a chave é apenas corrigida para refletir ``SourceTable.primary_keys``;
+    o atributo ``unique`` permanece intacto porque representa uma validação
+    diferente de chave primária.
 
     Args:
-        contract (dict[str, Any]): Contrato ODCS sem metadado de chave primária.
+        contract (dict[str, Any]): Contrato ODCS importado do manifest dbt.
         primary_keys (Iterable[str]): Colunas que identificam o registro bruto.
 
     Returns:
-        dict[str, Any]: Cópia com as chaves primárias posicionadas.
+        dict[str, Any]: Cópia com as chaves primárias reais posicionadas.
 
     Raises:
         ValueError: Se uma chave não estiver nas propriedades do contrato.
@@ -248,6 +212,16 @@ def add_primary_keys_to_contract(
                 f"Chaves primárias não encontradas no contrato "
                 f"{schema.get('name', '<sem nome>')}: {', '.join(missing_keys)}"
             )
+
+        for property_ in properties:
+            property_.pop("primaryKey", None)
+            property_.pop("primaryKeyPosition", None)
+
+        custom_properties = schema.get("customProperties")
+        if isinstance(custom_properties, list):
+            schema["customProperties"] = [
+                item for item in custom_properties if item.get("property") != "primaryKey"
+            ]
 
         for position, key in enumerate(keys, start=1):
             properties_by_name[key]["primaryKey"] = True
@@ -275,8 +249,7 @@ def adapt_contract_schema(
         contract,
         CAPTURE_METADATA_COLUMNS | set(ignored_columns or ()),
     )
-    adapted_contract = remove_primary_keys_from_contract(adapted_contract)
-    return add_primary_keys_to_contract(adapted_contract, primary_keys)
+    return adjust_primary_keys_in_contract(adapted_contract, primary_keys)
 
 
 def add_local_server(
