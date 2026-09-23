@@ -4,11 +4,11 @@
     )
 }}
 
-select distinct
+select
     vp.servico as trip_short_name,
     vp.shape_id,
     vp.data,
-    sg.shape,
+    any_value(sg.shape) as shape,
     vp.feed_start_date as data_versao,
     vp.vista,
     vp.sentido
@@ -21,3 +21,4 @@ where
     vp.data between date_sub(
         current_date("America/Sao_Paulo"), interval 8 day
     ) and current_date("America/Sao_Paulo")
+group by all
