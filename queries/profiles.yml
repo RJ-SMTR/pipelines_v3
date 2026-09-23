@@ -55,6 +55,9 @@ queries:
             spark.executor.instances: "2"
             spark.driver.memory: 4g
             spark.driver.memoryOverhead: 1g
+
+        pyspark_batch:
+          jar_file_uris: []
     prod:
       dataset: dbt
       job_execution_timeout_seconds: 14400
