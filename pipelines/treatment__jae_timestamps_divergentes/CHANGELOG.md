@@ -1,5 +1,11 @@
 # Changelog - treatment__jae_timestamps_divergentes
 
+## [1.1.1] - 2026-09-22
+
+### Alterado
+
+- Altera update da coluna `tipo_usuario` na tabela `transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/692)
+
 ## [1.1.0] - 2026-08-17
 
 ### Alterado

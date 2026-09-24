@@ -1,5 +1,12 @@
 # Changelog - bilhetagem
 
+## [3.3.14] - 2026-09-22
+
+### Alterado
+
+- Altera classificação das transações nas colunas `produto`, `tipo_transacao`, `meio_pagamento` e `tipo_usuario` no modelo `transacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/692)
+- Remove R$ 0,30 das transações do tipo `Crédito EMV Bancário` (https://github.com/RJ-SMTR/pipelines_v3/pull/697)
+
 ## [3.3.13] - 2026-09-03
 
 ### Adicionado
