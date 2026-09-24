@@ -614,8 +614,20 @@ with
             latitude,
             longitude,
             geo_point_transacao,
-            valor_transacao,
-            valor_pagamento,
+            case
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                then null
+                else
+            end as valor_transacao,
+            case
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                then null
+                else
+            end as valor_pagamento,
             data_ordem,
             id_ordem_pagamento_servico_operador_dia,
             id_ordem_pagamento_consorcio_operador_dia,
