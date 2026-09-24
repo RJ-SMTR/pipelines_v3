@@ -27,83 +27,37 @@
 {% endif %}
 
 with
-    execucao as (
-        select data, id_viagem, datetime_processamento, tipo_execucao_viagem
-        from {{ ref("viagem_informada_monitoramento") }}
-        where {{ incremental_filter }}
-    ),
-    viagens_validas as (
+    viagens as (
         select
             data,
             id_viagem,
             datetime_partida,
             datetime_chegada,
+            tipo_execucao_viagem,
             id_veiculo,
+            placa,
+            ano_fabricacao,
             servico,
             sentido,
             shape_id,
             distancia_planejada,
             modo,
-            tipo_dia
-        from {{ ref("viagem_valida") }}
-        where {{ incremental_filter }} and sistema = "RIO"
-    ),
-    -- INCOMPLETA declarada não entra em viagem_valida (exige o último segmento).
-    -- Mantém os demais portões de viagem_validacao; sai o último segmento e a cota.
-    viagens_incompletas as (
-        select
-            v.data,
-            v.id_viagem,
-            v.datetime_partida_considerada as datetime_partida,
-            v.datetime_chegada_considerada as datetime_chegada,
-            v.id_veiculo,
-            v.servico,
-            v.sentido,
-            v.shape_id,
-            v.distancia_planejada,
-            v.modo,
-            v.tipo_dia
-        from {{ ref("viagem_validacao") }} as v
-        inner join execucao as e using (data, id_viagem)
-        where
-            v.data between date('{{ var("date_range_start") }}') and date(
-                '{{ var("date_range_end") }}'
-            )
-            and v.sistema = "RIO"
-            and e.tipo_execucao_viagem = "INCOMPLETA"
-            and not v.indicador_viagem_valida
-            and v.indicador_campos_obrigatorios
-            and v.indicador_chegada_posterior_partida
-            and v.indicador_shape_valido
-            and v.indicador_servico_planejado_gtfs
-            and v.indicador_viagem_nao_sobreposta
-            and v.indicador_prazo_envio
-            and ifnull(v.indicador_abaixo_velocidade_max, false)
-            and v.indicador_primeiro_segmento_valido
-            and ifnull(v.indicador_servico_planejado_os, true)
-            and v.indicador_servico_convergente
-            and v.indicador_sem_alteracao_retroativa
-            and v.indicador_processamento_apos_chegada
-    ),
-    viagens as (
-        select * except (prioridade, rn)
-        from
-            (
-                select
-                    *,
-                    row_number() over (
-                        partition by data, id_viagem order by prioridade
-                    ) as rn
-                from
-                    (
-                        select *, 1 as prioridade
-                        from viagens_validas
-                        union all
-                        select *, 2 as prioridade
-                        from viagens_incompletas
-                    )
-            )
-        where rn = 1
+            tipo_dia,
+            tecnologia_apurada,
+            tecnologia_remunerada,
+            indicador_nao_licenciado,
+            indicador_nao_vistoriado,
+            indicador_lacrado,
+            indicador_nao_autorizado_capacidade,
+            indicador_autuado_ar_inoperante,
+            indicador_autuado_alterar_itinerario,
+            indicador_autuado_vista_inoperante,
+            indicador_autuado_nao_atender_parada,
+            indicador_autuado_nao_concluir_itinerario,
+            indicador_registrado_ar_inoperante,
+            indicadores
+        from {{ ref("aux_viagem_status") }}
+        where {{ incremental_filter }}
     ),
     km_segmento as (
         select g.data, g.id_viagem, sum(s.comprimento_segmento) / 1000 as km_gps
@@ -138,9 +92,6 @@ with
             and g.shape_id = s.shape_id
             and g.id_segmento = s.id_segmento
         group by 1, 2
-    ),
-    status_veiculo as (
-        select * from {{ ref("aux_viagem_status") }} where {{ incremental_filter }}
     ),
     temperatura as (
         select *
@@ -179,42 +130,41 @@ with
             v.id_viagem,
             v.datetime_partida,
             v.datetime_chegada,
-            p.datetime_processamento,
-            p.tipo_execucao_viagem,
+            v.tipo_execucao_viagem,
             v.id_veiculo,
-            s.placa,
-            s.ano_fabricacao,
+            v.placa,
+            v.ano_fabricacao,
             v.servico,
             v.sentido,
             v.shape_id,
             v.distancia_planejada,
             v.modo,
             v.tipo_dia,
-            coalesce(s.tecnologia_apurada, t.tecnologia_apurada) as tecnologia_apurada,
-            s.tecnologia_remunerada,
-            coalesce(s.indicador_nao_licenciado, false) as indicador_nao_licenciado,
-            coalesce(s.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
-            coalesce(s.indicador_lacrado, false) as indicador_lacrado,
+            coalesce(v.tecnologia_apurada, t.tecnologia_apurada) as tecnologia_apurada,
+            v.tecnologia_remunerada,
+            coalesce(v.indicador_nao_licenciado, false) as indicador_nao_licenciado,
+            coalesce(v.indicador_nao_vistoriado, false) as indicador_nao_vistoriado,
+            coalesce(v.indicador_lacrado, false) as indicador_lacrado,
             coalesce(
-                s.indicador_nao_autorizado_capacidade, false
+                v.indicador_nao_autorizado_capacidade, false
             ) as indicador_nao_autorizado_capacidade,
             coalesce(
-                s.indicador_autuado_ar_inoperante, false
+                v.indicador_autuado_ar_inoperante, false
             ) as indicador_autuado_ar_inoperante,
             coalesce(
-                s.indicador_autuado_alterar_itinerario, false
+                v.indicador_autuado_alterar_itinerario, false
             ) as indicador_autuado_alterar_itinerario,
             coalesce(
-                s.indicador_autuado_vista_inoperante, false
+                v.indicador_autuado_vista_inoperante, false
             ) as indicador_autuado_vista_inoperante,
             coalesce(
-                s.indicador_autuado_nao_atender_parada, false
+                v.indicador_autuado_nao_atender_parada, false
             ) as indicador_autuado_nao_atender_parada,
             coalesce(
-                s.indicador_autuado_nao_concluir_itinerario, false
+                v.indicador_autuado_nao_concluir_itinerario, false
             ) as indicador_autuado_nao_concluir_itinerario,
             coalesce(
-                s.indicador_registrado_ar_inoperante, false
+                v.indicador_registrado_ar_inoperante, false
             ) as indicador_registrado_ar_inoperante,
             coalesce(
                 t.indicador_detectado_ar_inoperante, false
@@ -231,10 +181,8 @@ with
             coalesce(
                 b.indicador_validador_associado_incorretamente, false
             ) as indicador_validador_associado_incorretamente,
-            coalesce(b.indicadores, t.indicadores, s.indicadores) as indicadores
+            coalesce(b.indicadores, t.indicadores, v.indicadores) as indicadores
         from viagens v
-        left join execucao as p using (data, id_viagem)
-        left join status_veiculo s using (data, id_viagem)
         left join temperatura t using (data, id_viagem)
         left join bilhetagem b using (data, id_viagem)
     ),

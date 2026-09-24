@@ -11,7 +11,12 @@
 {% endset %}
 
 with
-    viagens as (
+    execucao as (
+        select data, id_viagem, tipo_execucao_viagem
+        from {{ ref("viagem_informada_monitoramento") }}
+        where {{ incremental_filter }}
+    ),
+    viagens_validas as (
         select
             data,
             servico,
@@ -21,9 +26,68 @@ with
             id_viagem,
             distancia_planejada,
             sentido,
-            modo
+            modo,
+            shape_id,
+            tipo_dia,
+            cast(null as string) as tipo_execucao_viagem
         from {{ ref("viagem_valida") }}
         where {{ incremental_filter }} and sistema = "RIO"
+    ),
+    -- INCOMPLETA declarada não entra em viagem_valida (exige o último segmento).
+    -- Mantém os demais portões de viagem_validacao; sai o último segmento e a cota.
+    viagens_incompletas as (
+        select
+            v.data,
+            v.servico,
+            v.datetime_partida_considerada as datetime_partida,
+            v.datetime_chegada_considerada as datetime_chegada,
+            v.id_veiculo,
+            v.id_viagem,
+            v.distancia_planejada,
+            v.sentido,
+            v.modo,
+            v.shape_id,
+            v.tipo_dia,
+            e.tipo_execucao_viagem
+        from {{ ref("viagem_validacao") }} as v
+        inner join execucao as e using (data, id_viagem)
+        where
+            {{ incremental_filter }}
+            and v.sistema = "RIO"
+            and e.tipo_execucao_viagem = "INCOMPLETA"
+            and not v.indicador_viagem_valida
+            and v.indicador_campos_obrigatorios
+            and v.indicador_chegada_posterior_partida
+            and v.indicador_shape_valido
+            and v.indicador_servico_planejado_gtfs
+            and v.indicador_viagem_nao_sobreposta
+            and v.indicador_prazo_envio
+            and ifnull(v.indicador_abaixo_velocidade_max, false)
+            and v.indicador_primeiro_segmento_valido
+            and ifnull(v.indicador_servico_planejado_os, true)
+            and v.indicador_servico_convergente
+            and v.indicador_sem_alteracao_retroativa
+            and v.indicador_processamento_apos_chegada
+    ),
+    viagens as (
+        select * except (prioridade, rn)
+        from
+            (
+                select
+                    *,
+                    row_number() over (
+                        partition by data, id_viagem order by prioridade
+                    ) as rn
+                from
+                    (
+                        select *, 1 as prioridade
+                        from viagens_validas
+                        union all
+                        select *, 2 as prioridade
+                        from viagens_incompletas
+                    )
+            )
+        where rn = 1
     ),
     veiculos as (
         select data, id_veiculo, placa, ano_fabricacao, tecnologia, status, indicadores
@@ -77,6 +141,9 @@ with
             v.distancia_planejada,
             v.sentido,
             v.modo,
+            v.shape_id,
+            v.tipo_dia,
+            v.tipo_execucao_viagem,
             ve.tecnologia,
             ve.status,
             ve.indicadores
@@ -96,6 +163,9 @@ with
             vs.distancia_planejada,
             vs.sentido,
             vs.modo,
+            vs.shape_id,
+            vs.tipo_dia,
+            vs.tipo_execucao_viagem,
             vs.status,
             vs.indicadores,
             t.inicio_vigencia as data_inicio_vigencia,
@@ -167,6 +237,9 @@ select
     vt.servico,
     vt.sentido,
     vt.distancia_planejada,
+    vt.shape_id,
+    vt.tipo_dia,
+    vt.tipo_execucao_viagem,
     vt.status = "Não licenciado" as indicador_nao_licenciado,
     vt.status = "Não vistoriado" as indicador_nao_vistoriado,
     vt.status = "Lacrado" as indicador_lacrado,

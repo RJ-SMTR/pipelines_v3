@@ -81,7 +81,8 @@ with
                 '{{ var("date_range_end") }}'
             )
             and modo = "Ônibus"
-            and date(datetime_processamento) - date(datetime_transacao) <= interval 6 day
+            and date(datetime_processamento) - date(datetime_transacao)
+            <= interval 6 day
         union all
         select data, id_operadora, consorcio, valor_transacao
         from {{ ref("transacao_riocard") }}
@@ -90,7 +91,8 @@ with
                 '{{ var("date_range_end") }}'
             )
             and modo = "Ônibus"
-            and date(datetime_processamento) - date(datetime_transacao) <= interval 6 day
+            and date(datetime_processamento) - date(datetime_transacao)
+            <= interval 6 day
     ),
     receita_quinzena as (
         select
