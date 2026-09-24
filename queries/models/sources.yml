@@ -347,6 +347,7 @@ sources:
       - name: controle_financeiro_staging
       - name: cb
       - name: cett
+      - name: caer
 
   - name: source_riorotativo
     database: rj-smtr-staging

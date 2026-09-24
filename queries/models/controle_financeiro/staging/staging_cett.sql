@@ -6,15 +6,16 @@
 
 with
     content_data as (
-        select concat("[", content, "]") as json_content, timestamp_captura
+        select concat("[", content, "]") as json_content, timestamp_captura, data
         from {{ source("controle_financeiro_staging", "cett") }}
 
         union all
 
-        select concat("[", content, "]") as json_content, timestamp_captura
+        select concat("[", content, "]") as json_content, timestamp_captura, data
         from {{ source("source_smtr", "cett") }}
     )
 select
+    data as data_captura,
     parse_date('%d/%m/%Y', safe_cast(json_value(content, '$.Data') as string)) as data,
     safe_cast(json_value(content, '$.Lançamento') as string) as lancamento,
     safe_cast(json_value(content, '$.Operação') as string) as operacao,

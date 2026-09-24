@@ -1,19 +1,9 @@
 {{
     config(
-        alias="cb",
+        alias="caer",
     )
 }}
 
-with
-    content_data as (
-        select concat("[", content, "]") as json_content, timestamp_captura, data
-        from {{ source("controle_financeiro_staging", "cb") }}
-
-        union all
-
-        select concat("[", content, "]") as json_content, timestamp_captura, data
-        from {{ source("source_smtr", "cb") }}
-    )
 select
     data as data_captura,
     timestamp(timestamp_captura) as timestamp_captura,
@@ -36,5 +26,13 @@ select
         ) as float64
     ) as saldo_final,
     safe_cast(json_value(content, '$.Favorecido') as string) as favorecido,
-    safe_cast(json_value(content, '$.Modal') as string) as modal
-from content_data, unnest(json_extract_array(json_content)) as content
+    safe_cast(json_value(content, '$.Modal') as string) as modal,
+    safe_cast(json_value(content, '$.Pendências') as string) as pendencias,
+    safe_cast(json_value(content, '$.Observações') as string) as observacoes,
+    safe_cast(json_value(content, '$.Ano') as integer) as ano,
+    safe_cast(json_value(content, '$.Mês') as integer) as mes,
+    safe_cast(json_value(content, '$.Ano Referência') as integer) as ano_referencia,
+    safe_cast(json_value(content, '$.Mês Referência') as integer) as mes_referencia,
+    safe_cast(json_value(content, '$.Nº Processo') as string) as numero_processo,
+    safe_cast(json_value(content, '$.Nº NF') as string) as numero_nf
+from {{ source("source_smtr", "caer") }}

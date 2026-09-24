@@ -19,16 +19,23 @@ SHEETS_CAPTURE_PARAMS = {
     "cett": {
         "sheet_id": "0",
     },
+    "caer": {
+        "sheet_id": "1226427226",
+        "first_timestamp": datetime(2026, 9, 25, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    },
 }
 
 CONTROLE_FINANCEIRO_SOURCES = [
     SourceTable(
         source_name=SMTR_SOURCE_NAME,
         table_id=t,
-        first_timestamp=datetime(2026, 8, 20, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        first_timestamp=v.get(
+            "first_timestamp",
+            datetime(2026, 8, 20, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        ),
         partition_date_only=True,
         raw_filetype="csv",
         primary_keys=[],
     )
-    for t in SHEETS_CAPTURE_PARAMS
+    for t, v in SHEETS_CAPTURE_PARAMS.items()
 ]
