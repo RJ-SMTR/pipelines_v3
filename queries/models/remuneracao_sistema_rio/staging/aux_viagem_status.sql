@@ -27,11 +27,12 @@ with
             distancia_planejada,
             sentido,
             modo,
-            shape_id,
-            tipo_dia,
-            cast(null as string) as tipo_execucao_viagem
-        from {{ ref("viagem_valida") }}
-        where {{ incremental_filter }} and sistema = "RIO"
+            v.shape_id,
+            v.tipo_dia,
+            e.tipo_execucao_viagem
+        from {{ ref("viagem_valida") }} as v
+        left join execucao as e using (data, id_viagem)
+        where {{ incremental_filter }} and v.sistema = "RIO"
     ),
     -- INCOMPLETA declarada não entra em viagem_valida (exige o último segmento).
     -- Mantém os demais portões de viagem_validacao; sai o último segmento e a cota.
