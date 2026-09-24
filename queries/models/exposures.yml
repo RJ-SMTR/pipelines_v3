@@ -500,6 +500,10 @@ exposures:
 
     maturity: high
 
+    depends_on:
+      - ref('transacao')
+      - source('bilhetagem_private', 'transacao')
+
     config:
       tags:
         - "Tier.Tier2"
