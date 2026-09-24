@@ -120,8 +120,8 @@ with
                 when
                     t.tipo_transacao_jae = 'Crédito EMV Bancário'
                     and t.valor_transacao
-                    > if(t.sentido = 0, lt.tarifa_ida, lt.tarifa_volta)
-                then if(t.sentido = 0, lt.tarifa_ida, lt.tarifa_volta)
+                    > if(t.sentido = '0', lt.tarifa_ida, lt.tarifa_volta)
+                then if(t.sentido = '0', lt.tarifa_ida, lt.tarifa_volta)
                 else t.valor_transacao
             end as valor_transacao_rateio,
             t.id_ordem_pagamento,
