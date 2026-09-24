@@ -11,11 +11,6 @@
 {% endset %}
 
 with
-    execucao as (
-        select data, id_viagem, tipo_execucao_viagem
-        from {{ ref("viagem_informada_monitoramento") }}
-        where {{ incremental_filter }}
-    ),
     viagens_validas as (
         select
             data,
@@ -27,12 +22,11 @@ with
             distancia_planejada,
             sentido,
             modo,
-            v.shape_id,
-            v.tipo_dia,
-            e.tipo_execucao_viagem
-        from {{ ref("viagem_valida") }} as v
-        left join execucao as e using (data, id_viagem)
-        where {{ incremental_filter }} and v.sistema = "RIO"
+            shape_id,
+            tipo_dia,
+            tipo_execucao_viagem
+        from {{ ref("viagem_valida") }}
+        where {{ incremental_filter }} and sistema = "RIO"
     ),
     -- INCOMPLETA declarada não entra em viagem_valida (exige o último segmento).
     -- Mantém os demais portões de viagem_validacao; sai o último segmento e a cota.
@@ -49,13 +43,12 @@ with
             v.modo,
             v.shape_id,
             v.tipo_dia,
-            e.tipo_execucao_viagem
+            v.tipo_execucao_viagem
         from {{ ref("viagem_validacao") }} as v
-        inner join execucao as e using (data, id_viagem)
         where
             {{ incremental_filter }}
             and v.sistema = "RIO"
-            and e.tipo_execucao_viagem = "INCOMPLETA"
+            and v.tipo_execucao_viagem = "INCOMPLETA"
             and not v.indicador_viagem_valida
             and v.indicador_campos_obrigatorios
             and v.indicador_chegada_posterior_partida

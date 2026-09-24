@@ -54,8 +54,7 @@ with
             indicador_autuado_vista_inoperante,
             indicador_autuado_nao_atender_parada,
             indicador_autuado_nao_concluir_itinerario,
-            indicador_registrado_ar_inoperante,
-            indicadores
+            indicador_registrado_ar_inoperante
         from {{ ref("aux_viagem_status") }}
         where {{ incremental_filter }}
     ),
@@ -180,8 +179,7 @@ with
             ) as indicador_validador_fechado,
             coalesce(
                 b.indicador_validador_associado_incorretamente, false
-            ) as indicador_validador_associado_incorretamente,
-            coalesce(b.indicadores, t.indicadores, v.indicadores) as indicadores
+            ) as indicador_validador_associado_incorretamente
         from viagens v
         left join temperatura t using (data, id_viagem)
         left join bilhetagem b using (data, id_viagem)
@@ -281,7 +279,38 @@ select
     ts.menor_tecnologia_permitida as tecnologia_minima_servico,
     ts.maior_tecnologia_permitida as tecnologia_maxima_servico,
     coalesce(c.tipo_dia_oferta, c.tipo_dia) as tipo_dia,
-    c.indicadores,
+    json_object(
+        'indicador_validador_associado_incorretamente',
+        json_object('valor', c.indicador_validador_associado_incorretamente),
+        'indicador_autuado_vista_inoperante',
+        json_object('valor', c.indicador_autuado_vista_inoperante),
+        'indicador_nao_licenciado',
+        json_object('valor', c.indicador_nao_licenciado),
+        'indicador_nao_vistoriado',
+        json_object('valor', c.indicador_nao_vistoriado),
+        'indicador_lacrado',
+        json_object('valor', c.indicador_lacrado),
+        'indicador_sem_transacao_tipo',
+        json_object('valor', c.indicador_sem_transacao_tipo),
+        'indicador_validador_fechado',
+        json_object('valor', c.indicador_validador_fechado),
+        'indicador_autuado_nao_atender_parada',
+        json_object('valor', c.indicador_autuado_nao_atender_parada),
+        'indicador_autuado_alterar_itinerario',
+        json_object('valor', c.indicador_autuado_alterar_itinerario),
+        'indicador_autuado_nao_concluir_itinerario',
+        json_object('valor', c.indicador_autuado_nao_concluir_itinerario),
+        'indicador_nao_autorizado_capacidade',
+        json_object('valor', c.indicador_nao_autorizado_capacidade),
+        'indicador_autuado_ar_inoperante',
+        json_object('valor', c.indicador_autuado_ar_inoperante),
+        'indicador_registrado_ar_inoperante',
+        json_object('valor', c.indicador_registrado_ar_inoperante),
+        'indicador_detectado_ar_inoperante',
+        json_object('valor', c.indicador_detectado_ar_inoperante),
+        'indicador_regularidade_ar_condicionado_viagem',
+        json_object('valor', c.indicador_regularidade_ar_condicionado_viagem)
+    ) as indicadores,
     c.tecnologia_apurada,
     coalesce(c.tecnologia_apurada, ts.menor_tecnologia_permitida) as tecnologia_fcf,
     c.tecnologia_remunerada,
