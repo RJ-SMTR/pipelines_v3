@@ -62,3 +62,64 @@ exposures:
             - janaina.duarte@prefeitura.rio
             - adriano.neto@prefeitura.rio
             - rodrigo.fcunha@prefeitura.rio
+
+  - name: PAINEL_RIO_ROTATIVO_DIGITAL
+    type: dashboard
+    description: >
+      Painel com a finalidade de monitorar as ativações do Rio Rotativo Digital
+      por dia, hora e área de estacionamento, apoiando o acompanhamento da
+      ocupação das vagas e da operação do sistema.
+    owner:
+      name: TR/SUBTT/CMO
+      email: marcio.caldeira@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+    depends_on:
+      - ref('view_ativacao_dia_riorotativo')
+      - ref('view_ativacao_hora_riorotativo')
+    config:
+      meta:
+        data_product_name: Painel Rio Rotativo Digital
+        data_usage_frequency: null
+        business_value: null
+        data_contract: null
+        technical_data_steward:
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - rafael.pinheiro@prefeitura.rio
+            - adriano.neto@prefeitura.rio
+
+  - name: transacao_data_clean_room
+    type: application
+    description: >
+      Data Clean Room para análise de transações, disponibilizando dados individualizados
+      por cliente ou cartão de forma segura e controlada, para consumo analítico e geração de insights.
+
+    owner:
+      name: TR/SUBG
+      email: lauro.silvestre@prefeitura.rio
+      roles:
+        - Owner
+        - Business Data Steward
+
+    depends_on:
+      - ref('transacao')
+
+    config:
+      meta:
+        data_product_name: Data Clean Room para consulta dos dados da transação Jaé
+        data_usage_frequency: null
+        business_value: >
+          Criar a possibilidade de analisar as transações utilizando a identificação de cliente de forma segura.
+        data_contract: null
+        technical_data_steward:
+          email: rafael.pinheiro@prefeitura.rio
+          unit: IPLANRIO/PRE/VPIA/DTDI
+          core: Bilhetagem
+          team:
+            - rafael.pinheiro@prefeitura.rio
+            - adriano.neto@prefeitura.rio
+
