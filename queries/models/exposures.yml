@@ -482,6 +482,7 @@ exposures:
             - adriano.neto@prefeitura.rio
 
   - name: transacao_dcr
+    type: application
     description: >
       # Data Clean Room para consulta dos dados de transação da bilhetagem digital (Jaé)
 
