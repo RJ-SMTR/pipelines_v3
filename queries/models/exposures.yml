@@ -92,34 +92,29 @@ exposures:
             - rafael.pinheiro@prefeitura.rio
             - adriano.neto@prefeitura.rio
 
-  - name: transacao_data_clean_room
-    type: application
+  - name: transacao_dcr
     description: >
-      Data Clean Room para análise de transações, disponibilizando dados individualizados
-      por cliente ou cartão de forma segura e controlada, para consumo analítico e geração de insights.
+      # Data Clean Room para consulta dos dados de transação da bilhetagem digital (Jaé)
+
+      **Valor Institucional / Propósito:** Criar a possibilidade de analisar os dados de bilhetagem utilizando a identificação de cliente de forma segura.
+
+      **Contexto Operacional:**
+      - Granularidade: Uma linha por registro de transação de bilhetagem.
+      - Estado: Representa o estado histórico de uso.
+      - Chaves de relacionamento: Utilize `id_transacao` e `hash_cliente_cartao`.
+      - Fonte de verdade: Tabela `rj-smtr-private.bilhetagem.transacao` (réplica da `rj-smtr.bilhetagem.transacao`).
+      - Premissas ou filtros: A privacidade dos dados é garantida através de uma Política de Agregação com limite mínimo de 5 registros (threshold) e utilizando `hash_cliente_cartao` como coluna de unidade de privacidade.
 
     owner:
-      name: TR/SUBG
-      email: lauro.silvestre@prefeitura.rio
-      roles:
-        - Owner
-        - Business Data Steward
+      email: "lauro.silvestre@prefeitura.rio"
 
-    depends_on:
-      - ref('transacao')
+    maturity: high
 
     config:
-      meta:
-        data_product_name: Data Clean Room para consulta dos dados da transação Jaé
-        data_usage_frequency: null
-        business_value: >
-          Criar a possibilidade de analisar as transações utilizando a identificação de cliente de forma segura.
-        data_contract: null
-        technical_data_steward:
-          email: rafael.pinheiro@prefeitura.rio
-          unit: IPLANRIO/PRE/VPIA/DTDI
-          core: Bilhetagem
-          team:
-            - rafael.pinheiro@prefeitura.rio
-            - adriano.neto@prefeitura.rio
+      tags:
+        - "Tier.Tier2"
 
+    meta:
+      openmetadata:
+        domain: "bilhetagem_receita.transacao"
+        open_metadata_fqn: "transacao_dcr"
