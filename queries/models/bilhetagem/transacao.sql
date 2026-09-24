@@ -619,14 +619,14 @@ with
                     t.tipo_transacao_jae = "Botoeira"
                     and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
                 then null
-                else
+                else valor_transacao
             end as valor_transacao,
             case
                 when
                     t.tipo_transacao_jae = "Botoeira"
                     and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
                 then null
-                else
+                else valor_pagamento
             end as valor_pagamento,
             data_ordem,
             id_ordem_pagamento_servico_operador_dia,
