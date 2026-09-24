@@ -123,7 +123,7 @@ with
                     and data_processamento between "2026-08-16" and "2026-09-10"
                 )
                 or (
-                    data between "2026-09-01" and "2026-09-15"  -- Exceção devido a ausência de dados de licenciamento
+                    data between "2026-09-01" and "2026-09-15"  -- Exceção devido a ausência de dados de licenciamento no stu
                     and data_processamento between "2026-09-01" and "2026-09-22"
                 )
             )
