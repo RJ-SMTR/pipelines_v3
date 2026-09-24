@@ -1243,6 +1243,6 @@ def get_model_table(models: list[str]) -> dict[str, dict[str, str]]:
         result[model] = {
             "project_id": model_info["database"],
             "dataset_id": model_info["schema"],
-            "table_id": model_info["name"],
+            "table_id": model_info["alias"],
         }
     return result
