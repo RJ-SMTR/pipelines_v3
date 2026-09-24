@@ -96,18 +96,7 @@
 
 with
     transacao as (
-        select
-            data_ordem,
-            data as data_transacao,
-            id_transacao,
-            modo,
-            consorcio,
-            id_operadora,
-            id_servico_jae,
-            valor_transacao as valor_transacao_rateio,
-            id_ordem_pagamento,
-            id_ordem_pagamento_consorcio_dia,
-            id_ordem_pagamento_consorcio_operador_dia
+        select *
         from {{ ref("transacao") }}
         where
             tipo_transacao_jae != "Botoeira"
@@ -117,6 +106,36 @@ with
                 {% else %} data = "2000-01-01"
                 {% endif %}
             {% endif %}
+    ),
+    transacao_tarifa as (
+        select
+            t.data_ordem,
+            t.data as data_transacao,
+            t.id_transacao,
+            t.modo,
+            t.consorcio,
+            t.id_operadora,
+            t.id_servico_jae,
+            case
+                when
+                    t.tipo_transacao_jae = 'Crédito EMV Bancário'
+                    and t.valor_transacao
+                    > if(t.sentido = 0, lt.tarifa_ida, lt.tarifa_volta)
+                then if(t.sentido = 0, lt.tarifa_ida, lt.tarifa_volta)
+                else t.valor_transacao
+            end as valor_transacao_rateio,
+            t.id_ordem_pagamento,
+            t.id_ordem_pagamento_consorcio_dia,
+            t.id_ordem_pagamento_consorcio_operador_dia
+        from transacao t
+        left join
+            {{ ref("aux_linha_tarifa") }} lt
+            on t.id_servico_jae = lt.cd_linha
+            and t.datetime_transacao >= lt.dt_inicio_validade
+            and (
+                t.datetime_transacao < lt.data_fim_validade
+                or lt.data_fim_validade is null
+            )
     ),
     integracao as (
         select
@@ -143,7 +162,7 @@ with
     ),
     transacao_integracao as (
         select *
-        from transacao
+        from transacao_tarifa
         union all
         select *
         from integracao
