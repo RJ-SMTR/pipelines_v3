@@ -128,55 +128,6 @@ models:
       - name: versao_modelo
         description: "{{ doc('versao') }}"
 
-  - name: base_feed_info
-    description: "Espelho do source GTFS usado como base para os testes do contrato"
-    config:
-      meta:
-        datacontract_cli:
-          quality:
-            - type: library
-              metric: rowCount
-              mustBe: 1
-    data_tests:
-      - dbt_expectations.expect_table_row_count_to_equal:
-          arguments:
-            value: 1
-          config:
-            where: ""
-    columns:
-      - name: feed_publisher_name
-        description: "Nome do publicador usado como chave do registro bruto"
-      - name: feed_publisher_url
-        description: "URL do site da organização que publica o conjunto de dados"
-      - name: feed_lang
-        description: "Idioma padrão usado para o texto neste conjunto de dados"
-      - name: default_lang
-        description: "Idioma padrão quando o consumidor não conhece o idioma do passageiro"
-      - name: feed_contact_email
-        description: "Endereço de e-mail para comunicação sobre o conjunto de dados GTFS"
-      - name: feed_contact_url
-        description: "URL para informações de contato sobre o conjunto de dados GTFS"
-
-  - name: staging_feed_info
-    description: "Dados do source GTFS encaminhados para o modelo final"
-    columns:
-      - name: feed_version
-        description: "Versão do feed derivada do timestamp da captura"
-      - name: feed_start_date
-        description: "Data inicial de vigência do feed"
-      - name: feed_publisher_name
-        description: "Nome do publicador usado como chave do registro bruto"
-      - name: feed_publisher_url
-        description: "URL do site da organização que publica o conjunto de dados"
-      - name: feed_lang
-        description: "Idioma padrão usado para o texto neste conjunto de dados"
-      - name: default_lang
-        description: "Idioma padrão quando o consumidor não conhece o idioma do passageiro"
-      - name: feed_contact_email
-        description: "Endereço de e-mail para comunicação sobre o conjunto de dados GTFS"
-      - name: feed_contact_url
-        description: "URL para informações de contato sobre o conjunto de dados GTFS"
-
   - name: feed_info_gtfs
     description: "Metadados do conjunto de dados, incluindo informações sobre editor, versão e expiração"
     columns:
@@ -190,6 +141,11 @@ models:
         description: "Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro"
       - name: feed_start_date
         description: "O conjunto de dados fornece informações de programação completas e confiáveis ​​para serviço no período que vai do início do dia feed_start_date até o final do dia feed_end_date"
+        tests:
+          - unique:
+              name: unique__feed_start_date__feed_info_gtfs
+              config:
+                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: feed_end_date
         description: "{{ doc('feed_end_date') }}"
       - name: feed_version
