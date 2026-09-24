@@ -616,15 +616,15 @@ with
             geo_point_transacao,
             case
                 when
-                    t.tipo_transacao_jae = "Botoeira"
-                    and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                    tipo_transacao_jae = "Botoeira"
+                    and data >= "{{ var('data_final_pagamento_dinheiro') }}"
                 then null
                 else valor_transacao
             end as valor_transacao,
             case
                 when
-                    t.tipo_transacao_jae = "Botoeira"
-                    and t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                    tipo_transacao_jae = "Botoeira"
+                    and data >= "{{ var('data_final_pagamento_dinheiro') }}"
                 then null
                 else valor_pagamento
             end as valor_pagamento,
