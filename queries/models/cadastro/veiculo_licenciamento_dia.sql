@@ -681,7 +681,7 @@ with
                 qualify
                     row_number() over (
                         partition by data, id_veiculo, placa
-                        order by data_processamento desc
+                        order by data_arquivo_fonte desc, data_processamento desc
                     )
                     = 1
 
