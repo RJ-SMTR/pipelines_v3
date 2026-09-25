@@ -15,6 +15,12 @@
                 data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
+            qualify
+                row_number() over (
+                    partition by data, id_veiculo, placa
+                    order by data_processamento desc
+                )
+                = 1
         ),
         staging_licenciamento_stu as (
             select date(sls.data) as data, id_veiculo, placa
