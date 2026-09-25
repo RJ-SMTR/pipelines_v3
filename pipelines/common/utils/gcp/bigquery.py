@@ -229,6 +229,9 @@ class SourceTable(BQTable):
             negativo, cria partição de data e de hora
         max_recaptures (int): número máximo de recapturas executadas de uma só vez
         raw_filetype (str): tipo do dado (json, csv, txt)
+        validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
+        data_contract_model (Optional[str]): Modelo dbt; padrão ``base_<table_id>``.
+        data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do ODCS na geração.
 
     """
 
@@ -248,6 +251,9 @@ class SourceTable(BQTable):
         max_recaptures: int = 60,
         raw_filetype: str = "json",
         file_chunk_size: Optional[int] = None,
+        validate_data_contract: bool = False,
+        data_contract_model: Optional[str] = None,
+        data_contract_ignored_columns: tuple[str, ...] = (),
     ) -> None:
         self.source_name = source_name
         super().__init__(
@@ -267,6 +273,9 @@ class SourceTable(BQTable):
         self.pretreat_funcs = pretreat_funcs or []
         self.schedule_cron = self._get_schedule_cron()
         self.file_chunk_size = file_chunk_size
+        self.validate_data_contract = validate_data_contract
+        self.data_contract_model = data_contract_model or f"base_{table_id}"
+        self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)
 
     def _get_schedule_cron(self) -> str:
         """

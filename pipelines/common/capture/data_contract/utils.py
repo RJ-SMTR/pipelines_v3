@@ -1,69 +1,14 @@
 # -*- coding: utf-8 -*-
 """Funções auxiliares para adaptar contratos ODCS ao arquivo bruto."""
 
-import json
-import os
-import shutil
 import subprocess
-import sys
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable
 
 import yaml
 
-from pipelines.common.utils.fs import get_project_root_path
-
 CAPTURE_METADATA_COLUMNS = frozenset({"timestamp_captura"})
-
-
-def get_contract_path_from_manifest(
-    manifest_path: str | Path,
-    model_name: str,
-) -> Path:
-    """Retorna o contrato ao lado do arquivo SQL localizado no manifest.
-
-    Args:
-        manifest_path (str | Path): Caminho do manifest dbt compilado.
-        model_name (str): Nome do modelo dbt que representa o contrato.
-
-    Returns:
-        Path: Caminho em ``<diretório do modelo>/data_contracts``.
-
-    Raises:
-        FileNotFoundError: Se o manifest não existir.
-        ValueError: Se o modelo não existir no manifest.
-    """
-    manifest = Path(manifest_path)
-    if not manifest.is_file():
-        raise FileNotFoundError(f"Manifest dbt não encontrado em {manifest}.")
-
-    manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
-    model_node = next(
-        (
-            node
-            for node in manifest_data.get("nodes", {}).values()
-            if node.get("resource_type") == "model" and node.get("name") == model_name
-        ),
-        None,
-    )
-    if model_node is None:
-        raise ValueError(f"Modelo dbt '{model_name}' não encontrado no manifest {manifest}.")
-
-    relative_model_path = Path(model_node["original_file_path"]).relative_to("models")
-
-    models_path = get_project_root_path() / "queries" / "models"
-    return models_path / relative_model_path.parent / "data_contracts" / f"{model_name}.odcs.yaml"
-
-
-def get_datacontract_python() -> str:
-    """Resolve o Python do importer e do CLI via DATACONTRACT_PYTHON ou do processo atual."""
-    command = shutil.which(os.environ.get("DATACONTRACT_PYTHON", sys.executable))
-    if command is None:
-        raise RuntimeError(
-            "Python do Data Contract CLI não encontrado. Verifique DATACONTRACT_PYTHON."
-        )
-    return command
 
 
 def run_datacontract(command: list[str]) -> None:
@@ -118,35 +63,6 @@ def write_contract(contract: dict[str, Any], contract_path: str | Path) -> None:
     path.write_text(
         yaml.safe_dump(contract, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
-    )
-
-
-def generate_contract(
-    manifest_path: str | Path,
-    model_name: str,
-    contract_path: str | Path,
-    datacontract_python: str,
-) -> None:
-    """Gera o ODCS pelo importer personalizado, sempre a partir do manifest dbt."""
-    manifest = Path(manifest_path)
-    if not manifest.is_file():
-        raise FileNotFoundError(
-            f"Manifest dbt não encontrado em {manifest}; execute dbt parse antes "
-            "de importar o contrato."
-        )
-    contract = Path(contract_path)
-    contract.parent.mkdir(parents=True, exist_ok=True)
-    run_datacontract(
-        [
-            datacontract_python,
-            str(Path(__file__).with_name("dbt_importer.py")),
-            "--manifest",
-            str(manifest),
-            "--model",
-            model_name,
-            "--output",
-            str(contract),
-        ]
     )
 
 

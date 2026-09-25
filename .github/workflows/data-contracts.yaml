@@ -1,0 +1,91 @@
+name: Data contract artifacts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+      - "staging/**"
+    paths:
+      - "contracts/**"
+      - "pipelines/capture__*/constants.py"
+      - "pipelines/capture__*/prefect.yaml"
+      - "tests/**"
+      - "pipelines/common/capture/**"
+      - "pipelines/common/utils/gcp/bigquery.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
+      - ".github/workflows/data-contracts.yaml"
+  push:
+    branches:
+      - master
+      - "staging/**"
+    paths:
+      - "contracts/**"
+      - "pipelines/capture__*/constants.py"
+      - "pipelines/capture__*/prefect.yaml"
+      - "tests/**"
+      - "pipelines/common/capture/**"
+      - "pipelines/common/utils/gcp/bigquery.py"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
+      - ".github/workflows/data-contracts.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-and-check:
+    name: Generate and check ODCS contracts
+    runs-on: ubuntu-latest
+    env:
+      DBT_USER: github-actions
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          activate-environment: true
+
+      - name: Install project dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          cp queries/dev/profiles-example.yml queries/dev/profiles.yml
+          uv sync --all-packages --locked
+
+      - name: Install dbt packages
+        working-directory: queries
+        run: uv run dbt deps --profiles-dir ./dev
+
+      - name: Parse dbt manifest with dbt Core
+        working-directory: queries
+        run: uv run dbt parse --profiles-dir ./dev --no-partial-parse
+
+      - name: Generate contracts for review
+        run: |
+          uv run python -m pipelines.common.capture.data_contract.generate \
+            --contracts-dir /tmp/generated-data-contracts
+
+      - name: Check committed contracts
+        run: uv run python -m pipelines.common.capture.data_contract.generate --check
+
+      - name: Upload generated contracts for manual application
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-data-contracts
+          path: /tmp/generated-data-contracts
+          if-no-files-found: warn
