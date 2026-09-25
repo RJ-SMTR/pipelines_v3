@@ -22,6 +22,7 @@ def capture__riorotativo_credenciados(  # noqa: PLR0913
     recapture: bool = True,
     recapture_days: int = 7,
     recapture_timestamps: Optional[list[str]] = None,
+    skip_data_contract_validation: bool = False,
 ):
     create_capture_flows_default_tasks(
         env=env,
@@ -32,5 +33,6 @@ def capture__riorotativo_credenciados(  # noqa: PLR0913
         recapture=recapture,
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
+        skip_data_contract_validation=skip_data_contract_validation,
         extra_parameters=constants.RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS,
     )
