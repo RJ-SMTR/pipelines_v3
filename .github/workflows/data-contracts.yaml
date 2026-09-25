@@ -9,36 +9,24 @@ on:
     paths:
       - "contracts/**"
       - "pipelines/capture__*/constants.py"
-      - "pipelines/capture__*/prefect.yaml"
-      - "tests/**"
-      - "pipelines/common/capture/**"
+      - "pipelines/common/capture/data_contract/*.py"
       - "pipelines/common/utils/gcp/bigquery.py"
       - "pyproject.toml"
       - "uv.lock"
-      - "queries/**/*.sql"
-      - "queries/**/*.yml"
-      - "queries/**/*.yaml"
+      - "queries/**/base_*.sql"
+      - "queries/models/**/*.yml"
+      - "queries/models/**/*.yaml"
+      - "queries/dbt_project.yml"
+      - "queries/packages.yml"
       - ".github/workflows/data-contracts.yaml"
-  push:
-    branches:
-      - master
-      - "staging/**"
-    paths:
-      - "contracts/**"
-      - "pipelines/capture__*/constants.py"
-      - "pipelines/capture__*/prefect.yaml"
-      - "tests/**"
-      - "pipelines/common/capture/**"
-      - "pipelines/common/utils/gcp/bigquery.py"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "queries/**/*.sql"
-      - "queries/**/*.yml"
-      - "queries/**/*.yaml"
-      - ".github/workflows/data-contracts.yaml"
+      - ".github/scripts/detect_data_contract_changes.py"
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: data-contracts-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   generate-and-check:
@@ -49,6 +37,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Identify model changes in this event
+        id: changes
+        run: python .github/scripts/detect_data_contract_changes.py
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -74,18 +69,37 @@ jobs:
         working-directory: queries
         run: uv run dbt parse --profiles-dir ./dev --no-partial-parse
 
-      - name: Generate contracts for review
+      - name: Update contracts affected by model changes
+        if: steps.changes.outputs.generate == 'true'
         run: |
           uv run python -m pipelines.common.capture.data_contract.generate \
-            --contracts-dir /tmp/generated-data-contracts
+            --changed-files /tmp/changed-contract-models.json
 
-      - name: Check committed contracts
+      - name: Check all contracts
         run: uv run python -m pipelines.common.capture.data_contract.generate --check
 
-      - name: Upload generated contracts for manual application
-        if: always()
+      - name: Commit contracts to the PR branch
+        if: >-
+          steps.changes.outputs.generate == 'true' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [ -z "$(git status --porcelain -- ':(glob)contracts/**/*.odcs.yaml')" ]; then
+            exit 0
+          fi
+          git add -- ':(glob)contracts/**/*.odcs.yaml'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update generated data contracts"
+          git push origin "HEAD:refs/heads/$HEAD_BRANCH"
+
+      - name: Upload contracts for fork contributors
+        if: >-
+          success() && steps.changes.outputs.generate == 'true' &&
+          github.event.pull_request.head.repo.full_name != github.repository
         uses: actions/upload-artifact@v4
         with:
           name: generated-data-contracts
-          path: /tmp/generated-data-contracts
+          path: contracts/**/*.odcs.yaml
           if-no-files-found: warn
