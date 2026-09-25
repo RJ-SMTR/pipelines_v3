@@ -124,7 +124,7 @@ with
                 )
                 or (
                     data between "2026-09-01" and "2026-09-15"  -- Exceção devido a ausência de dados de licenciamento no stu
-                    and data_processamento between "2026-09-01" and "2026-09-24"
+                    and data_processamento between "2026-09-01" and "2026-09-25"
                 )
             )
             {% if is_incremental() %}
