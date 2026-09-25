@@ -20,7 +20,6 @@
                     partition by id_veiculo, placa order by data_processamento desc
                 )
                 = 1
-
         ),
         staging_licenciamento_stu as (
             select date(sls.data) as data, id_veiculo, placa
