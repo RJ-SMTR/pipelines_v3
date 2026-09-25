@@ -509,9 +509,9 @@ exposures:
         - "PII.NonSensitive"
 
     meta:
+      open_metadata_fqn: "transacao_dcr"
       openmetadata:
         domain: "bilhetagem_receita.transacao"
-        open_metadata_fqn: "transacao_dcr"
         tier: "Tier.Tier2"
         customProperties:
           dct_access_rights: "Restrito - Informação Pessoal (Art. 31 da Lei nº 12.527/2011)"
