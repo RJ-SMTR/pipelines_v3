@@ -1,6 +1,35 @@
 version: 2
 
 models:
+  - name: base_guardador_veiculo_riorotativo
+    description: |
+      Base comum das abas de guardadores de veículo das entidades credenciadoras.
+      Extrai cpf e identificacao do conteúdo aninhado e acrescenta data, cnpj e timestamp_captura
+      para alimentar o staging. O contrato valida cpf e identificacao no CSV bruto antes do upload.
+    columns:
+      - name: cpf
+        description: CPF informado na aba da entidade credenciadora
+        data_type: string
+        policy_tags:
+          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: nullValues
+                  mustBe: 0
+      - name: identificacao
+        description: Número de identificação informado para o guardador
+        data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+
   - name: staging_guardador_veiculo_riorotativo
     description: |
       Uma linha por guardador de veículo (documento) por entidade credenciadora (cnpj), por data de captura.

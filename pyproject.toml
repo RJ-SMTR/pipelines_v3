@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "croniter>=6.0.0",
+    "datacontract-cli[duckdb]==1.2.1",
     "dbt-adapters==1.22.6",
     "dbt-bigquery==1.10.1",
     "dill>=0.4.1",
@@ -33,6 +34,7 @@ exclude = ["pipelines/__pycache__"]
 
 [tool.uv]
 exclude-newer = "2026-05-31T00:00:00Z"
+exclude-newer-package = { datacontract-cli = "2026-09-24T00:00:00Z", open-data-contract-standard = "2026-09-24T00:00:00Z" }
 
 [dependency-groups]
 dev = [

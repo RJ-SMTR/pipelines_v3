@@ -4,6 +4,10 @@ from typing import Any, Optional
 from prefect import runtime, unmapped
 from prefect.tasks import Task
 
+from pipelines.common.capture.data_contract.tasks import (
+    prepare_data_contracts,
+    validate_raw_data_contract,
+)
 from pipelines.common.capture.default_capture.tasks import (
     create_capture_contexts,
     get_raw_data,
@@ -33,12 +37,14 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
+    skip_data_contract_validation: bool = False,
 ) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
 
     Args:
         env (Optional[str]): prod ou dev.
+        skip_data_contract_validation (bool): Pula download e validação do contrato nesta execução.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
         source_table_ids (tuple[str]): Tupla com os table_ids dos sources a serem capturados.
         timestamp (str): Timestamp de captura.
@@ -106,7 +112,6 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         wait_for=tasks_wait_for.get("contexts"),
     )
     contexts = tasks["contexts"]
-
     data_extractor_future = create_extractor_task.map(
         context=contexts,
         wait_for=unmapped(tasks_wait_for.get("data_extractor")),
@@ -121,6 +126,17 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["get_raw"] = get_raw_future.result()
+
+    if not skip_data_contract_validation and any(
+        context.source.validate_data_contract for context in contexts
+    ):
+        tasks["data_contract_snapshot"] = prepare_data_contracts(
+            contexts=contexts, env=tasks["env"]
+        )
+        tasks["validate_raw_data_contract"] = validate_raw_data_contract.map(
+            context=contexts,
+            snapshot=unmapped(tasks["data_contract_snapshot"]),
+        ).result()
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,
