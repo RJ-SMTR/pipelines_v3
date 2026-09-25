@@ -17,7 +17,8 @@
                 )
             qualify
                 row_number() over (
-                    partition by data, id_veiculo, placa order by data_processamento desc
+                    partition by data, id_veiculo, placa
+                    order by data_processamento desc
                 )
                 = 1
         ),
