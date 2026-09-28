@@ -8,17 +8,13 @@ of silently producing a weaker data contract.
 
 from __future__ import annotations
 
-import argparse
 import copy
 import json
 import math
 from pathlib import Path
 from typing import Any
 
-import yaml
 from datacontract.imports.dbt_importer import import_dbt_manifest
-from datacontract.imports.importer import Importer
-from datacontract.imports.importer_factory import importer_factory
 from open_data_contract_standard.model import OpenDataContractStandard
 
 _RANGE_BOUND_COUNT = 2
@@ -497,47 +493,3 @@ def import_contract_from_manifest(manifest_path: str | Path, model_name: str) ->
     return OpenDataContractStandard.model_validate(contract).model_dump(
         by_alias=True, exclude_none=True
     )
-
-
-class DbtQualityManifestImporter(Importer):
-    """Importer registered under ``dbt-quality`` without replacing the built-in ``dbt`` format."""
-
-    def import_source(self, source: str, import_args: dict[str, Any]) -> OpenDataContractStandard:
-        model_name = import_args.get("model") or import_args.get("dbt_model")
-        if isinstance(model_name, list) and len(model_name) == 1:
-            model_name = model_name[0]
-        if not isinstance(model_name, str) or not model_name:
-            raise ValueError("dbt-quality import requires exactly one model")
-        contract = import_contract_from_manifest(source, model_name)
-        return OpenDataContractStandard.model_validate(contract)
-
-
-importer_factory.register_lazy_importer(
-    name="dbt-quality",
-    module_path="pipelines.common.capture.data_contract.dbt_importer",
-    class_name="DbtQualityManifestImporter",
-)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", required=True, type=Path)
-    parser.add_argument("--model", required=True)
-    parser.add_argument("--output", required=True, type=Path)
-    args = parser.parse_args()
-    contract = OpenDataContractStandard.model_validate(
-        import_contract_from_manifest(args.manifest, args.model)
-    )
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        yaml.safe_dump(
-            contract.model_dump(by_alias=True, exclude_none=True),
-            sort_keys=False,
-            allow_unicode=True,
-        ),
-        encoding="utf-8",
-    )
-
-
-if __name__ == "__main__":
-    main()

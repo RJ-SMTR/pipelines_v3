@@ -9,12 +9,10 @@ from typing import Any
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
-from pipelines.common.capture.data_contract.repository import (
-    contract_relative_path,
-    download_contract_snapshot,
-)
 from pipelines.common.capture.data_contract.utils import (
     add_local_server,
+    contract_relative_path,
+    download_contract_snapshot,
     run_datacontract,
     write_contract,
 )

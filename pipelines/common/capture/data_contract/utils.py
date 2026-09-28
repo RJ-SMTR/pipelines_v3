@@ -1,14 +1,216 @@
 # -*- coding: utf-8 -*-
-"""Funções auxiliares para adaptar contratos ODCS ao arquivo bruto."""
+"""Funções auxiliares para geração e validação de contratos ODCS."""
 
+import hashlib
+import importlib
+import os
+import re
 import subprocess
+from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
+from urllib.parse import quote
 
+import requests
 import yaml
+from open_data_contract_standard.model import OpenDataContractStandard
+
+from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
+from pipelines.common.utils.gcp.bigquery import SourceTable
 
 CAPTURE_METADATA_COLUMNS = frozenset({"timestamp_captura"})
+DEFAULT_REPOSITORY = "RJ-SMTR/pipelines_v3"
+GITHUB_API = "https://api.github.com"
+REQUEST_TIMEOUT = (10, 60)
+ROOT = Path(__file__).resolve().parents[4]
+DEFAULT_MANIFEST = ROOT / "queries" / "target" / "manifest.json"
+
+
+def contract_relative_path(source_name: str, model_name: str) -> str:
+    """Retorna o caminho do contrato sem aceitar caminhos arbitrários."""
+    for value in (source_name, model_name):
+        if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*", value):
+            raise ValueError(f"Nome inválido no caminho do contrato: {value!r}")
+    return f"contracts/{source_name}/{model_name}.odcs.yaml"
+
+
+def _capture_sources() -> list[SourceTable]:
+    """Import capture constants and discover their configured SourceTable objects."""
+    sources = []
+    for constants_path in sorted((ROOT / "pipelines").glob("capture__*/constants.py")):
+        module_name = ".".join(constants_path.relative_to(ROOT).with_suffix("").parts)
+        module = importlib.import_module(module_name)
+        for value in vars(module).values():
+            candidates = (value,) if isinstance(value, SourceTable) else value
+            if isinstance(candidates, (list, tuple)):
+                sources.extend(source for source in candidates if isinstance(source, SourceTable))
+    return sources
+
+
+def _managed_contracts(
+    sources: Iterable[SourceTable],
+) -> dict[Path, tuple[str, tuple[str, ...], tuple[str, ...]]]:
+    contracts: dict[Path, tuple[str, tuple[str, ...], tuple[str, ...]]] = {}
+    for source in sources:
+        if not source.validate_data_contract:
+            continue
+        model_name = source.data_contract_model
+        source_name = source.source_name
+        relative_path = Path(contract_relative_path(source_name, model_name)).relative_to(
+            "contracts"
+        )
+        settings = (
+            model_name,
+            tuple(source.data_contract_ignored_columns or ()),
+            tuple(source.primary_keys or ()),
+        )
+        previous = contracts.setdefault(relative_path, settings)
+        if previous != settings:
+            raise ValueError(
+                f"Sources mapped to contracts/{relative_path} have inconsistent model, "
+                "ignored columns, or primary keys"
+            )
+    return contracts
+
+
+def _render_contract(
+    *,
+    manifest: Path,
+    model_name: str,
+    ignored_columns: tuple[str, ...],
+    primary_keys: tuple[str, ...],
+    source_name: str,
+) -> str:
+    contract = adapt_contract_schema(
+        import_contract_from_manifest(manifest, model_name),
+        ignored_columns=ignored_columns,
+        primary_keys=primary_keys,
+    )
+    contract["id"] = f"urn:datacontract:{source_name}:{model_name}"
+    contract["name"] = f"{source_name}/{model_name}"
+    OpenDataContractStandard.model_validate(contract)
+    return yaml.safe_dump(contract, sort_keys=False, allow_unicode=True)
+
+
+def generate_contracts(
+    *,
+    manifest_path: Path = DEFAULT_MANIFEST,
+    contracts_dir: Path = ROOT / "contracts",
+    check: bool = False,
+) -> list[str]:
+    """Generate all managed ODCS contracts, or fail when check mode finds drift."""
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"dbt manifest not found at {manifest_path}; run dbt parse first")
+
+    managed = _managed_contracts(_capture_sources())
+    messages = []
+    for path, (model, ignored_columns, primary_keys) in sorted(managed.items()):
+        expected = _render_contract(
+            manifest=manifest_path,
+            model_name=model,
+            ignored_columns=ignored_columns,
+            primary_keys=primary_keys,
+            source_name=path.parts[0],
+        )
+        output = contracts_dir / path
+        if check:
+            if not output.is_file():
+                messages.append(f"missing {output}")
+            elif output.read_text(encoding="utf-8") != expected:
+                messages.append(f"out of date {output}")
+        else:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(expected, encoding="utf-8")
+            messages.append(f"generated {output}")
+
+    if check:
+        messages.extend(
+            f"unregistered contract {path}"
+            for path in sorted(contracts_dir.rglob("*.odcs.yaml"))
+            if path.relative_to(contracts_dir) not in managed
+        )
+        if messages:
+            raise ValueError("Contract drift detected:\n" + "\n".join(messages))
+        return ["checked-in contracts match dbt and source configuration"]
+
+    managed_paths = set(managed)
+    for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
+        if output.relative_to(contracts_dir) not in managed_paths:
+            output.unlink()
+            messages.append(f"removed obsolete {output}")
+    return messages
+
+
+def _get_contract_ref(env: str) -> str:
+    """Resolve a referência que será fixada em um único SHA."""
+    if env == "prod":
+        return "master"
+    branch = os.environ.get("GIT_BRANCH", "").strip()
+    if branch:
+        return branch
+    result = subprocess.run(
+        ["git", "symbolic-ref", "--quiet", "--short", "HEAD"],
+        cwd=Path(__file__).resolve().parents[4],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    branch = result.stdout.strip()
+    if result.returncode or not branch:
+        raise ValueError(
+            "Não foi possível identificar a branch: checkout ausente ou HEAD detached."
+        )
+    return branch
+
+
+def download_contract_snapshot(paths: list[str], env: str) -> dict[str, Any]:
+    """Baixa todos os contratos a partir do mesmo commit do repositório."""
+    if not paths:
+        return {}
+    repository = os.environ.get("DATA_CONTRACT_GITHUB_REPOSITORY", DEFAULT_REPOSITORY)
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+        raise ValueError("DATA_CONTRACT_GITHUB_REPOSITORY deve ser owner/repository.")
+    with requests.Session() as session:
+        session.headers.update({"Accept": "application/vnd.github+json"})
+        token = os.environ.get("DATA_CONTRACT_GITHUB_TOKEN")
+        if token:
+            session.headers["Authorization"] = f"Bearer {token}"
+        ref = _get_contract_ref(env)
+        response = session.get(
+            f"{GITHUB_API}/repos/{repository}/commits/{quote(ref, safe='')}",
+            timeout=REQUEST_TIMEOUT,
+        )
+        response.raise_for_status()
+        sha = response.json().get("sha", "")
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise ValueError("GitHub não retornou um SHA de commit válido para o contrato.")
+
+        contracts = {}
+        for path in sorted(set(paths)):
+            response = session.get(
+                f"{GITHUB_API}/repos/{repository}/contents/{quote(path, safe='/')}",
+                params={"ref": sha},
+                headers={"Accept": "application/vnd.github.raw+json"},
+                timeout=REQUEST_TIMEOUT,
+            )
+            response.raise_for_status()
+            content = response.content
+            contract = yaml.safe_load(content)
+            if (
+                not isinstance(contract, dict)
+                or contract.get("kind") != "DataContract"
+                or not contract.get("schema")
+            ):
+                raise ValueError(f"Contrato ODCS inválido no repositório: {path}")
+            if contract.get("servers"):
+                raise ValueError(
+                    f"O contrato versionado não deve conter servidores de execução: {path}"
+                )
+            digest = hashlib.sha256(content).hexdigest()
+            contracts[path] = {"contract": contract, "sha256": digest}
+            print(f"Contrato: {repository}@{sha} {path} sha256={digest}")
+    return {"repository": repository, "ref": ref, "sha": sha, "contracts": contracts}
 
 
 def run_datacontract(command: list[str]) -> None:
@@ -32,25 +234,6 @@ def run_datacontract(command: list[str]) -> None:
         raise RuntimeError(f"Data Contract CLI falhou (exit code {result.returncode}):\n{output}")
 
 
-def load_contract(contract_path: str | Path) -> dict[str, Any]:
-    """Carrega um contrato ODCS e garante o tipo esperado.
-
-    Args:
-        contract_path (str | Path): Caminho do contrato YAML.
-
-    Returns:
-        dict[str, Any]: Contrato carregado.
-
-    Raises:
-        ValueError: Se o YAML não representar um contrato ODCS.
-    """
-    path = Path(contract_path)
-    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(contract, dict):
-        raise ValueError(f"Contrato ODCS inválido: {path}")
-    return contract
-
-
 def write_contract(contract: dict[str, Any], contract_path: str | Path) -> None:
     """Salva um contrato ODCS em YAML.
 
@@ -64,86 +247,6 @@ def write_contract(contract: dict[str, Any], contract_path: str | Path) -> None:
         yaml.safe_dump(contract, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
     )
-
-
-def remove_columns_from_contract(
-    contract: dict[str, Any],
-    columns: Iterable[str] | None,
-) -> dict[str, Any]:
-    """Remove colunas técnicas das propriedades do contrato.
-
-    Args:
-        contract (dict[str, Any]): Contrato ODCS importado do manifest dbt.
-        columns (Iterable[str]): Nomes das colunas que não existem no arquivo bruto.
-
-    Returns:
-        dict[str, Any]: Cópia do contrato sem as colunas informadas.
-    """
-    ignored_columns = set(columns or ())
-    adapted_contract = deepcopy(contract)
-
-    for schema in adapted_contract.get("schema", []):
-        properties = schema.get("properties", [])
-        schema["properties"] = [
-            property_ for property_ in properties if property_.get("name") not in ignored_columns
-        ]
-
-        required = schema.get("required")
-        if isinstance(required, list):
-            schema["required"] = [column for column in required if column not in ignored_columns]
-
-    return adapted_contract
-
-
-def adjust_primary_keys_in_contract(
-    contract: dict[str, Any],
-    primary_keys: Iterable[str] | None,
-) -> dict[str, Any]:
-    """Ajusta as chaves primárias do contrato às chaves reais da captura.
-
-    O importer pode inferir como chave um campo que possui teste ``unique``.
-    Aqui a chave é apenas corrigida para refletir ``SourceTable.primary_keys``;
-    o atributo ``unique`` permanece intacto porque representa uma validação
-    diferente de chave primária.
-
-    Args:
-        contract (dict[str, Any]): Contrato ODCS importado do manifest dbt.
-        primary_keys (Iterable[str]): Colunas que identificam o registro bruto.
-
-    Returns:
-        dict[str, Any]: Cópia com as chaves primárias reais posicionadas.
-
-    Raises:
-        ValueError: Se uma chave não estiver nas propriedades do contrato.
-    """
-    keys = list(primary_keys or ())
-    adapted_contract = deepcopy(contract)
-
-    for schema in adapted_contract.get("schema", []):
-        properties = schema.get("properties", [])
-        properties_by_name = {property_.get("name"): property_ for property_ in properties}
-        missing_keys = [key for key in keys if key not in properties_by_name]
-        if missing_keys:
-            raise ValueError(
-                f"Chaves primárias não encontradas no contrato "
-                f"{schema.get('name', '<sem nome>')}: {', '.join(missing_keys)}"
-            )
-
-        for property_ in properties:
-            property_.pop("primaryKey", None)
-            property_.pop("primaryKeyPosition", None)
-
-        custom_properties = schema.get("customProperties")
-        if isinstance(custom_properties, list):
-            schema["customProperties"] = [
-                item for item in custom_properties if item.get("property") != "primaryKey"
-            ]
-
-        for position, key in enumerate(keys, start=1):
-            properties_by_name[key]["primaryKey"] = True
-            properties_by_name[key]["primaryKeyPosition"] = position
-
-    return adapted_contract
 
 
 def adapt_contract_schema(
@@ -161,11 +264,41 @@ def adapt_contract_schema(
     Returns:
         dict[str, Any]: Contrato normalizado sem ``server.incoming``.
     """
-    adapted_contract = remove_columns_from_contract(
-        contract,
-        CAPTURE_METADATA_COLUMNS | set(ignored_columns or ()),
-    )
-    return adjust_primary_keys_in_contract(adapted_contract, primary_keys)
+    ignored = CAPTURE_METADATA_COLUMNS | set(ignored_columns or ())
+    keys = list(primary_keys or ())
+    adapted_contract = deepcopy(contract)
+
+    for schema in adapted_contract.get("schema", []):
+        properties = schema.get("properties", [])
+        schema["properties"] = [
+            property_ for property_ in properties if property_.get("name") not in ignored
+        ]
+        required = schema.get("required")
+        if isinstance(required, list):
+            schema["required"] = [column for column in required if column not in ignored]
+
+        properties_by_name = {
+            property_.get("name"): property_ for property_ in schema["properties"]
+        }
+        missing_keys = [key for key in keys if key not in properties_by_name]
+        if missing_keys:
+            raise ValueError(
+                f"Chaves primárias não encontradas no contrato "
+                f"{schema.get('name', '<sem nome>')}: {', '.join(missing_keys)}"
+            )
+        for property_ in schema["properties"]:
+            property_.pop("primaryKey", None)
+            property_.pop("primaryKeyPosition", None)
+        custom_properties = schema.get("customProperties")
+        if isinstance(custom_properties, list):
+            schema["customProperties"] = [
+                item for item in custom_properties if item.get("property") != "primaryKey"
+            ]
+        for position, key in enumerate(keys, start=1):
+            properties_by_name[key]["primaryKey"] = True
+            properties_by_name[key]["primaryKeyPosition"] = position
+
+    return adapted_contract
 
 
 def add_local_server(
@@ -208,39 +341,3 @@ def add_local_server(
 
     adapted_contract["servers"] = servers
     return adapted_contract
-
-
-def adapt_contract_for_raw(
-    contract: dict[str, Any],
-    raw_filepath: str,
-    file_format: str = "csv",
-    ignored_columns: Iterable[str] | None = (),
-    primary_keys: Iterable[str] | None = (),
-) -> dict[str, Any]:
-    """Prepara um contrato dbt para validar um arquivo bruto.
-
-    ``timestamp_captura`` é adicionado pelo transform comum e, portanto, não faz
-    parte do bruto. Campos técnicos específicos de uma captura podem ser passados
-    em ``ignored_columns``.
-
-    Args:
-        contract (dict[str, Any]): Contrato ODCS importado do manifest dbt.
-        raw_filepath (str): Caminho local do arquivo bruto capturado.
-        file_format (str): Formato do arquivo bruto.
-        ignored_columns (Iterable[str]): Colunas técnicas adicionais.
-        primary_keys (Iterable[str]): Chaves primárias reais do source.
-
-    Returns:
-        dict[str, Any]: Contrato adaptado para a execução local do teste.
-    """
-    adapted_contract = adapt_contract_schema(
-        contract,
-        ignored_columns=ignored_columns,
-        primary_keys=primary_keys,
-    )
-
-    return add_local_server(
-        adapted_contract,
-        raw_filepath=raw_filepath,
-        file_format=file_format,
-    )
