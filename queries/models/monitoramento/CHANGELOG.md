@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.18] - 2026-09-28
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-28` devido à ausência de dados brutos de licenciamento, o reprocessamento ocorreu em `2026-09-28`.(https://github.com/RJ-SMTR/pipelines_v3/pull/714)
+
 ## [2.2.18] - 2026-09-24
 
 ### Alterado
