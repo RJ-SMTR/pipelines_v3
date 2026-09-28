@@ -173,22 +173,6 @@ with
             segmentos_filtrados sf
             on s.shape_id = sf.shape_id
             and s.feed_start_date = sf.feed_start_date
-    ),
-    -- 6. Status só com os extremos. O meio do trajeto não entra no emparelhamento.
-    status_viagem as (
-        select
-            *,
-            case
-                when indicador_segmento_inicio and not indicador_segmento_fim
-                then "start"
-                when indicador_segmento_fim
-                then "end"
-                else "out"
-            end as status_viagem,
-            (
-                indicador_segmento_inicio or indicador_segmento_fim
-            ) as indicador_intersecao_segmento
-        from posicao_segmento
     )
 select *
-from status_viagem
+from posicao_segmento

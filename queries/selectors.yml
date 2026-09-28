@@ -120,7 +120,6 @@ selectors:
               value: planejamento
             - method: fqn
               value: gps_validador
-              parents: true
 
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
