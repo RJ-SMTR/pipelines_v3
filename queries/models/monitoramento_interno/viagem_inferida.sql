@@ -34,7 +34,7 @@ with
                     indicador_chegada
                     and not ifnull(
                         lag(indicador_chegada) over (
-                            partition by id_veiculo, shape_id 
+                            partition by id_veiculo, shape_id
                             order by datetime_gps
                         ),
                         false
