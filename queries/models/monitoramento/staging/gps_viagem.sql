@@ -16,13 +16,13 @@
     {% set partitions = get_modified_partitions_filter(
         viagem_informada,
         truncate_date=true,
-        max_age_days=var("viagem_validacao_max_age_days", 5),
+        max_age_days=var("viagem_validacao_max_age_days", 6),
     ) %}
     {% set expanded_partitions = get_modified_partitions_filter(
         viagem_informada,
         include_adjacent=true,
         truncate_date=true,
-        max_age_days=var("viagem_validacao_max_age_days", 5),
+        max_age_days=var("viagem_validacao_max_age_days", 6),
     ) %}
 {% else %} {% set partitions = [] %} {% set expanded_partitions = [] %}
 {% endif %}
