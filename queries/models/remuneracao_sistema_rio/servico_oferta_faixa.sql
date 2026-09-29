@@ -59,27 +59,9 @@ with
             )
             = 1
     ),
-    oferta_mes as (
-        select data, servico, quilometragem as km, feed_start_date
-        -- from {{ ref("servico_planejado_faixa_horaria") }}
-        from `rj-smtr.planejamento.servico_planejado_faixa_horaria`
-        where
-            data between date_trunc(
-                date('{{ var("date_range_start") }}'), month
-            ) and last_day(date('{{ var("date_range_end") }}'), month)
-            and sistema = "RIO"
-    ),
-    km_lote_mes as (
-        select
-            date_trunc(m.data, month) as mes,
-            ls.lote,
-            sum(m.km) as lote_km_referencia_mensal
-        from oferta_mes as m
-        inner join
-            lote_servico as ls
-            on ls.feed_start_date = m.feed_start_date
-            and ls.servico = m.servico
-        group by mes, ls.lote
+    km_referencia as (
+        select lote, data_inicio, data_fim, km_referencia_mensal
+        from {{ ref("lote_km_rede_referencia") }}
     )
 select
     o.data,
@@ -94,8 +76,8 @@ select
     o.km,
     cast(0 as int64) as lote_frota_estimada,
     cast(0 as int64) as lote_frota_determinada,
-    km.lote_km_referencia_mensal,
-    km.lote_km_referencia_mensal / 2 as lote_km_referencia_quinzena,
+    km.km_referencia_mensal as lote_km_referencia_mensal,
+    km.km_referencia_mensal / 2 as lote_km_referencia_quinzena,
     o.consorcio,
     o.modo,
     o.feed_start_date,
@@ -108,4 +90,8 @@ left join
     lote_servico as ls
     on ls.feed_start_date = o.feed_start_date
     and ls.servico = o.servico
-left join km_lote_mes as km on km.mes = date_trunc(o.data, month) and km.lote = ls.lote
+left join
+    km_referencia as km
+    on km.lote = ls.lote
+    and o.data >= km.data_inicio
+    and (km.data_fim is null or o.data <= km.data_fim)
