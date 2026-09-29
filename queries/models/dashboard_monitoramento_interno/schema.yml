@@ -52,7 +52,7 @@ models:
   - name: view_shape_onibus
     description: >-
       Uma linha por serviço, shape, data, versão, vista e sentido, com a
-      geometria do itinerário dos últimos 8 dias no fuso America/Sao_Paulo.
+      geometria do itinerário dos últimos 8 dias.
       Janela móvel, sem histórico versionado. Junte por (trip_short_name, data)
       com view_gps_onibus_8_dias. Fonte: viagem_planejada_planejamento_dia e
       shapes_geom_planejamento.
