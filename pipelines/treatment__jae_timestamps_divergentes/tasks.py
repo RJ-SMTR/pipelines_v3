@@ -224,6 +224,31 @@ def create_transacao_valor_ordem_params(gaps: dict) -> tuple[bool, dict]:
 
 
 @task
+def create_riorotativo_ordem_pagamento_params(gaps: dict) -> tuple[bool, dict]:
+    """
+    Cria os parâmetros para o flow de tratamento da riorotativo_ordem_pagamento.
+
+    Args:
+        gaps (dict): Gaps identificados para cada tabela de captura.
+
+    Returns:
+        tuple[bool, dict]: Indica se há gaps de fiscalizacao_veiculo e os parâmetros do flow.
+    """
+    fiscalizacao_gaps = gaps[jae_constants.FISCALIZACAO_VEICULO_TABLE_ID]
+
+    if not fiscalizacao_gaps["flag_has_gaps"]:
+        return False, None
+
+    timestamps = sorted(set(fiscalizacao_gaps["timestamps"]))
+    params = {
+        "datetime_start": timestamps[0],
+        "datetime_end": timestamps[-1],
+    }
+
+    return True, params
+
+
+@task
 def create_verificacao_captura_params(gaps: dict) -> list[dict]:
     """
     Cria os parâmetros para o flow de verificação de captura.

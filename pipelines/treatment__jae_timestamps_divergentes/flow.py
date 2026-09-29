@@ -12,12 +12,16 @@ from pipelines.treatment__jae_timestamps_divergentes import constants
 from pipelines.treatment__jae_timestamps_divergentes.tasks import (
     create_materialization_subflows_params,
     create_recapture_subflows_params,
+    create_riorotativo_ordem_pagamento_params,
     create_transacao_valor_ordem_params,
     create_verificacao_captura_params,
     get_gaps_from_result_table,
     run_updates,
 )
 from pipelines.treatment__passageiro_hora.flow import treatment__passageiro_hora
+from pipelines.treatment__riorotativo_ordem_pagamento.flow import (
+    treatment__riorotativo_ordem_pagamento,
+)
 from pipelines.treatment__transacao_valor_ordem.flow import treatment__transacao_valor_ordem
 
 
@@ -86,4 +90,15 @@ async def treatment__jae_timestamps_divergentes(
             env=env,
             flow=control__jae_verificacao_captura,
             parameters=[param],
+        )
+
+    run_riorotativo_ordem, riorotativo_ordem_params = create_riorotativo_ordem_pagamento_params(
+        gaps=gaps
+    )
+
+    if run_riorotativo_ordem:
+        await run_subflow(
+            env=env,
+            flow=treatment__riorotativo_ordem_pagamento,
+            parameters=[riorotativo_ordem_params],
         )

@@ -50,6 +50,10 @@ COPY ./pipelines/capture__jae_estacionamento_veiculo ./pipelines/capture__jae_es
 
 COPY ./pipelines/capture__jae_fiscalizacao_veiculo ./pipelines/capture__jae_fiscalizacao_veiculo/
 
+COPY ./pipelines/treatment__riorotativo_operacao ./pipelines/treatment__riorotativo_operacao/
+
+COPY ./pipelines/treatment__riorotativo_ordem_pagamento ./pipelines/treatment__riorotativo_ordem_pagamento/
+
 COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/capture__jae_movimento_estacionamento_veiculo/
 
 COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_riorotativo_auxiliar/
