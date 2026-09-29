@@ -12,6 +12,7 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    copy_tables_to_private,
     create_materialization_contexts,
     download_dbt_state,
     ingest_dbt_artifacts_to_openmetadata,
@@ -197,15 +198,24 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                         *tasks_wait_for.get("run_dbt", []),
                     ],
                 )
+
+                tasks["copy_to_private"] = copy_tables_to_private(
+                    env=tasks["env"],
+                    contexts=contexts,
+                    wait_for=[
+                        tasks["run_dbt"],
+                        *tasks_wait_for.get("copy_to_private", []),
+                    ],
+                )
             else:
-                tasks["run_dbt"] = None
+                tasks["copy_to_private"] = None
 
             tasks["post_tests"] = run_dbt_selector_tests(
                 contexts=contexts,
                 mode="post",
                 flags=flags,
                 wait_for=[
-                    tasks["run_dbt"],
+                    tasks["copy_to_private"],
                     *tasks_wait_for.get("post_tests", []),
                 ],
             )

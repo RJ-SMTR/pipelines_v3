@@ -39,22 +39,26 @@ def get_api_data(
             params=params,
         )
 
-        if response.ok:
-            break
-        if response.status_code >= constants.HTTP_SERVER_ERROR_STATUS:
-            print(f"Server error {response.status_code}")
-            if retry == constants.MAX_RETRIES - 1:
-                response.raise_for_status()
-            time.sleep(60)
-        else:
+        if not response.ok:
+            if response.status_code >= constants.HTTP_SERVER_ERROR_STATUS:
+                print(f"Server error {response.status_code}")
+                if retry == constants.MAX_RETRIES - 1:
+                    response.raise_for_status()
+                time.sleep(60)
+                continue
             response.raise_for_status()
 
-    if raw_filetype == "json":
-        data = response.json()
-    else:
-        data = response.text
+        if raw_filetype == "json":
+            try:
+                return response.json()
+            except ValueError:
+                if retry == constants.MAX_RETRIES - 1:
+                    raise
+                time.sleep(60)
+        else:
+            return response.text
 
-    return data
+    raise RuntimeError("API request failed after all retries")
 
 
 def get_raw_api(  # noqa: PLR0913

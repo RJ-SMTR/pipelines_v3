@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tasks de captura dos dados de temperatura do INMET"""
 
-from datetime import timedelta
 from functools import partial
 
 from prefect import task
@@ -17,15 +16,12 @@ from pipelines.common.utils.secret import get_env_secret
 def create_temperatura_extractor(context: SourceCaptureContext):
     """Cria a extração de dados da api do INMET"""
 
-    start = context.timestamp - timedelta(days=1)
-    data_inicio = start.strftime("%Y-%m-%d")
-    data_fim = context.timestamp.strftime("%Y-%m-%d")
+    capture_date = context.timestamp.strftime("%Y-%m-%d")
 
     key = get_env_secret(constants.INMET_SECRET_PATH)["key"]
 
     url_list = []
     for estacao in constants.INMET_ESTACOES:
-        url = f"{constants.INMET_BASE_URL}/{data_inicio}/{data_fim}/{estacao}/{key}"
-        url_list.append(url)
+        url_list.append(f"{constants.INMET_BASE_URL}/{capture_date}/{capture_date}/{estacao}/{key}")
 
     return partial(get_raw_api_list, url=url_list, raw_filepath=context.raw_filepath)

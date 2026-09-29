@@ -95,4 +95,3 @@ select
 from logs l
 left join {{ ref("aux_preco_bigquery") }} p using (data)
 left join label_dbt d using (data, projeto, id_job)
-where usuario is not null and bytes_faturados > 0

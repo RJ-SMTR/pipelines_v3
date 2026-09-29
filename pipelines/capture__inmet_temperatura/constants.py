@@ -7,8 +7,8 @@ Valores constantes para captura de dados de temperatura do INMET
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from pipelines.capture__inmet_temperatura.utils import InmetSourceTable
 from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.gcp.bigquery import SourceTable
 
 INMET_SOURCE_NAME = "inmet"
 INMET_SECRET_PATH = "inmet_api"
@@ -27,7 +27,7 @@ INMET_ESTACOES = [
 ]
 
 INMET_METEOROLOGIA_TABLE_ID = "meteorologia"
-INMET_TEMPERATURA_SOURCE = SourceTable(
+INMET_TEMPERATURA_SOURCE = InmetSourceTable(
     source_name=INMET_SOURCE_NAME,
     table_id=INMET_METEOROLOGIA_TABLE_ID,
     first_timestamp=datetime(2025, 7, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
