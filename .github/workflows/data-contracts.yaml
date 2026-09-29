@@ -85,14 +85,3 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update generated data contracts"
           git push origin "HEAD:refs/heads/$HEAD_BRANCH"
-
-      - name: Upload contracts for fork contributors
-        if: >-
-          github.event_name == 'pull_request' &&
-          success() &&
-          github.event.pull_request.head.repo.full_name != github.repository
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-data-contracts
-          path: contracts/**/*.odcs.yaml
-          if-no-files-found: warn
