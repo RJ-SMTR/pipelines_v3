@@ -14,6 +14,8 @@ select distinct
     datetime_gps as timestamp_gps
 from {{ ref("view_gps_onibus") }}
 where
-    data between date_sub(current_date(), interval 8 day) and current_date()
+    data between date_sub(
+        current_date("America/Sao_Paulo"), interval 8 day
+    ) and current_date("America/Sao_Paulo")
     and status != "Parado garagem"
     and servico is not null
