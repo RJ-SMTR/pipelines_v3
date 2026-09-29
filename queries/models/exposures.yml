@@ -69,9 +69,10 @@ exposures:
   - name: PAINEL_GPS_ONIBUS
     type: dashboard
     description: >
-      Painel com a finalidade de monitorar a posição dos ônibus em operação nos
-      últimos oito dias, permitindo a visualização das trajetórias em relação ao
-      itinerário planejado e o acompanhamento da frota em tempo quase real.
+      Painel para monitorar a posição dos ônibus em operação nos últimos oito
+      dias e comparar as trajetórias com o itinerário planejado. Consome
+      view_gps_onibus_8_dias e view_shape_onibus, janelas móveis sem histórico
+      versionado. A junção é servico = trip_short_name e data.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -79,9 +80,8 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('view_gps_onibus')
-      - ref('viagem_planejada_planejamento_dia')
-      - ref('shapes_geom_planejamento')
+      - ref('view_gps_onibus_8_dias')
+      - ref('view_shape_onibus')
     config:
       meta:
         data_product_name: GPS dos Ônibus (Últimos 8 Dias)
