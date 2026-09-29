@@ -16,7 +16,9 @@ with
     )
 select
     data as data_captura,
-    timestamp(timestamp_captura) as timestamp_captura,
+    datetime(
+        parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura), "America/Sao_Paulo"
+    ) as timestamp_captura,
     parse_date('%d/%m/%Y', safe_cast(json_value(content, '$.Data') as string)) as data,
     safe_cast(json_value(content, '$.Lançamento') as string) as lancamento,
     safe_cast(json_value(content, '$.Operação') as string) as operacao,
