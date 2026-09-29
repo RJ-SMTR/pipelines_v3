@@ -600,3 +600,10 @@ sources:
 
     tables:
       - name: ultimo_datetime_captura_confiavel
+
+  - name: bilhetagem_private
+    database: rj-smtr-private
+    schema: bilhetagem
+
+    tables:
+      - name: transacao

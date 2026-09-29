@@ -69,9 +69,10 @@ exposures:
   - name: PAINEL_GPS_ONIBUS
     type: dashboard
     description: >
-      Painel com a finalidade de monitorar a posição dos ônibus em operação nos
-      últimos oito dias, permitindo a visualização das trajetórias em relação ao
-      itinerário planejado e o acompanhamento da frota em tempo quase real.
+      Painel para monitorar a posição dos ônibus em operação nos últimos oito
+      dias e comparar as trajetórias com o itinerário planejado. Consome
+      view_gps_onibus_8_dias e view_shape_onibus, janelas móveis sem histórico
+      versionado. A junção é servico = trip_short_name e data.
     owner:
       name: TR/SUBTT/CMO
       email: marcio.caldeira@prefeitura.rio
@@ -79,9 +80,8 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - ref('view_gps_onibus')
-      - ref('viagem_planejada_planejamento_dia')
-      - ref('shapes_geom_planejamento')
+      - ref('view_gps_onibus_8_dias')
+      - ref('view_shape_onibus')
     config:
       meta:
         data_product_name: GPS dos Ônibus (Últimos 8 Dias)
@@ -481,3 +481,37 @@ exposures:
             - rafael.pinheiro@prefeitura.rio
             - adriano.neto@prefeitura.rio
 
+  - name: transacao_dcr
+    type: application
+    description: >
+      Data Clean Room para consulta dos dados de transação da bilhetagem digital (Jaé)
+
+      Valor Institucional / Propósito: Criar a possibilidade de analisar os dados de bilhetagem utilizando a identificação de cliente de forma segura.
+
+      Contexto Operacional:
+      - Granularidade: Uma linha por registro de transação de bilhetagem;
+      - Estado: Representa o estado histórico de uso;
+      - Chaves de relacionamento: Utilize `id_transacao` e `hash_cliente_cartao`;
+      - Fonte de verdade: Tabela `rj-smtr-private.bilhetagem.transacao` (réplica da `rj-smtr.bilhetagem.transacao`);
+      - Premissas ou filtros: A privacidade dos dados é garantida através de uma Política de Agregação com limite mínimo de 5 registros (threshold) e utilizando `hash_cliente_cartao` como coluna de unidade de privacidade.
+
+    owner:
+      email: "lauro.silvestre@prefeitura.rio"
+
+    maturity: medium
+
+    depends_on:
+      - ref('transacao')
+      - source('bilhetagem_private', 'transacao')
+
+    config:
+      tags:
+        - "PII.NonSensitive"
+
+    meta:
+      open_metadata_fqn: "transacao_dcr"
+      openmetadata:
+        domain: "bilhetagem_receita.transacao"
+        tier: "Tier.Tier2"
+        customProperties:
+          dct_access_rights: "Restrito - Informação Pessoal (Art. 31 da Lei nº 12.527/2011)"
