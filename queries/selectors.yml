@@ -760,17 +760,17 @@ selectors:
         #   value: viagem_validacao
         # - method: fqn
         #   value: viagem_valida
-        # - method: fqn
-        #   value: servico_oferta_faixa
-        # - method: fqn
-        #   value: aux_viagem_status
-        # - method: fqn
-        #   value: viagem_valida_temperatura
-        # - method: fqn
-        #   value: viagem_valida_bilhetagem
+        - method: fqn
+          value: servico_oferta_faixa
+        - method: fqn
+          value: aux_viagem_status
+        - method: fqn
+          value: viagem_valida_temperatura
+        - method: fqn
+          value: viagem_valida_bilhetagem
         - method: fqn
           value: viagem_valida_classificada
-        Depende do pacote `rio_rac_bus_subsidy` no Dataproc.
+        # Depende do pacote `rio_rac_bus_subsidy` no Dataproc.
         - method: fqn
           value: aux_viagem_apurada_openfisca
         - method: fqn
