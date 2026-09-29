@@ -1,5 +1,11 @@
 # Changelog - transito
 
+## [1.0.6] - 2026-09-15
+
+### Alterado
+
+- Altera policy tag das coluna `id_auto_infracao` e `endereco_autuacao` da tabela `autuacao`, e `id_auto_infracao` da tabela auxiliar `aux_autuacao_id` (https://github.com/RJ-SMTR/pipelines_v3/pull/675)
+
 ## [1.0.5] - 2026-06-26
 
 ### Adicionado

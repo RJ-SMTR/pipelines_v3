@@ -47,6 +47,7 @@ with
         where
             {{ incremental_filter }}
             and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            and sistema = "SPPO"
     ),
     veiculos as (
         select data, id_veiculo, placa, ano_fabricacao, tecnologia, status, indicadores

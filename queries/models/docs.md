@@ -1011,6 +1011,10 @@ Fonte da velocidade [TELEMETRIA ou AVL]
 Identificador do fornecedor de GPS
 {% enddocs %}
 
+{% docs fonte_viagem %}
+Fonte que enviou a viagem informada [rioonibus, maxtrack ou mobirio]
+{% enddocs %}
+
 {% docs altitude_gps %}
 Altitude em metros
 {% enddocs %}

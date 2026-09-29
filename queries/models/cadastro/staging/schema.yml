@@ -54,13 +54,14 @@ models:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
           name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_licenciamento_stu
           arguments:
-            date_col: data
+            date_col: "safe_cast(data as date)"
             row_condition: "1=1"
             test_start_date: "{{ var('date_range_start') }}"
             test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           config:
             tags: ["freshness", "daily"]
             severity: warn
+            where: "safe_cast(data as date) between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
         description: Data do arquivo de licenciamento [partição]
