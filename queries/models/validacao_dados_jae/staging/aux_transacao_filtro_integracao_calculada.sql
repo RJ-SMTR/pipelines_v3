@@ -83,7 +83,7 @@ left join
     {{ ref("matriz_integracao_servico_modo") }} sm
     on t.id_servico_jae = sm.id_servico_jae
     and t.data >= sm.data_inicio_validade
-    and (t.data < sm.data_fim_validade or sm.data_fim_validadeis is null)
+    and (t.data < sm.data_fim_validade or sm.data_fim_validade is null)
 where
     t.tipo_transacao != 'Gratuidade'
     and t.tipo_transacao_jae != 'Botoeira'

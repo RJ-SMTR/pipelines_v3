@@ -143,7 +143,7 @@ with
             {{ ref("matriz_integracao_servico_modo") }} sm
             on i.id_servico_jae = sm.id_servico_jae
             and i.data >= sm.data_inicio_validade
-            and (i.data < sm.data_fim_validade or sm.data_fim_validadeis is null)
+            and (i.data < sm.data_fim_validade or sm.data_fim_validade is null)
         left join
             {{ ref("aux_linha_tarifa") }} l
             on i.id_servico_jae = l.cd_linha
