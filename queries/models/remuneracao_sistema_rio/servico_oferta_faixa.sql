@@ -10,7 +10,7 @@
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
 
-{% set calendario = ref("calendario") %}
+{% set calendario = "rj-smtr.planejamento.calendario" %}
 {% if execute %}
     {% set gtfs_feeds_query %}
         select distinct concat("'", feed_start_date, "'") as feed_start_date
@@ -40,7 +40,8 @@ with
             consorcio,
             modo,
             feed_start_date
-        from {{ ref("servico_planejado_faixa_horaria") }}
+        -- from {{ ref("servico_planejado_faixa_horaria") }}
+        from `rj-smtr.planejamento.servico_planejado_faixa_horaria`
         where {{ incremental_filter }} and sistema = "RIO"
     ),
     lote_servico as (
@@ -49,7 +50,8 @@ with
             feed_version,
             route_short_name as servico,
             agency_id as lote,
-        from {{ ref("routes_gtfs") }}
+        -- from {{ ref("routes_gtfs") }}
+        from `rj-smtr.gtfs.routes`
         where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
         qualify
             row_number() over (
@@ -59,7 +61,8 @@ with
     ),
     oferta_mes as (
         select data, servico, quilometragem as km, feed_start_date
-        from {{ ref("servico_planejado_faixa_horaria") }}
+        -- from {{ ref("servico_planejado_faixa_horaria") }}
+        from `rj-smtr.planejamento.servico_planejado_faixa_horaria`
         where
             data between date_trunc(
                 date('{{ var("date_range_start") }}'), month

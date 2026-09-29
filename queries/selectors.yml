@@ -746,24 +746,31 @@ selectors:
   - name: remuneracao_openfisca
     description: >
       Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
-      `servico_oferta_faixa` + ramos flags (`aux_viagem_status`,
-      `viagem_valida_temperatura`, `viagem_valida_bilhetagem`) +
-      `viagem_valida_classificada` + `aux_viagem_apurada` + recortes
-      (`viagem_apurada`, `faixa_apurada`, `data_apurada`) + sumários +
-      views de monitoramento.
+      `gps_segmento_viagem` + `viagem_validacao` + `viagem_valida`
+      (coluna `tipo_execucao_viagem`) + `servico_oferta_faixa` + ramos
+      flags (`aux_viagem_status`, `viagem_valida_temperatura`,
+      `viagem_valida_bilhetagem`) + `viagem_valida_classificada` +
+      `aux_viagem_apurada` + recortes (`viagem_apurada`, `faixa_apurada`,
+      `data_apurada`) + sumários + views de monitoramento.
     definition:
       union:
-        - method: fqn
-          value: servico_oferta_faixa
-        - method: fqn
-          value: aux_viagem_status
-        - method: fqn
-          value: viagem_valida_temperatura
-        - method: fqn
-          value: viagem_valida_bilhetagem
+        # - method: fqn
+        #   value: gps_segmento_viagem
+        # - method: fqn
+        #   value: viagem_validacao
+        # - method: fqn
+        #   value: viagem_valida
+        # - method: fqn
+        #   value: servico_oferta_faixa
+        # - method: fqn
+        #   value: aux_viagem_status
+        # - method: fqn
+        #   value: viagem_valida_temperatura
+        # - method: fqn
+        #   value: viagem_valida_bilhetagem
         - method: fqn
           value: viagem_valida_classificada
-        # Depende do pacote `rio_rac_bus_subsidy` no Dataproc.
+        Depende do pacote `rio_rac_bus_subsidy` no Dataproc.
         - method: fqn
           value: aux_viagem_apurada_openfisca
         - method: fqn

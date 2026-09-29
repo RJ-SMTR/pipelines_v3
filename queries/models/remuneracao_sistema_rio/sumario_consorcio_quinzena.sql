@@ -73,26 +73,18 @@ with
         from dia_lote
         group by data_inicio_quinzena, lote
     ),
-    transacao as (
-        select data, id_operadora, consorcio, valor_transacao
-        from {{ ref("transacao") }}
+    receita_dia as (
+        select
+            date_sub(data_ordem, interval 1 day) as data,
+            consorcio,
+            sum(valor_total_transacao_bruto) as receita_tarifa_publica_dia
+        -- from {{ ref("bilhetagem_consorcio_operador_dia") }}
+        from `rj-smtr.financeiro.bilhetagem_consorcio_operador_dia`
         where
-            data between date('{{ var("date_range_start") }}') and date(
-                '{{ var("date_range_end") }}'
-            )
-            and modo = "Ônibus"
-            and date(datetime_processamento) - date(datetime_transacao)
-            <= interval 6 day
-        union all
-        select data, id_operadora, consorcio, valor_transacao
-        from {{ ref("transacao_riocard") }}
-        where
-            data between date('{{ var("date_range_start") }}') and date(
-                '{{ var("date_range_end") }}'
-            )
-            and modo = "Ônibus"
-            and date(datetime_processamento) - date(datetime_transacao)
-            <= interval 6 day
+            data_ordem between date_add(
+                date('{{ var("date_range_start") }}'), interval 1 day
+            ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
+        group by data, consorcio
     ),
     receita_quinzena as (
         select
@@ -101,10 +93,10 @@ with
                 date_trunc(data, month),
                 date_add(date_trunc(data, month), interval 15 day)
             ) as data_inicio_quinzena,
-            case id_operadora when '2801' then 'A2' when '2802' then 'B2' end as lote,
+            {{ lote_consorcio_rio("consorcio") }} as lote,
             consorcio,
-            sum(valor_transacao) as receita_tarifa_publica_quinzena
-        from transacao
+            sum(receita_tarifa_publica_dia) as receita_tarifa_publica_quinzena
+        from receita_dia
         group by data_inicio_quinzena, lote, consorcio
     ),
     base as (
@@ -161,6 +153,12 @@ with
                 desconto_operacao_precaria_quinzena, 0.0
             ) as valor_a_pagar_bruto_quinzena
         from valorado
+    ),
+    imposto as (
+        select
+            *,
+            greatest(valor_a_pagar_bruto_quinzena, 0.0) as base_imposto
+        from bruto
     )
 select
     data_inicio_quinzena,
@@ -173,12 +171,12 @@ select
     remuneracao_capex_quinzena,
     receita_tarifa_publica_quinzena,
     valor_a_pagar_bruto_quinzena,
-    valor_a_pagar_bruto_quinzena * 0.02 as valor_imposto_iss,
-    valor_a_pagar_bruto_quinzena * 0.024 as valor_imposto_irrf,
+    base_imposto * 0.02 as valor_imposto_iss,
+    base_imposto * 0.024 as valor_imposto_irrf,
     valor_a_pagar_bruto_quinzena
-    - (valor_a_pagar_bruto_quinzena * 0.02)
-    - (valor_a_pagar_bruto_quinzena * 0.024) as valor_subsidio_liquido_quinzena,
+    - (base_imposto * 0.02)
+    - (base_imposto * 0.024) as valor_subsidio_liquido_quinzena,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
-from bruto
+from imposto

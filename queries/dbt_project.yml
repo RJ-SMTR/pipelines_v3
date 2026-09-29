@@ -51,7 +51,7 @@ vars:
   ### Outros lotes entram neste dict. Não regrava transacao/gps_validador.
   lotes_consorcio_rio:
     GTU: A2
-    ATU: B2
+    TUSE: B2
 
   ### GPS ###
   brt_terminais: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
