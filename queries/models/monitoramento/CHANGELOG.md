@@ -6,6 +6,18 @@
 
 - Altera `viagem_validacao` no modo monitoramento (`treatment__viagem_inferida`) para aplicar o desempate de `filtro_desvio`, `filtro_partida` e `filtro_chegada` (índice, distância e tipo de trajeto) e exclusão de viagens concorrentes sobrepostas do mesmo veículo. Só entram na disputa viagens com `indicador_viagem_valida` e match no planejado (`indicador_trajeto_alternativo` não nulo); inválidas e sem match permanecem na saída (https://github.com/RJ-SMTR/pipelines_v3/pull/673).
 
+## [2.2.19] - 2026-09-28
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-28` devido à ausência de dados brutos de licenciamento, o reprocessamento ocorreu em `2026-09-28`.(https://github.com/RJ-SMTR/pipelines_v3/pull/714)
+
+## [2.2.18] - 2026-09-24
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-22` devido à ausência de dados brutos de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/695)
+
 ## [2.2.17] - 2026-09-16
 
 ### Corrigido
