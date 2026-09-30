@@ -27,9 +27,11 @@ with
             modo as modo_origem,
             idx_modo,
             string_agg(modo, '-') over (
-                partition by integracao order by idx_modo
+                partition by integracao, tipo_bilhete_unico order by idx_modo
             ) as integracao_origem,
-            lead(modo) over (partition by integracao order by idx_modo) as modo_destino,
+            lead(modo) over (
+                partition by integracao, tipo_bilhete_unico order by idx_modo
+            ) as modo_destino,
             tempo_integracao_minutos,
             tipo_bilhete_unico
         from reparticao_unnest

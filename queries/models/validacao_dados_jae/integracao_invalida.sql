@@ -152,6 +152,7 @@ with
                 l.data_fim_validade is null
                 or i.datetime_transacao < l.data_fim_validade
             )
+        where
         {% if is_incremental() %}
                 {% if partitions | length > 0 %}
                     data in ({{ partitions | join(", ") }})
@@ -229,6 +230,7 @@ with
             i.*,
             false as indicador_integracao_fora_matriz,
             m.tempo_integracao_minutos,
+            m.tipo_bilhete_unico,
             case
                 when rn = 1  -- a primeira transação com origem e destino
                 then
@@ -309,6 +311,7 @@ with
             i.*,
             m.integracao is null as indicador_integracao_fora_matriz,
             m.tempo_integracao_minutos,
+            m.tipo_bilhete_unico,
             case
                 when rn = 1  -- a primeira transação com origem e destino
                 then
@@ -402,6 +405,7 @@ with
             {{ ref("matriz_reparticao_tarifaria") }} mrt
             on mrt.data_inicio_matriz <= im.data_lead
             and (mrt.data_fim_matriz >= im.data_lead or mrt.data_fim_matriz is null)
+            and im.tipo_bilhete_unico = mrt.tipo_bilhete_unico
             and regexp_extract(mrt.integracao, iat.integracao_realizada_regex)
             is not null
         qualify
