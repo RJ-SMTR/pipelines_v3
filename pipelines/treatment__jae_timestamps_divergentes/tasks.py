@@ -236,9 +236,9 @@ def create_riorotativo_ordem_pagamento_params(gaps: dict) -> list[dict] | None:
     if not fiscalizacao_gaps["flag_has_gaps"]:
         return None
     timestamps = sorted(set(fiscalizacao_gaps["timestamps"]))
-    datetime_end = (
-        datetime.fromisoformat(timestamps[-1]) + timedelta(days=1)
-    ).strftime("%Y-%m-%d %H:%M:%S")
+    datetime_end = (datetime.fromisoformat(timestamps[-1]) + timedelta(days=1)).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
     return [
         {
             "datetime_start": timestamps[0],
