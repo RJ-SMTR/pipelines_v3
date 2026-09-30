@@ -57,12 +57,13 @@ select
             when
                 modo = 'Ônibus'
                 and not (
-                    (
-                        length(ifnull(regexp_extract(servico_jae, r'[0-9]+'), '')) = 4
-                        or length(ifnull(regexp_extract(servico_jae, r'[0-9]+'), ''))
-                        = 2
+
+                    length(ifnull(regexp_extract(servico_jae, r'[0-9]+'), '')) = 2
+                    or (
+                        ifnull(regexp_extract(servico_jae, r'[0-9]+'), '') like '2%'
+                        and length(ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), ''))
+                        = 4
                     )
-                    and ifnull(regexp_extract(servico_jae, r'[0-9]+'), '') like '2%'
 
                 )
             then ['SPPO']

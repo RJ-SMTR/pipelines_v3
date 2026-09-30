@@ -116,18 +116,16 @@ with
                     when
                         i.modo = 'Ônibus'
                         and not (
-                            (
+                            length(ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), ''))
+                            = 2
+                            or (
                                 length(
                                     ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
                                 )
                                 = 4
-                                or length(
-                                    ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
-                                )
-                                = 2
+                                and ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
+                                like '2%'
                             )
-                            and ifnull(regexp_extract(i.servico_jae, r'[0-9]+'), '')
-                            like '2%'
 
                         )
                     then ['SPPO']
