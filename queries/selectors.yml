@@ -761,6 +761,8 @@ selectors:
         # - method: fqn
         #   value: viagem_valida
         - method: fqn
+          value: lote_km_rede_referencia
+        - method: fqn
           value: servico_oferta_faixa
         - method: fqn
           value: aux_viagem_status
