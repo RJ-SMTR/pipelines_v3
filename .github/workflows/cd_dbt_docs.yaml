@@ -69,6 +69,13 @@ jobs:
           test -s queries/target/manifest.json
           test -s queries/target/catalog.json
 
+      - name: Upload production artifacts to Recce Cloud
+        if: github.ref == 'refs/heads/master'
+        working-directory: queries
+        run: uvx recce-cloud upload --type prod --target-path target --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload docs to GCS
         run: |
           gsutil -m cp queries/target/static_index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
