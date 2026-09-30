@@ -1,5 +1,11 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.3.1] - 2026-09-30
+
+### Corrigido
+
+- Corrigido o modelo `viagens_remuneradas_v2` para manter apenas serviços com `sistema = "SPPO"` a partir de `DATA_SUBSIDIO_V26_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/723)
+
 ## [8.3.0] - 2026-09-24
 
 ### Alterado
