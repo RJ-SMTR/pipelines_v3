@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.2.20] - 2026-09-30
+
+### Alterado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30`.(https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
 ## [2.2.19] - 2026-09-29
 
 ### Alterado
