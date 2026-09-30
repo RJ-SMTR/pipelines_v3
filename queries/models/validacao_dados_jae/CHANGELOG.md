@@ -1,5 +1,16 @@
 # Changelog - validacao_dados_jae
 
+## [3.1.6] - 2026-06-25
+
+### Adicionado
+
+- Adiciona validação de integrações BUM no modelo `integracao_invalida.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona filtro de clientes não cadastrados no modelo `aux_transacao_filtro_integracao_calculada.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+
+### Alterado
+
+- Adapta modelos `integracao_invalida.sql`, `aux_transacao_filtro_integracao_calculada.sql` e `aux_calculo_integracao.py` para funcionar com serviços que possuem mais de um modo (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+
 ## [3.1.5] - 2026-03-31
 
 ### Adicionado
