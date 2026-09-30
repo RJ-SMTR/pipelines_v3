@@ -91,7 +91,9 @@ with
             cast(c.cd_cliente as integer) as id_cliente_particao,
             c.cd_cliente as id_cliente,
             c.nm_cliente as nome,
-            if(trim(c.nm_cliente_social) = '', null, c.nm_cliente_social) as nome_social,
+            if(
+                trim(c.nm_cliente_social) = '', null, c.nm_cliente_social
+            ) as nome_social,
             case
                 when c.in_tipo_pessoa_fisica_juridica = "F"
                 then "Física"
