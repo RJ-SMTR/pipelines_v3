@@ -85,7 +85,7 @@ jobs:
               dev:
                 type: bigquery
                 method: service-account
-                project: rj-smtr
+                project: rj-smtr-dev
                 dataset: dbt
                 location: US
                 threads: 2
@@ -115,11 +115,22 @@ jobs:
         if: steps.files.outputs.all_changed_files != ''
         run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
 
-      - name: Run DBT compile
+      - name: Run DBT compile (pull request)
+        if: github.event_name == 'pull_request'
         working-directory: queries
         run: |-
           if [ -f state/manifest.json ]; then
-            uv run dbt compile --profiles-dir profiles --state state --defer --select state:modified+
+            uv run dbt compile --target dev --profiles-dir profiles --state state --defer --select state:modified+
           else
-            uv run dbt compile --profiles-dir profiles
+            uv run dbt compile --target dev --profiles-dir profiles
+          fi
+
+      - name: Run DBT compile (master)
+        if: github.ref == 'refs/heads/master'
+        working-directory: queries
+        run: |-
+          if [ -f state/manifest.json ]; then
+            uv run dbt compile --target prod --profiles-dir profiles --state state --defer --select state:modified+
+          else
+            uv run dbt compile --target prod --profiles-dir profiles
           fi
