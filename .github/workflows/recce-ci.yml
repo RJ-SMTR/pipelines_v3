@@ -1,0 +1,167 @@
+name: Recce CI - Validate PR Changes
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_date:
+        description: "Date used by the incremental validation run (YYYY-MM-DD)"
+        required: true
+        type: string
+
+concurrency:
+  group: recce-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      pull-requests: read
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      DBT_RUN_DATE: ${{ inputs.run_date }}
+
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+
+      - name: Detect open pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mapfile -t pull_requests < <(
+            gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --head "$GITHUB_REF_NAME" \
+              --json number \
+              --jq '.[].number'
+          )
+
+          if [ "${#pull_requests[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one open pull request for branch $GITHUB_REF_NAME; found ${#pull_requests[@]}"
+            exit 1
+          fi
+
+          pr_number="${pull_requests[0]}"
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "DBT_USER=recce_pr_${pr_number}" >> "$GITHUB_ENV"
+
+      - name: Validate run date
+        run: |
+          if [[ ! "$DBT_RUN_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::error::run_date must use YYYY-MM-DD"
+            exit 1
+          fi
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project dependencies
+        run: uv sync --all-packages
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: "latest"
+
+      - name: Setup credentials for dbt
+        env:
+          GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+        run: printf '%s' "$GCP_SA_KEY" > /tmp/credentials.json
+
+      - name: Prepare dbt profile
+        working-directory: queries
+        run: |
+          mkdir -p dev
+          cp profiles.yml dev/profiles.yml
+          uv run python - <<'PY'
+          from pathlib import Path
+
+          import yaml
+
+          profile_path = Path("dev/profiles.yml")
+          profile = yaml.safe_load(profile_path.read_text())
+          for output in profile["queries"]["outputs"].values():
+              output["maximum_bytes_billed"] = 100_000_000_000
+          profile_path.write_text(yaml.safe_dump(profile, sort_keys=False))
+          PY
+
+      - name: Download production artifacts
+        working-directory: queries
+        run: uvx recce-cloud download --prod --target-path target-base
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dbt packages
+        working-directory: queries
+        run: uv run dbt deps --profiles-dir ./dev
+
+      - name: Build empty changed model graph
+        working-directory: queries
+        run: |
+          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
+          uv run dbt run \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --favor-state \
+            --empty \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$dbt_vars"
+
+      - name: Run changed model graph for validation date
+        working-directory: queries
+        run: |
+          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
+          uv run dbt run \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --favor-state \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$dbt_vars"
+
+      - name: Generate Recce artifacts for changed graph
+        working-directory: queries
+        run: |
+          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
+          uv run dbt docs generate \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$dbt_vars"
+
+      - name: Upload current artifacts to Recce Cloud
+        working-directory: queries
+        run: uvx recce-cloud upload --pr "${{ steps.pr.outputs.number }}" --type pr --target-path target --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
