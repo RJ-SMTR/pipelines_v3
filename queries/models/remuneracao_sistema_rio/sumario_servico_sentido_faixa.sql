@@ -36,9 +36,7 @@ with
             servico,
             sentido,
             faixa_horaria_inicio,
-            sum(
-                if(indicador_viagem_completa, km_programada, 0)
-            ) as km_remuneravel_faixa
+            sum(if(indicador_viagem_completa, km_programada, 0)) as km_remuneravel_faixa
         from {{ ref("viagem_valida_classificada") }}
         where {{ incremental_filter }}
         group by data, servico, sentido, faixa_horaria_inicio
@@ -98,11 +96,11 @@ with
         select
             *,
             case
-                when percentual_atendimento >= 0.9
+                when percentual_atendimento * 100 >= 90
                 then 1.0
-                when percentual_atendimento >= 0.8
+                when percentual_atendimento * 100 >= 80
                 then 0.9
-                when percentual_atendimento >= 0.6
+                when percentual_atendimento * 100 >= 60
                 then 0.6
                 else 0.0
             end as ipa
