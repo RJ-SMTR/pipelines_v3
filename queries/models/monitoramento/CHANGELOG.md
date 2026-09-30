@@ -5,7 +5,7 @@
 ### Adicionado
 
 - Inclui GPS do validador Jaé (`gps_validador`) no modelo `gps_viagem` para as operadoras GTU (`2801`, prefixo `A2`) e TUSE (`2802`, prefixo `B2`), até `2026-09-16`, descartando coordenadas zeradas e o veículo `99999`. Posições Jaé passam a ser associadas a viagens com `fonte_gps = maxtrack` (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
-- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30`.(https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30` previsto no Processo SEI nº 000300.032337/2026-49.(https://github.com/RJ-SMTR/pipelines_v3/pull/682).
 
 
 ### Alterado
