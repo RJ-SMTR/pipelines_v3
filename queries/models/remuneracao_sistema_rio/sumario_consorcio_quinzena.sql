@@ -13,6 +13,16 @@
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
 
+{% set dias_capex %}
+    case
+        when
+            data_inicio_quinzena = date '2026-08-16'
+            and data_fim_quinzena = date '2026-08-31'
+        then date_diff(date '2026-08-31', date '2026-08-24', day) + 1
+        else date_diff(data_fim_quinzena, data_inicio_quinzena, day) + 1
+    end
+{% endset %}
+
 with
     dia as (
         select
@@ -140,6 +150,8 @@ with
             tarifa_remuneracao
             * alpha
             * coalesce(lote_km_referencia_quinzena, 0.0)
+            / 15
+            * ({{ dias_capex }})
             * fator_cumprimento_frota as remuneracao_capex_quinzena
         from base
     ),
