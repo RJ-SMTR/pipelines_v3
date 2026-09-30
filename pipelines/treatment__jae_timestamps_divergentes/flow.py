@@ -92,13 +92,11 @@ async def treatment__jae_timestamps_divergentes(
             parameters=[param],
         )
 
-    run_riorotativo_ordem, riorotativo_ordem_params = create_riorotativo_ordem_pagamento_params(
-        gaps=gaps
-    )
+    riorotativo_ordem_params = create_riorotativo_ordem_pagamento_params(gaps=gaps)
 
-    if run_riorotativo_ordem:
+    if gaps[jae_constants.FISCALIZACAO_VEICULO_TABLE_ID]["flag_has_gaps"]:
         await run_subflow(
             env=env,
             flow=treatment__riorotativo_ordem_pagamento,
-            parameters=[riorotativo_ordem_params],
+            parameters=riorotativo_ordem_params,
         )

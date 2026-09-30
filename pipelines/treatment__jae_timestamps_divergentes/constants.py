@@ -19,6 +19,7 @@ from pipelines.treatment__extrato_cliente_cartao import (
 from pipelines.treatment__extrato_cliente_cartao.flow import treatment__extrato_cliente_cartao
 from pipelines.treatment__gps_validador import constants as gps_validador_constants
 from pipelines.treatment__gps_validador.flow import treatment__gps_validador
+from pipelines.treatment__riorotativo_operacao import constants as riorotativo_operacao_constants
 from pipelines.treatment__riorotativo_operacao.flow import treatment__riorotativo_operacao
 from pipelines.treatment__transacao import constants as transacao_constants
 from pipelines.treatment__transacao.flow import treatment__transacao
@@ -76,6 +77,7 @@ CAPTURE_GAP_SELECTORS = [
     {
         "flow": treatment__riorotativo_operacao,
         "capture_tables": [jae_constants.FISCALIZACAO_VEICULO_TABLE_ID],
+        "selector": riorotativo_operacao_constants.RIOROTATIVO_OPERACAO_SELECTOR,
     },
 ]
 
