@@ -1,5 +1,23 @@
 # Changelog - monitoramento
 
+## [2.2.19] - 2026-09-29
+
+### Alterado
+
+- Amplia de 5 para 6 dias a janela de processamento incremental dos modelos `viagem_validacao`, `viagem_valida`, `gps_viagem` e `gps_segmento_viagem`. A alteração permite que a execução do dia seguinte capture viagens disponibilizadas na API ao fim do quinto dia do prazo de envio, após a captura das 7h20 (https://github.com/RJ-SMTR/pipelines_v3/pull/720).
+
+## [2.2.18] - 2026-09-28
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-28` devido à ausência de dados brutos de licenciamento, o reprocessamento ocorreu em `2026-09-28`.(https://github.com/RJ-SMTR/pipelines_v3/pull/714)
+
+## [2.2.18] - 2026-09-24
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-22` devido à ausência de dados brutos de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/695)
+
 ## [2.2.17] - 2026-09-16
 
 ### Corrigido
