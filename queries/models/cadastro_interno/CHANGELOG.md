@@ -4,8 +4,8 @@
 
 ### Alterado
 
-- Altera colunas `email` e `nome_social` do modelo `cliente_jae.sql` para considerar strings vazias como nulo
-- Altera `materialized` do modelo `endereco_cliente_cpf_jae.sql` para de `incremental` para `table`
+- Altera colunas `email` e `nome_social` do modelo `cliente_jae.sql` para considerar strings vazias como nulo (https://github.com/RJ-SMTR/pipelines_v3/pull/722)
+- Altera `materialized` do modelo `endereco_cliente_cpf_jae.sql` de `incremental` para `table` (https://github.com/RJ-SMTR/pipelines_v3/pull/722)
 
 ## [1.2.2] - 2026-09-03
 
