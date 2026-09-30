@@ -32,13 +32,13 @@ with
             faixa_horaria_inicio,
             faixa_horaria_fim,
             quilometragem as km_planejada,
-        from {{ ref("servico_planejado_faixa_horaria") }}
+        from `rj-smtr.planejamento.servico_planejado_faixa_horaria`
         where
             {{ incremental_filter }}
             and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             and quilometragem > 0
             and (
-                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}") or sistema != "RIO"
+                data < date("{{ var('DATA_SUBSIDIO_V26_INICIO') }}") or sistema = "SPPO"
             )
     ),
     -- 2. Viagens realizadas
