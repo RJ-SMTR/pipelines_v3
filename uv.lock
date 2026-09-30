@@ -92,7 +92,7 @@ members = [
     "treatment-pagamento-cct",
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
-    "treatment-remuneracao-openfisca",
+    "treatment-remuneracao-sistema-rio",
     "treatment-riorotativo-auxiliar",
     "treatment-riorotativo-operacao",
     "treatment-riorotativo-ordem-pagamento",
@@ -3380,9 +3380,9 @@ version = "0.1.0"
 source = { virtual = "pipelines/treatment__planejamento_diario" }
 
 [[package]]
-name = "treatment-remuneracao-openfisca"
-version = "0.1.0"
-source = { virtual = "pipelines/treatment__remuneracao_openfisca" }
+name = "treatment-remuneracao-sistema-rio"
+version = "1.0.0"
+source = { virtual = "pipelines/treatment__remuneracao_sistema_rio" }
 
 [[package]]
 name = "treatment-riorotativo-auxiliar"

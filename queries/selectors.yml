@@ -747,7 +747,7 @@ selectors:
         - method: fqn
           value: snapshot_perfil_funcionamento
 
-  - name: remuneracao_openfisca
+  - name: remuneracao_sistema_rio
     description: >
       Fluxo principal de viagens até apuração OpenFisca (I.8 WIP):
       `gps_segmento_viagem` + `viagem_validacao` + `viagem_valida`

@@ -44,7 +44,7 @@ vars:
   version: ""
 
   ### Espinha dos efêmeros de classificação (temperatura / bilhetagem).
-  ### Default SPPO; o flow treatment__remuneracao_openfisca passa sistema=rio.
+  ### Default SPPO; o flow treatment__remuneracao_sistema_rio passa sistema=rio.
   sistema: "rio"
 
   ### Prefixo de lote no id_veiculo da viagem (Sistema RIO) vs prefixo Jaé.

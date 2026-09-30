@@ -22,7 +22,8 @@
         where {{ incremental_filter }}
     {% endset %}
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-    {% if gtfs_feeds | length == 0 %} {% set gtfs_feeds = ["'2000-01-01'"] %}
+    {% if gtfs_feeds | length == 0 %}
+        {% set gtfs_feeds = ["'2000-01-01'"] %}
     {% endif %}
 {% endif %}
 
@@ -255,8 +256,8 @@ select
     c.id_viagem,
     c.datetime_partida,
     c.datetime_chegada,
-    ifnull(c.tipo_execucao_viagem, "COMPLETA") != "INCOMPLETA"
-        as indicador_viagem_completa,
+    ifnull(c.tipo_execucao_viagem, "COMPLETA")
+    != "INCOMPLETA" as indicador_viagem_completa,
     coalesce(f.indicador_viagem_valida, true) as indicador_viagem_valida,
     coalesce(f.indicador_viagem_conforme, true) as indicador_viagem_conforme,
     cast(c.distancia_planejada as float64) as km_programada,
@@ -264,7 +265,8 @@ select
         if(
             ifnull(c.tipo_execucao_viagem, "COMPLETA") = "INCOMPLETA",
             least(
-                coalesce(k.km_gps, 0), coalesce(cast(c.distancia_planejada as float64), 0)
+                coalesce(k.km_gps, 0),
+                coalesce(cast(c.distancia_planejada as float64), 0)
             ),
             cast(c.distancia_planejada as float64)
         ) as float64

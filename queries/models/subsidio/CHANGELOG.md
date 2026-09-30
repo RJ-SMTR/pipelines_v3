@@ -1,5 +1,15 @@
 # Changelog - subsidio
 
+## [2.3.9] - 2026-09-30
+
+### Alterado
+
+- Extrai temperatura, regularidade e transação para
+  `eph_viagem_temperatura`, `eph_viagem_regularidade_temperatura` e
+  `eph_viagem_transacao`. Com `sistema = rio`, as viagens vêm de
+  `aux_viagem_status` e o id de veículo da RioCard usa `id_veiculo_jae_rio`
+  (https://github.com/RJ-SMTR/pipelines_v3/pull/576)
+
 ## [2.3.8] - 2026-09-30
 
 ### Corrigido

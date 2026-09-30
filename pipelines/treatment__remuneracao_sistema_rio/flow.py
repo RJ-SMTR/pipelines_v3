@@ -26,7 +26,7 @@ def treatment__remuneracao_sistema_rio(  # noqa: PLR0913
 ):
     create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.REMUNERACAO_OPENFISCA_SELECTOR],
+        selectors=[constants.REMUNERACAO_SISTEMA_RIO_SELECTOR],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,

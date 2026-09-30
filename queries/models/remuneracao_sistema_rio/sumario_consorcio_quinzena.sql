@@ -167,10 +167,7 @@ with
         from valorado
     ),
     imposto as (
-        select
-            *,
-            greatest(valor_a_pagar_bruto_quinzena, 0.0) as base_imposto
-        from bruto
+        select *, greatest(valor_a_pagar_bruto_quinzena, 0.0) as base_imposto from bruto
     )
 select
     data_inicio_quinzena,
