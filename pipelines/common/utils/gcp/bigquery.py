@@ -231,7 +231,7 @@ class SourceTable(BQTable):
         raw_filetype (str): tipo do dado (json, csv, txt)
         validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
         data_contract_model (Optional[str]): Modelo dbt; padrão ``base_<table_id>``.
-        data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do ODCS na geração.
+        data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do contrato de dados.
 
     """
 

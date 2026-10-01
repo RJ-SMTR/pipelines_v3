@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Funções auxiliares para geração e validação de contratos ODCS."""
 
-import importlib
 import json
 import os
 from collections.abc import Iterable
@@ -22,54 +21,7 @@ from pipelines.common.capture.data_contract.constants import (
     ROOT,
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
-from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.utils import is_running_locally
-
-
-def _capture_contracts(
-    manifest_path: Path,
-) -> dict[Path, tuple[str, tuple[str, ...], tuple[str, ...]]]:
-    """
-    Descobre os contratos configurados nas fontes de captura.
-
-    Args:
-        manifest_path (Path): Manifest dbt com os datasets resolvidos.
-
-    Returns:
-        dict: Caminhos relativos e configurações de modelo, colunas ignoradas e PKs.
-
-    Raises:
-        ValueError: Fontes do mesmo contrato possuem configurações divergentes.
-    """
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    datasets = {
-        node["name"]: node["schema"]
-        for node in manifest["nodes"].values()
-        if node.get("resource_type") == "model"
-    }
-    contracts = {}
-    for constants_path in sorted((ROOT / "pipelines").glob("capture__*/constants.py")):
-        module_name = ".".join(constants_path.relative_to(ROOT).with_suffix("").parts)
-        module = importlib.import_module(module_name)
-        for value in vars(module).values():
-            candidates = (value,) if isinstance(value, SourceTable) else value
-            if not isinstance(candidates, (list, tuple)):
-                continue
-            for source in candidates:
-                if not isinstance(source, SourceTable) or not source.validate_data_contract:
-                    continue
-                path = (
-                    Path(datasets[source.data_contract_model])
-                    / f"{source.data_contract_model}.odcs.yaml"
-                )
-                settings = (
-                    source.data_contract_model,
-                    tuple(source.data_contract_ignored_columns or ()),
-                    tuple(source.primary_keys or ()),
-                )
-                if contracts.setdefault(path, settings) != settings:
-                    raise ValueError(f"Fontes de contracts/{path} têm configurações divergentes")
-    return contracts
 
 
 def _github_get(
@@ -161,7 +113,7 @@ def download_contracts_from_commit(env: str) -> Path:
 
 def adapt_contract_schema(
     contract: dict[str, Any],
-    ignored_columns: Iterable[str] | None = (),
+    ignored_columns: Iterable[str] = (),
     primary_keys: Iterable[str] | None = (),
 ) -> dict[str, Any]:
     """
@@ -169,7 +121,7 @@ def adapt_contract_schema(
 
     Args:
         contract (dict[str, Any]): Contrato importado do dbt.
-        ignored_columns (Iterable[str] | None): Colunas que não existem no bruto.
+        ignored_columns (Iterable[str]): Colunas que não existem no bruto.
         primary_keys (Iterable[str] | None): Chaves primárias configuradas na fonte.
 
     Returns:
@@ -178,7 +130,7 @@ def adapt_contract_schema(
     Raises:
         ValueError: Uma chave primária não existe entre as colunas do contrato.
     """
-    ignored = CAPTURE_METADATA_COLUMNS | set(ignored_columns or ())
+    ignored = CAPTURE_METADATA_COLUMNS | set(ignored_columns)
     keys = list(primary_keys or ())
     adapted_contract = deepcopy(contract)
 
@@ -242,16 +194,13 @@ def generate_contracts(
     *,
     manifest_path: Path = DEFAULT_MANIFEST,
     contracts_dir: Path = ROOT / "contracts",
-) -> list[str]:
+) -> None:
     """
-    Gera os contratos ODCS a partir das fontes e do manifest dbt.
+    Gera contratos para modelos staging_ com datacontract_cli nos metadados.
 
     Args:
         manifest_path (Path): Caminho do manifest gerado pelo dbt Core.
         contracts_dir (Path): Diretório dos contratos gerados.
-
-    Returns:
-        list[str]: Mensagens sobre a geração dos contratos.
 
     Raises:
         FileNotFoundError: Manifest dbt não encontrado.
@@ -262,30 +211,46 @@ def generate_contracts(
             f"Manifest dbt não encontrado em {manifest_path}; execute dbt parse primeiro"
         )
 
-    managed = _capture_contracts(manifest_path)
-    messages = []
-    for path, (model, ignored_columns, primary_keys) in sorted(managed.items()):
-        contract = adapt_contract_schema(
-            import_contract_from_manifest(manifest_path, model),
-            ignored_columns=ignored_columns,
-            primary_keys=primary_keys,
-        )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    generated_paths = set()
+    for model in sorted(manifest["nodes"].values(), key=lambda node: node["name"]):
+        if model["resource_type"] != "model" or not model["name"].startswith("staging_"):
+            continue
+
+        columns = model["columns"]
+        nodes_to_check = [model]
+        nodes_to_check.extend(columns.values())
+        has_contract = False
+        for node in nodes_to_check:
+            config = node.get("config") or {}
+            metadata = config.get("meta") or node.get("meta") or {}
+            if "datacontract_cli" in metadata:
+                has_contract = True
+                break
+
+        if not has_contract:
+            continue
+
+        model_name = model["name"]
+        path = Path(model["schema"]) / f"{model_name}.odcs.yaml"
+        contract = import_contract_from_manifest(manifest, model)
         contract.update(
-            id=f"urn:datacontract:{path.parts[0]}:{model}",
-            name=f"{path.parts[0]}/{model}",
+            apiVersion="v3.1.0",
+            id=f"urn:datacontract:{path.parts[0]}:{model_name}",
+            name=f"{path.parts[0]}/{model_name}",
             status="active",
         )
         expected = yaml.safe_dump(contract, sort_keys=False, allow_unicode=True)
         result = DataContract(data_contract_str=expected).lint()
         if not result.has_passed():
-            raise ValueError(f"Contrato inválido para {model}: {result.model_dump_json()}")
+            raise ValueError(f"Contrato inválido para {model_name}: {result.model_dump_json()}")
         output = contracts_dir / path
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(expected, encoding="utf-8")
-        messages.append(f"Contrato gerado: {output}")
+        generated_paths.add(path)
+        print(f"Contrato gerado: {output}")
 
     for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
-        if output.relative_to(contracts_dir) not in managed:
+        if output.relative_to(contracts_dir) not in generated_paths:
             output.unlink()
-            messages.append(f"Contrato obsoleto removido: {output}")
-    return messages
+            print(f"Contrato obsoleto removido: {output}")

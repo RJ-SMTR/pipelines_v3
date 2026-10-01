@@ -9,6 +9,7 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.capture.data_contract.utils import (
+    adapt_contract_schema,
     add_local_server,
     download_contracts_from_commit,
 )
@@ -55,9 +56,14 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
 
     contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"))
     contract = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+    runtime_contract = adapt_contract_schema(
+        contract,
+        ignored_columns=source.data_contract_ignored_columns,
+        primary_keys=source.primary_keys,
+    )
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
-            contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
+            runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
         )
         result = DataContract(
             data_contract_str=yaml.safe_dump(runtime_contract), server="incoming"
