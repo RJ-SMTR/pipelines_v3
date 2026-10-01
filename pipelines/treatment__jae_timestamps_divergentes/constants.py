@@ -4,6 +4,7 @@ Valores constantes para o flow treatment__jae_timestamps_divergentes
 """
 
 from pipelines.capture__jae_auxiliar.flow import capture__jae_auxiliar
+from pipelines.capture__jae_fiscalizacao_veiculo.flow import capture__jae_fiscalizacao_veiculo
 from pipelines.capture__jae_gps_validador.flow import capture__jae_gps_validador
 from pipelines.capture__jae_lancamento.flow import capture__jae_lancamento
 from pipelines.capture__jae_transacao.flow import capture__jae_transacao
@@ -18,6 +19,8 @@ from pipelines.treatment__extrato_cliente_cartao import (
 from pipelines.treatment__extrato_cliente_cartao.flow import treatment__extrato_cliente_cartao
 from pipelines.treatment__gps_validador import constants as gps_validador_constants
 from pipelines.treatment__gps_validador.flow import treatment__gps_validador
+from pipelines.treatment__riorotativo_operacao import constants as riorotativo_operacao_constants
+from pipelines.treatment__riorotativo_operacao.flow import treatment__riorotativo_operacao
 from pipelines.treatment__transacao import constants as transacao_constants
 from pipelines.treatment__transacao.flow import treatment__transacao
 from pipelines.treatment__transacao_erro import constants as transacao_erro_constants
@@ -33,6 +36,7 @@ CAPTURE_GAP_TABLES = {
     jae_constants.GRATUIDADE_TABLE_ID: {"flow": capture__jae_auxiliar},
     jae_constants.ESTUDANTE_TABLE_ID: {"flow": capture__jae_auxiliar},
     jae_constants.LAUDO_PCD_TABLE_ID: {"flow": capture__jae_auxiliar},
+    jae_constants.FISCALIZACAO_VEICULO_TABLE_ID: {"flow": capture__jae_fiscalizacao_veiculo},
 }
 
 
@@ -69,6 +73,11 @@ CAPTURE_GAP_SELECTORS = [
         "flow": treatment__extrato_cliente_cartao,
         "capture_tables": [jae_constants.LANCAMENTO_TABLE_ID],
         "selector": extrato_cliente_cartao_constants.EXTRATO_CLIENTE_CARTAO_SELECTOR,
+    },
+    {
+        "flow": treatment__riorotativo_operacao,
+        "capture_tables": [jae_constants.FISCALIZACAO_VEICULO_TABLE_ID],
+        "selector": riorotativo_operacao_constants.RIOROTATIVO_OPERACAO_SELECTOR,
     },
 ]
 
