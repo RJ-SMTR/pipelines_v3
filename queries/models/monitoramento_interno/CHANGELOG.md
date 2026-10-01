@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.9] - 2026-09-22
+
+### Alterado
+
+- Emparelha `viagem_inferida` pelos booleanos do primeiro e do último segmento: `last_value` do último GPS só no início quando chega o primeiro GPS só no fim. Ignora ponto com os dois buffers (terminal circular) para não multiplicar viagem. Remove `middle_start` / `middle_end`. (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
 ## [1.0.8] - 2026-09-16
 
 ### Alterado
