@@ -323,6 +323,10 @@ vars:
 
 query-comment: "{{ query_comment(node) }}"
 
+unit_tests:
+  rj_smtr:
+    +compute: local
+
 tests:
   rj_smtr:
     dashboard_subsidio_sppo:
