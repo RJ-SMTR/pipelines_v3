@@ -77,7 +77,6 @@ def generate_contracts(
     *,
     manifest_path: Path = DEFAULT_MANIFEST,
     contracts_dir: Path = ROOT / "contracts",
-    check: bool = False,
 ) -> list[str]:
     """
     Gera os contratos ODCS a partir das fontes e do manifest dbt.
@@ -85,14 +84,13 @@ def generate_contracts(
     Args:
         manifest_path (Path): Caminho do manifest gerado pelo dbt Core.
         contracts_dir (Path): Diretório dos contratos gerados.
-        check (bool): Apenas verifica divergências, sem alterar arquivos.
 
     Returns:
-        list[str]: Mensagens sobre a geração ou verificação dos contratos.
+        list[str]: Mensagens sobre a geração dos contratos.
 
     Raises:
         FileNotFoundError: Manifest dbt não encontrado.
-        ValueError: Contrato inválido ou divergente dos arquivos versionados.
+        ValueError: Contrato inválido.
     """
     if not manifest_path.is_file():
         raise FileNotFoundError(
@@ -117,30 +115,15 @@ def generate_contracts(
         if not result.has_passed():
             raise ValueError(f"Contrato inválido para {model}: {result.model_dump_json()}")
         output = contracts_dir / path
-        if check:
-            if not output.is_file():
-                messages.append(f"Contrato ausente: {output}")
-            elif output.read_text(encoding="utf-8") != expected:
-                messages.append(f"Contrato desatualizado: {output}")
-        else:
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(expected, encoding="utf-8")
-            messages.append(f"Contrato gerado: {output}")
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(expected, encoding="utf-8")
+        messages.append(f"Contrato gerado: {output}")
 
     for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
         if output.relative_to(contracts_dir) not in managed:
-            if check:
-                messages.append(f"Contrato não cadastrado: {output}")
-            else:
-                output.unlink()
-                messages.append(f"Contrato obsoleto removido: {output}")
-    if check and messages:
-        raise ValueError("Contratos divergentes:\n" + "\n".join(messages))
-    return (
-        ["Contratos versionados correspondem ao dbt e à configuração das fontes"]
-        if check
-        else messages
-    )
+            output.unlink()
+            messages.append(f"Contrato obsoleto removido: {output}")
+    return messages
 
 
 def _get_contract_ref(env: str) -> str:

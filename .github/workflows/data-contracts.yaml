@@ -61,9 +61,6 @@ jobs:
       - name: Generate contracts from dbt manifest
         run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; print("\n".join(generate_contracts()))'
 
-      - name: Check all contracts
-        run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; print("\n".join(generate_contracts(check=True)))'
-
       - name: Commit contracts to the PR branch
         if: >-
           github.event_name == 'pull_request' &&
