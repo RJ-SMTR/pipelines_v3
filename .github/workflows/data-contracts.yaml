@@ -11,13 +11,7 @@ on:
       - "pipelines/capture__*/constants.py"
       - "pipelines/common/capture/data_contract/*.py"
       - "pipelines/common/utils/gcp/bigquery.py"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "queries/**/base_*.sql"
-      - "queries/models/**/*.yml"
-      - "queries/models/**/*.yaml"
-      - "queries/dbt_project.yml"
-      - "queries/packages.yml"
+      - "queries/**"
       - ".github/workflows/data-contracts.yaml"
 
 permissions:
@@ -62,7 +56,7 @@ jobs:
 
       - name: Parse dbt manifest with dbt Core
         working-directory: queries
-        run: uv run dbt parse --profiles-dir ./dev --no-partial-parse
+        run: uv run dbt parse --profiles-dir ./dev --target prod --no-partial-parse
 
       - name: Generate contracts from dbt manifest
         run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; print("\n".join(generate_contracts()))'
