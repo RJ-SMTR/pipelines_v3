@@ -29,8 +29,6 @@ schema:
     - type: library
       metric: nullValues
       mustBe: 0
-    primaryKey: true
-    primaryKeyPosition: 1
   - name: identificacao
     physicalType: STRING
     description: Número de identificação informado para o guardador, normalizado para
@@ -46,6 +44,10 @@ schema:
   - name: cnpj
     physicalType: STRING
     description: CNPJ da entidade credenciadora associada ao guardador de veículo
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
     logicalType: string
   quality: []
 customProperties:
