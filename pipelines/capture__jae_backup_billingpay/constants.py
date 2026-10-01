@@ -132,6 +132,7 @@ BACKUP_JAE_BILLING_PAY = {
                     from CLIENTE_IMAGEM
                     where {filter}
                 )
+                ORDER BY ID_CLIENTE_IMAGEM
             """,
         },
         "page_size": {"CLIENTE_IMAGEM": 500},
@@ -538,5 +539,15 @@ BACKUP_JAE_BILLING_PAY = {
             "tipo_veiculo": ["id"],
             "tmp_mapeamento_pagamento": ["count(*)"],
         },
+        "custom_select": {
+            "fiscalizacao_veiculo_imagem": """
+                select
+                    *
+                from fiscalizacao_veiculo_imagem
+                where {filter}
+                ORDER BY id_fiscalizacao_veiculo
+            """,
+        },
+        "page_size": {"fiscalizacao_veiculo_imagem": 500},
     },
 }
