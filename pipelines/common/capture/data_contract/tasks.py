@@ -16,16 +16,16 @@ from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
 
 @task(cache_policy=NO_CACHE)
-def prepare_data_contracts(contexts: list[SourceCaptureContext], env: str) -> dict[str, Any]:
+def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> dict[str, Any]:
     """
-    Baixa uma cópia por contrato e fixa o commit para a validação dos arquivos.
+    Baixa os contratos dos sources capturados para a validação dos arquivos.
 
     Args:
         contexts (list[SourceCaptureContext]): Contextos das fontes capturadas.
         env (str): Ambiente usado para selecionar a branch.
 
     Returns:
-        dict[str, Any]: Contratos e proveniência do download.
+        dict[str, Any]: Contratos baixados para a validação.
     """
     models = [
         context.source.data_contract_model
@@ -36,18 +36,16 @@ def prepare_data_contracts(contexts: list[SourceCaptureContext], env: str) -> di
 
 
 @task(cache_policy=NO_CACHE)
-def validate_raw_data_contract(
-    context: SourceCaptureContext, snapshot: dict[str, Any]
-) -> dict[str, Any] | None:
+def validate_raw_data_contract(context: SourceCaptureContext, contracts: dict[str, Any]) -> None:
     """
     Valida os arquivos brutos antes do upload usando uma cópia local do contrato.
 
     Args:
         context (SourceCaptureContext): Fonte e arquivos brutos capturados.
-        snapshot (dict[str, Any]): Contratos e proveniência do download.
+        contracts (dict[str, Any]): Contratos baixados para a validação.
 
     Returns:
-        dict[str, Any] | None: Resultado e proveniência, ou None se a validação está desativada.
+        None: A validação é concluída por efeito ou interrompe o flow com uma exceção.
 
     Raises:
         ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada.
@@ -57,24 +55,11 @@ def validate_raw_data_contract(
         return None
     if not context.captured_raw_filepaths:
         raise ValueError(f"Nenhum arquivo bruto foi capturado para {source.table_id}.")
-    path, artifact = next(
-        (path, artifact)
-        for path, artifact in snapshot["contracts"].items()
+    contract = next(
+        contract
+        for path, contract in contracts.items()
         if path.endswith(f"/{source.data_contract_model}.odcs.yaml")
     )
-    contract = artifact["contract"]
-    schemas = contract.get("schema", [])
-    if len(schemas) != 1 or schemas[0].get("name") != source.data_contract_model:
-        raise ValueError(f"Schema inesperado no contrato {path}.")
-    provenance = {
-        "repository": snapshot["repository"],
-        "ref": snapshot["ref"],
-        "sha": snapshot["sha"],
-        "path": path,
-        "sha256": artifact["sha256"],
-        "source": f"{source.source_name}.{source.table_id}",
-    }
-    print(f"Validando bruto com contrato: {provenance}")
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
             contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
@@ -85,4 +70,3 @@ def validate_raw_data_contract(
         if not result.has_passed():
             raise ValueError(f"Falha no contrato de {raw_filepath}: {result.model_dump_json()}")
         print(f"Contrato validado: {raw_filepath} ({len(result.checks)} verificações)")
-    return {**provenance, "status": "passed", "files": list(context.captured_raw_filepaths)}

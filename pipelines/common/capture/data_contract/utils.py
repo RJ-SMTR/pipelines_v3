@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Funções auxiliares para geração e validação de contratos ODCS."""
 
-import hashlib
 import importlib
 import json
 import os
@@ -168,7 +167,7 @@ def download_contract_snapshot(models: list[str] | None, env: str) -> dict[str, 
         env (str): Ambiente usado para selecionar a branch.
 
     Returns:
-        dict[str, Any]: Contratos e proveniência; vazio quando models é uma lista vazia.
+        dict[str, Any]: Contratos; vazio quando models é uma lista vazia.
 
     Raises:
         ValueError: Referência, árvore do repositório ou contrato inválido.
@@ -238,10 +237,8 @@ def download_contract_snapshot(models: list[str] | None, env: str) -> dict[str, 
                 raise ValueError(
                     f"O contrato versionado não deve conter servidores de execução: {path}"
                 )
-            digest = hashlib.sha256(content).hexdigest()
-            contracts[path] = {"contract": contract, "sha256": digest}
-            print(f"Contrato: {repository}@{sha} {path} sha256={digest}")
-    return {"repository": repository, "ref": ref, "sha": sha, "contracts": contracts}
+            contracts[path] = contract
+    return contracts
 
 
 def adapt_contract_schema(

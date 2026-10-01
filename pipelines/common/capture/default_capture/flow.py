@@ -5,7 +5,7 @@ from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
-    prepare_data_contracts,
+    download_data_contracts,
     validate_raw_data_contract,
 )
 from pipelines.common.capture.default_capture.tasks import (
@@ -127,15 +127,11 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     tasks["get_raw"] = get_raw_future.result()
 
-    if not skip_data_contract_validation and any(
-        context.source.validate_data_contract for context in contexts
-    ):
-        tasks["data_contract_snapshot"] = prepare_data_contracts(
-            contexts=contexts, env=tasks["env"]
-        )
+    if not skip_data_contract_validation:
+        tasks["data_contracts"] = download_data_contracts(contexts=contexts, env=tasks["env"])
         tasks["validate_raw_data_contract"] = validate_raw_data_contract.map(
             context=contexts,
-            snapshot=unmapped(tasks["data_contract_snapshot"]),
+            contracts=unmapped(tasks["data_contracts"]),
         ).result()
 
     upload_raw_future = upload_raw_file_to_gcs.map(
