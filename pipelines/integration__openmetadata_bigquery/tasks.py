@@ -12,12 +12,14 @@ from prefect.cache_policies import NO_CACHE
 from pipelines.common.utils.openmetadata import (
     _create_bigquery_ingestion_config,
     _run_cli,
+    publish_data_contracts,
 )
 from pipelines.integration__openmetadata_bigquery import constants
 
 
 @task(cache_policy=NO_CACHE)
 def run_openmetadata_ingestion(
+    env: str,
     project_ids: Optional[list[str]] = None,
     schema_filter_pattern: Optional[dict[str, list[str]]] = None,
     table_filter_pattern: Optional[dict[str, list[str]]] = None,
@@ -58,3 +60,9 @@ def run_openmetadata_ingestion(
     if not success:
         raise RuntimeError("OpenMetadata BigQuery ingestion falhou")
     print("OpenMetadata BigQuery: ingestão concluída com sucesso")
+
+    publish_data_contracts(
+        env=env,
+        service_name=constants.OPENMETADATA_SERVICE_NAME,
+        project_ids=project_ids,
+    )

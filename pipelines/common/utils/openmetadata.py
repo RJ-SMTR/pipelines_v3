@@ -10,11 +10,17 @@ import tempfile
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Optional, TypedDict
+from urllib.parse import quote
 
+import requests
 import yaml
 from google.cloud import storage
 
 from pipelines.common import constants
+from pipelines.common.capture.data_contract.utils import (
+    REQUEST_TIMEOUT,
+    download_contract_snapshot,
+)
 from pipelines.common.utils.secret import get_env_secret
 
 CLI_PATH = "/opt/openmetadata/bin/metadata"
@@ -23,6 +29,60 @@ CLI_TIMEOUT_SECONDS = 600
 CONFIG_PATH = Path(__file__).parents[1] / "config" / "openmetadata"
 GCS_BUCKET_NAME = "rj-smtr"
 GCS_PREFIX = "openmetadata/dbt"
+
+
+def publish_data_contracts(
+    env: str,
+    service_name: str,
+    project_ids: list[str],
+) -> None:
+    """
+    Publica os contratos nas relações físicas informadas pelo dbt.
+
+    Args:
+        env (str): Ambiente usado para selecionar a branch dos contratos.
+        service_name (str): Nome do serviço no OpenMetadata.
+        project_ids (list[str]): Projetos incluídos na ingestão.
+
+    Raises:
+        requests.HTTPError: Falha na consulta ou publicação, exceto tabela ausente.
+    """
+    snapshot = download_contract_snapshot(None, env)
+    if not snapshot["contracts"]:
+        return
+    secret = get_env_secret("openmetadata")
+    api = secret["host_port"].rstrip("/")
+    with requests.Session() as session:
+        session.headers["Authorization"] = f"Bearer {secret['jwt_token']}"
+        for path, entry in snapshot["contracts"].items():
+            contract = entry["contract"]
+            (schema,) = contract["schema"]
+            physical_name = schema.get("physicalName", "")
+            if physical_name.split(".", 1)[0] not in project_ids:
+                continue
+            fqn = f"{service_name}.{physical_name}"
+            response = session.get(
+                f"{api}/v1/tables/name/{quote(fqn, safe='')}", timeout=REQUEST_TIMEOUT
+            )
+            if response.status_code == requests.codes.not_found:
+                print(f"OpenMetadata: contrato {path} adiado; tabela {fqn} ainda não catalogada")
+                continue
+            response.raise_for_status()
+            table = response.json()
+            if not {column["name"] for column in schema["properties"]} <= {
+                column["name"] for column in table["columns"]
+            }:
+                print(f"OpenMetadata: contrato {path} adiado; faltam colunas em {fqn}")
+                continue
+            response = session.put(
+                f"{api}/v1/dataContracts/odcs/yaml",
+                params={"entityId": table["id"], "entityType": "table", "mode": "replace"},
+                data=yaml.safe_dump(contract, allow_unicode=True, sort_keys=False).encode("utf-8"),
+                headers={"Content-Type": "application/yaml"},
+                timeout=REQUEST_TIMEOUT,
+            )
+            response.raise_for_status()
+            print(f"OpenMetadata: contrato {path} publicado em {fqn} (replace)")
 
 
 class PendingDbtArtifact(TypedDict):

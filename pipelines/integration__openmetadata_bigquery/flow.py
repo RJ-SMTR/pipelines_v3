@@ -21,6 +21,7 @@ def integration__openmetadata_bigquery(
     setup_env = setup_environment(env=env)
     sentry = initialize_sentry(env=env)
     run_openmetadata_ingestion(
+        env=env,
         project_ids=project_ids,
         schema_filter_pattern=schema_filter_pattern,
         table_filter_pattern=table_filter_pattern,
