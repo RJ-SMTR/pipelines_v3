@@ -72,59 +72,6 @@ def _capture_contracts(
     return contracts
 
 
-def generate_contracts(
-    *,
-    manifest_path: Path = DEFAULT_MANIFEST,
-    contracts_dir: Path = ROOT / "contracts",
-) -> list[str]:
-    """
-    Gera os contratos ODCS a partir das fontes e do manifest dbt.
-
-    Args:
-        manifest_path (Path): Caminho do manifest gerado pelo dbt Core.
-        contracts_dir (Path): Diretório dos contratos gerados.
-
-    Returns:
-        list[str]: Mensagens sobre a geração dos contratos.
-
-    Raises:
-        FileNotFoundError: Manifest dbt não encontrado.
-        ValueError: Contrato inválido.
-    """
-    if not manifest_path.is_file():
-        raise FileNotFoundError(
-            f"Manifest dbt não encontrado em {manifest_path}; execute dbt parse primeiro"
-        )
-
-    managed = _capture_contracts(manifest_path)
-    messages = []
-    for path, (model, ignored_columns, primary_keys) in sorted(managed.items()):
-        contract = adapt_contract_schema(
-            import_contract_from_manifest(manifest_path, model),
-            ignored_columns=ignored_columns,
-            primary_keys=primary_keys,
-        )
-        contract.update(
-            id=f"urn:datacontract:{path.parts[0]}:{model}",
-            name=f"{path.parts[0]}/{model}",
-            status="active",
-        )
-        expected = yaml.safe_dump(contract, sort_keys=False, allow_unicode=True)
-        result = DataContract(data_contract_str=expected).lint()
-        if not result.has_passed():
-            raise ValueError(f"Contrato inválido para {model}: {result.model_dump_json()}")
-        output = contracts_dir / path
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(expected, encoding="utf-8")
-        messages.append(f"Contrato gerado: {output}")
-
-    for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
-        if output.relative_to(contracts_dir) not in managed:
-            output.unlink()
-            messages.append(f"Contrato obsoleto removido: {output}")
-    return messages
-
-
 def _get_contract_ref(env: str) -> str:
     """
     Identifica a branch usada no download dos contratos.
@@ -318,3 +265,56 @@ def add_local_server(
         {"server": server_name, "type": "local", "path": raw_filepath, "format": file_format}
     ]
     return adapted_contract
+
+
+def generate_contracts(
+    *,
+    manifest_path: Path = DEFAULT_MANIFEST,
+    contracts_dir: Path = ROOT / "contracts",
+) -> list[str]:
+    """
+    Gera os contratos ODCS a partir das fontes e do manifest dbt.
+
+    Args:
+        manifest_path (Path): Caminho do manifest gerado pelo dbt Core.
+        contracts_dir (Path): Diretório dos contratos gerados.
+
+    Returns:
+        list[str]: Mensagens sobre a geração dos contratos.
+
+    Raises:
+        FileNotFoundError: Manifest dbt não encontrado.
+        ValueError: Contrato inválido.
+    """
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Manifest dbt não encontrado em {manifest_path}; execute dbt parse primeiro"
+        )
+
+    managed = _capture_contracts(manifest_path)
+    messages = []
+    for path, (model, ignored_columns, primary_keys) in sorted(managed.items()):
+        contract = adapt_contract_schema(
+            import_contract_from_manifest(manifest_path, model),
+            ignored_columns=ignored_columns,
+            primary_keys=primary_keys,
+        )
+        contract.update(
+            id=f"urn:datacontract:{path.parts[0]}:{model}",
+            name=f"{path.parts[0]}/{model}",
+            status="active",
+        )
+        expected = yaml.safe_dump(contract, sort_keys=False, allow_unicode=True)
+        result = DataContract(data_contract_str=expected).lint()
+        if not result.has_passed():
+            raise ValueError(f"Contrato inválido para {model}: {result.model_dump_json()}")
+        output = contracts_dir / path
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(expected, encoding="utf-8")
+        messages.append(f"Contrato gerado: {output}")
+
+    for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
+        if output.relative_to(contracts_dir) not in managed:
+            output.unlink()
+            messages.append(f"Contrato obsoleto removido: {output}")
+    return messages
