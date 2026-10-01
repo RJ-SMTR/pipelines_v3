@@ -1,0 +1,71 @@
+version: 2
+
+unit_tests:
+  - name: gps_viagem_normaliza_filtra_e_preserva_origem_jae
+    description: >
+      Garante que o GPS da Jaé (gps_validador) é normalizado para o padrão
+      de id_veiculo (A2-/B2-), filtrado (operadora, coordenadas, veículo,
+      data de corte e vigência) e associado apenas a viagens maxtrack,
+      preservando a origem (fonte_gps = 'jae'). Também cobre o join dos
+      fornecedores onibus (maxtrack) e brt.
+    model: gps_viagem
+    overrides:
+      macros:
+        is_incremental: false
+
+    given:
+      - input: ref('viagem_informada_monitoramento')
+        format: csv
+        rows: |
+          data,id_viagem,datetime_partida,datetime_chegada,modo,id_veiculo,trip_id,route_id,shape_id,servico,sentido,fonte_gps,fonte_viagem
+          2026-09-15,v_a,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
+          2026-09-15,v_b,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,B2-123,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
+          2026-09-15,v_incompativel,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,A2-008,trip-1,route-1,shape-1,100,I,conecta,maxtrack
+          2026-09-16,v_apos_corte,2026-09-16 08:00:00,2026-09-16 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
+          2026-08-23,v_antes_excecao,2026-08-23 08:00:00,2026-08-23 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
+          2026-09-15,v_brt,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,BRT-001,trip-1,route-1,shape-1,100,I,brt,maxtrack
+
+      - input: ref('gps_validador')
+        format: csv
+        rows: |
+          data,datetime_gps,id_operadora,id_veiculo,servico_jae,latitude,longitude
+          2026-09-15,2026-09-15 08:00:00,2801,7,inicio,-22.9,-43.2
+          2026-09-15,2026-09-15 09:00:00,2801,10007,fim,-22.9,-43.2
+          2026-09-15,2026-09-15 08:30:00,2802,99123,operadora_b,-22.9,-43.2
+          2026-09-15,2026-09-15 07:59:59,2801,7,antes_partida,-22.9,-43.2
+          2026-09-15,2026-09-15 09:00:01,2801,7,apos_chegada,-22.9,-43.2
+          2026-09-15,2026-09-15 08:30:00,2803,7,operadora_invalida,-22.9,-43.2
+          2026-09-15,2026-09-15 08:30:00,2801,7,latitude_zero,0.0,-43.2
+          2026-09-15,2026-09-15 08:30:00,2801,7,longitude_zero,-22.9,0.0
+          2026-09-15,2026-09-15 08:30:00,2801,7,latitude_nula,,-43.2
+          2026-09-15,2026-09-15 08:30:00,2801,7,longitude_nula,-22.9,
+          2026-09-15,2026-09-15 08:30:00,2801,99999,veiculo_invalido,-22.9,-43.2
+          2026-09-15,2026-09-15 08:30:00,2801,,veiculo_nulo,-22.9,-43.2
+          2026-09-15,2026-09-15 08:30:00,2801,8,fonte_incompativel,-22.9,-43.2
+          2026-09-16,2026-09-16 08:30:00,2801,7,apos_corte,-22.9,-43.2
+          2026-08-23,2026-08-23 08:30:00,2801,7,antes_excecao,-22.9,-43.2
+          2026-09-15,2026-09-15 08:40:00,2801,7,,-22.9,-43.2
+
+      - input: ref('view_gps_onibus')
+        format: csv
+        rows: |
+          data,datetime_gps,servico,id_veiculo,latitude,longitude,fonte_gps
+          2026-09-15,2026-09-15 08:30:00,100,A2-007,-22.9,-43.2,maxtrack
+
+      - input: ref('view_gps_brt_completo')
+        format: csv
+        rows: |
+          data,timestamp_gps,servico,id_veiculo,latitude,longitude
+          2026-09-15,2026-09-15 08:30:00,100,BRT-001,-22.9,-43.2
+
+    expect:
+      format: csv
+      rows: |
+        id_viagem,id_veiculo,servico_gps,fonte_gps
+        v_a,A2-007,inicio,jae
+        v_a,A2-007,fim,jae
+        v_b,B2-123,operadora_b,jae
+        v_a,A2-007,,jae
+        v_antes_excecao,A2-007,antes_excecao,jae
+        v_a,A2-007,100,maxtrack
+        v_brt,BRT-001,100,brt
