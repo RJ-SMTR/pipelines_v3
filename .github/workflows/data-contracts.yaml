@@ -8,9 +8,7 @@ on:
       - "staging/**"
     paths:
       - "contracts/**"
-      - "pipelines/capture__*/constants.py"
       - "pipelines/common/capture/data_contract/*.py"
-      - "pipelines/common/utils/gcp/bigquery.py"
       - "queries/**"
       - ".github/workflows/data-contracts.yaml"
 
@@ -59,7 +57,7 @@ jobs:
         run: uv run dbt parse --profiles-dir ./dev --target prod --no-partial-parse
 
       - name: Generate contracts from dbt manifest
-        run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; print("\n".join(generate_contracts()))'
+        run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; generate_contracts()'
 
       - name: Commit contracts to the PR branch
         if: >-
