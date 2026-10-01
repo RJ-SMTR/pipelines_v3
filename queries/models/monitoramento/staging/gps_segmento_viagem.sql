@@ -281,12 +281,14 @@ with
                 cast(null as datetime) as datetime_processamento,
                 v.datetime_ultima_atualizacao as datetime_captura_viagem,
                 cast(null as string) as fonte_viagem,
+                cast(null as string) as tipo_execucao_viagem,
                 cast(null as string) as fonte_gps
             from {{ ref("viagem_inferida") }} v
         {% else %}
                 v.datetime_processamento,
                 v.datetime_captura as datetime_captura_viagem,
                 v.fonte_viagem,
+                v.tipo_execucao_viagem,
                 v.fonte_gps
             from {{ ref("viagem_informada_monitoramento") }} v
         {% endif %}
@@ -395,6 +397,7 @@ with
             v.datetime_processamento,
             v.datetime_captura_viagem,
             v.fonte_viagem,
+            v.tipo_execucao_viagem,
             v.fonte_gps
         from viagem v
         left join
@@ -493,6 +496,7 @@ select
     v.tipo_dia,
     v.fonte_gps,
     v.fonte_viagem,
+    v.tipo_execucao_viagem,
     v.datetime_processamento,
     v.datetime_captura_viagem,
     '{{ var("version") }}' as versao,

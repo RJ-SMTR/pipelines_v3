@@ -310,6 +310,9 @@ models:
       - name: indicador_viagem_valida
         description: "Indica se a viagem está válida conforme critérios definidos"
         data_type: boolean
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
+        data_type: string
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
         data_type: date
@@ -418,6 +421,9 @@ models:
         data_type: datetime
       - name: fonte_viagem
         description: "{{ doc('fonte_viagem') }}"
+        data_type: string
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
         data_type: string
       - name: fonte_gps
         description: "{{ doc('fonte_gps') }}"
@@ -1611,6 +1617,9 @@ models:
       - name: velocidade_media
         description: "{{ doc('velocidade_media_viagem') }}"
         data_type: float64
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
+        data_type: string
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime

@@ -1,5 +1,12 @@
 # Changelog - cadastro
 
+## [1.8.6] - 2026-09-30
+
+### Adicionado
+
+- Adiciona a coluna `lote` em `consorcios`, com GTU → A2 e TUSE → B2
+  (https://github.com/RJ-SMTR/pipelines_v3/pull/576)
+
 ## [1.8.5] - 2026-09-25
 
 ### Corrigido

@@ -54,6 +54,8 @@ models:
         description: "{{ doc('id_consorcio') }}"
       - name: consorcio
         description: "{{ doc('nome_consorcio') }}"
+      - name: lote
+        description: "Lote contratual do Sistema RIO (GTU → A2, TUSE → B2). Nulo fora do RIO."
       - name: modo
         description: "Modo de transporte do consórcio"
       - name: id_processo

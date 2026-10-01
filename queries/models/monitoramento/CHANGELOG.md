@@ -1,5 +1,13 @@
 # Changelog - monitoramento
 
+## [2.2.20] - 2026-09-30
+
+### Adicionado
+
+- Propaga `tipo_execucao_viagem` de `viagem_informada` por
+  `gps_segmento_viagem`, `viagem_validacao` e `viagem_valida`
+  (https://github.com/RJ-SMTR/pipelines_v3/pull/576)
+
 ## [2.2.19] - 2026-09-29
 
 ### Alterado

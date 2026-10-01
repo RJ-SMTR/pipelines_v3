@@ -1,0 +1,694 @@
+version: 2
+
+models:
+  - name: lote_km_rede_referencia
+    description: >
+      Km mensal da rede de referência por lote e período de vigência
+      (Tabela 4). Rede de entrada de 16/08/2026 a 15/06/2027. Rede plena
+      a partir de 16/06/2027.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__lote_km_rede_referencia
+          arguments:
+            combination_of_columns:
+              - lote
+              - data_inicio
+    columns:
+      - name: lote
+        description: "Lote contratual"
+      - name: data_inicio
+        description: "Início da vigência, inclusive"
+      - name: data_fim
+        description: "Fim da vigência, inclusive. Nulo enquanto o período está aberto"
+      - name: km_referencia_mensal
+        description: "Km operacional mensal vigente no período"
+
+  - name: servico_oferta_faixa
+    description: >
+      Planejamento POR por faixa (entrada `planejamento` do
+      `rio_rac_bus_subsidy.calculate_remuneration`). Derivado de
+      `servico_planejado_faixa_horaria` (`partidas` → `viagens_programadas`),
+      só `sistema = RIO`. Lote = `agency_id` GTFS do serviço (`A2`/`B2`).
+      Grão data × servico × sentido × faixa_horaria_inicio.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: faixa_horaria_inicio
+        description: "Início da faixa horária (grão IPA)"
+      - name: faixa_horaria_fim
+        description: "Fim da faixa horária"
+      - name: viagens_programadas
+        description: "Partidas programadas na faixa (denominador IPA / teto I.8)"
+      - name: lote
+        description: "Lote contratual (agency_id GTFS do Sistema RIO)"
+      - name: km
+        description: "Km planejada da faixa"
+      - name: lote_frota_estimada
+        description: "Frota estimada do lote (I.2). Enquanto não há fonte, vale 0"
+      - name: lote_frota_determinada
+        description: "Frota determinada do lote (I.2). Enquanto não há fonte, vale 0"
+      - name: lote_km_referencia_mensal
+        description: >
+          `km_referencia_mensal` de `lote_km_rede_referencia` vigente na
+          data da faixa.
+      - name: lote_km_referencia_quinzena
+        description: "Metade de lote_km_referencia_mensal"
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: feed_start_date
+        description: "{{ doc('feed_start_date') }}"
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: viagem_valida_temperatura
+    description: >
+      Regularidade de ar condicionado da viagem, lida de
+      `eph_viagem_regularidade_temperatura`. Os indicadores ficam no JSON.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+      - name: indicador_detectado_ar_inoperante
+        description: "Indica ar condicionado inoperante detectado na viagem"
+      - name: indicador_regularidade_ar_condicionado_viagem
+        description: "Indica se o ar condicionado da viagem cumpre a regularidade"
+      - name: indicadores
+        description: "{{ doc('indicadores_viagem') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: viagem_valida_bilhetagem
+    description: >
+      Bilhetagem da viagem, lida de `eph_viagem_transacao`. Os indicadores
+      de transação e validador ficam no JSON.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+      - name: indicador_sem_transacao
+        description: "Sem embarque Jaé/RioCard na janela da viagem"
+      - name: indicador_sem_transacao_tipo
+        description: "Sem transação do tipo exigido na janela da viagem"
+      - name: indicador_validador_fechado
+        description: "Validador fechado na viagem"
+      - name: indicador_validador_associado_incorretamente
+        description: "Validador associado a outro veículo"
+      - name: indicador_estado_equipamento_aberto
+        description: "Equipamento de bilhetagem aberto na viagem"
+      - name: quantidade_transacao
+        description: "Quantidade de transações Jaé na janela da viagem"
+      - name: quantidade_transacao_riocard
+        description: "Quantidade de transações RioCard na janela da viagem"
+      - name: percentual_estado_equipamento_aberto
+        description: "Percentual do tempo com o equipamento de bilhetagem aberto"
+      - name: datetime_partida_bilhetagem
+        description: "Partida usada na janela de bilhetagem"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: indicadores
+        description: "{{ doc('indicadores_viagem') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: viagem_valida_classificada
+    description: >
+      Fatos da viagem (completa / válida / conforme) + faixa da partida
+      e indicadores. Entrada `viagens` do
+      `rio_rac_bus_subsidy.calculate_remuneration`. A faixa vem de
+      `servico_oferta_faixa` por left join; sem faixa, início e fim ficam
+      nulos. Viagem INCOMPLETA grava `km_percorrida` pela soma dos
+      segmentos com GPS, limitada à planejada.
+    columns:
+      - name: id_apuracao
+        description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: indicador_viagem_completa
+        description: >
+          false quando tipo_execucao_viagem da Maxtrack é INCOMPLETA;
+          nulo ou outro valor permanece completa
+      - name: indicador_viagem_valida
+        description: "true = validação válida (conforme ou não conforme)"
+      - name: indicador_viagem_conforme
+        description: "true = validação conforme (exige valida)"
+      - name: km_programada
+        description: "Km planejada da viagem"
+      - name: km_percorrida
+        description: >
+          Km reconhecida. Completa: igual à planejada. Incompleta: soma
+          dos segmentos com GPS, em km, limitada à planejada.
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: faixa_horaria_inicio
+        description: "Horário inicial da faixa horária"
+      - name: faixa_horaria_fim
+        description: "Horário final da faixa horária"
+      - name: tecnologia_minima_servico
+        description: >
+          Tecnologia mínima permitida do serviço
+          (`tecnologia_servico.menor_tecnologia_permitida`)
+      - name: tecnologia_maxima_servico
+        description: >
+          Tecnologia máxima permitida do serviço
+          (`tecnologia_servico.maior_tecnologia_permitida`)
+      - name: tipo_dia
+        description: "Tipo de dia da oferta no join. Sem oferta, usa o tipo de dia da viagem"
+      - name: indicadores
+        description: >
+          Flags da classificação, cada uma em `.valor`. Não inclui
+          `indicador_viagem_completa`, `indicador_viagem_valida` nem
+          `indicador_viagem_conforme`, que ficam em coluna.
+      - name: tecnologia_apurada
+        description: "Tecnologia aferida do veículo (eco classificação)"
+      - name: tecnologia_fcf
+        description: "coalesce(tecnologia_apurada, tecnologia_minima_servico)"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+      - name: indicador_regularidade_ar_condicionado_viagem
+        description: "Indica se o ar condicionado da viagem cumpre a regularidade"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: viagem_apurada
+    description: >
+      Recorte de viagem de `aux_viagem_apurada` (colunas de granularidade
+      "viagem" da planilha Tabelas Remuneração Sistema RIO).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__viagem_apurada
+          arguments:
+            combination_of_columns:
+              - id_apuracao
+    columns:
+      - name: id_apuracao
+        description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: indicador_viagem_completa
+        description: "Indicador se a viagem é completa"
+      - name: indicador_viagem_valida
+        description: "Indicador se a viagem é válida"
+      - name: indicador_viagem_conforme
+        description: "Indicador se a viagem é conforme"
+      - name: km_programada
+        description: "Distância do shape [trajeto] planejado (km)"
+      - name: km_percorrida
+        description: >
+          Km reconhecida. Completa: igual à planejada. Incompleta: soma
+          dos segmentos com GPS, em km, limitada à planejada.
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: faixa_horaria_inicio
+        description: "Horário inicial da faixa horária"
+      - name: faixa_horaria_fim
+        description: "Horário final da faixa horária"
+      - name: tipo_dia
+        description: "Dia da semana"
+      - name: indicador_quilometragem_pagamento
+        description: >
+          Indicador se a quilometragem da viagem é apta para fins de pagamento
+      - name: indicador_percentual_atendimento
+        description: >
+          Indicador se a viagem entra na contagem usada pelo desconto de
+          operação precária
+      - name: km_remuneravel
+        description: >
+          Distância planejada da viagem válida. Viagem incompleta fica em
+          zero (km)
+      - name: indicador_pico_manha
+        description: >
+          Indicador se a viagem foi iniciada entre 05h e 09h de tipo_dia
+          "Dia Útil"
+      - name: indicador_pico_tarde
+        description: >
+          Indicador se a viagem foi iniciada entre 16h e 20h de tipo_dia
+          "Dia Útil"
+      - name: km_ponderada_ipa_viagem
+        description: "km_remuneravel × ipa da faixa"
+      - name: remuneracao_opex_viagem
+        description: "tarifa_remuneracao × β × km_remuneravel × ipa"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: faixa_apurada
+    description: >
+      Recorte de faixa de `aux_viagem_apurada` (colunas de granularidade
+      "faixa" da planilha). Grão data × lote × serviço × sentido × faixa —
+      o `distinct` desfaz o broadcast que o OF faz sobre cada viagem.
+      Sem `id_apuracao`: é chave de viagem e devolveria o grão de viagem,
+      inflando as somas dos sumários.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__faixa_apurada
+          arguments:
+            combination_of_columns:
+              - data
+              - lote
+              - servico
+              - sentido
+              - faixa_horaria_inicio
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: faixa_horaria_inicio
+        description: "Horário inicial da faixa horária"
+      - name: faixa_horaria_fim
+        description: "Horário final da faixa horária"
+      - name: tipo_dia
+        description: "Dia da semana"
+      - name: viagens_atendimento_faixa
+        description: >
+          Quantidade de viagens conformes e não conformes realizadas na
+          faixa horária
+      - name: viagens_programadas_faixa
+        description: "Quantidade de viagens programadas na faixa horária"
+      - name: percentual_atendimento
+        description: >
+          Razão entre a soma da distância planejada das viagens válidas e a
+          km planejada da faixa, em escala 0–1
+      - name: ipa
+        description: >
+          Indicador de percentual de atendimento a partir da razão de km:
+          abaixo de 60% vale 0, de 60% a 80% vale 0,6, de 80% a 90% vale 0,9
+          e de 90% para cima vale 1
+      - name: desconto_operacao_precaria
+        description: >
+          Descontos por desempenho na REMUNERAÇÃO PELO SERVIÇO da
+          CONCESSIONÁRIA em situações de operação precária, pela razão entre
+          viagens de atendimento e viagens programadas
+      - name: km_remuneravel_faixa
+        description: "Soma da distância planejada das viagens válidas na faixa"
+      - name: km_ponderada_ipa_faixa
+        description: "km_remuneravel_faixa × ipa"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: data_apurada
+    description: >
+      Recorte de dia de `aux_viagem_apurada` (colunas de granularidade
+      "dia" da planilha). Grão data × lote; alimenta FCF e CAPEX do
+      sumário de quinzena. Sem `id_apuracao` (chave de viagem) e sem
+      `tecnologia_minima_servico` (varia por serviço dentro do lote).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__data_apurada
+          arguments:
+            combination_of_columns:
+              - data
+              - lote
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: lote_frota_estimada
+        description: "Frota estimada do lote"
+      - name: lote_frota_determinada
+        description: >
+          Quantitativo de ônibus em conformidade com a REDE DE REFERÊNCIA
+      - name: lote_km_referencia_mensal
+        description: "Km mensal da rede de referência vigente na data"
+      - name: lote_km_referencia_quinzena
+        description: "Metade de lote_km_referencia_mensal"
+      - name: tipo_dia
+        description: "Dia da semana"
+      - name: indicador_dia_util
+        description: 'Indicador de tipo_dia "Dia Útil"'
+      - name: tarifa_remuneracao
+        description: "Tarifa de remuneração pelo serviço (R$)"
+      - name: alpha
+        description: "Percentual da TARIFA DE REMUNERAÇÃO referente ao CAPEX"
+      - name: beta
+        description: "Percentual da TARIFA DE REMUNERAÇÃO referente ao OPEX"
+      - name: frota_pico_manha
+        description: >
+          Quantidade de veículos distintos que iniciou viagem completa
+          entre 05h e 09h na data
+      - name: frota_pico_tarde
+        description: >
+          Quantidade de veículos distintos que iniciou viagem completa
+          entre 16h e 20h na data
+      - name: frota_operante
+        description: >
+          Quantidade de veículos distintos que iniciou viagem completa
+          entre 05h e 09h ou 16h e 20h na data
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: sumario_servico_sentido_faixa
+    description: >
+      Sumário por serviço × sentido × faixa, a partir da oferta
+      planejada. A km remunerável soma a distância planejada das
+      viagens válidas da faixa. O IPA sai dessa km sobre a km
+      planejada. OPEX = tarifa × β × km × IPA. O desconto de operação
+      precária continua o da `faixa_apurada`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: >-
+            dbt_utils__unique_combination_of_columns__sumario_servico_sentido_faixa
+          arguments:
+            combination_of_columns:
+              - data
+              - lote
+              - servico
+              - sentido
+              - faixa_horaria_inicio
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: tipo_dia
+        description: "Dia da semana"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: faixa_horaria_inicio
+        description: "Horário inicial da faixa horária"
+      - name: faixa_horaria_fim
+        description: "Horário final da faixa horária"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: viagens_atendimento_faixa
+        description: >
+          Quantidade de viagens conformes e não conformes realizadas na
+          faixa horária
+      - name: viagens_programadas_faixa
+        description: "Quantidade de viagens programadas na faixa horária"
+      - name: percentual_atendimento
+        description: >
+          Razão entre a soma da distância planejada das viagens válidas e a
+          km planejada da faixa, em escala 0–1
+      - name: ipa
+        description: >
+          Indicador de percentual de atendimento a partir da razão de km:
+          abaixo de 60% vale 0, de 60% a 80% vale 0,6, de 80% a 90% vale 0,9
+          e de 90% para cima vale 1
+      - name: desconto_operacao_precaria
+        description: >
+          Descontos por desempenho na REMUNERAÇÃO PELO SERVIÇO da
+          CONCESSIONÁRIA em situações de operação precária, pela razão entre
+          viagens de atendimento e viagens programadas
+      - name: km_remuneravel_faixa
+        description: "Soma da distância planejada das viagens válidas na faixa"
+      - name: km_ponderada_ipa_faixa
+        description: "km_remuneravel_faixa × ipa"
+      - name: remuneracao_opex_faixa
+        description: "tarifa_remuneracao × β × km_ponderada_ipa_faixa"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: sumario_servico_sentido_dia
+    description: >
+      Sumário por serviço × sentido × dia. Soma o OPEX e o desconto
+      das faixas de `sumario_servico_sentido_faixa`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__sumario_servico_sentido_dia
+          arguments:
+            combination_of_columns:
+              - data
+              - lote
+              - servico
+              - sentido
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: tipo_dia
+        description: "Dia da semana"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: desconto_operacao_precaria_dia
+        description: "Σ desconto de operação precária das faixas do dia"
+      - name: remuneracao_opex_dia
+        description: "Σ OPEX das faixas do dia"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: sumario_consorcio_quinzena
+    description: >
+      Fechamento por consórcio × quinzena. OPEX e desconto de
+      `sumario_servico_sentido_dia`; FCF e CAPEX de `data_apurada`;
+      receita da tarifa pública de `bilhetagem_consorcio_operador_dia`
+      (`valor_total_transacao_bruto`, dia = `data_ordem` − 1). Lote pelo
+      nome do consórcio.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__sumario_consorcio_quinzena
+          arguments:
+            combination_of_columns:
+              - data_inicio_quinzena
+              - lote
+              - consorcio
+    columns:
+      - name: data_inicio_quinzena
+        description: "Data inicial da quinzena [partição]"
+      - name: data_fim_quinzena
+        description: "Data final da quinzena"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: desconto_operacao_precaria_quinzena
+        description: >
+          Descontos por desempenho na REMUNERAÇÃO PELO SERVIÇO da
+          CONCESSIONÁRIA em situações de operação precária
+      - name: remuneracao_opex_quinzena
+        description: "Σ OPEX dos dias da quinzena"
+      - name: fator_cumprimento_frota
+        description: >
+          A razão entre a FROTA OPERANTE e a FROTA ESTIMADA do PLANO
+          OPERACIONAL, limitada a 1
+      - name: remuneracao_capex_quinzena
+        description: >
+          tarifa_remuneracao × α × (lote_km_referencia_quinzena / 15)
+          × dias da quinzena × fator_cumprimento_frota. Na segunda
+          quinzena de setembro de 2026 os dias vão de 23/09 a 30/09
+      - name: receita_tarifa_publica_quinzena
+        description: >
+          RECEITA DA TARIFA PÚBLICA arrecadada — Σ
+          `valor_total_transacao_bruto` de
+          `bilhetagem_consorcio_operador_dia`, somada por dia e consórcio
+          antes da quinzena. O dia da receita é `data_ordem` menos 1.
+          Lote pelo nome do consórcio (`GTU` → A2, `TUSE` → B2).
+      - name: valor_a_pagar_bruto_quinzena
+        description: >
+          Valor de subsídio apurado [remuneracao_capex_quinzena +
+          remuneracao_opex_quinzena - receita_tarifa_publica_quinzena -
+          desconto_operacao_precaria_quinzena]
+      - name: valor_imposto_iss
+        description: >
+          [max(valor_a_pagar_bruto_quinzena, 0) × 0,02]. Não fica
+          negativo quando o bruto é negativo.
+      - name: valor_imposto_irrf
+        description: >
+          [max(valor_a_pagar_bruto_quinzena, 0) × 0,024]. Não fica
+          negativo quando o bruto é negativo.
+      - name: valor_subsidio_liquido_quinzena
+        description: "[valor_a_pagar_bruto_quinzena - iss - irrf]"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: view_monitoramento_viagem_transacao
+    description: >
+      Vista de monitoramento da bilhetagem, lida de `viagem_valida_bilhetagem`.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }}"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: id_validador
+        description: "{{ doc('id_validador') }}"
+      - name: indicador_sem_transacao
+        description: "Sem embarque Jaé/RioCard na janela da viagem"
+      - name: indicador_sem_transacao_tipo
+        description: "Sem transação do tipo exigido na janela da viagem"
+      - name: indicador_validador_fechado
+        description: "Validador fechado na viagem"
+      - name: indicador_validador_associado_incorretamente
+        description: "Validador associado a outro veículo"
+      - name: indicador_estado_equipamento_aberto
+        description: "Equipamento de bilhetagem aberto na viagem"
+      - name: quantidade_transacao
+        description: "Quantidade de transações Jaé na janela da viagem"
+      - name: quantidade_transacao_riocard
+        description: "Quantidade de transações RioCard na janela da viagem"
+      - name: percentual_estado_equipamento_aberto
+        description: "Percentual do tempo com o equipamento de bilhetagem aberto"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: view_monitoramento_viagem_regularidade_temperatura
+    description: >
+      Vista de monitoramento da regularidade do ar condicionado, lida de
+      `viagem_valida_temperatura`.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }}"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: indicador_detectado_ar_inoperante
+        description: "Indica ar condicionado inoperante detectado na viagem"
+      - name: indicador_regularidade_ar_condicionado_viagem
+        description: "Indica se o ar condicionado da viagem cumpre a regularidade"
+      - name: indicadores
+        description: "{{ doc('indicadores_viagem') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
