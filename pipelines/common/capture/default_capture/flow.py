@@ -131,7 +131,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         tasks["data_contracts"] = download_data_contracts(contexts=contexts, env=tasks["env"])
         tasks["validate_raw_data_contract"] = validate_raw_data_contract.map(
             context=contexts,
-            contracts=unmapped(tasks["data_contracts"]),
+            contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
 
     upload_raw_future = upload_raw_file_to_gcs.map(

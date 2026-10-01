@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tasks Prefect para baixar contratos versionados e validar os arquivos brutos."""
 
-from typing import Any
+from pathlib import Path
 
 import yaml
 from datacontract.data_contract import DataContract
@@ -10,13 +10,13 @@ from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.capture.data_contract.utils import (
     add_local_server,
-    download_contract_snapshot,
+    download_contracts_from_commit,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
 
 @task(cache_policy=NO_CACHE)
-def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> dict[str, Any]:
+def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> Path | None:
     """
     Baixa os contratos dos sources capturados para a validação dos arquivos.
 
@@ -25,24 +25,21 @@ def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> d
         env (str): Ambiente usado para selecionar a branch.
 
     Returns:
-        dict[str, Any]: Contratos baixados para a validação.
+        Path | None: Diretório dos contratos, ou None quando nenhuma fonte os utiliza.
     """
-    models = [
-        context.source.data_contract_model
-        for context in contexts
-        if context.source.validate_data_contract
-    ]
-    return download_contract_snapshot(models, env)
+    if not any(context.source.validate_data_contract for context in contexts):
+        return None
+    return download_contracts_from_commit(env)
 
 
 @task(cache_policy=NO_CACHE)
-def validate_raw_data_contract(context: SourceCaptureContext, contracts: dict[str, Any]) -> None:
+def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Path | None) -> None:
     """
     Valida os arquivos brutos antes do upload usando uma cópia local do contrato.
 
     Args:
         context (SourceCaptureContext): Fonte e arquivos brutos capturados.
-        contracts (dict[str, Any]): Contratos baixados para a validação.
+        contracts_dir (Path | None): Diretório com os contratos baixados.
 
     Returns:
         None: A validação é concluída por efeito ou interrompe o flow com uma exceção.
@@ -55,11 +52,9 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts: dict[st
         return None
     if not context.captured_raw_filepaths:
         raise ValueError(f"Nenhum arquivo bruto foi capturado para {source.table_id}.")
-    contract = next(
-        contract
-        for path, contract in contracts.items()
-        if path.endswith(f"/{source.data_contract_model}.odcs.yaml")
-    )
+
+    contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"))
+    contract = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
             contract, raw_filepath=raw_filepath, file_format=source.raw_filetype

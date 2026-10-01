@@ -19,7 +19,8 @@ from google.cloud import storage
 from pipelines.common import constants
 from pipelines.common.capture.data_contract.utils import (
     REQUEST_TIMEOUT,
-    download_contract_snapshot,
+    ROOT,
+    download_contracts_from_commit,
 )
 from pipelines.common.utils.secret import get_env_secret
 
@@ -47,15 +48,17 @@ def publish_data_contracts(
     Raises:
         requests.HTTPError: Falha na consulta ou publicação, exceto tabela ausente.
     """
-    snapshot = download_contract_snapshot(None, env)
-    if not snapshot["contracts"]:
+    contracts_dir = download_contracts_from_commit(env)
+    contract_paths = sorted(contracts_dir.rglob("*.odcs.yaml"))
+    if not contract_paths:
         return
     secret = get_env_secret("openmetadata")
     api = secret["host_port"].rstrip("/")
     with requests.Session() as session:
         session.headers["Authorization"] = f"Bearer {secret['jwt_token']}"
-        for path, entry in snapshot["contracts"].items():
-            contract = entry["contract"]
+        for contract_path in contract_paths:
+            path = contract_path.relative_to(ROOT).as_posix()
+            contract = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
             (schema,) = contract["schema"]
             physical_name = schema.get("physicalName", "")
             if physical_name.split(".", 1)[0] not in project_ids:

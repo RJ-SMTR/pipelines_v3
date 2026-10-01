@@ -4,8 +4,6 @@
 import importlib
 import json
 import os
-import re
-import subprocess
 from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
@@ -16,14 +14,16 @@ import requests
 import yaml
 from datacontract.data_contract import DataContract
 
+from pipelines.common.capture.data_contract.constants import (
+    CAPTURE_METADATA_COLUMNS,
+    DEFAULT_MANIFEST,
+    GITHUB_API,
+    REQUEST_TIMEOUT,
+    ROOT,
+)
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
 from pipelines.common.utils.gcp.bigquery import SourceTable
-
-CAPTURE_METADATA_COLUMNS = frozenset({"timestamp_captura"})
-GITHUB_API = "https://api.github.com"
-REQUEST_TIMEOUT = (10, 60)
-ROOT = Path(__file__).resolve().parents[4]
-DEFAULT_MANIFEST = ROOT / "queries" / "target" / "manifest.json"
+from pipelines.common.utils.utils import is_running_locally
 
 
 def _capture_contracts(
@@ -72,120 +72,91 @@ def _capture_contracts(
     return contracts
 
 
-def _get_contract_ref(env: str) -> str:
+def _github_get(
+    session: requests.Session,
+    repository: str,
+    endpoint: str,
+    **request_options: Any,
+) -> requests.Response:
     """
-    Identifica a branch usada no download dos contratos.
+    Consulta um endpoint da API do GitHub.
 
     Args:
-        env (str): Ambiente de execução; em produção usa master.
+        session (requests.Session): Sessão HTTP usada na requisição.
+        repository (str): Repositório no formato `owner/name`.
+        endpoint (str): Caminho do endpoint relativo ao repositório.
+        request_options (Any): Opções adicionais encaminhadas para `Session.get`.
 
     Returns:
-        str: Branch de produção, GIT_BRANCH ou branch do checkout local.
+        requests.Response: Resposta HTTP da API do GitHub.
 
     Raises:
-        ValueError: Não foi possível identificar a branch de desenvolvimento.
+        requests.HTTPError: A resposta da API indica uma falha HTTP.
     """
-    if env == "prod":
-        return "master"
-    branch = os.environ.get("GIT_BRANCH", "").strip()
-    if branch:
-        return branch
-    result = subprocess.run(
-        ["git", "symbolic-ref", "--quiet", "--short", "HEAD"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
+    response = session.get(
+        f"{GITHUB_API}/repos/{repository}/{endpoint}",
+        timeout=REQUEST_TIMEOUT,
+        **request_options,
     )
-    branch = result.stdout.strip()
-    if result.returncode or not branch:
-        raise ValueError(
-            "Não foi possível identificar a branch: repositório ausente ou HEAD sem branch."
-        )
-    return branch
+    response.raise_for_status()
+    return response
 
 
-def download_contract_snapshot(models: list[str] | None, env: str) -> dict[str, Any]:
+def download_contracts_from_commit(env: str) -> Path:
     """
-    Baixa os contratos de um único commit do repositório.
+    Disponibiliza os contratos no diretório compartilhado do flow.
 
     Args:
-        models (list[str] | None): Modelos dbt dos contratos; None descobre todos.
-        env (str): Ambiente usado para selecionar a branch.
+        env (str): Ambiente usado para selecionar a branch em execução remota.
 
     Returns:
-        dict[str, Any]: Contratos; vazio quando models é uma lista vazia.
+        Path: Diretório com os contratos ODCS.
 
     Raises:
-        ValueError: Referência, árvore do repositório ou contrato inválido.
+        ValueError: Árvore do repositório incompleta.
+        KeyError: GIT_BRANCH ausente em execução remota não produtiva.
         requests.HTTPError: Falha na consulta ao GitHub.
     """
-    if models == []:
-        return {}
+    contracts_dir = ROOT / "contracts"
+    if is_running_locally():
+        return contracts_dir
+
     repository = "RJ-SMTR/pipelines_v3"
+    ref = "master" if env == "prod" else os.environ["GIT_BRANCH"]
+
     with requests.Session() as session:
         session.headers.update({"Accept": "application/vnd.github+json"})
-        token = os.environ.get("DATA_CONTRACT_GITHUB_TOKEN")
-        if token:
-            session.headers["Authorization"] = f"Bearer {token}"
-        ref = _get_contract_ref(env)
-        response = session.get(
-            f"{GITHUB_API}/repos/{repository}/commits/{quote(ref, safe='')}",
-            timeout=REQUEST_TIMEOUT,
-        )
-        response.raise_for_status()
-        sha = response.json().get("sha", "")
-        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{40}", sha):
-            raise ValueError("GitHub não retornou um SHA de commit válido para o contrato.")
+        sha = _github_get(session, repository, f"commits/{quote(ref, safe='')}").json()["sha"]
 
-        response = session.get(
-            f"{GITHUB_API}/repos/{repository}/git/trees/{sha}",
+        tree = _github_get(
+            session,
+            repository,
+            f"git/trees/{sha}",
             params={"recursive": "1"},
-            timeout=REQUEST_TIMEOUT,
-        )
-        response.raise_for_status()
-        tree = response.json()
+        ).json()
         if tree.get("truncated"):
             raise ValueError("GitHub retornou uma árvore incompleta para descobrir contratos.")
-        paths = [
+        contract_paths = [
             item["path"]
             for item in tree["tree"]
             if item["type"] == "blob"
             and item["path"].startswith("contracts/")
             and item["path"].endswith(".odcs.yaml")
         ]
-        if models is not None:
-            selected = []
-            for model in sorted(set(models)):
-                matches = [path for path in paths if Path(path).name == f"{model}.odcs.yaml"]
-                if len(matches) != 1:
-                    raise ValueError(f"Esperado um contrato para {model}; encontrados: {matches}")
-                selected.extend(matches)
-            paths = selected
 
-        contracts = {}
-        for path in sorted(set(paths)):
-            response = session.get(
-                f"{GITHUB_API}/repos/{repository}/contents/{quote(path, safe='/')}",
+        contracts_dir.mkdir(parents=True, exist_ok=True)
+        for relative_path in sorted(set(contract_paths)):
+            path = ROOT / relative_path
+            content = _github_get(
+                session,
+                repository,
+                f"contents/{quote(relative_path, safe='/')}",
                 params={"ref": sha},
                 headers={"Accept": "application/vnd.github.raw+json"},
-                timeout=REQUEST_TIMEOUT,
-            )
-            response.raise_for_status()
-            content = response.content
-            contract = yaml.safe_load(content)
-            if (
-                not isinstance(contract, dict)
-                or contract.get("kind") != "DataContract"
-                or not contract.get("schema")
-            ):
-                raise ValueError(f"Contrato ODCS inválido no repositório: {path}")
-            if contract.get("servers"):
-                raise ValueError(
-                    f"O contrato versionado não deve conter servidores de execução: {path}"
-                )
-            contracts[path] = contract
-    return contracts
+            ).content
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+    return contracts_dir
 
 
 def adapt_contract_schema(
