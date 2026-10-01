@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona backup do banco `estacionamento_db`
+- Adiciona backup do banco `estacionamento_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/729)
 
 ## [1.1.4] - 2026-08-19
 
