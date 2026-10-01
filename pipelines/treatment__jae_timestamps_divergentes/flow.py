@@ -12,7 +12,6 @@ from pipelines.treatment__jae_timestamps_divergentes import constants
 from pipelines.treatment__jae_timestamps_divergentes.tasks import (
     create_materialization_subflows_params,
     create_recapture_subflows_params,
-    create_riorotativo_ordem_pagamento_params,
     create_transacao_valor_ordem_params,
     create_verificacao_captura_params,
     get_gaps_from_result_table,
@@ -92,11 +91,8 @@ async def treatment__jae_timestamps_divergentes(
             parameters=[param],
         )
 
-    riorotativo_ordem_params = create_riorotativo_ordem_pagamento_params(gaps=gaps)
-
     if gaps[jae_constants.FISCALIZACAO_VEICULO_TABLE_ID]["flag_has_gaps"]:
         await run_subflow(
             env=env,
             flow=treatment__riorotativo_ordem_pagamento,
-            parameters=riorotativo_ordem_params,
         )
