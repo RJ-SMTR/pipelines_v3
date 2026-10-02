@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tasks Prefect para baixar contratos versionados e validar os arquivos brutos."""
 
+from io import StringIO
 from pathlib import Path
 
 import yaml
@@ -64,13 +65,16 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         ignored_columns=source.data_contract_ignored_columns,
         primary_keys=source.primary_keys,
     )
-    console = Console(force_terminal=False, width=120)
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
         )
+        output = StringIO()
+        console = Console(file=output, force_terminal=False, width=120)
         result = DataContract(
-            data_contract_str=yaml.safe_dump(runtime_contract), server="incoming"
+            data_contract_str=yaml.safe_dump(runtime_contract),
+            server="incoming",
+            include_failed_samples=True,
         ).test()
         console.print(f"Testing {contract_path.name}")
         console.print(
@@ -78,6 +82,7 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         )
         print_test_results_table(result, console)
         print_test_results_summary(result, console)
+        print(output.getvalue(), end="")
         if not result.has_passed():
             failed_checks = [
                 check for check in result.checks if check.result not in ("passed", "skipped")

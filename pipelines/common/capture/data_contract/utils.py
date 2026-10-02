@@ -62,6 +62,11 @@ def _print_failed_checks(run: Run, console: Console) -> None:
         field = to_field(run, check)
         field = f"{field} " if field else ""
         console.print(f"{position}) {field}{check.name}: {escape(str(check.reason))}")
+        if check.failedSamples:
+            console.print("   Failed samples:")
+            for sample in check.failedSamples:
+                sample_json = json.dumps(sample, ensure_ascii=False, default=str)
+                console.print(f"   - {escape(sample_json)}")
         position += 1
 
 
