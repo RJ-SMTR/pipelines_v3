@@ -93,6 +93,7 @@ def get_table_info(
             for t in list_accessible_tables(engine=engine)
             if t not in tables_config.get("exclude", [])
             and isinstance(tables_config.get("filter", {}).get(t, []), list)
+            and t == "fiscalizacao_veiculo_imagem"
         ]
 
     custom_select = tables_config.get("custom_select", {})
