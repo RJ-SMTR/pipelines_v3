@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar as partições de `aux_viagem_temperatura` / `aux_veiculo_falha_ar_condicionado` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular fica limitada a datas anteriores a essa versão. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar partições modificadas a partir de `DATA_SUBSIDIO_V25_INICIO`, com lookback de 6 dias (`viagem_validacao_max_age_days`). No flow `treatment--monitoramento-temperatura`, a janela regular (`date_range`) fica limitada a datas anteriores à V25 e as partições V25+ entram pelo `last_modified`. No flow de subsídio, a quinzena (`start_date`/`end_date`) é reprocessada por inteiro e as partições V25+ modificadas se somam a esse recorte. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ## [2.3.0] - 2026-09-30
 
