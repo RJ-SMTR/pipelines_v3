@@ -30,7 +30,7 @@
     {% set partitions = get_modified_partitions_filter(
         viagem_informada,
         truncate_date=true,
-        max_age_days=var("viagem_validacao_max_age_days", 5),
+        max_age_days=var("viagem_validacao_max_age_days", 6),
     ) %}
 {% else %} {% set partitions = [] %}
 {% endif %}
@@ -84,6 +84,7 @@ with
             gv.datetime_gps,
             gv.datetime_partida,
             gv.datetime_chegada,
+            gv.fonte_gps,
             c.feed_version,
             c.feed_start_date
         {% if var("tipo_materializacao") == "monitoramento" %}
@@ -150,7 +151,14 @@ with
         select
             id_viagem,
             ifnull(
-                logical_and(servico_viagem = servico_gps), true
+                logical_and(
+                    servico_viagem = servico_gps
+                    or (
+                        data between '2026-08-24' and '2026-09-15'
+                        and fonte_gps in ('jae', 'maxtrack')
+                    )
+                ),
+                true
             ) as indicador_servico_convergente
         from gps_viagem
         group by 1
@@ -211,7 +219,14 @@ with
         join
             segmento_primeiro_ultimo spu using (feed_version, feed_start_date, shape_id)
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
-        where g.servico_gps = g.servico_viagem
+        where
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    g.data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
         group by g.data, g.id_viagem
     ),
     /*
@@ -279,11 +294,15 @@ with
             c.feed_version,
         {% if var("tipo_materializacao") == "monitoramento" %}
                 cast(null as datetime) as datetime_processamento,
-                v.datetime_ultima_atualizacao as datetime_captura_viagem
+                v.datetime_ultima_atualizacao as datetime_captura_viagem,
+                cast(null as string) as fonte_viagem,
+                cast(null as string) as fonte_gps
             from {{ ref("viagem_inferida") }} v
         {% else %}
                 v.datetime_processamento,
-                v.datetime_captura as datetime_captura_viagem
+                v.datetime_captura as datetime_captura_viagem,
+                v.fonte_viagem,
+                v.fonte_gps
             from {{ ref("viagem_informada_monitoramento") }} v
         {% endif %}
         join calendario c using (data)
@@ -335,7 +354,13 @@ with
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
-            g.servico_gps = g.servico_viagem
+            (
+                g.servico_gps = g.servico_viagem
+                or (
+                    v.data between '2026-08-24' and '2026-09-15'
+                    and g.fonte_gps in ('jae', 'maxtrack')
+                )
+            )
             and g.datetime_gps
             between v.datetime_partida_considerada and v.datetime_chegada_considerada
             -- Desambiguação temporal para rotas circulares
@@ -389,7 +414,9 @@ with
             v.feed_version,
             v.feed_start_date,
             v.datetime_processamento,
-            v.datetime_captura_viagem
+            v.datetime_captura_viagem,
+            v.fonte_viagem,
+            v.fonte_gps
         from viagem v
         left join
             segmento s
@@ -485,6 +512,8 @@ select
     v.feed_start_date,
     v.service_ids,
     v.tipo_dia,
+    v.fonte_gps,
+    v.fonte_viagem,
     v.datetime_processamento,
     v.datetime_captura_viagem,
     '{{ var("version") }}' as versao,

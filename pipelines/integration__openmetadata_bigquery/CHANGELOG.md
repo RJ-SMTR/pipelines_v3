@@ -1,5 +1,17 @@
 # Changelog - integration__openmetadata_bigquery
 
+## [0.1.2] - 2026-09-29
+
+### Alterado
+
+- Habilita a ingestão de views do BigQuery no OpenMetadata para os projetos `rj-smtr` e `rj-smtr-staging` (https://github.com/RJ-SMTR/pipelines_v3/pull/721).
+
+## [0.1.1] - 2026-09-10
+
+### Alterado
+
+- Altera o schedule de produção para execução semanal às terças-feiras, às 01:00, no horário de São Paulo ([PR #638](https://github.com/RJ-SMTR/pipelines_v3/pull/638), [commit 017ff307](https://github.com/RJ-SMTR/pipelines_v3/commit/017ff307)).
+
 ## [0.1.0] - 2026-09-04
 
 ### Adicionado

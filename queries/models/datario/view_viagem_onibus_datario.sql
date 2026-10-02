@@ -4,49 +4,49 @@ with
     viagem_completa as (
         select
             data,
-            consorcio,
-            "Ônibus" as modo,
-            tipo_dia,
-            id_empresa,
-            id_veiculo,
             id_viagem,
-            servico_realizado as servico,
-            shape_id,
-            sentido,
             datetime_partida,
             datetime_chegada,
-            tempo_viagem,
+            "Ônibus" as modo,
+            consorcio,
+            "SPPO" as sistema,
+            vista,
+            tipo_dia,
+            servico_realizado as servico,
+            cast(null as string) as route_id,
+            trip_id,
+            shape_id,
+            sentido,
+            id_veiculo,
             distancia_planejada,
-            perc_conformidade_shape,
-            perc_conformidade_registros,
-            versao_modelo
+            tempo_viagem
         from {{ ref("viagem_completa") }}
         where date(datetime_partida) < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     ),
     viagem_valida as (
         select
             data,
-            consorcio,
-            modo,
-            tipo_dia,
-            regexp_extract(upper(id_veiculo), r"^[A-Z]([0-9]{3})") as id_empresa,
-            id_veiculo,
             id_viagem,
-            servico,
-            shape_id,
-            sentido,
             datetime_partida,
             datetime_chegada,
-            datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_viagem,
+            modo,
+            consorcio,
+            sistema,
+            vista,
+            tipo_dia,
+            servico,
+            route_id,
+            trip_id,
+            shape_id,
+            sentido,
+            id_veiculo,
             distancia_planejada,
-            cast(null as float64) as perc_conformidade_shape,
-            cast(null as float64) as perc_conformidade_registros,
-            versao as versao_modelo
+            datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_viagem
         from {{ ref("viagem_valida") }}
         where date(datetime_partida) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
 select *
 from viagem_completa
-union all
+union all by name
 select *
 from viagem_valida

@@ -1,10 +1,18 @@
 # Changelog - dashboard_monitoramento_interno
 
-## [1.0.6] - 2026-09-03
+## [1.0.7] - 2026-10-02
 
 ### Alterado
 
 - Inclui `view_viagem_climatizacao` no selector `monitoramento_temperatura`(https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+-
+## [1.0.6] - 2026-09-23
+
+### Adicionado
+
+- Cria `view_shape_onibus` com os itinerários planejados e a geometria do shape dos últimos 8 dias para o painel `PAINEL_GPS_ONIBUS`.(https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/693)
+
+- Cria `view_gps_onibus_8_dias` com posições GPS dos ônibus dos últimos 8 dias (exceto parado em garagem) para o painel `PAINEL_GPS_ONIBUS`.(https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/693)
 
 ## [1.0.5] - 2026-09-02
 

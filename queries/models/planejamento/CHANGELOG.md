@@ -1,5 +1,20 @@
 # Changelog - planejamento
 
+## [1.8.10] - 2026-09-30
+
+### Adicionado
+
+- Adiciona `tipo_bilhete_unico` nos modelos `aux_matriz_integracao_modo.sql`, `matriz_reparticao_tarifaria.sql` e `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona transferências BUM no modelo `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona tratamento das colunas de quarta perna no modelo `matriz_reparticao_tarifaria.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Cria modelo `matriz_integracao_servico_modo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+
+## [1.8.9] - 2026-09-10
+
+### Alterado
+
+- Substitui os testes genéricos de nulidade das tecnologias permitidas por um teste singular que valida as colunas `maior_tecnologia_permitida` e `menor_tecnologia_permitida` ([PR #638](https://github.com/RJ-SMTR/pipelines_v3/pull/638), [commit 5a1ca494](https://github.com/RJ-SMTR/pipelines_v3/commit/5a1ca494)).
+
 ## [1.8.8] - 2026-08-28
 
 ### Alterado

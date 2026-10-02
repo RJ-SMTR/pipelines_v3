@@ -172,7 +172,7 @@ models:
           - not_null:
               name: not_null__valor_transacao__transacao
               config:
-                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus')
+                where: data in ({partitions}) and ('{{ var('tipo_teste','') }}' <> 'subsidio' or modo = 'Ônibus') and (tipo_transacao_jae != 'Botoeira' or data < "{{ var('data_final_pagamento_dinheiro') }}")
         data_type: float64
       - name: valor_pagamento
         description: "{{ doc('valor_pagamento') }}"

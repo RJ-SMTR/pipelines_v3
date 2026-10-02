@@ -1,5 +1,23 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.3.1] - 2026-09-30
+
+### Corrigido
+
+- Corrigido o modelo `viagens_remuneradas_v2` para manter apenas serviços com `sistema = "SPPO"` a partir de `DATA_SUBSIDIO_V26_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/723)
+
+## [8.3.0] - 2026-09-24
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar exceção para o limite de viagens de servicos especificados no Processo 000300.032741/2026-12, referente a primeira quinzena de Setembro/2026. (https://github.com/RJ-SMTR/pipelines_v3/pull/695)
+
+## [8.2.10] - 2026-09-17
+
+### Alterado
+
+- Altera o modelo `viagens_remuneradas_v2` para excluir serviços com `sistema = "RIO"` a partir de `DATA_SUBSIDIO_V26_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/688)
+
 ## [8.2.9] - 2026-09-09
 
 ### Alterado

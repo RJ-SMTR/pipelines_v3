@@ -1,10 +1,74 @@
 # Changelog - monitoramento
 
-## [2.2.13] - 2026-09-09
+## [2.3.1] - 2026-10-02
 
 ### Alterado
 
 - Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar as partições de `aux_viagem_temperatura` / `aux_veiculo_falha_ar_condicionado` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular fica limitada a datas anteriores a essa versão.
+
+## [2.3.0] - 2026-09-30
+
+### Adicionado
+
+- Inclui GPS do validador Jaé (`gps_validador`) no modelo `gps_viagem` para as operadoras GTU (`2801`, prefixo `A2`) e TUSE (`2802`, prefixo `B2`), até `2026-09-16`, descartando coordenadas zeradas e o veículo `99999`. Posições Jaé passam a ser associadas a viagens com `fonte_gps = maxtrack` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+### Alterado
+
+- No modelo `gps_viagem`, a coluna `fonte_gps` passa a refletir o fornecedor do registro de GPS em vez da fonte declarada na viagem (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- No modelo `gps_segmento_viagem`, entre `2026-08-24` e `2026-09-15`, registros com `fonte_gps` `jae` ou `maxtrack` são desconsiderados no indicador de serviço convergente, e ambos são considerados na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+## [2.2.19] - 2026-09-29
+
+### Alterado
+
+- Amplia de 5 para 6 dias a janela de processamento incremental dos modelos `viagem_validacao`, `viagem_valida`, `gps_viagem` e `gps_segmento_viagem`. A alteração permite que a execução do dia seguinte capture viagens disponibilizadas na API ao fim do quinto dia do prazo de envio, após a captura das 7h20 (https://github.com/RJ-SMTR/pipelines_v3/pull/720).
+
+## [2.2.18] - 2026-09-28
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-28` devido à ausência de dados brutos de licenciamento, o reprocessamento ocorreu em `2026-09-28`.(https://github.com/RJ-SMTR/pipelines_v3/pull/714)
+
+## [2.2.18] - 2026-09-24
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-22` devido à ausência de dados brutos de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/695)
+
+## [2.2.17] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_infracao` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
+## [2.2.16] - 2026-09-16
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-08-16` e `2026-08-31` com `data_processamento` entre `2026-08-16` e `2026-09-10` devido à falha na captura dos dados de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/684)
+
+## [2.2.15] - 2026-09-15
+
+### Adicionado
+
+- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor, prazo de envio e data limite no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona exceções de prazo de envio das viagens informadas das quinzenas 15 a 31/08/2026 (limite 06/09/2026, Ofício SMTR nº 8656/2026, processo 000301.015075/2026-48) e 01 a 15/09/2026 (limite 21/09/2026, Ofício SMTR nº 9523/2026, processo 000301.015961/2026-71) (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona a coluna `fonte_viagem` em `viagem_informada`, `gps_viagem` e `gps_segmento_viagem` (`rioonibus`, `maxtrack`, `mobirio`) e a coluna `fonte_gps` em `gps_segmento_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+
+## [2.2.14] - 2026-09-10
+
+### Alterado
+
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+- Obtém `sistema` e `consorcio` do serviço planejado por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
+## [2.2.13] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de infração em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
 
 ## [2.2.12] - 2026-09-02
 

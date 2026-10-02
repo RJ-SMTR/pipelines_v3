@@ -1,12 +1,24 @@
 # Changelog - subsidio
 
-## [2.3.7] - 2026-09-03
+## [2.3.9] - 2026-10-02
 
 ### Alterado
 
 - Ajusta `viagem_classificada` (no flow `treatment--monitoramento-temperatura`) para reprocessar as partições de `viagem_valida` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular do flow fica limitada a datas anteriores a essa versão. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 - Ajusta `aux_viagem_temperatura` para reprocessar as partições de `viagem_classificada` alteradas no mesmo critério, apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
+## [2.3.8] - 2026-09-30
+
+### Corrigido
+
+- Corrigido o modelo `percentual_operacao_faixa_horaria_v2` para manter apenas serviços com `sistema = "SPPO"` a partir de `DATA_SUBSIDIO_V26_INICIO`.(https://github.com/RJ-SMTR/pipelines_v3/pull/723)
+
+## [2.3.7] - 2026-09-17
+
+### Alterado
+
+- Altera o modelo `percentual_operacao_faixa_horaria_v2` para excluir serviços com `sistema = "RIO"` a partir de `DATA_SUBSIDIO_V26_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/688)
 
 ## [2.3.6] - 2026-08-27
 

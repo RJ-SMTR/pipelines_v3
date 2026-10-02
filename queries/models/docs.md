@@ -1011,6 +1011,10 @@ Fonte da velocidade [TELEMETRIA ou AVL]
 Identificador do fornecedor de GPS
 {% enddocs %}
 
+{% docs fonte_viagem %}
+Fonte que enviou a viagem informada [rioonibus, maxtrack ou mobirio]
+{% enddocs %}
+
 {% docs altitude_gps %}
 Altitude em metros
 {% enddocs %}
@@ -1807,6 +1811,10 @@ Indicador de atividade do operador no sistema da Jaé
 
 {% docs sentido_shape %}
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
+{% enddocs %}
+
+{% docs tipo_bilhete_unico %}
+Tipo do bilhete único [BUM ou BUC]
 {% enddocs %}
 
 {% docs cnpj_entidade_credenciadora_riorotativo %}
