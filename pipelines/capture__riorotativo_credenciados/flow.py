@@ -2,7 +2,7 @@
 """
 Flow de captura de dados de credenciados do Rio Rotativo Digital
 
-Captura abas de Google Sheets com dados de credenciados do Rio Rotativo Digital.
+Captura abas de Google Sheets com dados de credenciados do Rio Rotativo Digital
 """
 
 from typing import Optional

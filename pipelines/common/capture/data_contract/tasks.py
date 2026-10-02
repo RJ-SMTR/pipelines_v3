@@ -70,7 +70,7 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
         )
         output = StringIO()
-        console = Console(file=output, force_terminal=False, width=120)
+        console = Console(file=output, force_terminal=False, soft_wrap=True, width=120)
         result = DataContract(
             data_contract_str=yaml.safe_dump(runtime_contract),
             server="incoming",
