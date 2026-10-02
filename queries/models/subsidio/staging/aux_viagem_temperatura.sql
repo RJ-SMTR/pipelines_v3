@@ -6,12 +6,82 @@
     )
 }}
 
+{% set viagem_classificada = ref("viagem_classificada") %}
+{% if execute and is_incremental() %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        viagem_classificada,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+    {% set context_partitions = get_modified_partitions_filter(
+        viagem_classificada,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date("{{var('date_range_start')}}") and date_add(date("{{ var('date_range_end') }}"), interval 1 day) and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+        (
+            data between date("{{ var('date_range_start') }}") and date_add(
+                date("{{ var('date_range_end') }}"), interval 1 day
+            )
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and context_partitions | length > 0 %}
+                or (
+                    data in ({{ context_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% else %}
+        (
+            data between date("{{ var('start_date') }}") and date_add(
+                date("{{ var('end_date') }}"), interval 1 day
+            )
+            {% if is_incremental() and context_partitions | length > 0 %}
+                or (
+                    data in ({{ context_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% endif %}
 {% endset -%}
 
 {% set partition_filter %}
-    data between date("{{var('date_range_start')}}") and date("{{ var('date_range_end') }}") and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+        (
+            data between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
+            )
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% else %}
+        (
+            data between date("{{ var('start_date') }}") and date(
+                "{{ var('end_date') }}"
+            )
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% endif %}
 {% endset %}
 
 {% if execute %}

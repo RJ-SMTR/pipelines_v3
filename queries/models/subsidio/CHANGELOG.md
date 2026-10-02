@@ -1,5 +1,11 @@
 # Changelog - subsidio
 
+## [2.3.9] - 2026-10-02
+
+### Alterado
+
+- Ajusta `viagem_classificada` e `aux_viagem_temperatura` para reprocessar partições modificadas a partir de `DATA_SUBSIDIO_V25_INICIO`, com lookback de 6 dias (`viagem_validacao_max_age_days`). No flow `treatment--monitoramento-temperatura`, a janela regular (`date_range`) fica limitada a datas anteriores à V25 e as partições V25+ entram pelo `last_modified`. No flow de subsídio, a quinzena (`start_date`/`end_date`) é reprocessada por inteiro e as partições V25+ modificadas se somam a esse recorte. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [2.3.8] - 2026-09-30
 
 ### Corrigido
