@@ -37,7 +37,7 @@ models:
       - name: id_operadora
         description: "{{ doc('id_operadora') }}"
       - name: valor_transacao_rateio
-        description: Valor da transação rateado na ordem de pagamento
+        description: Valor da transação com o rateio [se houver] (R$)
       - name: id_ordem_pagamento
         description: "{{ doc('id_ordem_pagamento') }}"
       - name: id_ordem_pagamento_consorcio_dia
