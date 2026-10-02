@@ -7,8 +7,6 @@ Common: 2026-05-12
 
 from typing import Optional
 
-from prefect import runtime
-
 from pipelines.capture__jae_backup_billingpay.tasks import (
     create_non_filtered_discord_message,
     get_jae_db_config,
@@ -21,7 +19,6 @@ from pipelines.capture__jae_backup_billingpay.tasks import (
 from pipelines.capture__jae_backup_billingpay.utils import get_backup_billing_pay_flow_run_name
 from pipelines.common.capture.jae import constants as jae_constants
 from pipelines.common.tasks import (
-    get_run_env,
     get_scheduled_timestamp,
     initialize_sentry,
     setup_environment,
@@ -44,7 +41,8 @@ def capture__jae_backup_billingpay(
         end_datetime (Optional[str]): Data/hora final
     """
 
-    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
+    # env = get_run_env(env=env, deployment_name=runtime.deployment.name)
+    env = "prod"
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env)
 
