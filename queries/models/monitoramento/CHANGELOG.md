@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar as partições de `aux_viagem_temperatura` / `aux_veiculo_falha_ar_condicionado` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular fica limitada a datas anteriores a essa versão.
+- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar as partições de `aux_viagem_temperatura` / `aux_veiculo_falha_ar_condicionado` alteradas entre `date_range_start` e `date_range_end` nos últimos 5 dias (`viagem_validacao_max_age_days`), apenas a partir de `DATA_SUBSIDIO_V25_INICIO`. A janela regular fica limitada a datas anteriores a essa versão. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ## [2.3.0] - 2026-09-30
 

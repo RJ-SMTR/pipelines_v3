@@ -7,9 +7,7 @@
 }}
 
 {% set viagem_valida = ref("viagem_valida") %}
-{% if execute and is_incremental() and var(
-    "flow_name"
-) == "treatment--monitoramento-temperatura" %}
+{% if execute and is_incremental() %}
     {% set modified_partitions = get_modified_partitions_filter(
         viagem_valida,
         truncate_date=true,
@@ -34,7 +32,18 @@
         )
         and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
     {% else %}
-        data between date("{{var('start_date')}}") and date("{{var('end_date')}}") and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
+        (
+            data between date("{{ var('start_date') }}") and date(
+                "{{ var('end_date') }}"
+            )
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V15_INICIO') }}")
     {% endif %}
 {% endset %}
 
