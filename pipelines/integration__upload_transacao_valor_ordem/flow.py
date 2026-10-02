@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Flow de upload periódico de transacao_valor_ordem do BigQuery para o banco do CCT."""
+
 from typing import Optional
 
 from prefect import runtime

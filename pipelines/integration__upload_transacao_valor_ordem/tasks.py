@@ -137,9 +137,7 @@ def export_data_from_bq_to_gcs(  # noqa: PLR0913
     sql = transacao_select.format(cols="count(1) as ct", count=1)
     print(f"Executando query:\n{sql}")
     limit = pandas_gbq.read_gbq(sql, project_id=project_id)["ct"].max()
-    export_uri = (
-        f"gs://{CCT_PRIVATE_BUCKET_NAMES[env]}/{constants.EXPORT_GCS_PREFIX}/{file_name}"
-    )
+    export_uri = f"gs://{CCT_PRIVATE_BUCKET_NAMES[env]}/{constants.EXPORT_GCS_PREFIX}/{file_name}"
     cols = "*, current_datetime('America/Sao_Paulo') as datetime_export"
     sql = f"""
         EXPORT DATA
