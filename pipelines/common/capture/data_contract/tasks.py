@@ -7,11 +7,14 @@ import yaml
 from datacontract.data_contract import DataContract
 from prefect import task
 from prefect.cache_policies import NO_CACHE
+from rich.console import Console
 
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
     add_local_server,
     download_contracts_from_commit,
+    print_test_results_summary,
+    print_test_results_table,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
@@ -61,6 +64,7 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         ignored_columns=source.data_contract_ignored_columns,
         primary_keys=source.primary_keys,
     )
+    console = Console(force_terminal=False, width=120)
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
@@ -68,6 +72,17 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         result = DataContract(
             data_contract_str=yaml.safe_dump(runtime_contract), server="incoming"
         ).test()
+        console.print(f"Testing {contract_path.name}")
+        console.print(
+            f"Server: incoming (type=local, format={source.raw_filetype}, path={raw_filepath})"
+        )
+        print_test_results_table(result, console)
+        print_test_results_summary(result, console)
         if not result.has_passed():
-            raise ValueError(f"Falha no contrato de {raw_filepath}: {result.model_dump_json()}")
-        print(f"Contrato validado: {raw_filepath} ({len(result.checks)} verificações)")
+            failed_checks = [
+                check for check in result.checks if check.result not in ("passed", "skipped")
+            ]
+            raise ValueError(
+                f"Falha no contrato de {raw_filepath}: "
+                f"{len(failed_checks)} de {len(result.checks)} checks falharam."
+            )

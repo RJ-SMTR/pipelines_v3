@@ -12,6 +12,11 @@ from urllib.parse import quote
 import requests
 import yaml
 from datacontract.data_contract import DataContract
+from datacontract.model.run import Run
+from rich import box
+from rich.console import Console
+from rich.markup import escape
+from rich.table import Table
 
 from pipelines.common.capture.data_contract.constants import (
     CAPTURE_METADATA_COLUMNS,
@@ -22,6 +27,81 @@ from pipelines.common.capture.data_contract.constants import (
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
 from pipelines.common.utils.utils import is_running_locally
+
+
+def to_field(run: Run, check: Any) -> str | None:
+    """Retorna o campo qualificado quando o resultado contém vários modelos."""
+    models = [item.model for item in run.checks]
+    if len(set(models)) > 1:
+        if check.field is None:
+            return check.model
+        return f"{check.model}.{check.field}"
+    return check.field
+
+
+def with_markup(result: Any) -> Any:
+    """Aplica a cor usada pela CLI do datacontract ao status do check."""
+    if result == "passed":
+        return "[green]passed[/green]"
+    if result == "warning":
+        return "[yellow]warning[/yellow]"
+    if result == "failed":
+        return "[red]failed[/red]"
+    if result == "error":
+        return "[red]error[/red]"
+    if result == "skipped":
+        return "[dim blue]skipped[/dim blue]"
+    return result
+
+
+def _print_failed_checks(run: Run, console: Console) -> None:
+    position = 1
+    for check in run.checks:
+        if check.result in ("passed", "skipped"):
+            continue
+        field = to_field(run, check)
+        field = f"{field} " if field else ""
+        console.print(f"{position}) {field}{check.name}: {escape(str(check.reason))}")
+        position += 1
+
+
+def print_test_results_table(run: Run, console: Console) -> None:
+    """Imprime a tabela de checks usando o mesmo formato da CLI do datacontract."""
+    table = Table(box=box.ROUNDED)
+    table.add_column("Result", no_wrap=True)
+    table.add_column("Check", max_width=100)
+    table.add_column("Field", max_width=32)
+    table.add_column("Details", max_width=50)
+    for check in sorted(
+        run.checks, key=lambda item: (item.result or "", item.model or "", item.field or "")
+    ):
+        table.add_row(
+            with_markup(check.result),
+            check.name,
+            to_field(run, check),
+            escape(str(check.reason)) if check.reason else None,
+        )
+    console.print(table)
+
+
+def print_test_results_summary(run: Run, console: Console) -> None:
+    """Imprime o resumo textual dos checks, sem encerrar o processo."""
+    if run.result == "passed":
+        skipped = sum(1 for check in run.checks if check.result == "skipped")
+        skipped_info = f" ({skipped} skipped)" if skipped else ""
+        console.print(
+            "🟢 data contract is valid. "
+            f"Run {len(run.checks)} checks{skipped_info}. "
+            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds."
+        )
+    elif run.result == "skipped":
+        console.print("🔵 data contract was skipped")
+    elif run.result == "warning":
+        console.print("🟠 data contract has warnings. Found the following warnings:")
+        _print_failed_checks(run, console)
+    else:
+        console.print("🔴 data contract is invalid, found the following errors:")
+        _print_failed_checks(run, console)
 
 
 def _github_get(
