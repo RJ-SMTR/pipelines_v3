@@ -1,5 +1,11 @@
 # Changelog - riorotativo
 
+## [Unreleased]
+
+### Adicionado
+
+- Adiciona o modelo base do guardador para documentar os campos brutos, validar CPF e unicidade da identificação e reutilizá-los no staging.
+
 ## [1.2.2] - 2026-09-01
 
 ### Adicionado

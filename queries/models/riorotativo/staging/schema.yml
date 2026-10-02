@@ -3,44 +3,43 @@ version: 2
 models:
   - name: staging_guardador_veiculo_riorotativo
     description: |
-      Uma linha por guardador de veículo (documento) por entidade credenciadora (cnpj), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use documento e data para junções.
+      Uma linha por guardador de veículo (cpf) por entidade credenciadora (cnpj), por data de captura.
+      Staging com os nomes das colunas da captura, deduplicado pela última captura de cada dia.
+      As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
       Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
       Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [cpf]
     columns:
       - name: data
         description: "{{ doc('data_captura') }} (partição)"
         data_type: date
-      - name: documento
-        description: "{{ doc('documento_cliente') }}"
+      - name: cpf
+        description: "{{ doc('cpf_guardador') }}"
         data_type: string
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
-        tests:
-          - not_null:
-              name: not_null__documento__staging_guardador_veiculo_riorotativo
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations__expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
-              arguments:
-                regex: "^[0-9]{11}$"
-      - name: tipo_documento
-        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
-        data_type: string
-      - name: numero_identificacao
+      - name: identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
-        tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__staging_guardador_veiculo_riorotativo
-              arguments:
-                regex: "^[0-9]+$"
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                - type: library
+                  metric: nullValues
+                  mustBe: 0
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
-      - name: datetime_captura
-        description: "{{ doc('datetime_captura') }}"
-        data_type: datetime
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
 
   - name: staging_agente_verificacao_riorotativo
     description: |
