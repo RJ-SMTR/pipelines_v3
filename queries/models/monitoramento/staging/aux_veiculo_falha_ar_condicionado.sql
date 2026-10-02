@@ -21,19 +21,34 @@
 {% endif %}
 
 {% set incremental_filter %}
-    (
-        data between date("{{var('date_range_start')}}") and date(
-            "{{var('date_range_end')}}"
-        )
-        and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-        {% if is_incremental() and modified_partitions | length > 0 %}
-            or (
-                data in ({{ modified_partitions | join(", ") }})
-                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+    {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+        (
+            data between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
             )
-        {% endif %}
-    )
-    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% else %}
+        (
+            data between date("{{ var('start_date') }}") and date(
+                "{{ var('end_date') }}"
+            )
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% endif %}
 {% endset %}
 
 {% set condicao_falha %}
@@ -159,22 +174,43 @@ with
         from agg_viagem_temperatura
     ),
     datas as (
-        select data
-        from
-            unnest(
-                generate_date_array(
-                    date("{{var('date_range_start')}}"),
-                    date("{{var('date_range_end')}}")
-                )
-            ) as data
-        where
-            data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-        {% if is_incremental() and modified_partitions | length > 0 %}
-            union distinct
-            select date(partition_date) as data
-            from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
-            where date(partition_date) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+            select data
+            from
+                unnest(
+                    generate_date_array(
+                        date("{{ var('date_range_start') }}"),
+                        date("{{ var('date_range_end') }}")
+                    )
+                ) as data
+            where
+                data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                union distinct
+                select date(partition_date) as data
+                from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
+                where
+                    date(partition_date)
+                    >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% endif %}
+        {% else %}
+            select data
+            from
+                unnest(
+                    generate_date_array(
+                        date("{{ var('start_date') }}"), date("{{ var('end_date') }}")
+                    )
+                ) as data
+            where data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                union distinct
+                select date(partition_date) as data
+                from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
+                where
+                    date(partition_date)
+                    >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% endif %}
         {% endif %}
     ),
     {% if is_incremental() %}
