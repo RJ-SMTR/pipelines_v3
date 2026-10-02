@@ -61,7 +61,10 @@ def _print_failed_checks(run: Run, console: Console) -> None:
             continue
         field = to_field(run, check)
         field = f"{field} " if field else ""
-        console.print(f"{position}) {field}{check.name}: {escape(str(check.reason))}")
+        console.print(
+            f"{position}) {field}{check.name}: {escape(str(check.reason))}",
+            soft_wrap=True,
+        )
         if check.failedSamples:
             console.print("   Failed samples:")
             for sample in check.failedSamples:
@@ -97,7 +100,8 @@ def print_test_results_summary(run: Run, console: Console) -> None:
         console.print(
             "🟢 data contract is valid. "
             f"Run {len(run.checks)} checks{skipped_info}. "
-            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds."
+            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds.",
+            soft_wrap=True,
         )
     elif run.result == "skipped":
         console.print("🔵 data contract was skipped")

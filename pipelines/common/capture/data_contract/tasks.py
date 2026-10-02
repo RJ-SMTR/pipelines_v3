@@ -70,15 +70,16 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
         )
         output = StringIO()
-        console = Console(file=output, force_terminal=False, soft_wrap=True, width=120)
+        console = Console(file=output, force_terminal=False, width=100)
         result = DataContract(
             data_contract_str=yaml.safe_dump(runtime_contract),
             server="incoming",
             include_failed_samples=True,
         ).test()
-        console.print(f"Testing {contract_path.name}")
+        console.print(f"Testing {contract_path.name}", soft_wrap=True)
         console.print(
-            f"Server: incoming (type=local, format={source.raw_filetype}, path={raw_filepath})"
+            f"Server: incoming (type=local, format={source.raw_filetype}, path={raw_filepath})",
+            soft_wrap=True,
         )
         print_test_results_table(result, console)
         print_test_results_summary(result, console)
