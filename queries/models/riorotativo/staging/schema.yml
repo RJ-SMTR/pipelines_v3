@@ -22,6 +22,9 @@ models:
             datacontract_cli:
               quality:
                 - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                - type: library
                   metric: nullValues
                   mustBe: 0
       - name: identificacao
