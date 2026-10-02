@@ -3,11 +3,10 @@
 
 import json
 import os
-import re
 from collections.abc import Iterable
 from copy import deepcopy
-from io import StringIO
 from pathlib import Path
+from textwrap import wrap
 from typing import Any
 from urllib.parse import quote
 
@@ -15,11 +14,6 @@ import requests
 import yaml
 from datacontract.data_contract import DataContract
 from datacontract.model.run import Run
-from prefect.artifacts import create_markdown_artifact
-from rich import box
-from rich.console import Console
-from rich.markup import escape
-from rich.table import Table
 
 from pipelines.common.capture.data_contract.constants import (
     CAPTURE_METADATA_COLUMNS,
@@ -30,6 +24,18 @@ from pipelines.common.capture.data_contract.constants import (
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
 from pipelines.common.utils.utils import is_running_locally
+
+
+def _result_value(result: Any) -> str:
+    """Retorna o valor textual de um resultado, inclusive quando ele é um enum.
+
+    Args:
+        result (Any): Resultado retornado pelo datacontract.
+
+    Returns:
+        str: Valor textual do resultado.
+    """
+    return getattr(result, "value", str(result))
 
 
 def to_field(run: Run, check: Any) -> str | None:
@@ -50,149 +56,179 @@ def to_field(run: Run, check: Any) -> str | None:
     return check.field
 
 
-def with_markup(result: Any) -> Any:
-    """Converte o status do check em markup de cor compatível com o Rich.
+def _format_table_border(widths: tuple[int, ...]) -> str:
+    """Cria a borda ASCII usada no início, meio e fim da tabela.
 
     Args:
-        result (Any): Status do check, como ``passed`` ou ``failed``.
+        widths (tuple[int, ...]): Largura de cada coluna.
 
     Returns:
-        Any: Status com markup Rich ou o valor original quando não há mapeamento.
+        str: Linha de borda com a largura das colunas informada.
     """
-    if result == "passed":
-        return "[green]passed[/green]"
-    if result == "warning":
-        return "[yellow]warning[/yellow]"
-    if result == "failed":
-        return "[red]failed[/red]"
-    if result == "error":
-        return "[red]error[/red]"
-    if result == "skipped":
-        return "[dim blue]skipped[/dim blue]"
-    return result
+    return "+" + "+".join("-" * (width + 2) for width in widths) + "+"
 
 
-def _print_failed_checks(run: Run, console: Console) -> None:
-    """Imprime checks não aprovados e amostras coletadas, quando disponíveis.
+def _wrap_cell(value: Any, width: int) -> list[str]:
+    """Quebra o conteúdo de uma célula na largura definida para a tabela.
+
+    Args:
+        value (Any): Valor que será exibido na célula.
+        width (int): Largura máxima da célula.
+
+    Returns:
+        list[str]: Linhas da célula já ajustadas à largura informada.
+    """
+    text = "" if value is None else str(value)
+    lines = []
+    for line in text.splitlines() or [""]:
+        lines.extend(wrap(line, width=width, break_long_words=True, break_on_hyphens=False) or [""])
+    return lines
+
+
+def _format_table_row(values: list[Any], widths: tuple[int, ...]) -> list[str]:
+    """Formata uma linha textual, preservando o alinhamento entre as células.
+
+    Args:
+        values (list[Any]): Valores das células da linha.
+        widths (tuple[int, ...]): Largura de cada coluna.
+
+    Returns:
+        list[str]: Linhas da tabela correspondentes à linha formatada.
+    """
+    wrapped_values = [_wrap_cell(value, width) for value, width in zip(values, widths, strict=True)]
+    return [
+        "| "
+        + " | ".join(
+            (cell_lines[index] if index < len(cell_lines) else "").ljust(width)
+            for cell_lines, width in zip(wrapped_values, widths, strict=True)
+        )
+        + " |"
+        for index in range(max(map(len, wrapped_values)))
+    ]
+
+
+def _format_test_results_table(run: Run) -> str:
+    """Formata os checks em uma tabela ASCII de largura controlada.
 
     Args:
         run (Run): Resultado do teste do contrato.
-        console (Console): Console usado para renderizar os detalhes.
 
     Returns:
-        None: A saída é escrita diretamente no console informado.
+        str: Tabela textual dos checks, sem renderização Rich.
     """
+    widths = (8, 28, 15, 22)
+    border = _format_table_border(widths)
+    lines = [
+        border,
+        *_format_table_row(["Result", "Check", "Field", "Details"], widths),
+        border,
+    ]
+    checks = sorted(
+        run.checks,
+        key=lambda item: (
+            _result_value(item.result),
+            item.model or "",
+            item.field or "",
+        ),
+    )
+    for check in checks:
+        lines.extend(
+            _format_table_row(
+                [
+                    _result_value(check.result),
+                    check.name,
+                    to_field(run, check),
+                    check.reason,
+                ],
+                widths,
+            )
+        )
+    lines.append(border)
+    return "\n".join(lines)
+
+
+def _format_failed_checks(run: Run, width: int = 88) -> list[str]:
+    """Formata os checks reprovados e as amostras coletadas.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        width (int): Largura máxima das linhas do resumo.
+
+    Returns:
+        list[str]: Linhas com os motivos e as amostras dos checks reprovados.
+    """
+    lines = []
     position = 1
     for check in run.checks:
-        if check.result in ("passed", "skipped"):
+        if _result_value(check.result) in ("passed", "skipped"):
             continue
         field = to_field(run, check)
-        field = f"{field} " if field else ""
-        console.print(f"{position}) {field}{check.name}: {escape(str(check.reason))}")
+        prefix = f"{position}) {field + ' ' if field else ''}{check.name}: "
+        reason_lines = wrap(
+            prefix + str(check.reason or ""),
+            width=width,
+            subsequent_indent="   ",
+            break_long_words=True,
+            break_on_hyphens=False,
+        )
+        lines.extend(reason_lines or [prefix.rstrip()])
         if check.failedSamples:
-            console.print("   Failed samples:")
+            lines.append("   Failed samples:")
             for sample in check.failedSamples:
                 sample_json = json.dumps(sample, ensure_ascii=False, default=str)
-                console.print(f"   - {escape(sample_json)}")
+                lines.extend(
+                    wrap(
+                        f"   - {sample_json}",
+                        width=width,
+                        subsequent_indent="     ",
+                        break_long_words=True,
+                        break_on_hyphens=False,
+                    )
+                )
         position += 1
+    return lines
 
 
-def print_test_results_table(run: Run, console: Console) -> None:
-    """Imprime a tabela de checks usando o mesmo formato da CLI do datacontract.
-
-    Args:
-        run (Run): Resultado do teste do contrato.
-        console (Console): Console usado para renderizar a tabela.
-    """
-    table = Table(box=box.ROUNDED)
-    table.add_column("Result", no_wrap=True)
-    table.add_column("Check", max_width=100)
-    table.add_column("Field", max_width=32)
-    table.add_column("Details", max_width=50)
-    for check in sorted(
-        run.checks, key=lambda item: (item.result or "", item.model or "", item.field or "")
-    ):
-        table.add_row(
-            with_markup(check.result),
-            check.name,
-            to_field(run, check),
-            escape(str(check.reason)) if check.reason else None,
-        )
-    console.print(table)
-
-
-def print_test_results_summary(run: Run, console: Console) -> None:
-    """Imprime o resumo textual dos checks, sem encerrar o processo.
+def _format_test_results_summary(run: Run) -> list[str]:
+    """Formata o resumo textual do resultado do contrato.
 
     Args:
         run (Run): Resultado do teste do contrato.
-        console (Console): Console usado para renderizar o resumo.
-    """
-    if run.result == "passed":
-        skipped = sum(1 for check in run.checks if check.result == "skipped")
-        skipped_info = f" ({skipped} skipped)" if skipped else ""
-        console.print(
-            "🟢 data contract is valid. "
-            f"Run {len(run.checks)} checks{skipped_info}. "
-            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds."
-        )
-    elif run.result == "skipped":
-        console.print("🔵 data contract was skipped")
-    elif run.result == "warning":
-        console.print("🟠 data contract has warnings. Found the following warnings:")
-        _print_failed_checks(run, console)
-    else:
-        console.print("🔴 data contract is invalid, found the following errors:")
-        _print_failed_checks(run, console)
-
-
-def create_data_contract_artifact(
-    run: Run,
-    *,
-    contract_name: str,
-    raw_filepath: str,
-    server_name: str,
-    table_id: str,
-) -> str:
-    """Cria um único artifact Markdown com a tabela e o resumo do teste.
-
-    A tabela e o resumo são renderizados pelas funções equivalentes à saída da CLI do
-    datacontract e armazenados juntos em um bloco de texto pré-formatado.
-
-    Args:
-        run (Run): Resultado do teste do contrato.
-        contract_name (str): Nome do arquivo do contrato validado.
-        raw_filepath (str): Caminho do arquivo bruto validado.
-        server_name (str): Nome do servidor usado no teste.
-        table_id (str): Identificador da tabela usado na key do artifact.
 
     Returns:
-        str: Key do artifact criado no Prefect.
+        list[str]: Linhas do resumo, incluindo erros e amostras quando existirem.
     """
-    normalized_table_id = re.sub(r"[^a-z0-9]+", "-", table_id.lower()).strip("-")
-    artifact_key = f"data-contract-{normalized_table_id or 'validation'}"
-    output = StringIO()
-    console = Console(file=output, force_terminal=False, soft_wrap=True, width=160)
-    console.print(f"Testing {contract_name}")
-    console.print(f"Server: {server_name} (path={raw_filepath})")
-    print_test_results_table(run, console)
-    print_test_results_summary(run, console)
-
-    markdown = "\n".join(
-        [
-            f"# Data contract validation for `{table_id}`",
-            "",
-            "```text",
-            output.getvalue().rstrip(),
-            "```",
+    if _result_value(run.result) == "passed":
+        skipped = sum(1 for check in run.checks if _result_value(check.result) == "skipped")
+        skipped_info = f" ({skipped} skipped)" if skipped else ""
+        duration = (run.timestampEnd - run.timestampStart).total_seconds()
+        return [
+            "🟢 data contract is valid. "
+            f"Run {len(run.checks)} checks{skipped_info}. Took {duration} seconds."
         ]
-    )
-    create_markdown_artifact(
-        markdown=markdown,
-        key=artifact_key,
-        description=f"Data contract validation for {table_id}",
-    )
-    return artifact_key
+    if _result_value(run.result) == "skipped":
+        return ["🔵 data contract was skipped"]
+    if _result_value(run.result) == "warning":
+        return [
+            "🟠 data contract has warnings. Found the following warnings:",
+            *_format_failed_checks(run),
+        ]
+    return ["🔴 data contract is invalid, found the following errors:", *_format_failed_checks(run)]
+
+
+def format_test_results(run: Run) -> str:
+    """Formata tabela, sumário e amostras para impressão direta no log.
+
+    A saída usa somente texto ASCII na tabela e quebras de linha controladas, evitando
+    a renderização Rich e a quebra estrutural da tabela na interface de logs do Prefect.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+
+    Returns:
+        str: Texto com largura controlada para ser escrito diretamente no log.
+    """
+    return "\n".join([_format_test_results_table(run), *_format_test_results_summary(run)])
 
 
 def _github_get(

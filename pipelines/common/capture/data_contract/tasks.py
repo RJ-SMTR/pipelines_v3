@@ -11,8 +11,8 @@ from prefect.cache_policies import NO_CACHE
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
     add_local_server,
-    create_data_contract_artifact,
     download_contracts_from_commit,
+    format_test_results,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
@@ -44,11 +44,10 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         contracts_dir (Path | None): Diretório com os contratos baixados.
 
     Returns:
-        None: Cria o artifact da validação e conclui, ou interrompe o flow com uma exceção.
+        None: Registra a validação no log e conclui, ou interrompe o flow com uma exceção.
 
     Raises:
-        ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada. Em caso de
-            reprovação, a mensagem informa a key do artifact com os detalhes.
+        ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada.
     """
     source = context.source
     if not source.validate_data_contract:
@@ -72,12 +71,10 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             server="incoming",
             include_failed_samples=True,
         ).test()
-        artifact_key = create_data_contract_artifact(
-            result,
-            contract_name=contract_path.name,
-            raw_filepath=raw_filepath,
-            server_name="incoming",
-            table_id=source.table_id,
+        print(
+            f"Testing {contract_path.name}\n"
+            f"Server: incoming (path={raw_filepath})\n"
+            f"{format_test_results(result)}"
         )
         if not result.has_passed():
             failed_checks = [
@@ -85,8 +82,6 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             ]
             raise ValueError(
                 f"Falha no contrato de {raw_filepath}: "
-                f"{len(failed_checks)} de {len(result.checks)} checks falharam. "
-                f"Consulte o artifact '{artifact_key}' "
-                "na aba Artifacts do flow run."
+                f"{len(failed_checks)} de {len(result.checks)} checks falharam."
             )
         print(f"Contrato validado: {raw_filepath} ({len(result.checks)} verificações).")
