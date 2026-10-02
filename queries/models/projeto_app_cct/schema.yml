@@ -25,6 +25,59 @@ models:
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
+  - name: transacao_valor_ordem_cct
+    description: "View com as 9 colunas de transacao_valor_ordem expostas para o CCT."
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }} [partição]"
+      - name: data_transacao
+        description: "{{ doc('data_transacao') }}"
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+      - name: id_operadora
+        description: "{{ doc('id_operadora') }}"
+      - name: valor_transacao_rateio
+        description: Valor da transação com o rateio [se houver] (R$)
+      - name: id_ordem_pagamento
+        description: "{{ doc('id_ordem_pagamento') }}"
+      - name: id_ordem_pagamento_consorcio_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_dia') }}"
+      - name: id_ordem_pagamento_consorcio_operador_dia
+        description: "{{ doc('id_ordem_pagamento_consorcio_operador_dia') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: teste_sincronizacao_transacao_valor_ordem_cct
+    description: "Tabela para testar a sincronia entre transacao_valor_ordem do BigQuery e o DB do App CCT."
+    tests:
+      - dbt_utils.expression_is_true:
+          name: dbt_utils__expression_is_true__teste_sincronizacao_transacao_valor_ordem_cct
+          config:
+            where: "true"
+          arguments:
+            expression: "(SELECT COUNT(*) FROM {{ ref('teste_sincronizacao_transacao_valor_ordem_cct') }}) = 0"
+    columns:
+      - name: data_ordem
+        description: "{{ doc('data_ordem') }}, prioritariamente o valor do BigQuery [partição]"
+      - name: data_ordem_bigquery
+        description: "{{ doc('data_ordem') }} no BigQuery"
+      - name: data_ordem_postgres
+        description: "{{ doc('data_ordem') }} no DB do App CCT"
+      - name: id_transacao
+        description: "{{ doc('id_transacao') }}"
+      - name: sha_dados_bigquery
+        description: Hash dos dados da transação no BigQuery
+      - name: sha_dados_postgres
+        description: Hash dos dados da transação no DB do App CCT
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+
   - name: teste_sincronizacao_transacao_cct
     description: "Tabela para testar a sincronia entre as transações do BigQuery e as transações salvas no DB do App CCT."
     tests:

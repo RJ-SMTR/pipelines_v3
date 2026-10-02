@@ -684,6 +684,11 @@ selectors:
       method: fqn
       value: teste_sincronizacao_transacao_cct
 
+  - name: teste_sincronizacao_transacao_valor_ordem_cct
+    definition:
+      method: fqn
+      value: teste_sincronizacao_transacao_valor_ordem_cct
+
   - name: operadora_cnpj
     definition:
       method: fqn
