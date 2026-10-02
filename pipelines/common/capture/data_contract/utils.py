@@ -3,8 +3,10 @@
 
 import json
 import os
+import re
 from collections.abc import Iterable
 from copy import deepcopy
+from io import StringIO
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -13,6 +15,7 @@ import requests
 import yaml
 from datacontract.data_contract import DataContract
 from datacontract.model.run import Run
+from prefect.artifacts import create_markdown_artifact
 from rich import box
 from rich.console import Console
 from rich.markup import escape
@@ -30,7 +33,15 @@ from pipelines.common.utils.utils import is_running_locally
 
 
 def to_field(run: Run, check: Any) -> str | None:
-    """Retorna o campo qualificado quando o resultado contém vários modelos."""
+    """Retorna o campo do check, qualificando-o quando há vários modelos.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        check (Any): Check cujo campo será exibido.
+
+    Returns:
+        str | None: Campo simples ou qualificado pelo nome do modelo.
+    """
     models = [item.model for item in run.checks]
     if len(set(models)) > 1:
         if check.field is None:
@@ -40,7 +51,14 @@ def to_field(run: Run, check: Any) -> str | None:
 
 
 def with_markup(result: Any) -> Any:
-    """Aplica a cor usada pela CLI do datacontract ao status do check."""
+    """Converte o status do check em markup de cor compatível com o Rich.
+
+    Args:
+        result (Any): Status do check, como ``passed`` ou ``failed``.
+
+    Returns:
+        Any: Status com markup Rich ou o valor original quando não há mapeamento.
+    """
     if result == "passed":
         return "[green]passed[/green]"
     if result == "warning":
@@ -55,16 +73,22 @@ def with_markup(result: Any) -> Any:
 
 
 def _print_failed_checks(run: Run, console: Console) -> None:
+    """Imprime checks não aprovados e amostras coletadas, quando disponíveis.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        console (Console): Console usado para renderizar os detalhes.
+
+    Returns:
+        None: A saída é escrita diretamente no console informado.
+    """
     position = 1
     for check in run.checks:
         if check.result in ("passed", "skipped"):
             continue
         field = to_field(run, check)
         field = f"{field} " if field else ""
-        console.print(
-            f"{position}) {field}{check.name}: {escape(str(check.reason))}",
-            soft_wrap=True,
-        )
+        console.print(f"{position}) {field}{check.name}: {escape(str(check.reason))}")
         if check.failedSamples:
             console.print("   Failed samples:")
             for sample in check.failedSamples:
@@ -74,7 +98,12 @@ def _print_failed_checks(run: Run, console: Console) -> None:
 
 
 def print_test_results_table(run: Run, console: Console) -> None:
-    """Imprime a tabela de checks usando o mesmo formato da CLI do datacontract."""
+    """Imprime a tabela de checks usando o mesmo formato da CLI do datacontract.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        console (Console): Console usado para renderizar a tabela.
+    """
     table = Table(box=box.ROUNDED)
     table.add_column("Result", no_wrap=True)
     table.add_column("Check", max_width=100)
@@ -93,15 +122,19 @@ def print_test_results_table(run: Run, console: Console) -> None:
 
 
 def print_test_results_summary(run: Run, console: Console) -> None:
-    """Imprime o resumo textual dos checks, sem encerrar o processo."""
+    """Imprime o resumo textual dos checks, sem encerrar o processo.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        console (Console): Console usado para renderizar o resumo.
+    """
     if run.result == "passed":
         skipped = sum(1 for check in run.checks if check.result == "skipped")
         skipped_info = f" ({skipped} skipped)" if skipped else ""
         console.print(
             "🟢 data contract is valid. "
             f"Run {len(run.checks)} checks{skipped_info}. "
-            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds.",
-            soft_wrap=True,
+            f"Took {(run.timestampEnd - run.timestampStart).total_seconds()} seconds."
         )
     elif run.result == "skipped":
         console.print("🔵 data contract was skipped")
@@ -111,6 +144,55 @@ def print_test_results_summary(run: Run, console: Console) -> None:
     else:
         console.print("🔴 data contract is invalid, found the following errors:")
         _print_failed_checks(run, console)
+
+
+def create_data_contract_artifact(
+    run: Run,
+    *,
+    contract_name: str,
+    raw_filepath: str,
+    server_name: str,
+    table_id: str,
+) -> str:
+    """Cria um único artifact Markdown com a tabela e o resumo do teste.
+
+    A tabela e o resumo são renderizados pelas funções equivalentes à saída da CLI do
+    datacontract e armazenados juntos em um bloco de texto pré-formatado.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        contract_name (str): Nome do arquivo do contrato validado.
+        raw_filepath (str): Caminho do arquivo bruto validado.
+        server_name (str): Nome do servidor usado no teste.
+        table_id (str): Identificador da tabela usado na key do artifact.
+
+    Returns:
+        str: Key do artifact criado no Prefect.
+    """
+    normalized_table_id = re.sub(r"[^a-z0-9]+", "-", table_id.lower()).strip("-")
+    artifact_key = f"data-contract-{normalized_table_id or 'validation'}"
+    output = StringIO()
+    console = Console(file=output, force_terminal=False, soft_wrap=True, width=160)
+    console.print(f"Testing {contract_name}")
+    console.print(f"Server: {server_name} (path={raw_filepath})")
+    print_test_results_table(run, console)
+    print_test_results_summary(run, console)
+
+    markdown = "\n".join(
+        [
+            f"# Data contract validation for `{table_id}`",
+            "",
+            "```text",
+            output.getvalue().rstrip(),
+            "```",
+        ]
+    )
+    create_markdown_artifact(
+        markdown=markdown,
+        key=artifact_key,
+        description=f"Data contract validation for {table_id}",
+    )
+    return artifact_key
 
 
 def _github_get(

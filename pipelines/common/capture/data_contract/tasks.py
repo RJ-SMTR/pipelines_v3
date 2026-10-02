@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 """Tasks Prefect para baixar contratos versionados e validar os arquivos brutos."""
 
-from io import StringIO
 from pathlib import Path
 
 import yaml
 from datacontract.data_contract import DataContract
 from prefect import task
 from prefect.cache_policies import NO_CACHE
-from rich.console import Console
 
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
     add_local_server,
+    create_data_contract_artifact,
     download_contracts_from_commit,
-    print_test_results_summary,
-    print_test_results_table,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 
@@ -47,10 +44,11 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         contracts_dir (Path | None): Diretório com os contratos baixados.
 
     Returns:
-        None: A validação é concluída por efeito ou interrompe o flow com uma exceção.
+        None: Cria o artifact da validação e conclui, ou interrompe o flow com uma exceção.
 
     Raises:
-        ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada.
+        ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada. Em caso de
+            reprovação, a mensagem informa a key do artifact com os detalhes.
     """
     source = context.source
     if not source.validate_data_contract:
@@ -69,26 +67,26 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         runtime_contract = add_local_server(
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
         )
-        output = StringIO()
-        console = Console(file=output, force_terminal=False, width=100)
         result = DataContract(
             data_contract_str=yaml.safe_dump(runtime_contract),
             server="incoming",
             include_failed_samples=True,
         ).test()
-        console.print(f"Testing {contract_path.name}", soft_wrap=True)
-        console.print(
-            f"Server: incoming (type=local, format={source.raw_filetype}, path={raw_filepath})",
-            soft_wrap=True,
+        artifact_key = create_data_contract_artifact(
+            result,
+            contract_name=contract_path.name,
+            raw_filepath=raw_filepath,
+            server_name="incoming",
+            table_id=source.table_id,
         )
-        print_test_results_table(result, console)
-        print_test_results_summary(result, console)
-        print(output.getvalue(), end="")
         if not result.has_passed():
             failed_checks = [
                 check for check in result.checks if check.result not in ("passed", "skipped")
             ]
             raise ValueError(
                 f"Falha no contrato de {raw_filepath}: "
-                f"{len(failed_checks)} de {len(result.checks)} checks falharam."
+                f"{len(failed_checks)} de {len(result.checks)} checks falharam. "
+                f"Consulte o artifact '{artifact_key}' "
+                "na aba Artifacts do flow run."
             )
+        print(f"Contrato validado: {raw_filepath} ({len(result.checks)} verificações).")
