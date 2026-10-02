@@ -11,7 +11,7 @@
     {% set modified_partitions = get_modified_partitions_filter(
         viagem_valida,
         truncate_date=true,
-        max_age_days=var("viagem_validacao_max_age_days", 5),
+        max_age_days=var("viagem_validacao_max_age_days", 6),
     ) %}
 {% else %} {% set modified_partitions = [] %}
 {% endif %}
