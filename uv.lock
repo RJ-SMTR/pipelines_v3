@@ -39,6 +39,7 @@ members = [
     "capture-sonda-viagem-informada",
     "capture-sppo-realocacao",
     "capture-sppo-registros",
+    "capture-smtr-gtfs",
     "capture-stu-tabelas",
     "capture-veiculo-fiscalizacao-lacre",
     "capture-veiculo-infracao",
@@ -78,6 +79,7 @@ members = [
     "treatment-gps-sppo",
     "treatment-gps-validador",
     "treatment-gps-zirix",
+    "treatment-gtfs",
     "treatment-infraestrutura",
     "treatment-integracao",
     "treatment-jae-timestamps-divergentes",
@@ -536,6 +538,23 @@ source = { virtual = "pipelines/capture__sppo_realocacao" }
 name = "capture-sppo-registros"
 version = "1.0.0"
 source = { virtual = "pipelines/capture__sppo_registros" }
+
+[[package]]
+name = "capture-smtr-gtfs"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__smtr_gtfs" }
+dependencies = [
+    { name = "google-api-python-client" },
+    { name = "google-auth" },
+    { name = "openpyxl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-api-python-client", specifier = ">=2.0.0" },
+    { name = "google-auth", specifier = ">=2.0.0" },
+    { name = "openpyxl", specifier = ">=3.1.0" },
+]
 
 [[package]]
 name = "capture-stu-tabelas"
@@ -3301,6 +3320,23 @@ source = { virtual = "pipelines/treatment__gps_validador" }
 name = "treatment-gps-zirix"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_zirix" }
+
+[[package]]
+name = "treatment-gtfs"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gtfs" }
+dependencies = [
+    { name = "google-api-python-client" },
+    { name = "google-auth" },
+    { name = "openpyxl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-api-python-client", specifier = ">=2.0.0" },
+    { name = "google-auth", specifier = ">=2.0.0" },
+    { name = "openpyxl", specifier = ">=3.1.0" },
+]
 
 [[package]]
 name = "treatment-infraestrutura"
