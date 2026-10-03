@@ -229,6 +229,10 @@ class SourceTable(BQTable):
             negativo, cria partição de data e de hora
         max_recaptures (int): número máximo de recapturas executadas de uma só vez
         raw_filetype (str): tipo do dado (json, csv, txt)
+        file_chunk_size (Optional[int]): tamanho de página ou de chunk de leitura
+        transform_in_chunks (bool): transforma CSV/TXT em chunks do tamanho de
+            file_chunk_size
+        partition_key (str): chave Hive da partição de data
 
     """
 
@@ -248,6 +252,8 @@ class SourceTable(BQTable):
         max_recaptures: int = 60,
         raw_filetype: str = "json",
         file_chunk_size: Optional[int] = None,
+        transform_in_chunks: bool = False,
+        partition_key: str = "data",
     ) -> None:
         self.source_name = source_name
         super().__init__(
@@ -261,12 +267,18 @@ class SourceTable(BQTable):
         self.raw_filetype = raw_filetype
         self.primary_keys = primary_keys
         self.partition_date_only = partition_date_only
+        self.partition_key = partition_key
         self.max_recaptures = max_recaptures
         self.first_timestamp = convert_timezone(first_timestamp)
         self.pretreatment_reader_args = pretreatment_reader_args
         self.pretreat_funcs = pretreat_funcs or []
         self.schedule_cron = self._get_schedule_cron()
         self.file_chunk_size = file_chunk_size
+        if file_chunk_size is not None and file_chunk_size < 1:
+            raise ValueError("file_chunk_size deve ser maior que zero")
+        if transform_in_chunks and file_chunk_size is None:
+            raise ValueError("file_chunk_size é obrigatório quando transform_in_chunks=True")
+        self.transform_in_chunks = transform_in_chunks
 
     def _get_schedule_cron(self) -> str:
         """
@@ -380,7 +392,10 @@ class SourceTable(BQTable):
         files = []
         file_length = 23
         for day in days_to_check:
-            prefix = f"source/{self.dataset_id}/{self.table_id}/data={day.date().isoformat()}/"
+            prefix = (
+                f"source/{self.dataset_id}/{self.table_id}/"
+                f"{self.partition_key}={day.date().isoformat()}/"
+            )
             files = files + [
                 convert_timezone(
                     datetime.strptime(b.name.split("/")[-1], "%Y-%m-%d-%H-%M-%S.csv").replace(

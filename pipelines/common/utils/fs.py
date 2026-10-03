@@ -134,7 +134,12 @@ def read_raw_data(filepath: str, reader_args: Optional[dict] = None) -> pd.DataF
     return data
 
 
-def create_partition(timestamp: datetime, partition_date_only: bool) -> str:
+def create_partition(
+    timestamp: datetime,
+    partition_date_only: bool,
+    partition_key: str = "data",
+    partition_value: Optional[str] = None,
+) -> str:
     """
     Cria a partição Hive de acordo com a timestamp
 
@@ -142,6 +147,8 @@ def create_partition(timestamp: datetime, partition_date_only: bool) -> str:
         timestamp (datetime): timestamp de referência
         partition_date_only (bool): True se o particionamento deve ser feito apenas por data
             False se o particionamento deve ser feito por data e hora
+        partition_key (str): nome Hive da partição de data
+        partition_value (Optional[str]): valor de data Hive. Se omitido, usa a data do timestamp.
 
     Returns:
         str: string com o particionamento
@@ -150,7 +157,9 @@ def create_partition(timestamp: datetime, partition_date_only: bool) -> str:
     print("Criando partição...")
     print(f"Timestamp recebida: {timestamp}")
 
-    partition = f"data={timestamp.strftime('%Y-%m-%d')}"
+    if partition_value is None:
+        partition_value = timestamp.strftime("%Y-%m-%d")
+    partition = f"{partition_key}={partition_value}"
     if not partition_date_only:
         partition = f"{partition}/hora={timestamp.strftime('%H')}"
 
