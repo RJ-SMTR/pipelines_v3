@@ -805,20 +805,20 @@ selectors:
           value: models/gtfs
         - method: path
           value: models/planejamento
-      exclude:
-        - method: fqn
-          value: calendario
-        - method: fqn
-          value: aux_calendario_manual
-        - method: fqn
-          value: viagem_planejada_planejamento_dia
-        - method: fqn
-          value: matriz_integracao
-        - method: fqn
-          value: tecnologia_servico
-        - method: fqn
-          value: aux_ordem_servico_faixa_horaria
-        - method: fqn
-          value: servico_planejado_faixa_horaria
-        - method: fqn
-          value: matriz_reparticao_tarifaria
+        - exclude:
+            - method: fqn
+              value: calendario
+            - method: fqn
+              value: aux_calendario_manual
+            - method: fqn
+              value: viagem_planejada_planejamento_dia
+            - method: fqn
+              value: matriz_integracao
+            - method: fqn
+              value: tecnologia_servico
+            - method: fqn
+              value: aux_ordem_servico_faixa_horaria
+            - method: fqn
+              value: servico_planejado_faixa_horaria
+            - method: fqn
+              value: matriz_reparticao_tarifaria
