@@ -1,5 +1,11 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.1.5] - 2026-10-05
+
+### Adicionado
+
+- Adiciona backup do banco `estacionamento_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/729)
+
 ## [1.1.4] - 2026-08-19
 
 ### Adicionado
