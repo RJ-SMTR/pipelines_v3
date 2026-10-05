@@ -7,6 +7,20 @@ from typing import Any
 from datacontract.imports.dbt_importer import import_dbt_manifest
 
 
+def _datacontract_meta(node: dict[str, Any]) -> dict[str, Any]:
+    """
+    Retorna a configuração datacontract_cli de um modelo ou coluna do manifest dbt.
+
+    Args:
+        node (dict[str, Any]): Modelo ou coluna do manifest dbt.
+
+    Returns:
+        dict[str, Any]: Configuração declarada em meta.datacontract_cli.
+    """
+    meta = (node.get("config") or {}).get("meta") or node.get("meta") or {}
+    return meta.get("datacontract_cli") or {}
+
+
 def _library_quality(node: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Extrai as Library Quality Rules dos metadados dbt.
@@ -20,8 +34,7 @@ def _library_quality(node: dict[str, Any]) -> list[dict[str, Any]]:
     Raises:
         ValueError: A configuração não é uma lista de Library Quality Rules.
     """
-    meta = (node.get("config") or {}).get("meta") or node.get("meta") or {}
-    rules = (meta.get("datacontract_cli") or {}).get("quality", [])
+    rules = _datacontract_meta(node).get("quality", [])
     if not isinstance(rules, list) or any(
         not isinstance(rule, dict) or rule.get("type") != "library" for rule in rules
     ):
@@ -33,7 +46,7 @@ def import_contract_from_manifest(
     manifest: dict[str, Any], model: dict[str, Any]
 ) -> dict[str, Any]:
     """
-    Importa o modelo e as Library Quality Rules, sem traduzir testes dbt.
+    Importa o modelo, a chave primária e as Library Quality Rules, sem traduzir testes dbt.
 
     Args:
         manifest (dict[str, Any]): Manifest dbt carregado.
@@ -43,7 +56,8 @@ def import_contract_from_manifest(
         dict[str, Any]: Contrato ODCS com metadados físicos e regras de qualidade.
 
     Raises:
-        ValueError: As regras de qualidade são incompatíveis.
+        ValueError: As regras de qualidade são incompatíveis ou a primaryKey cita
+            coluna inexistente.
     """
     model = copy.deepcopy(model)
     metadata = manifest.get("metadata") or {}
@@ -57,9 +71,11 @@ def import_contract_from_manifest(
     contract = imported.model_dump(by_alias=True, exclude_none=True)
     schema = contract["schema"][0]
     schema["physicalName"] = ".".join(model[key] for key in ("database", "schema", "alias"))
-    meta = (model.get("config") or {}).get("meta") or model.get("meta") or {}
-    primary_keys = (meta.get("datacontract_cli") or {}).get("primaryKey", [])
+    primary_keys = _datacontract_meta(model).get("primaryKey", [])
     properties = {prop["name"]: prop for prop in schema["properties"]}
+    missing = [key for key in primary_keys if key not in properties]
+    if missing:
+        raise ValueError(f"{model['name']}: primaryKey sem coluna: {', '.join(missing)}")
     for position, key in enumerate(primary_keys, start=1):
         properties[key]["primaryKey"] = True
         properties[key]["primaryKeyPosition"] = position
