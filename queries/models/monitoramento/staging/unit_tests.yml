@@ -24,7 +24,7 @@ unit_tests:
           2026-09-16,v_apos_corte,2026-09-16 08:00:00,2026-09-16 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-08-23,v_antes_excecao,2026-08-23 08:00:00,2026-08-23 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-09-15,v_brt,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,BRT-001,trip-1,route-1,shape-1,100,I,brt,maxtrack
-       
+
       - input: ref('gps_validador')
         format: csv
         rows: |
