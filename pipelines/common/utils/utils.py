@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Funções gerais"""
 
+import base64
 import io
 import os
 import uuid
@@ -37,6 +38,9 @@ def custom_serialization(obj: Any) -> Any:
     Returns:
         Any: Object serializado
     """
+    if isinstance(obj, memoryview):
+        return base64.b64encode(obj.tobytes()).decode("ascii")
+
     if isinstance(obj, (pd.Timestamp, date)):
         if isinstance(obj, pd.Timestamp):
             if obj.tzinfo is None:

@@ -1,12 +1,30 @@
 # Changelog - monitoramento
 
-## [2.3.0] - 2026-09-23
+## [2.3.1] - 2026-10-05
 
 ### Alterado
 
 - Altera `viagem_validacao` no modo monitoramento (`treatment__viagem_inferida`) para aplicar o desempate de `filtro_desvio`, `filtro_partida` e `filtro_chegada` (índice, distância e tipo de trajeto) e exclusão de viagens concorrentes sobrepostas do mesmo veículo. Só entram na disputa viagens com `indicador_viagem_valida` e match no planejado (`indicador_trajeto_alternativo` não nulo); inválidas e sem match permanecem na saída (https://github.com/RJ-SMTR/pipelines_v3/pull/673).
 
-## [2.2.19] - 2026-09-28
+## [2.3.0] - 2026-09-30
+
+### Adicionado
+
+- Inclui GPS do validador Jaé (`gps_validador`) no modelo `gps_viagem` para as operadoras GTU (`2801`, prefixo `A2`) e TUSE (`2802`, prefixo `B2`), até `2026-09-16`, descartando coordenadas zeradas e o veículo `99999`. Posições Jaé passam a ser associadas a viagens com `fonte_gps = maxtrack` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+### Alterado
+
+- No modelo `gps_viagem`, a coluna `fonte_gps` passa a refletir o fornecedor do registro de GPS em vez da fonte declarada na viagem (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- No modelo `gps_segmento_viagem`, entre `2026-08-24` e `2026-09-15`, registros com `fonte_gps` `jae` ou `maxtrack` são desconsiderados no indicador de serviço convergente, e ambos são considerados na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+## [2.2.19] - 2026-09-29
+
+### Alterado
+
+- Amplia de 5 para 6 dias a janela de processamento incremental dos modelos `viagem_validacao`, `viagem_valida`, `gps_viagem` e `gps_segmento_viagem`. A alteração permite que a execução do dia seguinte capture viagens disponibilizadas na API ao fim do quinto dia do prazo de envio, após a captura das 7h20 (https://github.com/RJ-SMTR/pipelines_v3/pull/720).
+
+## [2.2.18] - 2026-09-28
 
 ### Alterado
 

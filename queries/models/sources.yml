@@ -342,6 +342,7 @@ sources:
       - name: matriz_reparticao_tarifaria
       - name: matriz_transferencia
       - name: matriz_integracao_excecao
+      - name: matriz_servico_modo
       - name: dicionario_subsidio
       - name: calendario_manual
       - name: controle_financeiro_staging
