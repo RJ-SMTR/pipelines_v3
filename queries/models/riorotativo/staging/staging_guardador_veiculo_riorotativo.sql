@@ -5,12 +5,17 @@ with
         select
             data,
             lpad(
-                regexp_replace(safe_cast(cpf as string), r'[^0-9]', ''), 11, '0'
+                nullif(regexp_replace(safe_cast(cpf as string), r'[^0-9]', ''), ''),
+                11,
+                '0'
             ) as cpf,
             lpad(
-                regexp_replace(
-                    safe_cast(json_value(content, '$.identificacao') as string),
-                    r'[^0-9]',
+                nullif(
+                    regexp_replace(
+                        safe_cast(json_value(content, '$.identificacao') as string),
+                        r'[^0-9]',
+                        ''
+                    ),
                     ''
                 ),
                 4,
@@ -25,12 +30,17 @@ with
         select
             data,
             lpad(
-                regexp_replace(safe_cast(cpf as string), r'[^0-9]', ''), 11, '0'
+                nullif(regexp_replace(safe_cast(cpf as string), r'[^0-9]', ''), ''),
+                11,
+                '0'
             ) as cpf,
             lpad(
-                regexp_replace(
-                    safe_cast(json_value(content, '$.identificacao') as string),
-                    r'[^0-9]',
+                nullif(
+                    regexp_replace(
+                        safe_cast(json_value(content, '$.identificacao') as string),
+                        r'[^0-9]',
+                        ''
+                    ),
                     ''
                 ),
                 4,

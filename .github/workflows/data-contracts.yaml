@@ -13,7 +13,7 @@ on:
       - ".github/workflows/data-contracts.yaml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: data-contracts-${{ github.event.pull_request.number || github.ref }}
@@ -31,6 +31,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -39,7 +40,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          activate-environment: true
 
       - name: Install project dependencies
         run: |
@@ -59,10 +59,35 @@ jobs:
       - name: Generate contracts from dbt manifest
         run: uv run python -c 'from pipelines.common.capture.data_contract.utils import generate_contracts; generate_contracts()'
 
+      - name: Upload generated contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-contracts
+          path: contracts
+          retention-days: 1
+
+  commit-contracts:
+    name: Commit contracts to the PR branch
+    needs: generate-and-check
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Download generated contracts
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-contracts
+          path: contracts
+
       - name: Commit contracts to the PR branch
-        if: >-
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository
         env:
           HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |

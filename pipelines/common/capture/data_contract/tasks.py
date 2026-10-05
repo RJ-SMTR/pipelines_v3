@@ -55,7 +55,11 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
     if not context.captured_raw_filepaths:
         raise ValueError(f"Nenhum arquivo bruto foi capturado para {source.table_id}.")
 
-    contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"))
+    contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"), None)
+    if contract_path is None:
+        raise ValueError(
+            f"Contrato {source.data_contract_model} não encontrado em {contracts_dir}."
+        )
     contract = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
     runtime_contract = adapt_contract_schema(
         contract,

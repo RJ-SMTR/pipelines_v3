@@ -1,11 +1,11 @@
 # Changelog - capture__riorotativo_credenciados
 
-## [Unreleased]
+## [1.0.2] - 2026-10-05
 
 ### Adicionado
 
-- Valida o contrato dos dados brutos de guardadores de veículo antes do upload ao GCS.
-- Permite pular a validação em uma execução com `skip_data_contract_validation=true`.
+- Valida o contrato dos dados brutos de guardadores de veículo antes do upload ao GCS (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
+- Permite pular a validação em uma execução com `skip_data_contract_validation=true` (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
 
 ## [1.0.1] - 2026-07-15
 

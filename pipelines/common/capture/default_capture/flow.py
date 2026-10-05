@@ -127,23 +127,24 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     tasks["get_raw"] = get_raw_future.result()
 
+    upload_wait_for = [
+        tasks["get_raw"],
+        tasks["setup_enviroment"],
+        *tasks_wait_for.get("upload_raw", []),
+    ]
+
     if not skip_data_contract_validation:
         tasks["data_contracts"] = download_data_contracts(contexts=contexts, env=tasks["env"])
         tasks["validate_raw_data_contract"] = validate_raw_data_contract.map(
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
+        upload_wait_for.append(tasks["validate_raw_data_contract"])
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,
         if_exists=unmapped(if_exists_upload),
-        wait_for=unmapped(
-            [
-                tasks["get_raw"],
-                tasks["setup_enviroment"],
-                *tasks_wait_for.get("upload_raw", []),
-            ]
-        ),
+        wait_for=unmapped(upload_wait_for),
     )
 
     tasks["upload_raw"] = upload_raw_future.result()

@@ -1,10 +1,20 @@
 # Changelog - riorotativo
 
-## [Unreleased]
+## [1.2.3] - 2026-10-05
 
 ### Adicionado
 
-- Adiciona o modelo base do guardador para documentar os campos brutos, validar CPF e unicidade da identificação e reutilizá-los no staging.
+- Adiciona metadados `datacontract_cli` (chave primária e regras de qualidade) no modelo `staging_guardador_veiculo_riorotativo.sql` para geração do contrato de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
+- Adiciona teste de formato numérico para `numero_identificacao` no modelo `guardador_veiculo_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
+
+### Alterado
+
+- Renomeia as colunas `documento`, `numero_identificacao` e `datetime_captura` para `cpf`, `identificacao` e `timestamp_captura` no modelo `staging_guardador_veiculo_riorotativo.sql`, deduplicando por `data`, `cnpj` e `cpf` (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
+- Mapeia as colunas do staging para os nomes anteriores no modelo `guardador_veiculo_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
+
+### Removido
+
+- Remove a coluna `tipo_documento` do modelo `staging_guardador_veiculo_riorotativo.sql`, mantida como constante `CPF` no histórico (https://github.com/RJ-SMTR/pipelines_v3/pull/694)
 
 ## [1.2.2] - 2026-09-01
 

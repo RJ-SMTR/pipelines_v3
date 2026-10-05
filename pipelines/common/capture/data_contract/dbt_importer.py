@@ -57,7 +57,7 @@ def import_contract_from_manifest(
     contract = imported.model_dump(by_alias=True, exclude_none=True)
     schema = contract["schema"][0]
     schema["physicalName"] = ".".join(model[key] for key in ("database", "schema", "alias"))
-    meta = (model.get("config") or {}).get("meta")
+    meta = (model.get("config") or {}).get("meta") or model.get("meta") or {}
     primary_keys = (meta.get("datacontract_cli") or {}).get("primaryKey", [])
     properties = {prop["name"]: prop for prop in schema["properties"]}
     for position, key in enumerate(primary_keys, start=1):
