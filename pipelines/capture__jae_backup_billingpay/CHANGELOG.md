@@ -1,6 +1,6 @@
 # Changelog capture__jae_backup_billingpay
 
-## [1.1.5] - 2026-10-01
+## [1.1.5] - 2026-10-05
 
 ### Adicionado
 

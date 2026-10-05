@@ -5,7 +5,7 @@ Valores constantes gerais para pipelines da rj-smtr
 
 PROJECT_NAME = {"dev": "rj-smtr-dev", "prod": "rj-smtr-staging"}
 PRIVATE_PROJECT_NAME = "rj-smtr-private"
-DEFAULT_BUCKET_NAME = {"dev": "rj-smtr-dev", "prod": "rj-smtr-dev"}
+DEFAULT_BUCKET_NAME = {"dev": "rj-smtr-dev", "prod": "rj-smtr-staging"}
 TIMEZONE = "America/Sao_Paulo"
 
 # RETRY POLICY #

@@ -105,7 +105,6 @@ deployments:
           database_name: vendas_db
       - cron: "30 7 * * *"
         timezone: America/Sao_Paulo
-        active: false
         parameters:
           database_name: estacionamento_db
     work_pool:
