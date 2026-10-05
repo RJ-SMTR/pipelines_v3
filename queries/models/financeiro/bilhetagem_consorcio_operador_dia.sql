@@ -65,6 +65,12 @@ with
 
         {% endif %}
     ),
+    tarifa as (
+        select distinct
+            tarifa_ida, 1 / if(count(distinct tarifa_ida) over () != 1, 0, 1)
+        from {{ ref("servico_operadora") }}
+        where consorcio = 'STPL' and data_fim_validade is null
+    ),
     ordem_pagamento as (
         select
             o.data_ordem,
@@ -80,7 +86,13 @@ with
             o.qtd_vendaabordo as quantidade_transacao_especie,
             o.valor_vendaabordo as valor_especie,
             o.qtd_gratuidade as quantidade_transacao_gratuidade,
-            o.valor_gratuidade,
+            case
+                when
+                    o.data_ordem >= "2026-10-02"
+                    and dc.consorcio in ('STPC', 'STPL', 'TEC')
+                then t.tarifa_ida * o.qtd_gratuidade
+                else o.valor_gratuidade
+            end as valor_gratuidade,
             o.qtd_integracao as quantidade_transacao_integracao,
             o.valor_integracao,
             o.qtd_rateio_credito as quantidade_transacao_rateio_credito,
@@ -105,6 +117,7 @@ with
         {# `rj-smtr.cadastro.operadoras` do on o.id_operadora = do.id_operadora_jae #}
         left join {{ ref("consorcios") }} dc on o.id_consorcio = dc.id_consorcio_jae
         {# `rj-smtr.cadastro.consorcios` dc on o.id_consorcio = dc.id_consorcio_jae #}
+        join tarifa t
         {% if is_incremental() %}
             where
                 date(o.data) between date("{{var('date_range_start')}}") and date(
