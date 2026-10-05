@@ -1,5 +1,11 @@
 # Changelog - financeiro
 
+## [1.2.1] - 2026-10-05
+
+### Alterado
+
+- `TED_011-26_DTDI/SUBTT-SUBTT/CSI`: Cria tratamento para ressarcimento das gratuidades de van a partir da data_ordem `2026-10-02` no modelo `bilhetagem_consorcio_operador_dia.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/738)
+
 ## [1.2.0] - 2025-10-09
 
 ### Adicionado
