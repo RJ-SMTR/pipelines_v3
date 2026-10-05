@@ -49,10 +49,54 @@
 
 
 with
+    staging_ordem_pagamento_consorcio_operadora as (
+        select *
+        from {{ ordem_pagamento_consorcio_operadora_staging }}
+        {% if is_incremental() %}
+            where
+                date(data) between date("{{var('date_range_start')}}") and date(
+                    "{{var('date_range_end')}}"
+                )
+                and timestamp_captura > datetime("{{var('date_range_start')}}")
+                and timestamp_captura <= datetime("{{var('date_range_end')}}")
+        {% endif %}
+    ),
+    min_max_data_ordem as (
+        select
+            min(data_ordem) as data_ordem_inicial, max(data_ordem) as data_ordem_final
+        from staging_ordem_pagamento_consorcio_operadora
+    ),
+    datas as (
+        select d as data_ordem
+        from
+            min_max_data_ordem,
+            unnest(generate_date_array(data_ordem_inicial, data_ordem_final)) as d
+    ),
+    tarifa_van as (
+        select
+            date(data_inicio_validade + interval 1 day) as data_inicio_validade,
+            date(data_fim_validade + interval 1 day) as data_fim_validade,
+            tarifa_ida as tarifa
+        from {{ ref("servico_operadora") }}
+        where consorcio = 'STPL'
+    ),
+    tarifa_van_data_contagem as (
+        select d.data_ordem, t.tarifa, count(1) as quantidade
+        from datas d
+        join
+            tarifa_van t
+            on d.data_ordem >= t.data_inicio_validade
+            and (d.data_ordem < t.data_fim_validade or t.data_fim_validade is null)
+        group by all
+    ),
+    tarifa_van_data_ordem as (
+        select data_ordem, tarifa
+        from tarifa_van_data_contagem
+        qualify quantidade = max(quantidade) over (partition by data_ordem)
+    ),
     pagamento as (
         select data_pagamento, data_ordem, id_consorcio, id_operadora, valor_pago
         from {{ aux_retorno_ordem_pagamento }}
-        -- `rj-smtr.controle_financeiro_staging.aux_retorno_ordem_pagamento`
         {% if is_incremental() %}
             where
                 {% if partitions | length > 0 %}
@@ -64,12 +108,6 @@ with
                 {% endif %}
 
         {% endif %}
-    ),
-    tarifa as (
-        select distinct
-            tarifa_ida, 1 / if(count(distinct tarifa_ida) over () != 1, 0, 1)
-        from {{ ref("servico_operadora") }}
-        where consorcio = 'STPL' and data_fim_validade is null
     ),
     ordem_pagamento as (
         select
@@ -90,7 +128,7 @@ with
                 when
                     o.data_ordem >= "2026-10-02"
                     and dc.consorcio in ('STPC', 'STPL', 'TEC')
-                then t.tarifa_ida * o.qtd_gratuidade
+                then t.tarifa * o.qtd_gratuidade
                 else o.valor_gratuidade
             end as valor_gratuidade,
             o.qtd_integracao as quantidade_transacao_integracao,
@@ -107,25 +145,11 @@ with
             o.valor_liquido as valor_total_transacao_liquido_ordem,
             o.timestamp_captura as datetime_captura,
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
-        from {{ ordem_pagamento_consorcio_operadora_staging }} o
-        -- `rj-smtr.br_rj_riodejaneiro_bilhetagem_staging.ordem_pagamento_consorcio_operadora` o
-        join
-            {{ ref("staging_ordem_pagamento") }} op
-            {# `rj-smtr.br_rj_riodejaneiro_bilhetagem_staging.ordem_pagamento` op #}
-            on o.data_ordem = op.data_ordem
+        from staging_ordem_pagamento_consorcio_operadora o
+        join {{ ref("staging_ordem_pagamento") }} op using (data_ordem)
         left join {{ ref("operadoras") }} do on o.id_operadora = do.id_operadora_jae
-        {# `rj-smtr.cadastro.operadoras` do on o.id_operadora = do.id_operadora_jae #}
         left join {{ ref("consorcios") }} dc on o.id_consorcio = dc.id_consorcio_jae
-        {# `rj-smtr.cadastro.consorcios` dc on o.id_consorcio = dc.id_consorcio_jae #}
-        join tarifa t
-        {% if is_incremental() %}
-            where
-                date(o.data) between date("{{var('date_range_start')}}") and date(
-                    "{{var('date_range_end')}}"
-                )
-                and o.timestamp_captura > datetime("{{var('date_range_start')}}")
-                and o.timestamp_captura <= datetime("{{var('date_range_end')}}")
-        {% endif %}
+        join tarifa_van_data_ordem t using (data_ordem)
     ),
     ordem_pagamento_completa as (
         select *, 0 as priority
