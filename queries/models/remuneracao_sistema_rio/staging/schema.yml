@@ -1,0 +1,213 @@
+version: 2
+
+models:
+  - name: aux_viagem_apurada_openfisca
+    description: >
+      Saída de `rio_rac_bus_subsidy.calculate_remuneration` no grão viagem,
+      mais `versao_regra` e `id_execucao`. `aux_viagem_apurada` lê essa
+      saída e completa o contrato.
+    config:
+      date_range_start: "{{ var('date_range_start') }}"
+      date_range_end: "{{ var('date_range_end') }}"
+      invocation_id: "{{ invocation_id }}"
+
+  - name: aux_viagem_status
+    description: >
+      Viagem válida do Sistema RIO com status do veículo, tecnologia e
+      autuações disciplinares na janela da viagem. `tipo_execucao_viagem`
+      entra como COMPLETA.
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: modo
+        description: "{{ doc('modo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: ano_fabricacao
+        description: "{{ doc('ano_fabricacao') }}"
+      - name: tecnologia_apurada
+        description: "{{ doc('tecnologia') }}"
+      - name: tecnologia_remunerada
+        description: "{{ doc('tecnologia_remunerada') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: distancia_planejada
+        description: "{{ doc('distancia_planejada') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
+      - name: indicador_nao_licenciado
+        description: "Indica se o veículo não estava licenciado na data da viagem"
+      - name: indicador_nao_vistoriado
+        description: "Indica se o veículo não estava vistoriado na data da viagem"
+      - name: indicador_lacrado
+        description: "Indica se o veículo estava lacrado na data da viagem"
+      - name: indicador_nao_autorizado_capacidade
+        description: >
+          Indica se o veículo não estava autorizado a operar por tecnologia de
+          capacidade inferior à mínima permitida para o serviço
+      - name: indicador_autuado_ar_inoperante
+        description: "Indica se o veículo foi autuado por ar condicionado inoperante"
+      - name: indicador_autuado_alterar_itinerario
+        description: >
+          Indica se o veículo foi autuado por alterar o itinerário durante a
+          viagem
+      - name: indicador_autuado_vista_inoperante
+        description: "Indica se o veículo foi autuado por vista inoperante durante a viagem"
+      - name: indicador_autuado_nao_atender_parada
+        description: >
+          Indica se o veículo foi autuado por não atender ponto de parada
+          durante a viagem
+      - name: indicador_autuado_iluminacao_insuficiente
+        description: >
+          Indica se o veículo foi autuado por iluminação insuficiente durante a
+          viagem
+      - name: indicador_autuado_nao_concluir_itinerario
+        description: >
+          Indica se o veículo foi autuado por não concluir o itinerário durante
+          a viagem
+      - name: indicador_registrado_ar_inoperante
+        description: "Indica se o veículo estava registrado com ar condicionado inoperante"
+      - name: indicadores
+        description: "{{ doc('indicadores_veiculo') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+
+  - name: aux_viagem_apurada
+    description: >
+      Saída do OpenFisca com os tipos e as colunas derivadas da apuração.
+      Origem de `viagem_apurada`, `faixa_apurada` e `data_apurada`.
+      `indicador_dentro_do_teto_programado` fica nulo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__aux_viagem_apurada
+          arguments:
+            combination_of_columns:
+              - id_apuracao
+    columns:
+      - name: id_apuracao
+        description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
+        tests:
+          - not_null:
+              name: not_null__id_apuracao__aux_viagem_apurada
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+      - name: datetime_partida
+        description: "{{ doc('datetime_partida') }}"
+      - name: datetime_chegada
+        description: "{{ doc('datetime_chegada') }}"
+      - name: indicador_viagem_completa
+        description: "Indicador se a viagem é completa"
+      - name: indicador_viagem_valida
+        description: "Indicador se a viagem é válida"
+      - name: indicador_viagem_conforme
+        description: "Indicador se a viagem é conforme"
+      - name: indicador_dentro_do_teto_programado
+        description: "Nulo. O OpenFisca não ranqueia o teto de programadas"
+      - name: km_programada
+        description: "Distância do shape planejado (km)"
+      - name: km_percorrida
+        description: "Km reconhecida da viagem"
+      - name: lote
+        description: "Identificador do lote do contrato"
+      - name: lote_frota_estimada
+        description: "Frota estimada do lote"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: placa
+        description: "{{ doc('placa') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: faixa_horaria_inicio
+        description: "Horário inicial da faixa horária"
+      - name: faixa_horaria_fim
+        description: "Horário final da faixa horária"
+      - name: tecnologia_minima_servico
+        description: "Tecnologia mínima permitida do serviço"
+      - name: lote_frota_determinada
+        description: "Frota determinada do lote"
+      - name: lote_km_referencia_mensal
+        description: "Km mensal da rede de referência vigente na data"
+      - name: lote_km_referencia_quinzena
+        description: "Metade de lote_km_referencia_mensal"
+      - name: tipo_dia
+        description: "{{ doc('tipo_dia') }}"
+      - name: hora_partida
+        description: "Hora de datetime_partida"
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+      - name: indicador_quilometragem_pagamento
+        description: "Indicador se a quilometragem da viagem é apta para pagamento"
+      - name: indicador_percentual_atendimento
+        description: "Indicador se a viagem entra na contagem do desconto de operação precária"
+      - name: km_remuneravel
+        description: "Distância planejada da viagem válida. Viagem incompleta fica em zero"
+      - name: indicador_pico_manha
+        description: "Partida entre 05h e 09h em dia útil"
+      - name: indicador_pico_tarde
+        description: "Partida entre 16h e 20h em dia útil"
+      - name: indicador_completa_pico_manha
+        description: "Viagem completa com partida no pico da manhã"
+      - name: indicador_completa_pico_tarde
+        description: "Viagem completa com partida no pico da tarde"
+      - name: indicador_dia_util
+        description: "Indica se a data é dia útil"
+      - name: tarifa_remuneracao
+        description: "Tarifa de remuneração pelo serviço (R$)"
+      - name: alpha
+        description: "Percentual da tarifa de remuneração referente ao CAPEX"
+      - name: beta
+        description: "Percentual da tarifa de remuneração referente ao OPEX"
+      - name: frota_pico_manha
+        description: "Veículos distintos com viagem completa no pico da manhã"
+      - name: frota_pico_tarde
+        description: "Veículos distintos com viagem completa no pico da tarde"
+      - name: frota_operante
+        description: "Veículos distintos com viagem completa no pico da manhã ou da tarde"
+      - name: viagens_atendimento_faixa
+        description: "Viagens de atendimento na faixa"
+      - name: viagens_programadas_faixa
+        description: "Viagens programadas na faixa"
+      - name: percentual_atendimento
+        description: "Razão entre km remunerável e km planejada da faixa, em escala 0–1"
+      - name: ipa
+        description: "Indicador de percentual de atendimento da faixa"
+      - name: desconto_operacao_precaria
+        description: "Desconto de operação precária da faixa"
+      - name: km_remuneravel_faixa
+        description: "Km remunerável da faixa"
+      - name: km_ponderada_ipa_faixa
+        description: "km_remuneravel_faixa × ipa"
+      - name: km_ponderada_ipa_viagem
+        description: "km_remuneravel × ipa da faixa"
+      - name: remuneracao_opex_viagem
+        description: "tarifa_remuneracao × β × km_remuneravel × ipa"
+      - name: versao_regra
+        description: "Versão da regra devolvida pelo OpenFisca"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"

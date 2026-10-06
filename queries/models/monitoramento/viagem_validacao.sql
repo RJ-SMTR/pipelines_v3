@@ -147,7 +147,8 @@ with
             any_value(gsv.datetime_processamento) as datetime_processamento,
             any_value(gsv.datetime_captura_viagem) as datetime_captura_viagem,
             any_value(gsv.fonte_gps) as fonte_gps,
-            any_value(gsv.fonte_viagem) as fonte_viagem
+            any_value(gsv.fonte_viagem) as fonte_viagem,
+            any_value(gsv.tipo_execucao_viagem) as tipo_execucao_viagem
         from {{ ref("gps_segmento_viagem") }} as gsv
         where
             (
@@ -242,7 +243,8 @@ with
             feed_start_date,
             datetime_processamento,
             datetime_captura_viagem,
-            fonte_viagem
+            fonte_viagem,
+            tipo_execucao_viagem
         from contagem as c
     ),
     /*
@@ -510,6 +512,7 @@ with
             vm.indicador_sem_alteracao_retroativa,
             vm.indicador_processamento_apos_chegada,
             vm.indicador_prazo_envio,
+            vm.tipo_execucao_viagem,
             (
                 vm.indicador_campos_obrigatorios
                 and vm.indicador_chegada_posterior_partida
@@ -637,6 +640,7 @@ select
     indicador_sem_alteracao_retroativa,
     indicador_processamento_apos_chegada,
     indicador_prazo_envio,
+    tipo_execucao_viagem,
     indicador_viagem_valida,
     feed_start_date,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,

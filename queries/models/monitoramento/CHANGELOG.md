@@ -1,5 +1,13 @@
 # Changelog - monitoramento
 
+## [2.3.1] - 2026-09-30
+
+### Adicionado
+
+- Propaga `tipo_execucao_viagem` de `viagem_informada` por
+  `gps_segmento_viagem`, `viagem_validacao` e `viagem_valida`
+  (https://github.com/RJ-SMTR/pipelines_v3/pull/576)
+
 ## [2.3.0] - 2026-09-30
 
 ### Adicionado
@@ -11,6 +19,7 @@
 
 - No modelo `gps_viagem`, a coluna `fonte_gps` passa a refletir o fornecedor do registro de GPS em vez da fonte declarada na viagem (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
 - No modelo `gps_segmento_viagem`, entre `2026-08-24` e `2026-09-15`, registros com `fonte_gps` `jae` ou `maxtrack` são desconsiderados no indicador de serviço convergente, e ambos são considerados na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
 
 ## [2.2.19] - 2026-09-29
 

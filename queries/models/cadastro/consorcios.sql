@@ -35,6 +35,7 @@ with
 select
     c.id_consorcio,
     c.consorcio,
+    {{ lote_consorcio_rio("c.consorcio") }} as lote,
     m.modo,
     c.cnpj,
     c.razao_social,
