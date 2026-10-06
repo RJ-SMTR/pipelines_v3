@@ -71,13 +71,17 @@ def transform_to_nested_structure(
     return data[[*primary_keys, "content"]]
 
 
-def strip_string_columns(data: pd.DataFrame) -> pd.DataFrame:
+def strip_string_columns(
+    data: pd.DataFrame,
+    context: Optional[SourceCaptureContext] = None,  # noqa: ARG001
+) -> pd.DataFrame:
     """
     Aplica a função strip em todas as colunas do formato string
-    de um DataFrame
+    de um DataFrame. Pode ser usada como pretreat_func de um SourceTable.
 
     Args:
         data (pd.DataFrame): Dataframe a ser tratado
+        context (Optional[SourceCaptureContext]): Contexto da captura (não utilizado)
 
     Returns:
         pd.DataFrame: Dataframe tratado
