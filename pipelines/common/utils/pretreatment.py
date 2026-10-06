@@ -67,10 +67,7 @@ def transform_to_nested_structure(
         pd.DataFrame: Dataframe contendo as colunas listadas nas primary keys + coluna content
     """
     content_columns = [c for c in data.columns if c not in primary_keys]
-    data["content"] = data.apply(
-        lambda row: row[content_columns].to_json(),
-        axis=1,
-    )
+    data["content"] = data[content_columns].to_json(orient="records", lines=True).splitlines()
     return data[[*primary_keys, "content"]]
 
 
