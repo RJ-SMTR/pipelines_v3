@@ -13,28 +13,23 @@ from pipelines.treatment__gtfs.tasks import get_planejamento_materialization_win
 from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
 
 
-@flow(log_prints=True, flow_run_name=rename_flow_run, timeout_seconds=7200)
+@flow(log_prints=True, flow_run_name=rename_flow_run)
 async def treatment__gtfs(  # noqa: PLR0913
     env: Optional[str] = None,
-    datetime_start: Optional[str] = None,
-    datetime_end: Optional[str] = None,
+    data_versao: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
     skip_source_check: bool = False,
 ):
-    additional_vars = additional_vars or {}
-    data_versao_gtfs = additional_vars.get("data_versao_gtfs")
-    if data_versao_gtfs is None:
-        raise ValueError("additional_vars.data_versao_gtfs é obrigatório.")
-
+    data_versao = data_versao[:10]
     tasks = create_materialization_flows_default_tasks(
         env=env,
-        selectors=[constants.create_gtfs_selector(data_versao_gtfs)],
-        datetime_start=datetime_start or data_versao_gtfs,
-        datetime_end=datetime_end or data_versao_gtfs,
+        selectors=[constants.GTFS_SELECTOR],
+        datetime_start=data_versao,
+        datetime_end=data_versao,
         flags=flags,
-        additional_vars=additional_vars,
+        additional_vars={**(additional_vars or {}), "data_versao_gtfs": data_versao},
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
         test_webhook_key=constants.GTFS_DISCORD_WEBHOOK,
@@ -42,7 +37,7 @@ async def treatment__gtfs(  # noqa: PLR0913
     )
 
     datetime_start, datetime_end, planejamento_vars = get_planejamento_materialization_window(
-        data_versao_gtfs=data_versao_gtfs,
+        data_versao_gtfs=data_versao,
         env=tasks["env"],
         flags=flags,
         wait_for=[tasks["save_redis"]],
@@ -59,5 +54,5 @@ async def treatment__gtfs(  # noqa: PLR0913
                 "additional_vars": planejamento_vars,
             }
         ],
-        wait_for_completion=True,
+        wait_for_completion=False,
     )

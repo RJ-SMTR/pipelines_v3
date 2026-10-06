@@ -6,7 +6,6 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
-COPY ./pipelines/capture__smtr_gtfs ./pipelines/capture__smtr_gtfs/
 COPY ./pipelines/treatment__gtfs ./pipelines/treatment__gtfs/
 COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
 COPY ./pipelines/common/ ./pipelines/common/

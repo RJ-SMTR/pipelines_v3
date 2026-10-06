@@ -7,13 +7,7 @@ from zoneinfo import ZoneInfo
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-GTFS_DATASET_ID = "br_rj_riodejaneiro_gtfs"
-
 GTFS_DISCORD_WEBHOOK = "gtfs"
-
-GTFS_MATERIALIZACAO_DATASET_ID = "gtfs"
-
-PLANEJAMENTO_MATERIALIZACAO_DATASET_ID = "planejamento"
 
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
@@ -22,11 +16,7 @@ GTFS_DBT_TEST_EXCLUDE = (
     "planejamento_gtfs_freshness__viagem_planejada_planejamento"
 )
 
-GTFS_DBT_TEST_SELECT = (
-    f"{GTFS_MATERIALIZACAO_DATASET_ID} "
-    f"{PLANEJAMENTO_MATERIALIZACAO_DATASET_ID} "
-    "test_consistencia_servicos_ordem_servico_gtfs"
-)
+GTFS_DBT_TEST_SELECT = "gtfs planejamento test_consistencia_servicos_ordem_servico_gtfs"
 
 GTFS_DATA_CHECKS_LIST = {
     "calendar_gtfs": {
@@ -109,16 +99,13 @@ GTFS_DATA_CHECKS_LIST = {
 }
 
 
-def create_gtfs_selector(data_versao_gtfs: str) -> DBTSelector:
-    """Cria o selector com a versão da OS usada pelos testes dbt."""
-    return DBTSelector(
-        name="gtfs",
-        initial_datetime=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-        flow_folder_name="treatment__gtfs",
-        post_test=DBTTest(
-            test_select=GTFS_DBT_TEST_SELECT,
-            exclude=GTFS_DBT_TEST_EXCLUDE,
-            test_descriptions=GTFS_DATA_CHECKS_LIST,
-            additional_vars={"data_versao_gtfs": data_versao_gtfs},
-        ),
-    )
+GTFS_SELECTOR = DBTSelector(
+    name="gtfs",
+    initial_datetime=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    flow_folder_name="treatment__gtfs",
+    post_test=DBTTest(
+        test_select=GTFS_DBT_TEST_SELECT,
+        exclude=GTFS_DBT_TEST_EXCLUDE,
+        test_descriptions=GTFS_DATA_CHECKS_LIST,
+    ),
+)
