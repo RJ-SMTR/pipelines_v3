@@ -10,9 +10,45 @@
     )
 }}
 
+{% set aux_veiculo_falha_ar_condicionado = ref("aux_veiculo_falha_ar_condicionado") %}
+{% if execute and is_incremental() %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        aux_veiculo_falha_ar_condicionado,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+{% else %} {% set modified_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
-    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
+        (
+            data between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
+            )
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% else %}
+        (
+            data between date("{{ var('start_date') }}") and date(
+                "{{ var('end_date') }}"
+            )
+            {% if is_incremental() and modified_partitions | length > 0 %}
+                or (
+                    data in ({{ modified_partitions | join(", ") }})
+                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                )
+            {% endif %}
+        )
+        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    {% endif %}
 {% endset %}
 with
     aux_veiculo as (
@@ -30,7 +66,7 @@ with
             percentual_viagem_temperatura_pos_tratamento_descartada,
             indicador_viagem_temperatura_descartada_veiculo,
             quantidade_dia_falha_operacional
-        from {{ ref("aux_veiculo_falha_ar_condicionado") }}
+        from {{ aux_veiculo_falha_ar_condicionado }}
         where {{ incremental_filter }} and indicio_falha
     ),
     indicador_motivo as (

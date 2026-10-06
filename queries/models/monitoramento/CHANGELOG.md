@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.3.1] - 2026-10-02
+
+### Alterado
+
+- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar partições modificadas a partir de `DATA_SUBSIDIO_V25_INICIO`, com lookback de 6 dias (`viagem_validacao_max_age_days`). No flow `treatment--monitoramento-temperatura`, a janela regular (`date_range`) fica limitada a datas anteriores à V25 e as partições V25+ entram pelo `last_modified`. No flow de subsídio, a quinzena (`start_date`/`end_date`) é reprocessada por inteiro e as partições V25+ modificadas se somam a esse recorte. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [2.3.0] - 2026-09-30
 
 ### Adicionado
@@ -62,6 +68,7 @@
 ### Adicionado
 
 - Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de infração em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
 
 ## [2.2.12] - 2026-09-02
 

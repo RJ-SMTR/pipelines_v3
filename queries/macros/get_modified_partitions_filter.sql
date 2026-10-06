@@ -1,7 +1,7 @@
 {% macro get_modified_partitions_filter(
     source_relation,
     include_adjacent=false,
-    max_age_days=5,
+    max_age_days=6,
     truncate_date=false
 ) %}
     {% if not execute %} {{ return([]) }} {% endif %}

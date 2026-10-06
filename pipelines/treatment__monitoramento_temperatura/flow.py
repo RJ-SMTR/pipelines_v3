@@ -5,8 +5,9 @@ Flow de materialização de dados de monitoramento de temperatura
 Executa o selector DBT 'monitoramento_temperatura' para materializar dados no BigQuery.
 
 Schedule:
-- Diariamente às 7h00 (horário de São Paulo)
-- Depende de dados do monitoramento_veiculo
+
+- Diariamente às 9h00 (horário de São Paulo)
+- Depende de dados do monitoramento_veiculo e da viagem_validacao
 
 DBT 2026-05-22
 """
