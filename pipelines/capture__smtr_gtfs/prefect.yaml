@@ -43,6 +43,9 @@ deployments:
   - name: rj-capture--smtr_gtfs--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/capture__smtr_gtfs/flow.py:capture__smtr_gtfs
+    schedules:
+      - cron: "*/5 * * * *"
+        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default

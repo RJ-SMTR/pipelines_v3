@@ -4,11 +4,7 @@
 from typing import Optional
 
 from pipelines.capture__smtr_gtfs import constants
-from pipelines.capture__smtr_gtfs.tasks import (
-    create_gtfs_extractor,
-    should_capture_gtfs,
-    update_last_materialized_os,
-)
+from pipelines.capture__smtr_gtfs.tasks import create_gtfs_extractor, should_capture_gtfs
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
@@ -21,7 +17,6 @@ from pipelines.treatment__gtfs.flow import treatment__gtfs
 async def capture__smtr_gtfs(
     env: Optional[str] = None,
     upload_from_gcs: bool = False,  # noqa: ARG001
-    regular_sheet_index: Optional[int] = None,  # noqa: ARG001
     data_versao_gtfs: Optional[str] = None,  # noqa: ARG001
     flags: Optional[list[str]] = None,
 ):
@@ -32,31 +27,19 @@ async def capture__smtr_gtfs(
         create_extractor_task=create_gtfs_extractor,
         recapture=False,
         recapture_days=0,
-        recapture_timestamps=[],
+        recapture_timestamps=None,
         should_capture_task=should_capture_gtfs,
     )
 
-    capture_info = tasks["should_capture_result"].payload or {}
-    if not tasks["should_capture"] and not capture_info.get("pending_materialization"):
+    if not tasks["should_capture"]:
         return
 
+    capture_info = tasks["should_capture_result"].payload
     await run_subflow(
         env=tasks["env"],
         flow=treatment__gtfs,
         parameters=[
-            {
-                "env": tasks["env"],
-                "flags": flags,
-                "additional_vars": {
-                    "data_versao_gtfs": capture_info["data_versao_gtfs"],
-                },
-            }
+            {"env": tasks["env"], "flags": flags, "data_versao": capture_info["data_versao_gtfs"]}
         ],
-        wait_for_completion=True,
-    )
-    update_last_materialized_os(
-        dataset_id=constants.GTFS_DATASET_ID,
-        data_index=capture_info["data_index"],
-        mode=tasks["env"],
-        advance_marker=capture_info["advance_last_materialized"],
+        wait_for_completion=False,
     )

@@ -2,68 +2,21 @@
 """Funções utilitárias para captura do GTFS"""
 
 import io
-import json
 import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Union
 from zoneinfo import ZoneInfo
 
-import openpyxl as xl
 import pandas as pd
-import requests
-from google.cloud import bigquery
-from google.cloud.bigquery.external_config import HivePartitioningOptions
-from googleapiclient.http import MediaIoBaseDownload
 from unidecode import unidecode
 
+from pipelines.capture__smtr_gtfs import constants
 from pipelines.common import constants as smtr_constants
-from pipelines.common.utils.extractors.gdrive import get_google_api_service
-from pipelines.common.utils.gcp.bigquery import Dataset, SourceTable
+from pipelines.common.utils.extractors.api import get_api_data
+from pipelines.common.utils.extractors.gdrive import download_drive_file, get_google_api_service
+from pipelines.common.utils.fs import get_data_folder_path, save_local_file
 from pipelines.common.utils.gcp.storage import Storage
-
-
-def get_upload_storage_blob(env: str, dataset_id: str, filename: str):
-    """Retorna um blob da zona de upload do GCS."""
-    gcs = Storage(env=env, dataset_id=dataset_id)
-    blobs = list(gcs.bucket.list_blobs(prefix=f"upload/{dataset_id}/{filename}."))
-    if not blobs:
-        raise FileNotFoundError(f"Nenhum blob encontrado em upload/{dataset_id}/{filename}")
-    return blobs[0]
-
-
-def xl_load_workbook_sheetnames(file_bytes: io.BytesIO) -> list:
-    """Retorna os nomes das abas de um arquivo Excel."""
-    file_bytes.seek(0)
-    wb = xl.load_workbook(file_bytes)
-    names = wb.sheetnames
-    file_bytes.seek(0)
-    return names
-
-
-def save_raw_local_func(
-    data: Union[dict, str],
-    filepath: str,
-    mode: str = "raw",
-    filetype: str = "json",
-) -> str:
-    """Salva dados brutos em um arquivo local."""
-    _filepath = filepath.format(mode=mode, filetype=filetype)
-    Path(_filepath).parent.mkdir(parents=True, exist_ok=True)
-
-    if filetype == "json":
-        if isinstance(data, str):
-            data = json.loads(data)
-        with Path(_filepath).open("w", encoding="utf-8") as fi:
-            json.dump(data, fi)
-
-    elif filetype in ("txt", "csv"):
-        with Path(_filepath).open("w", encoding="utf-8") as file:
-            file.write(data)
-
-    print(f"Raw data saved to: {_filepath}")
-    return _filepath
 
 
 def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
@@ -77,16 +30,6 @@ def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
     df = df[~df["Arquivo GTFS"].isnull()]
     df = df[~df["Link da OS"].isnull()]
     df = df[~df["Link do GTFS"].isnull()]
-    return df
-
-
-def download_controle_os_csv(url: str) -> pd.DataFrame:
-    """Baixa o CSV de controle de OS e retorna como DataFrame."""
-    response = requests.get(url=url, timeout=smtr_constants.MAX_TIMEOUT_SECONDS)
-    response.raise_for_status()
-    response.encoding = "utf-8"
-    df = pd.read_csv(io.StringIO(response.text))
-    print(f"Download concluído! Dados:\n{df.head()}")
     return df
 
 
@@ -110,50 +53,18 @@ def normalizar_horario(horario: str) -> str:
         return horario.split(" ")[1] if " " in horario else horario
 
 
-def download_xlsx(file_link: str, drive_service) -> io.BytesIO:
-    """Baixa um arquivo XLSX do Google Drive."""
-    file_id = file_link.split("/")[-2]
-    file = drive_service.files().get(fileId=file_id, supportsAllDrives=True).execute()
-    mime_type = file.get("mimeType")
-
-    if "google-apps" in mime_type:
-        request = drive_service.files().export(
-            fileId=file_id,
-            mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
-    else:
-        request = drive_service.files().get_media(fileId=file_id)
-
-    file_bytes = io.BytesIO()
-    downloader = MediaIoBaseDownload(file_bytes, request)
-    done = False
-    while not done:
-        _, done = downloader.next_chunk()
-    file_bytes.seek(0)
-    return file_bytes
+def check_os_columns(data: pd.DataFrame, expected_columns: set[str], table_id: str) -> None:
+    """Valida se as colunas lidas da OS são conhecidas e não estão duplicadas."""
+    columns = set(data.columns)
+    print(f"Colunas ausentes em {table_id}: {expected_columns - columns}")
+    if not columns.issubset(expected_columns) or len(columns) != len(data.columns):
+        print(f"Colunas inesperadas em {table_id}: {columns - expected_columns}")
+        raise ValueError(f"Colunas faltantes ou duplicadas em {table_id}")
 
 
-def download_file(file_link: str, drive_service) -> io.BytesIO:
-    """Baixa um arquivo do Google Drive."""
-    file_id = file_link.split("/")[-2]
-    request = drive_service.files().get_media(fileId=file_id, supportsAllDrives=True)
-    file_bytes = io.BytesIO()
-    downloader = MediaIoBaseDownload(file_bytes, request)
-    done = False
-    while not done:
-        _, done = downloader.next_chunk()
-    return file_bytes
-
-
-def processa_ordem_servico(
-    sheetnames,
-    file_bytes,
-    local_filepath,
-    raw_filepaths,
-    regular_sheet_index=None,  # noqa: ARG001
-):
+def processa_ordem_servico(excel_file: pd.ExcelFile) -> pd.DataFrame:
     """Processa as abas de Ordem de Serviço de um arquivo Excel."""
-    sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO I " in name]
+    sheets = [name for name in excel_file.sheet_names if "ANEXO I " in name]
     if not sheets:
         raise ValueError("Nenhuma aba 'ANEXO I' encontrada no arquivo.")
     sheets_data = []
@@ -192,14 +103,14 @@ def processa_ordem_servico(
     }
     columns_in_values = set(columns.values())
 
-    for _, sheet_name in sheets:
+    for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
             raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
         tipo_os = match.group(1)
 
-        quadro = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
+        quadro = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
         quadro = quadro.rename(columns=columns)
         quadro["servico"] = quadro["servico"].astype(str)
         quadro["servico"] = quadro["servico"].str.extract(r"([A-Z]+)", expand=False).fillna(
@@ -234,40 +145,15 @@ def processa_ordem_servico(
         sheets_data.append(quadro)
 
     quadro_geral = pd.concat(sheets_data, ignore_index=True)
-
-    columns_in_dataframe = set(quadro_geral.columns)
-    all_columns_present = columns_in_dataframe.issubset(columns_in_values)
-    no_duplicate_columns = len(columns_in_dataframe) == len(quadro_geral.columns)
-    missing_columns = columns_in_values - columns_in_dataframe
-
-    print(
-        f"All columns present: {all_columns_present}/"
-        f"No duplicate columns: {no_duplicate_columns}/"
-        f"Missing columns: {missing_columns}"
-    )
-
-    if not all_columns_present or not no_duplicate_columns:
-        raise Exception("Missing or duplicated columns in ordem_servico")
-
-    local_file_path = next(filter(lambda x: "ordem_servico/" in x, local_filepath))
-    quadro_geral_csv = quadro_geral.to_csv(index=False)
-    raw_file_path = save_raw_local_func(
-        data=quadro_geral_csv, filepath=local_file_path, filetype="csv"
-    )
-    print(f"Saved file: {raw_file_path}")
-    raw_filepaths.append(raw_file_path)
+    check_os_columns(quadro_geral, columns_in_values, "ordem_servico")
+    return quadro_geral
 
 
-def processa_ordem_servico_trajeto_alternativo(  # noqa: PLR0913
-    sheetnames,
-    file_bytes,
-    local_filepath,
-    raw_filepaths,
-    data_versao_gtfs,
-    filename,
-):
+def processa_ordem_servico_trajeto_alternativo(
+    excel_file: pd.ExcelFile, data_versao_gtfs: str, table_id: str
+) -> pd.DataFrame:
     """Processa as abas de Trajetos Alternativos de um arquivo Excel."""
-    sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO II " in name]
+    sheets = [name for name in excel_file.sheet_names if "ANEXO II " in name]
     if not sheets:
         raise ValueError("Nenhuma aba 'ANEXO II' encontrada no arquivo.")
     sheets_data = []
@@ -301,58 +187,33 @@ def processa_ordem_servico_trajeto_alternativo(  # noqa: PLR0913
             "tipo_os": "tipo_os",
         }
 
-    for _, sheet_name in sheets:
+    for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
             raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
         tipo_os = match.group(1)
 
-        df = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
+        df = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
         df = df.rename(columns=alt_columns)
         df["tipo_os"] = tipo_os
         sheets_data.append(df)
 
     ordem_servico_trajeto_alternativo = pd.concat(sheets_data, ignore_index=True)
-    columns_in_dataframe = set(ordem_servico_trajeto_alternativo.columns)
-    columns_in_values = set(alt_columns.values())
-    all_columns_present = columns_in_dataframe.issubset(columns_in_values)
-    no_duplicate_columns = len(columns_in_dataframe) == len(
-        ordem_servico_trajeto_alternativo.columns
-    )
-    missing_columns = columns_in_values - columns_in_dataframe
-
-    print(
-        f"All columns present: {all_columns_present}/"
-        f"No duplicate columns: {no_duplicate_columns}/"
-        f"Missing columns: {missing_columns}"
-    )
-
-    if not all_columns_present or not no_duplicate_columns:
-        raise Exception("Missing or duplicated columns in ordem_servico_trajeto_alternativo")
-
-    local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
-    csv_data = ordem_servico_trajeto_alternativo.to_csv(index=False)
-    raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
-    print(f"Saved file: {raw_file_path}")
-    raw_filepaths.append(raw_file_path)
+    check_os_columns(ordem_servico_trajeto_alternativo, set(alt_columns.values()), table_id)
+    return ordem_servico_trajeto_alternativo
 
 
-def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
-    sheetnames,
-    file_bytes,
-    local_filepath,
-    raw_filepaths,
-    data_versao_gtfs,
-    filename,
-):
+def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
+    excel_file: pd.ExcelFile, data_versao_gtfs: str, table_id: str
+) -> pd.DataFrame:
     """Processa as abas de Faixa Horária de um arquivo Excel."""
     if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
-        sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO I " in name]
+        sheets = [name for name in excel_file.sheet_names if "ANEXO I " in name]
         if not sheets:
             raise ValueError("Nenhuma aba 'ANEXO I' encontrada no arquivo.")
     else:
-        sheets = [(i, name) for i, name in enumerate(sheetnames) if "ANEXO III " in name]
+        sheets = [name for name in excel_file.sheet_names if "ANEXO III " in name]
         if not sheets:
             raise ValueError("Nenhuma aba 'ANEXO III' encontrada no arquivo.")
     sheets_data = []
@@ -493,14 +354,14 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
 
     columns_in_values = set(columns.values())
 
-    for _, sheet_name in sheets:
+    for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
         match = re.search(r"\((.*?)\)", sheet_name)
         if not match:
             raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
         tipo_os = match.group(1)
 
-        df = pd.read_excel(file_bytes, sheet_name=sheet_name, dtype=object)
+        df = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
         df.columns = (
             df.columns.str.replace("\n", " ").str.strip().str.replace(r"\s+", " ", regex=True)
         )
@@ -530,27 +391,8 @@ def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915, PLR0913
         sheets_data.append(df)
 
     ordem_servico_faixa_horaria = pd.concat(sheets_data, ignore_index=True)
-    columns_in_dataframe = set(ordem_servico_faixa_horaria.columns)
-    missing_columns = columns_in_values - columns_in_dataframe
-    all_columns_present = columns_in_dataframe.issubset(columns_in_values)
-    no_duplicate_columns = len(columns_in_dataframe) == len(ordem_servico_faixa_horaria.columns)
-
-    print(
-        f"All columns present: {all_columns_present}\n"
-        f"No duplicate columns: {no_duplicate_columns}\n"
-        f"Missing columns: {missing_columns}"
-    )
-
-    if not all_columns_present or not no_duplicate_columns:
-        print(columns_in_values.difference(columns_in_dataframe))
-        print(columns_in_dataframe.difference(columns_in_values))
-        raise Exception("Missing or duplicated columns in ordem_servico_faixa_horaria")
-
-    local_file_path = next(filter(lambda x: filename + "/" in x, local_filepath))
-    csv_data = ordem_servico_faixa_horaria.to_csv(index=False)
-    raw_file_path = save_raw_local_func(data=csv_data, filepath=local_file_path, filetype="csv")
-    print(f"Saved file: {raw_file_path}")
-    raw_filepaths.append(raw_file_path)
+    check_os_columns(ordem_servico_faixa_horaria, columns_in_values, table_id)
+    return ordem_servico_faixa_horaria
 
 
 def redis_state_key(dataset_id: str, state_name: str, mode: str) -> str:
@@ -585,19 +427,11 @@ def read_os_marker(redis_client, dataset_id: str, state_name: str, mode: str) ->
     )
 
 
-def write_os_marker(
-    redis_client, dataset_id: str, state_name: str, data_index: str, mode: str
-) -> None:
-    """Persiste um marcador de OS no Redis."""
-    redis_client.set(
-        redis_state_key(dataset_id, state_name, mode),
-        {state_name: data_index},
-    )
-
-
 def get_os_rows() -> pd.DataFrame:
     """Baixa e ordena as linhas válidas da planilha de controle de OS."""
-    df = download_controle_os_csv(constants.GTFS_CONTROLE_OS_URL)
+    df = pd.read_csv(
+        io.StringIO(get_api_data(url=constants.GTFS_CONTROLE_OS_URL, raw_filetype="csv"))
+    )
     if df.empty:
         return df
 
@@ -637,16 +471,15 @@ def next_data_index(rows: pd.DataFrame, last_data_index: str | None) -> str | No
 def get_os_info(
     last_captured_os: str | None = None,
     data_versao_gtfs: str | None = None,
-    rows: pd.DataFrame | None = None,
 ) -> tuple[bool, dict, str | None, str | None]:
     """Seleciona a próxima OS válida ou uma versão solicitada explicitamente."""
-    rows = get_os_rows() if rows is None else rows
+    rows = get_os_rows()
     data = {"Início da Vigência da OS": None, "data_index": None}
     if rows.empty:
         return False, data, None, None
 
     if data_versao_gtfs is not None:
-        selected = rows.loc[rows["Início da Vigência da OS"] == data_versao_gtfs]
+        selected = rows.loc[rows["Início da Vigência da OS"] == data_versao_gtfs].tail(1)
     elif last_captured_os is None:
         selected = rows.tail(1)
     else:
@@ -659,10 +492,7 @@ def get_os_info(
         print("Nenhuma nova OS encontrada.")
         return False, data, None, None
 
-    row = selected.iloc[0]
-    position = rows.index.get_loc(row.name)
-    data = row.to_dict()
-    data["previous_data_index"] = rows.iloc[position - 1]["data_index"] if position else None
+    data = selected.iloc[0].to_dict()
     print(f"OS selecionada: {data}")
     return True, data, data["data_index"], data["Início da Vigência da OS"]
 
@@ -684,187 +514,53 @@ def filter_gtfs_table_ids(
     return gtfs_table_capture_params
 
 
-def get_raw_gtfs_files(  # noqa: PLR0913
-    os_control: dict,
-    local_filepath: list[str],
-    regular_sheet_index: int | None,
-    upload_from_gcs: bool,
-    data_versao_gtfs: str,
-    dict_gtfs: dict[str, list[str]],
-    env: str,
-) -> list[str]:
-    """Baixa o ZIP e a OS, processando um arquivo bruto para cada tabela selecionada."""
-    raw_filepaths = []
-    print(f"Baixando arquivos: {os_control}")
-
+def download_gtfs_files(
+    os_control: dict, data_versao_gtfs: str, upload_from_gcs: bool, env: str
+) -> tuple[str, str]:
+    """Baixa uma única vez a OS e o ZIP do GTFS para uso de todas as tabelas."""
     if upload_from_gcs:
         print("Baixando arquivos através do GCS")
-        file_bytes_os = io.BytesIO(
-            get_upload_storage_blob(
-                env=env, dataset_id=constants.GTFS_DATASET_ID, filename="os"
-            ).download_as_bytes()
-        )
-        file_bytes_gtfs = io.BytesIO(
-            get_upload_storage_blob(
-                env=env, dataset_id=constants.GTFS_DATASET_ID, filename="gtfs"
-            ).download_as_bytes()
-        )
+        storage = Storage(env=env, dataset_id=constants.GTFS_DATASET_ID)
+        os_bytes = storage.get_blob_bytes(mode="upload", filename="os", filetype="xlsx")
+        gtfs_bytes = storage.get_blob_bytes(mode="upload", filename="gtfs", filetype="zip")
     else:
         print("Baixando arquivos através do Google Drive")
         drive_service = get_google_api_service(service_name="drive", version="v3")
-        file_bytes_os = download_xlsx(
-            file_link=os_control["Link da OS"], drive_service=drive_service
-        )
-        file_bytes_gtfs = download_file(
-            file_link=os_control["Link do GTFS"], drive_service=drive_service
-        )
+        os_bytes = download_drive_file(os_control["Link da OS"], drive_service)
+        gtfs_bytes = download_drive_file(os_control["Link do GTFS"], drive_service)
 
-    sheetnames = [name for name in xl_load_workbook_sheetnames(file_bytes_os) if "ANEXO" in name]
-    print(f"tabs encontradas na planilha Controle OS: {sheetnames}")
-
-    with zipfile.ZipFile(file_bytes_gtfs, "r") as zipped_file:
-        for filename in dict_gtfs:
-            if filename == "ordem_servico":
-                processa_ordem_servico(
-                    sheetnames=sheetnames,
-                    file_bytes=file_bytes_os,
-                    local_filepath=local_filepath,
-                    raw_filepaths=raw_filepaths,
-                    regular_sheet_index=regular_sheet_index,
-                )
-            elif "ordem_servico_trajeto_alternativo" in filename:
-                processa_ordem_servico_trajeto_alternativo(
-                    sheetnames=sheetnames,
-                    file_bytes=file_bytes_os,
-                    local_filepath=local_filepath,
-                    raw_filepaths=raw_filepaths,
-                    data_versao_gtfs=data_versao_gtfs,
-                    filename=filename,
-                )
-            elif "ordem_servico_faixa_horaria" in filename:
-                processa_ordem_servico_faixa_horaria(
-                    sheetnames=sheetnames,
-                    file_bytes=file_bytes_os,
-                    local_filepath=local_filepath,
-                    raw_filepaths=raw_filepaths,
-                    data_versao_gtfs=data_versao_gtfs,
-                    filename=filename,
-                )
-            else:
-                data = zipped_file.read(filename + ".txt").decode(encoding="utf-8")
-                local_file_path = next(filter(lambda path: filename + "/" in path, local_filepath))
-                raw_file_path = save_raw_local_func(
-                    data=data, filepath=local_file_path, filetype="txt"
-                )
-                print(f"Saved file: {raw_file_path}")
-                raw_filepaths.append(raw_file_path)
-
-    return raw_filepaths
+    folder = Path(get_data_folder_path()) / "upload" / constants.GTFS_DATASET_ID / data_versao_gtfs
+    folder.mkdir(parents=True, exist_ok=True)
+    os_filepath = folder / "os.xlsx"
+    gtfs_filepath = folder / "gtfs.zip"
+    os_filepath.write_bytes(os_bytes)
+    gtfs_filepath.write_bytes(gtfs_bytes)
+    print(f"Arquivos salvos em {folder}")
+    return str(os_filepath), str(gtfs_filepath)
 
 
-def prepare_gtfs_raw_files(context) -> str:
-    """Prepara o arquivo bruto da fonte dentro do extractor genérico."""
+def extract_gtfs_table(context) -> list[str]:
+    """Extrai a tabela do contexto da OS ou do ZIP do GTFS e salva o arquivo bruto."""
+    table_id = context.source.table_id
     extra_parameters = context.extra_parameters
-    local_filepath = str(Path(context.raw_filepath.format(page=0)).with_suffix(".{filetype}"))
-    raw_filepaths = get_raw_gtfs_files(
-        os_control=extra_parameters["os_control"],
-        local_filepath=[local_filepath],
-        regular_sheet_index=extra_parameters["regular_sheet_index"],
-        upload_from_gcs=extra_parameters["upload_from_gcs"],
-        data_versao_gtfs=extra_parameters["data_versao_gtfs"],
-        dict_gtfs={context.source.table_id: context.source.primary_keys},
-        env=context.source.env,
-    )
-    if len(raw_filepaths) != 1:
-        raise ValueError(
-            f"Esperado um arquivo bruto para {context.source.table_id}, "
-            f"recebidos: {len(raw_filepaths)}"
-        )
-    return raw_filepaths[0]
+    data_versao_gtfs = extra_parameters["data_versao_gtfs"]
+    raw_filepath = context.raw_filepath.format(page=0)
 
+    if table_id.startswith("ordem_servico"):
+        excel_file = pd.ExcelFile(extra_parameters["os_filepath"])
+        if table_id == "ordem_servico":
+            data = processa_ordem_servico(excel_file)
+        elif table_id.startswith("ordem_servico_trajeto_alternativo"):
+            data = processa_ordem_servico_trajeto_alternativo(
+                excel_file, data_versao_gtfs, table_id
+            )
+        else:
+            data = processa_ordem_servico_faixa_horaria(excel_file, data_versao_gtfs, table_id)
+        raw_filepath = str(Path(raw_filepath).with_suffix(".csv"))
+        save_local_file(filepath=raw_filepath, filetype="csv", data=data)
+    else:
+        with zipfile.ZipFile(extra_parameters["gtfs_filepath"]) as zipped_file:
+            data = zipped_file.read(f"{table_id}.txt").decode(encoding="utf-8")
+        save_local_file(filepath=raw_filepath, filetype="txt", data=data)
 
-def get_prepared_gtfs_raw_file(raw_filepath: str) -> list[str]:
-    """Adapta um caminho GTFS preparado ao contrato do extractor genérico."""
     return [raw_filepath]
-
-
-def normalize_gtfs_data(data: pd.DataFrame, context) -> pd.DataFrame:
-    """Normaliza texto e preenche o tipo de OS antes da estrutura aninhada."""
-    object_columns = data.select_dtypes(include=["object"]).columns
-    data[object_columns] = data[object_columns].apply(lambda column: column.str.strip())
-
-    if "ordem_servico" in context.source.table_id and "tipo_os" not in data.columns:
-        data["tipo_os"] = "Regular"
-    return data
-
-
-class GtfsSourceTable(SourceTable):
-    """SourceTable que mantém o layout de staging e a partição Hive do GTFS."""
-
-    def __init__(self, table_id: str, primary_keys: list[str], dataset_id: str) -> None:
-        self.staging_dataset_id = f"{dataset_id}_staging"
-        super().__init__(
-            source_name="gtfs",
-            table_id=table_id,
-            first_timestamp=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
-            flow_folder_name="capture__smtr_gtfs",
-            primary_keys=primary_keys,
-            pretreatment_reader_args={"dtype": str, "on_bad_lines": "warn"},
-            pretreat_funcs=[normalize_gtfs_data],
-            partition_date_only=True,
-            raw_filetype="txt",
-            file_chunk_size=50_000,
-            transform_in_chunks=True,
-            partition_key="data_versao",
-        )
-        self.dataset_id = dataset_id
-        self.set_env(self.env)
-
-    def set_env(self, env: str):
-        super().set_env(env=env)
-        self.table_full_name = (
-            f"{smtr_constants.PROJECT_NAME[env]}.{self.staging_dataset_id}.{self.table_id}"
-        )
-        return self
-
-    def _create_table_config(self, sample_filepath: str) -> bigquery.ExternalConfig:
-        external_config = bigquery.ExternalConfig("CSV")
-        external_config.options.skip_leading_rows = 1
-        external_config.options.allow_quoted_newlines = True
-        external_config.autodetect = False
-        external_config.schema = self._create_table_schema(sample_filepath=sample_filepath)
-        external_config.options.field_delimiter = ","
-        external_config.options.allow_jagged_rows = False
-
-        source_uri_prefix = f"gs://{self.bucket_name}/staging/{self.dataset_id}/{self.table_id}/"
-        external_config.source_uris = [f"{source_uri_prefix}*/*"]
-        hive_partitioning = HivePartitioningOptions()
-        hive_partitioning.mode = "AUTO"
-        hive_partitioning.source_uri_prefix = source_uri_prefix
-        external_config.hive_partitioning = hive_partitioning
-        return external_config
-
-    def create(self, sample_filepath: str, location: str = "US") -> None:
-        Dataset(dataset_id=self.staging_dataset_id, env=self.env, location=location).create()
-        table = bigquery.Table(self.table_full_name)
-        table.description = f"staging table for `{self.table_full_name}`"
-        table.external_data_configuration = self._create_table_config(
-            sample_filepath=sample_filepath
-        )
-        self.client("bigquery").create_table(table)
-
-    def append(self, source_filepath: str, partition: str, if_exists: str = "replace") -> None:
-        Storage(
-            env=self.env,
-            dataset_id=self.dataset_id,
-            table_id=self.table_id,
-            bucket_names=self.bucket_names,
-        ).upload_file(
-            mode="staging",
-            filepath=source_filepath,
-            partition=partition,
-            if_exists=if_exists,
-        )
-
-
-from pipelines.capture__smtr_gtfs import constants  # noqa: E402

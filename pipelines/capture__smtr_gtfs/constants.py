@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Constantes usadas pela captura do GTFS."""
 
-from pipelines.capture__smtr_gtfs.utils import GtfsSourceTable
+from pipelines.capture__smtr_gtfs.source_table import GTFSSourceTable
 
 GTFS_CONTROLE_OS_URL = (
     "https://docs.google.com/spreadsheets/d/"
@@ -42,6 +42,6 @@ DATA_GTFS_V4_INICIO = "2025-07-16"
 DATA_GTFS_V5_INICIO = "2025-12-21"
 
 GTFS_SOURCES = [
-    GtfsSourceTable(table_id=table_id, primary_keys=primary_keys, dataset_id=GTFS_DATASET_ID)
+    GTFSSourceTable(table_id=table_id, primary_keys=primary_keys, dataset_id=GTFS_DATASET_ID)
     for table_id, primary_keys in GTFS_TABLE_CAPTURE_PARAMS.items()
 ]
