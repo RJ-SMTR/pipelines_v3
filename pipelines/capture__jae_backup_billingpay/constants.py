@@ -535,7 +535,7 @@ BACKUP_JAE_BILLING_PAY = {
             "tipo_movimento_estacionamento": ["id"],
             "tipo_pagamento": ["id"],
             "tipo_periodo": ["id"],
-            "tipo_periodo_tarifa": ["id"],
+            "tipo_periodo_tarifa": ["data_inclusao"],
             "tipo_veiculo": ["id"],
             "tmp_mapeamento_pagamento": ["count(*)"],
         },
