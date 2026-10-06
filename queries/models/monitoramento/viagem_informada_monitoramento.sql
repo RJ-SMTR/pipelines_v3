@@ -17,8 +17,6 @@
 {% set staging_viagem_informada_brt = ref("staging_viagem_informada_brt") %}
 {# {% set staging_viagem_informada_brt = ("rj-smtr.monitoramento_staging.viagem_informada_brt") %} #}
 {% set staging_viagem_informada_maxtrack = ref("staging_viagem_informada_maxtrack") %}
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
 {% if execute %}
     {% if is_incremental() %}
         {% set partitions_query %}
@@ -100,16 +98,6 @@
             | sort
         ) %}
 
-        {% if partitions | length > 0 %}
-            {% set gtfs_feeds_query %}
-                select distinct concat("'", feed_start_date, "'") as feed_start_date
-                from {{ calendario }}
-                where data in ({{ partitions | join(", ") }})
-            {% endset %}
-
-            {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-        {% else %} {% set gtfs_feeds = [] %}
-        {% endif %}
     {% endif %}
 
 {% endif %}
@@ -247,21 +235,6 @@ with
             )
             = 1
     ),
-    calendario as (
-        select *
-        from {{ calendario }}
-        {% if is_incremental() %}
-            where data in ({{ partitions | join(", ") }})
-        {% endif %}
-    ),
-    routes as (
-        select *
-        from {{ ref("routes_gtfs") }}
-        {# from `rj-smtr.gtfs.routes` #}
-        {% if is_incremental() %}
-            where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        {% endif %}
-    ),
     viagem_modo as (
         select
             data,
@@ -271,14 +244,7 @@ with
             v.datetime_partida,
             v.datetime_chegada,
             v.datetime_processamento,
-            case
-                when v.fonte_gps = 'brt'
-                then 'BRT'
-                when
-                    r.agency_id in ("22005", "22002", "22004", "22003")
-                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
-                then 'Ônibus'
-            end as modo,
+            case when v.fonte_viagem = 'mobirio' then 'BRT' else 'Ônibus' end as modo,
             if(trim(v.servico) = '', null, v.servico) as servico,
             if(trim(v.route_id) = '', null, v.route_id) as route_id,
             if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
@@ -292,8 +258,6 @@ with
             v.fonte_viagem,
             v.datetime_captura
         from deduplicado v
-        join calendario c using (data)
-        left join routes r using (route_id, feed_start_date, feed_version)
     )
 select
     *,
