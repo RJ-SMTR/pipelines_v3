@@ -3,11 +3,11 @@
 Flow de materialização de viagem informada
 
 Executa o selector DBT 'viagem_informada' para materializar dados de viagens
-informadas pela Rio Ônibus no BigQuery.
+informadas pela Rio Ônibus e pela Maxtrack no BigQuery.
 
 Schedule:
 - Diariamente às 7h30 (horário de São Paulo)
-- Depende de dados do Planejamento Diário e da Rio Ônibus
+- Depende das capturas da Rio Ônibus e da Maxtrack
 
 DBT: 2026-03-24
 """
