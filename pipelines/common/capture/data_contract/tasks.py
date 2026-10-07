@@ -81,8 +81,8 @@ def validate_raw_data_contract(
             include_failed_samples=True,
         ).test()
         print(
-            f"Testing {contract_path.name}\n"
-            f"Server: incoming (path={raw_filepath})\n"
+            f"Testando {contract_path.name}\n"
+            f"Servidor: incoming (caminho={raw_filepath})\n"
             f"{format_test_results(result)}"
         )
         validation["results"].extend(contract_test_results(result, table=source.table_id))
