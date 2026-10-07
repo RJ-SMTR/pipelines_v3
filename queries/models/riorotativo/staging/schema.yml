@@ -93,8 +93,6 @@ models:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
         tests:
           - not_null:
               name: not_null__documento__staging_agente_verificacao_riorotativo
@@ -235,8 +233,6 @@ models:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
         tests:
           - not_null:
               name: not_null__documento__staging_lista_bloqueio_riorotativo
