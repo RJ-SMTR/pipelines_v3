@@ -233,6 +233,9 @@ class SourceTable(BQTable):
         transform_in_chunks (bool): transforma CSV/TXT em chunks do tamanho de
             file_chunk_size
         partition_key (str): chave Hive da partição de data
+        validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
+        data_contract_model (Optional[str]): Modelo dbt; padrão ``staging_<table_id>``.
+        data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do contrato de dados.
 
     """
 
@@ -254,6 +257,9 @@ class SourceTable(BQTable):
         file_chunk_size: Optional[int] = None,
         transform_in_chunks: bool = False,
         partition_key: str = "data",
+        validate_data_contract: bool = False,
+        data_contract_model: Optional[str] = None,
+        data_contract_ignored_columns: tuple[str, ...] = (),
     ) -> None:
         self.source_name = source_name
         super().__init__(
@@ -279,6 +285,9 @@ class SourceTable(BQTable):
         if transform_in_chunks and file_chunk_size is None:
             raise ValueError("file_chunk_size é obrigatório quando transform_in_chunks=True")
         self.transform_in_chunks = transform_in_chunks
+        self.validate_data_contract = validate_data_contract
+        self.data_contract_model = data_contract_model or f"staging_{table_id}"
+        self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)
 
     def _get_schedule_cron(self) -> str:
         """
