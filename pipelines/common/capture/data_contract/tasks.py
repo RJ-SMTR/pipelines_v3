@@ -47,14 +47,11 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         None: Registra a validação no log e conclui, ou interrompe o flow com uma exceção.
 
     Raises:
-        ValueError: Arquivos ausentes, contrato incompatível ou validação reprovada.
+        ValueError: Contrato incompatível ou validação reprovada.
     """
     source = context.source
     if not source.validate_data_contract:
         return None
-    if not context.captured_raw_filepaths:
-        raise ValueError(f"Nenhum arquivo bruto foi capturado para {source.table_id}.")
-
     contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"), None)
     if contract_path is None:
         raise ValueError(
