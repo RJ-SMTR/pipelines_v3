@@ -1,0 +1,55 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:riorotativo_staging:staging_guardador_veiculo_34152025000122_riorotativo
+name: riorotativo_staging/staging_guardador_veiculo_34152025000122_riorotativo
+status: active
+schema:
+- name: staging_guardador_veiculo_34152025000122_riorotativo
+  physicalType: view
+  description: |
+    Uma linha por guardador de veículo (cpf) por captura da entidade credenciadora 34152025000122.
+    Staging com os nomes das colunas da captura, sem deduplicação; a última captura de cada dia é
+    selecionada em guardador_veiculo_riorotativo_historico.
+    As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
+    Fonte: source_riorotativo.entidade_34152025000122.
+    Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+  logicalType: object
+  physicalName: rj-smtr.riorotativo_staging.guardador_veiculo_34152025000122
+  properties:
+  - name: data
+    physicalType: DATE
+    description: Data da captura (partição)
+    logicalType: date
+  - name: cpf
+    physicalType: STRING
+    description: CPF do guardador de veículo
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+    classification: restricted
+  - name: identificacao
+    physicalType: STRING
+    description: Número de identificação do guardador de veículo
+    logicalType: string
+    quality:
+    - type: library
+      metric: nullValues
+      mustBe: 0
+      description: Todos os valores da coluna `identificacao` não nulos
+    - type: library
+      metric: duplicateValues
+      mustBe: 0
+      description: Todos os valores da coluna `identificacao` são únicos
+  - name: cnpj
+    physicalType: STRING
+    description: CNPJ da entidade credenciadora associada ao guardador de veículo
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11
