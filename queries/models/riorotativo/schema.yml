@@ -96,7 +96,7 @@ models:
       com o status do dia (ativo ou bloqueado).
       Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
       Use documento e data para junções; id_guardador_veiculo_historico é a chave única.
-      Fonte: staging_guardador_veiculo_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      Fonte: staging_guardador_veiculo_<cnpj>_riorotativo (última captura do dia) e staging_lista_bloqueio_riorotativo, enriquecidas com
       cliente_jae e entidade_credenciadora_riorotativo_historico.
       Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
       Documento bloqueado que não está na lista de guardadores de veículo não gera registro.
@@ -370,7 +370,7 @@ models:
       Cada execução observa o valor corrente e abre nova vigência quando ele muda.
       A versão vigente tem data_fim_vigencia nula.
       CNPJ que deixa de aparecer nas stagings mantém a última vigência aberta.
-      Os CNPJs acompanhados são os observados em staging_guardador_veiculo_riorotativo e
+      Os CNPJs acompanhados são os observados em staging_guardador_veiculo_<cnpj>_riorotativo e
       staging_agente_verificacao_riorotativo.
       Use cnpj e a vigência para junções.
     tests:

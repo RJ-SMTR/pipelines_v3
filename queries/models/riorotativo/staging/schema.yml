@@ -1,12 +1,13 @@
 version: 2
 
 models:
-  - name: staging_guardador_veiculo_riorotativo
+  - name: staging_guardador_veiculo_05019730000158_riorotativo
     description: |
-      Uma linha por guardador de veículo (cpf) por entidade credenciadora (cnpj), por data de captura.
-      Staging com os nomes das colunas da captura, deduplicado pela última captura de cada dia.
+      Uma linha por guardador de veículo (cpf) por captura da entidade credenciadora 05019730000158.
+      Staging com os nomes das colunas da captura, sem deduplicação; a última captura de cada dia é
+      selecionada em guardador_veiculo_riorotativo_historico.
       As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
-      Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
+      Fonte: source_riorotativo.entidade_05019730000158.
       Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
     config:
       meta:
@@ -23,21 +24,52 @@ models:
           meta:
             datacontract_cli:
               classification: restricted
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        data_tests:
+          - not_null:
+              name: not_null__identificacao__staging_guardador_veiculo_05019730000158_riorotativo
+          - unique:
+              name: unique__identificacao__staging_guardador_veiculo_05019730000158_riorotativo
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_guardador_veiculo_34152025000122_riorotativo
+    description: |
+      Uma linha por guardador de veículo (cpf) por captura da entidade credenciadora 34152025000122.
+      Staging com os nomes das colunas da captura, sem deduplicação; a última captura de cada dia é
+      selecionada em guardador_veiculo_riorotativo_historico.
+      As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
+      Fonte: source_riorotativo.entidade_34152025000122.
+      Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [cpf]
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+      - name: cpf
+        description: "{{ doc('cpf_guardador') }}"
         data_type: string
         config:
           meta:
             datacontract_cli:
-              quality:
-                - type: library
-                  metric: duplicateValues
-                  mustBe: 0
-                - type: library
-                  metric: nullValues
-                  mustBe: 0
+              classification: restricted
+      - name: identificacao
+        description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        data_tests:
+          - not_null:
+              name: not_null__identificacao__staging_guardador_veiculo_34152025000122_riorotativo
+          - unique:
+              name: unique__identificacao__staging_guardador_veiculo_34152025000122_riorotativo
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string

@@ -16,11 +16,18 @@
     )
 {% endset %}
 
--- depends_on: {{ ref('staging_guardador_veiculo_riorotativo') }}
+-- depends_on: {{ ref('staging_guardador_veiculo_05019730000158_riorotativo') }}
+-- depends_on: {{ ref('staging_guardador_veiculo_34152025000122_riorotativo') }}
 {% if execute %}
     {% set cnpj_partitions_query %}
         select distinct cast(cnpj as int64)
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from {{ ref("staging_guardador_veiculo_05019730000158_riorotativo") }}
+        where cnpj is not null
+
+        union distinct
+
+        select distinct cast(cnpj as int64)
+        from {{ ref("staging_guardador_veiculo_34152025000122_riorotativo") }}
         where cnpj is not null
         {# union all
 
