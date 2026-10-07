@@ -82,7 +82,11 @@ def import_contract_from_manifest(
 
     schema["quality"] = _library_quality(model)
     for prop in schema["properties"]:
-        quality = _library_quality(model["columns"][prop["name"]])
+        column = model["columns"][prop["name"]]
+        classification = _datacontract_meta(column).get("classification")
+        if classification is not None:
+            prop["classification"] = classification
+        quality = _library_quality(column)
         if quality:
             prop["quality"] = quality
     return contract

@@ -19,6 +19,10 @@ models:
       - name: cpf
         description: "{{ doc('cpf_guardador') }}"
         data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              classification: restricted
         policy_tags:
           - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
       - name: identificacao
