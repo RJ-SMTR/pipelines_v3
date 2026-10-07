@@ -51,6 +51,9 @@ class GoogleSheetTable:
     pretreat_funcs: Optional[list[Callable[..., pd.DataFrame]]] = None
     partition_date_only: bool = True
     max_recaptures: int = 7
+    validate_data_contract: bool = False
+    data_contract_model: Optional[str] = None
+    data_contract_ignored_columns: tuple[str, ...] = ()
 
 
 def create_google_sheet_capture_params(  # noqa: PLR0913
@@ -97,6 +100,9 @@ def create_google_sheet_capture_params(  # noqa: PLR0913
             partition_date_only=table.partition_date_only,
             max_recaptures=table.max_recaptures,
             raw_filetype="csv",
+            validate_data_contract=table.validate_data_contract,
+            data_contract_model=table.data_contract_model,
+            data_contract_ignored_columns=table.data_contract_ignored_columns,
         )
         for table in tables
     ]
