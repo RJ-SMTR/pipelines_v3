@@ -8,6 +8,7 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 GTFS_DISCORD_WEBHOOK = "gtfs"
+GTFS_MATERIALIZACAO_DATASET_ID = "gtfs"
 
 GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "

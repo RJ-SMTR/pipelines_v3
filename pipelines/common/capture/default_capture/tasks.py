@@ -140,6 +140,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
 
     for raw_filepath in context.captured_raw_filepaths:
         reader_args = source.pretreatment_reader_args or {}
+        captura = create_timestamp_captura(
+            timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
+        )
         if not source.transform_in_chunks:
             data_chunks = [read_raw_data(filepath=raw_filepath, reader_args=reader_args)]
         else:
@@ -164,9 +167,6 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
                 print(f"Raw data:\n{data_info_str(data)}")
 
                 data_columns_len = len(data.columns)
-                captura = create_timestamp_captura(
-                    timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
-                )
 
                 for step in source.pretreat_funcs:
                     data = step(data=data, context=context)

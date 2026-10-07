@@ -15,8 +15,8 @@ from pipelines.treatment__planejamento_diario.flow import treatment__planejament
 
 @flow(log_prints=True, flow_run_name=rename_flow_run)
 async def treatment__gtfs(  # noqa: PLR0913
+    data_versao: str,
     env: Optional[str] = None,
-    data_versao: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
