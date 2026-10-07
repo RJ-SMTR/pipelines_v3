@@ -498,8 +498,8 @@ def get_os_info(
 
 
 def filter_gtfs_table_ids(
-    data_versao_gtfs: str, gtfs_table_capture_params: dict[str, list[str]]
-) -> dict[str, list[str]]:
+    data_versao_gtfs: str, gtfs_table_capture_params: dict[str, dict]
+) -> dict[str, dict]:
     """Filtra as tabelas disponíveis conforme a versão do formato GTFS."""
     if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
         gtfs_table_capture_params.pop("ordem_servico", None)

@@ -16,7 +16,14 @@ from pipelines.common.utils.pretreatment import strip_string_columns
 class GTFSSourceTable(SourceTable):
     """SourceTable que mantém o layout de staging e a partição Hive do GTFS."""
 
-    def __init__(self, table_id: str, primary_keys: list[str], dataset_id: str) -> None:
+    def __init__(
+        self,
+        table_id: str,
+        primary_keys: list[str],
+        dataset_id: str,
+        validate_data_contract: bool = False,
+        data_contract_ignored_columns: tuple[str, ...] = (),
+    ) -> None:
         self.staging_dataset_id = f"{dataset_id}_staging"
         super().__init__(
             source_name="gtfs",
@@ -31,6 +38,8 @@ class GTFSSourceTable(SourceTable):
             file_chunk_size=50_000,
             transform_in_chunks=True,
             partition_key="data_versao",
+            validate_data_contract=validate_data_contract,
+            data_contract_ignored_columns=data_contract_ignored_columns,
         )
         self.dataset_id = dataset_id
         self.set_env(self.env)
