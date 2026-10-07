@@ -17,6 +17,7 @@ from datacontract.model.run import Run
 
 from pipelines.common.capture.data_contract.constants import (
     CAPTURE_METADATA_COLUMNS,
+    CHECK_DESCRIPTIONS,
     DEFAULT_MANIFEST,
     GITHUB_API,
     REQUEST_TIMEOUT,
@@ -54,6 +55,31 @@ def to_field(run: Run, check: Any) -> str | None:
             return check.model
         return f"{check.model}.{check.field}"
     return check.field
+
+
+def check_description(check: Any) -> str:
+    """Retorna a descrição em português do check.
+
+    Usa a description da regra de qualidade que originou o check e, na ausência, uma
+    descrição padrão pelo tipo do check. Sem correspondência, mantém o nome do datacontract.
+    Em relationships, a coluna referenciada vem do nome do check, único lugar do resultado
+    que a informa.
+
+    Args:
+        check (Any): Check do resultado do teste do contrato.
+
+    Returns:
+        str: Descrição do check.
+    """
+    if check.qualityDefinition:
+        rule = yaml.safe_load(check.qualityDefinition) or {}
+        if rule.get("description"):
+            return rule["description"]
+    template = CHECK_DESCRIPTIONS.get(check.type)
+    if template is not None and check.field is not None:
+        reference = (check.name or "").partition(" missing from ")[2]
+        return template.format(field=check.field, reference=reference)
+    return check.name
 
 
 def _format_table_border(widths: tuple[int, ...]) -> str:
@@ -116,7 +142,7 @@ def _format_test_results_table(run: Run) -> str:
     Returns:
         str: Tabela textual dos checks, sem renderização Rich.
     """
-    widths = (8, 28, 15, 22)
+    widths = (8, 40, 15, 22)
     border = _format_table_border(widths)
     lines = [
         border,
@@ -136,7 +162,7 @@ def _format_test_results_table(run: Run) -> str:
             _format_table_row(
                 [
                     _result_value(check.result),
-                    check.name,
+                    check_description(check),
                     to_field(run, check),
                     check.reason,
                 ],
@@ -162,8 +188,7 @@ def _format_failed_checks(run: Run, width: int = 88) -> list[str]:
     for check in run.checks:
         if _result_value(check.result) in ("passed", "skipped"):
             continue
-        field = to_field(run, check)
-        prefix = f"{position}) {field + ' ' if field else ''}{check.name}: "
+        prefix = f"{position}) {check_description(check)}: "
         reason_lines = wrap(
             prefix + str(check.reason or ""),
             width=width,

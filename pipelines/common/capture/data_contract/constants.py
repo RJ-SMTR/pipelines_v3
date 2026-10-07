@@ -11,6 +11,17 @@ DBT_TEST_METRICS = {
     "unique": "duplicateValues",
     "accepted_values": "invalidValues",
 }
+CHECK_DESCRIPTIONS = {
+    "field_is_present": "A coluna `{field}` está presente no arquivo",
+    "field_type": "A coluna `{field}` tem o tipo esperado",
+    "field_primary_key_required": "Todos os valores da chave primária `{field}` não nulos",
+    "field_primary_key_unique": "Todos os valores da chave primária `{field}` são únicos",
+    "field_null_values": "Todos os valores da coluna `{field}` não nulos",
+    "field_duplicate_values": "Todos os valores da coluna `{field}` são únicos",
+    "field_invalid_values": "Todos os valores da coluna `{field}` estão entre os aceitos",
+    "row_count": "Quantidade de linhas do arquivo conforme o contrato",
+    "field_relationships": "Todos os valores da coluna `{field}` existem em `{reference}`",
+}
 GITHUB_API = "https://api.github.com"
 REQUEST_TIMEOUT = (10, 60)
 ROOT = Path(__file__).resolve().parents[4]
