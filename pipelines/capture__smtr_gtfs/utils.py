@@ -556,11 +556,10 @@ def extract_gtfs_table(context) -> list[str]:
             )
         else:
             data = processa_ordem_servico_faixa_horaria(excel_file, data_versao_gtfs, table_id)
-        raw_filepath = str(Path(raw_filepath).with_suffix(".csv"))
         save_local_file(filepath=raw_filepath, filetype="csv", data=data)
     else:
         with zipfile.ZipFile(extra_parameters["gtfs_filepath"]) as zipped_file:
             data = zipped_file.read(f"{table_id}.txt").decode(encoding="utf-8")
-        save_local_file(filepath=raw_filepath, filetype="txt", data=data)
+        save_local_file(filepath=raw_filepath, filetype="csv", data=data)
 
     return [raw_filepath]
