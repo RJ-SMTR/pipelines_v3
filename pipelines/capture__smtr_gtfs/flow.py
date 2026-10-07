@@ -19,6 +19,7 @@ async def capture__smtr_gtfs(
     upload_from_gcs: bool = False,  # noqa: ARG001
     data_versao_gtfs: Optional[str] = None,  # noqa: ARG001
     flags: Optional[list[str]] = None,
+    skip_data_contract_validation: bool = False,
 ):
     tasks = create_capture_flows_default_tasks(
         env=env,
@@ -29,6 +30,7 @@ async def capture__smtr_gtfs(
         recapture_days=0,
         recapture_timestamps=None,
         should_capture_task=should_capture_gtfs,
+        skip_data_contract_validation=skip_data_contract_validation,
     )
 
     if not tasks["should_capture"]:
