@@ -1,5 +1,21 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.2.0] - 2026-10-06
+
+### Adicionado
+
+- Adiciona `ORDER BY` em todas as queries de captura (https://github.com/RJ-SMTR/pipelines_v3/pull/737)
+
+### Corrigido
+
+- Ajusta coluna de filtro da tabela `estacionamento_db.tipo_periodo_tarifa` (https://github.com/RJ-SMTR/pipelines_v3/pull/737)
+
+## [1.1.5] - 2026-10-05
+
+### Adicionado
+
+- Adiciona backup do banco `estacionamento_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/729)
+
 ## [1.1.4] - 2026-08-19
 
 ### Adicionado

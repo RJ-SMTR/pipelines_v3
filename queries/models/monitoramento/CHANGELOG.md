@@ -1,5 +1,17 @@
 # Changelog - monitoramento
 
+## [2.3.2] - 2026-10-06
+
+### Alterado
+
+- Altera a coluna `modo` de `viagem_informada_monitoramento` para usar somente `fonte_viagem`: `mobirio` corresponde a `BRT` e os demais valores a `Ônibus`. Remove as consultas e os joins com `calendario` e `routes_gtfs`, preservando viagens sem correspondência no GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/741).
+
+## [2.3.1] - 2026-10-05
+
+### Alterado
+
+- Altera `viagem_validacao` no modo monitoramento (`treatment__viagem_inferida`) para aplicar o desempate de `filtro_desvio`, `filtro_partida` e `filtro_chegada` (índice, distância e tipo de trajeto) e exclusão de viagens concorrentes sobrepostas do mesmo veículo. Só entram na disputa viagens com `indicador_viagem_valida` e match no planejado (`indicador_trajeto_alternativo` não nulo); inválidas e sem match permanecem na saída (https://github.com/RJ-SMTR/pipelines_v3/pull/673).
+
 ## [2.3.0] - 2026-09-30
 
 ### Adicionado

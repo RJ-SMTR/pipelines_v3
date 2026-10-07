@@ -45,6 +45,7 @@ def capture__jae_backup_billingpay(
     """
 
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
+
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env)
 
