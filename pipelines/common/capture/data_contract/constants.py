@@ -6,6 +6,11 @@ Valores constantes compartilhados para validação dos contratos de dados
 from pathlib import Path
 
 CAPTURE_METADATA_COLUMNS = {"data", "hora", "timestamp_captura", "_datetime_execucao_flow"}
+DBT_TEST_METRICS = {
+    "not_null": "nullValues",
+    "unique": "duplicateValues",
+    "accepted_values": "invalidValues",
+}
 GITHUB_API = "https://api.github.com"
 REQUEST_TIMEOUT = (10, 60)
 ROOT = Path(__file__).resolve().parents[4]
