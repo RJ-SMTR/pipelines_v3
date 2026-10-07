@@ -27,6 +27,7 @@ from pipelines.common.treatment.default_treatment.utils import (
 )
 from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.gcp.bigquery import BQTable, SourceTable
+from pipelines.common.utils.google_chat import notify_test_results_google_chat
 from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
@@ -324,6 +325,34 @@ def task_dbt_selector_test_notify_discord(
         raise_check_error=raise_check_error,
         additional_mentions=additional_mentions,
         test_results=context[f"{mode}_test_results"],
+    )
+
+
+@task(cache_policy=NO_CACHE)
+def task_dbt_selector_test_notify_google_chat(
+    context: DBTSelectorMaterializationContext,
+    mode: str,
+    webhook_key: str,
+):
+    """
+    Envia as falhas dos testes do dbt do contexto para um espaço do Google Chat.
+
+    Falhas no envio não interrompem o flow.
+
+    Args:
+        context (DBTSelectorMaterializationContext): Contexto de materialização.
+        mode (str): Modo do teste (pre ou post).
+        webhook_key (str): Chave do webhook do Google Chat no secret.
+    """
+    results = [
+        {**result, "description": result["description"] or result["test"]}
+        for result in context[f"{mode}_test_results"] or []
+    ]
+    notify_test_results_google_chat(
+        results=results,
+        title=f"Testes dbt ({mode}) - {runtime.flow_run.flow_name} - {context.selector.name}",
+        env=context.env,
+        webhook_key=webhook_key,
     )
 
 
