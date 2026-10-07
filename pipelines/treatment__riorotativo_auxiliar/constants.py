@@ -34,7 +34,7 @@ RIOROTATIVO_AUX_CHECKS_LIST = {
             "description": "Todos os documentos possuem exatamente 11 dígitos numéricos"
         },
         "dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__guardador_veiculo_riorotativo_historico": {
-            "description": "Todos os números de identificação contêm apenas dígitos numéricos"
+            "description": "Todos os números de identificação possuem exatamente 4 dígitos numéricos"
         },
     },
     "agente_verificacao_riorotativo": {
