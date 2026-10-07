@@ -14,6 +14,8 @@ from pipelines.common.capture.google_sheets.utils import (
 
 RIOROTATIVO_SOURCE_NAME = "riorotativo"
 RIOROTATIVO_CREDENCIADOS_SPREADSHEET_ID = "1pAQ59MuY9cLgYfc3pbyg1hH7RCBy1nDDZCSfVAd2DIw"
+RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY = "google_chat_riorotativo"
+
 RIOROTATIVO_PRIVATE_BUCKET_NAMES = {
     "prod": "rj-smtr-riorotativo-private",
     "dev": "rj-smtr-dev-private",

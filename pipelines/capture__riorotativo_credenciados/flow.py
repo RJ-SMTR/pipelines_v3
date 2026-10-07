@@ -34,5 +34,6 @@ def capture__riorotativo_credenciados(  # noqa: PLR0913
         recapture_days=recapture_days,
         recapture_timestamps=recapture_timestamps,
         skip_data_contract_validation=skip_data_contract_validation,
+        data_contract_webhook_key=constants.RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY,
         extra_parameters=constants.RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS,
     )

@@ -46,4 +46,5 @@ def treatment__riorotativo_auxiliar(  # noqa: PLR0913
         force_test_run=force_test_run,
         test_scheduled_time=time(5, 10, 0),
         test_webhook_key="alertas_bilhetagem",
+        test_google_chat_webhook_key=constants.RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY,
     )
