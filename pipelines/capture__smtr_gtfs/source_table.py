@@ -34,7 +34,7 @@ class GTFSSourceTable(SourceTable):
             pretreatment_reader_args={"dtype": str, "on_bad_lines": "warn"},
             pretreat_funcs=[strip_string_columns],
             partition_date_only=True,
-            raw_filetype="txt",
+            raw_filetype="csv",
             file_chunk_size=50_000,
             transform_in_chunks=True,
             partition_key="data_versao",
