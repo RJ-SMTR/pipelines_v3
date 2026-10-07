@@ -281,7 +281,7 @@ def run_dbt_selector_tests(
         dbt_test: DBTTest = context.selector[f"{mode}_test"]
 
         if dbt_test is not None:
-            log, _ = run_dbt_tests(
+            log, _, test_results = run_dbt_tests(
                 dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
@@ -289,6 +289,7 @@ def run_dbt_selector_tests(
                 flags=flags,
             )
         context[f"{mode}_test_log"] = log
+        context[f"{mode}_test_results"] = test_results
 
     return contexts
 
@@ -322,6 +323,7 @@ def task_dbt_selector_test_notify_discord(
         webhook_key=webhook_key,
         raise_check_error=raise_check_error,
         additional_mentions=additional_mentions,
+        test_results=context[f"{mode}_test_results"],
     )
 
 
