@@ -77,9 +77,11 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             f"Server: incoming (path={raw_filepath})\n"
             f"{format_test_results(result)}"
         )
-        if not result.has_passed():
+        if result.result not in ("passed", "warning"):
             failed_checks = [
-                check for check in result.checks if check.result not in ("passed", "skipped")
+                check
+                for check in result.checks
+                if check.result not in ("passed", "skipped", "warning")
             ]
             raise ValueError(
                 f"Falha no contrato de {raw_filepath}: "
