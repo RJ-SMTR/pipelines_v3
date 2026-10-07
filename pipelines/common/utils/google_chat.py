@@ -126,7 +126,7 @@ def notify_test_results_google_chat(
     print("\n".join(lines))
     if env != "prod":
         print("Ambiente dev: mensagem não enviada ao Google Chat.")
-        return
+        # return
     if not webhook_key:
         print("Sem webhook do Google Chat configurado; mensagem não enviada.")
         return
