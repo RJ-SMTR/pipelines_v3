@@ -215,7 +215,7 @@ def _format_test_results_table(run: Run) -> str:
             _format_table_row(
                 [
                     RESULT_LABELS.get(_result_value(check.result), _result_value(check.result)),
-                    check.name,
+                    check_description(check),
                     to_field(run, check),
                     translate_reason(check.reason),
                 ],
