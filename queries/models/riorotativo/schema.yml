@@ -122,6 +122,13 @@ models:
       - name: numero_identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
+        tests:
+          - not_null:
+              name: not_null__numero_identificacao__guardador_veiculo_riorotativo_historico
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__guardador_veiculo_riorotativo_historico
+              arguments:
+                regex: "^[0-9]{4}$"
       - name: documento
         description: "{{ doc('documento_cliente') }} [protegido]"
         data_type: string
