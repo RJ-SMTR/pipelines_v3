@@ -26,6 +26,7 @@ schema:
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 1
+    classification: restricted
   - name: identificacao
     physicalType: STRING
     description: Número de identificação do guardador de veículo
