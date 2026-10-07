@@ -82,6 +82,29 @@ def check_description(check: Any) -> str:
     return check.name
 
 
+def contract_test_results(run: Run, table: str) -> list[dict]:
+    """Converte os checks do contrato no formato usado nas notificações de testes.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        table (str): Nome exibido para agrupar os checks na notificação.
+
+    Returns:
+        list[dict]: Checks executados, com as chaves table, description e result
+            (PASS, WARN, FAIL ou ERROR).
+    """
+    results = {"passed": "PASS", "warning": "WARN", "failed": "FAIL"}
+    return [
+        {
+            "table": table,
+            "description": check_description(check),
+            "result": results.get(_result_value(check.result), "ERROR"),
+        }
+        for check in run.checks
+        if _result_value(check.result) != "skipped"
+    ]
+
+
 def _format_table_border(widths: tuple[int, ...]) -> str:
     """Cria a borda ASCII usada no início, meio e fim da tabela.
 

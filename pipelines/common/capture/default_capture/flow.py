@@ -6,11 +6,13 @@ from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
     download_data_contracts,
+    raise_data_contract_failures,
     validate_raw_data_contract,
 )
 from pipelines.common.capture.default_capture.tasks import (
     create_capture_contexts,
     get_raw_data,
+    notify_data_contract_google_chat,
     transform_raw_to_nested_structure,
     upload_raw_file_to_gcs,
     upload_source_data_to_gcs,
@@ -38,6 +40,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
     skip_data_contract_validation: bool = False,
+    data_contract_webhook_key: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
@@ -45,6 +48,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     Args:
         env (Optional[str]): prod ou dev.
         skip_data_contract_validation (bool): Pula download e validação do contrato nesta execução.
+        data_contract_webhook_key (Optional[str]): Chave, no secret de webhooks, do espaço do
+            Google Chat que recebe o resultado da validação do contrato.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
         source_table_ids (tuple[str]): Tupla com os table_ids dos sources a serem capturados.
         timestamp (str): Timestamp de captura.
@@ -139,7 +144,16 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
-        upload_wait_for.append(tasks["validate_raw_data_contract"])
+        tasks["notify_data_contract"] = notify_data_contract_google_chat(
+            validations=tasks["validate_raw_data_contract"],
+            env=tasks["env"],
+            webhook_key=data_contract_webhook_key,
+        )
+        tasks["check_data_contract"] = raise_data_contract_failures(
+            validations=tasks["validate_raw_data_contract"],
+            wait_for=[tasks["notify_data_contract"]],
+        )
+        upload_wait_for.append(tasks["check_data_contract"])
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,

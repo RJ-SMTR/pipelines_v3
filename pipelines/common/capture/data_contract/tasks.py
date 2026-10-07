@@ -11,6 +11,7 @@ from prefect.cache_policies import NO_CACHE
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
     add_local_server,
+    contract_test_results,
     download_contracts_from_commit,
     format_test_results,
 )
@@ -35,19 +36,25 @@ def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> P
 
 
 @task(cache_policy=NO_CACHE)
-def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Path | None) -> None:
+def validate_raw_data_contract(
+    context: SourceCaptureContext, contracts_dir: Path | None
+) -> dict | None:
     """
     Valida os arquivos brutos antes do upload usando uma cópia local do contrato.
+
+    A reprovação não interrompe a task: os erros são devolvidos para que o resultado seja
+    notificado antes de raise_data_contract_failures barrar o upload.
 
     Args:
         context (SourceCaptureContext): Fonte e arquivos brutos capturados.
         contracts_dir (Path | None): Diretório com os contratos baixados.
 
     Returns:
-        None: Registra a validação no log e conclui, ou interrompe o flow com uma exceção.
+        dict | None: Checks executados (results) e mensagens das reprovações (errors), ou None
+            quando a fonte não valida contrato.
 
     Raises:
-        ValueError: Contrato incompatível ou validação reprovada.
+        ValueError: Contrato não encontrado ou incompatível com a fonte.
     """
     source = context.source
     if not source.validate_data_contract:
@@ -63,6 +70,7 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
         ignored_columns=source.data_contract_ignored_columns,
         primary_keys=source.primary_keys,
     )
+    validation = {"results": [], "errors": []}
     for raw_filepath in context.captured_raw_filepaths:
         runtime_contract = add_local_server(
             runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
@@ -77,14 +85,33 @@ def validate_raw_data_contract(context: SourceCaptureContext, contracts_dir: Pat
             f"Server: incoming (path={raw_filepath})\n"
             f"{format_test_results(result)}"
         )
+        validation["results"].extend(contract_test_results(result, table=source.table_id))
         if result.result not in ("passed", "warning"):
             failed_checks = [
                 check
                 for check in result.checks
                 if check.result not in ("passed", "skipped", "warning")
             ]
-            raise ValueError(
+            validation["errors"].append(
                 f"Falha no contrato de {raw_filepath}: "
                 f"{len(failed_checks)} de {len(result.checks)} checks falharam."
             )
+            continue
         print(f"Contrato validado: {raw_filepath} ({len(result.checks)} verificações).")
+    return validation
+
+
+@task(cache_policy=NO_CACHE)
+def raise_data_contract_failures(validations: list[dict | None]) -> None:
+    """
+    Interrompe o flow antes do upload quando algum arquivo bruto reprovou no contrato.
+
+    Args:
+        validations (list[dict | None]): Retorno de validate_raw_data_contract por contexto.
+
+    Raises:
+        ValueError: Algum arquivo bruto reprovou no contrato.
+    """
+    errors = [error for validation in validations if validation for error in validation["errors"]]
+    if errors:
+        raise ValueError("\n".join(errors))

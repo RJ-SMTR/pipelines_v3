@@ -6,7 +6,7 @@ from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
-from prefect import task
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as smtr_constants
@@ -17,6 +17,7 @@ from pipelines.common.capture.default_capture.utils import (
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.gcp.storage import Storage
+from pipelines.common.utils.google_chat import notify_test_results_google_chat
 from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
@@ -254,3 +255,28 @@ def get_raw_from_gcs(
     except Exception as e:
         print(f"[GCS] Erro ao buscar dados: {e}")
         return []
+
+
+@task(cache_policy=NO_CACHE)
+def notify_data_contract_google_chat(
+    validations: list[Optional[dict]],
+    env: str,
+    webhook_key: Optional[str],
+) -> None:
+    """
+    Envia as falhas da validação do contrato de dados para um espaço do Google Chat.
+
+    Args:
+        validations (list[Optional[dict]]): Retorno de validate_raw_data_contract por contexto.
+        env (str): prod ou dev.
+        webhook_key (Optional[str]): Chave do webhook do Google Chat no secret; sem chave, não
+            envia.
+    """
+    notify_test_results_google_chat(
+        results=[
+            result for validation in validations if validation for result in validation["results"]
+        ],
+        title=f"Contrato de dados - {runtime.flow_run.flow_name}",
+        env=env,
+        webhook_key=webhook_key,
+    )
