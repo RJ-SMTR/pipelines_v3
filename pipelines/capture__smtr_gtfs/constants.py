@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 """Constantes usadas pela captura do GTFS."""
 
-from pipelines.capture__smtr_gtfs.source_table import GTFSSourceTable
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from pipelines.common import constants as smtr_constants
+from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.pretreatment import strip_string_columns
 
 GTFS_CONTROLE_OS_URL = (
     "https://docs.google.com/spreadsheets/d/"
@@ -42,6 +47,17 @@ DATA_GTFS_V4_INICIO = "2025-07-16"
 DATA_GTFS_V5_INICIO = "2025-12-21"
 
 GTFS_SOURCES = [
-    GTFSSourceTable(table_id=table_id, primary_keys=primary_keys, dataset_id=GTFS_DATASET_ID)
+    SourceTable(
+        source_name="gtfs",
+        table_id=table_id,
+        first_timestamp=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+        flow_folder_name="capture__smtr_gtfs",
+        primary_keys=primary_keys,
+        pretreatment_reader_args={"dtype": str, "chunksize": 50_000},
+        pretreat_funcs=[strip_string_columns],
+        partition_date_only=True,
+        raw_filetype="csv",
+        partition_key="data_versao",
+    )
     for table_id, primary_keys in GTFS_TABLE_CAPTURE_PARAMS.items()
 ]
