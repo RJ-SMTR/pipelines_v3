@@ -7,6 +7,9 @@ name: Recce CI - Validate PR Changes
 on:
   issue_comment:
     types: [created]
+  # TEMPORARY: registers the workflow so it can be dispatched from this branch; remove before merging
+  push:
+    branches: ["staging/recce-validation"]
   workflow_dispatch:
     inputs:
       pr_number:
