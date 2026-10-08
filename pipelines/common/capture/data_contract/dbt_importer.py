@@ -78,37 +78,8 @@ def dbt_test_quality(
             rule["description"] = description
         if str(config.get("severity", "")).lower() == "warn":
             rule["severity"] = "warning"
-        column_name = kwargs.get("column_name") or node.get("column_name")
-        rules.setdefault(column_name, []).append(rule)
+        rules.setdefault(node["column_name"], []).append(rule)
     return rules
-
-
-def merge_quality(
-    test_rules: list[dict[str, Any]], meta_rules: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
-    """
-    Combina as regras dos testes dbt com as declaradas em meta.datacontract_cli, sem duplicar.
-
-    Uma regra dos metadados igual a uma regra de teste, desconsiderando description e severity,
-    é descartada.
-
-    Args:
-        test_rules (list[dict[str, Any]]): Regras convertidas dos testes dbt.
-        meta_rules (list[dict[str, Any]]): Regras declaradas nos metadados.
-
-    Returns:
-        list[dict[str, Any]]: Regras dos testes seguidas das regras adicionais dos metadados.
-    """
-    ignored_keys = {"description", "severity"}
-    merged = list(test_rules)
-    for rule in meta_rules:
-        rule_key = {key: value for key, value in rule.items() if key not in ignored_keys}
-        if not any(
-            rule_key == {key: value for key, value in item.items() if key not in ignored_keys}
-            for item in merged
-        ):
-            merged.append(rule)
-    return merged
 
 
 def import_contract_from_manifest(
@@ -159,7 +130,7 @@ def import_contract_from_manifest(
         classification = _datacontract_meta(column).get("classification")
         if classification is not None:
             prop["classification"] = classification
-        quality = merge_quality(test_rules.get(prop["name"], []), _library_quality(column))
+        quality = test_rules.get(prop["name"], []) + _library_quality(column)
         if quality:
             prop["quality"] = quality
     return contract
