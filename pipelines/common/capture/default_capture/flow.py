@@ -5,14 +5,13 @@ from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
+    check_data_contract,
     download_data_contracts,
-    raise_data_contract_failures,
     validate_raw_data_contract,
 )
 from pipelines.common.capture.default_capture.tasks import (
     create_capture_contexts,
     get_raw_data,
-    notify_data_contract_google_chat,
     transform_raw_to_nested_structure,
     upload_raw_file_to_gcs,
     upload_source_data_to_gcs,
@@ -144,14 +143,10 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
-        tasks["notify_data_contract"] = notify_data_contract_google_chat(
+        tasks["check_data_contract"] = check_data_contract(
             validations=tasks["validate_raw_data_contract"],
             env=tasks["env"],
             webhook_key=data_contract_webhook_key,
-        )
-        tasks["check_data_contract"] = raise_data_contract_failures(
-            validations=tasks["validate_raw_data_contract"],
-            wait_for=[tasks["notify_data_contract"]],
         )
         upload_wait_for.append(tasks["check_data_contract"])
 

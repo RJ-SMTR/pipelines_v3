@@ -100,8 +100,8 @@ def format_test_failures_message(title: str, failures: list[dict]) -> list[str]:
     return lines
 
 
-def notify_test_results_google_chat(
-    results: list[dict],
+def notify_test_failures_google_chat(
+    failures: list[dict],
     title: str,
     env: str,
     webhook_key: Optional[str],
@@ -109,17 +109,15 @@ def notify_test_results_google_chat(
     """
     Envia os testes com falha (contrato de dados ou dbt) para um espaço do Google Chat.
 
-    Só há mensagem quando algum teste falhou; avisos não são notificados. A mensagem é sempre
-    impressa no log, mas só é enviada em prod. Falhas no envio não interrompem o flow.
+    Sem falhas, não há mensagem. A mensagem é sempre impressa no log, mas só é enviada em
+    prod. Falhas no envio não interrompem o flow.
 
     Args:
-        results (list[dict]): Resultados com as chaves table, description e result
-            (PASS, WARN, FAIL ou ERROR).
+        failures (list[dict]): Testes com falha, com as chaves table e description.
         title (str): Título da mensagem.
         env (str): prod ou dev.
         webhook_key (Optional[str]): Chave do webhook no secret; sem chave, não envia.
     """
-    failures = [result for result in results if result["result"] not in ("PASS", "WARN")]
     if not failures:
         return
     lines = format_test_failures_message(title=title, failures=failures)
