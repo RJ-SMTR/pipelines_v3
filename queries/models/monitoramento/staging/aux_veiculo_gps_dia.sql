@@ -22,7 +22,11 @@ with
         from {{ ref("view_gps_onibus") }}
         where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
-select data, id_veiculo, count(*) as quantidade_gps
+select
+    data,
+    id_veiculo,
+    count(*) as quantidade_gps,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from gps
 where
     data > '{{ var("data_final_veiculo_arquitetura_1") }}'
