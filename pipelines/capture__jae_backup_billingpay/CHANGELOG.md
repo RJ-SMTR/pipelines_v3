@@ -5,7 +5,7 @@
 ### Adicionado
 
 - Adiciona tabelas temporárias no exclude do `gratuidade_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/749)
-- Adiciona tabela sem indíce `evento_recebido` no exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/749)
+- Adiciona tabela sem índice `evento_recebido` no exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/749)
 
 ## [1.2.0] - 2026-10-06
 
