@@ -2,7 +2,6 @@
 import io
 import zipfile
 from datetime import datetime
-from pathlib import Path
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
@@ -143,20 +142,8 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
         captura = create_timestamp_captura(
             timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
         )
-        if not source.transform_in_chunks:
-            data_chunks = [read_raw_data(filepath=raw_filepath, reader_args=reader_args)]
-        else:
-            if Path(raw_filepath).suffix.lower() not in {".csv", ".txt"}:
-                raise ValueError("transform_in_chunks só pode ser usado com arquivos CSV ou TXT")
-            if "chunksize" in reader_args:
-                raise ValueError(
-                    "Não defina chunksize em pretreatment_reader_args; use file_chunk_size"
-                )
-            data_chunks = pd.read_csv(
-                raw_filepath,
-                chunksize=source.file_chunk_size,
-                **reader_args,
-            )
+        raw_data = read_raw_data(filepath=raw_filepath, reader_args=reader_args)
+        data_chunks = [raw_data] if isinstance(raw_data, pd.DataFrame) else raw_data
 
         for chunk in data_chunks:
             data = chunk

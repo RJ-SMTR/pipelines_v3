@@ -24,12 +24,10 @@ class GTFSSourceTable(SourceTable):
             first_timestamp=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
             flow_folder_name="capture__smtr_gtfs",
             primary_keys=primary_keys,
-            pretreatment_reader_args={"dtype": str, "on_bad_lines": "warn"},
+            pretreatment_reader_args={"dtype": str, "on_bad_lines": "warn", "chunksize": 50_000},
             pretreat_funcs=[strip_string_columns],
             partition_date_only=True,
             raw_filetype="csv",
-            file_chunk_size=50_000,
-            transform_in_chunks=True,
             partition_key="data_versao",
         )
         self.dataset_id = dataset_id

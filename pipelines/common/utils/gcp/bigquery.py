@@ -230,8 +230,6 @@ class SourceTable(BQTable):
         max_recaptures (int): número máximo de recapturas executadas de uma só vez
         raw_filetype (str): tipo do dado (json, csv, txt)
         file_chunk_size (Optional[int]): tamanho de página ou de chunk de leitura
-        transform_in_chunks (bool): transforma CSV/TXT em chunks do tamanho de
-            file_chunk_size
         partition_key (str): chave Hive da partição de data
         validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
         data_contract_model (Optional[str]): Modelo dbt; padrão ``staging_<table_id>``.
@@ -255,7 +253,6 @@ class SourceTable(BQTable):
         max_recaptures: int = 60,
         raw_filetype: str = "json",
         file_chunk_size: Optional[int] = None,
-        transform_in_chunks: bool = False,
         partition_key: str = "data",
         validate_data_contract: bool = False,
         data_contract_model: Optional[str] = None,
@@ -280,11 +277,6 @@ class SourceTable(BQTable):
         self.pretreat_funcs = pretreat_funcs or []
         self.schedule_cron = self._get_schedule_cron()
         self.file_chunk_size = file_chunk_size
-        if file_chunk_size is not None and file_chunk_size < 1:
-            raise ValueError("file_chunk_size deve ser maior que zero")
-        if transform_in_chunks and file_chunk_size is None:
-            raise ValueError("file_chunk_size é obrigatório quando transform_in_chunks=True")
-        self.transform_in_chunks = transform_in_chunks
         self.validate_data_contract = validate_data_contract
         self.data_contract_model = data_contract_model or f"staging_{table_id}"
         self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)

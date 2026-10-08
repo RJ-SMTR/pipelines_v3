@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
-from typing import Optional, Union
+from typing import Iterator, Optional, Union
 
 import pandas as pd
 
@@ -101,17 +101,21 @@ def save_local_file(
     print("File saved!")
 
 
-def read_raw_data(filepath: str, reader_args: Optional[dict] = None) -> pd.DataFrame:
+def read_raw_data(
+    filepath: str, reader_args: Optional[dict] = None
+) -> Union[pd.DataFrame, Iterator[pd.DataFrame]]:
     """
     Lê os dados de um arquivo Raw
 
     Args:
         filepath (str): Caminho do arquivo
         reader_args (dict, optional): Argumentos para passar na função
-            de leitura (pd.read_csv ou pd.read_json)
+            de leitura (pd.read_csv ou pd.read_json). Com `chunksize`, a leitura
+            é feita em blocos
 
     Returns:
-        pd.DataFrame: DataFrame com os dados lidos
+        Union[pd.DataFrame, Iterator[pd.DataFrame]]: DataFrame com os dados lidos ou
+            iterador de DataFrames, quando `chunksize` é informado
     """
 
     print(f"Reading raw data in {filepath}")
