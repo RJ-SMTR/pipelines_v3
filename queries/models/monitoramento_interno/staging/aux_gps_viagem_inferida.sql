@@ -79,14 +79,12 @@ with
     mesmo padrão do gps_viagem.
     2801 - GTU (A2)
     2802 - TUSA (B2)
+
     */
     veiculos_bordo as (
-        select
-            data,
-            substr(id_veiculo, 2) as id_veiculo_join,
-            any_value(id_veiculo) as id_veiculo
-        from gps_bordo
-        group by data, id_veiculo_join
+        select substr(id_veiculo, 2) as id_veiculo_join, max(id_veiculo) as id_veiculo
+        from gps_onibus
+        group by id_veiculo_join
     ),
     gps_validador_filtrado as (
         select
@@ -129,8 +127,7 @@ with
             j.status,
             j.distancia
         from gps_validador_filtrado as j
-        left join
-            veiculos_bordo as b on j.data = b.data and j.id_veiculo = b.id_veiculo_join
+        left join veiculos_bordo as b on j.id_veiculo = b.id_veiculo_join
     )
 select *
 from gps_bordo

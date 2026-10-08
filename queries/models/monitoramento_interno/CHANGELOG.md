@@ -1,10 +1,15 @@
 # Changelog - monitoramento_interno
 
-## [1.0.9] - 2026-09-22
+## [1.0.9] - 2026-10-08
+
+### Adicionado
+
+- Cria o modelo ephemeral `aux_gps_viagem_inferida`, unindo GPS de bordo (ônibus e BRT) e GPS do validador Jaé para a cadeia de inferência. Alinha `id_veiculo` SPPO (prefixo de bordo vs ordem da Jaé) na janela de GPS, sem join por `data`. (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
 
 ### Alterado
 
-- Emparelha `viagem_inferida` pelos booleanos do primeiro e do último segmento: `last_value` do último GPS só no início quando chega o primeiro GPS só no fim. Ignora ponto com os dois buffers (terminal circular) para não multiplicar viagem. Remove `middle_start` / `middle_end`. (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Em `aux_monitoramento_registros_status_trajeto`, deixa de classificar o GPS em `start`/`end`/`middle`/`out` contra o shape e os pontos extremos. Passa a expor só `indicador_segmento_inicio` e `indicador_segmento_fim` (`st_intersects` com o buffer do primeiro e do último segmento). Lê GPS de `aux_gps_viagem_inferida` no lugar de `view_gps_onibus`. (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Em `viagem_inferida`, emparelha partida e chegada pelos extremos exclusivos: partida é GPS só no primeiro segmento, chegada é GPS só no último. Ponto nos dois buffers (terminal circular) é ignorado para não abrir viagem a cada ping. A partida considerada é o último GPS só no início; a chegada é o primeiro GPS só no fim depois de um intervalo fora dele (`lag` + `last_value`). (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
 
 ## [1.0.8] - 2026-09-16
 
