@@ -1,62 +1,169 @@
 name: Recce CI - Validate PR Changes
 
+# Usage (PR comment): /recce <start_date> [<end_date>] [--vars '{"key": "value"}']
+#   /recce 2026-10-01
+#   /recce 2026-10-01 2026-10-03 --vars '{"partitions": "2026-10-01"}'
+
 on:
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
-      run_date:
-        description: "Date used by the incremental validation run (YYYY-MM-DD)"
+      pr_number:
+        description: "Pull request number"
         required: true
         type: string
+      start_date:
+        description: "Start date (YYYY-MM-DD)"
+        required: true
+        type: string
+      end_date:
+        description: "End date (YYYY-MM-DD), defaults to start_date"
+        required: false
+        type: string
+      vars:
+        description: "Extra dbt vars as a JSON object"
+        required: false
+        type: string
 
-concurrency:
-  group: recce-pr-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+
+env:
+  RECCE_MAX_DAYS: 2
 
 jobs:
+  prepare:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.pull_request &&
+        (github.event.comment.body == '/recce' || startsWith(github.event.comment.body, '/recce ')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      pr_number: ${{ steps.prepare.outputs.pr_number }}
+      head_sha: ${{ steps.prepare.outputs.head_sha }}
+      dbt_vars: ${{ steps.prepare.outputs.dbt_vars }}
+    steps:
+      - name: Authorize, resolve pull request and build dbt vars
+        id: prepare
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const maxDays = Number(process.env.RECCE_MAX_DAYS);
+            const dateVars = ['date_range_start', 'date_range_end', 'start_date', 'end_date', 'run_date'];
+            const isDispatch = context.eventName === 'workflow_dispatch';
+
+            const username = isDispatch ? context.actor : context.payload.comment.user.login;
+            const { data: collaborator } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner,
+              repo,
+              username,
+            });
+            if (!['write', 'maintain', 'admin'].includes(collaborator.permission)) {
+              core.setFailed('The /recce command requires repository write permission.');
+              return;
+            }
+
+            const prNumber = isDispatch ? Number(context.payload.inputs.pr_number) : context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            if (pr.state !== 'open' || pr.head.repo?.full_name !== `${owner}/${repo}`) {
+              core.setFailed('Recce requires an open pull request from this repository.');
+              return;
+            }
+
+            const parseDate = (value, name) => {
+              const date = new Date(`${value}T00:00:00Z`);
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+                throw new Error(`${name} must be a valid YYYY-MM-DD date, got "${value}"`);
+              }
+              return date;
+            };
+
+            let startDate, endDate, extraVars;
+            if (isDispatch) {
+              ({ start_date: startDate, end_date: endDate, vars: extraVars } = context.payload.inputs);
+            } else {
+              const match = context.payload.comment.body
+                .trim()
+                .match(/^\/recce\s+(\S+)(?:\s+(?!--)(\S+))?(?:\s+--vars\s+(.+))?$/s);
+              if (!match) {
+                throw new Error('Usage: /recce <start_date> [<end_date>] [--vars \'{"key": "value"}\']');
+              }
+              [, startDate, endDate, extraVars] = match;
+            }
+            endDate = endDate?.trim() || startDate;
+
+            const start = parseDate(startDate, 'start_date');
+            const end = parseDate(endDate, 'end_date');
+            const days = (end - start) / 86_400_000 + 1;
+            if (days < 1) {
+              throw new Error('end_date must be on or after start_date');
+            }
+            if (days > maxDays) {
+              throw new Error(`Date range spans ${days} days; the maximum is ${maxDays}`);
+            }
+
+            let overrides = {};
+            extraVars = extraVars?.trim();
+            if (extraVars) {
+              if (/^(['"]).*\1$/s.test(extraVars)) {
+                extraVars = extraVars.slice(1, -1);
+              }
+              try {
+                overrides = JSON.parse(extraVars);
+              } catch (error) {
+                throw new Error(`--vars must be valid JSON: ${error.message}`);
+              }
+              if (overrides === null || typeof overrides !== 'object' || Array.isArray(overrides)) {
+                throw new Error('--vars must be a JSON object');
+              }
+              const forbidden = Object.keys(overrides).filter((key) => dateVars.includes(key));
+              if (forbidden.length) {
+                throw new Error(`--vars cannot override date vars: ${forbidden.join(', ')}`);
+              }
+            }
+
+            const dbtVars = {
+              date_range_start: `${startDate}T00:00:00`,
+              date_range_end: `${endDate}T23:59:59`,
+              start_date: `${startDate}T01:00:00`,
+              end_date: `${endDate}T01:00:00`,
+              run_date: `${endDate}T01:00:00`,
+              ...overrides,
+            };
+
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_sha', pr.head.sha);
+            core.setOutput('dbt_vars', JSON.stringify(dbtVars));
+            core.info(`dbt vars: ${JSON.stringify(dbtVars)}`);
+
   validate-changes:
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    concurrency:
+      group: recce-pr-${{ needs.prepare.outputs.pr_number }}
+      cancel-in-progress: true
     permissions:
       contents: read
       pull-requests: read
 
     env:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      DBT_RUN_DATE: ${{ inputs.run_date }}
+      DBT_USER: recce_pr_${{ needs.prepare.outputs.pr_number }}
+      DBT_VARS: ${{ needs.prepare.outputs.dbt_vars }}
 
     steps:
-      - name: Checkout selected branch
+      - name: Checkout pull request commit
         uses: actions/checkout@v4
-
-      - name: Detect open pull request
-        id: pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mapfile -t pull_requests < <(
-            gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --state open \
-              --head "$GITHUB_REF_NAME" \
-              --json number \
-              --jq '.[].number'
-          )
-
-          if [ "${#pull_requests[@]}" -ne 1 ]; then
-            echo "::error::Expected exactly one open pull request for branch $GITHUB_REF_NAME; found ${#pull_requests[@]}"
-            exit 1
-          fi
-
-          pr_number="${pull_requests[0]}"
-          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
-          echo "DBT_USER=recce_pr_${pr_number}" >> "$GITHUB_ENV"
-
-      - name: Validate run date
-        run: |
-          if [[ ! "$DBT_RUN_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-            echo "::error::run_date must use YYYY-MM-DD"
-            exit 1
-          fi
+        with:
+          ref: ${{ needs.prepare.outputs.head_sha }}
+          persist-credentials: false
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -90,17 +197,6 @@ jobs:
         run: |
           mkdir -p dev
           cp profiles.yml dev/profiles.yml
-          uv run python - <<'PY'
-          from pathlib import Path
-
-          import yaml
-
-          profile_path = Path("dev/profiles.yml")
-          profile = yaml.safe_load(profile_path.read_text())
-          for output in profile["queries"]["outputs"].values():
-              output["maximum_bytes_billed"] = 100_000_000_000
-          profile_path.write_text(yaml.safe_dump(profile, sort_keys=False))
-          PY
 
       - name: Download production artifacts
         working-directory: queries
@@ -115,7 +211,6 @@ jobs:
       - name: Build empty changed model graph
         working-directory: queries
         run: |
-          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
           uv run dbt run \
             --target dev \
             --profiles-dir ./dev \
@@ -127,12 +222,11 @@ jobs:
             --no-static-parser \
             --quiet \
             --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
-            --vars "$dbt_vars"
+            --vars "$DBT_VARS"
 
-      - name: Run changed model graph for validation date
+      - name: Run changed model graph for date range
         working-directory: queries
         run: |
-          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
           uv run dbt run \
             --target dev \
             --profiles-dir ./dev \
@@ -143,12 +237,11 @@ jobs:
             --no-static-parser \
             --quiet \
             --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
-            --vars "$dbt_vars"
+            --vars "$DBT_VARS"
 
       - name: Generate Recce artifacts for changed graph
         working-directory: queries
         run: |
-          dbt_vars=$(printf '{"date_range_start":"%sT00:00:00","date_range_end":"%sT23:59:59","start_date":"%sT01:00:00","end_date":"%sT01:00:00","run_date":"%sT01:00:00"}' "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE" "$DBT_RUN_DATE")
           uv run dbt docs generate \
             --target dev \
             --profiles-dir ./dev \
@@ -158,10 +251,10 @@ jobs:
             --no-static-parser \
             --quiet \
             --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
-            --vars "$dbt_vars"
+            --vars "$DBT_VARS"
 
       - name: Upload current artifacts to Recce Cloud
         working-directory: queries
-        run: uvx recce-cloud upload --pr "${{ steps.pr.outputs.number }}" --type pr --target-path target --yes
+        run: uvx recce-cloud upload --pr "${{ needs.prepare.outputs.pr_number }}" --type pr --target-path target --yes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
