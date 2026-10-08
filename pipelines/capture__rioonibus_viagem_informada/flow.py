@@ -18,7 +18,7 @@ from pipelines.common.utils.prefect import flow
 sources = [constants.VIAGEM_INFORMADA_SOURCE]
 
 
-@flow(log_prints=True, flow_run_name=rename_capture_flow_run)
+@flow(log_prints=True, flow_run_name=rename_capture_flow_run, timeout_seconds=7200)
 def capture__rioonibus_viagem_informada(
     env: Optional[str] = None,
     timestamp: Optional[str] = None,
