@@ -21,6 +21,7 @@ from pipelines.common.capture.data_contract.constants import (
     CHECK_DESCRIPTIONS,
     DEFAULT_MANIFEST,
     GITHUB_API,
+    METRIC_LABELS,
     REQUEST_TIMEOUT,
     ROOT,
 )
@@ -38,6 +39,7 @@ RESULT_LABELS = {
 REASON_PATTERN = re.compile(
     r"^Actual (?P<metric>.+?) was (?P<actual>.+?), expected (?P<expected>.+)$", re.S
 )
+METRIC_PATTERN = re.compile(r"^(?P<name>\w+)(?=\()")
 
 
 def translate_reason(reason: Any) -> str | None:
@@ -48,13 +50,17 @@ def translate_reason(reason: Any) -> str | None:
 
     Returns:
         str | None: Motivo traduzido, ou o original quando não segue o padrão conhecido.
+            Métricas fora de METRIC_LABELS mantêm o nome original.
     """
     if reason is None:
         return None
     match = REASON_PATTERN.match(str(reason))
     if match is None:
         return str(reason)
-    return f"Obtido {match['metric']} = {match['actual']}, esperado {match['expected']}"
+    metric = METRIC_PATTERN.sub(
+        lambda name: METRIC_LABELS.get(name["name"], name["name"]), match["metric"]
+    )
+    return f"Obtido {metric} = {match['actual']}, esperado {match['expected']}"
 
 
 def _result_value(result: Any) -> str:

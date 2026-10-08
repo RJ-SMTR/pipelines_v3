@@ -22,6 +22,13 @@ CHECK_DESCRIPTIONS = {
     "row_count": "Quantidade de linhas do arquivo conforme o contrato",
     "field_relationships": "Todos os valores da coluna `{field}` existem em `{reference}`",
 }
+METRIC_LABELS = {
+    "row_count": "quantidade_linhas",
+    "missing_count": "quantidade_nulos",
+    "duplicate_count": "quantidade_duplicados",
+    "invalid_count": "quantidade_invalidos",
+    "missing_reference_count": "quantidade_sem_referencia",
+}
 GITHUB_API = "https://api.github.com"
 REQUEST_TIMEOUT = (10, 60)
 ROOT = Path(__file__).resolve().parents[4]
