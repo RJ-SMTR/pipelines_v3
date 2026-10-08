@@ -132,6 +132,7 @@ BACKUP_JAE_BILLING_PAY = {
                     from CLIENTE_IMAGEM
                     where {filter}
                 )
+                ORDER BY ID_CLIENTE_IMAGEM
             """,
         },
         "page_size": {"CLIENTE_IMAGEM": 500},
@@ -237,6 +238,9 @@ BACKUP_JAE_BILLING_PAY = {
             "estudante_sme_inativar_10042026",
             "estudante_universitario_15072026",
             "estudante_universitario_03082026",
+            "estudante_seeduc_19082026",
+            "estudante_universitario_21092026",
+            "estudante_universitario_01092026",
             # sem permissão: #
             "pcd_excluir",
             "estudante_seeduc",
@@ -324,6 +328,7 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_ult_transacao_midia_avulsa_09032026",
             "temp_contas_transacoes_discrepancias",
             "temp_vendas_analise_avulso_12032026",
+            "evento_recebido",
         ],
         "filter": {
             "conta": [
@@ -336,7 +341,7 @@ BACKUP_JAE_BILLING_PAY = {
                 "dt_fechamento",
                 "dt_inclusao",
             ],
-            "evento_recebido": ["dt_inclusao"],
+            # "evento_recebido": ["dt_inclusao"],
             "movimento": ["dt_movimento"],
             "evento_processado": ["dt_inclusao"],
             "evento_erro": ["dt_inclusao"],
@@ -497,5 +502,56 @@ BACKUP_JAE_BILLING_PAY = {
                 "dt_venda",
             ]
         },
+    },
+    "estacionamento_db": {
+        "exclude": [
+            "movimento_estacionamento_veiculo",
+            "fiscalizacao_veiculo",
+            "denuncia",
+            "veiculo",
+            "veiculo_cliente",
+            "area_estacionamento_aux",
+            "area_estacionamento_bkp_20m",
+            "fiscalizacao_veiculo_bkp_full",
+        ],
+        "filter": {
+            "estacionamento_veiculo": [
+                "data_inclusao",
+            ],
+            "area_estacionamento": ["ultima_atualizacao"],
+            "area_estacionamento_horario": ["count(*)"],
+            "fiscalizacao_veiculo_imagem": ["data_inclusao"],
+            "historico_status_infracao_veiculo": ["data_inclusao"],
+            "historico_status_notificacao_veiculo": ["data_inclusao"],
+            "infracao_veiculo": ["data_inclusao"],
+            "marca_veiculo": ["id"],
+            "modelo_veiculo": ["count(*)"],
+            "notificacao_veiculo": ["data_inclusao", "data_pagamento"],
+            "spatial_ref_sys": ["count(*)"],
+            "status_denuncia": ["id"],
+            "status_fiscalizacao_veiculo": ["id"],
+            "status_infracao": ["id"],
+            "status_movimento_estacionamento_veiculo": ["id"],
+            "status_notificacao_veiculo": ["id"],
+            "status_pagamento_fiscalizacao_veiculo": ["id"],
+            "tipo_denuncia": ["id"],
+            "tipo_irregularidade": ["id"],
+            "tipo_movimento_estacionamento": ["id"],
+            "tipo_pagamento": ["id"],
+            "tipo_periodo": ["id"],
+            "tipo_periodo_tarifa": ["data_inclusao"],
+            "tipo_veiculo": ["id"],
+            "tmp_mapeamento_pagamento": ["count(*)"],
+        },
+        "custom_select": {
+            "fiscalizacao_veiculo_imagem": """
+                select
+                    *
+                from fiscalizacao_veiculo_imagem
+                where {filter}
+                ORDER BY id_fiscalizacao_veiculo
+            """,
+        },
+        "page_size": {"fiscalizacao_veiculo_imagem": 500},
     },
 }

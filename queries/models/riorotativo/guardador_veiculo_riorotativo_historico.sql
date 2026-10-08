@@ -15,9 +15,9 @@
 -- depends_on: {{ ref('cliente_cpf_jae') }}
 {% if execute %}
     {% set staging_partitions_query %}
-        select distinct cast(documento as int64)
+        select distinct cast(cpf as int64)
         from {{ ref("staging_guardador_veiculo_riorotativo") }}
-        where documento is not null {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        where cpf is not null {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     {% endset %}
     {% set cpf_partitions = (
         run_query(staging_partitions_query).columns[0].values()
@@ -62,9 +62,18 @@
 {% endif %}
 
 with
+    staging_guardador as (
+        select
+            data,
+            cpf as documento,
+            "CPF" as tipo_documento,
+            identificacao as numero_identificacao,
+            cnpj
+        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+    ),
     credenciados as (
         select data, documento, tipo_documento, numero_identificacao, cnpj
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from staging_guardador
         where
             documento is not null
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}

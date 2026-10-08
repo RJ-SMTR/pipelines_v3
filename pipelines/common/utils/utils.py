@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Funções gerais"""
 
+import base64
 import io
 import os
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Any
 
 import httpx
@@ -37,11 +38,14 @@ def custom_serialization(obj: Any) -> Any:
     Returns:
         Any: Object serializado
     """
-    if isinstance(obj, (pd.Timestamp, date)):
+    if isinstance(obj, memoryview):
+        return base64.b64encode(obj.tobytes()).decode("ascii")
+    elif isinstance(obj, (pd.Timestamp, date, time)):
         if isinstance(obj, pd.Timestamp):
             if obj.tzinfo is None:
                 obj = obj.tz_localize("UTC").tz_convert(constants.TIMEZONE)
         return obj.isoformat()
+
     elif isinstance(obj, uuid.UUID):
         return str(obj)
 
