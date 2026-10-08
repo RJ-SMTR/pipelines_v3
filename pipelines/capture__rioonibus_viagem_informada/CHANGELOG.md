@@ -1,5 +1,13 @@
 # Changelog - capture\_\_rioonibus_viagem_informada
 
+## [1.0.3] - 2026-10-08
+
+### Alterado
+
+- Migra a captura para a API v1.1 da Rio Ônibus, com novo endpoint e secret `rioonibus_api_v2` (https://github.com/RJ-SMTR/pipelines_v3/pull/751)
+- Altera a extração para uma única requisição com o dia anterior em `America/Sao_Paulo`, enviado em UTC e com fim exclusivo, conforme a especificação da API (https://github.com/RJ-SMTR/pipelines_v3/pull/751)
+- Aumenta o timeout da requisição para 600s e do flow para 2h (https://github.com/RJ-SMTR/pipelines_v3/pull/751)
+
 ## [1.0.2] - 2026-06-12
 
 ### Alterado

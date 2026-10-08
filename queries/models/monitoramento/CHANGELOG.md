@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.3.3] - 2026-10-08
+
+### Alterado
+
+- Altera o modelo `staging_viagem_informada_rioonibus` para aceitar fração de segundos opcional em `datetime_partida`, `datetime_chegada` e `datetime_processamento`, conforme a API v1.1 da Rio Ônibus (https://github.com/RJ-SMTR/pipelines_v3/pull/751).
+
 ## [2.3.2] - 2026-10-06
 
 ### Alterado
