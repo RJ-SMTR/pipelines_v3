@@ -1,5 +1,12 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.2.1] - 2026-10-08
+
+### Adicionado
+
+- Adiciona tabelas temporárias no exclude do `gratuidade_db`
+- Adiciona tabela sem indíce `evento_recebido` no exclude
+
 ## [1.2.0] - 2026-10-06
 
 ### Adicionado
