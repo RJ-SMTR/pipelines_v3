@@ -14,7 +14,7 @@ with
     ordem_servico as (
         select
             fi.feed_version,
-            safe_cast(os.data_versao as date) as feed_start_date,
+            os.data_versao as feed_start_date,
             fi.feed_end_date,
             safe_cast(tipo_os as string) tipo_os,
             safe_cast(os.servico as string) servico,
@@ -80,10 +80,8 @@ with
                 json_value(os.content, '$.viagens_domingo') as float64
             ) viagens_domingo,
             safe_cast(json_value(os.content, '$.km_domingo') as float64) km_domingo,
-        from {{ source("br_rj_riodejaneiro_gtfs_staging", "ordem_servico") }} os
-        join
-            {{ ref("feed_info_gtfs") }} fi
-            on os.data_versao = cast(fi.feed_start_date as string)
+        from {{ source("source_gtfs", "ordem_servico") }} os
+        join {{ ref("feed_info_gtfs") }} fi on os.data_versao = fi.feed_start_date
         {% if is_incremental() -%}
             where
                 os.data_versao = '{{ var("data_versao_gtfs") }}'

@@ -16,7 +16,7 @@
 
 select
     fi.feed_version,
-    safe_cast(t.data_versao as date) as feed_start_date,
+    t.data_versao as feed_start_date,
     fi.feed_end_date,
     safe_cast(json_value(t.content, '$.route_id') as string) route_id,
     safe_cast(json_value(t.content, '$.service_id') as string) service_id,
@@ -33,9 +33,8 @@ select
     ) wheelchair_accessible,
     safe_cast(json_value(t.content, '$.bikes_allowed') as string) bikes_allowed,
     '{{ var("version") }}' as versao_modelo
-from {{ source("br_rj_riodejaneiro_gtfs_staging", "trips") }} t
-join
-    {{ ref("feed_info_gtfs") }} fi on t.data_versao = cast(fi.feed_start_date as string)
+from {{ source("source_gtfs", "trips") }} t
+join {{ ref("feed_info_gtfs") }} fi on t.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
         t.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')

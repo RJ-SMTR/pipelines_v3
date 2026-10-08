@@ -16,7 +16,7 @@
 
 select
     fi.feed_version,
-    safe_cast(a.data_versao as date) feed_start_date,
+    a.data_versao feed_start_date,
     fi.feed_end_date,
     safe_cast(a.agency_id as string) agency_id,
     safe_cast(json_value(a.content, '$.agency_name') as string) agency_name,
@@ -24,9 +24,8 @@ select
     safe_cast(json_value(a.content, '$.agency_timezone') as string) agency_timezone,
     safe_cast(json_value(a.content, '$.agency_lang') as string) agency_lang,
     '{{ var("version") }}' as versao_modelo
-from {{ source("br_rj_riodejaneiro_gtfs_staging", "agency") }} a
-join
-    {{ ref("feed_info_gtfs") }} fi on a.data_versao = cast(fi.feed_start_date as string)
+from {{ source("source_gtfs", "agency") }} a
+join {{ ref("feed_info_gtfs") }} fi on a.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
         a.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
