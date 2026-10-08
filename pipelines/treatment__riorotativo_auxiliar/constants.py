@@ -14,10 +14,6 @@ from pipelines.capture__riorotativo_vagas import constants as riorotativo_vagas_
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY = (
-    riorotativo_credenciados_constants.RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY
-)
-
 RIOROTATIVO_AUX_CHECKS_LIST = {
     "guardador_veiculo_riorotativo": {
         "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
