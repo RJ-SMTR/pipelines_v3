@@ -24,7 +24,7 @@ with
                             date("2026-10-15") as data_fim,
                             "rioonibus" as fonte_viagem,
                             date("2026-10-21") as data_limite_envio
-                        ),                        
+                        ),
                         -- Ofício SMTR nº 8656/2026 (Consórcios nº 143/2026)
                         -- Processo 000301.015075/2026-48
                         struct(
