@@ -20,21 +20,21 @@ select
     ) as data_viagem,
     datetime(
         parse_timestamp(
-            '%Y-%m-%dT%H:%M:%SZ',
+            '%Y-%m-%dT%H:%M:%E*SZ',
             safe_cast(json_value(content, '$.datetime_chegada') as string)
         ),
         'America/Sao_Paulo'
     ) as datetime_chegada,
     datetime(
         parse_timestamp(
-            '%Y-%m-%dT%H:%M:%SZ',
+            '%Y-%m-%dT%H:%M:%E*SZ',
             safe_cast(json_value(content, '$.datetime_partida') as string)
         ),
         'America/Sao_Paulo'
     ) as datetime_partida,
     datetime(
         parse_timestamp(
-            '%Y-%m-%dT%H:%M:%SZ',
+            '%Y-%m-%dT%H:%M:%E*SZ',
             safe_cast(json_value(content, '$.datetime_processamento') as string)
         ),
         'America/Sao_Paulo'

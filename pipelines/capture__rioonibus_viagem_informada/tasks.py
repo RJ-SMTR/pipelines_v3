@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tasks de captura dos dados da Rio Ônibus"""
 
-from datetime import timedelta
+from datetime import timedelta, timezone
 from functools import partial
 
-import pandas as pd
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
@@ -26,25 +25,24 @@ def create_viagem_informada_extractor(context: SourceCaptureContext):
         partial: Função parcial pronta para ser chamada para buscar dados da API
     """
 
-    end_date = context.timestamp.date()
-    start_date = end_date - timedelta(days=1)
+    end_datetime = context.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_datetime = end_datetime.astimezone(timezone.utc)
+    start_datetime = end_datetime - timedelta(days=1)
 
     credentials = get_env_secret(constants.RIO_ONIBUS_SECRET_PATH)
     api_key = credentials["guididentificacao"]
 
-    params = [
-        {
-            "guidIdentificacao": api_key,
-            "datetime_processamento_inicio": d.date().isoformat() + "T00:00:00",
-            "datetime_processamento_fim": d.date().isoformat() + "T23:59:59",
-        }
-        for d in pd.date_range(start_date, end_date)
-    ]
+    # Dia anterior em America/Sao_Paulo, enviado em UTC sem fuso; o fim é exclusivo (API v1.1)
+    params = {
+        "guidIdentificacao": api_key,
+        "datetime_processamento_inicio": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+        "datetime_processamento_fim": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+    }
 
     return partial(
         get_raw_api_list,
         url=constants.VIAGEM_INFORMADA_BASE_URL,
-        params_list=params,
+        params_list=[params],
         raw_filepath=context.raw_filepath,
-        timeout=300,
+        timeout=600,
     )
