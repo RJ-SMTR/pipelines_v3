@@ -65,14 +65,17 @@ def get_api_data(
             except ValueError as error:
                 if attempt == constants.MAX_RETRIES:
                     raise ValueError(
-                        f"API response is not valid JSON: {response.text[:512]}"
+                        "API response is not valid JSON: "
+                        f"status={response.status_code}, "
+                        f"content_type={response.headers.get('Content-Type')}, "
+                        f"length={len(response.content)}"
                     ) from error
                 time.sleep(60)
                 continue
             if not isinstance(response_data, (dict, list)):
                 raise ValueError(
                     "API JSON response must be an object or an array, "
-                    f"got {type(response_data).__name__}: {str(response_data)[:512]}"
+                    f"got {type(response_data).__name__}"
                 )
         else:
             response_data = response.text
