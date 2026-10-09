@@ -182,7 +182,7 @@ jobs:
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v3
         with:
-          credentials_json: ${{ secrets.GKE_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_RECCE_SA }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
@@ -192,7 +192,7 @@ jobs:
 
       - name: Setup credentials for dbt
         env:
-          GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+          GCP_SA_KEY: ${{ secrets.GCP_RECCE_SA }}
         run: printf '%s' "$GCP_SA_KEY" > /tmp/credentials.json
 
       - name: Prepare dbt profile
