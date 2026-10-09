@@ -263,6 +263,37 @@ jobs:
             --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
             --vars "$DBT_VARS"
 
+      - name: Download production catalog from Recce Cloud
+        working-directory: queries
+        run: uvx recce-cloud download --prod --target-path target-prod
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Complete current catalog with deferred production nodes
+        working-directory: queries
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("target/manifest.json").read_text())
+          current = json.loads(Path("target/catalog.json").read_text())
+          production = json.loads(Path("target-prod/catalog.json").read_text())
+
+          for key in ("nodes", "sources"):
+              expected = manifest[key]
+              merged = {
+                  unique_id: entry
+                  for unique_id, entry in production[key].items()
+                  if unique_id in expected
+              }
+              merged.update(current[key])
+              print(f"{key}: {len(current[key])} built + {len(merged) - len(current[key])} deferred")
+              current[key] = merged
+
+          Path("target/catalog.json").write_text(json.dumps(current))
+          PY
+
       - name: Upload current artifacts to Recce Cloud
         working-directory: queries
         run: uvx recce-cloud upload --pr "${{ needs.prepare.outputs.pr_number }}" --type pr --target-path target --yes
