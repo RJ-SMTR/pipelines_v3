@@ -192,8 +192,8 @@ jobs:
 
       - name: Setup credentials for dbt
         env:
-          GCP_SA_KEY: ${{ secrets.GCP_RECCE_SA }}
-        run: printf '%s' "$GCP_SA_KEY" > /tmp/credentials.json
+          GCP_RECCE_SA: ${{ secrets.GCP_RECCE_SA }}
+        run: printf '%s' "$GCP_RECCE_SA" > /tmp/credentials.json
 
       - name: Prepare dbt profile
         working-directory: queries
