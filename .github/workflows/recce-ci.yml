@@ -166,6 +166,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.head_sha }}
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Install uv
@@ -201,11 +202,17 @@ jobs:
           mkdir -p dev
           cp profiles.yml dev/profiles.yml
 
-      - name: Download production artifacts
-        working-directory: queries
-        run: uvx recce-cloud download --prod --target-path target-base
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build base manifest from merge base with master
+        run: |
+          base_sha=$(git merge-base origin/master HEAD)
+          echo "Base commit: $base_sha"
+          git worktree add --detach "$RUNNER_TEMP/base" "$base_sha"
+          cp queries/dev/profiles.yml "$RUNNER_TEMP/base/queries/profiles.yml"
+          cd "$RUNNER_TEMP/base/queries"
+          "$GITHUB_WORKSPACE/.venv/bin/dbt" deps --profiles-dir . --quiet
+          "$GITHUB_WORKSPACE/.venv/bin/dbt" parse --profiles-dir . --target prod --no-partial-parse --quiet
+          mkdir -p "$GITHUB_WORKSPACE/queries/target-base"
+          cp target/manifest.json "$GITHUB_WORKSPACE/queries/target-base/manifest.json"
 
       - name: Install dbt packages
         working-directory: queries
