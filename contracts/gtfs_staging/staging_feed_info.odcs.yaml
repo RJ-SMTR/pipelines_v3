@@ -1,0 +1,75 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_feed_info
+name: gtfs_staging/staging_feed_info
+status: active
+schema:
+- name: staging_feed_info
+  physicalType: view
+  description: |
+    Uma linha por versão do GTFS (data_versao), com os nomes das colunas do arquivo feed_info.txt.
+    Fonte: capturas do GTFS (br_rj_riodejaneiro_gtfs_staging.feed_info).
+    O contrato de dados exige exatamente uma linha no arquivo bruto de cada captura.
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.feed_info
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+  - name: feed_publisher_name
+    physicalType: STRING
+    description: Nome completo da organização que publica o conjunto de dados
+    logicalType: string
+  - name: feed_publisher_url
+    physicalType: STRING
+    description: URL do site da organização que publica o conjunto de dados
+    logicalType: string
+  - name: feed_lang
+    physicalType: STRING
+    description: Idioma padrão usado para o texto neste conjunto de dados
+    logicalType: string
+  - name: default_lang
+    physicalType: STRING
+    description: Define o idioma que deve ser usado quando o consumidor de dados não
+      conhece o idioma do passageiro
+    logicalType: string
+  - name: feed_start_date
+    physicalType: STRING
+    description: Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)
+    logicalType: string
+  - name: feed_end_date
+    physicalType: STRING
+    description: Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)
+    logicalType: string
+  - name: feed_version
+    physicalType: STRING
+    description: String que indica a versão atual do conjunto de dados GTFS
+    logicalType: string
+  - name: feed_contact_email
+    physicalType: STRING
+    description: Endereço de e-mail para comunicação sobre o conjunto de dados GTFS
+      e práticas de publicação de dados
+    logicalType: string
+  - name: feed_contact_url
+    physicalType: STRING
+    description: URL para informações de contato, um formulário web, uma mesa de suporte
+      ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas
+      de publicação de dados
+    logicalType: string
+  - name: feed_id
+    physicalType: STRING
+    description: Identificador do conjunto de dados GTFS
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality:
+  - type: library
+    metric: rowCount
+    mustBe: 1
+customProperties:
+- property: dbt_version
+  value: 1.10.11

@@ -78,6 +78,7 @@ class DBTTest:
         datetime_start: datetime,
         datetime_end: datetime,
         partitions: Optional[list[str]] = None,
+        additional_vars: Optional[dict] = None,
     ) -> dict:
         """
         Gera as variáveis para execução do teste do dbt.
@@ -85,6 +86,8 @@ class DBTTest:
         Args:
             datetime_start (datetime): Datetime inicial da materialização.
             datetime_end (datetime): Datetime final da materialização.
+            additional_vars (Optional[dict]): Variáveis adicionais da execução do flow. Não
+                sobrescrevem as variáveis reservadas nem as definidas no próprio teste.
 
         Returns:
             dict: Variáveis formatadas para execução do teste do dbt.
@@ -109,7 +112,7 @@ class DBTTest:
         if collision:
             raise ValueError(f"Variáveis reservadas não podem ser sobrescritas: {collision}")
 
-        return final_dict | self.additional_vars
+        return (additional_vars or {}) | final_dict | self.additional_vars
 
     def adjust_datetime_range(
         self, datetime_start: datetime, datetime_end: datetime
@@ -379,6 +382,7 @@ class DBTSelectorMaterializationContext:
         self.datetime_start = self.get_datetime_start(datetime_start=datetime_start)
         self.datetime_end = self.get_datetime_end(datetime_end=datetime_end)
 
+        self.additional_vars = additional_vars or {}
         self.dbt_vars = self.get_dbt_vars(
             datetime_start=self.datetime_start,
             datetime_end=self.datetime_end,
@@ -408,6 +412,7 @@ class DBTSelectorMaterializationContext:
             selector.pre_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_pre_test
             else None
@@ -417,6 +422,7 @@ class DBTSelectorMaterializationContext:
             selector.post_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_post_test
             else None
@@ -801,6 +807,7 @@ def run_dbt_tests(  # noqa: PLR0913
     partitions: Optional[list[str]] = None,
     env: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ) -> tuple[str, dict]:
     """
     Executa o DBT test
@@ -812,6 +819,7 @@ def run_dbt_tests(  # noqa: PLR0913
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
         env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
         flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
+        additional_vars (Optional[dict]): Variáveis adicionais da execução do flow.
 
     Returns:
         str: Logs da execução do DBT.
@@ -825,6 +833,7 @@ def run_dbt_tests(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
+        additional_vars=additional_vars,
     )
     log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 

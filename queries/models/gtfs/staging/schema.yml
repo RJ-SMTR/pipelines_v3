@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: staging_feed_info
+    description: |
+      Uma linha por versão do GTFS (data_versao), com os nomes das colunas do arquivo feed_info.txt.
+      Fonte: capturas do GTFS (br_rj_riodejaneiro_gtfs_staging.feed_info).
+      O contrato de dados exige exatamente uma linha no arquivo bruto de cada captura.
+    config:
+      meta:
+        datacontract_cli:
+          quality:
+            - type: library
+              metric: rowCount
+              mustBe: 1
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: feed_publisher_name
+        description: "Nome completo da organização que publica o conjunto de dados"
+        data_type: string
+      - name: feed_publisher_url
+        description: "URL do site da organização que publica o conjunto de dados"
+        data_type: string
+      - name: feed_lang
+        description: "Idioma padrão usado para o texto neste conjunto de dados"
+        data_type: string
+      - name: default_lang
+        description: "Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro"
+        data_type: string
+      - name: feed_start_date
+        description: "Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        data_type: string
+      - name: feed_end_date
+        description: "Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        data_type: string
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+      - name: feed_contact_email
+        description: "Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados"
+        data_type: string
+      - name: feed_contact_url
+        description: "URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados"
+        data_type: string
+      - name: feed_id
+        description: "Identificador do conjunto de dados GTFS"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string

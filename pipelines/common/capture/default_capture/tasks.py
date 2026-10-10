@@ -2,6 +2,7 @@
 import io
 import zipfile
 from datetime import datetime
+from pathlib import Path
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
@@ -21,6 +22,7 @@ from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
 )
+from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
@@ -137,43 +139,55 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
     source_filetype = constants.SOURCE_FILETYPE
 
     for raw_filepath in context.captured_raw_filepaths:
-        data = read_raw_data(
-            filepath=raw_filepath,
-            reader_args=source.pretreatment_reader_args,
+        reader_args = source.pretreatment_reader_args or {}
+        captura = create_timestamp_captura(
+            timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
         )
-
-        if data.empty:
-            print("Dataframe vazio, pulando tratamento...")
-            data = pd.DataFrame()
+        if not source.transform_in_chunks:
+            data_chunks = [read_raw_data(filepath=raw_filepath, reader_args=reader_args)]
         else:
-            print(f"Raw data:\n{data_info_str(data)}")
-
-            data_columns_len = len(data.columns)
-            captura = create_timestamp_captura(
-                timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
+            if Path(raw_filepath).suffix.lower() not in {".csv", ".txt"}:
+                raise ValueError("transform_in_chunks só pode ser usado com arquivos CSV ou TXT")
+            if "chunksize" in reader_args:
+                raise ValueError(
+                    "Não defina chunksize em pretreatment_reader_args; use file_chunk_size"
+                )
+            data_chunks = pd.read_csv(
+                raw_filepath,
+                chunksize=source.file_chunk_size,
+                **reader_args,
             )
 
-            for step in source.pretreat_funcs:
-                data = step(data=data, context=context)
+        for chunk in data_chunks:
+            data = chunk
+            if data.empty:
+                print("Dataframe vazio, pulando tratamento...")
+                data = pd.DataFrame()
+            else:
+                print(f"Raw data:\n{data_info_str(data)}")
 
-            data["_datetime_execucao_flow"] = captura
+                data_columns_len = len(data.columns)
 
-            if len(primary_keys) < data_columns_len:
-                data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+                for step in source.pretreat_funcs:
+                    data = step(data=data, context=context)
 
-            data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
+                data["_datetime_execucao_flow"] = captura
 
-        print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
+                if len(primary_keys) < data_columns_len:
+                    data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
 
-        source_filepath = context.source_filepath
-        save_local_file(
-            filepath=source_filepath,
-            filetype=source_filetype,
-            data=data,
-            csv_mode=csv_mode,
-        )
-        csv_mode = "a"
-        print(f"Dados salvos em {source_filepath}")
+                data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
+
+            print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
+
+            save_local_file(
+                filepath=context.source_filepath,
+                filetype=source_filetype,
+                data=data,
+                csv_mode=csv_mode,
+            )
+            csv_mode = "a"
+            print(f"Dados salvos em {context.source_filepath}")
 
 
 @task(cache_policy=NO_CACHE)
@@ -203,6 +217,14 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
         print("Tabela de staging já existe, adicionando dados...")
         source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
+
+
+@task(cache_policy=NO_CACHE)
+def save_capture_datetime_redis(capture_datetime: dict) -> None:
+    """Persiste no Redis o marcador de captura indicado pelo flow."""
+    redis_client = get_redis_client()
+    redis_client.set(capture_datetime["key"], capture_datetime["value"])
+    print(f"Marcador de captura salvo no Redis: {capture_datetime['key']}")
 
 
 @task(cache_policy=NO_CACHE)
