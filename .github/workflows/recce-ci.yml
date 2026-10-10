@@ -1,0 +1,301 @@
+name: Recce CI - Validate PR Changes
+
+# Usage (PR comment): /recce <start_date> [<end_date>] [--vars '{"key": "value"}']
+#   /recce 2026-10-01
+#   /recce 2026-10-01 2026-10-03 --vars '{"partitions": "2026-10-01"}'
+
+on:
+  issue_comment:
+    types: [created]
+  # TEMPORARY: registers the workflow so it can be dispatched from this branch; remove before merging
+  push:
+    branches: ["staging/recce-validation"]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number"
+        required: true
+        type: string
+      start_date:
+        description: "Start date (YYYY-MM-DD)"
+        required: true
+        type: string
+      end_date:
+        description: "End date (YYYY-MM-DD), defaults to start_date"
+        required: false
+        type: string
+      vars:
+        description: "Extra dbt vars as a JSON object"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  RECCE_MAX_DAYS: 2
+
+jobs:
+  prepare:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.pull_request &&
+        (github.event.comment.body == '/recce' || startsWith(github.event.comment.body, '/recce ')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      pr_number: ${{ steps.prepare.outputs.pr_number }}
+      head_sha: ${{ steps.prepare.outputs.head_sha }}
+      dbt_vars: ${{ steps.prepare.outputs.dbt_vars }}
+    steps:
+      - name: Authorize, resolve pull request and build dbt vars
+        id: prepare
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const maxDays = Number(process.env.RECCE_MAX_DAYS);
+            const dateVars = ['date_range_start', 'date_range_end', 'start_date', 'end_date', 'run_date'];
+            const isDispatch = context.eventName === 'workflow_dispatch';
+
+            const username = isDispatch ? context.actor : context.payload.comment.user.login;
+            const { data: collaborator } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner,
+              repo,
+              username,
+            });
+            if (!['write', 'maintain', 'admin'].includes(collaborator.permission)) {
+              core.setFailed('The /recce command requires repository write permission.');
+              return;
+            }
+
+            const prNumber = isDispatch ? Number(context.payload.inputs.pr_number) : context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+            if (pr.state !== 'open' || pr.head.repo?.full_name !== `${owner}/${repo}`) {
+              core.setFailed('Recce requires an open pull request from this repository.');
+              return;
+            }
+
+            const parseDate = (value, name) => {
+              const date = new Date(`${value}T00:00:00Z`);
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+                throw new Error(`${name} must be a valid YYYY-MM-DD date, got "${value}"`);
+              }
+              return date;
+            };
+
+            let startDate, endDate, extraVars;
+            if (isDispatch) {
+              ({ start_date: startDate, end_date: endDate, vars: extraVars } = context.payload.inputs);
+            } else {
+              const match = context.payload.comment.body
+                .trim()
+                .match(/^\/recce\s+(\S+)(?:\s+(?!--)(\S+))?(?:\s+--vars\s+(.+))?$/s);
+              if (!match) {
+                throw new Error('Usage: /recce <start_date> [<end_date>] [--vars \'{"key": "value"}\']');
+              }
+              [, startDate, endDate, extraVars] = match;
+            }
+            endDate = endDate?.trim() || startDate;
+
+            const start = parseDate(startDate, 'start_date');
+            const end = parseDate(endDate, 'end_date');
+            const days = (end - start) / 86_400_000 + 1;
+            if (days < 1) {
+              throw new Error('end_date must be on or after start_date');
+            }
+            if (days > maxDays) {
+              throw new Error(`Date range spans ${days} days; the maximum is ${maxDays}`);
+            }
+
+            let overrides = {};
+            extraVars = extraVars?.trim();
+            if (extraVars) {
+              if (/^(['"]).*\1$/s.test(extraVars)) {
+                extraVars = extraVars.slice(1, -1);
+              }
+              try {
+                overrides = JSON.parse(extraVars);
+              } catch (error) {
+                throw new Error(`--vars must be valid JSON: ${error.message}`);
+              }
+              if (overrides === null || typeof overrides !== 'object' || Array.isArray(overrides)) {
+                throw new Error('--vars must be a JSON object');
+              }
+              const forbidden = Object.keys(overrides).filter((key) => dateVars.includes(key));
+              if (forbidden.length) {
+                throw new Error(`--vars cannot override date vars: ${forbidden.join(', ')}`);
+              }
+            }
+
+            const dbtVars = {
+              date_range_start: `${startDate}T00:00:00`,
+              date_range_end: `${endDate}T23:59:59`,
+              start_date: `${startDate}T01:00:00`,
+              end_date: `${endDate}T01:00:00`,
+              run_date: `${endDate}T01:00:00`,
+              ...overrides,
+            };
+
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('head_sha', pr.head.sha);
+            core.setOutput('dbt_vars', JSON.stringify(dbtVars));
+            core.info(`dbt vars: ${JSON.stringify(dbtVars)}`);
+
+  validate-changes:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: recce-pr-${{ needs.prepare.outputs.pr_number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pull-requests: read
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      DBT_USER: recce_pr_${{ needs.prepare.outputs.pr_number }}
+      DBT_VARS: ${{ needs.prepare.outputs.dbt_vars }}
+
+    steps:
+      - name: Checkout pull request commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project dependencies
+        run: uv sync --all-packages
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_RECCE_SA }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: "latest"
+
+      - name: Setup credentials for dbt
+        env:
+          GCP_RECCE_SA: ${{ secrets.GCP_RECCE_SA }}
+        run: printf '%s' "$GCP_RECCE_SA" > /tmp/credentials.json
+
+      - name: Prepare dbt profile
+        working-directory: queries
+        run: |
+          mkdir -p dev
+          cp profiles.yml dev/profiles.yml
+
+      - name: Build base manifest from merge base with master
+        run: |
+          base_sha=$(git merge-base origin/master HEAD)
+          echo "Base commit: $base_sha"
+          git worktree add --detach "$RUNNER_TEMP/base" "$base_sha"
+          cp queries/dev/profiles.yml "$RUNNER_TEMP/base/queries/profiles.yml"
+          cd "$RUNNER_TEMP/base/queries"
+          "$GITHUB_WORKSPACE/.venv/bin/dbt" deps --profiles-dir . --quiet
+          "$GITHUB_WORKSPACE/.venv/bin/dbt" parse --profiles-dir . --target prod --no-partial-parse --quiet
+          mkdir -p "$GITHUB_WORKSPACE/queries/target-base"
+          cp target/manifest.json "$GITHUB_WORKSPACE/queries/target-base/manifest.json"
+
+      - name: Install dbt packages
+        working-directory: queries
+        run: uv run dbt deps --profiles-dir ./dev
+
+      - name: Build empty changed model graph
+        working-directory: queries
+        run: |
+          uv run dbt run \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --favor-state \
+            --empty \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$DBT_VARS"
+
+      - name: Run changed model graph for date range
+        working-directory: queries
+        run: |
+          uv run dbt run \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --favor-state \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$DBT_VARS"
+
+      - name: Generate Recce artifacts for changed graph
+        working-directory: queries
+        run: |
+          uv run dbt docs generate \
+            --target dev \
+            --profiles-dir ./dev \
+            --select state:modified \
+            --state target-base \
+            --defer \
+            --no-static-parser \
+            --quiet \
+            --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}' \
+            --vars "$DBT_VARS"
+
+      - name: Download production catalog from Recce Cloud
+        working-directory: queries
+        run: uvx recce-cloud download --prod --target-path target-prod
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Complete current catalog with deferred production nodes
+        working-directory: queries
+        run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("target/manifest.json").read_text())
+          current = json.loads(Path("target/catalog.json").read_text())
+          production = json.loads(Path("target-prod/catalog.json").read_text())
+
+          for key in ("nodes", "sources"):
+              expected = manifest[key]
+              merged = {
+                  unique_id: entry
+                  for unique_id, entry in production[key].items()
+                  if unique_id in expected
+              }
+              merged.update(current[key])
+              print(f"{key}: {len(current[key])} built + {len(merged) - len(current[key])} deferred")
+              current[key] = merged
+
+          Path("target/catalog.json").write_text(json.dumps(current))
+          PY
+
+      - name: Upload current artifacts to Recce Cloud
+        working-directory: queries
+        run: uvx recce-cloud upload --pr "${{ needs.prepare.outputs.pr_number }}" --type pr --target-path target --yes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
