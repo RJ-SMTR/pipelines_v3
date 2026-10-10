@@ -3,6 +3,7 @@
 
 import json
 import os
+import re
 from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
@@ -17,13 +18,49 @@ from datacontract.model.run import Run
 
 from pipelines.common.capture.data_contract.constants import (
     CAPTURE_METADATA_COLUMNS,
+    CHECK_DESCRIPTIONS,
     DEFAULT_MANIFEST,
     GITHUB_API,
+    METRIC_LABELS,
     REQUEST_TIMEOUT,
     ROOT,
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
 from pipelines.common.utils.utils import is_running_locally
+
+RESULT_LABELS = {
+    "passed": "aprovado",
+    "failed": "reprovado",
+    "warning": "alerta",
+    "skipped": "ignorado",
+    "error": "erro",
+}
+
+REASON_PATTERN = re.compile(
+    r"^Actual (?P<metric>.+?) was (?P<actual>.+?), expected (?P<expected>.+)$", re.S
+)
+METRIC_PATTERN = re.compile(r"^(?P<name>\w+)(?=\()")
+
+
+def translate_reason(reason: Any) -> str | None:
+    """Traduz o motivo padrão retornado pelo datacontract para português.
+
+    Args:
+        reason (Any): Motivo retornado pelo check.
+
+    Returns:
+        str | None: Motivo traduzido, ou o original quando não segue o padrão conhecido.
+            Métricas fora de METRIC_LABELS mantêm o nome original.
+    """
+    if reason is None:
+        return None
+    match = REASON_PATTERN.match(str(reason))
+    if match is None:
+        return str(reason)
+    metric = METRIC_PATTERN.sub(
+        lambda name: METRIC_LABELS.get(name["name"], name["name"]), match["metric"]
+    )
+    return f"Obtido {metric} = {match['actual']}, esperado {match['expected']}"
 
 
 def _result_value(result: Any) -> str:
@@ -54,6 +91,54 @@ def to_field(run: Run, check: Any) -> str | None:
             return check.model
         return f"{check.model}.{check.field}"
     return check.field
+
+
+def check_description(check: Any) -> str:
+    """Retorna a descrição em português do check.
+
+    Usa a description da regra de qualidade que originou o check e, na ausência, uma
+    descrição padrão pelo tipo do check. Sem correspondência, mantém o nome do datacontract.
+    Em relationships, a coluna referenciada vem do nome do check, único lugar do resultado
+    que a informa.
+
+    Args:
+        check (Any): Check do resultado do teste do contrato.
+
+    Returns:
+        str: Descrição do check.
+    """
+    if check.qualityDefinition:
+        rule = yaml.safe_load(check.qualityDefinition) or {}
+        if rule.get("description"):
+            return rule["description"]
+    template = CHECK_DESCRIPTIONS.get(check.type)
+    if template is not None and check.field is not None:
+        reference = (check.name or "").partition(" missing from ")[2]
+        return template.format(field=check.field, reference=reference)
+    return check.name
+
+
+def contract_test_results(run: Run, table: str) -> list[dict]:
+    """Converte os checks do contrato no formato usado nas notificações de testes.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        table (str): Nome exibido para agrupar os checks na notificação.
+
+    Returns:
+        list[dict]: Checks executados, com as chaves table, description e result
+            (PASS, WARN, FAIL ou ERROR).
+    """
+    results = {"passed": "PASS", "warning": "WARN", "failed": "FAIL"}
+    return [
+        {
+            "table": table,
+            "description": check_description(check),
+            "result": results.get(_result_value(check.result), "ERROR"),
+        }
+        for check in run.checks
+        if _result_value(check.result) != "skipped"
+    ]
 
 
 def _format_table_border(widths: tuple[int, ...]) -> str:
@@ -116,11 +201,11 @@ def _format_test_results_table(run: Run) -> str:
     Returns:
         str: Tabela textual dos checks, sem renderização Rich.
     """
-    widths = (8, 28, 15, 22)
+    widths = (10, 28, 15, 22)
     border = _format_table_border(widths)
     lines = [
         border,
-        *_format_table_row(["Result", "Check", "Field", "Details"], widths),
+        *_format_table_row(["Resultado", "Verificação", "Campo", "Detalhes"], widths),
         border,
     ]
     checks = sorted(
@@ -135,10 +220,10 @@ def _format_test_results_table(run: Run) -> str:
         lines.extend(
             _format_table_row(
                 [
-                    _result_value(check.result),
-                    check.name,
+                    RESULT_LABELS.get(_result_value(check.result), _result_value(check.result)),
+                    check_description(check),
                     to_field(run, check),
-                    check.reason,
+                    translate_reason(check.reason),
                 ],
                 widths,
             )
@@ -162,10 +247,9 @@ def _format_failed_checks(run: Run, width: int = 88) -> list[str]:
     for check in run.checks:
         if _result_value(check.result) in ("passed", "skipped"):
             continue
-        field = to_field(run, check)
-        prefix = f"{position}) {field + ' ' if field else ''}{check.name}: "
+        prefix = f"{position}) {check_description(check)}: "
         reason_lines = wrap(
-            prefix + str(check.reason or ""),
+            prefix + (translate_reason(check.reason) or ""),
             width=width,
             subsequent_indent="   ",
             break_long_words=True,
@@ -173,7 +257,7 @@ def _format_failed_checks(run: Run, width: int = 88) -> list[str]:
         )
         lines.extend(reason_lines or [prefix.rstrip()])
         if check.failedSamples:
-            lines.append("   Failed samples:")
+            lines.append("   Amostras com falha:")
             for sample in check.failedSamples:
                 sample_json = json.dumps(sample, ensure_ascii=False, default=str)
                 lines.extend(
@@ -200,20 +284,20 @@ def _format_test_results_summary(run: Run) -> list[str]:
     """
     if _result_value(run.result) == "passed":
         skipped = sum(1 for check in run.checks if _result_value(check.result) == "skipped")
-        skipped_info = f" ({skipped} skipped)" if skipped else ""
+        skipped_info = f" ({skipped} ignoradas)" if skipped else ""
         duration = (run.timestampEnd - run.timestampStart).total_seconds()
         return [
-            "🟢 data contract is valid. "
-            f"Run {len(run.checks)} checks{skipped_info}. Took {duration} seconds."
+            "🟢 Contrato de dados válido. "
+            f"{len(run.checks)} verificações executadas{skipped_info} em {duration} segundos."
         ]
     if _result_value(run.result) == "skipped":
-        return ["🔵 data contract was skipped"]
+        return ["🔵 Validação do contrato de dados ignorada"]
     if _result_value(run.result) == "warning":
         return [
-            "🟠 data contract has warnings. Found the following warnings:",
+            "🟠 Contrato de dados com alertas:",
             *_format_failed_checks(run),
         ]
-    return ["🔴 data contract is invalid, found the following errors:", *_format_failed_checks(run)]
+    return ["🔴 Contrato de dados inválido. Erros encontrados:", *_format_failed_checks(run)]
 
 
 def format_test_results(run: Run) -> str:

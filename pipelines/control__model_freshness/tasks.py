@@ -7,29 +7,27 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as common_constants
-from pipelines.common.treatment.default_treatment.utils import (
-    extract_relation_from_query,
-    parse_dbt_test_output,
-)
+from pipelines.common.treatment.default_treatment.utils import extract_relation_from_query
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.secret import get_env_secret
 
 
 @task(cache_policy=NO_CACHE, name="Parse Model Freshness Output")
-def parse_model_freshness_output(dbt_output: str) -> tuple[bool, Optional[dict]]:
+def parse_model_freshness_output(test_results: list[dict]) -> tuple[bool, Optional[dict]]:
     """
-    Reaproveita o parser dos testes do dbt para extrair tabelas desatualizadas.
+    Extrai as tabelas desatualizadas dos resultados dos testes do dbt.
 
     Args:
-        dbt_output (str): Logs do `dbt test` em formato JSON.
+        test_results (list[dict]): Resultados retornados por `run_dbt_tests`.
 
     Returns:
         tuple[bool, Optional[dict]]:
             - Booleano indicando se há resultados FAIL/WARN/ERROR.
             - Dicionário {test_name: {"result": ..., ...}} contendo apenas falhas.
     """
-    results = parse_dbt_test_output(dbt_output)
-    failed = {name: info for name, info in results.items() if info["result"] in ("FAIL", "WARN")}
+    failed = {
+        result["test"]: result for result in test_results if result["result"] in ("FAIL", "WARN")
+    }
     return len(failed) > 0, failed
 
 

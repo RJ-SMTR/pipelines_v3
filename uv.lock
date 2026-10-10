@@ -6,8 +6,8 @@ requires-python = "==3.13.*"
 exclude-newer = "2026-05-31T00:00:00Z"
 
 [options.exclude-newer-package]
-open-data-contract-standard = "2026-09-24T00:00:00Z"
-datacontract-cli = "2026-09-24T00:00:00Z"
+open-data-contract-standard = "2026-10-07T00:00:00Z"
+datacontract-cli = "2026-10-07T00:00:00Z"
 
 [manifest]
 members = [
@@ -843,7 +843,7 @@ wheels = [
 
 [[package]]
 name = "datacontract-cli"
-version = "1.2.1"
+version = "1.2.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -868,9 +868,9 @@ dependencies = [
     { name = "truststore" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/27/e2/1103007f50f19c5cefbd669bed736452b3f150c04575eb4dab100cbd4821/datacontract_cli-1.2.1.tar.gz", hash = "sha256:6f995f1db80ae34043f5d000e37095c686c1d286017876e532b4fd32cf8bf425", size = 3372695, upload-time = "2026-09-22T11:09:13.654Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/dd/fd12023b77334ef5bc8c7fb47bebf6cde616ee14502854ab179d1bf84eb3/datacontract_cli-1.2.4.tar.gz", hash = "sha256:4803e53da49aa8602b275482a9b329580c65487b64102b59b4fc2fedeea26014", size = 3502003, upload-time = "2026-10-06T19:36:37.408Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/ea/c4851c481b07960d0155af04d9ad835f3efd8f0d2ac8eb455bde6fd023f7/datacontract_cli-1.2.1-py3-none-any.whl", hash = "sha256:a34f66c2520674e4f59bf693e1c17d9f331b6a1415773b751a4d83818b9aad94", size = 3196426, upload-time = "2026-09-22T11:09:11.215Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/a9/12beac24033bde8f8c91b58aa16096ab853ce93a2e9e5ee3aa331a991f8b/datacontract_cli-1.2.4-py3-none-any.whl", hash = "sha256:6e3426b6751542cb91db618d0ff3d5705c700dda2addb06c43b5b991d3e96b65", size = 3265351, upload-time = "2026-10-06T19:36:35.27Z" },
 ]
 
 [package.optional-dependencies]
@@ -2339,7 +2339,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "croniter", specifier = ">=6.0.0" },
-    { name = "datacontract-cli", extras = ["duckdb"], specifier = "==1.2.1" },
+    { name = "datacontract-cli", extras = ["duckdb"], specifier = "==1.2.4" },
     { name = "dbt-adapters", specifier = "==1.22.6" },
     { name = "dbt-bigquery", specifier = "==1.10.1" },
     { name = "dill", specifier = ">=0.4.1" },

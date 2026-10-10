@@ -22,7 +22,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_snapshots,
     save_materialization_datetime_redis,
     setup_dbt_queries,
-    task_dbt_selector_test_notify_discord,
+    task_dbt_selector_test_notify,
     test_fallback_run,
     wait_data_sources,
 )
@@ -41,6 +41,7 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
     force_test_run: bool = False,
     test_webhook_key: str = "dataplex",
     test_additional_mentions: Optional[list[str]] = None,
+    test_google_chat_webhook_key: Optional[str] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     snapshot_selector: Optional[DBTSelector] = None,
     fallback_run: bool = False,
@@ -65,6 +66,8 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
         test_webhook_key (str): Chave do webhook para notificações dos testes no Discord.
         test_additional_mentions (Optional[list[str]]): Menções adicionais a serem incluídas
             nas notificações dos testes no Discord.
+        test_google_chat_webhook_key (Optional[str]): Chave, no secret de webhooks, do espaço do
+            Google Chat que recebe o resultado dos testes. Sem chave, não notifica.
         tasks_wait_for (Optional[dict[str, list[Task]]]): Mapeamento para adicionar tasks no
             argumento wait_for das tasks retornadas por esta função.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
@@ -174,27 +177,28 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                 ],
             )
 
-            pre_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
+            pre_tests_notify_future = task_dbt_selector_test_notify.map(
                 context=contexts,
                 mode=unmapped("pre"),
                 webhook_key=unmapped(test_webhook_key),
                 additional_mentions=unmapped(test_additional_mentions),
+                google_chat_webhook_key=unmapped(test_google_chat_webhook_key),
                 wait_for=unmapped(
                     [
                         tasks["pre_tests"],
-                        *tasks_wait_for.get("pre_tests_notify_discord", []),
+                        *tasks_wait_for.get("pre_tests_notify", []),
                     ]
                 ),
             )
 
-            tasks["pre_tests_notify_discord"] = pre_tests_notify_discord_future.result()
+            tasks["pre_tests_notify"] = pre_tests_notify_future.result()
 
             if not test_only:
                 tasks["run_dbt"] = run_dbt_selectors(
                     contexts=contexts,
                     flags=flags,
                     wait_for=[
-                        tasks["pre_tests_notify_discord"],
+                        tasks["pre_tests_notify"],
                         *tasks_wait_for.get("run_dbt", []),
                     ],
                 )
@@ -220,27 +224,28 @@ def create_materialization_flows_default_tasks(  # noqa: PLR0913
                 ],
             )
 
-            post_tests_notify_discord_future = task_dbt_selector_test_notify_discord.map(
+            post_tests_notify_future = task_dbt_selector_test_notify.map(
                 context=contexts,
                 mode=unmapped("post"),
                 webhook_key=unmapped(test_webhook_key),
                 additional_mentions=unmapped(test_additional_mentions),
+                google_chat_webhook_key=unmapped(test_google_chat_webhook_key),
                 wait_for=unmapped(
                     [
                         tasks["post_tests"],
-                        *tasks_wait_for.get("post_tests_notify_discord", []),
+                        *tasks_wait_for.get("post_tests_notify", []),
                     ]
                 ),
             )
 
-            tasks["post_tests_notify_discord"] = post_tests_notify_discord_future.result()
+            tasks["post_tests_notify"] = post_tests_notify_future.result()
 
             if not test_only:
                 tasks["run_dbt_snapshots"] = run_dbt_snapshots(
                     contexts=contexts,
                     flags=flags,
                     wait_for=[
-                        tasks["post_tests_notify_discord"],
+                        tasks["post_tests_notify"],
                         *tasks_wait_for.get("run_dbt_snapshots", []),
                     ],
                 )

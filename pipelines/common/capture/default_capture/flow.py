@@ -5,6 +5,7 @@ from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
+    check_data_contract,
     download_data_contracts,
     validate_raw_data_contract,
 )
@@ -38,6 +39,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
     skip_data_contract_validation: bool = False,
+    data_contract_webhook_key: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
@@ -45,6 +47,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     Args:
         env (Optional[str]): prod ou dev.
         skip_data_contract_validation (bool): Pula download e validação do contrato nesta execução.
+        data_contract_webhook_key (Optional[str]): Chave, no secret de webhooks, do espaço do
+            Google Chat que recebe o resultado da validação do contrato.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
         source_table_ids (tuple[str]): Tupla com os table_ids dos sources a serem capturados.
         timestamp (str): Timestamp de captura.
@@ -139,7 +143,12 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
-        upload_wait_for.append(tasks["validate_raw_data_contract"])
+        tasks["check_data_contract"] = check_data_contract(
+            validations=tasks["validate_raw_data_contract"],
+            env=tasks["env"],
+            webhook_key=data_contract_webhook_key,
+        )
+        upload_wait_for.append(tasks["check_data_contract"])
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,

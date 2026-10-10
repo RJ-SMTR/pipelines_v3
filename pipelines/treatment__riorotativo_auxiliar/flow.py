@@ -18,6 +18,9 @@ DBT: 2026-07-08
 from datetime import time
 from typing import Optional
 
+from pipelines.capture__riorotativo_credenciados import (
+    constants as riorotativo_credenciados_constants,
+)
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
@@ -46,4 +49,7 @@ def treatment__riorotativo_auxiliar(  # noqa: PLR0913
         force_test_run=force_test_run,
         test_scheduled_time=time(5, 10, 0),
         test_webhook_key="alertas_bilhetagem",
+        test_google_chat_webhook_key=(
+            riorotativo_credenciados_constants.RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY
+        ),
     )
