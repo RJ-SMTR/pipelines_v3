@@ -1,5 +1,12 @@
 # Changelog - planejamento
 
+## [1.9.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos `ordem_servico_faixa_horaria`, `ordem_servico_faixa_horaria_sentido` e `ordem_servico_trajeto_alternativo_sentido` de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.8.10] - 2026-09-30
 
 ### Adicionado

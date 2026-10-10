@@ -60,6 +60,8 @@ class SourceCaptureContext:
         return create_partition(
             timestamp=self.timestamp,
             partition_date_only=self.source.partition_date_only,
+            partition_key=self.source.partition_key,
+            partition_value=(self.extra_parameters or {}).get("partition_value"),
         )
 
     def get_filepaths(self) -> tuple[str, str]:
@@ -72,7 +74,9 @@ class SourceCaptureContext:
         print("Criando filepaths...")
         data_folder = get_data_folder_path()
         print(f"Data folder: {data_folder}")
-        filename = self.timestamp.strftime(constants.FILENAME_PATTERN)
+        filename = (self.extra_parameters or {}).get("filename") or self.timestamp.strftime(
+            constants.FILENAME_PATTERN
+        )
 
         return (
             f"{data_folder}/"
