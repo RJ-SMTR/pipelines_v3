@@ -526,6 +526,7 @@ sources:
       - name: detalhe_a
       - name: dicionario
       - name: teste_sincronizacao_transacao_cct
+      - name: teste_sincronizacao_transacao_valor_ordem_cct
 
   - name: source_stu
     database: rj-smtr-staging
