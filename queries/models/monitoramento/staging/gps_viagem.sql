@@ -135,7 +135,7 @@ with
     )
 select
     v.data,
-    g.datetime_gps,
+    datetime_trunc(g.datetime_gps, second) as datetime_gps,
     v.modo,
     g.id_veiculo,
     v.servico as servico_viagem,
