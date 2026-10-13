@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.9.1] - 2026-10-13
+
+### Alterado
+
+- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II e considere as partidas apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR ()
+
 ## [1.9.0] - 2026-10-08
 
 ### Alterado
