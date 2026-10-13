@@ -13,6 +13,7 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import (
     SourceCaptureContext,
     constants,
+    persist_capture_log,
 )
 from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
@@ -97,7 +98,13 @@ def get_raw_data(context: SourceCaptureContext, data_extractor: Callable):
         data_extractor (Callable): Função responsável por extrair e salvar os dados brutos.
     """
 
-    captured_raw_filepaths = data_extractor()
+    try:
+        captured_raw_filepaths = data_extractor()
+    except Exception as error:
+        persist_capture_log(context=context, success=False, error=error)
+        raise
+
+    persist_capture_log(context=context, success=True)
 
     context.captured_raw_filepaths = captured_raw_filepaths
 
