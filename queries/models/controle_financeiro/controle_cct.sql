@@ -35,15 +35,21 @@
 with
     cett_staging as (
         select
-            data,
-            lancamento,
-            operacao,
+            data_operacao as data,
             tipo,
-            valor,
-            saldo_final,
+            operacao,
             favorecido,
             modal,
-            'CETT' as conta,
+            valor,
+            ano_competencia,
+            mes_competencia,
+            if(
+                trim(quinzena_competencia) = '', null, quinzena_competencia
+            ) as quinzena_semana_competencia,
+            if(trim(numero_processo) = '', null, numero_processo) as numero_processo,
+            if(trim(observacoes) = '', null, observacoes) as observacoes,
+            cast(null as string) as numero_nf,
+            'CETT' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_cett") }}
         {% if var_table_exists %}
@@ -53,15 +59,23 @@ with
     ),
     cb_staging as (
         select
-            data,
-            lancamento,
-            operacao,
+            data_operacao as data,
             tipo,
-            valor,
-            saldo_final,
+            operacao,
             favorecido,
             modal,
-            'CB' as conta,
+            valor,
+            ano_competencia,
+            mes_competencia,
+            if(
+                trim(quinzena_semana_competencia) = '',
+                null,
+                quinzena_semana_competencia
+            ) as quinzena_semana_competencia,
+            if(trim(numero_processo) = '', null, numero_processo) as numero_processo,
+            if(trim(observacoes) = '', null, observacoes) as observacoes,
+            if(trim(numero_nf) = '', null, numero_nf) as numero_nf,
+            'CB' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_cb") }}
         {% if var_table_exists %}
@@ -71,15 +85,19 @@ with
     ),
     caer_staging as (
         select
-            data,
-            cast(null as string) as lancamento,
-            operacao,
+            data_operacao as data,
             tipo,
-            valor,
-            saldo_final,
+            operacao,
             favorecido,
             cast(null as string) as modal,
-            'CAER' as conta,
+            valor,
+            ano_competencia,
+            mes_competencia,
+            cast(null as string) as quinzena_semana_competencia,
+            if(trim(numero_processo) = '', null, numero_processo) as numero_processo,
+            if(trim(observacoes) = '', null, observacoes) as observacoes,
+            if(trim(numero_nf) = '', null, numero_nf) as numero_nf,
+            'CAER' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_caer") }}
         {% if var_table_exists %}
@@ -95,6 +113,8 @@ with
 
         select *
         from cb_staging
+
+        union all
 
         select *
         from caer_staging
