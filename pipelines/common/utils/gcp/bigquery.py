@@ -289,6 +289,7 @@ class SourceTable(BQTable):
             flow_folder_path = Path(inspect.stack()[2].filename).parent
 
             flow_name = flow_folder_path.name
+            self.flow_folder_name = flow_name
 
         else:
             flow_name = self.flow_folder_name
