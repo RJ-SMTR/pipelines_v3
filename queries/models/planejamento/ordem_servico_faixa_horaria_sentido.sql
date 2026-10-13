@@ -34,7 +34,7 @@
 with
     dados as (
         select
-            safe_cast(data_versao as date) as data_versao,
+            data_versao,
             safe_cast(tipo_os as string) as tipo_os,
             safe_cast(servico as string) as servico,
             safe_cast(sentido as string) as sentido,
@@ -62,7 +62,7 @@ with
         from
             {{
                 source(
-                    "br_rj_riodejaneiro_gtfs_staging",
+                    "source_gtfs",
                     "ordem_servico_faixa_horaria_sentido",
                 )
             }}

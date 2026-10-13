@@ -17,7 +17,7 @@
 
 select
     fi.feed_version,
-    safe_cast(s.data_versao as date) as feed_start_date,
+    s.data_versao as feed_start_date,
     fi.feed_end_date,
     safe_cast(s.shape_id as string) shape_id,
     safe_cast(json_value(s.content, '$.shape_pt_lat') as float64) shape_pt_lat,
@@ -27,9 +27,8 @@ select
         json_value(s.content, '$.shape_dist_traveled') as float64
     ) shape_dist_traveled,
     '{{ var("version") }}' as versao_modelo
-from {{ source("br_rj_riodejaneiro_gtfs_staging", "shapes") }} s
-join
-    {{ ref("feed_info_gtfs") }} fi on s.data_versao = cast(fi.feed_start_date as string)
+from {{ source("source_gtfs", "shapes") }} s
+join {{ ref("feed_info_gtfs") }} fi on s.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
         s.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
