@@ -5,7 +5,6 @@ with
             feed_start_date,
             tipo_dia,
             tipo_os,
-            sistema,
             sum(partidas) as partidas,
             sum(quilometragem) as quilometragem
         from {{ ref("servico_planejado_faixa_horaria") }}
