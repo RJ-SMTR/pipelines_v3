@@ -1,5 +1,12 @@
 # Changelog - gtfs
 
+## [1.5.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` nos joins com `feed_info_gtfs` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.4.3] - 2026-08-26
 
 ### Adicionado
