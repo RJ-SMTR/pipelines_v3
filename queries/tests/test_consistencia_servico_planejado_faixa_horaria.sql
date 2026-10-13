@@ -15,6 +15,7 @@ with
             )
             and modo = 'Ônibus'
             and tipo_os is not null
+            and not (feed_start_date = '2026-10-04' and sistema != 'RIO')
         group by all
     ),
     feeds as (select distinct feed_start_date from servico_planejado_faixa_horaria),
@@ -42,8 +43,5 @@ from servico_planejado_faixa_horaria as s
 left join
     ordem_servico_faixa_horaria_sentido as o using (feed_start_date, tipo_dia, tipo_os)
 where
-    (
-        o.partidas is distinct from s.partidas
-        or abs(o.quilometragem - s.quilometragem) > 0.1
-    )
-    and not (feed_start_date = '2026-10-04' and sistema != 'RIO')
+    o.partidas is distinct from s.partidas
+    or abs(o.quilometragem - s.quilometragem) > 0.1
