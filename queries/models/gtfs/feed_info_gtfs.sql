@@ -16,7 +16,7 @@ with
     feed_info as (
         select
             safe_cast(timestamp_captura as string) as feed_version,
-            safe_cast(data_versao as date) as feed_start_date,
+            data_versao as feed_start_date,
             null as feed_end_date,
             safe_cast(feed_publisher_name as string) feed_publisher_name,
             safe_cast(
@@ -32,7 +32,7 @@ with
             ) feed_contact_url,
             current_datetime("America/Sao_Paulo") as feed_update_datetime,
             '{{ var("version") }}' as versao_modelo
-        from {{ source("br_rj_riodejaneiro_gtfs_staging", "feed_info") }}
+        from {{ source("source_gtfs", "feed_info") }}
         {% if is_incremental() %}
             where data_versao = '{{ var("data_versao_gtfs") }}'
             union all
