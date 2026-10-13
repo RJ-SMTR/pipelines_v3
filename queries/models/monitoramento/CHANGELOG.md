@@ -6,6 +6,10 @@
 
 - Altera o modelo `staging_viagem_informada_rioonibus` para aceitar fração de segundos opcional em `datetime_partida`, `datetime_chegada` e `datetime_processamento`, conforme a API v1.1 da Rio Ônibus (https://github.com/RJ-SMTR/pipelines_v3/pull/751).
 
+### Adicionado
+
+- Adiciona exceções de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `rioonibus` nas quinzenas `2026-09-16` a `2026-09-30` (limite `2026-10-06`) e `2026-10-01` a `2026-10-15` (limite `2026-10-21`) [Processo SEI nº 000301.016828/2026-32]. (https://github.com/RJ-SMTR/pipelines_v3/pull/755).
+
 ## [2.3.2] - 2026-10-06
 
 ### Alterado
