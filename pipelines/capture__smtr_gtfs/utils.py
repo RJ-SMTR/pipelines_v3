@@ -22,10 +22,10 @@ from pipelines.common.utils.gcp.storage import Storage
 def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
     """Filtra linhas válidas do DataFrame de controle de OS."""
     df["index"] = df.index
-    df.dropna(how="all", inplace=True)
+    df = df.dropna(how="all")
     df = df[df["Fim da Vigência da OS"] != "Sem Vigência"]
     df = df[df["Submeter mudanças para Dados"] == True]  # noqa
-    df = df[~df["Início da Vigência da OS"].isnull()]
+    df = df[~df[constants.OS_INICIO_VIGENCIA_COLUMN].isnull()]
     df = df[~df["Arquivo OS"].isnull()]
     df = df[~df["Arquivo GTFS"].isnull()]
     df = df[~df["Link da OS"].isnull()]
@@ -62,53 +62,38 @@ def check_os_columns(data: pd.DataFrame, expected_columns: set[str], table_id: s
         raise ValueError(f"Colunas faltantes ou duplicadas em {table_id}")
 
 
+def get_os_sheets(excel_file: pd.ExcelFile, anexo: str) -> list[str]:
+    """Retorna as abas da OS de um anexo, como 'ANEXO I '."""
+    sheets = [name for name in excel_file.sheet_names if anexo in name]
+    if not sheets:
+        raise ValueError(f"Nenhuma aba '{anexo.strip()}' encontrada no arquivo.")
+    return sheets
+
+
+def get_tipo_os(sheet_name: str) -> str:
+    """Extrai o tipo da OS do nome da aba, como 'Regular' em 'ANEXO I (Regular)'."""
+    match = re.search(r"\((.*?)\)", sheet_name)
+    if not match:
+        raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
+    return match.group(1)
+
+
+def normalize_os_column(column: str) -> str:
+    """Normaliza espaços e quebras de linha do nome de uma coluna da OS."""
+    column = re.sub(r"\s+", " ", column.replace("\n", " ").strip())
+    return column.replace("Dia Útil", "Dias Úteis")
+
+
 def processa_ordem_servico(excel_file: pd.ExcelFile) -> pd.DataFrame:
     """Processa as abas de Ordem de Serviço de um arquivo Excel."""
-    sheets = [name for name in excel_file.sheet_names if "ANEXO I " in name]
-    if not sheets:
-        raise ValueError("Nenhuma aba 'ANEXO I' encontrada no arquivo.")
-    sheets_data = []
-
-    columns = {
-        "Serviço": "servico",
-        "Vista": "vista",
-        "Consórcio": "consorcio",
-        "Extensão de Ida": "extensao_ida",
-        "Extensão de Volta": "extensao_volta",
-        "Horário Inicial": "horario_inicio",
-        "Horário\nInicial": "horario_inicio",
-        "Horário Fim": "horario_fim",
-        "Horário\nFim": "horario_fim",
-        "Partidas Ida Dia Útil": "partidas_ida_du",
-        "Partidas Volta Dia Útil": "partidas_volta_du",
-        "Viagens Dia Útil": "viagens_du",
-        "Quilometragem Dia Útil": "km_dia_util",
-        "KM Dia Útil": "km_dia_util",
-        "Partidas Ida Sábado": "partidas_ida_sabado",
-        "Partidas Volta Sábado": "partidas_volta_sabado",
-        "Viagens Sábado": "viagens_sabado",
-        "Quilometragem Sábado": "km_sabado",
-        "KM Sábado": "km_sabado",
-        "Partidas Ida Domingo": "partidas_ida_domingo",
-        "Partidas Volta Domingo": "partidas_volta_domingo",
-        "Viagens Domingo": "viagens_domingo",
-        "Quilometragem Domingo": "km_domingo",
-        "KM Domingo": "km_domingo",
-        "Partidas Ida Ponto Facultativo": "partidas_ida_pf",
-        "Partidas Volta Ponto Facultativo": "partidas_volta_pf",
-        "Viagens Ponto Facultativo": "viagens_pf",
-        "Quilometragem Ponto Facultativo": "km_pf",
-        "KM Ponto Facultativo": "km_pf",
-        "tipo_os": "tipo_os",
-    }
+    sheets = get_os_sheets(excel_file, "ANEXO I ")
+    columns = constants.ORDEM_SERVICO_COLUMNS
     columns_in_values = set(columns.values())
+    sheets_data = []
 
     for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
-        match = re.search(r"\((.*?)\)", sheet_name)
-        if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
-        tipo_os = match.group(1)
+        tipo_os = get_tipo_os(sheet_name)
 
         quadro = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
         quadro = quadro.rename(columns=columns)
@@ -153,245 +138,118 @@ def processa_ordem_servico_trajeto_alternativo(
     excel_file: pd.ExcelFile, data_versao_gtfs: str, table_id: str
 ) -> pd.DataFrame:
     """Processa as abas de Trajetos Alternativos de um arquivo Excel."""
-    sheets = [name for name in excel_file.sheet_names if "ANEXO II " in name]
-    if not sheets:
-        raise ValueError("Nenhuma aba 'ANEXO II' encontrada no arquivo.")
-    sheets_data = []
-
+    sheets = get_os_sheets(excel_file, "ANEXO II ")
     if data_versao_gtfs < constants.DATA_GTFS_V5_INICIO:
-        alt_columns = {
-            "Serviço": "servico",
-            "Vista": "vista",
-            "Consórcio": "consorcio",
-            "Extensão de Ida": "extensao_ida",
-            "Extensão\nde Ida": "extensao_ida",
-            "Extensão de Volta": "extensao_volta",
-            "Extensão\nde Volta": "extensao_volta",
-            "Evento": "evento",
-            "Horário Inicial Interdição": "inicio_periodo",
-            "Horário Final Interdição": "fim_periodo",
-            "Descrição": "descricao",
-            "Ativação": "ativacao",
-            "tipo_os": "tipo_os",
-        }
+        columns = constants.TRAJETO_ALTERNATIVO_COLUMNS
     else:
-        alt_columns = {
-            "Serviço": "servico",
-            "Vista": "vista",
-            "Sentido": "sentido",
-            "Extensão": "extensao",
-            "Consórcio": "consorcio",
-            "Evento": "evento",
-            "Descrição": "descricao",
-            "Ativação": "ativacao",
-            "tipo_os": "tipo_os",
-        }
+        columns = constants.TRAJETO_ALTERNATIVO_SENTIDO_COLUMNS
+    sheets_data = []
 
     for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
-        match = re.search(r"\((.*?)\)", sheet_name)
-        if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
-        tipo_os = match.group(1)
+        tipo_os = get_tipo_os(sheet_name)
 
         df = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
-        df = df.rename(columns=alt_columns)
+        df = df.rename(columns=columns)
         df["tipo_os"] = tipo_os
         sheets_data.append(df)
 
     ordem_servico_trajeto_alternativo = pd.concat(sheets_data, ignore_index=True)
-    check_os_columns(ordem_servico_trajeto_alternativo, set(alt_columns.values()), table_id)
+    check_os_columns(ordem_servico_trajeto_alternativo, set(columns.values()), table_id)
     return ordem_servico_trajeto_alternativo
 
 
-def processa_ordem_servico_faixa_horaria(  # noqa: PLR0912, PLR0915
-    excel_file: pd.ExcelFile, data_versao_gtfs: str, table_id: str
-) -> pd.DataFrame:
-    """Processa as abas de Faixa Horária de um arquivo Excel."""
-    if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
-        sheets = [name for name in excel_file.sheet_names if "ANEXO I " in name]
-        if not sheets:
-            raise ValueError("Nenhuma aba 'ANEXO I' encontrada no arquivo.")
-    else:
-        sheets = [name for name in excel_file.sheet_names if "ANEXO III " in name]
-        if not sheets:
-            raise ValueError("Nenhuma aba 'ANEXO III' encontrada no arquivo.")
-    sheets_data = []
+def get_faixa_horaria_metrica(metrica: str, data_versao_gtfs: str) -> str:
+    """Retorna o prefixo da coluna de uma métrica de faixa horária conforme a versão."""
+    if metrica in ["Quilometragem", "KM"]:
+        return "quilometragem"
+    if (
+        metrica == "Partidas" and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO
+    ) or data_versao_gtfs >= constants.DATA_GTFS_V4_INICIO:
+        return "partidas"
+    return "partidas_ida" if metrica == "Partidas Ida" else "partidas_volta"
 
-    columns = {
-        "Serviço": "servico",
-        "Vista": "vista",
-        "Consórcio": "consorcio",
-        "Extensão de Ida": "extensao_ida",
-        "Extensão de Volta": "extensao_volta",
-        "Horário Inicial Dias Úteis": "horario_inicio_dias_uteis",
-        "Horário Fim Dias Úteis": "horario_fim_dias_uteis",
-        "Horário Inicial - Dias Úteis": "horario_inicio_dias_uteis",
-        "Horário Fim - Dias Úteis": "horario_fim_dias_uteis",
-        "Partidas Ida - Dias Úteis": "partidas_ida_dias_uteis",
-        "Partidas Volta - Dias Úteis": "partidas_volta_dias_uteis",
-        "Viagens - Dias Úteis": "viagens_dias_uteis",
-        "Quilometragem - Dias Úteis": "quilometragem_dias_uteis",
-        "KM - Dias Úteis": "quilometragem_dias_uteis",
-        "Horário Inicial Sábado": "horario_inicio_sabado",
-        "Horário Fim Sábado": "horario_fim_sabado",
-        "Horário Inicial - Sábado": "horario_inicio_sabado",
-        "Horário Fim - Sábado": "horario_fim_sabado",
-        "Partidas Ida - Sábado": "partidas_ida_sabado",
-        "Partidas Volta - Sábado": "partidas_volta_sabado",
-        "Viagens - Sábado": "viagens_sabado",
-        "Quilometragem - Sábado": "quilometragem_sabado",
-        "KM - Sábado": "quilometragem_sabado",
-        "Horário Inicial Domingo": "horario_inicio_domingo",
-        "Horário Fim Domingo": "horario_fim_domingo",
-        "Horário Inicial - Domingo": "horario_inicio_domingo",
-        "Horário Fim - Domingo": "horario_fim_domingo",
-        "Partidas Ida - Domingo": "partidas_ida_domingo",
-        "Partidas Volta - Domingo": "partidas_volta_domingo",
-        "Viagens - Domingo": "viagens_domingo",
-        "Quilometragem - Domingo": "quilometragem_domingo",
-        "KM - Domingo": "quilometragem_domingo",
-        "Horário Inicial Ponto Facultativo": "horario_inicio_ponto_facultativo",
-        "Horário Fim Ponto Facultativo": "horario_fim_ponto_facultativo",
-        "Horário Inicial - Ponto Facultativo": "horario_inicio_ponto_facultativo",
-        "Horário Fim - Ponto Facultativo": "horario_fim_ponto_facultativo",
-        "Partidas Ida - Ponto Facultativo": "partidas_ida_ponto_facultativo",
-        "Partidas Volta - Ponto Facultativo": "partidas_volta_ponto_facultativo",
-        "Viagens - Ponto Facultativo": "viagens_ponto_facultativo",
-        "Quilometragem - Ponto Facultativo": "quilometragem_ponto_facultativo",
-        "KM - Ponto Facultativo": "quilometragem_ponto_facultativo",
-        "tipo_os": "tipo_os",
-    }
 
-    metricas = ["Partidas", "Partidas Ida", "Partidas Volta", "Quilometragem", "KM"]
-    dias = ["Dias Úteis", "Sábado", "Domingo", "Ponto Facultativo"]
-    formatos = [
-        "{metrica} entre {intervalo} — {dia}",
-        "{metrica} entre {intervalo} - {dia}",
-        "{metrica} entre {intervalo} ({dia})",
-        "{metrica} {intervalo} - {dia}",
-    ]
-
+def get_faixa_horaria_intervalos(data_versao_gtfs: str) -> list[str]:
+    """Retorna os intervalos de faixa horária vigentes na versão."""
     if data_versao_gtfs < constants.DATA_GTFS_V3_INICIO:
-        intervalos = [
-            "00h e 03h",
-            "03h e 12h",
-            "12h e 21h",
-            "21h e 24h",
-            "24h e 03h (dia seguinte)",
-        ]
-    elif (
-        data_versao_gtfs >= constants.DATA_GTFS_V3_INICIO
-        and data_versao_gtfs < constants.DATA_GTFS_V4_INICIO
-    ):
-        intervalos = [
-            "00h e 03h",
-            "03h e 06h",
-            "06h e 09h",
-            "09h e 12h",
-            "12h e 15h",
-            "15h e 18h",
-            "18h e 21h",
-            "21h e 24h",
-            "24h e 03h (dia seguinte)",
-        ]
-    else:
-        intervalos = [
-            "00h à 01h",
-            "01h à 02h",
-            "02h à 03h",
-            "03h à 04h",
-            "04h à 05h",
-            "05h à 06h",
-            "06h à 09h",
-            "09h à 12h",
-            "12h à 15h",
-            "15h à 18h",
-            "18h à 21h",
-            "21h à 22h",
-            "22h à 23h",
-            "23h à 24h",
-        ]
+        return constants.FAIXA_HORARIA_INTERVALOS_V1
+    if data_versao_gtfs < constants.DATA_GTFS_V4_INICIO:
+        return constants.FAIXA_HORARIA_INTERVALOS_V3
+    return constants.FAIXA_HORARIA_INTERVALOS_V4
 
-    fh_columns = {
+
+def get_faixa_horaria_columns(data_versao_gtfs: str) -> dict[str, str]:
+    """Monta o mapeamento de colunas da faixa horária conforme a versão do GTFS."""
+    intervalo_columns = {
         formato.format(metrica=metrica, intervalo=intervalo, dia=dia): unidecode(
-            (
-                "quilometragem"
-                if metrica in ["Quilometragem", "KM"]
-                else (
-                    "partidas"
-                    if (metrica == "Partidas" and data_versao_gtfs < constants.DATA_GTFS_V2_INICIO)
-                    or data_versao_gtfs >= constants.DATA_GTFS_V4_INICIO
-                    else ("partidas_ida" if metrica == "Partidas Ida" else "partidas_volta")
-                )
-            )
+            get_faixa_horaria_metrica(metrica, data_versao_gtfs)
             + "_entre_"
             + intervalo.replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_")
             + "_"
             + dia.lower().replace(" ", "_")
         )
-        for metrica in metricas
-        for intervalo in intervalos
-        for dia in dias
-        for formato in formatos
+        for metrica in constants.FAIXA_HORARIA_METRICAS
+        for intervalo in get_faixa_horaria_intervalos(data_versao_gtfs)
+        for dia in constants.FAIXA_HORARIA_DIAS
+        for formato in constants.FAIXA_HORARIA_FORMATOS
     }
 
     if data_versao_gtfs >= constants.DATA_GTFS_V4_INICIO:
-        fh_columns["Serviço"] = "servico"
-        fh_columns["Consórcio"] = "consorcio"
-        fh_columns["tipo_os"] = "tipo_os"
-        fh_columns["Sentido"] = "sentido"
-        fh_columns["Extensão"] = "extensao"
-        fh_columns["Vista"] = "vista"
-        columns = fh_columns.copy()
-    elif data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
-        columns.update(fh_columns)
-    else:
-        fh_columns["Serviço"] = "servico"
-        fh_columns["Consórcio"] = "consorcio"
-        fh_columns["tipo_os"] = "tipo_os"
-        columns = fh_columns.copy()
+        return {
+            **intervalo_columns,
+            **constants.OS_SERVICO_COLUMNS,
+            **constants.OS_SENTIDO_EXTENSAO_COLUMNS,
+            **constants.OS_VISTA_COLUMNS,
+        }
+    if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO:
+        return {**constants.FAIXA_HORARIA_V2_COLUMNS, **intervalo_columns}
+    return {**intervalo_columns, **constants.OS_SERVICO_COLUMNS}
 
-    columns_in_values = set(columns.values())
+
+def processa_aba_faixa_horaria(
+    df: pd.DataFrame, columns: dict[str, str], tipo_os: str
+) -> pd.DataFrame:
+    """Renomeia e converte as colunas de uma aba de faixa horária."""
+    df = df.rename(columns=normalize_os_column).rename(columns=columns)
+
+    for col in df.columns:
+        if "quilometragem" in col or "viagens" in col or "partidas" in col:
+            df[col] = df[col].astype(str).replace(["—", "-"], 0)
+        if "quilometragem" in col or "viagens" in col:
+            df[col] = df[col].astype(str).apply(convert_to_float).astype(float)
+        if "extensao" in col:
+            df[col] = df[col].apply(pd.to_numeric) / 1000
+        if "horario" in col:
+            df[col] = df[col].astype(str).apply(normalizar_horario)
+
+    df["tipo_os"] = tipo_os
+
+    missing_columns = set(columns.values()) - set(df.columns)
+    for coluna in missing_columns:
+        if "ponto_facultativo" in coluna:
+            df[coluna] = 0
+
+    return df
+
+
+def processa_ordem_servico_faixa_horaria(
+    excel_file: pd.ExcelFile, data_versao_gtfs: str, table_id: str
+) -> pd.DataFrame:
+    """Processa as abas de Faixa Horária de um arquivo Excel."""
+    anexo = "ANEXO I " if data_versao_gtfs >= constants.DATA_GTFS_V2_INICIO else "ANEXO III "
+    sheets = get_os_sheets(excel_file, anexo)
+    columns = get_faixa_horaria_columns(data_versao_gtfs)
+    sheets_data = []
 
     for sheet_name in sheets:
         print(f"########## {sheet_name} ##########")
-        match = re.search(r"\((.*?)\)", sheet_name)
-        if not match:
-            raise ValueError(f"Não foi possível extrair tipo_os do nome da aba: {sheet_name}")
-        tipo_os = match.group(1)
-
+        tipo_os = get_tipo_os(sheet_name)
         df = pd.read_excel(excel_file, sheet_name=sheet_name, dtype=object)
-        df.columns = (
-            df.columns.str.replace("\n", " ").str.strip().str.replace(r"\s+", " ", regex=True)
-        )
-        df = df.rename(columns=lambda x: x.replace("Dia Útil", "Dias Úteis"))
-        df = df.rename(columns=columns)
-
-        for col in df.columns:
-            if "quilometragem" in col or "viagens" in col or "partidas" in col:
-                df[col] = df[col].astype(str).replace(["—", "-"], 0)
-            if "quilometragem" in col or "viagens" in col:
-                df[col] = df[col].astype(str).apply(convert_to_float).astype(float)
-            if "extensao" in col:
-                df[col] = df[col].apply(pd.to_numeric)
-                df[col] = df[col] / 1000
-            if "horario" in col:
-                df[col] = df[col].astype(str)
-                df[col] = df[col].apply(normalizar_horario)
-
-        df["tipo_os"] = tipo_os
-
-        aux_columns_in_dataframe = set(df.columns)
-        aux_missing_columns = columns_in_values - aux_columns_in_dataframe
-        for coluna in aux_missing_columns:
-            if "ponto_facultativo" in coluna:
-                df[coluna] = 0
-
-        sheets_data.append(df)
+        sheets_data.append(processa_aba_faixa_horaria(df, columns, tipo_os))
 
     ordem_servico_faixa_horaria = pd.concat(sheets_data, ignore_index=True)
-    check_os_columns(ordem_servico_faixa_horaria, columns_in_values, table_id)
+    check_os_columns(ordem_servico_faixa_horaria, set(columns.values()), table_id)
     return ordem_servico_faixa_horaria
 
 
@@ -436,11 +294,13 @@ def get_os_rows() -> pd.DataFrame:
         return df
 
     df = filter_valid_rows(df)
-    df["Início da Vigência da OS"] = pd.to_datetime(
-        df["Início da Vigência da OS"], format="%d/%m/%Y"
+    df[constants.OS_INICIO_VIGENCIA_COLUMN] = pd.to_datetime(
+        df[constants.OS_INICIO_VIGENCIA_COLUMN], format="%d/%m/%Y"
     ).dt.strftime("%Y-%m-%d")
-    df["data_index"] = df["Início da Vigência da OS"].astype(str) + "_" + df["index"].astype(str)
-    return df.sort_values(by=["Início da Vigência da OS", "index"], ascending=True)
+    df["data_index"] = (
+        df[constants.OS_INICIO_VIGENCIA_COLUMN].astype(str) + "_" + df["index"].astype(str)
+    )
+    return df.sort_values(by=[constants.OS_INICIO_VIGENCIA_COLUMN, "index"], ascending=True)
 
 
 def data_index_sort_key(data_index: str) -> tuple[str, int]:
@@ -474,12 +334,12 @@ def get_os_info(
 ) -> tuple[bool, dict, str | None, str | None]:
     """Seleciona a próxima OS válida ou uma versão solicitada explicitamente."""
     rows = get_os_rows()
-    data = {"Início da Vigência da OS": None, "data_index": None}
+    data = {constants.OS_INICIO_VIGENCIA_COLUMN: None, "data_index": None}
     if rows.empty:
         return False, data, None, None
 
     if data_versao_gtfs is not None:
-        selected = rows.loc[rows["Início da Vigência da OS"] == data_versao_gtfs].tail(1)
+        selected = rows.loc[rows[constants.OS_INICIO_VIGENCIA_COLUMN] == data_versao_gtfs].tail(1)
     elif last_captured_os is None:
         selected = rows.tail(1)
     else:
@@ -494,7 +354,7 @@ def get_os_info(
 
     data = selected.iloc[0].to_dict()
     print(f"OS selecionada: {data}")
-    return True, data, data["data_index"], data["Início da Vigência da OS"]
+    return True, data, data["data_index"], data[constants.OS_INICIO_VIGENCIA_COLUMN]
 
 
 def filter_gtfs_table_ids(
