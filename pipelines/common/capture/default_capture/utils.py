@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+import re
 from datetime import datetime
 from typing import NamedTuple, Optional
 
+import pandas as pd
 import pytz
 from prefect import runtime
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture import constants
-from pipelines.common.utils.fs import create_partition, get_data_folder_path
+from pipelines.common.utils.fs import create_partition, get_data_folder_path, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.utils import convert_timezone
 
@@ -93,6 +95,60 @@ class SourceCaptureContext:
                 filetype=self.source.raw_filetype,
             )
         )
+
+
+def format_error(error: Exception) -> str:
+    """
+    Formata uma exceção para o log de captura, removendo query strings de URLs.
+
+    Args:
+        error (Exception): Exceção da extração.
+
+    Returns:
+        str: Mensagem formatada.
+    """
+    message = f"{type(error).__name__}: {error}"
+    return re.sub(r"(/[^\s?]*)\?[^\s)'\"]+", r"\1?[REDACTED]", message)
+
+
+def persist_capture_log(
+    context: SourceCaptureContext,
+    success: bool,
+    error: Optional[Exception] = None,
+):
+    """
+    Persiste o resultado de uma extração na tabela externa de logs da fonte.
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura.
+        success (bool): Se a extração foi concluída com sucesso.
+        error (Optional[Exception]): Exceção da extração, caso tenha falhado.
+    """
+    logs_table = context.source.get_logs_table()
+    timestamp_captura = datetime.now(tz=pytz.timezone(smtr_constants.TIMEZONE))
+
+    filepath = f"{get_data_folder_path()}/" + constants.SOURCE_FILEPATH_PATTERN.format(
+        dataset_id=logs_table.dataset_id,
+        table_id=logs_table.table_id,
+        partition=context.partition,
+        filename=timestamp_captura.strftime(f"{constants.FILENAME_PATTERN}-%f"),
+    )
+    data = pd.DataFrame(
+        [
+            {
+                "timestamp_captura": timestamp_captura,
+                "sucesso": success,
+                "erro": format_error(error) if error is not None else None,
+            }
+        ]
+    )
+    save_local_file(filepath=filepath, filetype="csv", data=data)
+
+    if not logs_table.exists():
+        logs_table.append(source_filepath=filepath, partition=context.partition)
+        logs_table.create(sample_filepath=filepath)
+    else:
+        logs_table.append(source_filepath=filepath, partition=context.partition)
 
 
 def rename_capture_flow_run() -> str:

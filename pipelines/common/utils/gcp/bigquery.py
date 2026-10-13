@@ -446,8 +446,25 @@ class SourceTable(BQTable):
             sample_filepath=sample_filepath
         )
 
-        client.create_table(bq_table)
+        client.create_table(bq_table, exists_ok=True)
         print("Table created!")
+
+    def get_logs_table(self) -> "SourceTable":
+        """
+        Retorna a tabela externa com os logs de captura da fonte
+
+        Returns:
+            SourceTable: Tabela de logs no mesmo ambiente da fonte
+        """
+        return SourceTable(
+            source_name=self.source_name,
+            table_id=f"{self.table_id}_logs",
+            first_timestamp=self.first_timestamp,
+            flow_folder_name=self.flow_folder_name,
+            bucket_names=self.bucket_names,
+            partition_date_only=self.partition_date_only,
+            raw_filetype="csv",
+        ).set_env(self.env)
 
     def append(self, source_filepath: str, partition: str, if_exists: str = "replace"):
         """
