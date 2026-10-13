@@ -238,6 +238,9 @@ BACKUP_JAE_BILLING_PAY = {
             "estudante_sme_inativar_10042026",
             "estudante_universitario_15072026",
             "estudante_universitario_03082026",
+            "estudante_seeduc_19082026",
+            "estudante_universitario_21092026",
+            "estudante_universitario_01092026",
             # sem permissão: #
             "pcd_excluir",
             "estudante_seeduc",
@@ -325,6 +328,7 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_ult_transacao_midia_avulsa_09032026",
             "temp_contas_transacoes_discrepancias",
             "temp_vendas_analise_avulso_12032026",
+            "evento_recebido",
         ],
         "filter": {
             "conta": [
@@ -337,7 +341,7 @@ BACKUP_JAE_BILLING_PAY = {
                 "dt_fechamento",
                 "dt_inclusao",
             ],
-            "evento_recebido": ["dt_inclusao"],
+            # "evento_recebido": ["dt_inclusao"],
             "movimento": ["dt_movimento"],
             "evento_processado": ["dt_inclusao"],
             "evento_erro": ["dt_inclusao"],

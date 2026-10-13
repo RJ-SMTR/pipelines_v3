@@ -12,6 +12,7 @@ from pipelines.common.capture.data_contract.tasks import (
 from pipelines.common.capture.default_capture.tasks import (
     create_capture_contexts,
     get_raw_data,
+    save_capture_datetime_redis,
     transform_raw_to_nested_structure,
     upload_raw_file_to_gcs,
     upload_source_data_to_gcs,
@@ -28,12 +29,12 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
-    timestamp: str,
+    timestamp: Optional[str],
     create_extractor_task: Task,
     recapture: bool,
     recapture_days: int,
     recapture_timestamps: list[str],
-    source_table_ids: Optional[tuple[str]] = None,
+    source_table_ids: Optional[list[str] | tuple[str, ...]] = None,
     extra_parameters: Optional[dict[str, dict]] = None,
     tasks_wait_for: Optional[dict[str, list[Task]]] = None,
     if_exists_upload: str = "replace",
@@ -50,8 +51,8 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         data_contract_webhook_key (Optional[str]): Chave, no secret de webhooks, do espaço do
             Google Chat que recebe o resultado da validação do contrato.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
-        source_table_ids (tuple[str]): Tupla com os table_ids dos sources a serem capturados.
-        timestamp (str): Timestamp de captura.
+        source_table_ids (Optional[list[str] | tuple[str, ...]]): IDs das tabelas a capturar.
+        timestamp (Optional[str]): Timestamp de captura. Se None, usa o horário agendado da run.
         create_extractor_task (Task): Task utilizada para criar as tasks de extração.
         recapture (bool): Se a run é recaptura ou não.
         recapture_days (int): Quantidade de dias retroativos usados na recaptura.
@@ -93,8 +94,11 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         tasks["should_capture_result"] = result
         tasks["should_capture"] = result.value
         if not result.value:
-            print("Gate de captura: fonte sem alteração, pulando captura.")
+            print("Gate de captura: captura ignorada.")
             return tasks
+        capture_payload = result.payload or {}
+        source_table_ids = capture_payload.get("source_table_ids", source_table_ids)
+        extra_parameters = capture_payload.get("extra_parameters", extra_parameters)
     else:
         tasks["should_capture_result"] = None
         tasks["should_capture"] = True
@@ -178,5 +182,19 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["upload_source"] = upload_source_future.result()
+
+    capture_datetime_redis = (
+        (tasks["should_capture_result"].payload or {}).get("capture_datetime_redis")
+        if tasks["should_capture_result"] is not None
+        else None
+    )
+    if capture_datetime_redis is not None:
+        save_capture_datetime_redis(
+            capture_datetime=capture_datetime_redis,
+            wait_for=[
+                tasks["upload_source"],
+                *tasks_wait_for.get("save_capture_datetime_redis", []),
+            ],
+        )
 
     return tasks

@@ -288,6 +288,7 @@ def run_dbt_selector_tests(
                 datetime_end=context.datetime_end,
                 env=context.env,
                 flags=flags,
+                additional_vars=context.additional_vars,
             )
         context[f"{mode}_test_log"] = log
         context[f"{mode}_test_results"] = test_results

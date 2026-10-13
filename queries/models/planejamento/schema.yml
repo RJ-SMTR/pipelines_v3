@@ -690,7 +690,7 @@ models:
               - left(sentido, 1)
             compare_group_by:
               - servico
-              - "if(sentido = 'C', 'I', sentido)"
+              - "if((sentido = 'C' and feed_start_date != '2026-10-04'), 'I', sentido)"
             row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
             compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and id_tipo_trajeto = 1"
       - dbt_utils.relationships_where:
