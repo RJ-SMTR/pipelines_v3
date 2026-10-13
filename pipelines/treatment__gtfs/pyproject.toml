@@ -1,0 +1,9 @@
+[project]
+name = "treatment__gtfs"
+version = "0.1.0"
+description = "Pipeline de materialização dos dados GTFS e planejamento da secretaria rj-smtr"
+dependencies = [
+    "google-api-python-client>=2.0.0",
+    "google-auth>=2.0.0",
+    "openpyxl>=3.1.0",
+]
