@@ -1,5 +1,11 @@
 # Changelog - default_capture
 
+## [1.0.6] - 2026-10-13
+
+### Corrigido
+
+- Preserva o diretório inferido do flow em `SourceTable`, evitando `FileNotFoundError` na criação da tabela de logs e a interrupção da captura quando `flow_folder_name` não é informado. (https://github.com/RJ-SMTR/pipelines_v3/pull/758)
+
 ## [1.0.5] - 2026-10-08
 
 ### Adicionado
