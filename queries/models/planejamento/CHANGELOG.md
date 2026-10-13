@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II e considere as partidas apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR ()
+- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II e considere as partidas apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR (https://github.com/RJ-SMTR/pipelines_v3/pull/760 e https://github.com/RJ-SMTR/pipelines_v3/pull/756)
 
 ## [1.9.0] - 2026-10-08
 
