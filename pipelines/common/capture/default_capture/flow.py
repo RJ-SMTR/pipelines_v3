@@ -28,7 +28,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
-    timestamp: str,
+    timestamp: Optional[str],
     create_extractor_task: Task,
     recapture: bool,
     recapture_days: int,
@@ -48,7 +48,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         skip_data_contract_validation (bool): Pula download e validação do contrato nesta execução.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
         source_table_ids (Optional[list[str] | tuple[str, ...]]): IDs das tabelas a capturar.
-        timestamp (str): Timestamp de captura.
+        timestamp (Optional[str]): Timestamp de captura. Se None, usa o horário agendado da run.
         create_extractor_task (Task): Task utilizada para criar as tasks de extração.
         recapture (bool): Se a run é recaptura ou não.
         recapture_days (int): Quantidade de dias retroativos usados na recaptura.
