@@ -22,6 +22,7 @@ from pipelines.common.utils.pretreatment import (
     create_timestamp_captura,
     transform_to_nested_structure,
 )
+from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone, data_info_str
 
 
@@ -128,6 +129,40 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "repl
         )
 
 
+def transform_raw_chunk(
+    data: pd.DataFrame, context: SourceCaptureContext, captura: str
+) -> pd.DataFrame:
+    """
+    Aplica pré-tratamentos e transforma um bloco de dados brutos em estrutura aninhada.
+
+    Args:
+        data (pd.DataFrame): Bloco de dados brutos.
+        context (SourceCaptureContext): Contexto da captura.
+        captura (str): Timestamp de execução do flow.
+
+    Returns:
+        pd.DataFrame: Dados em estrutura aninhada.
+    """
+    if data.empty:
+        print("Dataframe vazio, pulando tratamento...")
+        return pd.DataFrame()
+
+    print(f"Raw data:\n{data_info_str(data)}")
+    primary_keys = context.source.primary_keys
+    data_columns_len = len(data.columns)
+
+    for step in context.source.pretreat_funcs:
+        data = step(data=data, context=context)
+
+    data["_datetime_execucao_flow"] = captura
+
+    if len(primary_keys) < data_columns_len:
+        data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+
+    data["timestamp_captura"] = create_timestamp_captura(timestamp=context.timestamp)
+    return data
+
+
 @task(cache_policy=NO_CACHE, tags=["data-processing"])
 def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
@@ -138,49 +173,27 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
             do atributo captured_raw_filepaths.
     """
     csv_mode = "w"
-    source = context.source
-    timestamp = context.timestamp
-    primary_keys = source.primary_keys
-    source_filetype = constants.SOURCE_FILETYPE
+    reader_args = context.source.pretreatment_reader_args or {}
 
     for raw_filepath in context.captured_raw_filepaths:
-        data = read_raw_data(
-            filepath=raw_filepath,
-            reader_args=source.pretreatment_reader_args,
+        captura = create_timestamp_captura(
+            timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
         )
+        raw_data = read_raw_data(filepath=raw_filepath, reader_args=reader_args)
+        data_chunks = [raw_data] if isinstance(raw_data, pd.DataFrame) else raw_data
 
-        if data.empty:
-            print("Dataframe vazio, pulando tratamento...")
-            data = pd.DataFrame()
-        else:
-            print(f"Raw data:\n{data_info_str(data)}")
+        for chunk in data_chunks:
+            data = transform_raw_chunk(data=chunk, context=context, captura=captura)
+            print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
 
-            data_columns_len = len(data.columns)
-            captura = create_timestamp_captura(
-                timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
+            save_local_file(
+                filepath=context.source_filepath,
+                filetype=constants.SOURCE_FILETYPE,
+                data=data,
+                csv_mode=csv_mode,
             )
-
-            for step in source.pretreat_funcs:
-                data = step(data=data, context=context)
-
-            data["_datetime_execucao_flow"] = captura
-
-            if len(primary_keys) < data_columns_len:
-                data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
-
-            data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
-
-        print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
-
-        source_filepath = context.source_filepath
-        save_local_file(
-            filepath=source_filepath,
-            filetype=source_filetype,
-            data=data,
-            csv_mode=csv_mode,
-        )
-        csv_mode = "a"
-        print(f"Dados salvos em {source_filepath}")
+            csv_mode = "a"
+            print(f"Dados salvos em {context.source_filepath}")
 
 
 @task(cache_policy=NO_CACHE)
@@ -210,6 +223,14 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
         print("Tabela de staging já existe, adicionando dados...")
         source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
+
+
+@task(cache_policy=NO_CACHE)
+def save_capture_datetime_redis(capture_datetime: dict) -> None:
+    """Persiste no Redis o marcador de captura indicado pelo flow."""
+    redis_client = get_redis_client()
+    redis_client.set(capture_datetime["key"], capture_datetime["value"])
+    print(f"Marcador de captura salvo no Redis: {capture_datetime['key']}")
 
 
 @task(cache_policy=NO_CACHE)
