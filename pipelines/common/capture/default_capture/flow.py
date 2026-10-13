@@ -180,7 +180,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         else None
     )
     if capture_datetime_redis is not None:
-        tasks["save_capture_datetime_redis"] = save_capture_datetime_redis(
+        save_capture_datetime_redis(
             capture_datetime=capture_datetime_redis,
             wait_for=[
                 tasks["upload_source"],

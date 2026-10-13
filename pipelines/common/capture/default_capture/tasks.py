@@ -129,6 +129,40 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "repl
         )
 
 
+def transform_raw_chunk(
+    data: pd.DataFrame, context: SourceCaptureContext, captura: str
+) -> pd.DataFrame:
+    """
+    Aplica pré-tratamentos e transforma um bloco de dados brutos em estrutura aninhada.
+
+    Args:
+        data (pd.DataFrame): Bloco de dados brutos.
+        context (SourceCaptureContext): Contexto da captura.
+        captura (str): Timestamp de execução do flow.
+
+    Returns:
+        pd.DataFrame: Dados em estrutura aninhada.
+    """
+    if data.empty:
+        print("Dataframe vazio, pulando tratamento...")
+        return pd.DataFrame()
+
+    print(f"Raw data:\n{data_info_str(data)}")
+    primary_keys = context.source.primary_keys
+    data_columns_len = len(data.columns)
+
+    for step in context.source.pretreat_funcs:
+        data = step(data=data, context=context)
+
+    data["_datetime_execucao_flow"] = captura
+
+    if len(primary_keys) < data_columns_len:
+        data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+
+    data["timestamp_captura"] = create_timestamp_captura(timestamp=context.timestamp)
+    return data
+
+
 @task(cache_policy=NO_CACHE, tags=["data-processing"])
 def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
@@ -139,13 +173,9 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
             do atributo captured_raw_filepaths.
     """
     csv_mode = "w"
-    source = context.source
-    timestamp = context.timestamp
-    primary_keys = source.primary_keys
-    source_filetype = constants.SOURCE_FILETYPE
+    reader_args = context.source.pretreatment_reader_args or {}
 
     for raw_filepath in context.captured_raw_filepaths:
-        reader_args = source.pretreatment_reader_args or {}
         captura = create_timestamp_captura(
             timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
         )
@@ -153,30 +183,12 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
         data_chunks = [raw_data] if isinstance(raw_data, pd.DataFrame) else raw_data
 
         for chunk in data_chunks:
-            data = chunk
-            if data.empty:
-                print("Dataframe vazio, pulando tratamento...")
-                data = pd.DataFrame()
-            else:
-                print(f"Raw data:\n{data_info_str(data)}")
-
-                data_columns_len = len(data.columns)
-
-                for step in source.pretreat_funcs:
-                    data = step(data=data, context=context)
-
-                data["_datetime_execucao_flow"] = captura
-
-                if len(primary_keys) < data_columns_len:
-                    data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
-
-                data["timestamp_captura"] = create_timestamp_captura(timestamp=timestamp)
-
+            data = transform_raw_chunk(data=chunk, context=context, captura=captura)
             print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
 
             save_local_file(
                 filepath=context.source_filepath,
-                filetype=source_filetype,
+                filetype=constants.SOURCE_FILETYPE,
                 data=data,
                 csv_mode=csv_mode,
             )

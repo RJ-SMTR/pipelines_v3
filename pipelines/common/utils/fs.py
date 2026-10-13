@@ -3,10 +3,11 @@
 
 import json
 import os
+from collections.abc import Iterator
 from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
-from typing import Iterator, Optional, Union
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -103,7 +104,7 @@ def save_local_file(
 
 def read_raw_data(
     filepath: str, reader_args: Optional[dict] = None
-) -> Union[pd.DataFrame, Iterator[pd.DataFrame]]:
+) -> pd.DataFrame | Iterator[pd.DataFrame]:
     """
     Lê os dados de um arquivo Raw
 
@@ -114,7 +115,7 @@ def read_raw_data(
             é feita em blocos
 
     Returns:
-        Union[pd.DataFrame, Iterator[pd.DataFrame]]: DataFrame com os dados lidos ou
+        pd.DataFrame | Iterator[pd.DataFrame]: DataFrame com os dados lidos ou
             iterador de DataFrames, quando `chunksize` é informado
     """
 
