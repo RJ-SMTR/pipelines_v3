@@ -1,19 +1,4 @@
-{{ config(alias=this.name ~ "_" ~ var("fonte_gps")) }}
-
-{% if var("fonte_gps") == "maxtrack" %}
-    select
-        cast(null as date) as data,
-        cast(null as int64) as hora,
-        cast(null as datetime) as datetime_operacao,
-        cast(null as string) as id_veiculo,
-        cast(null as string) as servico,
-        cast(null as datetime) as datetime_entrada,
-        cast(null as datetime) as datetime_saida,
-        cast(null as datetime) as datetime_processamento,
-        cast(null as datetime) as datetime_execucao_flow,
-        cast(null as datetime) as datetime_captura
-    where false
-{% else %}
+{% macro gps_staging_realocacao(fonte) %}
     with
         source_data as (
             select
@@ -83,7 +68,7 @@
                     parse_timestamp('%Y-%m-%d %H:%M:%S%Ez', timestamp_captura),
                     "America/Sao_Paulo"
                 ) datetime_captura
-            from {{ source("source_" ~ var("fonte_gps"), "realocacao") }}
+            from {{ source("source_" ~ fonte, "realocacao") }}
         )
     select distinct
         data,
@@ -97,4 +82,4 @@
         datetime_execucao_flow,
         datetime_captura
     from source_data
-{% endif %}
+{% endmacro %}

@@ -11,27 +11,18 @@ from pipelines.capture__conecta_registros import constants as registros_constant
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-ADDITIONAL_VARS = {
-    "modo_gps": "onibus",
-    "fonte_gps": "conecta",
-    "15_minutos": False,
-}
-
-
 GPS_DAILY_TEST = DBTTest(
-    test_select="gps.v1",
+    test_select="gps_onibus_conecta",
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,
-    additional_vars=ADDITIONAL_VARS,
 )
 
 GPS_CONECTA_SELECTOR = DBTSelector(
-    name="gps",
+    name="gps_conecta",
     initial_datetime=datetime(2025, 5, 27, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_conecta",
     incremental_delay_hours=1,
-    redis_key_suffix="conecta",
     data_sources=[
         registros_constants.CONECTA_REGISTROS_SOURCE,
         realocacao_constants.CONECTA_REALOCACAO_SOURCE,
