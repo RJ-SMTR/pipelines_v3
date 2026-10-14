@@ -63,7 +63,7 @@ class Dataset(GCPBase):
             dataset_obj = bigquery.Dataset(dataset_full_name)
             dataset_obj.location = self.location
             print(f"Creating dataset {dataset_full_name} | location: {self.location}")
-            self.client("bigquery").create_dataset(dataset_obj)
+            self.client("bigquery").create_dataset(dataset_obj, exists_ok=True)
             print("Dataset created!")
         else:
             print("Dataset already exists")
@@ -230,8 +230,6 @@ class SourceTable(BQTable):
         max_recaptures (int): número máximo de recapturas executadas de uma só vez
         raw_filetype (str): tipo do dado (json, csv, txt)
         file_chunk_size (Optional[int]): tamanho de página ou de chunk de leitura
-        transform_in_chunks (bool): transforma CSV/TXT em chunks do tamanho de
-            file_chunk_size
         partition_key (str): chave Hive da partição de data
         validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
         data_contract_model (Optional[str]): Modelo dbt; padrão ``staging_<table_id>``.
@@ -255,7 +253,6 @@ class SourceTable(BQTable):
         max_recaptures: int = 60,
         raw_filetype: str = "json",
         file_chunk_size: Optional[int] = None,
-        transform_in_chunks: bool = False,
         partition_key: str = "data",
         validate_data_contract: bool = False,
         data_contract_model: Optional[str] = None,
@@ -280,11 +277,6 @@ class SourceTable(BQTable):
         self.pretreat_funcs = pretreat_funcs or []
         self.schedule_cron = self._get_schedule_cron()
         self.file_chunk_size = file_chunk_size
-        if file_chunk_size is not None and file_chunk_size < 1:
-            raise ValueError("file_chunk_size deve ser maior que zero")
-        if transform_in_chunks and file_chunk_size is None:
-            raise ValueError("file_chunk_size é obrigatório quando transform_in_chunks=True")
-        self.transform_in_chunks = transform_in_chunks
         self.validate_data_contract = validate_data_contract
         self.data_contract_model = data_contract_model or f"staging_{table_id}"
         self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)
@@ -297,6 +289,7 @@ class SourceTable(BQTable):
             flow_folder_path = Path(inspect.stack()[2].filename).parent
 
             flow_name = flow_folder_path.name
+            self.flow_folder_name = flow_name
 
         else:
             flow_name = self.flow_folder_name
@@ -461,8 +454,26 @@ class SourceTable(BQTable):
             sample_filepath=sample_filepath
         )
 
-        client.create_table(bq_table)
+        client.create_table(bq_table, exists_ok=True)
         print("Table created!")
+
+    def get_logs_table(self) -> "SourceTable":
+        """
+        Retorna a tabela externa com os logs de captura da fonte
+
+        Returns:
+            SourceTable: Tabela de logs no mesmo ambiente da fonte
+        """
+        return SourceTable(
+            source_name=self.source_name,
+            table_id=f"{self.table_id}_logs",
+            first_timestamp=self.first_timestamp,
+            flow_folder_name=self.flow_folder_name,
+            bucket_names=self.bucket_names,
+            partition_date_only=self.partition_date_only,
+            partition_key=self.partition_key,
+            raw_filetype="csv",
+        ).set_env(self.env)
 
     def append(self, source_filepath: str, partition: str, if_exists: str = "replace"):
         """

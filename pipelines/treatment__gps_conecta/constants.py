@@ -17,21 +17,9 @@ ADDITIONAL_VARS = {
     "15_minutos": False,
 }
 
-GPS_POST_CHECKS_LIST = {
-    "gps": {
-        "check_gps_treatment__gps": {
-            "description": "Todos os dados de GPS foram devidamente tratados"
-        },
-        "dbt_utils__unique_combination_of_columns__gps": {
-            "description": "Todos os registros são únicos"
-        },
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-    },
-}
 
 GPS_DAILY_TEST = DBTTest(
     test_select="gps.v1",
-    test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,

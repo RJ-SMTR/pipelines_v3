@@ -40,7 +40,6 @@ class DBTTest:
     Args:
         test_select (str): Select do dbt que define quais testes serão executados.
         exclude (Optional[str]): Parâmetro exclude do dbt.
-        test_descriptions (Optional[dict]): Descrições dos testes para uso em notificações.
         delay_days_start (int): Dias subtraídos do datetime inicial da materialização.
         delay_days_end (int): Dias subtraídos do datetime final da materialização.
         truncate_date (bool): Se True, ajusta o intervalo para o dia inteiro.
@@ -52,7 +51,6 @@ class DBTTest:
         self,
         test_select: str,
         exclude: Optional[str] = None,
-        test_descriptions: Optional[dict] = None,
         delay_days_start: int = 0,
         delay_days_end: int = 0,
         truncate_date: bool = False,
@@ -62,7 +60,6 @@ class DBTTest:
     ):
         self.test_select = test_select
         self.exclude = exclude
-        self.test_descriptions = test_descriptions or {}
         self.delay_days_start = delay_days_start
         self.delay_days_end = delay_days_end
         self.truncate_date = truncate_date
@@ -430,6 +427,8 @@ class DBTSelectorMaterializationContext:
 
         self.pre_test_log = None
         self.post_test_log = None
+        self.pre_test_results = None
+        self.post_test_results = None
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -800,6 +799,31 @@ def run_dbt(  # noqa: PLR0913
         return logs.read()
 
 
+def get_dbt_test_descriptions() -> dict[str, str]:
+    """
+    Lê do manifest do dbt as descrições dos testes.
+
+    Deve ser chamada logo após a execução dos testes, antes que outra invocação do dbt
+    substitua o manifest.
+
+    Returns:
+        dict[str, str]: Descrição de cada teste (config.description ou description), por nome.
+    """
+    _, _, target_path = get_dbt_paths()
+    manifest_path = Path(target_path) / "manifest.json"
+    if not manifest_path.is_file():
+        return {}
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    descriptions = {}
+    for node in manifest["nodes"].values():
+        if node.get("resource_type") != "test":
+            continue
+        description = (node.get("config") or {}).get("description") or node.get("description")
+        if description:
+            descriptions[node["name"]] = description
+    return descriptions
+
+
 def run_dbt_tests(  # noqa: PLR0913
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
@@ -808,9 +832,9 @@ def run_dbt_tests(  # noqa: PLR0913
     env: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict, list[dict]]:
     """
-    Executa o DBT test
+    Executa o DBT test e associa a cada resultado a tabela e a descrição do teste
 
     Args:
         dbt_test (DBTTest): Objeto representando o teste do DBT.
@@ -824,6 +848,7 @@ def run_dbt_tests(  # noqa: PLR0913
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
+        list[dict]: Resultados dos testes (ver get_dbt_test_results).
     """
 
     flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
@@ -837,7 +862,11 @@ def run_dbt_tests(  # noqa: PLR0913
     )
     log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 
-    return log, dbt_vars
+    test_results = get_dbt_test_results(
+        checks_results=parse_dbt_test_output(log),
+        test_descriptions=get_dbt_test_descriptions(),
+    )
+    return log, dbt_vars, test_results
 
 
 RELATION_RE = re.compile(r"`([^`]+)`\.`([^`]+)`\.`([^`]+)`")
@@ -935,31 +964,80 @@ def rename_treatment_flow_run() -> str:
     return rename_flow_run()
 
 
+def get_dbt_test_table_name(test_id: str) -> str:
+    """
+    Extrai a tabela do nome do teste (<teste>__<coluna>__<tabela> ou <teste>__<tabela>).
+
+    Args:
+        test_id (str): Nome do teste no dbt.
+
+    Returns:
+        str: Nome da tabela, sem o prefixo do pacote (dbt_utils, dbt_expectations).
+    """
+    parts = test_id.split("__")
+    if parts[0] in ("dbt_utils", "dbt_expectations"):
+        parts = parts[1:]
+    return parts[-1] if len(parts) >= 2 else parts[0]  # noqa: PLR2004
+
+
+def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]) -> list[dict]:
+    """
+    Associa a cada resultado de teste do dbt a tabela e a descrição para notificação.
+
+    Args:
+        checks_results (dict): Resultados retornados por parse_dbt_test_output.
+        test_descriptions (dict[str, str]): Descrições dos testes lidas do manifest do dbt.
+
+    Returns:
+        list[dict]: Testes agrupados por tabela, com as chaves table, test, description
+            (None quando o teste não tem descrição), result e query (query compilada de testes
+            com FAIL ou WARN).
+    """
+    table_groups = {}
+    for test_id, test_result in checks_results.items():
+        table_groups.setdefault(get_dbt_test_table_name(test_id), []).append((test_id, test_result))
+
+    return [
+        {
+            "table": table_name,
+            "test": test_id,
+            "description": test_descriptions.get(test_id),
+            "result": test_result["result"],
+            "query": test_result.get("query"),
+        }
+        for table_name, tests in table_groups.items()
+        for test_id, test_result in tests
+    ]
+
+
 def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
-    dbt_test: DBTTest,
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    test_results: Optional[list[dict]] = None,
 ):
     """
     Processa os resultados dos testes do dbt e envia notificações para o Discord.
 
     Args:
-        dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        test_results (Optional[list[dict]]): Resultados retornados por run_dbt_tests; sem eles,
+            os resultados são extraídos de dbt_logs com as descrições do manifest do dbt.
     """
     if dbt_logs is None:
         return
 
-    test_descriptions = dbt_test.test_descriptions
-
-    checks_results = parse_dbt_test_output(dbt_logs)
+    if test_results is None:
+        test_results = get_dbt_test_results(
+            checks_results=parse_dbt_test_output(dbt_logs),
+            test_descriptions=get_dbt_test_descriptions(),
+        )
 
     webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
     additional_mentions = additional_mentions or []
@@ -968,8 +1046,8 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(test["result"] in ("PASS", "WARN") for test in checks_results.values())
-    has_warn = any(test["result"] == "WARN" for test in checks_results.values())
+    test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
+    has_warn = any(test["result"] == "WARN" for test in test_results)
 
     keys = [
         ("date_range_start", "date_range_end"),
@@ -1017,67 +1095,20 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
             f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
         ]
 
-    table_groups = {}
+    current_table = None
+    for test in test_results:
+        if test["table"] != current_table:
+            current_table = test["table"]
+            formatted_messages.append(f"*{current_table}:*\n")
 
-    for test_id, test_result in checks_results.items():
-        parts = test_id.split("__")
-        # Strip sanitized package prefix (dbt_utils__..., dbt_expectations__...)
-        if parts and parts[0] in ("dbt_utils", "dbt_expectations"):
-            parts = parts[1:]
-        if len(parts) >= 3:  # noqa: PLR2004
-            table_name = parts[-1]
-        elif len(parts) == 2:  # noqa: PLR2004
-            table_name = parts[1]
-        else:
-            table_name = parts[0]
+        test_id = test["test"].replace("_", "\\_")
+        description = test["description"] or f"Teste: {test_id}"
 
-        if table_name not in table_groups:
-            table_groups[table_name] = []
-
-        table_groups[table_name].append((test_id, test_result))
-
-    for table_name, tests in table_groups.items():
-        formatted_messages.append(f"*{table_name}:*\n")
-
-        for test_id, test_result in tests:
-            matched_description = None
-
-            for key, value in test_descriptions.items():
-                # singular: {test_id: {"description": ...}}
-                if "description" in value:
-                    if key == test_id:
-                        matched_description = value["description"]
-                        break
-                    continue
-
-                # grupo por tabela: {table_name: {test_id: {"description": ...}}}
-                if table_name in key:
-                    for existing_test_id, test_info in value.items():
-                        if existing_test_id in test_id:
-                            name_parts = test_id.split("__")
-                            if name_parts and name_parts[0] in ("dbt_utils", "dbt_expectations"):
-                                name_parts = name_parts[1:]
-                            column = (
-                                name_parts[1]
-                                if len(name_parts) >= 3  # noqa: PLR2004
-                                else (name_parts[0] if name_parts else test_id)
-                            )
-                            matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}", column
-                            )
-                            break
-                    if matched_description:
-                        break
-
-            test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
-            description = matched_description or f"Teste: {test_id}"
-
-            result_icon = {
-                "PASS": ":white_check_mark:",
-                "WARN": ":warning:",
-            }.get(test_result["result"], ":x:")
-            test_message = f"{result_icon} {description}\n"
-            formatted_messages.append(test_message)
+        result_icon = {
+            "PASS": ":white_check_mark:",
+            "WARN": ":warning:",
+        }.get(test["result"], ":x:")
+        formatted_messages.append(f"{result_icon} {description}\n")
 
     formatted_messages.append("\n")
     if not test_check:

@@ -5,6 +5,7 @@ from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
+    check_data_contract,
     download_data_contracts,
     validate_raw_data_contract,
 )
@@ -28,7 +29,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 def create_capture_flows_default_tasks(  # noqa: PLR0913
     env: Optional[str],
     sources: list[SourceTable],
-    timestamp: str,
+    timestamp: Optional[str],
     create_extractor_task: Task,
     recapture: bool,
     recapture_days: int,
@@ -39,6 +40,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     if_exists_upload: str = "replace",
     should_capture_task: Optional[Task] = None,
     skip_data_contract_validation: bool = False,
+    data_contract_webhook_key: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Cria o conjunto padrão de tasks para um fluxo de captura.
@@ -46,9 +48,11 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     Args:
         env (Optional[str]): prod ou dev.
         skip_data_contract_validation (bool): Pula download e validação do contrato nesta execução.
+        data_contract_webhook_key (Optional[str]): Chave, no secret de webhooks, do espaço do
+            Google Chat que recebe o resultado da validação do contrato.
         sources (list[SourceTable]): Lista de objetos SourceTable para captura.
         source_table_ids (Optional[list[str] | tuple[str, ...]]): IDs das tabelas a capturar.
-        timestamp (str): Timestamp de captura.
+        timestamp (Optional[str]): Timestamp de captura. Se None, usa o horário agendado da run.
         create_extractor_task (Task): Task utilizada para criar as tasks de extração.
         recapture (bool): Se a run é recaptura ou não.
         recapture_days (int): Quantidade de dias retroativos usados na recaptura.
@@ -143,7 +147,12 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
-        upload_wait_for.append(tasks["validate_raw_data_contract"])
+        tasks["check_data_contract"] = check_data_contract(
+            validations=tasks["validate_raw_data_contract"],
+            env=tasks["env"],
+            webhook_key=data_contract_webhook_key,
+        )
+        upload_wait_for.append(tasks["check_data_contract"])
 
     upload_raw_future = upload_raw_file_to_gcs.map(
         context=contexts,
@@ -180,7 +189,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
         else None
     )
     if capture_datetime_redis is not None:
-        tasks["save_capture_datetime_redis"] = save_capture_datetime_redis(
+        save_capture_datetime_redis(
             capture_datetime=capture_datetime_redis,
             wait_for=[
                 tasks["upload_source"],

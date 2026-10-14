@@ -40,7 +40,6 @@ from pipelines.common.treatment.default_treatment.tasks import (
     install_dbt_packages,
     setup_dbt_queries,
 )
-from pipelines.common.treatment.default_treatment.utils import DBTTest
 from pipelines.common.utils.fs import get_data_folder_path
 from pipelines.common.utils.prefect import flow, rename_flow_run
 from pipelines.treatment__planejamento_diario.flow import treatment__planejamento_diario
@@ -179,11 +178,6 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             ),
             webhook=constants.GTFS_DISCORD_WEBHOOK,
         )
-        dbt_test = DBTTest(
-            test_select=constants.GTFS_DBT_TEST_SELECT,
-            exclude=constants.GTFS_DBT_TEST_EXCLUDE,
-            test_descriptions=constants.GTFS_DATA_CHECKS_LIST,
-        )
         dbt_logs = run_dbt_tests_gtfs(data_versao_gtfs=data_versao_gtfs_final, env=env, flags=flags)
         ingest_dbt_artifacts_to_openmetadata(
             env=env,
@@ -192,7 +186,6 @@ async def capture__gtfs(  # noqa: PLR0913, PLR0915
             wait_for=[dbt_logs],
         )
         task_dbt_test_notify_discord(
-            dbt_test=dbt_test,
             dbt_vars={"data_versao_gtfs": data_versao_gtfs_final},
             dbt_logs=dbt_logs,
             webhook_key=constants.GTFS_DISCORD_WEBHOOK,

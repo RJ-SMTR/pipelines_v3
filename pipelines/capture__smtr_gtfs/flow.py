@@ -28,7 +28,7 @@ async def capture__smtr_gtfs(
         create_extractor_task=create_gtfs_extractor,
         recapture=False,
         recapture_days=0,
-        recapture_timestamps=None,
+        recapture_timestamps=[],
         should_capture_task=should_capture_gtfs,
         skip_data_contract_validation=skip_data_contract_validation,
     )

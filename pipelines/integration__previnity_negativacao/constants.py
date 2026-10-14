@@ -48,15 +48,9 @@ PREVINITY_SOURCES = [
     )
 ]
 
-NEGATIVACAO_POST_CHECKS_LIST = {
-    "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
-        "description": ("Todas as autuações pagas com inclusão confirmada possuem baixa confirmada")
-    },
-}
 
 NEGATIVACAO_TEST = DBTTest(
     test_select="test_consistencia_autuacoes_negativadas_pagas_sem_baixa",
-    test_descriptions=NEGATIVACAO_POST_CHECKS_LIST,
 )
 
 NEGATIVACAO_SELECTOR = DBTSelector(

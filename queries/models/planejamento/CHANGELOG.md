@@ -1,5 +1,24 @@
 # Changelog - planejamento
 
+## [1.9.2] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.9.1] - 2026-10-13
+
+### Alterado
+
+- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II no teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` e considere as partidas e quilometragem no GTFS apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR em razão das especificidades do feed eleitoral (https://github.com/RJ-SMTR/pipelines_v3/pull/760 e https://github.com/RJ-SMTR/pipelines_v3/pull/756)
+
+## [1.9.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos `ordem_servico_faixa_horaria`, `ordem_servico_faixa_horaria_sentido` e `ordem_servico_trajeto_alternativo_sentido` de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.8.10] - 2026-09-30
 
 ### Adicionado
