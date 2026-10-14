@@ -113,6 +113,8 @@ models:
     tests:
       - subsidio_viagens_atualizadas:
           name: subsidio_viagens_atualizadas__sumario_servico_dia_historico
+          config:
+            description: "O `sumario_servico_dia_historico` está atualizado em relação à `viagem_completa`"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -230,6 +232,8 @@ models:
         tests:
           - sumario_servico_dia_tipo_soma_km:
               name: sumario_servico_dia_tipo_soma_km__km_apurada__sumario_servico_dia_tipo
+              config:
+                description: "Todas as somas dos tipos de quilometragem são equivalentes à quilometragem total"
       - name: km_planejada
         description: "Distância planejada para o serviço (km)"
       - name: perc_km_planejada
@@ -621,6 +625,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagens_remuneradas
           config:
+            description: "Todas as viagens são únicas"
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
             combination_of_columns:
@@ -628,6 +633,7 @@ models:
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
           name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__viagens_remuneradas
           config:
+            description: "Todas as datas possuem dados"
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
             date_col: data
@@ -637,9 +643,12 @@ models:
       - check_viagem_completa:
           name: check_viagem_completa__viagens_remuneradas
           config:
+            description: "O `feed_start_date` corresponde ao feed GTFS vigente e `datetime_ultima_atualizacao` é igual ou posterior à atualização desse feed"
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - teto_viagens:
           name: teto_viagens__viagens_remuneradas
+          config:
+            description: "Todas as viagens foram corretamente identificadas dentro das regras de limite"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }}"
@@ -679,6 +688,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__distancia_planejada__viagens_remuneradas
               config:
+                description: "Todos os valores da coluna `distancia_planejada` maiores ou iguais a zero"
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
               arguments:
                 min_value: 0
@@ -697,6 +707,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__subsidio_km__viagens_remuneradas
               config:
+                description: "Todos os valores da coluna `subsidio_km` maiores ou iguais a zero"
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
               arguments:
                 min_value: 0
