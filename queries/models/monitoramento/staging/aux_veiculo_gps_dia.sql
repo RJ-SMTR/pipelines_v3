@@ -22,11 +22,7 @@ with
         from {{ ref("view_gps_onibus") }}
         where data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
-select
-    data,
-    id_veiculo,
-    count(*) as quantidade_gps,
-    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
+select data, id_veiculo, count(*) as quantidade_gps
 from gps
 where
     data > '{{ var("data_final_veiculo_arquitetura_1") }}'
@@ -36,3 +32,4 @@ where
         )
     {% endif %}
 group by 1, 2
+having count(*) >= 100
