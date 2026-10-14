@@ -1,5 +1,15 @@
 # Changelog - queries
 
+## [1.1.11] - 2026-10-14
+
+### Adicionado
+
+- Sobrescreve os testes `not_null`, `unique` e `accepted_values` com descrição padrão em português no `config.description` (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- Atualiza o selector `riorotativo_auxiliar` com os stagings de guardadores de veículo por entidade credenciadora (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
 ## [1.1.10] - 2026-07-28
 
 ### Adicionado
