@@ -61,7 +61,7 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
 
     lookback = timedelta(days=2) if "tag:daily" in test_select.split() else timedelta(hours=2)
 
-    dbt_logs, _ = run_dbt_tests(
+    _, _, test_results = run_dbt_tests(
         dbt_test=dbt_test,
         datetime_start=timestamp - lookback,
         datetime_end=timestamp,
@@ -74,7 +74,7 @@ def control__model_freshness(env: Optional[str] = None, test_select: str = "tag:
         flow_run_id=runtime.flow_run.id,
     )
 
-    has_issues, failed_results = parse_model_freshness_output(dbt_output=dbt_logs)
+    has_issues, failed_results = parse_model_freshness_output(test_results=test_results)
 
     if has_issues and failed_results:
         model_freshness_notify_discord(failed_results=failed_results, test_select=test_select)
