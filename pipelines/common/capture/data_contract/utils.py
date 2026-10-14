@@ -37,7 +37,7 @@ RESULT_LABELS = {
 }
 
 REASON_PATTERN = re.compile(
-    r"^Actual (?P<metric>.+?) was (?P<actual>.+?), expected (?P<expected>.+)$", re.S
+    r"^Actual (?P<metric>\w+\([^)]*\)) was (?P<actual>[^,]+), expected (?P<expected>.+)$", re.S
 )
 METRIC_PATTERN = re.compile(r"^(?P<name>\w+)(?=\()")
 
