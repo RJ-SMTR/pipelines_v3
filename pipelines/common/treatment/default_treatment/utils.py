@@ -834,6 +834,7 @@ def run_dbt_tests(  # noqa: PLR0913
     partitions: Optional[list[str]] = None,
     env: Optional[str] = None,
     flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ) -> tuple[str, dict, list[dict]]:
     """
     Executa o DBT test e associa a cada resultado a tabela e a descrição do teste
