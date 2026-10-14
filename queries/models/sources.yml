@@ -420,16 +420,7 @@ sources:
     database: rj-smtr
 
     tables:
-      - name: gps_onibus_conecta
       - name: gps_onibus_cittati
-      - name: gps_onibus_zirix
-      - name: gps_onibus_sppo
-      - name: gps_v2_onibus_maxtrack
-      - name: gps_brt_sonda
-      - name: gps_15_minutos_onibus_sppo
-      - name: gps_15_minutos_onibus_conecta
-      - name: gps_15_minutos_onibus_cittati
-      - name: gps_15_minutos_onibus_zirix
 
   - name: br_rj_riodejaneiro_veiculos
     database: rj-smtr
