@@ -32,7 +32,9 @@ jobs:
           python-version: "3.13"
 
       - name: Install project dependencies
-        run: uv sync --all-packages
+        run: |
+          uv sync --locked --no-build
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
@@ -57,12 +59,12 @@ jobs:
 
       - name: Install dbt packages
         working-directory: queries
-        run: uv run dbt deps --profiles-dir ./dev
+        run: dbt deps --profiles-dir ./dev
 
       - name: Drop PR schemas through dbt
         working-directory: queries
         run: |
-          uv run dbt run-operation clear_recce_pr_schemas \
+          dbt run-operation clear_recce_pr_schemas \
             --target dev \
             --profiles-dir ./dev \
             --args "{\"schema_prefix\": \"$DBT_USER\"}"

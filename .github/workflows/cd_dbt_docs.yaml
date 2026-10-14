@@ -71,7 +71,7 @@ jobs:
       - name: Upload production artifacts to Recce Cloud
         if: github.ref == 'refs/heads/master'
         working-directory: queries
-        run: uvx recce-cloud upload --type prod --target-path target --yes
+        run: uvx recce-cloud@1.68.0 upload --type prod --target-path target --yes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

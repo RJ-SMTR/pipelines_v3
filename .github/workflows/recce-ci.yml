@@ -178,7 +178,9 @@ jobs:
           python-version: "3.13"
 
       - name: Install project dependencies
-        run: uv sync --all-packages
+        run: |
+          uv sync --locked --no-build
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v3
@@ -209,19 +211,19 @@ jobs:
           git worktree add --detach "$RUNNER_TEMP/base" "$base_sha"
           cp queries/dev/profiles.yml "$RUNNER_TEMP/base/queries/profiles.yml"
           cd "$RUNNER_TEMP/base/queries"
-          "$GITHUB_WORKSPACE/.venv/bin/dbt" deps --profiles-dir . --quiet
-          "$GITHUB_WORKSPACE/.venv/bin/dbt" parse --profiles-dir . --target prod --no-partial-parse --quiet
+          dbt deps --profiles-dir . --quiet
+          dbt parse --profiles-dir . --target prod --no-partial-parse --quiet
           mkdir -p "$GITHUB_WORKSPACE/queries/target-base"
           cp target/manifest.json "$GITHUB_WORKSPACE/queries/target-base/manifest.json"
 
       - name: Install dbt packages
         working-directory: queries
-        run: uv run dbt deps --profiles-dir ./dev
+        run: dbt deps --profiles-dir ./dev
 
       - name: Build empty changed model graph
         working-directory: queries
         run: |
-          uv run dbt run \
+          dbt run \
             --target dev \
             --profiles-dir ./dev \
             --select state:modified \
@@ -237,7 +239,7 @@ jobs:
       - name: Run changed model graph for date range
         working-directory: queries
         run: |
-          uv run dbt run \
+          dbt run \
             --target dev \
             --profiles-dir ./dev \
             --select state:modified \
@@ -252,7 +254,7 @@ jobs:
       - name: Generate Recce artifacts for changed graph
         working-directory: queries
         run: |
-          uv run dbt docs generate \
+          dbt docs generate \
             --target dev \
             --profiles-dir ./dev \
             --select state:modified \
@@ -265,14 +267,14 @@ jobs:
 
       - name: Download production catalog from Recce Cloud
         working-directory: queries
-        run: uvx recce-cloud download --prod --target-path target-prod
+        run: uvx recce-cloud@1.68.0 download --prod --target-path target-prod
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Complete current catalog with deferred production nodes
         working-directory: queries
         run: |
-          uv run python - <<'PY'
+          python - <<'PY'
           import json
           from pathlib import Path
 
@@ -296,6 +298,6 @@ jobs:
 
       - name: Upload current artifacts to Recce Cloud
         working-directory: queries
-        run: uvx recce-cloud upload --pr "${{ needs.prepare.outputs.pr_number }}" --type pr --target-path target --yes
+        run: uvx recce-cloud@1.68.0 upload --pr "${{ needs.prepare.outputs.pr_number }}" --type pr --target-path target --yes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
