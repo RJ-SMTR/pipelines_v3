@@ -134,4 +134,7 @@ def notify_test_failures_google_chat(
             lines=lines, webhook_url=webhook_url, thread_key=str(runtime.flow_run.id)
         )
     except Exception as error:
-        print(f"Falha ao enviar mensagem para o Google Chat: {error}")
+        # a mensagem do erro inclui a URL do webhook, com key e token
+        response = getattr(error, "response", None)
+        status = f" (HTTP {response.status_code})" if response is not None else ""
+        print(f"Falha ao enviar mensagem para o Google Chat: {type(error).__name__}{status}")
