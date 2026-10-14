@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1] - 2026-10-14
+
+### Alterado
+
+- Usa os resultados dos testes devolvidos por `run_dbt_tests`, sem reprocessar os logs do dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
 ## [1.2.0] - 2026-08-27
 
 ### Adicionado
