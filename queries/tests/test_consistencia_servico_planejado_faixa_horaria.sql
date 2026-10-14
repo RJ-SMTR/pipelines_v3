@@ -1,3 +1,9 @@
+{{
+    config(
+        description="Os totais de partidas e quilometragem dos serviços planejados correspondem aos da Ordem de Serviço para cada feed_start_date, tipo_dia e tipo_os."
+    )
+}}
+
 with
     servico_planejado_faixa_horaria as (
         select

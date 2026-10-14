@@ -56,6 +56,7 @@ models:
               name: dbt_expectations__expect_column_max_to_be_between__data_ordem__bilhetagem_consorcio_operador_dia
 
               config:
+                description: "A Ordem de pagamento está em dia"
                 where: "1=1"
               arguments:
                 min_value: "current_date('America/Sao_Paulo')"

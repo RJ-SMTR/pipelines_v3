@@ -1,5 +1,11 @@
 # Changelog - dashboard_subsidio_sppo_v2
 
+## [1.1.3] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
 ## [1.1.2] - 2025-10-30
 
 ### Adicionado
