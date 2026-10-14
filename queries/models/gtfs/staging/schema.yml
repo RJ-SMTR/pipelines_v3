@@ -50,3 +50,57 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_calendar
+    description: |
+      Uma linha por service_id por versão do GTFS (data_versao), com os nomes das colunas do arquivo calendar.txt.
+      Fonte: capturas do GTFS (source_gtfs.calendar).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [service_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: service_id
+        description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
+        data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__service_id__staging_calendar
+              config:
+                description: "Todos os 'service\\_id' começam com 'U\\_', 'S\\_', 'D\\_' ou 'EXCEP'."
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: "^([USD]_|EXCEP)"
+      - name: monday
+        description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
+        data_type: string
+      - name: tuesday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras"
+        data_type: string
+      - name: wednesday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras"
+        data_type: string
+      - name: thursday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras"
+        data_type: string
+      - name: friday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras"
+        data_type: string
+      - name: saturday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados"
+        data_type: string
+      - name: sunday
+        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos"
+        data_type: string
+      - name: start_date
+        description: "Dia inicial do intervalo de serviço (YYYYMMDD)"
+        data_type: string
+      - name: end_date
+        description: "Dia final do intervalo de serviço (YYYYMMDD)"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
