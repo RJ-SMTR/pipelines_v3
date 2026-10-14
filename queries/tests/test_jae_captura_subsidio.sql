@@ -1,3 +1,9 @@
+{{
+    config(
+        description="Captura da Jaé sem timestamps ausentes em `transacao`, `transacao_riocard` e `gps_validador`"
+    )
+}}
+
 with
     table_ids as (
         select table_id
