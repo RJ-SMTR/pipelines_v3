@@ -13,6 +13,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
           config:
+            description: "Cada combinação de documento e CNPJ é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -21,6 +22,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
           config:
+            description: "Cada combinação de CNPJ e número de identificação é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -40,6 +42,7 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
               config:
+                description: "Todos os documentos possuem exatamente 11 dígitos numéricos"
                 where: "1=1"
               arguments:
                 regex: "^[0-9]{11}$"
@@ -127,6 +130,8 @@ models:
               name: not_null__numero_identificacao__guardador_veiculo_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__guardador_veiculo_riorotativo_historico
+              config:
+                description: "Todos os números de identificação possuem exatamente 4 dígitos numéricos"
               arguments:
                 regex: "^[0-9]{4}$"
       - name: documento
@@ -139,6 +144,8 @@ models:
               name: not_null__documento__guardador_veiculo_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico
+              config:
+                description: "Todos os documentos possuem exatamente 11 dígitos numéricos"
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -377,6 +384,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
           config:
+            description: "Cada combinação de CNPJ e data de início de vigência é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -506,6 +514,7 @@ models:
       - dbt_utils.expression_is_true:
           name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo
           config:
+            description: "Todos os dias da semana estão entre 1 e 7"
             where: "1=1"
           arguments:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"

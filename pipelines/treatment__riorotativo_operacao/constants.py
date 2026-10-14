@@ -14,20 +14,8 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 from pipelines.treatment__riorotativo_auxiliar import constants as riorotativo_auxiliar_constants
 
-RIOROTATIVO_OPERACAO_CHECK_DESCRIPTIONS = {
-    "ativacao_riorotativo": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "unique": {"description": "Todos os registros são únicos"},
-    },
-    "verificacao_guardador_veiculo_riorotativo": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "unique": {"description": "Todos os registros são únicos"},
-    },
-}
-
 RIOROTATIVO_OPERACAO_TEST = DBTTest(
     test_select=("ativacao_riorotativo verificacao_guardador_veiculo_riorotativo"),
-    test_descriptions=RIOROTATIVO_OPERACAO_CHECK_DESCRIPTIONS,
     truncate_date=True,
     delay_days_start=1,
 )

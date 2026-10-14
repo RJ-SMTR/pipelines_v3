@@ -16,16 +16,6 @@ from pipelines.treatment__integracao import constants as integracao_constants
 TRANSACAO_POST_TEST = DBTTest(
     test_select="aux_gratuidade_info transacao transacao_riocard",
     exclude="sincronizacao_tabelas__transacao_gratuidade_estudante_municipal",
-    test_descriptions={
-        "transacao": {
-            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "unique": {"description": "Todos os registros são únicos"},
-        },
-        "transacao_riocard": {
-            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "unique": {"description": "Todos os registros são únicos"},
-        },
-    },
     truncate_date=True,
     delay_days_start=1,
 )
