@@ -706,7 +706,9 @@ selectors:
         - method: fqn
           value: staging_area_estacionamento_riorotativo
         - method: fqn
-          value: staging_guardador_veiculo_riorotativo
+          value: staging_guardador_veiculo_05019730000158_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_34152025000122_riorotativo
         - method: fqn
           value: staging_lista_bloqueio_riorotativo
         - method: fqn
