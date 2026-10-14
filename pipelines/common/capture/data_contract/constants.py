@@ -29,6 +29,13 @@ METRIC_LABELS = {
     "invalid_count": "quantidade_invalidos",
     "missing_reference_count": "quantidade_sem_referencia",
 }
+RESULT_LABELS = {
+    "passed": "aprovado",
+    "failed": "reprovado",
+    "warning": "alerta",
+    "skipped": "ignorado",
+    "error": "erro",
+}
 GITHUB_API = "https://api.github.com"
 REQUEST_TIMEOUT = (10, 60)
 ROOT = Path(__file__).resolve().parents[4]

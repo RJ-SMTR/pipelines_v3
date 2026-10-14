@@ -23,18 +23,11 @@ from pipelines.common.capture.data_contract.constants import (
     GITHUB_API,
     METRIC_LABELS,
     REQUEST_TIMEOUT,
+    RESULT_LABELS,
     ROOT,
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
 from pipelines.common.utils.utils import is_running_locally
-
-RESULT_LABELS = {
-    "passed": "aprovado",
-    "failed": "reprovado",
-    "warning": "alerta",
-    "skipped": "ignorado",
-    "error": "erro",
-}
 
 REASON_PATTERN = re.compile(
     r"^Actual (?P<metric>\w+\([^)]*\)) was (?P<actual>[^,]+), expected (?P<expected>.+)$", re.S
