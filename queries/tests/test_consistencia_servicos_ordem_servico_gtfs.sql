@@ -1,3 +1,9 @@
+{{
+    config(
+        description="Todos os serviços presentes na Ordem de Serviço possuem trips, e cada trip possui frequencies ou stop_times com stop_sequence = 0 para gerar viagens planejadas."
+    )
+}}
+
 with
     servicos_ordem_servico as (
         select distinct feed_start_date, servico

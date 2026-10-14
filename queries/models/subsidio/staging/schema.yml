@@ -6,6 +6,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__aux_viagem_temperatura
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data

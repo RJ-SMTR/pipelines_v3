@@ -124,7 +124,6 @@ def task_run_dbt_tests(
 
 @task(cache_policy=NO_CACHE)
 def task_dbt_test_notify_discord(  # noqa: PLR0913
-    dbt_test: DBTTest,
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
@@ -136,7 +135,6 @@ def task_dbt_test_notify_discord(  # noqa: PLR0913
     Processa os resultados dos testes do dbt e envia notificações para o Discord.
 
     Args:
-        dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
         webhook_key (str): Chave do webhook do Discord.
@@ -145,7 +143,6 @@ def task_dbt_test_notify_discord(  # noqa: PLR0913
         test_results (Optional[list[dict]]): Resultados retornados por run_dbt_tests.
     """
     dbt_test_notify_discord(
-        dbt_test=dbt_test,
         dbt_vars=dbt_vars,
         dbt_logs=dbt_logs,
         webhook_key=webhook_key,
