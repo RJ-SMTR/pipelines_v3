@@ -320,7 +320,6 @@ def task_dbt_selector_test_notify(  # noqa: PLR0913
         google_chat_webhook_key (Optional[str]): Chave do webhook do Google Chat no secret;
             sem chave, não notifica no Google Chat.
     """
-    test: DBTTest = context.selector[f"{mode}_test"]
     dbt_vars: dict = context[f"{mode}_test_dbt_vars"]
     dbt_logs: str = context[f"{mode}_test_log"]
     test_results: list[dict] = context[f"{mode}_test_results"]
@@ -338,7 +337,6 @@ def task_dbt_selector_test_notify(  # noqa: PLR0913
         )
 
     dbt_test_notify_discord(
-        dbt_test=test,
         dbt_vars=dbt_vars,
         dbt_logs=dbt_logs,
         webhook_key=webhook_key,

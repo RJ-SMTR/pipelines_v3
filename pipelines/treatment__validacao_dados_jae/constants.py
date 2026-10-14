@@ -13,11 +13,6 @@ from pipelines.treatment__transacao import constants as transacao_constants
 
 VALIDACAO_DADOS_JAE_DAILY_TEST = DBTTest(
     test_select="integracao_nao_realizada",
-    test_descriptions={
-        "integracao_nao_realizada": {
-            "unique": {"description": "Todos os registros são únicos"},
-        },
-    },
     truncate_date=True,
     delay_days_start=1,
 )
