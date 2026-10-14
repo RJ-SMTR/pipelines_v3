@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.1] - 2026-10-14
+
+### Adicionado
+
+- Envia as falhas dos testes dbt ao Google Chat (`google_chat_riorotativo`) em prod (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- As notificações dos testes usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
 ## [2.0.0] - 2026-07-30
 
 ### Alterado
