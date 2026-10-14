@@ -16,7 +16,13 @@
 {% if execute %}
     {% set staging_partitions_query %}
         select distinct cast(cpf as int64)
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from (
+            select data, cpf
+            from {{ ref("staging_guardador_veiculo_05019730000158_riorotativo") }}
+            union all
+            select data, cpf
+            from {{ ref("staging_guardador_veiculo_34152025000122_riorotativo") }}
+        )
         where cpf is not null {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     {% endset %}
     {% set cpf_partitions = (
@@ -62,14 +68,27 @@
 {% endif %}
 
 with
+    staging_guardador_entidades as (
+        select *
+        from {{ ref("staging_guardador_veiculo_05019730000158_riorotativo") }}
+        union all
+        select *
+        from {{ ref("staging_guardador_veiculo_34152025000122_riorotativo") }}
+    ),
     staging_guardador as (
+        /* mantém a última captura de cada dia por entidade credenciadora e guardador */
         select
             data,
             cpf as documento,
             "CPF" as tipo_documento,
             identificacao as numero_identificacao,
             cnpj
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from staging_guardador_entidades
+        qualify
+            row_number() over (
+                partition by data, cnpj, cpf order by timestamp_captura desc
+            )
+            = 1
     ),
     credenciados as (
         select data, documento, tipo_documento, numero_identificacao, cnpj
