@@ -19,4 +19,4 @@ select
     case
         when status = "Parado garagem" then 0 when status like "Parado %" then 1 else 0
     end as indicador_veiculo_parado
-from {{ source("monitoramento", "gps_15_minutos_onibus_sppo") }}
+from {{ ref("gps_15_minutos_onibus_sppo") }}
