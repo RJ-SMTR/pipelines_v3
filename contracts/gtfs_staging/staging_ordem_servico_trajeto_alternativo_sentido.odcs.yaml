@@ -1,0 +1,80 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_ordem_servico_trajeto_alternativo_sentido
+name: gtfs_staging/staging_ordem_servico_trajeto_alternativo_sentido
+status: active
+schema:
+- name: staging_ordem_servico_trajeto_alternativo_sentido
+  physicalType: view
+  description: |
+    Uma linha por serviço, sentido, tipo de OS e evento por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de trajetos alternativos da OS.
+    Fonte: capturas do GTFS (source_gtfs.ordem_servico_trajeto_alternativo_sentido).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.ordem_servico_trajeto_alternativo_sentido
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+  - name: servico
+    physicalType: STRING
+    description: 'Nome curto da linha operada pelo veículo com variação de serviço
+      [ex: 010, 011SN, ...]'
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: consorcio
+    physicalType: STRING
+    description: Nome do consórcio responsável pelo serviço
+    logicalType: string
+  - name: tipo_os
+    physicalType: STRING
+    description: 'Tipo de Ordem de Serviço [ex: ''Regular'', ''Extraordinária - Verão'']'
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 3
+  - name: vista
+    physicalType: STRING
+    description: 'Itinerário do serviço [ex: Bananal ↔ Saens Peña]'
+    logicalType: string
+  - name: sentido
+    physicalType: STRING
+    description: Sentido da linha
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+  - name: extensao
+    physicalType: STRING
+    description: Distância do shape [trajeto] planejado (km)
+    logicalType: string
+  - name: evento
+    physicalType: STRING
+    description: Evento relacionado ao trajeto alternativo
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 4
+    quality:
+    - type: library
+      metric: invalidValues
+      mustBe: 0
+      arguments:
+        pattern: ^\[[a-z0-9_]+\]$
+      description: Todos os valores de `evento` em `ordem_servico_trajeto_alternativo_sentido`
+        estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais).
+  - name: descricao
+    physicalType: STRING
+    description: Descrição sobre o trajeto alternativo
+    logicalType: string
+  - name: ativacao
+    physicalType: STRING
+    description: Modo de ativação do trajeto alternativo
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11

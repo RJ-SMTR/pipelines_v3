@@ -9,7 +9,7 @@ schema:
   physicalType: view
   description: |
     Uma linha por versão do GTFS (data_versao), com os nomes das colunas do arquivo feed_info.txt.
-    Fonte: capturas do GTFS (br_rj_riodejaneiro_gtfs_staging.feed_info).
+    Fonte: capturas do GTFS (source_gtfs.feed_info).
     O contrato de dados exige exatamente uma linha no arquivo bruto de cada captura.
   logicalType: object
   physicalName: rj-smtr.gtfs_staging.feed_info
