@@ -15,7 +15,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selector_tests,
     run_dbt_selectors,
     setup_dbt_queries,
-    task_dbt_selector_test_notify_discord,
+    task_dbt_selector_test_notify,
 )
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
 from pipelines.integration__upload_transacao_cct.tasks import (
@@ -118,7 +118,7 @@ def integration__upload_transacao_cct(  # noqa: PLR0913
         wait_for=[run_sincronizacao_test],
     )
 
-    notify_discord = task_dbt_selector_test_notify_discord(
+    test_notify = task_dbt_selector_test_notify(
         context=contexts[0],
         mode="post",
         webhook_key="alertas_bilhetagem",
@@ -130,5 +130,5 @@ def integration__upload_transacao_cct(  # noqa: PLR0913
         timestamp=timestamp,
         data_ordem_start=data_ordem_start,
         param_test_dates=param_test_dates,
-        wait_for=[upload_postgres, notify_discord],
+        wait_for=[upload_postgres, test_notify],
     )
