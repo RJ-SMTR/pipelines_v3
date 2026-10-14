@@ -53,7 +53,7 @@ with
                             "maxtrack" as fonte_viagem,
                             date("2026-09-30") as data_limite_envio
                         ),
-                        -- Ofício 167/2026 (Consórcios nº 167/2026)  
+                        -- Ofício 167/2026 (Consórcios nº 167/2026)
                         -- Processo 000301.016828/2026-32
                         struct(
                             date("2026-09-16") as data_inicio,
