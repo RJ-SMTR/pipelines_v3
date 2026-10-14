@@ -41,7 +41,7 @@ select
     cast(null as datetime) as datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_onibus_conecta") }}
+from {{ ref("gps_onibus_conecta") }}
 
 union all
 
@@ -81,7 +81,7 @@ select
     cast(null as datetime) as datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_onibus_zirix") }}
+from {{ ref("gps_onibus_zirix") }}
 
 union all
 
@@ -161,4 +161,4 @@ select
     datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_v2_onibus_maxtrack") }}
+from {{ ref("gps_v2_onibus_maxtrack") }}

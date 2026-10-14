@@ -39,7 +39,7 @@ with
             distancia,
             versao,
             datetime_ultima_atualizacao
-        from {{ source("monitoramento", "gps_brt_sonda") }}
+        from {{ ref("gps_brt_sonda") }}
         where datetime_gps >= datetime("{{ var('datetime_gps_brt_2') }}")
     )
 select *
