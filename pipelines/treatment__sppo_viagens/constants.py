@@ -11,22 +11,9 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 
 WEBHOOK_KEY = "subsidio_data_check"
 
-VIAGENS_SPPO_CHECKS_LIST = {
-    "viagem_planejada": {
-        "unique_surrogate_key__viagem_planejada": {
-            "description": (
-                "Todos os registros de viagem_planejada são únicos na chave do "
-                "snapshot_viagem_planejada (surrogate key de data, servico, sentido, "
-                "faixa_horaria_inicio, trip_id, trip_id_planejado, shape_id e "
-                "shape_id_planejado)."
-            )
-        },
-    },
-}
 
 VIAGENS_SPPO_POST_TEST = DBTTest(
     test_select="unique_surrogate_key__viagem_planejada",
-    test_descriptions=VIAGENS_SPPO_CHECKS_LIST,
     truncate_date=True,
 )
 

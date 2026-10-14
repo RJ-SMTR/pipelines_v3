@@ -11,19 +11,6 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 
 PASSAGEIRO_HORA_DAILY_TEST = DBTTest(
     test_select="passageiro_hora passageiro_tile_hora transacao_gratuidade_estudante_municipal",
-    test_descriptions={
-        "passageiro_hora": {
-            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        },
-        "passageiro_tile_hora": {
-            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        },
-        "transacao_gratuidade_estudante_municipal": {
-            "sincronizacao_tabelas__transacao_gratuidade_estudante_municipal": {
-                "description": "Tabela `transacao_gratuidade_estudante_municipal` sincronizada"
-            }
-        },
-    },
     truncate_date=True,
 )
 

@@ -59,6 +59,7 @@ models:
             test_start_date: "{{ var('date_range_start') }}"
             test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           config:
+            description: "Arquivo de licenciamento STU ingerido em todas as datas da janela"
             tags: ["freshness", "daily"]
             severity: warn
             where: "safe_cast(data as date) between date('{date_range_start}') and date('{date_range_end}')"
