@@ -33,7 +33,6 @@ select
     o.indicador_viagem_completa,
     o.indicador_viagem_valida,
     o.indicador_viagem_conforme,
-    cast(null as bool) as indicador_dentro_do_teto_programado,
     o.km_programada,
     o.km_percorrida,
     o.lote,
@@ -61,7 +60,6 @@ select
     and o.indicador_pico_manha as indicador_completa_pico_manha,
     o.indicador_viagem_completa
     and o.indicador_pico_tarde as indicador_completa_pico_tarde,
-    o.indicador_dia_util,
     o.tarifa_remuneracao,
     o.alpha,
     o.beta,

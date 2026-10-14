@@ -1,0 +1,23 @@
+id_viagem,tipo_dia,servico,tecnologia_remunerada,indicador_viagem_completa,indicador_viagem_valida,indicador_viagem_conforme,km_programada,km_percorrida,faixa_horaria_inicio,tecnologia_fcf
+A2-050_SN898_V_O0898AAA0AVDU01_20260825045904,Dia Útil,SN898,MIDI,true,true,true,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-003_898_I_f4a56dcd-12b5-4aff-a189-b76f7c59694e_20260824091645,Dia Útil,898,BASICO,true,true,false,30.254,30.254,2026-08-24 06:00:00,BASICO
+A2-080_870_I_O0870AAA0AIDU02_20260825000630,Dia Útil,870,MIDI,true,false,false,13.868,13.868,2026-08-24 21:00:00,MIDI
+A2-050_SN898_V_O0898AAA0AVDU01_20260825003000,Dia Útil,SN898,MIDI,true,true,true,32.658,32.658,,BASICO
+A2-050_SN898_V_O0898AAA0AVDU01_20260825045904_incompleta,Dia Útil,SN898,MIDI,false,true,true,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_nao_licenciado,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_nao_vistoriado,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_lacrado,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_nao_autorizado_capacidade,Dia Útil,SN898,MIDI,true,true,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_autuado_ar_inoperante,Dia Útil,SN898,MIDI,true,true,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_autuado_alterar_itinerario,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_autuado_vista_inoperante,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_autuado_nao_atender_parada,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_autuado_nao_concluir_itinerario,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_registrado_ar_inoperante,Dia Útil,SN898,MIDI,true,true,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_validador_fechado,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_associado_incorretamente,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_invalida_e_nao_conforme,Dia Útil,SN898,MIDI,true,false,false,32.658,32.658,2026-08-25 01:00:00,BASICO
+A2-050_sem_gps,Dia Útil,SN898,MIDI,false,true,true,32.658,0,2026-08-25 01:00:00,BASICO
+A2-050_incompleta_km_menor,Dia Útil,SN898,MIDI,false,true,true,32.658,1.0,2026-08-25 01:00:00,BASICO
+A2-050_tecnologia_aberta,Dia Útil,SN899,MIDI,true,true,true,32.658,32.658,,BASICO
+A2-050_tecnologia_ausente,Dia Útil,XYZ,MIDI,true,true,true,32.658,32.658,,BASICO

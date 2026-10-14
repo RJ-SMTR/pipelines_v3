@@ -1,0 +1,391 @@
+version: 2
+
+unit_tests:
+  - name: test_sppo_janela_vespera_viagem_completa_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: sppo
+        start_date: "2026-07-20T00:00:00"
+        end_date: "2026-07-20T00:00:00"
+    given:
+      - input: ref('viagem_regularidade_temperatura')
+        format: csv
+        fixture: viagem_regularidade_temperatura__aux_viagem_transacao__sppo
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__sppo
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: viagem_valida__viagem_completa__aux_viagem_transacao__sppo
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: viagem_valida__viagem_completa__aux_viagem_transacao__sppo
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__viagem_completa
+
+  - name: test_real_sppo_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: sppo
+        start_date: "2026-08-02T00:00:00"
+        end_date: "2026-08-02T00:00:00"
+    given:
+      - input: ref('viagem_regularidade_temperatura')
+        format: csv
+        fixture: viagem_regularidade_temperatura__aux_viagem_transacao__sppo__producao
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__sppo__producao
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: viagem_valida__aux_viagem_transacao__sppo__producao
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: vazio
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__viagem_valida__producao
+
+  - name: test_real_rio_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: rio
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+    given:
+      - input: ref('aux_viagem_status')
+        format: csv
+        fixture: aux_viagem_status__aux_viagem_transacao
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__rio
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: transacao_riocard__aux_viagem_transacao__rio
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: viagem_valida__viagem_completa__aux_viagem_transacao__rio
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: viagem_valida__viagem_completa__aux_viagem_transacao__rio
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__aux_viagem_status__producao
+
+  - name: test_cobertura_viagem_transacao_aux_v1
+    model: viagem_transacao_aux_v1
+    overrides:
+      vars:
+        start_date: "2024-07-19T00:00:00"
+        end_date: "2025-07-15T00:00:00"
+        flow_name: treatment--subsidio-sppo-apuracao
+    given:
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__viagem_transacao_aux_v1
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: transacao_riocard__viagem_transacao_aux_v1
+      - input: ref('aux_veiculo_dia_consolidada')
+        format: sql
+        fixture: aux_veiculo_dia_consolidada__viagem_transacao_aux_v1
+      - input: ref('viagem_completa')
+        format: csv
+        fixture: viagem_completa__viagem_transacao_aux_v1
+      - input: ref('viagem_classificada')
+        format: csv
+        fixture: viagem_classificada__viagem_transacao_aux_v1
+      - input: ref('gps_validador')
+        format: csv
+        fixture: gps_validador__viagem_transacao_aux_v1
+    expect:
+      format: csv
+      fixture: viagem_transacao_aux_v1__cobertura
+
+  - name: test_tolerancia_monitoramento_temperatura_viagem_transacao_aux_v1
+    model: viagem_transacao_aux_v1
+    overrides:
+      vars:
+        start_date: "2024-07-19T00:00:00"
+        end_date: "2025-07-15T00:00:00"
+        flow_name: treatment--monitoramento-temperatura
+    given:
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__viagem_transacao_aux_v1
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: transacao_riocard__viagem_transacao_aux_v1
+      - input: ref('aux_veiculo_dia_consolidada')
+        format: sql
+        fixture: aux_veiculo_dia_consolidada__viagem_transacao_aux_v1
+      - input: ref('viagem_completa')
+        format: csv
+        fixture: viagem_completa__viagem_transacao_aux_v1
+      - input: ref('viagem_classificada')
+        format: csv
+        fixture: viagem_classificada__viagem_transacao_aux_v1
+      - input: ref('gps_validador')
+        format: csv
+        fixture: gps_validador__viagem_transacao_aux_v1
+    expect:
+      format: csv
+      fixture: viagem_transacao_aux_v1__monitoramento_temperatura
+
+  - name: test_cobertura_sppo_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: sppo
+        start_date: "2026-08-02T00:00:00"
+        end_date: "2026-08-02T00:00:00"
+    given:
+      - input: ref('viagem_regularidade_temperatura')
+        format: sql
+        fixture: viagem_regularidade_temperatura__aux_viagem_transacao__cobertura
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__cobertura
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: transacao_riocard__aux_viagem_transacao__cobertura
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: vazio
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__cobertura
+
+  - name: test_v99_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: sppo
+        start_date: "2026-08-02T00:00:00"
+        end_date: "2026-08-02T00:00:00"
+        DATA_SUBSIDIO_V99_INICIO: "2026-08-01"
+    given:
+      - input: ref('viagem_regularidade_temperatura')
+        format: sql
+        fixture: viagem_regularidade_temperatura__aux_viagem_transacao__v99
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__v99
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: vazio
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__v99
+
+  - name: test_pre_v12_aux_viagem_transacao
+    model: aux_viagem_transacao
+    overrides:
+      vars:
+        sistema: sppo
+        start_date: "2026-08-02T00:00:00"
+        end_date: "2026-08-02T00:00:00"
+        DATA_SUBSIDIO_V12_INICIO: "2027-01-01"
+    given:
+      - input: ref('viagem_regularidade_temperatura')
+        format: sql
+        fixture: viagem_regularidade_temperatura__aux_viagem_transacao__pre_v12
+      - input: ref('transacao')
+        format: csv
+        fixture: transacao__aux_viagem_transacao__pre_v12
+      - input: ref('transacao_riocard')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_monitoramento', 'viagem_valida')
+        format: csv
+        fixture: vazio
+      - input: source('rj_smtr_projeto_subsidio_sppo', 'viagem_completa')
+        format: csv
+        fixture: vazio
+    expect:
+      format: csv
+      fixture: aux_viagem_transacao__pre_v12
+
+  - name: test_real_viagem_transacao_aux_v2
+    model: viagem_transacao_aux_v2
+    given:
+      - input: ref('aux_viagem_transacao')
+        format: sql
+        fixture: aux_viagem_transacao__viagem_transacao_aux_v2
+    expect:
+      format: csv
+      fixture: viagem_transacao_aux_v2
+
+  - name: test_real_sppo_aux_viagem_temperatura_classificada
+    model: aux_viagem_temperatura_classificada
+    overrides:
+      vars:
+        sistema: sppo
+        date_range_start: "2026-08-02T00:00:00"
+        date_range_end: "2026-08-02T00:00:00"
+    given:
+      - input: ref('viagem_classificada')
+        format: sql
+        fixture: viagem_classificada__aux_viagem_temperatura_classificada
+      - input: ref('gps_validador')
+        format: csv
+        fixture: gps_validador__aux_viagem_temperatura_classificada
+      - input: ref('garagem')
+        format: csv
+        fixture: vazio
+      - input: ref('temperatura')
+        format: csv
+        fixture: temperatura__aux_viagem_temperatura_classificada
+    expect:
+      format: csv
+      fixture: aux_viagem_temperatura_classificada
+
+  - name: test_cobertura_aux_viagem_temperatura_classificada
+    model: aux_viagem_temperatura_classificada
+    overrides:
+      vars:
+        sistema: sppo
+        date_range_start: "2025-10-15T00:00:00"
+        date_range_end: "2025-10-15T00:00:00"
+    given:
+      - input: ref('viagem_classificada')
+        format: sql
+        fixture: viagem_classificada__aux_viagem_temperatura_classificada__cobertura
+      - input: ref('gps_validador')
+        format: csv
+        fixture: gps_validador__aux_viagem_temperatura_classificada__cobertura
+      - input: ref('garagem')
+        format: sql
+        fixture: garagem__aux_viagem_temperatura_classificada__cobertura
+      - input: ref('temperatura')
+        format: csv
+        fixture: temperatura__aux_viagem_temperatura_classificada__cobertura
+    expect:
+      format: csv
+      fixture: aux_viagem_temperatura_classificada__cobertura
+
+  - name: test_rio_aux_viagem_temperatura_classificada
+    model: aux_viagem_temperatura_classificada
+    overrides:
+      vars:
+        sistema: rio
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+    given:
+      - input: ref('aux_viagem_status')
+        format: sql
+        fixture: aux_viagem_status__aux_viagem_temperatura_classificada
+      - input: ref('gps_validador')
+        format: csv
+        fixture: gps_validador__aux_viagem_temperatura_classificada__rio
+      - input: ref('garagem')
+        format: csv
+        fixture: vazio
+      - input: ref('temperatura')
+        format: csv
+        fixture: temperatura__aux_viagem_temperatura_classificada__rio
+    expect:
+      format: csv
+      fixture: aux_viagem_temperatura_classificada__rio
+
+  - name: test_real_aux_viagem_regularidade_temperatura
+    model: aux_viagem_regularidade_temperatura
+    overrides:
+      vars:
+        sistema: sppo
+        date_range_start: "2026-08-02T00:00:00"
+        date_range_end: "2026-08-02T00:00:00"
+    given:
+      - input: ref('aux_viagem_temperatura')
+        format: sql
+        fixture: aux_viagem_temperatura__aux_viagem_regularidade_temperatura
+      - input: ref('veiculo_regularidade_temperatura_dia')
+        format: sql
+        fixture: veiculo_regularidade_temperatura_dia__aux_viagem_regularidade_temperatura
+    expect:
+      format: csv
+      fixture: aux_viagem_regularidade_temperatura
+
+  - name: test_cobertura_aux_viagem_regularidade_temperatura
+    model: aux_viagem_regularidade_temperatura
+    overrides:
+      vars:
+        sistema: sppo
+        date_range_start: "2025-08-01T00:00:00"
+        date_range_end: "2026-08-02T00:00:00"
+    given:
+      - input: ref('aux_viagem_temperatura')
+        format: sql
+        fixture: aux_viagem_temperatura__aux_viagem_regularidade_temperatura__cobertura
+      - input: ref('veiculo_regularidade_temperatura_dia')
+        format: sql
+        fixture: veiculo_regularidade_temperatura_dia__aux_viagem_regularidade_temperatura__cobertura
+    expect:
+      format: csv
+      fixture: aux_viagem_regularidade_temperatura__cobertura
+
+  - name: test_rio_aux_viagem_regularidade_temperatura
+    model: aux_viagem_regularidade_temperatura
+    overrides:
+      vars:
+        sistema: rio
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+    given:
+      - input: ref('aux_viagem_temperatura_classificada')
+        format: sql
+        fixture: aux_viagem_temperatura_classificada__aux_viagem_regularidade_temperatura__rio
+      - input: ref('veiculo_regularidade_temperatura_dia')
+        format: sql
+        fixture: veiculo_regularidade_temperatura_dia__vazio
+    expect:
+      format: csv
+      fixture: aux_viagem_regularidade_temperatura__rio
+
+  - name: test_real_viagem_transacao
+    model: viagem_transacao
+    given:
+      - input: ref('viagem_transacao_aux_v2')
+        format: sql
+        fixture: viagem_transacao_aux_v2__viagem_transacao
+      - input: ref('viagem_transacao_aux_v1')
+        format: sql
+        fixture: viagem_transacao_aux_v1__viagem_transacao
+    expect:
+      format: csv
+      fixture: viagem_transacao
+
+  - name: test_real_viagem_regularidade_temperatura
+    model: viagem_regularidade_temperatura
+    overrides:
+      vars:
+        date_range_start: "2026-08-02T00:00:00"
+        date_range_end: "2026-08-02T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('aux_viagem_regularidade_temperatura')
+        format: sql
+        fixture: aux_viagem_regularidade_temperatura__viagem_regularidade_temperatura
+    expect:
+      format: csv
+      fixture: viagem_regularidade_temperatura
+

@@ -40,7 +40,7 @@ with
             servico,
             sentido,
             distancia_planejada
-        from {{ ref("eph_viagem_regularidade_temperatura") }}
+        from {{ ref("aux_viagem_regularidade_temperatura") }}
         where {{ incremental_filter }}
     )
 select

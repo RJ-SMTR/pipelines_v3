@@ -1,0 +1,3 @@
+data,id_veiculo,servico_jae,datetime_transacao,datetime_processamento,modo
+2024-11-15,27503,548,2024-11-15 05:50:00,2024-11-15 05:51:00,Ônibus
+2025-07-15,27501,548,2025-07-15 06:05:00,2025-07-15 06:06:00,Ônibus

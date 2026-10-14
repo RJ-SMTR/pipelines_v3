@@ -50,5 +50,5 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
-from {{ ref("eph_viagem_regularidade_temperatura") }}
+from {{ ref("aux_viagem_regularidade_temperatura") }}
 where {{ incremental_filter }}

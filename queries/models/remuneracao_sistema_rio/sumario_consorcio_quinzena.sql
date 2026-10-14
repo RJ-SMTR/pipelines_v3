@@ -62,10 +62,10 @@ with
                 date_add(date_trunc(data, month), interval 15 day)
             ) as data_inicio_quinzena,
             lote,
-            indicador_dia_util,
             frota_operante,
             lote_frota_estimada,
             lote_km_referencia_quinzena,
+            tipo_dia,
             tarifa_remuneracao,
             alpha
         from {{ ref("data_apurada") }}
@@ -75,7 +75,7 @@ with
         select
             data_inicio_quinzena,
             lote,
-            avg(if(indicador_dia_util, frota_operante, null)) as frota_operante_media,
+            avg(if(tipo_dia = 'Dia Útil', frota_operante, null)) as frota_operante_media,
             max(lote_frota_estimada) as lote_frota_estimada,
             max(lote_km_referencia_quinzena) as lote_km_referencia_quinzena,
             max(tarifa_remuneracao) as tarifa_remuneracao,
@@ -88,8 +88,7 @@ with
             date_sub(data_ordem, interval 1 day) as data,
             consorcio,
             sum(valor_total_transacao_bruto) as receita_tarifa_publica_dia
-        -- from {{ ref("bilhetagem_consorcio_operador_dia") }}
-        from `rj-smtr.financeiro.bilhetagem_consorcio_operador_dia`
+        from {{ ref("bilhetagem_consorcio_operador_dia") }}
         where
             data_ordem between date_add(
                 date('{{ var("date_range_start") }}'), interval 1 day

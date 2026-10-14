@@ -41,4 +41,4 @@ select
     datetime_partida,
     datetime_chegada,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
-from {{ ref("eph_viagem_transacao") }}
+from {{ ref("aux_viagem_transacao") }}

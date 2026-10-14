@@ -1,0 +1,3 @@
+data,id_viagem,id_veiculo,datetime_partida,datetime_chegada,modo,tecnologia_apurada,tecnologia_remunerada,servico,sentido,distancia_planejada
+2026-08-25,A2-050_SN898_V_O0898AAA0AVDU01_20260825045904,A2-050,2026-08-25 01:59:04,2026-08-25 02:56:13,Ônibus,BASICO,MIDI,SN898,V,32.658
+2026-08-25,B2-051_SN898_V_cobertura_20260825045904,B2-051,2026-08-25 01:59:04,2026-08-25 02:56:13,Ônibus,BASICO,MIDI,SN898,V,32.658

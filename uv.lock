@@ -17,6 +17,7 @@ members = [
     "capture-inmet-temperatura",
     "capture-jae-auxiliar",
     "capture-jae-backup-billingpay",
+    "capture-jae-denuncia",
     "capture-jae-estacionamento-veiculo",
     "capture-jae-fiscalizacao-veiculo",
     "capture-jae-gps-validador",
@@ -54,8 +55,10 @@ members = [
     "control-jae-teste-ip",
     "control-jae-verificacao-captura",
     "control-model-freshness",
+    "control-openmetadata-dbt-artifacts",
     "control-set-redis-key",
     "control-source-freshness",
+    "integration-openmetadata-bigquery",
     "integration-previnity-negativacao",
     "integration-upload-transacao-cct",
     "maintenance-db-retention",
@@ -93,6 +96,7 @@ members = [
     "treatment-passageiro-hora",
     "treatment-planejamento-diario",
     "treatment-remuneracao-sistema-rio",
+    "treatment-riorotativo-ativacao-hora",
     "treatment-riorotativo-auxiliar",
     "treatment-riorotativo-operacao",
     "treatment-riorotativo-ordem-pagamento",
@@ -425,6 +429,11 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_backup_billingpay" }
 
 [[package]]
+name = "capture-jae-denuncia"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_denuncia" }
+
+[[package]]
 name = "capture-jae-estacionamento-veiculo"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_estacionamento_veiculo" }
@@ -709,6 +718,11 @@ source = { virtual = "pipelines/control__jae_verificacao_captura" }
 name = "control-model-freshness"
 version = "0.1.0"
 source = { virtual = "pipelines/control__model_freshness" }
+
+[[package]]
+name = "control-openmetadata-dbt-artifacts"
+version = "0.1.0"
+source = { virtual = "pipelines/control__openmetadata_dbt_artifacts" }
 
 [[package]]
 name = "control-set-redis-key"
@@ -1611,6 +1625,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/0c/65/e2636b2503f34f472
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/d0/fb401cb69cc6d20405c94c7f754ba44a5d1ec5dfb97abc8a8b304b90d9b3/infisicalsdk-1.0.12-py3-none-any.whl", hash = "sha256:348af8f665fd81beac643db5a81f858eaf473e5809bdb7dfdcca923fe3ab49ea", size = 16720, upload-time = "2025-10-31T12:26:07.051Z" },
 ]
+
+[[package]]
+name = "integration-openmetadata-bigquery"
+version = "0.1.0"
+source = { virtual = "pipelines/integration__openmetadata_bigquery" }
 
 [[package]]
 name = "integration-previnity-negativacao"
@@ -3383,6 +3402,11 @@ source = { virtual = "pipelines/treatment__planejamento_diario" }
 name = "treatment-remuneracao-sistema-rio"
 version = "1.0.0"
 source = { virtual = "pipelines/treatment__remuneracao_sistema_rio" }
+
+[[package]]
+name = "treatment-riorotativo-ativacao-hora"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__riorotativo_ativacao_hora" }
 
 [[package]]
 name = "treatment-riorotativo-auxiliar"

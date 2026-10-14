@@ -1,0 +1,5 @@
+servico,inicio_vigencia,fim_vigencia,menor_tecnologia_permitida,maior_tecnologia_permitida
+SN898,2026-08-24,2026-08-29,MIDI,MIDI
+898,2026-08-24,2026-08-29,BASICO,BASICO
+870,2026-08-24,2026-08-29,MIDI,MIDI
+SN899,2026-08-24,,MIDI,MIDI

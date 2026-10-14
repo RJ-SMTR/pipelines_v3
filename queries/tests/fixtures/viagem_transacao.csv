@@ -1,0 +1,7 @@
+data,id_viagem,tipo_viagem,quantidade_transacao,datetime_partida_bilhetagem
+2026-08-02,A29200_LECD136_V_5dva_20260802050915,Licenciado com ar e não autuado,17,2026-08-02 04:39:16
+2026-08-02,A29015_157_V_8ah4_20260802190329,Sem transação,0,2026-08-02 19:00:56
+2026-08-02,B27168_639_I_axhq_20260802055940,Não licenciado,56,2026-08-02 05:29:41
+2025-07-15,A27501-548-V-ugt3-20250715061350,Licenciado com ar e não autuado,13,2025-07-15 06:00:00
+2025-07-16,A29200_v17_inicio,Licenciado com ar e não autuado,2,2025-07-16 05:07:32
+2026-08-02,A27501-548-V-ugt3-20250715061350,Licenciado com ar e não autuado,2,2026-08-02 05:07:32

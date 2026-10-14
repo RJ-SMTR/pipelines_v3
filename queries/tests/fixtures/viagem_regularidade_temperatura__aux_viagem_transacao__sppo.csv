@@ -1,0 +1,2 @@
+data,id_viagem,id_veiculo,datetime_partida,datetime_chegada,modo,tecnologia_apurada,tecnologia_remunerada,tipo_viagem,indicadores,servico,sentido,distancia_planejada
+2026-07-20,B10052-910-I-a0188f5b-68f4-4e19-872a-abace8c4344d-20260720032748,B10052,2026-07-20 03:27:48,2026-07-20 04:07:13,Ônibus SPPO,BASICO,BASICO,Licenciado com ar e não autuado,,910,I,26.73

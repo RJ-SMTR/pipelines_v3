@@ -1,0 +1,5 @@
+id_viagem,id_validador,quantidade_pre_tratamento,quantidade_nula,quantidade_zero
+A29200_cobertura_gps,VA,9,1,1
+A29200_sem_ar,VB,,,
+A29200_sem_gps,,,
+A29200_multiplos_validadores,VC,2,0,0

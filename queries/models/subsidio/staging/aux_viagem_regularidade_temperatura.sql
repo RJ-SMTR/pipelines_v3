@@ -38,7 +38,7 @@ with
             sentido,
             distancia_planejada,
             indicadores
-        {% if var("sistema") == "rio" %} from {{ ref("eph_viagem_temperatura") }}
+        {% if var("sistema") == "rio" %} from {{ ref("aux_viagem_temperatura_classificada") }}
         {% else %} from {{ ref("aux_viagem_temperatura") }}
         {% endif %}
         where {{ incremental_filter }}

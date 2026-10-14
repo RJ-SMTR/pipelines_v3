@@ -1,41 +1,24 @@
-{{ config(materialized="ephemeral") }}
-
-{% if var("flow_name") == "treatment--monitoramento-temperatura" %}
-    {% set interval_minutes = 120 %}
-{% else %} {% set interval_minutes = 30 %}
-{% endif %}
-
-{% set date_range_start %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
-        "{{ var('date_range_start') }}"
-    {% else %}
-       "{{ var('start_date') }}"
-    {% endif %}
-{% endset %}
-{% set date_range_end %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
-        "{{ var('date_range_end') }}"
-    {% else %}
-       "{{ var('end_date') }}"
-    {% endif %}
-{% endset %}
-
 with
     -- Transações Jaé
     transacao as (
         select
-            {% if var("sistema") == "rio" %}
-                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
-                as id_veiculo,
-            {% else %} t.id_veiculo,
-            {% endif %}
+             t.id_veiculo,
+            
             t.servico_jae,
             t.datetime_transacao
-        from {{ ref("transacao") }} as t
+        from `rj-smtr`.`bilhetagem`.`transacao` as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
-            t.data between date({{ date_range_start }}) and date_add(
-                date({{ date_range_end }}), interval 1 day
+            t.data between date(
+  
+       "2026-08-02T00:00:00"
+    
+) and date_add(
+                date(
+  
+       "2026-08-02T00:00:00"
+    
+), interval 1 day
             )
             and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
@@ -45,18 +28,23 @@ with
     -- Transações RioCard
     transacao_riocard as (
         select
-            {% if var("sistema") == "rio" %}
-                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
-                as id_veiculo,
-            {% else %} t.id_veiculo,
-            {% endif %}
+             t.id_veiculo,
+            
             t.servico_jae,
             t.datetime_transacao
-        from {{ ref("transacao_riocard") }} as t
+        from `rj-smtr`.`bilhetagem`.`transacao_riocard` as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
-            t.data between date({{ date_range_start }}) and date_add(
-                date({{ date_range_end }}), interval 1 day
+            t.data between date(
+  
+       "2026-08-02T00:00:00"
+    
+) and date_add(
+                date(
+  
+       "2026-08-02T00:00:00"
+    
+), interval 1 day
             )
             and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
@@ -69,55 +57,44 @@ with
             data,
             id_viagem,
             id_veiculo,
-            {% if var("sistema") == "rio" %} id_veiculo as id_veiculo_join,
-            {% else %} substr(id_veiculo, 2) as id_veiculo_join,
-            {% endif %}
+             substr(id_veiculo, 2) as id_veiculo_join,
+            
             cast(null as string) as id_validador,
             datetime_partida,
             datetime_chegada,
             modo,
             tecnologia_apurada,
             tecnologia_remunerada,
-            {% if var("sistema") == "rio" %} cast(null as string) as tipo_viagem,
-            {% else %} tipo_viagem,
-            {% endif %}
+             tipo_viagem,
+            
             indicadores,
             servico,
             sentido,
             distancia_planejada
-        {% if var("sistema") == "rio" %} from {{ ref("aux_viagem_status") }}
-        {% else %} from {{ ref("viagem_regularidade_temperatura") }}
-        {% endif %}
+         from `rj-smtr`.`subsidio`.`viagem_regularidade_temperatura`
+        
         where
-            data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            data >= date("2025-07-16")
             and (
-                data between date({{ date_range_start }}) and date({{ date_range_end }})
-                {% if target.name == "prod" %}
-                    or data = date_sub(date({{ date_range_start }}), interval 1 day)
-                {% endif %}
+                data between date(
+  
+       "2026-08-02T00:00:00"
+    
+) and date(
+  
+       "2026-08-02T00:00:00"
+    
+)
+                
+                    or data = date_sub(date(
+  
+       "2026-08-02T00:00:00"
+    
+), interval 1 day)
+                
             )
 
-        {% if target.name in ("dev", "hmg") %}
-            --fmt:off
-            left outer union all by name
-             --fmt:on
-            (
-                select id_veiculo, datetime_partida, datetime_chegada
-                from `rj-smtr.projeto_subsidio_sppo.viagem_completa`
-                where
-                    data = date_sub(date({{ date_range_start }}), interval 1 day)
-                    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-                    and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-
-                union all by name
-
-                select id_veiculo, datetime_partida, datetime_chegada
-                from `rj-smtr.monitoramento.viagem_valida`
-                where
-                    data = date_sub(date({{ date_range_start }}), interval 1 day)
-                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            )
-        {% endif %}
+        
     ),
 
     -- Viagem, para fins de contagem de passageiros, com tolerância de 30 minutos,
@@ -137,7 +114,7 @@ with
                 then
                     datetime(
                         timestamp_sub(
-                            datetime_partida, interval {{ interval_minutes }} minute
+                            datetime_partida, interval 30 minute
                         )
                     )
                 else
@@ -146,7 +123,7 @@ with
                             greatest(
                                 timestamp_sub(
                                     datetime_partida,
-                                    interval {{ interval_minutes }} minute
+                                    interval 30 minute
                                 ),
                                 lag(v.datetime_chegada) over (
                                     partition by v.id_veiculo
@@ -164,7 +141,15 @@ with
     viagem_com_tolerancia as (
         select *
         from viagem_com_tolerancia_previa
-        where data between date({{ date_range_start }}) and date({{ date_range_end }})
+        where data between date(
+  
+       "2026-08-02T00:00:00"
+    
+) and date(
+  
+       "2026-08-02T00:00:00"
+    
+)
     ),
 
     -- Contagem de transações Jaé
@@ -252,24 +237,24 @@ with
             id_viagem,
             id_validador,
             case
-                when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
+                when data < date('2024-11-16')
                 then quantidade_transacao_riocard = 0
                 else (quantidade_transacao_riocard = 0 and quantidade_transacao = 0)
             end as indicador_sem_transacao,
             indicador_estado_equipamento_aberto,
             (
-                data >= date('{{ var("DATA_SUBSIDIO_V8_INICIO") }}')
+                data >= date('2024-07-20')
                 and (
                     (
-                        data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
+                        data < date('2024-11-16')
                         and (
                             quantidade_transacao_riocard = 0
                             or not indicador_estado_equipamento_aberto
                         )
                     )
                     or (
-                        data >= date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
-                        and data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                        data >= date('2024-11-16')
+                        and data < date('3000-01-01')
                         and (
                             (
                                 quantidade_transacao_riocard = 0
@@ -279,7 +264,7 @@ with
                         )
                     )
                     or (
-                        data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                        data >= date('3000-01-01')
                         and (
                             quantidade_transacao_riocard = 0
                             and quantidade_transacao = 0
@@ -288,11 +273,11 @@ with
                 )
             ) as indicador_sem_transacao_tipo,
             (
-                data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                data >= date('3000-01-01')
                 and not indicador_estado_equipamento_aberto
             ) as indicador_validador_fechado,
             (
-                data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                data >= date('3000-01-01')
                 and (
                     quantidade_transacao_riocard_servico_divergente > 0
                     or quantidade_transacao_servico_divergente > 0
@@ -313,7 +298,7 @@ with
                 indicador_validador_associado_incorretamente
             ) as indicador_validador_associado_incorretamente,
             case
-                when data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                when data < date('3000-01-01')
                 then max(indicador_estado_equipamento_aberto)
                 else min(indicador_estado_equipamento_aberto)
             end as indicador_estado_equipamento_aberto,
@@ -342,7 +327,7 @@ select
     any_value(eep.quantidade_transacao) as quantidade_transacao,
     any_value(eep.quantidade_transacao_riocard) as quantidade_transacao_riocard,
     case
-        when v.data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+        when v.data < date('3000-01-01')
         then max(eep.percentual_estado_equipamento_aberto)
         else min(eep.percentual_estado_equipamento_aberto)
     end as percentual_estado_equipamento_aberto,

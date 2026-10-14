@@ -16,14 +16,18 @@
 
 {% set calendario = ref("calendario") %}
 {% if execute %}
-    {% set gtfs_feeds_query %}
-        select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ calendario }}
-        where {{ incremental_filter }}
-    {% endset %}
-    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-    {% if gtfs_feeds | length == 0 %}
-        {% set gtfs_feeds = ["'2000-01-01'"] %}
+    {% if var("unit_test_gtfs_feeds", []) | length > 0 %}
+        {% set gtfs_feeds = var("unit_test_gtfs_feeds") %}
+    {% else %}
+        {% set gtfs_feeds_query %}
+            select distinct concat("'", feed_start_date, "'") as feed_start_date
+            from {{ calendario }}
+            where {{ incremental_filter }}
+        {% endset %}
+        {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+        {% if gtfs_feeds | length == 0 %}
+            {% set gtfs_feeds = ["'2000-01-01'"] %}
+        {% endif %}
     {% endif %}
 {% endif %}
 

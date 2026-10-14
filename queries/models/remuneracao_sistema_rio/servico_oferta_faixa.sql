@@ -10,19 +10,30 @@
     data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
 {% endset %}
 
-{% set calendario = "rj-smtr.planejamento.calendario" %}
 {% if execute %}
-    {% set gtfs_feeds_query %}
-        select distinct concat("'", feed_start_date, "'") as feed_start_date
-        from {{ calendario }}
-        where {{ incremental_filter }}
-    {% endset %}
-    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-    {% set feed_filter %}
-    {% if gtfs_feeds | length > 0 %} feed_start_date in ({{ gtfs_feeds | join(", ") }})
-    {% else %} 1 = 0
+    {% if var("unit_test_empty_feed_filter", false) %}
+        {% set feed_filter %}1 = 0{% endset %}
+    {% elif var("unit_test_gtfs_feeds", []) | length > 0 %}
+        {% set gtfs_feeds = var("unit_test_gtfs_feeds") %}
+        {% set feed_filter %}
+            feed_start_date in ({{ gtfs_feeds | join(", ") }})
+        {% endset %}
+    {% elif var("unit_test_skip_feed_filter", false) %}
+        {% set feed_filter %}1 = 1{% endset %}
+    {% else %}
+        {% set gtfs_feeds_query %}
+            select distinct concat("'", feed_start_date, "'") as feed_start_date
+            from {{ source("rj_smtr_planejamento", "calendario") }}
+            where {{ incremental_filter }}
+        {% endset %}
+        {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+        {% set feed_filter %}
+            {% if gtfs_feeds | length > 0 %}
+                feed_start_date in ({{ gtfs_feeds | join(", ") }})
+            {% else %} 1 = 0
+            {% endif %}
+        {% endset %}
     {% endif %}
-    {% endset %}
 {% endif %}
 
 with
@@ -40,8 +51,7 @@ with
             consorcio,
             modo,
             feed_start_date
-        -- from {{ ref("servico_planejado_faixa_horaria") }}
-        from `rj-smtr.planejamento.servico_planejado_faixa_horaria`
+        from {{ source("rj_smtr_planejamento", "servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }} and sistema = "RIO"
     ),
     lote_servico as (
@@ -50,8 +60,7 @@ with
             feed_version,
             route_short_name as servico,
             agency_id as lote,
-        -- from {{ ref("routes_gtfs") }}
-        from `rj-smtr.gtfs.routes`
+        from {{ source("rj_smtr_gtfs", "routes") }}
         where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
         qualify
             row_number() over (
