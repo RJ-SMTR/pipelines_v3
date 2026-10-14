@@ -1,5 +1,11 @@
 # Changelog - financeiro
 
+## [1.2.2] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
 ## [1.2.1] - 2026-10-05
 
 ### Alterado
