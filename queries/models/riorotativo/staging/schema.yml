@@ -27,11 +27,17 @@ models:
       - name: identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                  description: "Todos os valores da coluna `identificacao` são únicos na captura"
         data_tests:
           - not_null:
               name: not_null__identificacao__staging_guardador_veiculo_05019730000158_riorotativo
-          - unique:
-              name: unique__identificacao__staging_guardador_veiculo_05019730000158_riorotativo
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
@@ -65,11 +71,17 @@ models:
       - name: identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                  description: "Todos os valores da coluna `identificacao` são únicos na captura"
         data_tests:
           - not_null:
               name: not_null__identificacao__staging_guardador_veiculo_34152025000122_riorotativo
-          - unique:
-              name: unique__identificacao__staging_guardador_veiculo_34152025000122_riorotativo
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
