@@ -38,7 +38,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selectors,
     save_materialization_datetime_redis,
     setup_dbt_queries,
-    task_dbt_selector_test_notify_discord,
+    task_dbt_selector_test_notify,
 )
 from pipelines.common.treatment.default_treatment.utils import IncompleteDataError
 from pipelines.common.utils.prefect import flow
@@ -174,7 +174,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             wait_for=[run_tests_future],
         )
 
-        post_tests_notify_future = task_dbt_selector_test_notify_discord.map(
+        post_tests_notify_future = task_dbt_selector_test_notify.map(
             context=materialization_contexts,
             mode=unmapped("post"),
             wait_for=unmapped([run_tests_future]),

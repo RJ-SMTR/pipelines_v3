@@ -81,6 +81,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Remove versioned contracts
+        run: find contracts -type f -name '*.odcs.yaml' -delete 2>/dev/null || true
+
       - name: Download generated contracts
         uses: actions/download-artifact@v4
         with:
