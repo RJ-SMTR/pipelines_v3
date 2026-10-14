@@ -8,21 +8,8 @@ from pipelines.capture__maxtrack_registros import constants as registros_constan
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
-GPS_POST_CHECKS_LIST = {
-    "gps_v2_onibus_maxtrack": {
-        "check_gps_treatment__gps_v2_onibus_maxtrack": {
-            "description": "Todos os dados de GPS foram devidamente tratados"
-        },
-        "dbt_utils__unique_combination_of_columns__id_registro__gps_v2_onibus_maxtrack": {
-            "description": "Todos os registros são únicos"
-        },
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-    },
-}
-
 GPS_DAILY_TEST = DBTTest(
     test_select="gps_v2_onibus_maxtrack",
-    test_descriptions=GPS_POST_CHECKS_LIST,
     delay_days_start=1,
     delay_days_end=1,
     truncate_date=True,

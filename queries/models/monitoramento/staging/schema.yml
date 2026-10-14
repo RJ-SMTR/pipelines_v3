@@ -779,6 +779,7 @@ models:
       - test_completude_temperatura_inmet:
           name: test_completude__temperatura_inmet
           config:
+            description: "Há pelo menos uma temperatura INMET não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
             severity: warn
             where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 1 day)"
     columns:
@@ -811,6 +812,7 @@ models:
       - test_completude_temperatura:
           name: test_completude__temperatura_alertario
           config:
+            description: "Há pelo menos uma temperatura AlertaRio não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
             severity: warn
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
@@ -856,6 +858,7 @@ models:
             test_start_date: "{{ var('date_range_start') }}"
             test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
           config:
+            description: "Arquivo de infração ingerido em todas as datas da janela"
             tags: ["freshness", "daily"]
             severity: warn
             where: "safe_cast(data as date) between date('{date_range_start}') and date('{date_range_end}')"

@@ -1,6 +1,6 @@
 # Changelog - monitoramento
 
-## [2.4.0] - 2026-10-13
+## [2.4.0] - 2026-10-14
 
 ### Adicionado
 
@@ -16,6 +16,12 @@
 - Remove os modelos versionados `staging_gps`, `aux_gps_filtrada` e `gps` (v1 e v2), os modelos `staging_realocacao` e `gps_15_minutos` e os modelos efêmeros `aux_gps_realocacao`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (v1 e v2), substituídos pelos modelos por fonte e pelas macros de GPS (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
 - Remove o modelo `gps_15_minutos_union` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
 - Remove as sources `monitoramento.gps_*` substituídas por `ref`, mantendo apenas `gps_onibus_cittati` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+## [2.3.4] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
 
 ## [2.3.3] - 2026-10-08
 

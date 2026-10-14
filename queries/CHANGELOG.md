@@ -1,6 +1,6 @@
 # Changelog - queries
 
-## [1.2.0] - 2026-10-13
+## [1.2.0] - 2026-10-14
 
 ### Adicionado
 
@@ -17,6 +17,22 @@
 
 - Remove os selectors `gps`, `gps_15_minutos` e `gps_v2` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
 - Remove as variáveis `15_minutos`, `modo_gps` e `fonte_gps` do `dbt_project.yml` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+## [1.1.12] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes singulares em `tests/` no `config.description`, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.1.11] - 2026-10-14
+
+### Adicionado
+
+- Sobrescreve os testes `not_null`, `unique` e `accepted_values` com descrição padrão em português no `config.description` (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- Atualiza o selector `riorotativo_auxiliar` com os stagings de guardadores de veículo por entidade credenciadora (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
 
 ## [1.1.10] - 2026-07-28
 

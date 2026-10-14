@@ -28,13 +28,6 @@ TESTE_SINCRONIZACAO_TABLE_NAME = "teste_sincronizacao_transacao_cct"
 
 TESTE_SINCRONIZACAO_POST_TEST = DBTTest(
     test_select=TESTE_SINCRONIZACAO_TABLE_NAME,
-    test_descriptions={
-        TESTE_SINCRONIZACAO_TABLE_NAME: {
-            "dbt_utils__expression_is_true__teste_sincronizacao_transacao_cct": {
-                "description": "Todas as datas estão com os dados sincronizados"
-            },
-        }
-    },
 )
 
 TESTE_SINCRONIZACAO_SELECTOR = DBTSelector(

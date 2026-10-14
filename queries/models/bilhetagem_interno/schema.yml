@@ -69,6 +69,7 @@ models:
       - sincronizacao_tabelas:
           name: sincronizacao_tabelas__transacao_gratuidade_estudante_municipal
           config:
+            description: "Tabela `transacao_gratuidade_estudante_municipal` sincronizada"
             where: ""
           arguments:
             tabela_base: "{{ ref('transacao') }}"

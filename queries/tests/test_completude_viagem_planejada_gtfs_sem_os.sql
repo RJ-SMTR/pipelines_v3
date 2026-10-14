@@ -1,3 +1,9 @@
+{{
+    config(
+        description="As viagens sem Ordem de Serviço estão materializadas no planejamento diário conforme o calendário operacional."
+    )
+}}
+
 with
     calendario as (
         select data, feed_start_date, tipo_dia, service_ids

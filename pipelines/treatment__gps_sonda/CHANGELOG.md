@@ -1,6 +1,6 @@
 # Changelog - treatment__gps_sonda
 
-## [1.1.0] - 2026-10-13
+## [1.1.0] - 2026-10-14
 
 ### Alterado
 

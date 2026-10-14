@@ -32,6 +32,7 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__service_id__calendar_gtfs
               config:
+                description: "Todos os 'service\\_id' começam com 'U\\_', 'S\\_', 'D\\_' ou 'EXCEP'."
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
               arguments:
                 regex: "^([USD]_|EXCEP)"
@@ -366,6 +367,7 @@ models:
           - test_shape_id_gtfs:
               name: test_shape_id_gtfs__trips_gtfs
               config:
+                description: "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
         description: "Indica acessibilidade para cadeiras de rodas"
@@ -424,6 +426,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_gtfs' e 'ordem_servico_gtfs'."
             where: "1=1"
           arguments:
             expression: count(distinct tipo_os)
@@ -470,6 +473,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_os', 'tipo_dia', 'servico' e 'faixa_horaria_inicio' correspondem 1:1 entre as tabelas 'ordem_servico_trips_shapes_gtfs' e 'ordem_servico_faixa_horaria'."
             where: "1=1"
           arguments:
             expression: count(distinct feed_start_date)
@@ -496,6 +500,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'sentido', 'faixa_horaria_inicio' e 'shape_id' são únicos."
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
             combination_of_columns:
@@ -509,6 +514,7 @@ models:
       - dbt_expectations.expect_table_row_count_to_be_between:
           name: dbt_expectations__expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs
           config:
+            description: "A quantidade de registros de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'faixa_horaria_inicio' e 'shape_id' está dentro do intervalo esperado."
             where: "1=1"
           arguments:
             min_value: 1
@@ -548,6 +554,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               name: dbt_expectations__expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
               config:
+                description: "Todos os valores de 'distancia_planejada' são maiores que zero"
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
               arguments:
                 min_value: 1
