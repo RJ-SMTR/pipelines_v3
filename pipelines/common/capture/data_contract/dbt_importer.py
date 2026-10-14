@@ -48,10 +48,12 @@ def dbt_test_quality(
     manifest: dict[str, Any], model: dict[str, Any]
 ) -> dict[str, list[dict[str, Any]]]:
     """
-    Converte os testes dbt not_null, unique e accepted_values do modelo em Library Quality Rules.
+    Converte os testes dbt not_null, unique, accepted_values e
+    dbt_expectations.expect_column_values_to_match_regex do modelo em Library Quality Rules.
 
-    O where, o error_if e o warn_if do teste são ignorados, pois o contrato valida um único
-    arquivo bruto. A descrição vem de config.description ou, na ausência, da description do teste.
+    O where, o error_if, o warn_if e o row_condition do teste são ignorados, pois o contrato
+    valida um único arquivo bruto. A descrição vem de config.description ou, na ausência, da
+    description do teste.
 
     Args:
         manifest (dict[str, Any]): Manifest dbt carregado.
@@ -59,20 +61,30 @@ def dbt_test_quality(
 
     Returns:
         dict[str, list[dict[str, Any]]]: Regras convertidas, agrupadas por coluna.
+
+    Raises:
+        ValueError: Teste de regex com mostly ou flags, que o contrato não representa.
     """
     rules = {}
     for node in manifest["nodes"].values():
         if node.get("resource_type") != "test" or node.get("attached_node") != model["unique_id"]:
             continue
         test_metadata = node.get("test_metadata") or {}
-        metric = DBT_TEST_METRICS.get(test_metadata.get("name"))
-        if metric is None or test_metadata.get("namespace") is not None:
+        test_name = ".".join(
+            part for part in (test_metadata.get("namespace"), test_metadata.get("name")) if part
+        )
+        metric = DBT_TEST_METRICS.get(test_name)
+        if metric is None:
             continue
         config = node.get("config") or {}
         kwargs = test_metadata.get("kwargs") or {}
         rule = {"type": "library", "metric": metric, "mustBe": 0}
-        if metric == "invalidValues":
+        if test_name == "accepted_values":
             rule["arguments"] = {"validValues": list(kwargs["values"])}
+        elif test_name == "dbt_expectations.expect_column_values_to_match_regex":
+            if kwargs.get("mostly", 1) != 1 or kwargs.get("flags"):
+                raise ValueError(f"{node['name']}: mostly e flags não são suportados no contrato")
+            rule["arguments"] = {"pattern": kwargs["regex"]}
         description = config.get("description") or node.get("description")
         if description:
             rule["description"] = description

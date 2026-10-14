@@ -10,6 +10,7 @@ DBT_TEST_METRICS = {
     "not_null": "nullValues",
     "unique": "duplicateValues",
     "accepted_values": "invalidValues",
+    "dbt_expectations.expect_column_values_to_match_regex": "invalidValues",
 }
 CHECK_DESCRIPTIONS = {
     "field_is_present": "A coluna `{field}` está presente no arquivo",
