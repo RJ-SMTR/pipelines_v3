@@ -22,7 +22,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selectors,
     run_dbt_snapshots,
     setup_dbt_queries,
-    task_dbt_selector_test_notify_discord,
+    task_dbt_selector_test_notify,
     test_fallback_run,
     wait_data_sources,
 )
@@ -96,7 +96,7 @@ def treatment__sppo_viagens(  # noqa: PLR0913
             wait_for=[post_tests],
         )
 
-        post_tests_notify = task_dbt_selector_test_notify_discord.map(
+        post_tests_notify = task_dbt_selector_test_notify.map(
             context=post_tests,
             mode=unmapped("post"),
             webhook_key=unmapped(constants.WEBHOOK_KEY),

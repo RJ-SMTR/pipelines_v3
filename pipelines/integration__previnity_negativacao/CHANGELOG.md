@@ -1,5 +1,11 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.3.1] - 2026-10-14
+
+### Alterado
+
+- Usa a task `task_dbt_selector_test_notify` (antiga `task_dbt_selector_test_notify_discord`) (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
 ## [1.3.0] - 2026-08-27
 
 ### Adicionado
