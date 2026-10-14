@@ -688,7 +688,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__distancia_planejada__viagens_remuneradas
               config:
-                description: "Todos os valores da coluna `distancia_planejada` maiores ou iguais a zero"
+                description: "Todos os valores da coluna `distancia_planejada` maiores que zero"
                 where: "data between date('{date_range_start}') and date('{date_range_end}')"
               arguments:
                 min_value: 0

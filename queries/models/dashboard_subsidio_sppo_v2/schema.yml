@@ -105,7 +105,7 @@ models:
       - dbt_utils.expression_is_true:
           name: dbt_utils__expression_is_true__sumario_faixa_servico_dia_pagamento
           config:
-            description: "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
+            description: "Todos os valores de `valor_a_pagar - valor_penalidade` não nulos e maiores ou iguais a zero"
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
             expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
@@ -321,7 +321,7 @@ models:
       - dbt_utils.expression_is_true:
           name: dbt_utils__expression_is_true__sumario_servico_dia_pagamento
           config:
-            description: "Todas as somas de `valor_a_pagar` e `valor_penalidade` não nulas e maiores ou iguais a zero"
+            description: "Todos os valores de `valor_a_pagar - valor_penalidade` não nulos e maiores ou iguais a zero"
           arguments:
             expression: (valor_a_pagar - valor_penalidade) IS NOT NULL AND (valor_a_pagar - valor_penalidade) >= 0
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:

@@ -111,7 +111,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__partidas_total_planejada__viagem_planejada
               config:
-                description: "Todos os valores da coluna `partidas_total_planejada` maiores ou iguais a zero"
+                description: "Todos os valores da coluna `partidas_total_planejada` maiores que zero"
               arguments:
                 min_value: 0
                 inclusive: false
@@ -123,7 +123,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__distancia_planejada__viagem_planejada
               config:
-                description: "Todos os valores da coluna `distancia_planejada` maiores ou iguais a zero"
+                description: "Todos os valores da coluna `distancia_planejada` maiores que zero"
               arguments:
                 min_value: 0
                 inclusive: false
@@ -135,7 +135,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__distancia_total_planejada__viagem_planejada
               config:
-                description: "Todos os valores da coluna `distancia_total_planejada` maiores ou iguais a zero"
+                description: "Todos os valores da coluna `distancia_total_planejada` maiores que zero"
               arguments:
                 min_value: 0
                 inclusive: false
