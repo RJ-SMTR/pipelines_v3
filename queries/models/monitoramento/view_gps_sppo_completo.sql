@@ -39,7 +39,7 @@ with
             distancia,
             versao,
             datetime_ultima_atualizacao
-        from {{ source("monitoramento", "gps_onibus_sppo") }}
+        from {{ ref("gps_onibus_sppo") }}
         where datetime_gps >= datetime("{{ var('datetime_gps_sppo_2') }}")
     )
 select *

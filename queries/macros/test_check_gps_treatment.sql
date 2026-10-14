@@ -1,4 +1,4 @@
-{% test check_gps_treatment(model) -%}
+{% test check_gps_treatment(model, registros=none, aux_filtrada=none) -%}
     {% if model.identifier == "gps_sppo" %}
         -- depends_on: {{ ref('sppo_registros') }}
         -- depends_on: {{ ref('sppo_aux_registros_filtrada') }}
@@ -10,15 +10,14 @@
         {% set aux_filtrada = ref("sppo_aux_registros_filtrada") %}
         {% set gps = ref("gps_sppo") %}
     {% else %}
-        -- depends_on: {{ ref('staging_gps', v=1) }}
-        -- depends_on: {{ ref('aux_gps_filtrada', v=1) }}
-        -- depends_on: {{ ref('gps', v=1) }}
+        -- depends_on: {{ ref(registros) }}
+        -- depends_on: {{ ref(aux_filtrada) }}
         {% set timestamp = "datetime_gps" %}
         {% set ordem = "id_veiculo" %}
         {% set linha = "servico" %}
-        {% set registros = ref("staging_gps", v=1) %}
-        {% set aux_filtrada = ref("aux_gps_filtrada", v=1) %}
-        {% set gps = ref("gps", v=1) %}
+        {% set registros = ref(registros) %}
+        {% set aux_filtrada = ref(aux_filtrada) %}
+        {% set gps = model %}
     {% endif %}
 
     {{
@@ -28,13 +27,12 @@
     }}
 {%- endtest %}
 
-{% test check_gps_treatment_v2(model) -%}
-    -- depends_on: {{ ref('staging_gps', v=2) }}
-    -- depends_on: {{ ref('aux_gps_filtrada', v=2) }}
-    -- depends_on: {{ ref('gps', v=2) }}
-    {% set registros = ref("staging_gps", v=2) %}
-    {% set aux_filtrada = ref("aux_gps_filtrada", v=2) %}
-    {% set gps = ref("gps", v=2) %}
+{% test check_gps_treatment_v2(model, registros, aux_filtrada) -%}
+    -- depends_on: {{ ref(registros) }}
+    -- depends_on: {{ ref(aux_filtrada) }}
+    {% set registros = ref(registros) %}
+    {% set aux_filtrada = ref(aux_filtrada) %}
+    {% set gps = model %}
 
     {{
         check_gps_treatment_query(
