@@ -40,7 +40,7 @@ schema:
     - type: library
       metric: duplicateValues
       mustBe: 0
-      description: Todos os valores da coluna `identificacao` são únicos
+      description: Todos os valores da coluna `identificacao` são únicos na captura
   - name: cnpj
     physicalType: STRING
     description: CNPJ da entidade credenciadora associada ao guardador de veículo
