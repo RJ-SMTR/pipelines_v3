@@ -284,6 +284,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__integracao
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - id_integracao
@@ -492,6 +494,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__transacao_valor_ordem
           config:
+            description: "Todos os registros são únicos"
             where: data_ordem in ({partitions})
           arguments:
             combination_of_columns:
@@ -499,6 +502,8 @@ models:
               - id_transacao
       - transacao_valor_ordem_completa:
           name: transacao_valor_ordem_completa__transacao_valor_ordem
+          config:
+            description: "Todas ordens estão presentes na tabela"
     columns:
       - name: data_ordem
         description: "{{ doc('data_transacao') }} [partição]"

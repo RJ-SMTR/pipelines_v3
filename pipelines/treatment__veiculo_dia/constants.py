@@ -17,23 +17,6 @@ from pipelines.treatment__monitoramento_veiculo import constants as monitorament
 
 VEICULO_DIA_INCREMENTAL_DELAY_HOURS = 24 * 7
 
-VEICULO_DIA_CHECKS_LIST = {
-    "veiculo_dia": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils__unique_combination_of_columns__data_id_veiculo__veiculo_dia": {
-            "description": "Todos os registros são únicos"
-        },
-        "dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia": {
-            "description": "Todas as datas possuem dados"
-        },
-        "test_check_veiculo_lacre__veiculo_dia": {
-            "description": "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e veiculo_fiscalizacao_lacre"
-        },
-        "dbt_utils__not_constant__status__veiculo_dia": {
-            "description": "Nenhum dia possui o mesmo status para todos os veículos"
-        },
-    }
-}
 
 wait_monitoramento_veiculo = deepcopy(
     monitoramento_veiculo_constants.MONITORAMENTO_VEICULO_SELECTOR
@@ -45,7 +28,6 @@ wait_cadastro_veiculo.incremental_delay_hours = -VEICULO_DIA_INCREMENTAL_DELAY_H
 
 VEICULO_DIA_TEST = DBTTest(
     test_select="veiculo_dia",
-    test_descriptions=VEICULO_DIA_CHECKS_LIST,
     truncate_date=True,
 )
 

@@ -63,7 +63,7 @@ class Dataset(GCPBase):
             dataset_obj = bigquery.Dataset(dataset_full_name)
             dataset_obj.location = self.location
             print(f"Creating dataset {dataset_full_name} | location: {self.location}")
-            self.client("bigquery").create_dataset(dataset_obj)
+            self.client("bigquery").create_dataset(dataset_obj, exists_ok=True)
             print("Dataset created!")
         else:
             print("Dataset already exists")
@@ -229,6 +229,8 @@ class SourceTable(BQTable):
             negativo, cria partição de data e de hora
         max_recaptures (int): número máximo de recapturas executadas de uma só vez
         raw_filetype (str): tipo do dado (json, csv, txt)
+        file_chunk_size (Optional[int]): tamanho de página ou de chunk de leitura
+        partition_key (str): chave Hive da partição de data
         validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
         data_contract_model (Optional[str]): Modelo dbt; padrão ``staging_<table_id>``.
         data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do contrato de dados.
@@ -251,6 +253,7 @@ class SourceTable(BQTable):
         max_recaptures: int = 60,
         raw_filetype: str = "json",
         file_chunk_size: Optional[int] = None,
+        partition_key: str = "data",
         validate_data_contract: bool = False,
         data_contract_model: Optional[str] = None,
         data_contract_ignored_columns: tuple[str, ...] = (),
@@ -267,6 +270,7 @@ class SourceTable(BQTable):
         self.raw_filetype = raw_filetype
         self.primary_keys = primary_keys
         self.partition_date_only = partition_date_only
+        self.partition_key = partition_key
         self.max_recaptures = max_recaptures
         self.first_timestamp = convert_timezone(first_timestamp)
         self.pretreatment_reader_args = pretreatment_reader_args
@@ -285,6 +289,7 @@ class SourceTable(BQTable):
             flow_folder_path = Path(inspect.stack()[2].filename).parent
 
             flow_name = flow_folder_path.name
+            self.flow_folder_name = flow_name
 
         else:
             flow_name = self.flow_folder_name
@@ -389,7 +394,10 @@ class SourceTable(BQTable):
         files = []
         file_length = 23
         for day in days_to_check:
-            prefix = f"source/{self.dataset_id}/{self.table_id}/data={day.date().isoformat()}/"
+            prefix = (
+                f"source/{self.dataset_id}/{self.table_id}/"
+                f"{self.partition_key}={day.date().isoformat()}/"
+            )
             files = files + [
                 convert_timezone(
                     datetime.strptime(b.name.split("/")[-1], "%Y-%m-%d-%H-%M-%S.csv").replace(
@@ -446,8 +454,26 @@ class SourceTable(BQTable):
             sample_filepath=sample_filepath
         )
 
-        client.create_table(bq_table)
+        client.create_table(bq_table, exists_ok=True)
         print("Table created!")
+
+    def get_logs_table(self) -> "SourceTable":
+        """
+        Retorna a tabela externa com os logs de captura da fonte
+
+        Returns:
+            SourceTable: Tabela de logs no mesmo ambiente da fonte
+        """
+        return SourceTable(
+            source_name=self.source_name,
+            table_id=f"{self.table_id}_logs",
+            first_timestamp=self.first_timestamp,
+            flow_folder_name=self.flow_folder_name,
+            bucket_names=self.bucket_names,
+            partition_date_only=self.partition_date_only,
+            partition_key=self.partition_key,
+            raw_filetype="csv",
+        ).set_env(self.env)
 
     def append(self, source_filepath: str, partition: str, if_exists: str = "replace"):
         """

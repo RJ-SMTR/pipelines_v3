@@ -13,7 +13,7 @@ with
     ordem_servico_trajeto_alternativo as (
         select
             fi.feed_version,
-            safe_cast(o.data_versao as date) feed_start_date,
+            o.data_versao feed_start_date,
             fi.feed_end_date,
             safe_cast(tipo_os as string) tipo_os,
             safe_cast(evento as string) evento,
@@ -33,17 +33,15 @@ with
         from
             {{
                 source(
-                    "br_rj_riodejaneiro_gtfs_staging",
+                    "source_gtfs",
                     "ordem_servico_trajeto_alternativo",
                 )
             }} o
-        left join
-            {{ ref("feed_info_gtfs") }} fi
-            on o.data_versao = cast(fi.feed_start_date as string)
+        left join {{ ref("feed_info_gtfs") }} fi on o.data_versao = fi.feed_start_date
         where
-            date(o.data_versao) < date("{{ var('DATA_GTFS_V5_INICIO') }}")
+            o.data_versao < date("{{ var('DATA_GTFS_V5_INICIO') }}")
             {% if is_incremental() -%}
-                and date(o.data_versao) = date("{{ var('data_versao_gtfs') }}")
+                and o.data_versao = date("{{ var('data_versao_gtfs') }}")
                 and date(fi.feed_start_date) = date("{{ var('data_versao_gtfs') }}")
             {%- endif %}
     )

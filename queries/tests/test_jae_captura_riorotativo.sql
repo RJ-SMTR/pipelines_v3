@@ -1,3 +1,5 @@
+{{ config(description="Captura da Jaé sem timestamps ausentes") }}
+
 with
     table_ids as (
         select table_id

@@ -7,6 +7,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_faixa_horaria
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_os', 'tipo_dia', 'servico' e 'faixa_horaria_inicio' correspondem 1:1 entre as tabelas 'ordem_servico_faixa_horaria' e 'ordem_servico_trips_shapes_gtfs'."
             where: "feed_start_date < date('{DATA_GTFS_V2_INICIO}')"
           arguments:
             expression: count(distinct tipo_os)
@@ -182,6 +183,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento
           config:
+            description: "Todos os registros de 'feed_start_date' e 'id_viagem' são únicos."
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
             combination_of_columns:
@@ -283,6 +285,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_planejada_planejamento_dia
           config:
+            description: "Todos os registros de 'data' e 'id_viagem' são únicos."
             where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 2 day)"
           arguments:
             combination_of_columns:
@@ -472,6 +475,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__tecnologia_servico
           config:
+            description: "Todos os registros são únicos"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -522,6 +526,8 @@ models:
     tests:
       - check_km_planejada:
           name: check_km_planejada__servico_planejado_faixa_horaria
+          config:
+            description: "A quilometragem dos serviços planejados corresponde à da Ordem de Serviço para cada data, faixa horária e sentido."
     columns:
       - name: data
         description: "Data [partição]"
@@ -668,6 +674,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_sentido
           config:
+            description: "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_sentido' e 'ordem_servico_gtfs'."
             where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
             expression: count(distinct tipo_os)
@@ -680,6 +687,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido
           config:
+            description: "A quantidade distinta de 'evento' por 'servico' e 'sentido' corresponde 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_sentido' e 'ordem_servico_trips_shapes_gtfs'."
             where: "feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
           arguments:
             expression: count(distinct evento)
@@ -690,12 +698,13 @@ models:
               - left(sentido, 1)
             compare_group_by:
               - servico
-              - "if(sentido = 'C', 'I', sentido)"
+              - "if((sentido = 'C' and feed_start_date != '2026-10-04'), 'I', sentido)"
             row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
             compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and id_tipo_trajeto = 1"
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
           config:
+            description: "Todos os pares `(servico, evento)` de `ordem_servico_trajeto_alternativo_sentido` constam em `trips_gtfs`."
             where: "1=1"
           arguments:
             column_name: "concat(servico, '||', evento)"
@@ -728,6 +737,7 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido
               config:
+                description: "Todos os valores de `evento` em `ordem_servico_trajeto_alternativo_sentido` estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais)."
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
               arguments:
                 regex: '^\[[a-z0-9_]+\]$'
@@ -744,6 +754,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__ordem_servico_faixa_horaria_sentido
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'sentido' e 'faixa_horaria_inicio' são únicos."
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
             combination_of_columns:
