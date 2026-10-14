@@ -16,5 +16,5 @@ pull_request_rules:
       comment:
         message: "@{{author}} this PR has conflicts 😩"
       label:
-        add:
+        toggle:
           - conflict
