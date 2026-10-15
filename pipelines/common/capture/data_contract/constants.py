@@ -20,7 +20,8 @@ CHECK_DESCRIPTIONS = {
     "field_null_values": "Todos os valores da coluna `{field}` não nulos",
     "field_duplicate_values": "Todos os valores da coluna `{field}` são únicos",
     "field_invalid_values": "Todos os valores da coluna `{field}` estão entre os aceitos",
-    "row_count": "Quantidade de linhas do arquivo conforme o contrato",
+    "primary_key_unique": "Todas as combinações da chave primária ({columns}) são únicas",
+    "row_count": "Quantidade de linhas do arquivo {threshold}",
     "field_relationships": "Todos os valores da coluna `{field}` existem em `{reference}`",
 }
 METRIC_LABELS = {
