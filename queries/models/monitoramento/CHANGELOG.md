@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.4.2] - 2026-10-15
+
+### Alterado
+
+- Corrige o tratamento GPS da Maxtrack para usar as partições de captura em `staging_gps_v2_maxtrack` e restringir a leitura de `aux_gps_filtrada_v2_onibus_maxtrack` à janela de processamento, preservando a recomposição das partições existentes e a data do evento em `gps_v2_onibus_maxtrack` (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+
 ## [2.4.1] - 2026-10-15
 
 ### Adicionado
