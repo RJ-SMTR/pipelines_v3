@@ -4,11 +4,11 @@
 
 ### Alterado
 
-- Descomenta tabela do bloqueios no modelo `guardador_veiculo_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
+- Descomenta tabela de bloqueios no modelo `guardador_veiculo_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
 
 ### Removido
 
-- Remove `enabled=False` dos modelo `staging_lista_bloqueio_riorotativo.sql`, `staging_perfil_funcionamento_excecao_riorotativo.sql` e `perfil_funcionamento_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
+- Remove `enabled=False` dos modelos `staging_lista_bloqueio_riorotativo.sql`, `staging_perfil_funcionamento_excecao_riorotativo.sql` e `perfil_funcionamento_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
 
 ## [1.2.5] - 2026-10-14
 
