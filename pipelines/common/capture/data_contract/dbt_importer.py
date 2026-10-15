@@ -63,7 +63,8 @@ def dbt_test_quality(
         dict[str, list[dict[str, Any]]]: Regras convertidas, agrupadas por coluna.
 
     Raises:
-        ValueError: Teste de regex com mostly ou flags, que o contrato não representa.
+        ValueError: Teste de regex sem regex, ou com mostly ou flags, que o contrato não
+            representa.
     """
     rules = {}
     for node in manifest["nodes"].values():
@@ -84,6 +85,8 @@ def dbt_test_quality(
         elif test_name == "dbt_expectations.expect_column_values_to_match_regex":
             if kwargs.get("mostly", 1) != 1 or kwargs.get("flags"):
                 raise ValueError(f"{node['name']}: mostly e flags não são suportados no contrato")
+            if "regex" not in kwargs:
+                raise ValueError(f"{node['name']}: regex ausente no teste")
             rule["arguments"] = {"pattern": kwargs["regex"]}
         description = config.get("description") or node.get("description")
         if description:
