@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.4.1] - 2026-10-15
+
+### Adicionado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` (sistema RIO) na quinzena `2026-09-16` a `2026-09-30`, com data limite de envio em `2026-10-14` [Processo SEI 000301.016828_2026_32].
+
 ## [2.4.0] - 2026-10-14
 
 ### Adicionado

@@ -21,7 +21,7 @@ unit_tests:
           2026-09-15,v_a,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-09-15,v_b,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,B2-123,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-09-15,v_incompativel,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,A2-008,trip-1,route-1,shape-1,100,I,conecta,maxtrack
-          2026-09-16,v_apos_corte,2026-09-16 08:00:00,2026-09-16 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
+          2026-10-02,v_apos_corte,2026-10-02 08:00:00,2026-10-02 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-08-23,v_antes_excecao,2026-08-23 08:00:00,2026-08-23 09:00:00,onibus,A2-007,trip-1,route-1,shape-1,100,I,maxtrack,maxtrack
           2026-09-15,v_brt,2026-09-15 08:00:00,2026-09-15 09:00:00,onibus,BRT-001,trip-1,route-1,shape-1,100,I,brt,maxtrack
 
@@ -42,7 +42,7 @@ unit_tests:
           2026-09-15,2026-09-15 08:30:00,2801,99999,veiculo_invalido,-22.9,-43.2
           2026-09-15,2026-09-15 08:30:00,2801,,veiculo_nulo,-22.9,-43.2
           2026-09-15,2026-09-15 08:30:00,2801,8,fonte_incompativel,-22.9,-43.2
-          2026-09-16,2026-09-16 08:30:00,2801,7,apos_corte,-22.9,-43.2
+          2026-10-02,2026-10-02 08:30:00,2801,7,apos_corte,-22.9,-43.2
           2026-08-23,2026-08-23 08:30:00,2801,7,antes_excecao,-22.9,-43.2
           2026-09-15,2026-09-15 08:40:00,2801,7,,-22.9,-43.2
 
