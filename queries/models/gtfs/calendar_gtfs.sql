@@ -18,22 +18,18 @@ select
     fi.feed_version,
     c.data_versao feed_start_date,
     fi.feed_end_date,
-    safe_cast(c.service_id as string) service_id,
-    safe_cast(json_value(c.content, '$.monday') as string) monday,
-    safe_cast(json_value(c.content, '$.tuesday') as string) tuesday,
-    safe_cast(json_value(c.content, '$.wednesday') as string) wednesday,
-    safe_cast(json_value(c.content, '$.thursday') as string) thursday,
-    safe_cast(json_value(c.content, '$.friday') as string) friday,
-    safe_cast(json_value(c.content, '$.saturday') as string) saturday,
-    safe_cast(json_value(c.content, '$.sunday') as string) sunday,
-    parse_date(
-        '%Y%m%d', safe_cast(json_value(c.content, '$.start_date') as string)
-    ) start_date,
-    parse_date(
-        '%Y%m%d', safe_cast(json_value(c.content, '$.end_date') as string)
-    ) end_date,
+    c.service_id,
+    c.monday,
+    c.tuesday,
+    c.wednesday,
+    c.thursday,
+    c.friday,
+    c.saturday,
+    c.sunday,
+    parse_date('%Y%m%d', c.start_date) start_date,
+    parse_date('%Y%m%d', c.end_date) end_date,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "calendar") }} c
+from {{ ref("staging_calendar") }} c
 join {{ ref("feed_info_gtfs") }} fi on c.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
