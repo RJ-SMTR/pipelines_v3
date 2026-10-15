@@ -58,7 +58,7 @@ models:
     config:
       meta:
         datacontract_cli:
-          primaryKey: [service_id]
+          primaryKey: [data_versao, service_id]
     columns:
       - name: data_versao
         description: "{{ doc('data_versao') }} (partição)"
@@ -112,7 +112,7 @@ models:
     config:
       meta:
         datacontract_cli:
-          primaryKey: [servico, sentido, tipo_os, evento]
+          primaryKey: [data_versao, servico, sentido, tipo_os, evento]
     columns:
       - name: data_versao
         description: "{{ doc('data_versao') }} (partição)"
