@@ -2,10 +2,10 @@
 
 ## [1.2.1] - 2026-10-15
 
-### Alterado
+### Corrigido
 
 - Corrige `gps_staging_registros_v2` para preservar `data` e `hora` das partições de captura e adiciona à versão 2 de `gps_aux_filtrada` os filtros de captura e de `datetime_gps` usados na versão 1, reduzindo a leitura do histórico da Maxtrack no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
-- Altera `gps_tratamento_v2` para derivar `data` e `hora` de `datetime_gps` na tabela final, como na versão 1 (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Corrige `gps_tratamento_v2` para derivar `data` e `hora` de `datetime_gps` na tabela final, como na versão 1 (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
 
 ## [1.2.0] - 2026-10-14
 
