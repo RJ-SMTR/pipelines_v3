@@ -149,6 +149,17 @@ with
             a.id_perfil_funcionamento as ids_perfil_funcionamento
         from {{ ref("area_estacionamento_riorotativo") }} a
     ),
+    perfil_funcionamento_excecao as (
+        select *
+        from {{ ref("perfil_funcionamento_riorotativo_historico") }}
+        {% if is_incremental() %}
+            where
+                {% if verificacao_partitions | length > 0 %}
+                    data in ({{ verificacao_partitions | join(", ") }})
+                {% else %} false
+                {% endif %}
+        {% endif %}
+    ),
     verificacao as (
         select
             date(f.data_fiscalizacao) as data,
@@ -242,17 +253,38 @@ with
             )
         qualify row_number() over (partition by id_verificacao order by priority) = 1
     ),
+    verificacao_perfil_excecao as (
+
+        select
+            v.data,
+            v.id_verificacao,
+            v.datetime_verificacao,
+            v.id_area,
+            v.indicador_vaga_vigente,
+            case
+                when countif(p.id_area is not null) > 0
+                then array_agg(p.id_perfil_funcionamento)
+                else array_concat_agg(v.ids_perfil_funcionamento)
+            end as ids_perfil_funcionamento
+        from verificacao_join_area_estacionamento v
+        left join
+            perfil_funcionamento_excecao p
+            on v.datetime_verificacao between p.datetime_inicio and p.datetime_fim
+            and v.id_area = p.id_area
+        group by all
+
+    ),
     verificacao_join_area_perfil as (
         select
             v.id_verificacao,
             v.id_area,
-            indicador_vaga_vigente,
+            v.indicador_vaga_vigente,
             max(
                 extract(dayofweek from v.data) in unnest(p.dias_semana)
                 and time(v.datetime_verificacao)
                 between p.horario_inicio and p.horario_fim
             ) as indicador_vaga_perfil_funcionamento_ativo
-        from verificacao_join_area_estacionamento v
+        from verificacao_perfil_excecao v
         left join
             {{ ref("perfil_funcionamento_riorotativo") }} p
             on p.id_perfil_funcionamento in unnest(v.ids_perfil_funcionamento)
