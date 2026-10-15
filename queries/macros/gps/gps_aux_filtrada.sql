@@ -3,6 +3,16 @@
         {% set gps_partitions = get_date_hour_partitions(staging_gps) %}
     {% endif %}
 
+    {% if "23:59:59" in var("date_range_end") %}
+        {% set partition_filter %}
+        ({{ generate_date_hour_partition_filter(var('date_range_start'), add_to_datetime(var("date_range_end"), seconds=1)) }})
+        {% endset %}
+    {% else %}
+        {% set partition_filter %}
+        ({{ generate_date_hour_partition_filter(var('date_range_start'), var('date_range_end')) }})
+        {% endset %}
+    {% endif %}
+
     with
         box as (
             /* Geometria de caixa que contém a área do município de Rio de Janeiro.*/
@@ -11,7 +21,14 @@
         ),
         gps as (
             select *, st_geogpoint(longitude, latitude) posicao_veiculo_geo
-            {% if versao == 2 %} from {{ staging_gps }}
+            {% if versao == 2 %}
+                from {{ staging_gps }}
+                where
+                    {{ partition_filter }}
+                    and datetime_gps
+                    between datetime("{{ var('date_range_start') }}") and datetime(
+                        "{{ var('date_range_end') }}"
+                    )
             {% else %} from ({{ gps_aux_realocacao(staging_gps, staging_realocacao) }})
             {% endif %}
         ),

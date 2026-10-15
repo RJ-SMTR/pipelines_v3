@@ -2,20 +2,8 @@
     with
         source_data as (
             select
-                date(
-                    datetime(
-                        safe_cast(json_value(content, "$.datetime") as timestamp),
-                        "America/Sao_Paulo"
-                    )
-                ) as data,
-                extract(
-                    hour
-                    from
-                        datetime(
-                            safe_cast(json_value(content, "$.datetime") as timestamp),
-                            "America/Sao_Paulo"
-                        )
-                ) as hora,
+                data,
+                hora,
                 safe_cast(id_registro as string) as id_registro,
                 datetime(
                     safe_cast(json_value(content, "$.datetime") as timestamp),

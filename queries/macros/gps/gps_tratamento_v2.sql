@@ -30,8 +30,8 @@
         ),
         novos_dados as (
             select
-                r.data,
-                r.hora,
+                date(r.datetime_gps) as data,
+                extract(hour from r.datetime_gps) as hora,
                 r.id_registro,
                 r.datetime_gps,
                 r.datetime_envio,
