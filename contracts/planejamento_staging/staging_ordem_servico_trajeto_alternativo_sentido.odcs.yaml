@@ -28,7 +28,7 @@ schema:
     primaryKeyPosition: 2
   - name: consorcio
     physicalType: STRING
-    description: Nome do consórcio responsável pelo serviço
+    description: Consórcio ao qual o serviço pertence
     logicalType: string
   - name: tipo_os
     physicalType: STRING
