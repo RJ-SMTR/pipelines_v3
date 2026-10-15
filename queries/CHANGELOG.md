@@ -4,6 +4,8 @@
 
 ### Corrigido
 
+- Corrige a recomposição incremental de `gps_aux_filtrada` (v1 e v2), `gps_tratamento` e `gps_tratamento_v2` para preservar os registros existentes em todas as datas da janela de processamento, inclusive na virada do dia ou quando não há novas capturas em uma das datas (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Preserva também a partição de captura do dia seguinte na filtrada quando `date_range_end` termina em `23:59:59`, acompanhando a expansão de um segundo já usada na leitura da origem (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
 - Corrige `gps_staging_registros_v2` para preservar `data` e `hora` das partições de captura e adiciona à versão 2 de `gps_aux_filtrada` os filtros de captura e de `datetime_gps` usados na versão 1, reduzindo a leitura do histórico da Maxtrack no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
 - Corrige `gps_tratamento_v2` para derivar `data` e `hora` de `datetime_gps` na tabela final, como na versão 1 (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
 

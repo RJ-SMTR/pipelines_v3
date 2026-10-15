@@ -1,13 +1,13 @@
 {% macro gps_aux_filtrada(staging_gps, staging_realocacao=none, versao=1) %}
-    {% if execute and is_incremental() %}
-        {% set gps_partitions = get_date_hour_partitions(staging_gps) %}
-    {% endif %}
-
     {% if "23:59:59" in var("date_range_end") %}
+        {% set partition_range_end = add_to_datetime(
+            var("date_range_end"), seconds=1
+        ) %}
         {% set partition_filter %}
-        ({{ generate_date_hour_partition_filter(var('date_range_start'), add_to_datetime(var("date_range_end"), seconds=1)) }})
+        ({{ generate_date_hour_partition_filter(var('date_range_start'), partition_range_end) }})
         {% endset %}
     {% else %}
+        {% set partition_range_end = var("date_range_end") %}
         {% set partition_filter %}
         ({{ generate_date_hour_partition_filter(var('date_range_start'), var('date_range_end')) }})
         {% endset %}
@@ -62,12 +62,15 @@
             select *, 0 as priority
             from filtrada
 
-            {% if is_incremental() and gps_partitions | length > 0 %}
+            {% if is_incremental() %}
                 union all
 
                 select *, 1 as priority
                 from {{ this }}
-                where data in ({{ gps_partitions | join(", ") }})
+                where
+                    data between date('{{ var("date_range_start") }}') and date(
+                        '{{ partition_range_end }}'
+                    )
             {% endif %}
         )
     select * except (priority)

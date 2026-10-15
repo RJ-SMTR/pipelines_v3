@@ -1,8 +1,4 @@
 {% macro gps_tratamento_v2(staging_gps, aux_gps_filtrada) %}
-    {% if execute and is_incremental() %}
-        {% set gps_partitions = get_date_hour_partitions(staging_gps) %}
-    {% endif %}
-
     with
         registros as (
             select *
@@ -90,7 +86,7 @@
             select *
             from novos_dados
 
-            {% if is_incremental() and gps_partitions | length > 0 %}
+            {% if is_incremental() %}
                 union all
 
                 select
@@ -128,7 +124,10 @@
                     datetime_captura,
                     1 as priority
                 from {{ this }}
-                where data in ({{ gps_partitions | join(", ") }})
+                where
+                    data between date('{{ var("date_range_start") }}') and date(
+                        '{{ var("date_range_end") }}'
+                    )
             {% endif %}
         )
     select
