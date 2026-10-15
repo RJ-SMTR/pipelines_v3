@@ -472,6 +472,8 @@ sources:
     tables:
       - name: registros
       - name: realocacao
+      - name: registros_sistema_rio
+        description: "Posições GPS da Conecta para o Sistema RIO, separadas da captura SPPO."
 
   - name: source_zirix
     database: rj-smtr-staging
