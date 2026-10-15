@@ -1,5 +1,11 @@
 # Changelog - capture__riorotativo_credenciados
 
+## [1.0.3] - 2026-10-14
+
+### Adicionado
+
+- Ativa captura dos bloqueios
+
 ## [1.0.2] - 2026-10-05
 
 ### Adicionado

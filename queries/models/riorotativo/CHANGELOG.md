@@ -1,5 +1,15 @@
 # Changelog - riorotativo
 
+## [1.2.4] - 2026-10-14
+
+### Alterado
+
+- Descomenta tabela do bloqueios no modelo `guardador_veiculo_riorotativo_historico.sql`
+
+### Removido
+
+- Remove `enabled=False` dos modelo `staging_lista_bloqueio_riorotativo.sql`, `staging_perfil_funcionamento_excecao_riorotativo.sql` e `perfil_funcionamento_riorotativo_historico.sql`
+
 ## [1.2.3] - 2026-10-05
 
 ### Adicionado

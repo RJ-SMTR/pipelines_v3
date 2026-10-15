@@ -1,5 +1,11 @@
 # Changelog - riorotativo_interno
 
+## [1.0.3] - 2026-10-15
+
+### Adicionado
+
+- Adiciona lógica de exceção do perfil de funcionamento no modelo `verificacao_guardador_veiculo_riorotativo.sql`
+
 ## [1.0.2] - 2026-09-01
 
 ### Alterado

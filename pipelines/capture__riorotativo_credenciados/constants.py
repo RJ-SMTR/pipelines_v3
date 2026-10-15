@@ -57,10 +57,16 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
                 dtypes=str,
                 pretreatment_reader_args={"dtype": "object"},
             ),
-            # GoogleSheetTable(
-            #     table_id="lista_bloqueio",
-            #     sheet_name="lista_bloqueio",
-            #     primary_keys=["cpf", "decisao_bloqueio"], considerar adicionar motivo como pk
+            GoogleSheetTable(
+                table_id="lista_bloqueio",
+                sheet_name="lista_bloqueio",
+                primary_keys=["cpf", "decisao_bloqueio"],
+                dtypes=str,
+                pretreatment_reader_args={"dtype": "object"},
+                first_timestamp=datetime(
+                    2026, 10, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
+                ),
+            ),
         ],
     )
 )
