@@ -1,9 +1,14 @@
 # Changelog - capture__riorotativo_credenciados
 
-## [1.0.3] - 2026-10-14
+## [1.0.4] - 2026-10-15
 
 ### Adicionado
 
+- Ativa captura dos bloqueios (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
+
+## [1.0.3] - 2026-10-14
+
+### Adicionado
 - Envia as falhas da validação do contrato de dados ao Google Chat (`google_chat_riorotativo`) em prod (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
 
 ### Alterado
