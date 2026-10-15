@@ -58,7 +58,7 @@ with
                             date("2026-09-16") as data_inicio,
                             date("2026-09-30") as data_fim,
                             "maxtrack" as fonte_viagem,
-                            date("2026-10-15") as data_limite_envio
+                            date("2026-10-14") as data_limite_envio
                         )
                     ] as array<
                         struct<

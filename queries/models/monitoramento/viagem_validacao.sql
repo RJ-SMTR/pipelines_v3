@@ -231,7 +231,7 @@ with
                                 )
                                 and c.datetime_processamento is not null
                                 and date(c.datetime_processamento)
-                                        <= e.data_limite_envio
+                                <= e.data_limite_envio
                         )
                     {% endif %}
                 ),
