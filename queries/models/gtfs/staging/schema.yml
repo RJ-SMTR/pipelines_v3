@@ -18,16 +18,16 @@ models:
         description: "{{ doc('data_versao') }} (partição)"
         data_type: date
       - name: feed_publisher_name
-        description: "Nome completo da organização que publica o conjunto de dados"
+        description: "{{ doc('feed_publisher_name') }}"
         data_type: string
       - name: feed_publisher_url
-        description: "URL do site da organização que publica o conjunto de dados"
+        description: "{{ doc('feed_publisher_url') }}"
         data_type: string
       - name: feed_lang
-        description: "Idioma padrão usado para o texto neste conjunto de dados"
+        description: "{{ doc('feed_lang') }}"
         data_type: string
       - name: default_lang
-        description: "Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro"
+        description: "{{ doc('default_lang') }}"
         data_type: string
       - name: feed_start_date
         description: "Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)"
@@ -39,10 +39,10 @@ models:
         description: "{{ doc('feed_version') }}"
         data_type: string
       - name: feed_contact_email
-        description: "Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados"
+        description: "{{ doc('feed_contact_email') }}"
         data_type: string
       - name: feed_contact_url
-        description: "URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados"
+        description: "{{ doc('feed_contact_url') }}"
         data_type: string
       - name: feed_id
         description: "Identificador do conjunto de dados GTFS"
@@ -64,7 +64,7 @@ models:
         description: "{{ doc('data_versao') }} (partição)"
         data_type: date
       - name: service_id
-        description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
+        description: "{{ doc('service_id') }}"
         data_type: string
         data_tests:
           - dbt_expectations.expect_column_values_to_match_regex:
@@ -75,25 +75,25 @@ models:
               arguments:
                 regex: "^([USD]_|EXCEP)"
       - name: monday
-        description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
+        description: "{{ doc('monday') }}"
         data_type: string
       - name: tuesday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras"
+        description: "{{ doc('tuesday') }}"
         data_type: string
       - name: wednesday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras"
+        description: "{{ doc('wednesday') }}"
         data_type: string
       - name: thursday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras"
+        description: "{{ doc('thursday') }}"
         data_type: string
       - name: friday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras"
+        description: "{{ doc('friday') }}"
         data_type: string
       - name: saturday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados"
+        description: "{{ doc('saturday') }}"
         data_type: string
       - name: sunday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos"
+        description: "{{ doc('sunday') }}"
         data_type: string
       - name: start_date
         description: "Dia inicial do intervalo de serviço (YYYYMMDD)"
