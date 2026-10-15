@@ -62,8 +62,8 @@ schema:
       mustBe: 0
       arguments:
         pattern: ^\[[a-z0-9_]+\]$
-      description: Todos os valores de `evento` em `ordem_servico_trajeto_alternativo_sentido`
-        estão no formato `[a-z0-9_]` (sem acentos ou caracteres especiais).
+      description: Todos os valores de `evento` em `staging_ordem_servico_trajeto_alternativo_sentido`
+        estão no formato `[a-z0-9_]`, entre colchetes (sem acentos ou caracteres especiais).
   - name: descricao
     physicalType: STRING
     description: Descrição sobre o trajeto alternativo
