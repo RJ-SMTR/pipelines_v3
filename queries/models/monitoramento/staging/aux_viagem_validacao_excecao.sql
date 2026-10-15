@@ -3,6 +3,8 @@
 /*
 Para uma única data, use a mesma data em data_inicio e data_fim.
 Fonte de viagem nula aplica a exceção a todos os fornecedores.
+datetime_limite_envio, quando preenchido, substitui data_limite_envio
+e vale inclusive, no horário de America/Sao_Paulo (GMT-3).
 */
 with
     dados_manuais as (
@@ -77,6 +79,24 @@ with
                     >
                 )
             )
+    ),
+    -- Processo SEI_000301.016828_2026_32
+    -- Sistema RIO (maxtrack), setembro Q2: processamento até 2026-10-15T12:00:00 GMT-3
+    excecao_rio as (
+        select
+            date("2026-09-16") as data_inicio,
+            date("2026-09-30") as data_fim,
+            "maxtrack" as fonte_viagem,
+            cast(null as date) as data_limite_envio,
+            datetime("2026-10-15T12:00:00") as datetime_limite_envio
     )
-select data_inicio, data_fim, fonte_viagem, data_limite_envio
+select
+    data_inicio,
+    data_fim,
+    fonte_viagem,
+    data_limite_envio,
+    cast(null as datetime) as datetime_limite_envio
 from dados_manuais
+union all
+select data_inicio, data_fim, fonte_viagem, data_limite_envio, datetime_limite_envio
+from excecao_rio

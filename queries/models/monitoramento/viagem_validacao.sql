@@ -230,8 +230,15 @@ with
                                     or e.fonte_viagem = c.fonte_viagem
                                 )
                                 and c.datetime_processamento is not null
-                                and date(c.datetime_processamento)
-                                <= e.data_limite_envio
+                                and case
+                                    when e.datetime_limite_envio is not null
+                                    then
+                                        c.datetime_processamento
+                                        <= e.datetime_limite_envio
+                                    else
+                                        date(c.datetime_processamento)
+                                        <= e.data_limite_envio
+                                end
                         )
                     {% endif %}
                 ),
