@@ -1,10 +1,4 @@
-{{
-    config(
-        materialized="view",
-        schema="gtfs_staging",
-        alias="ordem_servico_trajeto_alternativo_sentido",
-    )
-}}
+{{ config(alias="ordem_servico_trajeto_alternativo_sentido") }}
 
 select
     safe_cast(data_versao as date) as data_versao,
