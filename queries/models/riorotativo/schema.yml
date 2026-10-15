@@ -588,6 +588,8 @@ models:
           name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo_historico
           arguments:
             expression: "(id_area is null) != (id_perfil_funcionamento is null)"
+          config:
+            description: Todos os registros com id_area ou id_perfil_funcionamento preenchidos
     columns:
       - name: id_perfil_funcionamento_historico
         description: Identificador único do registro de histórico (hash de data, perfil, área e decisão)
