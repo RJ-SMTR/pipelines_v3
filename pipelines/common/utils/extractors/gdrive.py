@@ -13,6 +13,7 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.pretreatment import normalize_text
+from pipelines.common.utils.utils import is_running_locally
 
 
 def get_google_api_service(service_name: str, version: str, scopes: Optional[list[str]] = None):
@@ -38,7 +39,7 @@ def get_google_api_service(service_name: str, version: str, scopes: Optional[lis
             service_name, ["https://www.googleapis.com/auth/drive.readonly"]
         )
 
-    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ or is_running_locally():
         creds, _ = default(scopes=scopes)
     else:
         creds = service_account.Credentials.from_service_account_file(
