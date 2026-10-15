@@ -1,8 +1,8 @@
 version: 1.0.0
 kind: DataContract
 apiVersion: v3.1.0
-id: urn:datacontract:gtfs_staging:staging_ordem_servico_trajeto_alternativo_sentido
-name: gtfs_staging/staging_ordem_servico_trajeto_alternativo_sentido
+id: urn:datacontract:planejamento_staging:staging_ordem_servico_trajeto_alternativo_sentido
+name: planejamento_staging/staging_ordem_servico_trajeto_alternativo_sentido
 status: active
 schema:
 - name: staging_ordem_servico_trajeto_alternativo_sentido
@@ -11,7 +11,7 @@ schema:
     Uma linha por serviço, sentido, tipo de OS e evento por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de trajetos alternativos da OS.
     Fonte: capturas do GTFS (source_gtfs.ordem_servico_trajeto_alternativo_sentido).
   logicalType: object
-  physicalName: rj-smtr.gtfs_staging.ordem_servico_trajeto_alternativo_sentido
+  physicalName: rj-smtr.planejamento_staging.ordem_servico_trajeto_alternativo_sentido
   properties:
   - name: data_versao
     physicalType: DATE
