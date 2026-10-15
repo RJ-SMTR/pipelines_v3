@@ -101,8 +101,11 @@ selectors:
     definition:
       union:
         - method: fqn
+          value: aux_monitoramento_registros_status_trajeto
+        - method: fqn
+          value: view_gps_onibus
+        - method: fqn
           value: viagem_inferida
-          parents: true
         - method: fqn
           value: registros_status_viagem_inferida
         - method: fqn
@@ -113,11 +116,6 @@ selectors:
           value: viagem_valida
         - method: fqn
           value: view_viagem_monitoramento
-        - exclude:
-            - method: fqn
-              value: gtfs
-            - method: fqn
-              value: planejamento
 
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
@@ -453,44 +451,125 @@ selectors:
       method: fqn
       value: snapshot_autuacao
 
-  - name: gps
-    description: Materialização das tabelas de gps
+  - name: gps_conecta
+    description: Materialização das tabelas de GPS da API Conecta
     definition:
       union:
         - method: fqn
-          value: staging_gps.v1
+          value: staging_gps_conecta
         - method: fqn
-          value: staging_realocacao
+          value: staging_realocacao_conecta
         - method: fqn
-          value: staging_garagens
+          value: aux_gps_filtrada_onibus_conecta
         - method: fqn
-          value: aux_gps_filtrada.v1
-        - method: fqn
-          value: gps.v1
+          value: gps_onibus_conecta
 
-  - name: gps_15_minutos
-    description: Materialização das tabelas de gps 15 minutos
+  - name: gps_zirix
+    description: Materialização das tabelas de GPS da API Zirix
     definition:
       union:
         - method: fqn
-          value: staging_gps.v1
+          value: staging_gps_zirix
         - method: fqn
-          value: staging_realocacao
+          value: staging_realocacao_zirix
         - method: fqn
-          value: staging_garagens
+          value: aux_gps_filtrada_onibus_zirix
         - method: fqn
-          value: gps_15_minutos
+          value: gps_onibus_zirix
 
-  - name: gps_v2
-    description: Materialização das tabelas de GPS v2
+  - name: gps_cittati
+    description: Materialização das tabelas de GPS da API Cittati
     definition:
       union:
         - method: fqn
-          value: staging_gps.v2
+          value: staging_gps_cittati
         - method: fqn
-          value: aux_gps_filtrada.v2
+          value: staging_realocacao_cittati
         - method: fqn
-          value: gps.v2
+          value: aux_gps_filtrada_onibus_cittati
+        - method: fqn
+          value: gps_onibus_cittati
+
+  - name: gps_sppo
+    description: Materialização das tabelas de GPS da API SPPO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sppo
+        - method: fqn
+          value: staging_realocacao_sppo
+        - method: fqn
+          value: aux_gps_filtrada_onibus_sppo
+        - method: fqn
+          value: gps_onibus_sppo
+
+  - name: gps_sonda
+    description: Materialização das tabelas de GPS da API Sonda
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sonda
+        - method: fqn
+          value: staging_realocacao_sonda
+        - method: fqn
+          value: aux_gps_filtrada_brt_sonda
+        - method: fqn
+          value: gps_brt_sonda
+
+  - name: gps_15_minutos_conecta
+    description: Materialização das tabelas de GPS 15 minutos da API Conecta
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_conecta
+        - method: fqn
+          value: staging_realocacao_conecta
+        - method: fqn
+          value: gps_15_minutos_onibus_conecta
+
+  - name: gps_15_minutos_zirix
+    description: Materialização das tabelas de GPS 15 minutos da API Zirix
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_zirix
+        - method: fqn
+          value: staging_realocacao_zirix
+        - method: fqn
+          value: gps_15_minutos_onibus_zirix
+
+  - name: gps_15_minutos_cittati
+    description: Materialização das tabelas de GPS 15 minutos da API Cittati
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_cittati
+        - method: fqn
+          value: staging_realocacao_cittati
+        - method: fqn
+          value: gps_15_minutos_onibus_cittati
+
+  - name: gps_15_minutos_sppo
+    description: Materialização das tabelas de GPS 15 minutos da API SPPO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sppo
+        - method: fqn
+          value: staging_realocacao_sppo
+        - method: fqn
+          value: gps_15_minutos_onibus_sppo
+
+  - name: gps_v2_maxtrack
+    description: Materialização das tabelas de GPS v2 da API Maxtrack
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_v2_maxtrack
+        - method: fqn
+          value: aux_gps_filtrada_v2_onibus_maxtrack
+        - method: fqn
+          value: gps_v2_onibus_maxtrack
 
   - name: snapshot_viagem
     definition:
@@ -706,7 +785,9 @@ selectors:
         - method: fqn
           value: staging_area_estacionamento_riorotativo
         - method: fqn
-          value: staging_guardador_veiculo_riorotativo
+          value: staging_guardador_veiculo_05019730000158_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_34152025000122_riorotativo
         - method: fqn
           value: staging_lista_bloqueio_riorotativo
         - method: fqn

@@ -1,10 +1,22 @@
 # Changelog - capture__riorotativo_credenciados
 
-## [1.0.3] - 2026-10-14
+## [1.0.4] - 2026-10-15
 
 ### Adicionado
 
-- Ativa captura dos bloqueios
+- Ativa captura dos bloqueios (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
+
+## [1.0.3] - 2026-10-14
+
+### Adicionado
+- Envia as falhas da validação do contrato de dados ao Google Chat (`google_chat_riorotativo`) em prod (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- Valida cada entidade credenciadora com o contrato do seu staging (`staging_guardador_veiculo_<cnpj>_riorotativo`) (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- O contrato de dados passa a incluir os testes dbt `not_null`, `unique` e `accepted_values` do staging, com as descrições dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- Alertas do contrato de dados não bloqueiam mais o upload ao GCS; apenas falhas (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- Log da validação do contrato traduzido para português (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
 
 ## [1.0.2] - 2026-10-05
 

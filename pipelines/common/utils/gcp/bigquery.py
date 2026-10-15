@@ -63,7 +63,7 @@ class Dataset(GCPBase):
             dataset_obj = bigquery.Dataset(dataset_full_name)
             dataset_obj.location = self.location
             print(f"Creating dataset {dataset_full_name} | location: {self.location}")
-            self.client("bigquery").create_dataset(dataset_obj)
+            self.client("bigquery").create_dataset(dataset_obj, exists_ok=True)
             print("Dataset created!")
         else:
             print("Dataset already exists")
@@ -471,6 +471,7 @@ class SourceTable(BQTable):
             flow_folder_name=self.flow_folder_name,
             bucket_names=self.bucket_names,
             partition_date_only=self.partition_date_only,
+            partition_key=self.partition_key,
             raw_filetype="csv",
         ).set_env(self.env)
 

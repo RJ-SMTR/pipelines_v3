@@ -2,7 +2,9 @@
 """
 Flow de materialização de dados do GPS Maxtrack.
 
-Executa o selector DBT 'gps' para materializar os dados no BigQuery.
+Executa o selector DBT 'gps_v2_maxtrack' para materializar os dados no BigQuery.
+
+DBT: 2026-10-13
 """
 
 from datetime import time
@@ -38,7 +40,7 @@ def treatment__gps_maxtrack(  # noqa: PLR0913
         datetime_end=datetime_end,
         skip_source_check=skip_source_check,
         flags=flags,
-        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
+        additional_vars=additional_vars,
         test_scheduled_time=time(2, 6, 0),
         force_test_run=force_test_run,
     )

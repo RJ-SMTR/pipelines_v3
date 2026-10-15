@@ -1,14 +1,37 @@
 # Changelog - riorotativo
 
-## [1.2.4] - 2026-10-14
+## [1.2.6] - 2026-10-15
 
 ### Alterado
 
-- Descomenta tabela do bloqueios no modelo `guardador_veiculo_riorotativo_historico.sql`
+- Descomenta tabela do bloqueios no modelo `guardador_veiculo_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
 
 ### Removido
 
-- Remove `enabled=False` dos modelo `staging_lista_bloqueio_riorotativo.sql`, `staging_perfil_funcionamento_excecao_riorotativo.sql` e `perfil_funcionamento_riorotativo_historico.sql`
+- Remove `enabled=False` dos modelo `staging_lista_bloqueio_riorotativo.sql`, `staging_perfil_funcionamento_excecao_riorotativo.sql` e `perfil_funcionamento_riorotativo_historico.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/768)
+
+## [1.2.5] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.2.4] - 2026-10-14
+
+### Adicionado
+
+- Cria os modelos `staging_guardador_veiculo_05019730000158_riorotativo.sql` e `staging_guardador_veiculo_34152025000122_riorotativo.sql`, um por entidade credenciadora, sem deduplicação (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- Adiciona o teste `not_null` em `identificacao` e a regra de contrato `duplicateValues` (unicidade por captura) nos stagings de guardadores de veículo (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- Move para `guardador_veiculo_riorotativo_historico.sql` a seleção da última captura de cada dia, com `union` dos stagings por entidade (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- Atualiza `entidade_credenciadora_riorotativo_historico.sql` para os stagings por entidade (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Removido
+
+- Remove o modelo `staging_guardador_veiculo_riorotativo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+- Remove as `policy_tags` dos stagings, que são views e não aplicam policy tags (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
 
 ## [1.2.3] - 2026-10-05
 

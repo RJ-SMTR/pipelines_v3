@@ -8,6 +8,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_id_viagem_planejada__viagem_informada_monitoramento
           config:
+            description: "Cada viagem planejada possui no máximo uma viagem realizada por data."
             where: "tipo_viagem = 'PROGRAMADA' and data between date('{date_range_start}') and date('{date_range_end}') and id_viagem_planejada is not null"
             severity: warn
           arguments:
@@ -17,6 +18,7 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__data_id_viagem_planejada__viagem_informada_monitoramento
           config:
+            description: "Cada par `(data, id_viagem_planejada)` consta em `viagem_planejada_dia`."
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
@@ -28,6 +30,7 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__route_id__viagem_informada_monitoramento
           config:
+            description: "Todo `route_id` informado consta no planejamento da data da viagem."
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
@@ -38,6 +41,7 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__trip_id__viagem_informada_monitoramento
           config:
+            description: "Todo `trip_id` informado consta no planejamento da data da viagem."
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
@@ -49,6 +53,7 @@ models:
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__shape_id__viagem_informada_monitoramento
           config:
+            description: "Todo `shape_id` informado consta no planejamento da data da viagem."
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
             severity: warn
           arguments:
@@ -87,6 +92,7 @@ models:
               name: dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento
               description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
               config:
+                description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
                 where: "fonte_gps = 'maxtrack'"
                 severity: warn
               arguments:
@@ -429,208 +435,571 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
 
-  - name: gps
-    description: "Tabela com os dados tratados de registros de GPS da API {{ var('fonte_gps') }}, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
-    latest_version: 1
-    versions:
-      - v: 1
-        defined_in: gps
+  - name: gps_onibus_conecta
+    description: "Tabela com os dados tratados de registros de GPS da API Conecta, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    tests:
+      - check_gps_treatment:
+          name: check_gps_treatment__gps_onibus_conecta
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+          arguments:
+            registros: staging_gps_conecta
+            aux_filtrada: aux_gps_filtrada_onibus_conecta
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__gps_onibus_conecta
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
         tests:
-          - check_gps_treatment:
-              name: check_gps_treatment__gps
-          - dbt_utils.unique_combination_of_columns:
-              name: dbt_utils__unique_combination_of_columns__gps
-              arguments:
-                combination_of_columns:
-                  - datetime_gps
-                  - id_veiculo
-                  - latitude
-                  - longitude
-        columns:
-          - name: data
-            description: "{{ doc('data_gps') }}"
-          - name: hora
-            description: "{{ doc('hora_gps') }}"
-          - name: datetime_gps
-            description: "{{ doc('datetime_gps') }}"
-            tests:
-              - not_null:
-                  name: not_null__datetime_gps__gps
-          - name: id_veiculo
-            description: "{{ doc('id_veiculo') }}"
-            tests:
-              - not_null:
-                  name: not_null__id_veiculo__gps
-          - name: servico
-            description: "{{ doc('servico') }}"
-            tests:
-              - not_null:
-                  name: not_null__servico__gps
-          - name: latitude
-            description: "{{ doc('latitude_gps') }}"
-            tests:
-              - not_null:
-                  name: not_null__latitude__gps
-          - name: longitude
-            description: "{{ doc('longitude_gps') }}"
-            tests:
-              - not_null:
-                  name: not_null__longitude__gps
-          - name: status
-            description: "{{ doc('status_veiculo_gps') }}"
-            tests:
-              - not_null:
-                  name: not_null__status__gps
-          - name: velocidade_instantanea
-            description: "{{ doc('velocidade_instantanea') }}"
-          - name: velocidade_estimada_10_min
-            description: "{{ doc('velocidade_estimada_10_min') }}"
-          - name: distancia
-            description: "{{ doc('distancia_gps') }}"
-          - name: versao
-            description: "{{ doc('versao') }}"
-          - name: datetime_ultima_atualizacao
-            description: "{{ doc('datetime_ultima_atualizacao') }}"
-      - v: 2
-        defined_in: gps_v2
-        description: "Um registro por sinal de GPS aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps` v2 e enriquecido pelos modelos `aux_gps_*` v2. Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
+          - not_null:
+              name: not_null__datetime_gps__gps_onibus_conecta
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
         tests:
-          - check_gps_treatment_v2:
-              name: check_gps_treatment__gps_v2
-              config:
-                severity: warn
-          - dbt_utils.unique_combination_of_columns:
-              name: dbt_utils__unique_combination_of_columns__id_registro__gps_v2
-              arguments:
-                combination_of_columns:
-                  - id_registro
-        columns:
-          - name: data
-            description: "{{ doc('data_gps') }}"
-            data_type: date
-          - name: hora
-            description: "{{ doc('hora_gps') }}"
-            data_type: int64
-          - name: id_registro
-            description: "{{ doc('id_registro_gps') }}"
-            data_type: string
-            tests:
-              - not_null:
-                  name: not_null__id_registro__gps_v2
-          - name: datetime_gps
-            description: "{{ doc('datetime_gps') }}"
-            data_type: datetime
-            tests:
-              - not_null:
-                  name: not_null__datetime_gps__gps_v2
-          - name: datetime_envio
-            description: "{{ doc('datetime_envio_gps') }}"
-            data_type: datetime
-            tests:
-              - not_null:
-                  name: not_null__datetime_envio__gps_v2
-          - name: datetime_servidor
-            description: "{{ doc('datetime_servidor_gps') }}"
-            data_type: datetime
-          - name: id_veiculo
-            description: "{{ doc('id_veiculo') }}"
-            data_type: string
-            tests:
-              - not_null:
-                  name: not_null__id_veiculo__gps_v2
-          - name: id_equipamento
-            description: "{{ doc('id_equipamento') }}"
-            data_type: string
-          - name: sequencial_equipamento
-            description: "{{ doc('sequencial_equipamento') }}"
-            data_type: int64
-          - name: route_id
-            description: "{{ doc('route_id') }}"
-            data_type: string
-          - name: servico
-            description: "{{ doc('servico') }}"
-            data_type: string
-          - name: id_viagem_planejada
-            description: "{{ doc('id_viagem_planejada') }}"
-            data_type: string
-          - name: trip_id
-            description: "{{ doc('trip_id') }}"
-            data_type: string
-          - name: shape_id
-            description: "{{ doc('shape_id') }}"
-            data_type: string
-          - name: direction_id
-            description: "{{ doc('direction_id') }}"
-            data_type: int64
-          - name: sentido
-            description: "{{ doc('sentido') }}"
-            data_type: string
-          - name: status
-            description: "{{ doc('status_veiculo_gps') }}"
-            data_type: string
-            tests:
-              - not_null:
-                  name: not_null__status__gps_v2
-          - name: qualidade_sinal
-            description: "{{ doc('qualidade_sinal') }}"
-            data_type: string
-          - name: fonte_posicao
-            description: "{{ doc('fonte_posicao') }}"
-            data_type: string
-          - name: fonte_velocidade
-            description: "{{ doc('fonte_velocidade') }}"
-            data_type: string
-          - name: latitude
-            description: "{{ doc('latitude_gps') }}"
-            data_type: float64
-            tests:
-              - not_null:
-                  name: not_null__latitude__gps_v2
-          - name: longitude
-            description: "{{ doc('longitude_gps') }}"
-            data_type: float64
-            tests:
-              - not_null:
-                  name: not_null__longitude__gps_v2
-          - name: altitude
-            description: "{{ doc('altitude_gps') }}"
-            data_type: float64
-          - name: direcao
-            description: "{{ doc('direcao_gps') }}"
-            data_type: float64
-          - name: velocidade_instantanea
-            description: "{{ doc('velocidade_instantanea') }}"
-            data_type: float64
-          - name: velocidade_estimada_10_min
-            description: "{{ doc('velocidade_estimada_10_min') }}"
-            data_type: float64
-          - name: distancia
-            description: "{{ doc('distancia_gps') }}"
-            data_type: float64
-          - name: quantidade_satelites
-            description: "{{ doc('quantidade_satelites') }}"
-            data_type: int64
-          - name: hdop
-            description: "{{ doc('hdop') }}"
-            data_type: float64
-          - name: vdop
-            description: "{{ doc('vdop') }}"
-            data_type: float64
-          - name: pdop
-            description: "{{ doc('pdop') }}"
-            data_type: float64
-          - name: datetime_captura
-            description: "{{ doc('datetime_captura') }}"
-            data_type: datetime
-          - name: datetime_ultima_atualizacao
-            description: "{{ doc('datetime_ultima_atualizacao') }}"
-            data_type: datetime
-          - name: versao
-            description: "{{ doc('versao') }}"
-            data_type: string
+          - not_null:
+              name: not_null__id_veiculo__gps_onibus_conecta
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__gps_onibus_conecta
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_onibus_conecta
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_onibus_conecta
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__status__gps_onibus_conecta
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
 
-  - name: gps_15_minutos
-    description: "Tabela com os dados tratados de registros de GPS da API {{ var('fonte_gps') }}, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+  - name: gps_onibus_zirix
+    description: "Tabela com os dados tratados de registros de GPS da API Zirix, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    tests:
+      - check_gps_treatment:
+          name: check_gps_treatment__gps_onibus_zirix
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+          arguments:
+            registros: staging_gps_zirix
+            aux_filtrada: aux_gps_filtrada_onibus_zirix
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__gps_onibus_zirix
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_onibus_zirix
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_onibus_zirix
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__gps_onibus_zirix
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_onibus_zirix
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_onibus_zirix
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__status__gps_onibus_zirix
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_onibus_cittati
+    description: "Tabela com os dados tratados de registros de GPS da API Cittati, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    tests:
+      - check_gps_treatment:
+          name: check_gps_treatment__gps_onibus_cittati
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+          arguments:
+            registros: staging_gps_cittati
+            aux_filtrada: aux_gps_filtrada_onibus_cittati
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__gps_onibus_cittati
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_onibus_cittati
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_onibus_cittati
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__gps_onibus_cittati
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_onibus_cittati
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_onibus_cittati
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__status__gps_onibus_cittati
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_onibus_sppo
+    description: "Tabela com os dados tratados de registros de GPS da API SPPO, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    tests:
+      - check_gps_treatment:
+          name: check_gps_treatment__gps_onibus_sppo
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+          arguments:
+            registros: staging_gps_sppo
+            aux_filtrada: aux_gps_filtrada_onibus_sppo
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__gps_onibus_sppo
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_onibus_sppo
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_onibus_sppo
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__gps_onibus_sppo
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_onibus_sppo
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_onibus_sppo
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__status__gps_onibus_sppo
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_brt_sonda
+    description: "Tabela com os dados tratados de registros de GPS da API Sonda, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    tests:
+      - check_gps_treatment:
+          name: check_gps_treatment__gps_brt_sonda
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+          arguments:
+            registros: staging_gps_sonda
+            aux_filtrada: aux_gps_filtrada_brt_sonda
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__gps_brt_sonda
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - datetime_gps
+              - id_veiculo
+              - latitude
+              - longitude
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_brt_sonda
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_brt_sonda
+      - name: servico
+        description: "{{ doc('servico') }}"
+        tests:
+          - not_null:
+              name: not_null__servico__gps_brt_sonda
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_brt_sonda
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_brt_sonda
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        tests:
+          - not_null:
+              name: not_null__status__gps_brt_sonda
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_v2_onibus_maxtrack
+    description: "Um registro por sinal de GPS aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps_v2_maxtrack` e enriquecido pelas macros `gps_aux_*` (versão 2 do payload). Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
+    tests:
+      - check_gps_treatment_v2:
+          name: check_gps_treatment__gps_v2_onibus_maxtrack
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+            severity: warn
+          arguments:
+            registros: staging_gps_v2_maxtrack
+            aux_filtrada: aux_gps_filtrada_v2_onibus_maxtrack
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__id_registro__gps_v2_onibus_maxtrack
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - id_registro
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+        data_type: int64
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__gps_v2_onibus_maxtrack
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_v2_onibus_maxtrack
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_envio__gps_v2_onibus_maxtrack
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_v2_onibus_maxtrack
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__status__gps_v2_onibus_maxtrack
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_v2_onibus_maxtrack
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_v2_onibus_maxtrack
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+        data_type: float64
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+        data_type: float64
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+
+  - name: gps_15_minutos_onibus_conecta
+    description: "Tabela com os dados tratados de registros de GPS da API Conecta, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_15_minutos_onibus_zirix
+    description: "Tabela com os dados tratados de registros de GPS da API Zirix, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_15_minutos_onibus_cittati
+    description: "Tabela com os dados tratados de registros de GPS da API Cittati, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+      - name: versao
+        description: "{{ doc('versao') }}"
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+
+  - name: gps_15_minutos_onibus_sppo
+    description: "Tabela com os dados tratados de registros de GPS da API SPPO, incluindo velocidade estimada, estado de movimento, parada em terminal ou garagem e interseção com o traçado da linha informada"
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
@@ -804,6 +1173,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__id_veiculo__veiculo_fiscalizacao_lacre
           config:
+            description: "Todos os registros são únicos para combinação `id_veiculo`, `data_inicio_lacre` e `id_auto_infracao`"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -813,6 +1183,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__placa__veiculo_fiscalizacao_lacre
           config:
+            description: "Todos os registros são únicos para combinação `placa`, `data_inicio_lacre` e `id_auto_infracao`"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -859,6 +1230,7 @@ models:
           - dbt_utils.relationships_where:
               name: dbt_utils__relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre
               config:
+                description: "Todos os ids de auto infração estão na tabela de autuação"
                 where: "1=1"
               arguments:
                 to: ref('autuacao_disciplinar_historico')
@@ -902,6 +1274,7 @@ models:
           - dbt_utils.relationships_where:
               name: dbt_utils__relationships_where__id_auto_infracao__autuacao_disciplinar_historico
               config:
+                description: "Todos as autuações geraram lacre corretamente"
                 where: |
                   data_inclusao_datalake between date('{date_range_start}') and date('{date_range_end}')
                   and data between date('{date_range_start}') and date('{date_range_end}')
@@ -1065,12 +1438,16 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_id_veiculo__veiculo_dia
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
               - id_veiculo
       - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
           name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__veiculo_dia
+          config:
+            description: "Todas as datas possuem dados"
           arguments:
             date_col: data
             row_condition: "1=1"
@@ -1080,6 +1457,8 @@ models:
               date_day >= date('{{ var("data_final_veiculo_arquitetura_1") }}')
       - test_check_veiculo_lacre:
           name: test_check_veiculo_lacre__veiculo_dia
+          config:
+            description: "Todos os veículos lacrados têm dados consistentes entre `veiculo_dia` e `veiculo_fiscalizacao_lacre`"
     columns:
       - name: data
         description: "{{ doc('data_operacao') }}"
@@ -1121,6 +1500,8 @@ models:
               name: not_null__status__veiculo_dia
           - dbt_utils.not_constant:
               name: dbt_utils__not_constant__status__veiculo_dia
+              config:
+                description: "Nenhum dia possui o mesmo status para todos os veículos"
               arguments:
                 group_by_columns:
                   - data
@@ -1196,6 +1577,7 @@ models:
       - test_completude_temperatura:
           name: test_completude__temperatura
           config:
+            description: "Há pelo menos uma temperatura não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
     columns:
       - name: data
@@ -1221,6 +1603,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__veiculo_regularidade_temperatura_dia
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data

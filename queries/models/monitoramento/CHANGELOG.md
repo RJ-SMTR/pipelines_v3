@@ -1,5 +1,28 @@
 # Changelog - monitoramento
 
+## [2.4.0] - 2026-10-14
+
+### Adicionado
+
+- Cria um modelo por tabela física de GPS, sem `alias` dinâmico: `staging_gps_<fonte>`, `staging_realocacao_<fonte>`, `aux_gps_filtrada_<modo>_<fonte>`, `gps_<modo>_<fonte>` e `gps_15_minutos_onibus_<fonte>` para as fontes `conecta`, `zirix`, `sppo` e `sonda`, e `staging_gps_v2_maxtrack`, `aux_gps_filtrada_v2_onibus_maxtrack` e `gps_v2_onibus_maxtrack` para a Maxtrack, mantendo nomes e configurações das tabelas existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Cria os modelos da fonte `cittati` desabilitados (`enabled=false`) (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Alterado
+
+- Altera `view_gps_onibus`, `view_gps_sppo_completo`, `view_gps_brt_completo` e `view_gps_sppo_15_minutos` para referenciar os modelos de GPS com `ref` em vez de `source` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Removido
+
+- Remove os modelos versionados `staging_gps`, `aux_gps_filtrada` e `gps` (v1 e v2), os modelos `staging_realocacao` e `gps_15_minutos` e os modelos efêmeros `aux_gps_realocacao`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (v1 e v2), substituídos pelos modelos por fonte e pelas macros de GPS (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Remove o modelo `gps_15_minutos_union` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Remove as sources `monitoramento.gps_*` substituídas por `ref`, mantendo apenas `gps_onibus_cittati` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+## [2.3.4] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
 ## [2.3.3] - 2026-10-08
 
 ### Alterado
