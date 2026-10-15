@@ -809,13 +809,13 @@ selectors:
         - method: fqn
           value: perfil_funcionamento_riorotativo
         - method: fqn
-          value: perfil_funcionamento_riorotativo_historico
-        - method: fqn
           value: staging_veiculo_cliente_riorotativo
         - method: fqn
           value: staging_veiculo_riorotativo
         - method: fqn
           value: veiculo_riorotativo
+        - method: fqn
+          value: perfil_funcionamento_riorotativo_historico
 
   - name: snapshot_riorotativo_auxiliar
     description: >
