@@ -262,7 +262,7 @@ with
             v.id_area,
             v.indicador_vaga_vigente,
             case
-                when countif(p.id_perfil_funcionamento is not null) > 0
+                when countif(p.id_area is not null) > 0
                 then array_agg(p.id_perfil_funcionamento)
                 else array_concat_agg(v.ids_perfil_funcionamento)
             end as ids_perfil_funcionamento
