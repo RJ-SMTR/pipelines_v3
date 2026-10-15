@@ -92,7 +92,8 @@ def check_description(check: Any) -> str:
     Usa a description da regra de qualidade que originou o check e, na ausência, uma
     descrição padrão pelo tipo do check. Sem correspondência, mantém o nome do datacontract.
     Em relationships, a coluna referenciada vem do nome do check, único lugar do resultado
-    que a informa.
+    que a informa. Nos checks do modelo, sem coluna, as colunas da chave e o limite vêm dos
+    diagnostics do check.
 
     Args:
         check (Any): Check do resultado do teste do contrato.
@@ -105,9 +106,16 @@ def check_description(check: Any) -> str:
         if rule.get("description"):
             return rule["description"]
     template = CHECK_DESCRIPTIONS.get(check.type)
-    if template is not None and check.field is not None:
+    if template is not None and (check.field is not None or "{field}" not in template):
+        diagnostics = check.diagnostics or {}
         reference = (check.name or "").partition(" missing from ")[2]
-        return template.format(field=check.field, reference=reference)
+        columns = ", ".join(f"`{column}`" for column in diagnostics.get("columns") or [])
+        return template.format(
+            field=check.field,
+            reference=reference,
+            columns=columns,
+            threshold=diagnostics.get("threshold", ""),
+        ).strip()
     return check.name
 
 
