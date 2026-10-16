@@ -1,0 +1,4 @@
+[project]
+name = "control__profiling_baseline"
+version = "0.1.0"
+description = "Flow vazio instrumentado para medir o consumo de recursos baseline de um Prefect flow"
