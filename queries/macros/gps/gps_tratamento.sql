@@ -1,4 +1,9 @@
 {% macro gps_tratamento(staging_gps, aux_gps_filtrada) %}
+    {% set incremental_filter %}
+        data between
+            date('{{ var("date_range_start") }}')
+            and date('{{ var("date_range_end") }}')
+    {% endset %}
     with
         registros as (
             select
@@ -13,9 +18,7 @@
                 longitude,
             from {{ aux_gps_filtrada }}
             where
-                data between date('{{ var("date_range_start") }}') and date(
-                    '{{ var("date_range_end") }}'
-                )
+                {{ incremental_filter }}
                 and datetime_gps
                 between datetime('{{ var("date_range_start") }}') and datetime(
                     '{{ var("date_range_end") }}'
@@ -85,10 +88,7 @@
 
                 select * except (versao, datetime_ultima_atualizacao), 1 as priority
                 from {{ this }}
-                where
-                    data between date('{{ var("date_range_start") }}') and date(
-                        '{{ var("date_range_end") }}'
-                    )
+                where {{ incremental_filter }}
             {% endif %}
         )
     select
