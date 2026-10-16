@@ -11,7 +11,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 REGISTROS_SOURCE = SourceTable(
     source_name=CONECTA_SOURCE_NAME,
     table_id="registros_sistema_rio",
-    first_timestamp=datetime(2026, 10, 15, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
+    first_timestamp=datetime(2026, 10, 16, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="capture__conecta_sistema_rio_registros",
     primary_keys=["id_registro"],
     partition_date_only=False,
