@@ -13,6 +13,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__documento_cnpj__guardador_veiculo_riorotativo
           config:
+            description: "Cada combinação de documento e CNPJ é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -21,6 +22,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__cnpj_numero_identificacao__guardador_veiculo_riorotativo
           config:
+            description: "Cada combinação de CNPJ e número de identificação é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -40,6 +42,7 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo
               config:
+                description: "Todos os documentos possuem exatamente 11 dígitos numéricos"
                 where: "1=1"
               arguments:
                 regex: "^[0-9]{11}$"
@@ -96,7 +99,7 @@ models:
       com o status do dia (ativo ou bloqueado).
       Histórico diário incremental, idempotente e reexecutável por período (date_range_start/date_range_end).
       Use documento e data para junções; id_guardador_veiculo_historico é a chave única.
-      Fonte: staging_guardador_veiculo_riorotativo e staging_lista_bloqueio_riorotativo, enriquecidas com
+      Fonte: staging_guardador_veiculo_<cnpj>_riorotativo (última captura do dia) e staging_lista_bloqueio_riorotativo, enriquecidas com
       cliente_jae e entidade_credenciadora_riorotativo_historico.
       Bloqueado exige vigência na data (data entre data_inicio_bloqueio e data_fim_bloqueio).
       Documento bloqueado que não está na lista de guardadores de veículo não gera registro.
@@ -127,6 +130,8 @@ models:
               name: not_null__numero_identificacao__guardador_veiculo_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__guardador_veiculo_riorotativo_historico
+              config:
+                description: "Todos os números de identificação possuem exatamente 4 dígitos numéricos"
               arguments:
                 regex: "^[0-9]{4}$"
       - name: documento
@@ -139,6 +144,8 @@ models:
               name: not_null__documento__guardador_veiculo_riorotativo_historico
           - dbt_expectations.expect_column_values_to_match_regex:
               name: dbt_expectations__expect_column_values_to_match_regex__documento__guardador_veiculo_riorotativo_historico
+              config:
+                description: "Todos os documentos possuem exatamente 11 dígitos numéricos"
               arguments:
                 regex: "^[0-9]{11}$"
       - name: tipo_documento
@@ -370,13 +377,14 @@ models:
       Cada execução observa o valor corrente e abre nova vigência quando ele muda.
       A versão vigente tem data_fim_vigencia nula.
       CNPJ que deixa de aparecer nas stagings mantém a última vigência aberta.
-      Os CNPJs acompanhados são os observados em staging_guardador_veiculo_riorotativo e
+      Os CNPJs acompanhados são os observados em staging_guardador_veiculo_<cnpj>_riorotativo e
       staging_agente_verificacao_riorotativo.
       Use cnpj e a vigência para junções.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__entidade_credenciadora_riorotativo_historico
           config:
+            description: "Cada combinação de CNPJ e data de início de vigência é única"
             where: "1=1"
           arguments:
             combination_of_columns:
@@ -506,6 +514,7 @@ models:
       - dbt_utils.expression_is_true:
           name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo
           config:
+            description: "Todos os dias da semana estão entre 1 e 7"
             where: "1=1"
           arguments:
             expression: "(select count(1) from unnest(dias_semana) as dia_semana where dia_semana not between 1 and 7) = 0"
@@ -579,6 +588,8 @@ models:
           name: dbt_utils__expression_is_true__perfil_funcionamento_riorotativo_historico
           arguments:
             expression: "(id_area is null) != (id_perfil_funcionamento is null)"
+          config:
+            description: Todos os registros com id_area ou id_perfil_funcionamento preenchidos
     columns:
       - name: id_perfil_funcionamento_historico
         description: Identificador único do registro de histórico (hash de data, perfil, área e decisão)

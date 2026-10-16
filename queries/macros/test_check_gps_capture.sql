@@ -49,13 +49,7 @@
             left join logs on logs.timestamp_array = t.timestamp_array
             where logs.sucesso is not true
         {%- else -%}
-            {%- if table_id == "registros" -%}
-                -- depends_on: {{ ref('staging_gps', v=1) }}
-                {% set table_ref = ref("staging_gps", v=1) %}
-            {%- else -%}
-                -- depends_on: {{ ref('staging_realocacao') }}
-                {% set table_ref = ref("staging_realocacao") %}
-            {%- endif -%}
+            {% set table_ref = model %}
             with
                 t as (
                     select datetime(timestamp_array) as timestamp_array
@@ -94,8 +88,7 @@
 {%- endtest %}
 
 {% test check_gps_capture_v2(model, table_id, interval) -%}
-    -- depends_on: {{ ref('staging_gps', v=2) }}
-    {% set table_ref = ref("staging_gps", v=2) %}
+    {% set table_ref = model %}
     {%- if execute -%}
         with
             t as (

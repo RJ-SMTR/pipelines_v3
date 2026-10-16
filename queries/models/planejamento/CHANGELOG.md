@@ -1,5 +1,17 @@
 # Changelog - planejamento
 
+## [1.9.3] - 2026-10-14
+
+### Corrigido
+
+- Corrige os trajetos alternativos do Sistema RIO em `viagem_planejada_planejamento`, usando a extensão de `extensao_shape` quando a extensão da Ordem de Serviço estiver nula ou zerada e associando viagens e alternativas com `tipo_os` nulo (https://github.com/RJ-SMTR/pipelines_v3/pull/766)
+
+## [1.9.2] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
 ## [1.9.1] - 2026-10-13
 
 ### Alterado

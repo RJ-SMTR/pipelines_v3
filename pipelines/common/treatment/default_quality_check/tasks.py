@@ -96,7 +96,7 @@ def task_run_dbt_tests(
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]],
     env: Optional[str] = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict, list[dict]]:
     """
     Executa o DBT test
 
@@ -110,9 +110,10 @@ def task_run_dbt_tests(
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
+        list[dict]: Resultados dos testes com tabela e descrição.
     """
 
-    log, dbt_vars = run_dbt_tests(
+    return run_dbt_tests(
         dbt_test=dbt_test,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
@@ -120,36 +121,34 @@ def task_run_dbt_tests(
         env=env,
     )
 
-    return log, dbt_vars
-
 
 @task(cache_policy=NO_CACHE)
 def task_dbt_test_notify_discord(  # noqa: PLR0913
-    dbt_test: DBTTest,
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    test_results: Optional[list[dict]] = None,
 ):
     """
     Processa os resultados dos testes do dbt e envia notificações para o Discord.
 
     Args:
-        dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        test_results (Optional[list[dict]]): Resultados retornados por run_dbt_tests.
     """
     dbt_test_notify_discord(
-        dbt_test=dbt_test,
         dbt_vars=dbt_vars,
         dbt_logs=dbt_logs,
         webhook_key=webhook_key,
         raise_check_error=raise_check_error,
         additional_mentions=additional_mentions,
+        test_results=test_results,
     )
 
 

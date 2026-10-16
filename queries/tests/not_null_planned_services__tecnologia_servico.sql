@@ -1,3 +1,9 @@
+{{
+    config(
+        description="Todos os valores das colunas `maior_tecnologia_permitida` e `menor_tecnologia_permitida` não nulos"
+    )
+}}
+
 with
     tecnologia_servico as (
         select *

@@ -14,6 +14,8 @@ from pipelines.common.capture.google_sheets.utils import (
 
 RIOROTATIVO_SOURCE_NAME = "riorotativo"
 RIOROTATIVO_CREDENCIADOS_SPREADSHEET_ID = "1pAQ59MuY9cLgYfc3pbyg1hH7RCBy1nDDZCSfVAd2DIw"
+RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY = "google_chat_riorotativo"
+
 RIOROTATIVO_PRIVATE_BUCKET_NAMES = {
     "prod": "rj-smtr-riorotativo-private",
     "dev": "rj-smtr-dev-private",
@@ -42,7 +44,7 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
                 sheet_name="05019730000158",
                 primary_keys=["cpf"],
                 validate_data_contract=True,
-                data_contract_model="staging_guardador_veiculo_riorotativo",
+                data_contract_model="staging_guardador_veiculo_05019730000158_riorotativo",
                 data_contract_ignored_columns=["cnpj"],
                 dtypes=str,
                 pretreatment_reader_args={"dtype": "object"},
@@ -52,15 +54,21 @@ RIOROTATIVO_CREDENCIADOS_SOURCES, RIOROTATIVO_CREDENCIADOS_EXTRA_PARAMETERS = (
                 sheet_name="34152025000122",
                 primary_keys=["cpf"],
                 validate_data_contract=True,
-                data_contract_model="staging_guardador_veiculo_riorotativo",
+                data_contract_model="staging_guardador_veiculo_34152025000122_riorotativo",
                 data_contract_ignored_columns=["cnpj"],
                 dtypes=str,
                 pretreatment_reader_args={"dtype": "object"},
             ),
-            # GoogleSheetTable(
-            #     table_id="lista_bloqueio",
-            #     sheet_name="lista_bloqueio",
-            #     primary_keys=["cpf", "decisao_bloqueio"], considerar adicionar motivo como pk
+            GoogleSheetTable(
+                table_id="lista_bloqueio",
+                sheet_name="lista_bloqueio",
+                primary_keys=["cpf", "decisao_bloqueio"],
+                dtypes=str,
+                pretreatment_reader_args={"dtype": "object"},
+                first_timestamp=datetime(
+                    2026, 10, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
+                ),
+            ),
         ],
     )
 )

@@ -16,7 +16,13 @@
 {% if execute %}
     {% set staging_partitions_query %}
         select distinct cast(cpf as int64)
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from (
+            select data, cpf
+            from {{ ref("staging_guardador_veiculo_05019730000158_riorotativo") }}
+            union all
+            select data, cpf
+            from {{ ref("staging_guardador_veiculo_34152025000122_riorotativo") }}
+        )
         where cpf is not null {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     {% endset %}
     {% set cpf_partitions = (
@@ -62,14 +68,27 @@
 {% endif %}
 
 with
+    staging_guardador_entidades as (
+        select *
+        from {{ ref("staging_guardador_veiculo_05019730000158_riorotativo") }}
+        union all
+        select *
+        from {{ ref("staging_guardador_veiculo_34152025000122_riorotativo") }}
+    ),
     staging_guardador as (
+        /* mantém a última captura de cada dia por entidade credenciadora e guardador */
         select
             data,
             cpf as documento,
             "CPF" as tipo_documento,
             identificacao as numero_identificacao,
             cnpj
-        from {{ ref("staging_guardador_veiculo_riorotativo") }}
+        from staging_guardador_entidades
+        qualify
+            row_number() over (
+                partition by data, cnpj, cpf order by timestamp_captura desc
+            )
+            = 1
     ),
     credenciados as (
         select data, documento, tipo_documento, numero_identificacao, cnpj
@@ -79,37 +98,27 @@ with
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     bloqueios as (
-        {#
-            TODO: substituir o stub de nulls pelo código comentado quando a
-            captura de lista_bloqueio existir:
-
-            /*
-            considera apenas bloqueios vigentes na data da captura: bloqueio
-            expirado que permanece na lista da fonte não marca o guardador de veículo como
-            bloqueado; se houver mais de um bloqueio vigente, mantém o
-            iniciado mais recentemente
-            */
-            select data, documento, motivo_bloqueio, decisao_bloqueio
-            from {{ ref("staging_lista_bloqueio_riorotativo") }}
-            where
-                data >= data_inicio_bloqueio
-                and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
-                {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
-            qualify
-                row_number() over (
-                    partition by data, documento
-                    order by
-                        data_inicio_bloqueio desc,
-                        ultima_atualizacao desc,
-                        decisao_bloqueio desc
-                )
-                = 1
-        #}
-        select
-            cast(null as date) as data,
-            cast(null as string) as documento,
-            cast(null as string) as motivo_bloqueio,
-            cast(null as string) as decisao_bloqueio
+        /*
+        considera apenas bloqueios vigentes na data da captura: bloqueio
+        expirado que permanece na lista da fonte não marca o guardador de veículo como
+        bloqueado; se houver mais de um bloqueio vigente, mantém o
+        iniciado mais recentemente
+        */
+        select data, documento, motivo_bloqueio, decisao_bloqueio
+        from {{ ref("staging_lista_bloqueio_riorotativo") }}
+        where
+            data >= data_inicio_bloqueio
+            and (data <= data_fim_bloqueio or data_fim_bloqueio is null)
+            {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
+        qualify
+            row_number() over (
+                partition by data, documento
+                order by
+                    data_inicio_bloqueio desc,
+                    ultima_atualizacao desc,
+                    decisao_bloqueio desc
+            )
+            = 1
     ),
     status as (
         /*

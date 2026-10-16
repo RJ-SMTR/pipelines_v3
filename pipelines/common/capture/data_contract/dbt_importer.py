@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Importa metadados dbt e Library Quality Rules de config.meta.datacontract_cli"""
+"""Importa metadados dbt, testes dbt e Library Quality Rules de config.meta.datacontract_cli"""
 
 import copy
 from typing import Any
 
 from datacontract.imports.dbt_importer import import_dbt_manifest
+
+from pipelines.common.capture.data_contract.constants import DBT_TEST_METRICS
 
 
 def _datacontract_meta(node: dict[str, Any]) -> dict[str, Any]:
@@ -42,11 +44,64 @@ def _library_quality(node: dict[str, Any]) -> list[dict[str, Any]]:
     return copy.deepcopy(rules)
 
 
+def dbt_test_quality(
+    manifest: dict[str, Any], model: dict[str, Any]
+) -> dict[str, list[dict[str, Any]]]:
+    """
+    Converte os testes dbt not_null, unique, accepted_values e
+    dbt_expectations.expect_column_values_to_match_regex do modelo em Library Quality Rules.
+
+    O where, o error_if, o warn_if e o row_condition do teste são ignorados, pois o contrato
+    valida um único arquivo bruto. A descrição vem de config.description ou, na ausência, da
+    description do teste.
+
+    Args:
+        manifest (dict[str, Any]): Manifest dbt carregado.
+        model (dict[str, Any]): Node do modelo a importar.
+
+    Returns:
+        dict[str, list[dict[str, Any]]]: Regras convertidas, agrupadas por coluna.
+
+    Raises:
+        ValueError: Teste de regex sem regex, ou com mostly ou flags, que o contrato não
+            representa.
+    """
+    rules = {}
+    for node in manifest["nodes"].values():
+        if node.get("resource_type") != "test" or node.get("attached_node") != model["unique_id"]:
+            continue
+        test_metadata = node.get("test_metadata") or {}
+        test_name = ".".join(
+            part for part in (test_metadata.get("namespace"), test_metadata.get("name")) if part
+        )
+        metric = DBT_TEST_METRICS.get(test_name)
+        if metric is None:
+            continue
+        config = node.get("config") or {}
+        kwargs = test_metadata.get("kwargs") or {}
+        rule = {"type": "library", "metric": metric, "mustBe": 0}
+        if test_name == "accepted_values":
+            rule["arguments"] = {"validValues": list(kwargs["values"])}
+        elif test_name == "dbt_expectations.expect_column_values_to_match_regex":
+            if kwargs.get("mostly", 1) != 1 or kwargs.get("flags"):
+                raise ValueError(f"{node['name']}: mostly e flags não são suportados no contrato")
+            if "regex" not in kwargs:
+                raise ValueError(f"{node['name']}: regex ausente no teste")
+            rule["arguments"] = {"pattern": kwargs["regex"]}
+        description = config.get("description") or node.get("description")
+        if description:
+            rule["description"] = description
+        if str(config.get("severity", "")).lower() == "warn":
+            rule["severity"] = "warning"
+        rules.setdefault(node["column_name"], []).append(rule)
+    return rules
+
+
 def import_contract_from_manifest(
     manifest: dict[str, Any], model: dict[str, Any]
 ) -> dict[str, Any]:
     """
-    Importa o modelo, a chave primária e as Library Quality Rules, sem traduzir testes dbt.
+    Importa o modelo, a chave primária, os testes dbt e as Library Quality Rules.
 
     Args:
         manifest (dict[str, Any]): Manifest dbt carregado.
@@ -56,8 +111,8 @@ def import_contract_from_manifest(
         dict[str, Any]: Contrato ODCS com metadados físicos e regras de qualidade.
 
     Raises:
-        ValueError: As regras de qualidade são incompatíveis ou a primaryKey cita
-            coluna inexistente.
+        ValueError: As regras de qualidade são incompatíveis, ou a primaryKey ou um teste
+            dbt cita coluna inexistente.
     """
     model = copy.deepcopy(model)
     metadata = manifest.get("metadata") or {}
@@ -81,12 +136,16 @@ def import_contract_from_manifest(
         properties[key]["primaryKeyPosition"] = position
 
     schema["quality"] = _library_quality(model)
+    test_rules = dbt_test_quality(manifest, model)
+    missing = [column for column in test_rules if column not in properties]
+    if missing:
+        raise ValueError(f"{model['name']}: testes dbt sem coluna: {', '.join(missing)}")
     for prop in schema["properties"]:
         column = model["columns"][prop["name"]]
         classification = _datacontract_meta(column).get("classification")
         if classification is not None:
             prop["classification"] = classification
-        quality = _library_quality(column)
+        quality = test_rules.get(prop["name"], []) + _library_quality(column)
         if quality:
             prop["quality"] = quality
     return contract
