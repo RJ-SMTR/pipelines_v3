@@ -94,7 +94,7 @@ with
                 then
                     regexp_replace(
                         cd.service_id,
-                        "^[U|S|D]_",
+                        "^[U|S|D|F]_",
                         case
                             when extract(dayofweek from cd.date) = 7
                             then "S_"
@@ -164,11 +164,13 @@ with
             tipo_os,
             case
                 when tipo_dia = "Domingo"
-                then regexp_replace(service_id, "^[U|S]_", "D_")
+                then regexp_replace(service_id, "^[U|S|F]_", "D_")
                 when tipo_dia = "Sabado"
-                then regexp_replace(service_id, "^[U|D]_", "S_")
+                then regexp_replace(service_id, "^[U|D|F]_", "S_")
                 when tipo_dia = "Dia Útil"
-                then regexp_replace(service_id, "^[S|D]_", "U_")
+                then regexp_replace(service_id, "^[S|D|F]_", "U_")
+                when tipo_dia = "Ponto Facultativo"
+                then regexp_replace(service_id, "^[U|S|D]_", "F_")
                 else service_id
             end as service_id,
             feed_start_date
@@ -189,6 +191,8 @@ select
     case
         when c.tipo_dia is not null
         then c.tipo_dia
+        when "F_REG" in unnest(c.service_ids)
+        then "Ponto Facultativo"
         when "D_REG" in unnest(c.service_ids)
         then "Domingo"
         when "S_REG" in unnest(c.service_ids)

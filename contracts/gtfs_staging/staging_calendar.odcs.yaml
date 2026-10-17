@@ -31,8 +31,8 @@ schema:
       metric: invalidValues
       mustBe: 0
       arguments:
-        pattern: ^([USD]_|EXCEP)
-      description: Todos os 'service\_id' começam com 'U\_', 'S\_', 'D\_' ou 'EXCEP'.
+        pattern: ^([USDF]_|EXCEP)
+      description: Todos os 'service\_id' começam com 'U\_', 'S\_', 'D\_', 'F\_' ou 'EXCEP'.
   - name: monday
     physicalType: STRING
     description: Indica se o serviço funciona todas as segundas-feiras no intervalo
