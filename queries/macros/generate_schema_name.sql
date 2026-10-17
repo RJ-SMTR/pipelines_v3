@@ -13,7 +13,7 @@
     {%- endif -%}
 
     {% if target.name == "dev" %}
-        {% set schema_name = env_var("DBT_USER") + "__" + schema_name %}
+        {% set schema_name = env_var("DBT_USER") + "__hmg_abr2025__" + schema_name %}
     {% endif %}
 
     {% if target.name == "hmg" and schema_name.endswith("_staging") %}
