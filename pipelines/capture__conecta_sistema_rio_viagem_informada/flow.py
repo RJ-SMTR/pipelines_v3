@@ -18,8 +18,8 @@ from pipelines.common.utils.prefect import flow
 def capture__conecta_sistema_rio_viagem_informada(
     env: Optional[str] = None,
     timestamp: Optional[str] = None,
-    recapture: bool = False,
-    recapture_days: int = 5,
+    recapture: bool = True,
+    recapture_days: int = 2,
     recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
