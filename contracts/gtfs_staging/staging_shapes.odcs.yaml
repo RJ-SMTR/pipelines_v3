@@ -1,0 +1,52 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_shapes
+name: gtfs_staging/staging_shapes
+status: active
+schema:
+- name: staging_shapes
+  physicalType: view
+  description: |
+    Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
+    Fonte: capturas do GTFS (source_gtfs.shapes).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.shapes
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+  - name: shape_id
+    physicalType: STRING
+    description: Código identificador do shape [trajeto]
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: shape_pt_lat
+    physicalType: STRING
+    description: Latitude de um ponto de forma
+    logicalType: string
+  - name: shape_pt_lon
+    physicalType: STRING
+    description: Longitude de um ponto de forma
+    logicalType: string
+  - name: shape_pt_sequence
+    physicalType: STRING
+    description: Sequência na qual os pontos da forma se conectam para formar a forma
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+  - name: shape_dist_traveled
+    physicalType: STRING
+    description: Distância real percorrida ao longo da forma desde o primeiro ponto
+      da forma até o ponto especificado neste registro
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11
