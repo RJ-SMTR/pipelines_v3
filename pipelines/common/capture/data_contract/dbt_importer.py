@@ -6,7 +6,10 @@ from typing import Any
 
 from datacontract.imports.dbt_importer import import_dbt_manifest
 
-from pipelines.common.capture.data_contract.constants import DBT_TEST_METRICS
+from pipelines.common.capture.data_contract.constants import (
+    DBT_RELATIONSHIP_TESTS,
+    DBT_TEST_METRICS,
+)
 
 
 def _datacontract_meta(node: dict[str, Any]) -> dict[str, Any]:
@@ -97,6 +100,50 @@ def dbt_test_quality(
     return rules
 
 
+def dbt_test_relationships(
+    manifest: dict[str, Any], model: dict[str, Any]
+) -> dict[str, list[dict[str, Any]]]:
+    """
+    Converte os testes dbt relationships e dbt_utils.relationships_where do modelo em
+    relationships do tipo foreignKey.
+
+    O where, o from_condition e o to_condition do teste são ignorados, pois o contrato valida
+    os arquivos brutos de uma única captura. O modelo referenciado vem das dependências do teste.
+
+    Args:
+        manifest (dict[str, Any]): Manifest dbt carregado.
+        model (dict[str, Any]): Node do modelo a importar.
+
+    Returns:
+        dict[str, list[dict[str, Any]]]: Relationships convertidos, agrupados por coluna.
+
+    Raises:
+        ValueError: Teste sem exatamente um modelo referenciado.
+    """
+    relationships = {}
+    for node in manifest["nodes"].values():
+        if node.get("resource_type") != "test" or node.get("attached_node") != model["unique_id"]:
+            continue
+        test_metadata = node.get("test_metadata") or {}
+        test_name = ".".join(
+            part for part in (test_metadata.get("namespace"), test_metadata.get("name")) if part
+        )
+        if test_name not in DBT_RELATIONSHIP_TESTS:
+            continue
+        referenced = [
+            manifest["nodes"][unique_id]["name"]
+            for unique_id in node["depends_on"]["nodes"]
+            if unique_id != model["unique_id"] and unique_id in manifest["nodes"]
+        ]
+        if len(referenced) != 1:
+            raise ValueError(f"{node['name']}: o teste deve referenciar exatamente um modelo")
+        field = test_metadata["kwargs"]["field"]
+        relationships.setdefault(node["column_name"], []).append(
+            {"type": "foreignKey", "to": f"{referenced[0]}.{field}"}
+        )
+    return relationships
+
+
 def import_contract_from_manifest(
     manifest: dict[str, Any], model: dict[str, Any]
 ) -> dict[str, Any]:
@@ -137,7 +184,8 @@ def import_contract_from_manifest(
 
     schema["quality"] = _library_quality(model)
     test_rules = dbt_test_quality(manifest, model)
-    missing = [column for column in test_rules if column not in properties]
+    test_relationships = dbt_test_relationships(manifest, model)
+    missing = [column for column in {*test_rules, *test_relationships} if column not in properties]
     if missing:
         raise ValueError(f"{model['name']}: testes dbt sem coluna: {', '.join(missing)}")
     for prop in schema["properties"]:
@@ -148,4 +196,7 @@ def import_contract_from_manifest(
         quality = test_rules.get(prop["name"], []) + _library_quality(column)
         if quality:
             prop["quality"] = quality
+        relationships = test_relationships.get(prop["name"])
+        if relationships:
+            prop["relationships"] = relationships
     return contract

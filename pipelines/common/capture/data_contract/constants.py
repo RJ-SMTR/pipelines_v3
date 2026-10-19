@@ -12,6 +12,7 @@ DBT_TEST_METRICS = {
     "accepted_values": "invalidValues",
     "dbt_expectations.expect_column_values_to_match_regex": "invalidValues",
 }
+DBT_RELATIONSHIP_TESTS = {"relationships", "dbt_utils.relationships_where"}
 CHECK_DESCRIPTIONS = {
     "field_is_present": "A coluna `{field}` está presente no arquivo",
     "field_type": "A coluna `{field}` tem o tipo esperado",
