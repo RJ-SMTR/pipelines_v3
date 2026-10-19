@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
 from textwrap import wrap
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import quote
 
 import requests
@@ -453,6 +453,129 @@ def adapt_contract_schema(
             properties_by_name[key]["primaryKeyPosition"] = position
 
     return adapted_contract
+
+
+def load_contract(contracts_dir: Path, model: str) -> tuple[Path, dict[str, Any]]:
+    """
+    Carrega o contrato de um modelo a partir do diretório de contratos.
+
+    Args:
+        contracts_dir (Path): Diretório com os contratos baixados.
+        model (str): Nome do modelo dbt do contrato.
+
+    Returns:
+        tuple[Path, dict[str, Any]]: Caminho e conteúdo do contrato.
+
+    Raises:
+        ValueError: Contrato não encontrado.
+    """
+    contract_path = next(contracts_dir.rglob(f"{model}.odcs.yaml"), None)
+    if contract_path is None:
+        raise ValueError(f"Contrato {model} não encontrado em {contracts_dir}.")
+    return contract_path, yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+
+
+def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
+    """
+    Retorna os schemas referenciados pelos relationships do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        set[str]: Nomes dos schemas citados em relationships.to.
+    """
+    names = set()
+    for schema in contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            for relationship in property_.get("relationships") or []:
+                targets = relationship.get("to")
+                targets = targets if isinstance(targets, list) else [targets]
+                names.update(str(target).rsplit(".", 1)[0] for target in targets if target)
+    return names
+
+
+def remove_relationships(
+    contract: dict[str, Any], schema_names: Optional[Iterable[str]] = None
+) -> dict[str, Any]:
+    """
+    Remove os relationships do contrato, todos ou só os que referenciam os schemas informados.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+        schema_names (Optional[Iterable[str]]): Schemas referenciados cujos relationships são
+            removidos. None remove todos.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato sem os relationships removidos.
+    """
+    names = None if schema_names is None else set(schema_names)
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            relationships = [
+                relationship
+                for relationship in property_.pop("relationships", None) or []
+                if names is not None
+                and not {
+                    str(target).rsplit(".", 1)[0]
+                    for target in (
+                        relationship.get("to")
+                        if isinstance(relationship.get("to"), list)
+                        else [relationship.get("to")]
+                    )
+                }
+                & names
+            ]
+            if relationships:
+                property_["relationships"] = relationships
+    return adapted_contract
+
+
+def add_referenced_schema(
+    contract: dict[str, Any], referenced_contract: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    Anexa ao contrato os schemas de outro contrato, apenas como referência dos relationships.
+
+    As regras de qualidade, as chaves e os relationships do schema anexado são removidos,
+    pois ele é validado pela própria fonte.
+
+    Args:
+        contract (dict[str, Any]): Contrato que declara os relationships.
+        referenced_contract (dict[str, Any]): Contrato do schema referenciado.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato com os schemas referenciados.
+    """
+    adapted_contract = deepcopy(contract)
+    for schema in deepcopy(referenced_contract["schema"]):
+        schema.pop("quality", None)
+        for property_ in schema.get("properties", []):
+            for key in ("quality", "relationships", "primaryKey", "primaryKeyPosition"):
+                property_.pop(key, None)
+        adapted_contract["schema"].append(schema)
+    return adapted_contract
+
+
+def link_schema_files(folder: Path, files_by_schema: dict[str, list[str]]) -> str:
+    """
+    Cria links dos arquivos de cada schema em <folder>/<schema>/ para validá-los juntos.
+
+    Args:
+        folder (Path): Diretório temporário dos links.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema.
+
+    Returns:
+        str: Caminho com {model}, usado pelo servidor local para ler cada schema.
+    """
+    for schema_name, filepaths in files_by_schema.items():
+        schema_folder = folder / schema_name
+        schema_folder.mkdir(parents=True, exist_ok=True)
+        for position, filepath in enumerate(filepaths):
+            target = Path(filepath).resolve()
+            (schema_folder / f"{position}{target.suffix}").symlink_to(target)
+    return str(folder / "{model}" / "*")
 
 
 def add_local_server(

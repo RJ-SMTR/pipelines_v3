@@ -7,6 +7,7 @@ from prefect.tasks import Task
 from pipelines.common.capture.data_contract.tasks import (
     check_data_contract,
     download_data_contracts,
+    validate_data_contract_relationships,
     validate_raw_data_contract,
 )
 from pipelines.common.capture.default_capture.tasks import (
@@ -147,8 +148,16 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             context=contexts,
             contracts_dir=unmapped(tasks["data_contracts"]),
         ).result()
-        tasks["check_data_contract"] = check_data_contract(
+        tasks["validate_data_contract_relationships"] = validate_data_contract_relationships(
+            contexts=contexts,
+            contracts_dir=tasks["data_contracts"],
             validations=tasks["validate_raw_data_contract"],
+        )
+        tasks["check_data_contract"] = check_data_contract(
+            validations=[
+                *tasks["validate_raw_data_contract"],
+                tasks["validate_data_contract_relationships"],
+            ],
             env=tasks["env"],
             webhook_key=data_contract_webhook_key,
         )
