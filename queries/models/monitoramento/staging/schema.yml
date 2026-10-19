@@ -227,7 +227,7 @@ models:
         data_type: datetime
 
   - name: staging_gps_v2_maxtrack
-    description: "Tabela com todos os registros de GPS da API Maxtrack, no payload versionado"
+    description: "Tabela com todos os registros de GPS da API Maxtrack"
     tests:
       - check_gps_capture_v2:
           name: check_gps_capture__staging_gps_v2_maxtrack
