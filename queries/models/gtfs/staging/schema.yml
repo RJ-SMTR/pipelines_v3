@@ -104,3 +104,34 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_shapes
+    description: |
+      Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
+      Fonte: capturas do GTFS (source_gtfs.shapes).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [shape_id, shape_pt_sequence]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: shape_pt_lat
+        description: "{{ doc('shape_pt_lat') }}"
+        data_type: string
+      - name: shape_pt_lon
+        description: "{{ doc('shape_pt_lon') }}"
+        data_type: string
+      - name: shape_pt_sequence
+        description: "{{ doc('shape_pt_sequence') }}"
+        data_type: string
+      - name: shape_dist_traveled
+        description: "{{ doc('shape_dist_traveled') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
