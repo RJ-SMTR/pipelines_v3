@@ -6,6 +6,21 @@
 
 select
     data,
+    row_number() over (
+        order by
+            data,
+            tipo,
+            operacao,
+            favorecido,
+            tipo_conta,
+            valor,
+            ano_competencia,
+            mes_competencia,
+            quinzena_semana_competencia,
+            numero_processo,
+            observacoes,
+            numero_nf
+    ) as id_tooltip,
     tipo,
     operacao,
     favorecido,

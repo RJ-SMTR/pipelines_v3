@@ -31,7 +31,7 @@ models:
         description: "{{ doc('mes_competencia_operacao_controle_ctt') }}"
         data_type: int64s
       - name: quinzena_semana_competencia
-        description: "{{ doc('quinzena_semana_competencia') }}"
+        description: "{{ doc('quinzena_semana_competencia_operacao_controle_ctt') }}"
         data_type: strings
       - name: numero_processo
         description: "{{ doc('numero_processo_operacao_controle_ctt') }}"

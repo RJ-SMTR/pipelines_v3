@@ -10,13 +10,13 @@
     {% set ultima_data_captura_query %}
         select
             concat(
-                "'", max(if(conta = 'CETT', date(datetime_captura), null)), "'"
+                "'", max(if(tipo_conta = 'CETT', date(datetime_captura), null)), "'"
             ) as data_cett,
             concat(
-                "'", max(if(conta = 'CB', date(datetime_captura), null)), "'"
+                "'", max(if(tipo_conta = 'CB', date(datetime_captura), null)), "'"
             ) as data_cb,
             concat(
-                "'", max(if(conta = 'CAER', date(datetime_captura), null)), "'"
+                "'", max(if(tipo_conta = 'CAER', date(datetime_captura), null)), "'"
             ) as data_caer,
         from {{ this }}
     {% endset %}
@@ -53,7 +53,7 @@ with
             timestamp_captura as datetime_captura
         from {{ ref("staging_cett") }}
         {% if var_table_exists %}
-            where data_captura >= {{ ultima_data_captura_cett }}
+            where data >= {{ ultima_data_captura_cett }}
         {% endif %}
         qualify timestamp_captura = max(timestamp_captura) over ()
     ),
@@ -78,9 +78,7 @@ with
             'CB' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_cb") }}
-        {% if var_table_exists %}
-            where data_captura >= {{ ultima_data_captura_cb }}
-        {% endif %}
+        {% if var_table_exists %} where data >= {{ ultima_data_captura_cb }} {% endif %}
         qualify timestamp_captura = max(timestamp_captura) over ()
     ),
     caer_staging as (
@@ -100,9 +98,7 @@ with
             'CAER' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_caer") }}
-        {% if var_table_exists %}
-            where data_captura >= {{ ultima_data_captura_cb }}
-        {% endif %}
+        {% if var_table_exists %} where data >= {{ ultima_data_captura_cb }} {% endif %}
         qualify timestamp_captura = max(timestamp_captura) over ()
     ),
     controle_cct_union as (
