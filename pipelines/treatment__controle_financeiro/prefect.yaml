@@ -39,7 +39,7 @@ deployments:
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/treatment__controle_financeiro/flow.py:treatment__controle_financeiro
     schedules:
-      - cron: "0 0 * * *"
+      - cron: "10 0 * * *"
         timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
