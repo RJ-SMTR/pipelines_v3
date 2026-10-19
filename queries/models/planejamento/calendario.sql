@@ -136,6 +136,9 @@ with
                 or (d.dia_semana = 6 and c.friday = '1')
                 or (d.dia_semana = 7 and c.saturday = '1')
             )
+            and (
+                not starts_with(c.service_id, "F_") or d.tipo_dia = "Ponto Facultativo"
+            )
     ),
     service_ids_retirados as (
         select d.*
@@ -169,7 +172,9 @@ with
                 then regexp_replace(service_id, "^[U|D|F]_", "S_")
                 when tipo_dia = "Dia Útil"
                 then regexp_replace(service_id, "^[S|D|F]_", "U_")
-                when tipo_dia = "Ponto Facultativo"
+                when
+                    tipo_dia = "Ponto Facultativo"
+                    and feed_start_date >= date("{{ var('DATA_GTFS_V6_INICIO') }}")
                 then regexp_replace(service_id, "^[U|S|D]_", "F_")
                 else service_id
             end as service_id,
@@ -182,7 +187,7 @@ with
             tipo_dia,
             tipo_os,
             feed_start_date,
-            array_agg(service_id) as service_ids
+            array_agg(distinct service_id) as service_ids
         from service_id_corrigido
         group by 1, 2, 3, 4
     )
