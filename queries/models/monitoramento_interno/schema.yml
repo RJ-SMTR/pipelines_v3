@@ -65,7 +65,7 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
   - name: view_viagem_monitoramento
-    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus."
+    description: "Uma linha por viagem realizada em uma interface histórica para painéis internos. Use `id_viagem` como chave de junção. Fontes: `viagem_completa` para partidas anteriores a `DATA_SUBSIDIO_V25_INICIO` e `viagem_valida` a partir dessa data. A coluna `servico` vem de `servico_realizado` no período legado e de `servico` no pós-V25. O corte considera a data da partida; no período legado, `route_id` não está disponível e `modo` é fixado como Ônibus. `tempo_viagem` vem de `viagem_completa` no período legado e, no pós-V25, é calculado em minutos a partir dos horários de partida e chegada."
     columns:
       - name: data
         description: "{{ doc('data_viagem') }}"

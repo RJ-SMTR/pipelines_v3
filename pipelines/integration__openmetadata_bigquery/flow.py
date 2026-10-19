@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Integra metadados selecionados do BigQuery ao OpenMetadata."""
+"""Integra metadados selecionados do BigQuery ao OpenMetadata"""
 
 from typing import Optional
 

@@ -25,3 +25,55 @@ models:
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
+
+  - name: staging_ordem_servico_trajeto_alternativo_sentido
+    description: |
+      Uma linha por serviço, sentido, tipo de OS e evento por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de trajetos alternativos da OS.
+      Fonte: capturas do GTFS (source_gtfs.ordem_servico_trajeto_alternativo_sentido).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, servico, sentido, tipo_os, evento]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: servico
+        description: "{{ doc('servico_variacao') }}"
+        data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: string
+      - name: evento
+        description: "{{ doc('evento_trajeto_alternativo') }}"
+        data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__evento__staging_ordem_servico_trajeto_alternativo_sentido
+              config:
+                description: "Todos os valores de `evento` em `staging_ordem_servico_trajeto_alternativo_sentido` estão no formato `[a-z0-9_]`, entre colchetes (sem acentos ou caracteres especiais)."
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: '^\[[a-z0-9_]+\]$'
+                is_raw: true
+      - name: descricao
+        description: "{{ doc('descricao_trajeto_alternativo') }}"
+        data_type: string
+      - name: ativacao
+        description: "{{ doc('ativacao_trajeto_alternativo') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string

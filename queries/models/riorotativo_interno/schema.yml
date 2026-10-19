@@ -169,6 +169,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_cpf__ordem_pagamento_guardador_veiculo_dia_riorotativo
           config:
+                description: "Todos os registros são únicos"
                 where: data_ordem in ({partitions})
           arguments:
             combination_of_columns:
@@ -235,6 +236,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_cnpj__ordem_pagamento_entidade_dia_riorotativo
           config:
+                description: "Todos os registros são únicos"
                 where: data_ordem in ({partitions})
           arguments:
             combination_of_columns:

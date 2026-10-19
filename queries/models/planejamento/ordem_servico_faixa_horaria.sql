@@ -40,7 +40,7 @@
 with
     dados as (
         select
-            safe_cast(data_versao as date) as data_versao,
+            data_versao,
             safe_cast(tipo_os as string) as tipo_os,
             safe_cast(servico as string) as servico,
             safe_cast(json_value(content, '$.vista') as string) as vista,
@@ -130,12 +130,7 @@ with
                     {% endif %}
                 {% endfor %}
             {% endfor %}
-        from
-            {{
-                source(
-                    "br_rj_riodejaneiro_gtfs_staging", "ordem_servico_faixa_horaria"
-                )
-            }}
+        from {{ source("source_gtfs", "ordem_servico_faixa_horaria") }}
         {% if is_incremental() -%}
             where data_versao = '{{ var("data_versao_gtfs") }}'
         {% endif %}

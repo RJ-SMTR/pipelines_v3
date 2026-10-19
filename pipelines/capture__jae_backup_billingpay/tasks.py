@@ -109,6 +109,7 @@ def get_table_info(
             ),
             "partition": partition,
             "custom_select": custom_select.get(t),
+            "pk": inspector.get_pk_constraint(t)["constrained_columns"],
         }
         for t in table_names
         if t not in filtered_tables
@@ -143,6 +144,7 @@ def get_table_info(
                             "partition": partition,
                             "custom_select": custom_select.get(table),
                             "redis_save_value": current_count,
+                            "pk": inspector.get_pk_constraint(table)["constrained_columns"],
                         }
                     )
             continue
@@ -179,6 +181,7 @@ def get_table_info(
                 ),
                 "partition": partition,
                 "custom_select": custom_select.get(table),
+                "pk": inspector.get_pk_constraint(table)["constrained_columns"],
             }
         )
 
@@ -279,6 +282,11 @@ def get_raw_backup_billingpay(
 
         if "{filter}" not in sql:
             sql += " WHERE {filter}"
+
+        if "order by" not in sql.lower():
+            pk = table["pk"]
+            pk = pk if len(pk) > 0 else ["1"]
+            sql += f" ORDER BY {', '.join(pk)}"
 
         where = "1=1"
         if table["incremental_type"] == "datetime":

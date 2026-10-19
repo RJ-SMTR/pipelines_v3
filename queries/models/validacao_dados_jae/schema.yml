@@ -10,9 +10,6 @@ models:
       - name: id_integracao
         description: "{{ doc('id_integracao') }}"
         data_type: string
-      - name: integracao_realizada
-        description: String representando a integração realizada [sequência modos da integração separados por "-"]
-        data_type: string
       - name: tempo_integracao_minutos_realizado
         description: Tempo entre a primeira e a última perna da integração
         data_type: int64
@@ -54,6 +51,9 @@ models:
         data_type: datetime
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
+      - name: integracao_realizada_regex
+        description: Expressão regular que representa a integração
         data_type: string
   - name: transacao_invalida
     description: "Tabela para validação dos dados de transação da Jaé"

@@ -2,13 +2,13 @@
 """
 Flow de materialização de dados do GPS cittati
 
-Executa o selector DBT 'gps' para materializar dados no BigQuery.
+Executa o selector DBT 'gps_cittati' para materializar dados no BigQuery.
 
 Schedule:
 - A cada hora, no minuto 6 (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-05-11
+DBT: 2026-10-13
 """
 
 from datetime import time
@@ -43,7 +43,7 @@ def treatment__gps_cittati(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
-        additional_vars=additional_vars or constants.ADDITIONAL_VARS,
+        additional_vars=additional_vars,
         test_scheduled_time=time(2, 6, 0),
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,

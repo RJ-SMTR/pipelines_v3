@@ -274,6 +274,74 @@ String que indica a versão atual do conjunto de dados GTFS
 Data final do feed [versão]
 {% enddocs %}
 
+{% docs feed_publisher_name %}
+Nome completo da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_publisher_url %}
+URL do site da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_lang %}
+Idioma padrão usado para o texto neste conjunto de dados
+{% enddocs %}
+
+{% docs default_lang %}
+Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro
+{% enddocs %}
+
+{% docs feed_contact_email %}
+Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs feed_contact_url %}
+URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs service_id %}
+Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+{% enddocs %}
+
+{% docs monday %}
+Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date
+{% enddocs %}
+
+{% docs tuesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras
+{% enddocs %}
+
+{% docs wednesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras
+{% enddocs %}
+
+{% docs thursday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras
+{% enddocs %}
+
+{% docs friday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras
+{% enddocs %}
+
+{% docs saturday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados
+{% enddocs %}
+
+{% docs sunday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos
+{% enddocs %}
+
+{% docs evento_trajeto_alternativo %}
+Evento relacionado ao trajeto alternativo
+{% enddocs %}
+
+{% docs ativacao_trajeto_alternativo %}
+Modo de ativação do trajeto alternativo
+{% enddocs %}
+
+{% docs descricao_trajeto_alternativo %}
+Descrição sobre o trajeto alternativo
+{% enddocs %}
+
 {% docs tipo_servico %}
 Tipo de serviço da linha, conforme RDO [Relatório Diário de Operação]
 {% enddocs %}
@@ -1811,6 +1879,10 @@ Indicador de atividade do operador no sistema da Jaé
 
 {% docs sentido_shape %}
 Sentido do shape [categorias: I - Ida, V - Volta, C - Circular]
+{% enddocs %}
+
+{% docs tipo_bilhete_unico %}
+Tipo do bilhete único [BUM ou BUC]
 {% enddocs %}
 
 {% docs cnpj_entidade_credenciadora_riorotativo %}

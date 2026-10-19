@@ -1,5 +1,52 @@
 # Changelog - queries
 
+## [1.2.1] - 2026-10-15
+
+### Corrigido
+
+- Corrige a recomposição incremental de `gps_aux_filtrada` (v1 e v2), `gps_tratamento` e `gps_tratamento_v2` para preservar os registros existentes em todas as datas da janela de processamento, inclusive na virada do dia ou quando não há novas capturas em uma das datas (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Preserva também a partição de captura do dia seguinte na filtrada quando `date_range_end` termina em `23:59:59`, acompanhando a expansão de um segundo já usada na leitura da origem (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Corrige `gps_staging_registros_v2` para preservar `data` e `hora` das partições de captura e adiciona à versão 2 de `gps_aux_filtrada` os filtros de captura e de `datetime_gps` usados na versão 1, reduzindo a leitura do histórico da Maxtrack no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Corrige `gps_tratamento_v2` para derivar `data` e `hora` de `datetime_gps` na tabela final, como na versão 1 (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+
+### Removido
+
+- Remove a macro `get_date_hour_partitions`, sem consumidores após a correção da recomposição das partições de GPS (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+
+## [1.2.0] - 2026-10-14
+
+### Adicionado
+
+- Cria macros de GPS em `macros/gps/` (`gps_staging_registros`, `gps_staging_registros_v2`, `gps_staging_realocacao`, `gps_aux_realocacao`, `gps_aux_filtrada`, `gps_aux_velocidade`, `gps_aux_parada`, `gps_aux_trajeto_correto`, `gps_tratamento`, `gps_tratamento_v2` e `gps_15_minutos_tratamento`) com o SQL comum aos modelos de GPS por fonte (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Cria macro `get_date_hour_partitions` para listar as partições de `data` de uma relação no intervalo `date_range_start`/`date_range_end` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Cria selectors `gps_conecta`, `gps_zirix`, `gps_cittati`, `gps_sppo`, `gps_sonda`, `gps_15_minutos_conecta`, `gps_15_minutos_zirix`, `gps_15_minutos_cittati`, `gps_15_minutos_sppo` e `gps_v2_maxtrack` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Alterado
+
+- Altera os testes `check_gps_capture` e `check_gps_capture_v2` para usar o próprio modelo testado e os testes `check_gps_treatment` e `check_gps_treatment_v2` para receber `registros` e `aux_filtrada` como argumentos (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Altera o selector `viagem_inferida` para listar explicitamente `aux_monitoramento_registros_status_trajeto` e `view_gps_onibus`, removendo `parents: true` e as exclusões de `gtfs` e `planejamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Removido
+
+- Remove os selectors `gps`, `gps_15_minutos` e `gps_v2` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Remove as variáveis `15_minutos`, `modo_gps` e `fonte_gps` do `dbt_project.yml` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+## [1.1.12] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes singulares em `tests/` no `config.description`, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.1.11] - 2026-10-14
+
+### Adicionado
+
+- Sobrescreve os testes `not_null`, `unique` e `accepted_values` com descrição padrão em português no `config.description` (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+### Alterado
+
+- Atualiza o selector `riorotativo_auxiliar` com os stagings de guardadores de veículo por entidade credenciadora (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
 ## [1.1.10] - 2026-07-28
 
 ### Adicionado

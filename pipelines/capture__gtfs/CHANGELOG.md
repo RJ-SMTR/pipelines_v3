@@ -1,5 +1,17 @@
 # Changelog - capture__gtfs
 
+## [1.4.2] - 2026-10-14
+
+### Removido
+
+- Remove as descrições dos testes das constantes; as notificações usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.4.1] - 2026-10-07
+
+### Alterado
+
+- Desativa o schedule do deployment de produção, substituído pelo `capture__smtr_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.4.0] - 2026-08-27
 
 ### Adicionado
