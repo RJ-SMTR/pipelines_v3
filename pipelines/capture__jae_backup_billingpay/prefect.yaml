@@ -103,6 +103,10 @@ deployments:
         timezone: America/Sao_Paulo
         parameters:
           database_name: vendas_db
+      - cron: "30 7 * * *"
+        timezone: America/Sao_Paulo
+        parameters:
+          database_name: estacionamento_db
     work_pool:
       name: smtr-pool
       work_queue_name: default

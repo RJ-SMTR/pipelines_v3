@@ -13,7 +13,7 @@ source:
     config:
       type: DatabaseMetadata
       includeTables: true
-      includeViews: false
+      includeViews: true
       includeTags: false
       useFqnForFiltering: false
       databaseFilterPattern:

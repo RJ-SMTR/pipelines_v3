@@ -16,7 +16,7 @@
 
 select
     fi.feed_version,
-    safe_cast(st.data_versao as date) as feed_start_date,
+    st.data_versao as feed_start_date,
     fi.feed_end_date,
     safe_cast(st.trip_id as string) trip_id,
     safe_cast(json_value(st.content, '$.arrival_time') as string) arrival_time,
@@ -37,10 +37,8 @@ select
     ) shape_dist_traveled,
     safe_cast(json_value(st.content, '$.timepoint') as string) timepoint,
     '{{ var("version") }}' as versao_modelo
-from {{ source("br_rj_riodejaneiro_gtfs_staging", "stop_times") }} st
-join
-    {{ ref("feed_info_gtfs") }} fi
-    on st.data_versao = cast(fi.feed_start_date as string)
+from {{ source("source_gtfs", "stop_times") }} st
+join {{ ref("feed_info_gtfs") }} fi on st.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
         st.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')

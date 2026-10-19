@@ -1,5 +1,19 @@
 # Changelog - cadastro
 
+## [1.8.6] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.8.5] - 2026-09-25
+
+### Corrigido
+
+- No preenchimento de lacre e vistoria de `veiculo_licenciamento_dia`, o desempate passa a manter o `data_arquivo_fonte` mais recente e, em seguida, a `data_processamento` mais recente. (https://github.com/RJ-SMTR/pipelines_v3/pull/713)
+
+- O teste `test_check_data_arquivo_licenciamento` compara `data_processamento` mais recente de cada `id_veiculo` e `placa`. (https://github.com/RJ-SMTR/pipelines_v3/pull/713)
+
 ## [1.8.4] - 2026-09-16
 
 ### Corrigido

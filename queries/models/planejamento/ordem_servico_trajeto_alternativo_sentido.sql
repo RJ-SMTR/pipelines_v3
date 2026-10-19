@@ -12,26 +12,18 @@ with
     ordem_servico_trajeto_alternativo as (
         select
             fi.feed_version,
-            safe_cast(o.data_versao as date) feed_start_date,
+            o.data_versao feed_start_date,
             fi.feed_end_date,
-            safe_cast(tipo_os as string) tipo_os,
-            safe_cast(o.servico as string) servico,
-            safe_cast(json_value(o.content, "$.ativacao") as string) ativacao,
-            safe_cast(json_value(o.content, "$.consorcio") as string) consorcio,
-            safe_cast(sentido as string) sentido,
-            safe_cast(json_value(o.content, "$.extensao") as float64) extensao,
-            safe_cast(evento as string) evento,
-            safe_cast(json_value(o.content, "$.vista") as string) vista,
-        from
-            {{
-                source(
-                    "br_rj_riodejaneiro_gtfs_staging",
-                    "ordem_servico_trajeto_alternativo_sentido",
-                )
-            }} o
-        left join
-            {{ ref("feed_info_gtfs") }} fi
-            on o.data_versao = cast(fi.feed_start_date as string)
+            o.tipo_os,
+            o.servico,
+            o.ativacao,
+            o.consorcio,
+            o.sentido,
+            safe_cast(o.extensao as float64) extensao,
+            o.evento,
+            o.vista,
+        from {{ ref("staging_ordem_servico_trajeto_alternativo_sentido") }} o
+        left join {{ ref("feed_info_gtfs") }} fi on o.data_versao = fi.feed_start_date
         {% if is_incremental() -%}
             where
                 o.data_versao = "{{ var('data_versao_gtfs') }}"

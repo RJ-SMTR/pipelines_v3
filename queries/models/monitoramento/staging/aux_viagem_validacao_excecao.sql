@@ -11,6 +11,20 @@ with
             unnest(
                 cast(
                     [
+                        -- Processo SEI_000301.016828_2026_32
+                        struct(
+                            date("2026-09-16") as data_inicio,
+                            date("2026-09-30") as data_fim,
+                            "rioonibus" as fonte_viagem,
+                            date("2026-10-07") as data_limite_envio
+                        ),
+                        -- Processo SEI_000301.016828_2026_32
+                        struct(
+                            date("2026-10-01") as data_inicio,
+                            date("2026-10-15") as data_fim,
+                            "rioonibus" as fonte_viagem,
+                            date("2026-10-21") as data_limite_envio
+                        ),
                         -- Ofício SMTR nº 8656/2026 (Consórcios nº 143/2026)
                         -- Processo 000301.015075/2026-48
                         struct(
@@ -32,6 +46,19 @@ with
                             date("2026-09-15") as data_fim,
                             "rioonibus" as fonte_viagem,
                             date("2026-09-21") as data_limite_envio
+                        ),
+                        struct(
+                            date("2026-08-24") as data_inicio,
+                            date("2026-09-15") as data_fim,
+                            "maxtrack" as fonte_viagem,
+                            date("2026-09-30") as data_limite_envio
+                        ),
+                        -- Processo SEI_000301.016828_2026_32
+                        struct(
+                            date("2026-09-16") as data_inicio,
+                            date("2026-09-30") as data_fim,
+                            "maxtrack" as fonte_viagem,
+                            date("2026-10-14") as data_limite_envio
                         )
                     ] as array<
                         struct<

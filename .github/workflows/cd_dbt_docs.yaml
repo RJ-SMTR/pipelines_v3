@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - staging/*
     paths:
       - "queries/**"
       - ".github/workflows/cd_dbt_docs.yaml"
@@ -70,6 +69,7 @@ jobs:
           test -s queries/target/catalog.json
 
       - name: Upload docs to GCS
+        if: github.ref == 'refs/heads/master'
         run: |
           gsutil -m cp queries/target/static_index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
           gsutil -m cp queries/target/manifest.json gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/

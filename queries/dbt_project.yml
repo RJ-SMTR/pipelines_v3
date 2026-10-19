@@ -53,9 +53,6 @@ vars:
   sppo_registros_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.registros"
   sppo_realocacao_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.realocacao"
   data_inicio_realocacao: "2022-11-15"
-  15_minutos: false
-  modo_gps: "onibus"
-  fonte_gps: "conecta"
   # Parametros de intersecção do ônibus com rota
   ## Tamanho do buffer da rota
   tamanho_buffer_metros: 500 # flag_trajeto_correto
@@ -135,7 +132,7 @@ vars:
   data_processamento_veiculo_licenciamento_dia:
     ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
   # Idade máxima padrão das partições reprocessadas na validação de viagens
-  viagem_validacao_max_age_days: 5
+  viagem_validacao_max_age_days: 6
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
@@ -322,6 +319,10 @@ vars:
   ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
+
+unit_tests:
+  rj_smtr:
+    +compute: local
 
 tests:
   rj_smtr:

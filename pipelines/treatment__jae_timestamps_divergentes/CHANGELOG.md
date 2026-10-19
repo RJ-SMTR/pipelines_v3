@@ -1,5 +1,11 @@
 # Changelog - treatment__jae_timestamps_divergentes
 
+## [1.2.0] - 2026-09-29
+
+### Adicionado
+
+- Adiciona recaptura, tratamento da tabela `fiscalizacao_veiculo` e materialização da ordem de pagamento do Rio Rotativo no flow `treatment__jae_timestamps_divergentes` (https://github.com/RJ-SMTR/pipelines_v3/pull/719)
+
 ## [1.1.1] - 2026-09-22
 
 ### Alterado

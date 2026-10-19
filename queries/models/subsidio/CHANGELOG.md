@@ -1,5 +1,17 @@
 # Changelog - subsidio
 
+## [2.3.9] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [2.3.8] - 2026-09-30
+
+### Corrigido
+
+- Corrigido o modelo `percentual_operacao_faixa_horaria_v2` para manter apenas serviços com `sistema = "SPPO"` a partir de `DATA_SUBSIDIO_V26_INICIO`.(https://github.com/RJ-SMTR/pipelines_v3/pull/723)
+
 ## [2.3.7] - 2026-09-17
 
 ### Alterado
