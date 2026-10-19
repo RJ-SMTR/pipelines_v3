@@ -330,6 +330,34 @@ Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados
 Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos
 {% enddocs %}
 
+{% docs block_id %}
+Identifica o bloco ao qual pertence a viagem
+{% enddocs %}
+
+{% docs wheelchair_accessible %}
+Indica acessibilidade para cadeiras de rodas
+{% enddocs %}
+
+{% docs bikes_allowed %}
+Indica se bicicletas são permitidas
+{% enddocs %}
+
+{% docs shape_pt_lat %}
+Latitude de um ponto de forma
+{% enddocs %}
+
+{% docs shape_pt_lon %}
+Longitude de um ponto de forma
+{% enddocs %}
+
+{% docs shape_pt_sequence %}
+Sequência na qual os pontos da forma se conectam para formar a forma
+{% enddocs %}
+
+{% docs shape_dist_traveled %}
+Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro
+{% enddocs %}
+
 {% docs evento_trajeto_alternativo %}
 Evento relacionado ao trajeto alternativo
 {% enddocs %}

@@ -248,15 +248,15 @@ models:
     description: "Regras para mapear caminhos de deslocamento de veículos, às vezes chamados de alinhamentos de rotas"
     columns:
       - name: shape_id
-        description: "Identifica uma forma"
+        description: "{{ doc('shape_id') }}"
       - name: shape_pt_sequence
-        description: "Sequência na qual os pontos da forma se conectam para formar a forma"
+        description: "{{ doc('shape_pt_sequence') }}"
       - name: shape_pt_lat
-        description: "Latitude de um ponto de forma"
+        description: "{{ doc('shape_pt_lat') }}"
       - name: shape_pt_lon
-        description: "Longitude de um ponto de forma"
+        description: "{{ doc('shape_pt_lon') }}"
       - name: shape_dist_traveled
-        description: "Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro"
+        description: "{{ doc('shape_dist_traveled') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -358,9 +358,9 @@ models:
       - name: trip_short_name
         description: "{{ doc('trip_short_name') }}"
       - name: direction_id
-        description: "Indica a direção de deslocamento de uma viagem"
+        description: "{{ doc('direction_id') }}"
       - name: block_id
-        description: "Identifica o bloco ao qual pertence a viagem"
+        description: "{{ doc('block_id') }}"
       - name: shape_id
         description: "{{ doc('shape_id') }}"
         tests:
@@ -370,9 +370,9 @@ models:
                 description: "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
-        description: "Indica acessibilidade para cadeiras de rodas"
+        description: "{{ doc('wheelchair_accessible') }}"
       - name: bikes_allowed
-        description: "Indica se bicicletas são permitidas"
+        description: "{{ doc('bikes_allowed') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
