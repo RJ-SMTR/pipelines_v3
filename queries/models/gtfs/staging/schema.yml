@@ -105,6 +105,63 @@ models:
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
 
+  - name: staging_trips
+    description: |
+      Uma linha por viagem (trip_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo trips.txt.
+      Fonte: capturas do GTFS (source_gtfs.trips).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [trip_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: service_id
+        description: "{{ doc('service_id') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: trip_headsign
+        description: "{{ doc('trip_headsign') }}"
+        data_type: string
+      - name: trip_short_name
+        description: "{{ doc('trip_short_name') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: string
+      - name: block_id
+        description: "{{ doc('block_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__shape_id__staging_trips
+              config:
+                description: "Todos os `shape_id` de `trips` constam em `shapes`"
+                where: "1=1"
+              arguments:
+                to: ref('staging_shapes')
+                field: shape_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: wheelchair_accessible
+        description: "{{ doc('wheelchair_accessible') }}"
+        data_type: string
+      - name: bikes_allowed
+        description: "{{ doc('bikes_allowed') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
   - name: staging_shapes
     description: |
       Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
