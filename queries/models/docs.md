@@ -2154,7 +2154,7 @@ Nome do favorecido da operação
 {% enddocs %}
 
 {% docs modal_operacao_controle_ctt %}
-modo de transporte do favorecido da operação
+Modo de transporte do favorecido da operação
 {% enddocs %}
 
 {% docs valor_operacao_controle_ctt %}
