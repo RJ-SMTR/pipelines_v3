@@ -109,6 +109,7 @@ vars:
   DATA_GTFS_V2_INICIO: "2025-04-30"
   DATA_GTFS_V4_INICIO: "2025-07-16"
   DATA_GTFS_V5_INICIO: "2025-12-21"
+  DATA_GTFS_V6_INICIO: "2026-10-19"
 
   ### Subsídio SPPO (Ônibus) ###
   buffer: 500 # distância em metros para buffer
