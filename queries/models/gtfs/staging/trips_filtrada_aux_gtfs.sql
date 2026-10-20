@@ -62,6 +62,8 @@ with
                         then "Sabado"
                         when service_id like "%D_%"
                         then "Domingo"
+                        when service_id like "%F_%"
+                        then "Ponto Facultativo"
                         else service_id
                     end as tipo_dia,
                     case
