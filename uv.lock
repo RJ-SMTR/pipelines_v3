@@ -45,11 +45,11 @@ members = [
     "capture-riorotativo-vagas",
     "capture-serpro-autuacao",
     "capture-smtr-controle-financeiro",
+    "capture-smtr-gtfs",
     "capture-sonda-registros",
     "capture-sonda-viagem-informada",
     "capture-sppo-realocacao",
     "capture-sppo-registros",
-    "capture-smtr-gtfs",
     "capture-stu-tabelas",
     "capture-veiculo-fiscalizacao-lacre",
     "capture-veiculo-infracao",
@@ -87,6 +87,7 @@ members = [
     "treatment-gps-15-minutos-zirix",
     "treatment-gps-cittati",
     "treatment-gps-conecta",
+    "treatment-gps-conecta-sistema-rio",
     "treatment-gps-maxtrack",
     "treatment-gps-sonda",
     "treatment-gps-sppo",
@@ -575,6 +576,23 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__smtr_controle_financeiro" }
 
 [[package]]
+name = "capture-smtr-gtfs"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__smtr_gtfs" }
+dependencies = [
+    { name = "google-api-python-client" },
+    { name = "google-auth" },
+    { name = "openpyxl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-api-python-client", specifier = ">=2.0.0" },
+    { name = "google-auth", specifier = ">=2.0.0" },
+    { name = "openpyxl", specifier = ">=3.1.0" },
+]
+
+[[package]]
 name = "capture-sonda-registros"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__sonda_registros" }
@@ -593,23 +611,6 @@ source = { virtual = "pipelines/capture__sppo_realocacao" }
 name = "capture-sppo-registros"
 version = "1.0.0"
 source = { virtual = "pipelines/capture__sppo_registros" }
-
-[[package]]
-name = "capture-smtr-gtfs"
-version = "0.1.0"
-source = { virtual = "pipelines/capture__smtr_gtfs" }
-dependencies = [
-    { name = "google-api-python-client" },
-    { name = "google-auth" },
-    { name = "openpyxl" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "google-api-python-client", specifier = ">=2.0.0" },
-    { name = "google-auth", specifier = ">=2.0.0" },
-    { name = "openpyxl", specifier = ">=3.1.0" },
-]
 
 [[package]]
 name = "capture-stu-tabelas"
@@ -3532,6 +3533,11 @@ source = { virtual = "pipelines/treatment__gps_cittati" }
 name = "treatment-gps-conecta"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_conecta" }
+
+[[package]]
+name = "treatment-gps-conecta-sistema-rio"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_conecta_sistema_rio" }
 
 [[package]]
 name = "treatment-gps-maxtrack"
