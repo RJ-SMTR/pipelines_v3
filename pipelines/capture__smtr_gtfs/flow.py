@@ -31,6 +31,7 @@ async def capture__smtr_gtfs(
         recapture_timestamps=[],
         should_capture_task=should_capture_gtfs,
         skip_data_contract_validation=skip_data_contract_validation,
+        data_contract_webhook_key=constants.GTFS_GOOGLE_CHAT_WEBHOOK_KEY,
     )
 
     if not tasks["should_capture"]:

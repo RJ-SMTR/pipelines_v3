@@ -15,6 +15,7 @@ GTFS_CONTROLE_OS_URL = (
 )
 
 GTFS_DATASET_ID = "br_rj_riodejaneiro_gtfs"
+GTFS_GOOGLE_CHAT_WEBHOOK_KEY = "google_chat_planejamento"
 
 GTFS_TABLE_CAPTURE_PARAMS = {
     "ordem_servico": {"primary_keys": ["servico", "tipo_os"]},
