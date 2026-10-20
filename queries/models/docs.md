@@ -2136,3 +2136,55 @@ Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geome
 {% docs longitude_centroide_area_riorotativo %}
 Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
 {% enddocs %}
+
+{% docs data_operacao_controle_ctt %}
+Data da operação financeira
+{% enddocs %}
+
+{% docs tipo_operacao_controle_ctt %}
+Se a operação é de Entrada ou Saída
+{% enddocs %}
+
+{% docs operacao_controle_ctt %}
+Descrição da operação
+{% enddocs %}
+
+{% docs favorecido_operacao_controle_ctt %}
+Nome do favorecido da operação
+{% enddocs %}
+
+{% docs modal_operacao_controle_ctt %}
+Modo de transporte do favorecido da operação
+{% enddocs %}
+
+{% docs valor_operacao_controle_ctt %}
+Valor financeiro da operação (R$)
+{% enddocs %}
+
+{% docs ano_competencia_operacao_controle_ctt %}
+Ano de competência da operação
+{% enddocs %}
+
+{% docs mes_competencia_operacao_controle_ctt %}
+Mês de competência da operação
+{% enddocs %}
+
+{% docs quinzena_semana_competencia_operacao_controle_ctt %}
+Quinzena ou semana de competência da operação
+{% enddocs %}
+
+{% docs numero_processo_operacao_controle_ctt %}
+Número do processo que gerou a operação
+{% enddocs %}
+
+{% docs observacoes_operacao_controle_ctt %}
+Observações sobre a operação
+{% enddocs %}
+
+{% docs numero_nf_operacao_controle_ctt %}
+Número da nota fiscal da operação
+{% enddocs %}
+
+{% docs tipo_conta_operacao_controle_ctt %}
+Tipo da conta [CETT, CB ou CAER]
+{% enddocs %}
