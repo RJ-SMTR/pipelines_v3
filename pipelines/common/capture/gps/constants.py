@@ -107,7 +107,7 @@ GPS_SOURCE_CONFIGS = {
                     "scheme": "Bearer",
                 },
                 "window": {
-                    "datetime_format": "%Y-%m-%dT%H:%M:%SZ",
+                    "datetime_format": OUTPUT_DATETIME_FORMAT,
                     "start_offset_minutes": 6,
                     "end_offset_minutes": 5,
                     "start_parameter": "datetime_servidor_inicio",
@@ -200,7 +200,7 @@ GPS_SOURCE_CONFIGS = {
             REGISTROS_TABLE_ID: {
                 "endpoint": "posicoes",
                 "window": {
-                    "datetime_format": "%Y-%m-%dT%H:%M:%SZ",
+                    "datetime_format": OUTPUT_DATETIME_FORMAT,
                     "start_offset_minutes": 6,
                     "end_offset_minutes": 5,
                     "start_parameter": "datetime_servidor_inicio",
