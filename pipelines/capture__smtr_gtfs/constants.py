@@ -24,7 +24,10 @@ GTFS_TABLE_CAPTURE_PARAMS = {
         "validate_data_contract": True,
     },
     "ordem_servico_faixa_horaria": {"primary_keys": ["servico", "tipo_os"]},
-    "ordem_servico_faixa_horaria_sentido": {"primary_keys": ["servico", "sentido", "tipo_os"]},
+    "ordem_servico_faixa_horaria_sentido": {
+        "primary_keys": ["servico", "sentido", "tipo_os"],
+        "validate_data_contract": True,
+    },
     "shapes": {"primary_keys": ["shape_id", "shape_pt_sequence"], "validate_data_contract": True},
     "agency": {"primary_keys": ["agency_id"]},
     "calendar_dates": {"primary_keys": ["service_id", "date"]},
