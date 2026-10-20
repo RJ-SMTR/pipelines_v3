@@ -98,7 +98,9 @@ with
             'CAER' as tipo_conta,
             timestamp_captura as datetime_captura
         from {{ ref("staging_caer") }}
-        {% if var_table_exists %} where data >= {{ ultima_data_captura_cb }} {% endif %}
+        {% if var_table_exists %}
+            where data >= {{ ultima_data_captura_caer }}
+        {% endif %}
         qualify timestamp_captura = max(timestamp_captura) over ()
     ),
     controle_cct_union as (

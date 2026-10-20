@@ -336,7 +336,7 @@ sources:
       - name: realocacao
 
   - name: source_smtr
-    database: rj-smtr-dev
+    database: rj-smtr-staging
 
     tables:
       - name: matriz_reparticao_tarifaria

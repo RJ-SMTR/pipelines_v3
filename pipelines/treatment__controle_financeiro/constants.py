@@ -6,8 +6,7 @@ Valores constantes para materialização do selector controle_financeiro
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from capture__smtr_controle_financeiro import constants as capture_constants
-
+from pipelines.capture__smtr_controle_financeiro import constants as capture_constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 

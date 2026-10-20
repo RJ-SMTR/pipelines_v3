@@ -43,11 +43,11 @@ members = [
     "capture-riorotativo-vagas",
     "capture-serpro-autuacao",
     "capture-smtr-controle-financeiro",
+    "capture-smtr-gtfs",
     "capture-sonda-registros",
     "capture-sonda-viagem-informada",
     "capture-sppo-realocacao",
     "capture-sppo-registros",
-    "capture-smtr-gtfs",
     "capture-stu-tabelas",
     "capture-veiculo-fiscalizacao-lacre",
     "capture-veiculo-infracao",
@@ -76,6 +76,7 @@ members = [
     "treatment-cadastro",
     "treatment-cadastro-veiculo",
     "treatment-cliente-cpf",
+    "treatment-controle-financeiro",
     "treatment-datario",
     "treatment-extrato-cliente-cartao",
     "treatment-financeiro-bilhetagem",
@@ -563,6 +564,23 @@ version = "0.1.0"
 source = { virtual = "pipelines/capture__smtr_controle_financeiro" }
 
 [[package]]
+name = "capture-smtr-gtfs"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__smtr_gtfs" }
+dependencies = [
+    { name = "google-api-python-client" },
+    { name = "google-auth" },
+    { name = "openpyxl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-api-python-client", specifier = ">=2.0.0" },
+    { name = "google-auth", specifier = ">=2.0.0" },
+    { name = "openpyxl", specifier = ">=3.1.0" },
+]
+
+[[package]]
 name = "capture-sonda-registros"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__sonda_registros" }
@@ -581,23 +599,6 @@ source = { virtual = "pipelines/capture__sppo_realocacao" }
 name = "capture-sppo-registros"
 version = "1.0.0"
 source = { virtual = "pipelines/capture__sppo_registros" }
-
-[[package]]
-name = "capture-smtr-gtfs"
-version = "0.1.0"
-source = { virtual = "pipelines/capture__smtr_gtfs" }
-dependencies = [
-    { name = "google-api-python-client" },
-    { name = "google-auth" },
-    { name = "openpyxl" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "google-api-python-client", specifier = ">=2.0.0" },
-    { name = "google-auth", specifier = ">=2.0.0" },
-    { name = "openpyxl", specifier = ">=3.1.0" },
-]
 
 [[package]]
 name = "capture-stu-tabelas"
@@ -3475,6 +3476,11 @@ source = { virtual = "pipelines/treatment__cadastro_veiculo" }
 name = "treatment-cliente-cpf"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__cliente_cpf" }
+
+[[package]]
+name = "treatment-controle-financeiro"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__controle_financeiro" }
 
 [[package]]
 name = "treatment-datario"
