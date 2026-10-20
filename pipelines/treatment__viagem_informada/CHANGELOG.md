@@ -1,6 +1,5 @@
 # CHANGELOG - treatment\_\_viagem_informada
 
-
 ## [1.2.0] - 2026-10-20
 
 ### Alterado
