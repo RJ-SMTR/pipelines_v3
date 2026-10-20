@@ -5,6 +5,7 @@
 ### Adicionado
 
 - Adiciona alerta no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
+- Adiciona runs de fallback (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
 
 ## [1.0.0] - 2026-05-04
 
