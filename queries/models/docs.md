@@ -2158,7 +2158,7 @@ modo de transporte do favorecido da operação
 {% enddocs %}
 
 {% docs valor_operacao_controle_ctt %}
-Valor financeira da operação (R$)
+Valor financeiro da operação (R$)
 {% enddocs %}
 
 {% docs ano_competencia_operacao_controle_ctt %}
