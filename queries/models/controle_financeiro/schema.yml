@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: controle_cct
+    description: >
+      Uma linha por operação financeira, não possui identificador único. Replica a última versão dos dados capturados.
+      Fonte: Abas CETT, CB e CAER da Planilha Controle CCT
+    columns:
+      - name: data
+        description: "{{ doc('data_operacao_controle_ctt') }}"
+        data_type: date
+      - name: favorecido
+        description: "{{ doc('favorecido_operacao_controle_ctt') }}"
+        data_type: string
+      - name: valor
+        description: "{{ doc('valor_operacao_controle_ctt') }}"
+        data_type: float64
+      - name: tipo
+        description: "{{ doc('tipo_operacao_controle_ctt') }}"
+        data_type: string
+      - name: operacao
+        description: "{{ doc('operacao_controle_ctt') }}"
+        data_type: string
+      - name: modal
+        description: "{{ doc('modal_operacao_controle_ctt') }}"
+        data_type: string
+      - name: ano_competencia
+        description: "{{ doc('ano_competencia_operacao_controle_ctt') }}"
+        data_type: int64
+      - name: mes_competencia
+        description: "{{ doc('mes_competencia_operacao_controle_ctt') }}"
+        data_type: int64
+      - name: quinzena_semana_competencia
+        description: "{{ doc('quinzena_semana_competencia_operacao_controle_ctt') }}"
+        data_type: string
+      - name: numero_processo
+        description: "{{ doc('numero_processo_operacao_controle_ctt') }}"
+        data_type: string
+      - name: observacoes
+        description: "{{ doc('observacoes_operacao_controle_ctt') }}"
+        data_type: string
+      - name: numero_nf
+        description: "{{ doc('numero_nf_operacao_controle_ctt') }}"
+        data_type: string
+      - name: tipo_conta
+        description: "{{ doc('tipo_conta_operacao_controle_ctt') }}"
+        data_type: string
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: string
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: string
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
