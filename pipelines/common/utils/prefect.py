@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from prefect import flow as prefect_flow
-from prefect import runtime
+from prefect import get_client, runtime
+from prefect.client.schemas.filters import FlowRunFilter, FlowRunFilterId
 from prefect.states import get_state_exception
 
 from pipelines.common import constants
@@ -33,9 +34,23 @@ def handler_notify_failure(webhook: str):
         exc = get_state_exception(state)
         flow_run_url = f"https://prefect-v3.mobilidade.rio/runs/flow-run/{flow_run.id}"
 
+        with get_client(sync_client=True) as client:
+            task_runs = client.read_task_runs(
+                flow_run_filter=FlowRunFilter(id=FlowRunFilterId(any_=[flow_run.id]))
+            )
+
+        failed_tasks = "\n".join(
+            [
+                f"\t{t.name}"
+                for t in task_runs
+                if t.state and (t.state.is_failed() or t.state.is_crashed())
+            ]
+        )
+
         format_send_discord_message(
             formatted_messages=[
                 f"{header} {mentions_tag}\n\n",
+                f"** As seguintes tasks falharam:**\n{failed_tasks}\n\n"
                 f"**{type(exc).__name__}:** {exc}\n\n",
                 f"**URL da execução:** {flow_run_url}",
             ],
