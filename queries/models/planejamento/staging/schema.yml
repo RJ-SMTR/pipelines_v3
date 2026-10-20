@@ -47,6 +47,17 @@ models:
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
         data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__tipo_os__staging_ordem_servico_trajeto_alternativo_sentido
+              config:
+                description: "Todos os `tipo_os` de `ordem_servico_trajeto_alternativo_sentido` constam em `ordem_servico_faixa_horaria_sentido`"
+                where: "1=1"
+              arguments:
+                to: ref('staging_ordem_servico_faixa_horaria_sentido')
+                field: tipo_os
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
       - name: vista
         description: "{{ doc('vista') }}"
         data_type: string
