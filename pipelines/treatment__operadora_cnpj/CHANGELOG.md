@@ -1,5 +1,11 @@
 # Changelog - treatment__operadora_cnpj
 
+## [1.0.1] - 2026-10-21
+
+### Adicionado
+
+- Adiciona alerta no Discord
+
 ## [1.0.0] - 2026-05-04
 
 ### Adicionado

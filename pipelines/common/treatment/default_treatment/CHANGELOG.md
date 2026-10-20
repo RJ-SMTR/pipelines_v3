@@ -1,5 +1,10 @@
 # Changelog - default_treatment
 
+## [1.5.1] - 2026-10-21
+
+### Alterado
+
+- Adiciona retry nas tasks de acesso ao Redis
 
 ## [1.5.0] - 2026-08-31
 
