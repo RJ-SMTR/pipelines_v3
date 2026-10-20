@@ -2,28 +2,23 @@
 """Tasks Prefect para baixar contratos versionados e validar os arquivos brutos."""
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Optional
 
-import yaml
-from datacontract.data_contract import DataContract
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
-    add_local_server,
     add_referenced_schema,
     contract_test_results,
     download_contracts_from_commit,
     format_test_results,
+    keep_checks,
     keep_relationship_properties,
-    link_schema_files,
     load_contract,
-    prepare_raw_file,
     referenced_schema_names,
     remove_relationships,
-    remove_type_checks,
+    run_contract_test,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.google_chat import notify_test_failures_google_chat
@@ -79,19 +74,9 @@ def validate_raw_data_contract(
     )
     results = []
     for raw_filepath in context.captured_raw_filepaths:
-        with TemporaryDirectory() as folder:
-            server_path, file_format = prepare_raw_file(
-                raw_filepath, Path(folder) / "raw", source.raw_filetype
-            )
-            runtime_contract = add_local_server(
-                runtime_contract, raw_filepath=server_path, file_format=file_format
-            )
-            result = DataContract(
-                data_contract_str=yaml.safe_dump(runtime_contract),
-                server="incoming",
-                include_failed_samples=True,
-            ).test()
-        remove_type_checks(result)
+        result = run_contract_test(
+            runtime_contract, {source.data_contract_model: [raw_filepath]}, source.raw_filetype
+        )
         print(
             f"Testando {contract_path.name}\n"
             f"Servidor: incoming (caminho={raw_filepath})\n"
@@ -99,6 +84,46 @@ def validate_raw_data_contract(
         )
         results.extend(contract_test_results(result, table=source.table_id))
     return results
+
+
+def add_referenced_sources(
+    contract: dict,
+    context: SourceCaptureContext,
+    contexts_by_model: dict[str, SourceCaptureContext],
+    contracts_dir: Path,
+) -> tuple[dict, dict[str, list[str]]]:
+    """
+    Anexa ao contrato os schemas referenciados pelos relationships e reúne os arquivos brutos.
+
+    Um schema referenciado sem fonte capturada nesta execução não é anexado; o datacontract
+    gera um check de relationship com alerta para ele.
+
+    Args:
+        contract (dict): Contrato da fonte, já adaptado.
+        context (SourceCaptureContext): Contexto da fonte que declara os relationships.
+        contexts_by_model (dict[str, SourceCaptureContext]): Contextos da execução por modelo.
+        contracts_dir (Path): Diretório com os contratos baixados.
+
+    Returns:
+        tuple[dict, dict[str, list[str]]]: Contrato com os schemas referenciados e arquivos
+            brutos de cada schema.
+    """
+    files_by_schema = {context.source.data_contract_model: context.captured_raw_filepaths}
+    for schema_name in sorted(referenced_schema_names(contract)):
+        referenced_context = contexts_by_model.get(schema_name)
+        if referenced_context is None:
+            print(f"{schema_name} não capturado nesta execução; relationship não verificado.")
+            continue
+        _, referenced_contract = load_contract(contracts_dir, schema_name)
+        contract = add_referenced_schema(
+            contract,
+            adapt_contract_schema(
+                referenced_contract,
+                ignored_columns=referenced_context.source.data_contract_ignored_columns,
+            ),
+        )
+        files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
+    return contract, files_by_schema
 
 
 @task(cache_policy=NO_CACHE)
@@ -148,40 +173,15 @@ def validate_data_contract_relationships(
             ignored_columns=source.data_contract_ignored_columns,
             primary_keys=source.primary_keys,
         )
-        schema_names = referenced_schema_names(runtime_contract)
-        if not schema_names:
+        if not referenced_schema_names(runtime_contract):
             continue
-        files_by_schema = {source.data_contract_model: context.captured_raw_filepaths}
-        for schema_name in sorted(schema_names):
-            referenced_context = contexts_by_model.get(schema_name)
-            if referenced_context is None:
-                print(f"{schema_name} não capturado nesta execução; relationship não verificado.")
-                continue
-            _, referenced_contract = load_contract(contracts_dir, schema_name)
-            runtime_contract = add_referenced_schema(
-                runtime_contract,
-                adapt_contract_schema(
-                    referenced_contract,
-                    ignored_columns=referenced_context.source.data_contract_ignored_columns,
-                ),
-            )
-            files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
-        with TemporaryDirectory() as folder:
-            server_path, file_format = link_schema_files(
-                Path(folder), files_by_schema, source.raw_filetype
-            )
-            runtime_contract = add_local_server(
-                keep_relationship_properties(runtime_contract),
-                raw_filepath=server_path,
-                file_format=file_format,
-            )
-            result = DataContract(
-                data_contract_str=yaml.safe_dump(runtime_contract),
-                server="incoming",
-                include_failed_samples=True,
-            ).test()
-        result.checks = [check for check in result.checks if check.type == "field_relationships"]
-        result.calculate_result()
+        runtime_contract, files_by_schema = add_referenced_sources(
+            runtime_contract, context, contexts_by_model, contracts_dir
+        )
+        result = run_contract_test(
+            keep_relationship_properties(runtime_contract), files_by_schema, source.raw_filetype
+        )
+        keep_checks(result, lambda check: check.type == "field_relationships")
         print(
             f"Testando relationships de {contract_path.name}\n"
             f"Schemas: {', '.join(sorted(files_by_schema))}\n"

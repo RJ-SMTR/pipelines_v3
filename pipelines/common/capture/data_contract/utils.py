@@ -5,9 +5,10 @@ import json
 import os
 import re
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from copy import deepcopy
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from textwrap import wrap
 from typing import Any, Optional
 from urllib.parse import quote
@@ -625,28 +626,39 @@ def add_referenced_schema(
     return adapted_contract
 
 
-def prepare_raw_file(source: str, target: Path, file_format: str) -> tuple[str, str]:
+def validation_format(file_format: str) -> str:
     """
-    Prepara o arquivo bruto para a validação, convertendo CSV em Parquet.
+    Retorna o formato em que o arquivo bruto é validado.
 
-    O datacontract relê o CSV a cada verificação de presença de coluna; no Parquet, o schema
-    vem dos metadados do arquivo. As colunas ficam como texto, como no CSV. O arquivo bruto
-    original não é alterado.
+    O CSV é validado como Parquet: o datacontract relê o CSV a cada verificação de presença de
+    coluna, enquanto no Parquet o schema vem dos metadados do arquivo.
+
+    Args:
+        file_format (str): Formato do arquivo bruto.
+
+    Returns:
+        str: Formato usado na validação.
+    """
+    return "parquet" if file_format == "csv" else file_format
+
+
+def prepare_raw_file(source: str, target: Path, file_format: str) -> None:
+    """
+    Prepara uma cópia do arquivo bruto para a validação, no formato de validation_format.
+
+    O CSV é convertido em Parquet com todas as colunas como texto, como no CSV; os demais
+    formatos recebem um link. O arquivo bruto original não é alterado.
 
     Args:
         source (str): Caminho do arquivo bruto.
         target (Path): Caminho do arquivo preparado, sem extensão.
         file_format (str): Formato do arquivo bruto.
-
-    Returns:
-        tuple[str, str]: Caminho e formato do arquivo usado na validação.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
+    path = target.with_suffix(f".{validation_format(file_format)}")
     if file_format != "csv":
-        path = target.with_suffix(Path(source).suffix)
         path.symlink_to(Path(source).resolve())
-        return str(path), file_format
-    path = target.with_suffix(".parquet")
+        return
     source_sql = str(Path(source).resolve()).replace("'", "''")
     path_sql = str(path).replace("'", "''")
     with duckdb.connect() as connection:
@@ -654,49 +666,22 @@ def prepare_raw_file(source: str, target: Path, file_format: str) -> tuple[str, 
             f"COPY (SELECT * FROM read_csv('{source_sql}', all_varchar = true, header = true)) "
             f"TO '{path_sql}' (FORMAT parquet)"
         )
-    return str(path), "parquet"
 
 
-def remove_type_checks(run: Run) -> Run:
+def keep_checks(run: Run, condition: Callable[[Any], bool]) -> Run:
     """
-    Remove os checks de tipo, que o datacontract não executa em Parquet e reporta como alerta.
-
-    Os arquivos brutos em CSV não têm checks de tipo; sem eles, o resultado da validação
-    do Parquet convertido é o mesmo do CSV.
+    Mantém no resultado do teste só os checks que atendem à condição.
 
     Args:
         run (Run): Resultado do teste do contrato.
+        condition (Callable[[Any], bool]): Condição que o check deve atender.
 
     Returns:
-        Run: O mesmo resultado, sem os checks de tipo e com o resultado recalculado.
+        Run: O mesmo resultado, com os checks filtrados e o resultado recalculado.
     """
-    run.checks = [check for check in run.checks if check.type != "field_type"]
+    run.checks = [check for check in run.checks if condition(check)]
     run.calculate_result()
     return run
-
-
-def link_schema_files(
-    folder: Path, files_by_schema: dict[str, list[str]], file_format: str
-) -> tuple[str, str]:
-    """
-    Prepara os arquivos de cada schema em <folder>/<schema>/ para validá-los juntos.
-
-    Args:
-        folder (Path): Diretório temporário dos arquivos.
-        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema.
-        file_format (str): Formato dos arquivos brutos.
-
-    Returns:
-        tuple[str, str]: Caminho com {model}, usado pelo servidor local para ler cada schema,
-            e formato dos arquivos preparados.
-    """
-    prepared_format = file_format
-    for schema_name, filepaths in files_by_schema.items():
-        for position, filepath in enumerate(filepaths):
-            _, prepared_format = prepare_raw_file(
-                filepath, folder / schema_name / str(position), file_format
-            )
-    return str(folder / "{model}" / "*"), prepared_format
 
 
 def add_local_server(
@@ -724,6 +709,40 @@ def add_local_server(
         {"server": server_name, "type": "local", "path": raw_filepath, "format": file_format}
     ]
     return adapted_contract
+
+
+def run_contract_test(
+    contract: dict[str, Any], files_by_schema: dict[str, list[str]], file_format: str
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos de cada schema, preparados em um diretório temporário.
+
+    Os checks de tipo são removidos: o datacontract não os executa nos arquivos validados como
+    Parquet e não os gera para CSV, então o resultado é o mesmo do arquivo bruto.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+    """
+    with TemporaryDirectory() as folder:
+        for schema_name, filepaths in files_by_schema.items():
+            for position, filepath in enumerate(filepaths):
+                prepare_raw_file(filepath, Path(folder) / schema_name / str(position), file_format)
+        server_contract = add_local_server(
+            contract,
+            raw_filepath=str(Path(folder) / "{model}" / "*"),
+            file_format=validation_format(file_format),
+        )
+        run = DataContract(
+            data_contract_str=yaml.safe_dump(server_contract),
+            server="incoming",
+            include_failed_samples=True,
+        ).test()
+    return keep_checks(run, lambda check: check.type != "field_type")
 
 
 def generate_contracts(
