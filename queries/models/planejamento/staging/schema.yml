@@ -77,3 +77,384 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_ordem_servico_faixa_horaria_sentido
+    description: |
+      Uma linha por serviço, sentido e tipo de OS por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de faixas horárias da OS.
+      Fonte: capturas do GTFS (source_gtfs.ordem_servico_faixa_horaria_sentido).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, servico, sentido, tipo_os]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: vista
+        description: "{{ doc('vista') }}"
+        data_type: string
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+        data_type: string
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: extensao
+        description: "{{ doc('extensao') }}"
+        data_type: string
+      - name: partidas_entre_00h_a_01h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 00h e 01h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_00h_a_01h_dias_uteis
+        description: "Quilometragem planejada entre 00h e 01h em dias úteis"
+        data_type: string
+      - name: partidas_entre_01h_a_02h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 01h e 02h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_01h_a_02h_dias_uteis
+        description: "Quilometragem planejada entre 01h e 02h em dias úteis"
+        data_type: string
+      - name: partidas_entre_02h_a_03h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 02h e 03h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_02h_a_03h_dias_uteis
+        description: "Quilometragem planejada entre 02h e 03h em dias úteis"
+        data_type: string
+      - name: partidas_entre_03h_a_04h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 03h e 04h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_03h_a_04h_dias_uteis
+        description: "Quilometragem planejada entre 03h e 04h em dias úteis"
+        data_type: string
+      - name: partidas_entre_04h_a_05h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 04h e 05h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_04h_a_05h_dias_uteis
+        description: "Quilometragem planejada entre 04h e 05h em dias úteis"
+        data_type: string
+      - name: partidas_entre_05h_a_06h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 05h e 06h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_05h_a_06h_dias_uteis
+        description: "Quilometragem planejada entre 05h e 06h em dias úteis"
+        data_type: string
+      - name: partidas_entre_06h_a_09h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 06h e 09h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_06h_a_09h_dias_uteis
+        description: "Quilometragem planejada entre 06h e 09h em dias úteis"
+        data_type: string
+      - name: partidas_entre_09h_a_12h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 09h e 12h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_09h_a_12h_dias_uteis
+        description: "Quilometragem planejada entre 09h e 12h em dias úteis"
+        data_type: string
+      - name: partidas_entre_12h_a_15h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 12h e 15h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_12h_a_15h_dias_uteis
+        description: "Quilometragem planejada entre 12h e 15h em dias úteis"
+        data_type: string
+      - name: partidas_entre_15h_a_18h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 15h e 18h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_15h_a_18h_dias_uteis
+        description: "Quilometragem planejada entre 15h e 18h em dias úteis"
+        data_type: string
+      - name: partidas_entre_18h_a_21h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 18h e 21h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_18h_a_21h_dias_uteis
+        description: "Quilometragem planejada entre 18h e 21h em dias úteis"
+        data_type: string
+      - name: partidas_entre_21h_a_22h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 21h e 22h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_21h_a_22h_dias_uteis
+        description: "Quilometragem planejada entre 21h e 22h em dias úteis"
+        data_type: string
+      - name: partidas_entre_22h_a_23h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 22h e 23h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_22h_a_23h_dias_uteis
+        description: "Quilometragem planejada entre 22h e 23h em dias úteis"
+        data_type: string
+      - name: partidas_entre_23h_a_24h_dias_uteis
+        description: "Quantidade de partidas planejadas entre 23h e 24h em dias úteis"
+        data_type: string
+      - name: quilometragem_entre_23h_a_24h_dias_uteis
+        description: "Quilometragem planejada entre 23h e 24h em dias úteis"
+        data_type: string
+      - name: partidas_entre_00h_a_01h_sabado
+        description: "Quantidade de partidas planejadas entre 00h e 01h em sábado"
+        data_type: string
+      - name: quilometragem_entre_00h_a_01h_sabado
+        description: "Quilometragem planejada entre 00h e 01h em sábado"
+        data_type: string
+      - name: partidas_entre_01h_a_02h_sabado
+        description: "Quantidade de partidas planejadas entre 01h e 02h em sábado"
+        data_type: string
+      - name: quilometragem_entre_01h_a_02h_sabado
+        description: "Quilometragem planejada entre 01h e 02h em sábado"
+        data_type: string
+      - name: partidas_entre_02h_a_03h_sabado
+        description: "Quantidade de partidas planejadas entre 02h e 03h em sábado"
+        data_type: string
+      - name: quilometragem_entre_02h_a_03h_sabado
+        description: "Quilometragem planejada entre 02h e 03h em sábado"
+        data_type: string
+      - name: partidas_entre_03h_a_04h_sabado
+        description: "Quantidade de partidas planejadas entre 03h e 04h em sábado"
+        data_type: string
+      - name: quilometragem_entre_03h_a_04h_sabado
+        description: "Quilometragem planejada entre 03h e 04h em sábado"
+        data_type: string
+      - name: partidas_entre_04h_a_05h_sabado
+        description: "Quantidade de partidas planejadas entre 04h e 05h em sábado"
+        data_type: string
+      - name: quilometragem_entre_04h_a_05h_sabado
+        description: "Quilometragem planejada entre 04h e 05h em sábado"
+        data_type: string
+      - name: partidas_entre_05h_a_06h_sabado
+        description: "Quantidade de partidas planejadas entre 05h e 06h em sábado"
+        data_type: string
+      - name: quilometragem_entre_05h_a_06h_sabado
+        description: "Quilometragem planejada entre 05h e 06h em sábado"
+        data_type: string
+      - name: partidas_entre_06h_a_09h_sabado
+        description: "Quantidade de partidas planejadas entre 06h e 09h em sábado"
+        data_type: string
+      - name: quilometragem_entre_06h_a_09h_sabado
+        description: "Quilometragem planejada entre 06h e 09h em sábado"
+        data_type: string
+      - name: partidas_entre_09h_a_12h_sabado
+        description: "Quantidade de partidas planejadas entre 09h e 12h em sábado"
+        data_type: string
+      - name: quilometragem_entre_09h_a_12h_sabado
+        description: "Quilometragem planejada entre 09h e 12h em sábado"
+        data_type: string
+      - name: partidas_entre_12h_a_15h_sabado
+        description: "Quantidade de partidas planejadas entre 12h e 15h em sábado"
+        data_type: string
+      - name: quilometragem_entre_12h_a_15h_sabado
+        description: "Quilometragem planejada entre 12h e 15h em sábado"
+        data_type: string
+      - name: partidas_entre_15h_a_18h_sabado
+        description: "Quantidade de partidas planejadas entre 15h e 18h em sábado"
+        data_type: string
+      - name: quilometragem_entre_15h_a_18h_sabado
+        description: "Quilometragem planejada entre 15h e 18h em sábado"
+        data_type: string
+      - name: partidas_entre_18h_a_21h_sabado
+        description: "Quantidade de partidas planejadas entre 18h e 21h em sábado"
+        data_type: string
+      - name: quilometragem_entre_18h_a_21h_sabado
+        description: "Quilometragem planejada entre 18h e 21h em sábado"
+        data_type: string
+      - name: partidas_entre_21h_a_22h_sabado
+        description: "Quantidade de partidas planejadas entre 21h e 22h em sábado"
+        data_type: string
+      - name: quilometragem_entre_21h_a_22h_sabado
+        description: "Quilometragem planejada entre 21h e 22h em sábado"
+        data_type: string
+      - name: partidas_entre_22h_a_23h_sabado
+        description: "Quantidade de partidas planejadas entre 22h e 23h em sábado"
+        data_type: string
+      - name: quilometragem_entre_22h_a_23h_sabado
+        description: "Quilometragem planejada entre 22h e 23h em sábado"
+        data_type: string
+      - name: partidas_entre_23h_a_24h_sabado
+        description: "Quantidade de partidas planejadas entre 23h e 24h em sábado"
+        data_type: string
+      - name: quilometragem_entre_23h_a_24h_sabado
+        description: "Quilometragem planejada entre 23h e 24h em sábado"
+        data_type: string
+      - name: partidas_entre_00h_a_01h_domingo
+        description: "Quantidade de partidas planejadas entre 00h e 01h em domingo"
+        data_type: string
+      - name: quilometragem_entre_00h_a_01h_domingo
+        description: "Quilometragem planejada entre 00h e 01h em domingo"
+        data_type: string
+      - name: partidas_entre_01h_a_02h_domingo
+        description: "Quantidade de partidas planejadas entre 01h e 02h em domingo"
+        data_type: string
+      - name: quilometragem_entre_01h_a_02h_domingo
+        description: "Quilometragem planejada entre 01h e 02h em domingo"
+        data_type: string
+      - name: partidas_entre_02h_a_03h_domingo
+        description: "Quantidade de partidas planejadas entre 02h e 03h em domingo"
+        data_type: string
+      - name: quilometragem_entre_02h_a_03h_domingo
+        description: "Quilometragem planejada entre 02h e 03h em domingo"
+        data_type: string
+      - name: partidas_entre_03h_a_04h_domingo
+        description: "Quantidade de partidas planejadas entre 03h e 04h em domingo"
+        data_type: string
+      - name: quilometragem_entre_03h_a_04h_domingo
+        description: "Quilometragem planejada entre 03h e 04h em domingo"
+        data_type: string
+      - name: partidas_entre_04h_a_05h_domingo
+        description: "Quantidade de partidas planejadas entre 04h e 05h em domingo"
+        data_type: string
+      - name: quilometragem_entre_04h_a_05h_domingo
+        description: "Quilometragem planejada entre 04h e 05h em domingo"
+        data_type: string
+      - name: partidas_entre_05h_a_06h_domingo
+        description: "Quantidade de partidas planejadas entre 05h e 06h em domingo"
+        data_type: string
+      - name: quilometragem_entre_05h_a_06h_domingo
+        description: "Quilometragem planejada entre 05h e 06h em domingo"
+        data_type: string
+      - name: partidas_entre_06h_a_09h_domingo
+        description: "Quantidade de partidas planejadas entre 06h e 09h em domingo"
+        data_type: string
+      - name: quilometragem_entre_06h_a_09h_domingo
+        description: "Quilometragem planejada entre 06h e 09h em domingo"
+        data_type: string
+      - name: partidas_entre_09h_a_12h_domingo
+        description: "Quantidade de partidas planejadas entre 09h e 12h em domingo"
+        data_type: string
+      - name: quilometragem_entre_09h_a_12h_domingo
+        description: "Quilometragem planejada entre 09h e 12h em domingo"
+        data_type: string
+      - name: partidas_entre_12h_a_15h_domingo
+        description: "Quantidade de partidas planejadas entre 12h e 15h em domingo"
+        data_type: string
+      - name: quilometragem_entre_12h_a_15h_domingo
+        description: "Quilometragem planejada entre 12h e 15h em domingo"
+        data_type: string
+      - name: partidas_entre_15h_a_18h_domingo
+        description: "Quantidade de partidas planejadas entre 15h e 18h em domingo"
+        data_type: string
+      - name: quilometragem_entre_15h_a_18h_domingo
+        description: "Quilometragem planejada entre 15h e 18h em domingo"
+        data_type: string
+      - name: partidas_entre_18h_a_21h_domingo
+        description: "Quantidade de partidas planejadas entre 18h e 21h em domingo"
+        data_type: string
+      - name: quilometragem_entre_18h_a_21h_domingo
+        description: "Quilometragem planejada entre 18h e 21h em domingo"
+        data_type: string
+      - name: partidas_entre_21h_a_22h_domingo
+        description: "Quantidade de partidas planejadas entre 21h e 22h em domingo"
+        data_type: string
+      - name: quilometragem_entre_21h_a_22h_domingo
+        description: "Quilometragem planejada entre 21h e 22h em domingo"
+        data_type: string
+      - name: partidas_entre_22h_a_23h_domingo
+        description: "Quantidade de partidas planejadas entre 22h e 23h em domingo"
+        data_type: string
+      - name: quilometragem_entre_22h_a_23h_domingo
+        description: "Quilometragem planejada entre 22h e 23h em domingo"
+        data_type: string
+      - name: partidas_entre_23h_a_24h_domingo
+        description: "Quantidade de partidas planejadas entre 23h e 24h em domingo"
+        data_type: string
+      - name: quilometragem_entre_23h_a_24h_domingo
+        description: "Quilometragem planejada entre 23h e 24h em domingo"
+        data_type: string
+      - name: partidas_entre_00h_a_01h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 00h e 01h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_00h_a_01h_ponto_facultativo
+        description: "Quilometragem planejada entre 00h e 01h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_01h_a_02h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 01h e 02h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_01h_a_02h_ponto_facultativo
+        description: "Quilometragem planejada entre 01h e 02h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_02h_a_03h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 02h e 03h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_02h_a_03h_ponto_facultativo
+        description: "Quilometragem planejada entre 02h e 03h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_03h_a_04h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 03h e 04h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_03h_a_04h_ponto_facultativo
+        description: "Quilometragem planejada entre 03h e 04h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_04h_a_05h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 04h e 05h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_04h_a_05h_ponto_facultativo
+        description: "Quilometragem planejada entre 04h e 05h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_05h_a_06h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 05h e 06h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_05h_a_06h_ponto_facultativo
+        description: "Quilometragem planejada entre 05h e 06h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_06h_a_09h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 06h e 09h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_06h_a_09h_ponto_facultativo
+        description: "Quilometragem planejada entre 06h e 09h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_09h_a_12h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 09h e 12h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_09h_a_12h_ponto_facultativo
+        description: "Quilometragem planejada entre 09h e 12h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_12h_a_15h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 12h e 15h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_12h_a_15h_ponto_facultativo
+        description: "Quilometragem planejada entre 12h e 15h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_15h_a_18h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 15h e 18h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_15h_a_18h_ponto_facultativo
+        description: "Quilometragem planejada entre 15h e 18h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_18h_a_21h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 18h e 21h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_18h_a_21h_ponto_facultativo
+        description: "Quilometragem planejada entre 18h e 21h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_21h_a_22h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 21h e 22h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_21h_a_22h_ponto_facultativo
+        description: "Quilometragem planejada entre 21h e 22h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_22h_a_23h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 22h e 23h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_22h_a_23h_ponto_facultativo
+        description: "Quilometragem planejada entre 22h e 23h em ponto facultativo"
+        data_type: string
+      - name: partidas_entre_23h_a_24h_ponto_facultativo
+        description: "Quantidade de partidas planejadas entre 23h e 24h em ponto facultativo"
+        data_type: string
+      - name: quilometragem_entre_23h_a_24h_ponto_facultativo
+        description: "Quilometragem planejada entre 23h e 24h em ponto facultativo"
+        data_type: string
+      - name: tipo_os
+        description: "{{ doc('tipo_os') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__tipo_os__staging_ordem_servico_faixa_horaria_sentido
+              config:
+                description: "Todos os `tipo_os` de `ordem_servico_faixa_horaria_sentido` constam em `ordem_servico_trajeto_alternativo_sentido`"
+                where: "1=1"
+              arguments:
+                to: ref('staging_ordem_servico_trajeto_alternativo_sentido')
+                field: tipo_os
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}' and data_versao >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
