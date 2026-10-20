@@ -4,7 +4,8 @@
 import json
 import os
 import re
-from collections.abc import Iterable
+from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from copy import deepcopy
 from pathlib import Path
 from textwrap import wrap
@@ -23,6 +24,7 @@ from pipelines.common.capture.data_contract.constants import (
     DEFAULT_MANIFEST,
     GITHUB_API,
     METRIC_LABELS,
+    PROPERTY_RULE_KEYS,
     REQUEST_TIMEOUT,
     RESULT_LABELS,
     ROOT,
@@ -486,9 +488,27 @@ def relationship_targets(relationship: dict[str, Any]) -> list[tuple[str, str]]:
     Returns:
         list[tuple[str, str]]: Pares (schema, coluna) citados em relationship.to.
     """
-    targets = relationship.get("to")
+    targets = relationship["to"]
     targets = targets if isinstance(targets, list) else [targets]
-    return [tuple(str(target).rsplit(".", 1)) for target in targets if target]
+    return [tuple(target.rsplit(".", 1)) for target in targets]
+
+
+def iter_relationships(
+    contract: dict[str, Any],
+) -> Iterator[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    """
+    Percorre os relationships declarados nas colunas do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Yields:
+        tuple[dict[str, Any], dict[str, Any], dict[str, Any]]: Schema, coluna e relationship.
+    """
+    for schema in contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            for relationship in property_.get("relationships") or []:
+                yield schema, property_, relationship
 
 
 def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
@@ -503,9 +523,7 @@ def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
     """
     return {
         schema_name
-        for schema in contract.get("schema", [])
-        for property_ in schema.get("properties", [])
-        for relationship in property_.get("relationships") or []
+        for _, _, relationship in iter_relationships(contract)
         for schema_name, _ in relationship_targets(relationship)
     }
 
@@ -525,28 +543,48 @@ def remove_relationships(
         dict[str, Any]: Cópia do contrato sem os relationships removidos.
     """
     names = None if schema_names is None else set(schema_names)
+
+    def is_removed(relationship: dict[str, Any]) -> bool:
+        targets = {schema_name for schema_name, _ in relationship_targets(relationship)}
+        return names is None or bool(targets & names)
+
     adapted_contract = deepcopy(contract)
     for schema in adapted_contract.get("schema", []):
         for property_ in schema.get("properties", []):
             relationships = [
                 relationship
                 for relationship in property_.pop("relationships", None) or []
-                if names is not None
-                and not {schema_name for schema_name, _ in relationship_targets(relationship)}
-                & names
+                if not is_removed(relationship)
             ]
             if relationships:
                 property_["relationships"] = relationships
     return adapted_contract
 
 
+def relationship_columns(contract: dict[str, Any]) -> dict[str, set[str]]:
+    """
+    Retorna as colunas de origem e de destino dos relationships, agrupadas por schema.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        dict[str, set[str]]: Colunas que participam dos relationships, por schema.
+    """
+    columns = defaultdict(set)
+    for schema, property_, relationship in iter_relationships(contract):
+        columns[schema["name"]].add(property_["name"])
+        for schema_name, column in relationship_targets(relationship):
+            columns[schema_name].add(column)
+    return columns
+
+
 def keep_relationship_properties(contract: dict[str, Any]) -> dict[str, Any]:
     """
     Mantém em cada schema só as colunas que participam dos relationships do contrato.
 
-    O datacontract relê o arquivo bruto a cada verificação de presença de coluna; sem as
-    demais colunas, o teste dos relationships não repete as verificações da validação
-    individual. As regras de qualidade e as chaves também são removidas.
+    O teste dos relationships não repete as verificações da validação individual: as demais
+    colunas, as regras de qualidade e as chaves são removidas.
 
     Args:
         contract (dict[str, Any]): Contrato com os schemas da origem e das referências.
@@ -554,24 +592,15 @@ def keep_relationship_properties(contract: dict[str, Any]) -> dict[str, Any]:
     Returns:
         dict[str, Any]: Cópia do contrato só com as colunas dos relationships.
     """
+    columns = relationship_columns(contract)
     adapted_contract = deepcopy(contract)
-    columns = {}
-    for schema in adapted_contract.get("schema", []):
-        for property_ in schema.get("properties", []):
-            for relationship in property_.get("relationships") or []:
-                columns.setdefault(schema["name"], set()).add(property_["name"])
-                for schema_name, column in relationship_targets(relationship):
-                    columns.setdefault(schema_name, set()).add(column)
-    for schema in adapted_contract.get("schema", []):
+    for schema in adapted_contract["schema"]:
         schema.pop("quality", None)
         schema["properties"] = [
-            property_
+            {key: value for key, value in property_.items() if key not in PROPERTY_RULE_KEYS}
             for property_ in schema.get("properties", [])
-            if property_["name"] in columns.get(schema["name"], set())
+            if property_["name"] in columns[schema["name"]]
         ]
-        for property_ in schema["properties"]:
-            for key in ("quality", "primaryKey", "primaryKeyPosition"):
-                property_.pop(key, None)
     return adapted_contract
 
 
@@ -579,10 +608,10 @@ def add_referenced_schema(
     contract: dict[str, Any], referenced_contract: dict[str, Any]
 ) -> dict[str, Any]:
     """
-    Anexa ao contrato os schemas de outro contrato, apenas como referência dos relationships.
+    Anexa ao contrato os schemas de outro contrato, sem os relationships deles.
 
-    As regras de qualidade, as chaves e os relationships do schema anexado são removidos,
-    pois ele é validado pela própria fonte.
+    Os schemas anexados só servem de referência: seus próprios relationships são validados
+    quando a fonte deles é a origem.
 
     Args:
         contract (dict[str, Any]): Contrato que declara os relationships.
@@ -592,12 +621,7 @@ def add_referenced_schema(
         dict[str, Any]: Cópia do contrato com os schemas referenciados.
     """
     adapted_contract = deepcopy(contract)
-    for schema in deepcopy(referenced_contract["schema"]):
-        schema.pop("quality", None)
-        for property_ in schema.get("properties", []):
-            for key in ("quality", "relationships", "primaryKey", "primaryKeyPosition"):
-                property_.pop(key, None)
-        adapted_contract["schema"].append(schema)
+    adapted_contract["schema"].extend(remove_relationships(referenced_contract)["schema"])
     return adapted_contract
 
 
