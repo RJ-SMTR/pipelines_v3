@@ -239,8 +239,7 @@ exposures:
         - Owner
         - Business Data Steward
     depends_on:
-      - source('controle_financeiro_staging', 'cb')
-      - source('controle_financeiro_staging', 'cett')
+      - ref('view_controle_cct')
     config:
       meta:
         data_product_name: CCT - Câmara de Compensação Tarifária
