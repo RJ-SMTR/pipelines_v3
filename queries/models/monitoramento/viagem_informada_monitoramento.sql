@@ -17,6 +17,11 @@
 {% set staging_viagem_informada_brt = ref("staging_viagem_informada_brt") %}
 {# {% set staging_viagem_informada_brt = ("rj-smtr.monitoramento_staging.viagem_informada_brt") %} #}
 {% set staging_viagem_informada_maxtrack = ref("staging_viagem_informada_maxtrack") %}
+{% set staging_viagem_informada_conecta_sistema_rio = ref(
+    "staging_viagem_informada_conecta_sistema_rio"
+) %}
+{# A Conecta substitui a Maxtrack como fonte das viagens do sistema RIO a partir desta data de captura (troca do endpoint da API) #}
+{% set data_captura_inicio_conecta_sistema_rio = "2026-10-16" %}
 {% if execute %}
     {% if is_incremental() %}
         {% set partitions_query %}
@@ -88,7 +93,25 @@
                     "'"
                 ) as data_viagem
             from {{ staging_viagem_informada_maxtrack }}
-            where {{ incremental_filter }}
+            where
+                {{ incremental_filter }}
+                and data < date("{{ data_captura_inicio_conecta_sistema_rio }}")
+
+            union distinct
+
+            select distinct
+                concat(
+                    "'",
+                    extract(
+                        date
+                        from datetime_partida
+                    ),
+                    "'"
+                ) as data_viagem
+            from {{ staging_viagem_informada_conecta_sistema_rio }}
+            where
+                {{ incremental_filter }}
+                and data >= date("{{ data_captura_inicio_conecta_sistema_rio }}")
         {% endset %}
 
         {% set partitions = (
@@ -172,7 +195,34 @@ with
             datetime_processamento,
             datetime_captura
         from {{ staging_viagem_informada_maxtrack }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where
+            {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
+            data < date("{{ data_captura_inicio_conecta_sistema_rio }}")
+    ),
+    staging_conecta_sistema_rio as (
+        select
+            id_viagem,
+            sequencial_viagem,
+            id_viagem_planejada,
+            datetime_partida,
+            datetime_chegada,
+            id_veiculo,
+            trip_id,
+            route_id,
+            shape_id,
+            servico,
+            sentido,
+            direction_id,
+            tipo_viagem,
+            tipo_execucao_viagem,
+            fornecedor as fonte_gps,
+            "conecta" as fonte_viagem,
+            datetime_processamento,
+            datetime_captura
+        from {{ staging_viagem_informada_conecta_sistema_rio }}
+        where
+            {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
+            data >= date("{{ data_captura_inicio_conecta_sistema_rio }}")
     ),
     staging_union as (
         select *
@@ -187,6 +237,11 @@ with
 
         select *
         from staging_maxtrack
+
+        union all
+
+        select *
+        from staging_conecta_sistema_rio
     ),
     staging as (
         select
