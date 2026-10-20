@@ -97,6 +97,23 @@ GPS_SOURCE_CONFIGS = {
             "parameter": "guidIdentificacao",
         },
         "requests": {
+            "registros_sistema_rio": {
+                "base_url": "https://apiproducao.ccomobility.com.br/api/v1",
+                "endpoint": "posicoes",
+                "auth": {
+                    "secret_path": "conecta_sistema_rio_api",
+                    "secret_name": "token",
+                    "header": "Authorization",
+                    "scheme": "Bearer",
+                },
+                "window": {
+                    "datetime_format": OUTPUT_DATETIME_FORMAT,
+                    "start_offset_minutes": 6,
+                    "end_offset_minutes": 5,
+                    "start_parameter": "datetime_servidor_inicio",
+                    "end_parameter": "datetime_servidor_fim",
+                },
+            },
             REGISTROS_TABLE_ID: {
                 "endpoint": "envioSMTR",
                 "window": {
@@ -183,7 +200,7 @@ GPS_SOURCE_CONFIGS = {
             REGISTROS_TABLE_ID: {
                 "endpoint": "posicoes",
                 "window": {
-                    "datetime_format": "%Y-%m-%dT%H:%M:%SZ",
+                    "datetime_format": OUTPUT_DATETIME_FORMAT,
                     "start_offset_minutes": 6,
                     "end_offset_minutes": 5,
                     "start_parameter": "datetime_servidor_inicio",
