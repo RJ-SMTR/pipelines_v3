@@ -2174,7 +2174,7 @@ Quinzena ou semana de competência da operação
 {% enddocs %}
 
 {% docs numero_processo_operacao_controle_ctt %}
-Número do processo da gerou a operação
+Número do processo que gerou a operação
 {% enddocs %}
 
 {% docs observacoes_operacao_controle_ctt %}
