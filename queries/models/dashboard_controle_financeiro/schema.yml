@@ -12,7 +12,7 @@ models:
         data_type: date
       - name: id_tooltip
         description: Sequencial para criação do tooltip na visualização do dashboard
-        data_type: int64s
+        data_type: int64
       - name: favorecido
         description: "{{ doc('favorecido_operacao_controle_ctt') }}"
         data_type: string
@@ -21,31 +21,31 @@ models:
         data_type: float64
       - name: tipo
         description: "{{ doc('tipo_operacao_controle_ctt') }}"
-        data_type: strings
+        data_type: string
       - name: operacao
         description: "{{ doc('operacao_controle_ctt') }}"
-        data_type: strings
+        data_type: string
       - name: modal
         description: "{{ doc('modal_operacao_controle_ctt') }}. Para o tipo_conta CAER, o valor é definido para 'N/A'"
-        data_type: strings
+        data_type: string
       - name: ano_competencia
         description: "{{ doc('ano_competencia_operacao_controle_ctt') }}"
-        data_type: int64s
+        data_type: int64
       - name: mes_competencia
         description: "{{ doc('mes_competencia_operacao_controle_ctt') }}"
-        data_type: int64s
+        data_type: int64
       - name: quinzena_semana_competencia
         description: "{{ doc('quinzena_semana_competencia_operacao_controle_ctt') }}. Para o tipo_conta CAER, o valor é definido para 'N/A'"
-        data_type: strings
+        data_type: string
       - name: numero_processo
         description: "{{ doc('numero_processo_operacao_controle_ctt') }}"
-        data_type: strings
+        data_type: string
       - name: observacoes
         description: "{{ doc('observacoes_operacao_controle_ctt') }}"
-        data_type: strings
+        data_type: string
       - name: numero_nf
         description: "{{ doc('numero_nf_operacao_controle_ctt') }}. Para o tipo_conta CETT, o valor é definido para 'N/A'"
-        data_type: strings
+        data_type: string
       - name: tipo_conta
         description: "{{ doc('tipo_conta_operacao_controle_ctt') }}"
-        data_type: strings
+        data_type: string
