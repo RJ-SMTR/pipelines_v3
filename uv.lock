@@ -17,6 +17,8 @@ members = [
     "capture-cittati-registros",
     "capture-conecta-realocacao",
     "capture-conecta-registros",
+    "capture-conecta-sistema-rio-registros",
+    "capture-conecta-sistema-rio-viagem-informada",
     "capture-gtfs",
     "capture-inmet-temperatura",
     "capture-jae-auxiliar",
@@ -410,6 +412,16 @@ source = { virtual = "pipelines/capture__conecta_realocacao" }
 name = "capture-conecta-registros"
 version = "1.0.0"
 source = { virtual = "pipelines/capture__conecta_registros" }
+
+[[package]]
+name = "capture-conecta-sistema-rio-registros"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__conecta_sistema_rio_registros" }
+
+[[package]]
+name = "capture-conecta-sistema-rio-viagem-informada"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__conecta_sistema_rio_viagem_informada" }
 
 [[package]]
 name = "capture-gtfs"

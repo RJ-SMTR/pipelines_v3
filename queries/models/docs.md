@@ -2154,11 +2154,11 @@ Nome do favorecido da operação
 {% enddocs %}
 
 {% docs modal_operacao_controle_ctt %}
-modo de transporte do favorecido da operação
+Modo de transporte do favorecido da operação
 {% enddocs %}
 
 {% docs valor_operacao_controle_ctt %}
-Valor financeira da operação (R$)
+Valor financeiro da operação (R$)
 {% enddocs %}
 
 {% docs ano_competencia_operacao_controle_ctt %}
@@ -2174,7 +2174,7 @@ Quinzena ou semana de competência da operação
 {% enddocs %}
 
 {% docs numero_processo_operacao_controle_ctt %}
-Número do processo da gerou a operação
+Número do processo que gerou a operação
 {% enddocs %}
 
 {% docs observacoes_operacao_controle_ctt %}
