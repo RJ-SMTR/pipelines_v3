@@ -125,40 +125,93 @@ from {{ source("monitoramento", "gps_onibus_cittati") }}
 
 union all
 
-select
-    data,
-    hora,
-    "maxtrack" as fonte_gps,
-    id_registro,
-    datetime_gps,
-    datetime_envio,
-    datetime_servidor,
-    id_veiculo,
-    id_equipamento,
-    sequencial_equipamento,
-    route_id,
-    servico,
-    id_viagem_planejada,
-    trip_id,
-    shape_id,
-    direction_id,
-    sentido,
-    status,
-    qualidade_sinal,
-    fonte_posicao,
-    fonte_velocidade,
-    latitude,
-    longitude,
-    altitude,
-    direcao,
-    velocidade_instantanea,
-    velocidade_estimada_10_min,
-    distancia,
-    quantidade_satelites,
-    hdop,
-    vdop,
-    pdop,
-    datetime_captura,
-    datetime_ultima_atualizacao,
-    versao
-from {{ ref("gps_v2_onibus_maxtrack") }}
+/*
+Conecta Sistema RIO é contingência da Maxtrack: remove os registros do mesmo veículo e
+horário já enviados pela Maxtrack
+*/
+select * except (prioridade)
+from
+    (
+        select
+            data,
+            hora,
+            "maxtrack" as fonte_gps,
+            id_registro,
+            datetime_gps,
+            datetime_envio,
+            datetime_servidor,
+            id_veiculo,
+            id_equipamento,
+            sequencial_equipamento,
+            route_id,
+            servico,
+            id_viagem_planejada,
+            trip_id,
+            shape_id,
+            direction_id,
+            sentido,
+            status,
+            qualidade_sinal,
+            fonte_posicao,
+            fonte_velocidade,
+            latitude,
+            longitude,
+            altitude,
+            direcao,
+            velocidade_instantanea,
+            velocidade_estimada_10_min,
+            distancia,
+            quantidade_satelites,
+            hdop,
+            vdop,
+            pdop,
+            datetime_captura,
+            datetime_ultima_atualizacao,
+            versao,
+            0 as prioridade
+        from {{ ref("gps_v2_onibus_maxtrack") }}
+
+        union all
+
+        select
+            data,
+            hora,
+            "conecta" as fonte_gps,
+            id_registro,
+            datetime_gps,
+            datetime_envio,
+            datetime_servidor,
+            id_veiculo,
+            id_equipamento,
+            sequencial_equipamento,
+            route_id,
+            servico,
+            id_viagem_planejada,
+            trip_id,
+            shape_id,
+            direction_id,
+            sentido,
+            status,
+            qualidade_sinal,
+            fonte_posicao,
+            fonte_velocidade,
+            latitude,
+            longitude,
+            altitude,
+            direcao,
+            velocidade_instantanea,
+            velocidade_estimada_10_min,
+            distancia,
+            quantidade_satelites,
+            hdop,
+            vdop,
+            pdop,
+            datetime_captura,
+            datetime_ultima_atualizacao,
+            versao,
+            1 as prioridade
+        from {{ ref("gps_v2_onibus_conecta_sistema_rio") }}
+    )
+qualify
+    prioridade = 0
+    or not logical_or(prioridade = 0) over (partition by data, id_veiculo, datetime_gps)

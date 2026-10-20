@@ -571,6 +571,17 @@ selectors:
         - method: fqn
           value: gps_v2_onibus_maxtrack
 
+  - name: gps_v2_conecta_sistema_rio
+    description: Materialização das tabelas de GPS v2 da API da Conecta para o Sistema RIO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_v2_conecta_sistema_rio
+        - method: fqn
+          value: aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+        - method: fqn
+          value: gps_v2_onibus_conecta_sistema_rio
+
   - name: snapshot_viagem
     definition:
       union:
