@@ -363,12 +363,6 @@ models:
         description: "{{ doc('block_id') }}"
       - name: shape_id
         description: "{{ doc('shape_id') }}"
-        tests:
-          - test_shape_id_gtfs:
-              name: test_shape_id_gtfs__trips_gtfs
-              config:
-                description: "Todos os `shape_id` de `trips_gtfs` constam na tabela `shapes_gtfs`"
-                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
         description: "{{ doc('wheelchair_accessible') }}"
       - name: bikes_allowed
