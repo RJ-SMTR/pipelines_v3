@@ -8,6 +8,7 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 GTFS_DISCORD_WEBHOOK = "gtfs"
+GTFS_GOOGLE_CHAT_WEBHOOK_KEY = "google_chat_planejamento"
 GTFS_MATERIALIZACAO_DATASET_ID = "gtfs"
 
 GTFS_DBT_TEST_EXCLUDE = (
