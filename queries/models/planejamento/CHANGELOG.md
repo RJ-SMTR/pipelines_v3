@@ -1,5 +1,16 @@
 # Changelog - planejamento
 
+## [1.10.0] - 2026-10-19
+
+### Adicionado
+
+- Classifica viagens com `service_id` de prefixo `F_` como ponto facultativo em `viagem_planejada_planejamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Ajusta `calendario` para permitir serviços `F_` da programação semanal somente em datas definidas manualmente como ponto facultativo, preservando as inclusões e remoções de `calendar_dates` e a prioridade do calendário manual (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+- Limita a conversão dos identificadores para `F_` aos feeds a partir de `DATA_GTFS_V6_INICIO` (`2026-10-19`), preserva os identificadores dos feeds antigos e elimina repetições no array de serviços (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
 ## [1.9.3] - 2026-10-14
 
 ### Corrigido

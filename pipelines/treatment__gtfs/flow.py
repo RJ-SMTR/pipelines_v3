@@ -33,6 +33,7 @@ async def treatment__gtfs(  # noqa: PLR0913
         force_test_run=force_test_run,
         skip_source_check=skip_source_check,
         test_webhook_key=constants.GTFS_DISCORD_WEBHOOK,
+        test_google_chat_webhook_key=constants.GTFS_GOOGLE_CHAT_WEBHOOK_KEY,
         save_redis=False,
     )
 
