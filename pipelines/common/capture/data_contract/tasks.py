@@ -17,6 +17,7 @@ from pipelines.common.capture.data_contract.utils import (
     contract_test_results,
     download_contracts_from_commit,
     format_test_results,
+    keep_relationship_properties,
     link_schema_files,
     load_contract,
     referenced_schema_names,
@@ -161,7 +162,9 @@ def validate_data_contract_relationships(
         with TemporaryDirectory() as folder:
             server_path = link_schema_files(Path(folder), files_by_schema)
             runtime_contract = add_local_server(
-                runtime_contract, raw_filepath=server_path, file_format=source.raw_filetype
+                keep_relationship_properties(runtime_contract),
+                raw_filepath=server_path,
+                file_format=source.raw_filetype,
             )
             result = DataContract(
                 data_contract_str=yaml.safe_dump(runtime_contract),

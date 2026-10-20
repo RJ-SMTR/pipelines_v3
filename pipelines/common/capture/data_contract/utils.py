@@ -475,6 +475,21 @@ def load_contract(contracts_dir: Path, model: str) -> tuple[Path, dict[str, Any]
     return contract_path, yaml.safe_load(contract_path.read_text(encoding="utf-8"))
 
 
+def relationship_targets(relationship: dict[str, Any]) -> list[tuple[str, str]]:
+    """
+    Retorna o schema e a coluna de cada destino de um relationship.
+
+    Args:
+        relationship (dict[str, Any]): Relationship ODCS, com to no formato schema.coluna.
+
+    Returns:
+        list[tuple[str, str]]: Pares (schema, coluna) citados em relationship.to.
+    """
+    targets = relationship.get("to")
+    targets = targets if isinstance(targets, list) else [targets]
+    return [tuple(str(target).rsplit(".", 1)) for target in targets if target]
+
+
 def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
     """
     Retorna os schemas referenciados pelos relationships do contrato.
@@ -485,14 +500,13 @@ def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
     Returns:
         set[str]: Nomes dos schemas citados em relationships.to.
     """
-    names = set()
-    for schema in contract.get("schema", []):
-        for property_ in schema.get("properties", []):
-            for relationship in property_.get("relationships") or []:
-                targets = relationship.get("to")
-                targets = targets if isinstance(targets, list) else [targets]
-                names.update(str(target).rsplit(".", 1)[0] for target in targets if target)
-    return names
+    return {
+        schema_name
+        for schema in contract.get("schema", [])
+        for property_ in schema.get("properties", [])
+        for relationship in property_.get("relationships") or []
+        for schema_name, _ in relationship_targets(relationship)
+    }
 
 
 def remove_relationships(
@@ -517,18 +531,46 @@ def remove_relationships(
                 relationship
                 for relationship in property_.pop("relationships", None) or []
                 if names is not None
-                and not {
-                    str(target).rsplit(".", 1)[0]
-                    for target in (
-                        relationship.get("to")
-                        if isinstance(relationship.get("to"), list)
-                        else [relationship.get("to")]
-                    )
-                }
+                and not {schema_name for schema_name, _ in relationship_targets(relationship)}
                 & names
             ]
             if relationships:
                 property_["relationships"] = relationships
+    return adapted_contract
+
+
+def keep_relationship_properties(contract: dict[str, Any]) -> dict[str, Any]:
+    """
+    Mantém em cada schema só as colunas que participam dos relationships do contrato.
+
+    O datacontract relê o arquivo bruto a cada verificação de presença de coluna; sem as
+    demais colunas, o teste dos relationships não repete as verificações da validação
+    individual. As regras de qualidade e as chaves também são removidas.
+
+    Args:
+        contract (dict[str, Any]): Contrato com os schemas da origem e das referências.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato só com as colunas dos relationships.
+    """
+    adapted_contract = deepcopy(contract)
+    columns = {}
+    for schema in adapted_contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            for relationship in property_.get("relationships") or []:
+                columns.setdefault(schema["name"], set()).add(property_["name"])
+                for schema_name, column in relationship_targets(relationship):
+                    columns.setdefault(schema_name, set()).add(column)
+    for schema in adapted_contract.get("schema", []):
+        schema.pop("quality", None)
+        schema["properties"] = [
+            property_
+            for property_ in schema.get("properties", [])
+            if property_["name"] in columns.get(schema["name"], set())
+        ]
+        for property_ in schema["properties"]:
+            for key in ("quality", "primaryKey", "primaryKeyPosition"):
+                property_.pop(key, None)
     return adapted_contract
 
 
