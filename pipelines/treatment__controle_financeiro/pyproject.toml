@@ -1,0 +1,4 @@
+[project]
+name = "treatment__controle_financeiro"
+version = "0.1.0"
+description = "Pipeline controle_financeiro da secretaria rj-smtr"
