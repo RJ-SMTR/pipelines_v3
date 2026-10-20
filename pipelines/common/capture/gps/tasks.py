@@ -16,6 +16,11 @@ from pipelines.common.utils.extractors.api import get_raw_api
 def create_gps_extractor(context: SourceCaptureContext):
     """Cria a extração de dados de GPS das fontes configuradas."""
     source_config = GPS_SOURCE_CONFIGS[context.source.source_name]
+    request_config = source_config["requests"][context.source.table_id]
+    source_config = {
+        **source_config,
+        "base_url": request_config.get("base_url", source_config["base_url"]),
+    }
     extractor_kwargs = create_gps_extractor_kwargs(
         context=context,
         source_config=source_config,
