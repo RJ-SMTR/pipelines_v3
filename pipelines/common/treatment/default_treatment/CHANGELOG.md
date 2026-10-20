@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Adiciona retry nas tasks de acesso ao Redis
+- Adiciona retry nas tasks de acesso ao Redis (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
 
 ## [1.5.0] - 2026-08-31
 
