@@ -20,8 +20,10 @@ from pipelines.common.capture.data_contract.utils import (
     keep_relationship_properties,
     link_schema_files,
     load_contract,
+    prepare_raw_file,
     referenced_schema_names,
     remove_relationships,
+    remove_type_checks,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.google_chat import notify_test_failures_google_chat
@@ -77,14 +79,19 @@ def validate_raw_data_contract(
     )
     results = []
     for raw_filepath in context.captured_raw_filepaths:
-        runtime_contract = add_local_server(
-            runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
-        )
-        result = DataContract(
-            data_contract_str=yaml.safe_dump(runtime_contract),
-            server="incoming",
-            include_failed_samples=True,
-        ).test()
+        with TemporaryDirectory() as folder:
+            server_path, file_format = prepare_raw_file(
+                raw_filepath, Path(folder) / "raw", source.raw_filetype
+            )
+            runtime_contract = add_local_server(
+                runtime_contract, raw_filepath=server_path, file_format=file_format
+            )
+            result = DataContract(
+                data_contract_str=yaml.safe_dump(runtime_contract),
+                server="incoming",
+                include_failed_samples=True,
+            ).test()
+        remove_type_checks(result)
         print(
             f"Testando {contract_path.name}\n"
             f"Servidor: incoming (caminho={raw_filepath})\n"
@@ -160,11 +167,13 @@ def validate_data_contract_relationships(
             )
             files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
         with TemporaryDirectory() as folder:
-            server_path = link_schema_files(Path(folder), files_by_schema)
+            server_path, file_format = link_schema_files(
+                Path(folder), files_by_schema, source.raw_filetype
+            )
             runtime_contract = add_local_server(
                 keep_relationship_properties(runtime_contract),
                 raw_filepath=server_path,
-                file_format=source.raw_filetype,
+                file_format=file_format,
             )
             result = DataContract(
                 data_contract_str=yaml.safe_dump(runtime_contract),

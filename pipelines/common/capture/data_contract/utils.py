@@ -11,6 +11,7 @@ from textwrap import wrap
 from typing import Any, Optional
 from urllib.parse import quote
 
+import duckdb
 import requests
 import yaml
 from datacontract.data_contract import DataContract
@@ -600,24 +601,78 @@ def add_referenced_schema(
     return adapted_contract
 
 
-def link_schema_files(folder: Path, files_by_schema: dict[str, list[str]]) -> str:
+def prepare_raw_file(source: str, target: Path, file_format: str) -> tuple[str, str]:
     """
-    Cria links dos arquivos de cada schema em <folder>/<schema>/ para validá-los juntos.
+    Prepara o arquivo bruto para a validação, convertendo CSV em Parquet.
+
+    O datacontract relê o CSV a cada verificação de presença de coluna; no Parquet, o schema
+    vem dos metadados do arquivo. As colunas ficam como texto, como no CSV. O arquivo bruto
+    original não é alterado.
 
     Args:
-        folder (Path): Diretório temporário dos links.
-        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema.
+        source (str): Caminho do arquivo bruto.
+        target (Path): Caminho do arquivo preparado, sem extensão.
+        file_format (str): Formato do arquivo bruto.
 
     Returns:
-        str: Caminho com {model}, usado pelo servidor local para ler cada schema.
+        tuple[str, str]: Caminho e formato do arquivo usado na validação.
     """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if file_format != "csv":
+        path = target.with_suffix(Path(source).suffix)
+        path.symlink_to(Path(source).resolve())
+        return str(path), file_format
+    path = target.with_suffix(".parquet")
+    source_sql = str(Path(source).resolve()).replace("'", "''")
+    path_sql = str(path).replace("'", "''")
+    with duckdb.connect() as connection:
+        connection.sql(
+            f"COPY (SELECT * FROM read_csv('{source_sql}', all_varchar = true, header = true)) "
+            f"TO '{path_sql}' (FORMAT parquet)"
+        )
+    return str(path), "parquet"
+
+
+def remove_type_checks(run: Run) -> Run:
+    """
+    Remove os checks de tipo, que o datacontract não executa em Parquet e reporta como alerta.
+
+    Os arquivos brutos em CSV não têm checks de tipo; sem eles, o resultado da validação
+    do Parquet convertido é o mesmo do CSV.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+
+    Returns:
+        Run: O mesmo resultado, sem os checks de tipo e com o resultado recalculado.
+    """
+    run.checks = [check for check in run.checks if check.type != "field_type"]
+    run.calculate_result()
+    return run
+
+
+def link_schema_files(
+    folder: Path, files_by_schema: dict[str, list[str]], file_format: str
+) -> tuple[str, str]:
+    """
+    Prepara os arquivos de cada schema em <folder>/<schema>/ para validá-los juntos.
+
+    Args:
+        folder (Path): Diretório temporário dos arquivos.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema.
+        file_format (str): Formato dos arquivos brutos.
+
+    Returns:
+        tuple[str, str]: Caminho com {model}, usado pelo servidor local para ler cada schema,
+            e formato dos arquivos preparados.
+    """
+    prepared_format = file_format
     for schema_name, filepaths in files_by_schema.items():
-        schema_folder = folder / schema_name
-        schema_folder.mkdir(parents=True, exist_ok=True)
         for position, filepath in enumerate(filepaths):
-            target = Path(filepath).resolve()
-            (schema_folder / f"{position}{target.suffix}").symlink_to(target)
-    return str(folder / "{model}" / "*")
+            _, prepared_format = prepare_raw_file(
+                filepath, folder / schema_name / str(position), file_format
+            )
+    return str(folder / "{model}" / "*"), prepared_format
 
 
 def add_local_server(
