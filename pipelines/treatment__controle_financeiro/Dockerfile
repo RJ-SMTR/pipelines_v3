@@ -8,8 +8,6 @@ COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
 COPY ./pipelines/treatment__controle_financeiro ./pipelines/treatment__controle_financeiro/
 
-COPY ./pipelines/capture__smtr_controle_financeiro ./pipelines/capture__smtr_controle_financeiro/
-
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
