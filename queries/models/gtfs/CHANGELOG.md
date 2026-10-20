@@ -1,5 +1,19 @@
 # Changelog - gtfs
 
+## [1.6.0] - 2026-10-19
+
+### Adicionado
+
+- Aceita o prefixo `F_` no teste de `service_id` de `staging_calendar`, usado na geração do contrato de dados, e classifica as trips com esse prefixo como ponto facultativo em `trips_filtrada_aux_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Restringe a associação de trips de dia útil às Ordens de Serviço de ponto facultativo aos feeds anteriores a `2026-10-19`, evitando associações duplicadas com as trips `F_` dos novos feeds (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Removido
+
+- Remove o teste de regex de `service_id` em `calendar_gtfs`, mantendo a validação em `staging_calendar` e evitando falhas repetidas na notificação (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
 ## [1.5.1] - 2026-10-14
 
 ### Adicionado

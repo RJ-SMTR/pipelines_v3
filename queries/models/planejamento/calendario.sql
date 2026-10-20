@@ -94,7 +94,7 @@ with
                 then
                     regexp_replace(
                         cd.service_id,
-                        "^[U|S|D]_",
+                        "^[U|S|D|F]_",
                         case
                             when extract(dayofweek from cd.date) = 7
                             then "S_"
@@ -136,6 +136,9 @@ with
                 or (d.dia_semana = 6 and c.friday = '1')
                 or (d.dia_semana = 7 and c.saturday = '1')
             )
+            and (
+                not starts_with(c.service_id, "F_") or d.tipo_dia = "Ponto Facultativo"
+            )
     ),
     service_ids_retirados as (
         select d.*
@@ -164,11 +167,15 @@ with
             tipo_os,
             case
                 when tipo_dia = "Domingo"
-                then regexp_replace(service_id, "^[U|S]_", "D_")
+                then regexp_replace(service_id, "^[U|S|F]_", "D_")
                 when tipo_dia = "Sabado"
-                then regexp_replace(service_id, "^[U|D]_", "S_")
+                then regexp_replace(service_id, "^[U|D|F]_", "S_")
                 when tipo_dia = "Dia Útil"
-                then regexp_replace(service_id, "^[S|D]_", "U_")
+                then regexp_replace(service_id, "^[S|D|F]_", "U_")
+                when
+                    tipo_dia = "Ponto Facultativo"
+                    and feed_start_date >= date("{{ var('DATA_GTFS_V6_INICIO') }}")
+                then regexp_replace(service_id, "^[U|S|D]_", "F_")
                 else service_id
             end as service_id,
             feed_start_date
@@ -180,7 +187,7 @@ with
             tipo_dia,
             tipo_os,
             feed_start_date,
-            array_agg(service_id) as service_ids
+            array_agg(distinct service_id) as service_ids
         from service_id_corrigido
         group by 1, 2, 3, 4
     )
@@ -189,6 +196,8 @@ select
     case
         when c.tipo_dia is not null
         then c.tipo_dia
+        when "F_REG" in unnest(c.service_ids)
+        then "Ponto Facultativo"
         when "D_REG" in unnest(c.service_ids)
         then "Domingo"
         when "S_REG" in unnest(c.service_ids)
