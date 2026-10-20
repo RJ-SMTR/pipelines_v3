@@ -55,6 +55,11 @@ schema:
     physicalType: STRING
     description: Código identificador do shape [trajeto]
     logicalType: string
+    quality:
+    - type: library
+      metric: nullValues
+      mustBe: 0
+      description: Todos os `shape_id` de `trips` estão preenchidos
     relationships:
     - type: foreignKey
       to: staging_shapes.shape_id

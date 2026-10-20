@@ -36,6 +36,9 @@ schema:
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 4
+    relationships:
+    - type: foreignKey
+      to: staging_ordem_servico_faixa_horaria_sentido.tipo_os
   - name: vista
     physicalType: STRING
     description: 'Itinerário do serviço [ex: Bananal ↔ Saens Peña]'
