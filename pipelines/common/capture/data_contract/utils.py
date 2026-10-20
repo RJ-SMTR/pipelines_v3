@@ -745,6 +745,24 @@ def run_contract_test(
     return keep_checks(run, lambda check: check.type != "field_type")
 
 
+def declares_contract(node: dict[str, Any]) -> bool:
+    """
+    Indica se o node é um modelo staging_ com datacontract_cli nos metadados dele ou das colunas.
+
+    Args:
+        node (dict[str, Any]): Node do manifest dbt.
+
+    Returns:
+        bool: True quando o contrato do modelo deve ser gerado.
+    """
+    if node["resource_type"] != "model" or not node["name"].startswith("staging_"):
+        return False
+    return any(
+        "datacontract_cli" in ((item.get("config") or {}).get("meta") or item.get("meta") or {})
+        for item in [node, *node["columns"].values()]
+    )
+
+
 def generate_contracts(
     *,
     manifest_path: Path = DEFAULT_MANIFEST,
@@ -769,21 +787,7 @@ def generate_contracts(
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     generated_paths = set()
     for model in sorted(manifest["nodes"].values(), key=lambda node: node["name"]):
-        if model["resource_type"] != "model" or not model["name"].startswith("staging_"):
-            continue
-
-        columns = model["columns"]
-        nodes_to_check = [model]
-        nodes_to_check.extend(columns.values())
-        has_contract = False
-        for node in nodes_to_check:
-            config = node.get("config") or {}
-            metadata = config.get("meta") or node.get("meta") or {}
-            if "datacontract_cli" in metadata:
-                has_contract = True
-                break
-
-        if not has_contract:
+        if not declares_contract(model):
             continue
 
         model_name = model["name"]
