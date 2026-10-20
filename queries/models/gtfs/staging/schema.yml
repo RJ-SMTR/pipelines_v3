@@ -142,6 +142,11 @@ models:
         description: "{{ doc('shape_id') }}"
         data_type: string
         data_tests:
+          - not_null:
+              name: not_null__shape_id__staging_trips
+              config:
+                description: "Todos os `shape_id` de `trips` estão preenchidos"
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
           - dbt_utils.relationships_where:
               name: dbt_utils__relationships_where__shape_id__staging_trips
               config:
