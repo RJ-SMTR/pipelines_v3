@@ -37,6 +37,14 @@ schema:
     description: Texto que aparece na sinalização identificando o destino da viagem
       aos passageiros
     logicalType: string
+    quality:
+    - type: library
+      metric: invalidValues
+      mustBe: 0
+      arguments:
+        pattern: ^[^\[\]{}]*(?:\[[a-z0-9_]+\])?\s*$
+      description: Todos os `trip_headsign` de `trips` com evento de trajeto alternativo
+        terminam com o evento no formato `[a-z0-9_]`, entre colchetes
   - name: trip_short_name
     physicalType: STRING
     description: Texto voltado ao público usado para identificar a viagem aos passageiros,

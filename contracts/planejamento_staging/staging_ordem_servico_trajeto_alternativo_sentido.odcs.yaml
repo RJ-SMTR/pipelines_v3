@@ -26,6 +26,9 @@ schema:
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 2
+    relationships:
+    - type: foreignKey
+      to: staging_ordem_servico_faixa_horaria_sentido.servico
   - name: consorcio
     physicalType: STRING
     description: Consórcio ao qual o serviço pertence
