@@ -189,7 +189,9 @@ def validate_data_contract_relationships(
             f"Schemas: {', '.join(sorted(files_by_schema))}\n"
             f"{format_test_results(result)}"
         )
-        results.extend(contract_test_results(result, table=source.table_id))
+        results.extend(
+            contract_test_results(result, table=source.table_id, partition=context.partition)
+        )
     return results or None
 
 
