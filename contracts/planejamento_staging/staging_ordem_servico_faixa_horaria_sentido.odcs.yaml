@@ -43,6 +43,14 @@ schema:
     physicalType: STRING
     description: Distância do shape [trajeto] planejado (km)
     logicalType: string
+    quality:
+    - type: library
+      metric: invalidValues
+      mustBe: 0
+      arguments:
+        pattern: ^0*[1-9][0-9]*(?:[.,][0-9]+)?$
+      description: Todas as extensões dos serviços na OS de faixas horárias são números
+        maiores que zero
   - name: partidas_entre_00h_a_01h_dias_uteis
     physicalType: STRING
     description: Quantidade de partidas planejadas entre 00h e 01h em dias úteis

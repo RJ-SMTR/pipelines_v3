@@ -1,0 +1,93 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_stops
+name: gtfs_staging/staging_stops
+status: active
+schema:
+- name: staging_stops
+  physicalType: view
+  description: |
+    Uma linha por local (stop_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo stops.txt.
+    Fonte: capturas do GTFS (source_gtfs.stops).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.stops
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: stop_id
+    physicalType: STRING
+    description: 'Identifica uma localização: paragem/plataforma, estação, entrada/saída,
+      nó genérico ou área de embarque'
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+  - name: stop_code
+    physicalType: STRING
+    description: Texto curto ou um número que identifica a localização dos passageiros
+    logicalType: string
+  - name: stop_name
+    physicalType: STRING
+    description: Nome do local
+    logicalType: string
+  - name: tts_stop_name
+    physicalType: STRING
+    description: Versão legível do stop_name
+    logicalType: string
+  - name: stop_desc
+    physicalType: STRING
+    description: Descrição do local que fornece informações úteis e de qualidade
+    logicalType: string
+  - name: stop_lat
+    physicalType: STRING
+    description: Latitude do local
+    logicalType: string
+  - name: stop_lon
+    physicalType: STRING
+    description: Longitude do local
+    logicalType: string
+  - name: zone_id
+    physicalType: STRING
+    description: Identifica a zona tarifária para uma parada
+    logicalType: string
+  - name: stop_url
+    physicalType: STRING
+    description: URL de uma página da web sobre o local
+    logicalType: string
+  - name: location_type
+    physicalType: STRING
+    description: Tipo de localização
+    logicalType: string
+  - name: parent_station
+    physicalType: STRING
+    description: Define a hierarquia entre os diferentes locais definidos em stops.txt
+    logicalType: string
+  - name: stop_timezone
+    physicalType: STRING
+    description: Fuso horário do local
+    logicalType: string
+  - name: wheelchair_boarding
+    physicalType: STRING
+    description: Indica se o embarque para cadeiras de rodas é possível no local
+    logicalType: string
+  - name: level_id
+    physicalType: STRING
+    description: Nível do local
+    logicalType: string
+  - name: platform_code
+    physicalType: STRING
+    description: Identificador de plataforma para uma parada de plataforma (uma parada
+      pertencente a uma estação)
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11

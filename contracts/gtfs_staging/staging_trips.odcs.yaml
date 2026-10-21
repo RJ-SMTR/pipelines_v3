@@ -21,11 +21,17 @@ schema:
     physicalType: STRING
     description: Identificador de uma rota da tabela routes do GTFS
     logicalType: string
+    relationships:
+    - type: foreignKey
+      to: staging_routes.route_id
   - name: service_id
     physicalType: STRING
     description: Identifica um conjunto de datas em que o serviço está disponível
       para uma ou mais rotas
     logicalType: string
+    relationships:
+    - type: foreignKey
+      to: staging_calendar.service_id
   - name: trip_id
     physicalType: STRING
     description: Código identificador de trip de referência no GTFS

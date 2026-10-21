@@ -1,0 +1,89 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_routes
+name: gtfs_staging/staging_routes
+status: active
+schema:
+- name: staging_routes
+  physicalType: view
+  description: |
+    Uma linha por rota (route_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo routes.txt.
+    Fonte: capturas do GTFS (source_gtfs.routes).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.routes
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: route_id
+    physicalType: STRING
+    description: Identificador de uma rota da tabela routes do GTFS
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+  - name: agency_id
+    physicalType: STRING
+    description: Identificador único de uma agência de transporte
+    logicalType: string
+  - name: route_short_name
+    physicalType: STRING
+    description: Nome abreviado de uma rota
+    logicalType: string
+  - name: route_long_name
+    physicalType: STRING
+    description: Nome completo de uma rota
+    logicalType: string
+  - name: route_desc
+    physicalType: STRING
+    description: Descrição de uma rota que fornece informações úteis e de qualidade
+    logicalType: string
+  - name: route_type
+    physicalType: STRING
+    description: Indica o tipo de transporte utilizado em uma rota
+    logicalType: string
+  - name: route_url
+    physicalType: STRING
+    description: URL de uma página da web sobre uma rota específica
+    logicalType: string
+  - name: route_color
+    physicalType: STRING
+    description: Designação de cores da rota que corresponda ao material voltado para
+      o público
+    logicalType: string
+  - name: route_text_color
+    physicalType: STRING
+    description: Cor legível a ser usada para texto desenhado contra um fundo de route_color
+    logicalType: string
+  - name: route_sort_order
+    physicalType: STRING
+    description: Ordena as rotas de forma ideal para apresentação aos clientes
+    logicalType: string
+  - name: continuous_pickup
+    physicalType: STRING
+    description: Indica que o passageiro pode embarcar no veículo de transporte público
+      em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito
+      em shape.txt, em cada viagem do trajeto
+    logicalType: string
+  - name: continuous_drop_off
+    physicalType: STRING
+    description: Indica que o passageiro pode descer do veículo de transporte público
+      em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito
+      em shape.txt, em cada viagem da rota
+    logicalType: string
+  - name: network_id
+    physicalType: STRING
+    description: Identifica um grupo de rotas. Várias linhas em rotas.txt podem ter
+      o mesmo network_id
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11
