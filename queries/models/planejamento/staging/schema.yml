@@ -134,7 +134,7 @@ models:
                 description: "Todas as extensões dos serviços na OS de faixas horárias são números maiores que zero"
                 where: "data_versao = '{{ var('data_versao_gtfs') }}'"
               arguments:
-                regex: '^0*[1-9][0-9]*(?:[.,][0-9]+)?$'
+                regex: '^(?:0*[1-9][0-9]*(?:\.[0-9]*)?|0*\.[0-9]*[1-9][0-9]*)$'
                 is_raw: true
       - name: partidas_entre_00h_a_01h_dias_uteis
         description: "Quantidade de partidas planejadas entre 00h e 01h em dias úteis"
