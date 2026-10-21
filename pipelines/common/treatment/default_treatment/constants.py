@@ -12,6 +12,17 @@ DBT_VARS_INTERVAL_KEYS = (
     ("date_range_start", "date_range_end"),
     ("start_date", "end_date"),
 )
+DBT_TEST_RESULT_ICONS = {"PASS": ":white_check_mark:", "WARN": ":warning:"}
+DBT_TEST_STATUS_CIRCLES = {
+    "FAIL": ":red_circle: ",
+    "WARN": ":yellow_circle: ",
+    "PASS": ":green_circle: ",
+}
+DBT_TEST_STATUS_MESSAGES = {
+    "FAIL": ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n",
+    "WARN": ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN.",
+    "PASS": ":tada: **Status:** Sucesso",
+}
 REPO_URL = "https://api.github.com/repos/RJ-SMTR/pipelines_v3"
 DBT_STATE_BUCKET = "rj-smtr-public"
 DBT_STATE_BLOB = "dbt-docs/manifest.json"

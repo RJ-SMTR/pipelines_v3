@@ -1038,6 +1038,30 @@ def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
     return start if end == start else f"{start} a {end}"
 
 
+def format_dbt_test_lines(test_results: list[dict]) -> list[str]:
+    """
+    Monta as linhas dos resultados dos testes do dbt para o Discord, agrupadas por tabela.
+
+    Args:
+        test_results (list[dict]): Resultados dos testes, com as chaves table, test,
+            description e result.
+
+    Returns:
+        list[str]: Linhas da mensagem.
+    """
+    lines = []
+    current_table = None
+    for test in test_results:
+        if test["table"] != current_table:
+            current_table = test["table"]
+            lines.append(f"*{current_table}:*\n")
+        test_id = test["test"].replace("_", "\\_")
+        description = test["description"] or f"Teste: {test_id}"
+        result_icon = constants.DBT_TEST_RESULT_ICONS.get(test["result"], ":x:")
+        lines.append(f"{result_icon} {description}\n")
+    return lines
+
+
 def dbt_test_notify_discord(  # noqa: PLR0913
     dbt_vars: dict,
     dbt_logs: str,
@@ -1076,51 +1100,25 @@ def dbt_test_notify_discord(  # noqa: PLR0913
 
     test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
     has_warn = any(test["result"] == "WARN" for test in test_results)
+    status = "FAIL" if not test_check else ("WARN" if has_warn else "PASS")
 
-    date_range = format_dbt_vars_interval(dbt_vars)
-
-    status_circle = (
-        ":red_circle: "
-        if not test_check
-        else (":yellow_circle: " if has_warn else ":green_circle: ")
-    )
-    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
-        formatted_messages = [
-            status_circle,
-            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-    else:
-        formatted_messages = [
-            status_circle,
-            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-
-    current_table = None
-    for test in test_results:
-        if test["table"] != current_table:
-            current_table = test["table"]
-            formatted_messages.append(f"*{current_table}:*\n")
-
-        test_id = test["test"].replace("_", "\\_")
-        description = test["description"] or f"Teste: {test_id}"
-
-        result_icon = {
-            "PASS": ":white_check_mark:",
-            "WARN": ":warning:",
-        }.get(test["result"], ":x:")
-        formatted_messages.append(f"{result_icon} {description}\n")
-
-    formatted_messages.append("\n")
-    if not test_check:
-        status_message = (
-            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+    is_dev = "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs
+    title = " - ".join(
+        part
+        for part in (
+            f"{'[DEV] ' if is_dev else ''}Data Quality Checks",
+            runtime.flow_run.flow_name,
+            format_dbt_vars_interval(dbt_vars),
         )
-    elif has_warn:
-        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
-    else:
-        status_message = ":tada: **Status:** Sucesso"
-    formatted_messages.append(status_message)
-
+        if part
+    )
+    formatted_messages = [
+        constants.DBT_TEST_STATUS_CIRCLES[status],
+        f"**{title}**\n\n",
+        *format_dbt_test_lines(test_results),
+        "\n",
+        constants.DBT_TEST_STATUS_MESSAGES[status],
+    ]
     if not test_check:
         formatted_messages.append(mention_tags)
 
