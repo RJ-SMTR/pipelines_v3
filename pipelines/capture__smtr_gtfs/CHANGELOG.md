@@ -1,5 +1,11 @@
 # Changelog - capture__smtr_gtfs
 
+## [1.0.2] - 2026-10-21
+
+### Alterado
+
+- As falhas do contrato de dados enviadas ao Google Chat mostram a partição capturada de cada tabela (`data_versao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+
 ## [1.0.1] - 2026-10-19
 
 ### Adicionado
