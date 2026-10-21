@@ -127,6 +127,15 @@ models:
       - name: extensao
         description: "{{ doc('extensao') }}"
         data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__extensao__staging_ordem_servico_faixa_horaria_sentido
+              config:
+                description: "Todas as extensões dos serviços na OS de faixas horárias são números maiores que zero"
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: '^0*[1-9][0-9]*(?:[.,][0-9]+)?$'
+                is_raw: true
       - name: partidas_entre_00h_a_01h_dias_uteis
         description: "Quantidade de partidas planejadas entre 00h e 01h em dias úteis"
         data_type: string
