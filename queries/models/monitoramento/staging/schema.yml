@@ -871,7 +871,7 @@ models:
         data_type: datetime
 
   - name: staging_gps_v2_conecta_sistema_rio
-    description: "Tabela com todos os registros de GPS da API da Conecta para o Sistema RIO (contingência da Maxtrack)"
+    description: "Tabela com todos os registros de GPS da API da Conecta para o Sistema RIO"
     tests:
       - check_gps_capture_v2:
           name: check_gps_capture__staging_gps_v2_conecta_sistema_rio

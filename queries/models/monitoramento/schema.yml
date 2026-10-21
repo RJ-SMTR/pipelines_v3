@@ -2009,7 +2009,7 @@ models:
         data_type: string
 
   - name: gps_v2_onibus_conecta_sistema_rio
-    description: "Um registro por sinal de GPS da API da Conecta para o Sistema RIO (contingência da Maxtrack) aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps_v2_conecta_sistema_rio` e enriquecido pelas macros `gps_aux_*` (versão 2 do payload). Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
+    description: "Um registro por sinal de GPS da API da Conecta para o Sistema RIO aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps_v2_conecta_sistema_rio` e enriquecido pelas macros `gps_aux_*` (versão 2 do payload). Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
     tests:
       - check_gps_treatment_v2:
           name: check_gps_treatment__gps_v2_onibus_conecta_sistema_rio
