@@ -1,5 +1,11 @@
 # Changelog - treatment__viagem_validacao
 
+## [1.0.5] - 2026-10-21
+
+### Corrigido
+
+- Inclui a captura `capture__conecta_sistema_rio_viagem_informada` no Dockerfile do flow, dependência transitiva das constantes de `treatment__viagem_informada` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
 ## [1.0.4] - 2026-09-11
 
 ### Corrigido
