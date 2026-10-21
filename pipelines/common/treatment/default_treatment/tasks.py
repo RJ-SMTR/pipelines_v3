@@ -18,6 +18,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     IncompleteDataError,
     clone_queries_from_github,
     dbt_test_notify_discord,
+    format_dbt_vars_interval,
     get_dbt_paths,
     get_model_table,
     run_dbt,
@@ -331,7 +332,16 @@ def task_dbt_selector_test_notify(  # noqa: PLR0913
                 for result in test_results
                 if result["result"] in ("FAIL", "ERROR")
             ],
-            title=f"Testes dbt ({mode}) - {runtime.flow_run.flow_name} - {context.selector.name}",
+            title=" - ".join(
+                part
+                for part in (
+                    f"Testes dbt ({mode})",
+                    runtime.flow_run.flow_name,
+                    context.selector.name,
+                    format_dbt_vars_interval(dbt_vars),
+                )
+                if part
+            ),
             env=context.env,
             webhook_key=google_chat_webhook_key,
         )
