@@ -7,11 +7,13 @@
 - Cria `staging_trips` e `staging_shapes`, com as colunas dos arquivos `trips.txt` e `shapes.txt`, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 - Adiciona os testes `not_null` e `dbt_utils.relationships_where` de `shape_id` em `staging_trips`, que referencia `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 - Adiciona o teste de regex de `trip_headsign` em `staging_trips`: o evento de trajeto alternativo, quando houver, fica no final e no formato `[a-z0-9_]`, entre colchetes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Cria `staging_stop_times`, `staging_stops`, `staging_routes` e `staging_frequencies`, com as colunas dos arquivos do GTFS, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `dbt_utils.relationships_where` de `trip_id` e `stop_id` em `staging_stop_times`, de `route_id` e `service_id` em `staging_trips` e de `trip_id` em `staging_frequencies` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ### Alterado
 
-- `trips_gtfs` e `shapes_gtfs` passam a ler de `staging_trips` e `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
-- As descrições das colunas de `trips` e `shapes` passam a vir do `docs.md`, compartilhadas entre os stagings e os modelos finais; `direction_id` e `shape_id` usam as descrições existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- `trips_gtfs`, `shapes_gtfs`, `stop_times_gtfs`, `stops_gtfs`, `routes_gtfs` e `frequencies_gtfs` passam a ler dos stagings correspondentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- As descrições das colunas de `trips`, `shapes`, `stop_times`, `stops`, `routes` e `frequencies` passam a vir do `docs.md`, compartilhadas entre os stagings e os modelos finais; `direction_id`, `shape_id` e `agency_id` usam as descrições existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ### Removido
 
