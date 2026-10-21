@@ -120,9 +120,31 @@ models:
       - name: route_id
         description: "{{ doc('route_id') }}"
         data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__route_id__staging_trips
+              config:
+                description: "Todas as viagens pertencem a uma rota cadastrada no GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_routes')
+                field: route_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
       - name: service_id
         description: "{{ doc('service_id') }}"
         data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__service_id__staging_trips
+              config:
+                description: "Todos os calendários de serviço das viagens estão cadastrados no GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_calendar')
+                field: service_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
       - name: trip_id
         description: "{{ doc('trip_id') }}"
         data_type: string
