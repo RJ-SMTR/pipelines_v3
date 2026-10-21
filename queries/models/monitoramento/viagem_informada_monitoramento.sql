@@ -285,16 +285,7 @@ with
                 * except (modo, versao, datetime_ultima_atualizacao, id_execucao_dbt),
                 1 as priority
             from {{ this }}
-            where
-                data in ({{ partitions | join(", ") }})
-                and not (
-                    fonte_viagem = "maxtrack"
-                    and (
-                        data > date("{{ data_partida_fim_maxtrack }}")
-                        or date(datetime_processamento)
-                        > date("{{ data_processamento_fim_maxtrack }}")
-                    )
-                )
+            where data in ({{ partitions | join(", ") }})
         {% endif %}
     ),
     deduplicado as (
