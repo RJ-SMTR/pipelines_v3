@@ -396,3 +396,45 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_frequencies
+    description: |
+      Uma linha por intervalo (trip_id, start_time) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo frequencies.txt.
+      Fonte: capturas do GTFS (source_gtfs.frequencies).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, trip_id, start_time]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__trip_id__staging_frequencies
+              config:
+                description: "Todos os intervalos de partidas pertencem a uma viagem do GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_trips')
+                field: trip_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: start_time
+        description: "{{ doc('start_time') }}"
+        data_type: string
+      - name: end_time
+        description: "{{ doc('end_time') }}"
+        data_type: string
+      - name: headway_secs
+        description: "{{ doc('headway_secs') }}"
+        data_type: string
+      - name: exact_times
+        description: "{{ doc('exact_times') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
