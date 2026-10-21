@@ -206,3 +206,64 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_stops
+    description: |
+      Uma linha por local (stop_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo stops.txt.
+      Fonte: capturas do GTFS (source_gtfs.stops).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, stop_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: stop_id
+        description: "{{ doc('stop_id') }}"
+        data_type: string
+      - name: stop_code
+        description: "{{ doc('stop_code') }}"
+        data_type: string
+      - name: stop_name
+        description: "{{ doc('stop_name') }}"
+        data_type: string
+      - name: tts_stop_name
+        description: "{{ doc('tts_stop_name') }}"
+        data_type: string
+      - name: stop_desc
+        description: "{{ doc('stop_desc') }}"
+        data_type: string
+      - name: stop_lat
+        description: "{{ doc('stop_lat') }}"
+        data_type: string
+      - name: stop_lon
+        description: "{{ doc('stop_lon') }}"
+        data_type: string
+      - name: zone_id
+        description: "{{ doc('zone_id') }}"
+        data_type: string
+      - name: stop_url
+        description: "{{ doc('stop_url') }}"
+        data_type: string
+      - name: location_type
+        description: "{{ doc('location_type') }}"
+        data_type: string
+      - name: parent_station
+        description: "{{ doc('parent_station') }}"
+        data_type: string
+      - name: stop_timezone
+        description: "{{ doc('stop_timezone') }}"
+        data_type: string
+      - name: wheelchair_boarding
+        description: "{{ doc('wheelchair_boarding') }}"
+        data_type: string
+      - name: level_id
+        description: "{{ doc('level_id') }}"
+        data_type: string
+      - name: platform_code
+        description: "{{ doc('platform_code') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
