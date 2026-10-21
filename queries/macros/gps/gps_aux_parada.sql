@@ -24,7 +24,11 @@
             from {{ ref("stops_gtfs") }}
             where
                 location_type = "1"
-                and feed_start_date in ({{ gtfs_feeds | join(", ") }})
+                {# Lista vazia quando não há feed no período (ex.: execução com --empty) #}
+                {% if gtfs_feeds | length > 0 %}
+                    and feed_start_date in ({{ gtfs_feeds | join(", ") }})
+                {% else %} and false
+                {% endif %}
         ),
         garagens as (
             select
