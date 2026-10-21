@@ -82,7 +82,9 @@ def validate_raw_data_contract(
             f"Servidor: incoming (caminho={raw_filepath})\n"
             f"{format_test_results(result)}"
         )
-        results.extend(contract_test_results(result, table=source.table_id))
+        results.extend(
+            contract_test_results(result, table=source.table_id, partition=context.partition)
+        )
     return results
 
 

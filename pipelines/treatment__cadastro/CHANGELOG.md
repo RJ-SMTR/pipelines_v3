@@ -1,5 +1,11 @@
 # Changelog - treatment__cadastro
 
+## [1.0.2] - 2026-10-21
+
+### Adicionado
+
+- Adiciona alerta no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
+
 ## [1.0.1] - 2026-05-05
 
 ### Adicionado
