@@ -133,7 +133,9 @@ CHECK_CAPTURE_PARAMS = {
         "datalake_timestamp_captura_column": "datetime_captura",
     },
     jae_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
-        "source": movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE,
+        "source": (
+            movimento_estacionamento_veiculo_constants.MOVIMENTO_ESTACIONAMENTO_VEICULO_SOURCE
+        ),
         "datalake_table": "rj-smtr.riorotativo_staging.movimento_estacionamento_veiculo",
         "timestamp_column": "data_inclusao",
         "primary_keys": ["id_movimento_estacionamento_veiculo"],
