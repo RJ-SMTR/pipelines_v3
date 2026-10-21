@@ -1010,7 +1010,52 @@ def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]
     ]
 
 
-def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
+def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
+    """
+    Retorna o intervalo testado a partir das variáveis do dbt, para identificar as notificações.
+
+    As variáveis são procuradas nesta ordem: date_range_start/date_range_end,
+    start_date/end_date, run_date e data_versao_gtfs. Datas com hora são reduzidas à data.
+
+    Args:
+        dbt_vars (dict): Variáveis usadas na execução do teste.
+
+    Returns:
+        Optional[str]: Data ou intervalo no formato "<início> a <fim>", ou None sem variáveis
+            de data.
+    """
+    keys = [
+        ("date_range_start", "date_range_end"),
+        ("start_date", "end_date"),
+        ("run_date", None),
+        ("data_versao_gtfs", None),
+    ]
+
+    start_date = None
+    end_date = None
+
+    for start_key, end_key in keys:
+        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
+            start_date = dbt_vars[start_key].split("T")[0]
+
+            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
+                end_date = dbt_vars[end_key].split("T")[0]
+
+            break
+        elif start_key in dbt_vars:
+            start_date = dbt_vars[start_key]
+
+            if end_key and end_key in dbt_vars:
+                end_date = dbt_vars[end_key]
+
+    return (
+        start_date
+        if not end_date
+        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
+    )
+
+
+def dbt_test_notify_discord(  # noqa: PLR0913
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
@@ -1049,35 +1094,7 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
     test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
     has_warn = any(test["result"] == "WARN" for test in test_results)
 
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    date_range = (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
-    )
+    date_range = format_dbt_vars_interval(dbt_vars)
 
     status_circle = (
         ":red_circle: "
