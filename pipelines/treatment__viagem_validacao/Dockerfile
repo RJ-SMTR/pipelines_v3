@@ -12,6 +12,8 @@ COPY ./pipelines/treatment__viagem_informada ./pipelines/treatment__viagem_infor
 
 COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
 
+COPY ./pipelines/capture__conecta_sistema_rio_viagem_informada ./pipelines/capture__conecta_sistema_rio_viagem_informada/
+
 COPY ./pipelines/capture__maxtrack_registros ./pipelines/capture__maxtrack_registros/
 
 COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
