@@ -465,9 +465,11 @@ models:
     controle_financeiro:
       +materialized: table
       +schema: controle_financeiro
+      +description: "Dados de controle financeiro da CCT"
       staging:
         +materialized: view
         +schema: controle_financeiro_staging
+        +description: "Dados de controle financeiro da CCT [Tratamento]"
     br_rj_riodejaneiro_viagem_zirix:
       +materialized: table
       +schema: br_rj_riodejaneiro_viagem_zirix
@@ -660,6 +662,10 @@ models:
       +materialized: view
       +schema: dashboard_riorotativo
       +description: "Views para os Dashboards do Rio Rotativo Digital"
+    dashboard_controle_financeiro:
+      +materialized: view
+      +schema: dashboard_controle_financeiro
+      +description: "Views para o Dashboards de controle financeiro"
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

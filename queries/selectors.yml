@@ -889,6 +889,21 @@ selectors:
         - method: fqn
           value: view_ativacao_dia_riorotativo
 
+  - name: controle_financeiro
+    description: Materialização da tabela de controle financeiro da CCT
+    definition:
+      union:
+        - method: fqn
+          value: staging_caer
+        - method: fqn
+          value: staging_cb
+        - method: fqn
+          value: staging_cett
+        - method: fqn
+          value: controle_cct
+        - method: fqn
+          value: view_controle_cct
+
   - name: gtfs
     description: Materialização das tabelas GTFS e dos modelos base do planejamento
     definition:
