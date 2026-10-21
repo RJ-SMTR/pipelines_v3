@@ -1,5 +1,11 @@
 # Changelog - capture__riorotativo_credenciados
 
+## [1.0.6] - 2026-10-21
+
+### Alterado
+
+- Os arquivos brutos são validados a partir de uma cópia em Parquet, mais rápida; os arquivos enviados ao GCS continuam em CSV (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ## [1.0.5] - 2026-10-21
 
 ### Alterado

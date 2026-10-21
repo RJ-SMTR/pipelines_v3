@@ -1,5 +1,11 @@
 # Changelog - treatment__gtfs
 
+## [1.0.4] - 2026-10-21
+
+### Alterado
+
+- Os testes dbt notificados passam a incluir o `not_null` e o relationship de `shape_id` em `staging_trips`, que substituem o `test_shape_id_gtfs` de `trips_gtfs`, e os relationships de `tipo_os` entre os stagings de trajetos alternativos e de faixas horárias da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ## [1.0.3] - 2026-10-21
 
 ### Alterado

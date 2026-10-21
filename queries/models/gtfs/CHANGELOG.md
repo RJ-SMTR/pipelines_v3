@@ -1,5 +1,21 @@
 # Changelog - gtfs
 
+## [1.7.0] - 2026-10-21
+
+### Adicionado
+
+- Cria `staging_trips` e `staging_shapes`, com as colunas dos arquivos `trips.txt` e `shapes.txt`, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `not_null` e `dbt_utils.relationships_where` de `shape_id` em `staging_trips`, que referencia `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Alterado
+
+- `trips_gtfs` e `shapes_gtfs` passam a ler de `staging_trips` e `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- As descrições das colunas de `trips` e `shapes` passam a vir do `docs.md`, compartilhadas entre os stagings e os modelos finais; `direction_id` e `shape_id` usam as descrições existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Removido
+
+- Remove o teste `test_shape_id_gtfs` de `trips_gtfs`, substituído pelo relationship de `shape_id` em `staging_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ## [1.6.0] - 2026-10-19
 
 ### Adicionado
