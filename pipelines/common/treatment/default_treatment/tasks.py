@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from google.cloud import storage
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
+from prefect.tasks import exponential_backoff
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment import constants
@@ -55,7 +56,7 @@ def ingest_dbt_artifacts_to_openmetadata(
     )
 
 
-@task(cache_policy=NO_CACHE)
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
 def create_materialization_contexts(  # noqa: PLR0913
     env: str,
     selectors: list[DBTSelector],
@@ -356,7 +357,7 @@ def task_dbt_selector_test_notify(  # noqa: PLR0913
     )
 
 
-@task(cache_policy=NO_CACHE)
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
     save_redis: Optional[bool] = True,
