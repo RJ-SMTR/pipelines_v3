@@ -213,5 +213,4 @@ from
         from {{ ref("gps_v2_onibus_conecta_sistema_rio") }}
     )
 qualify
-    prioridade = 0
-    or not logical_or(prioridade = 0) over (partition by data, id_veiculo, datetime_gps)
+    rank() over (partition by data, id_veiculo, datetime_gps order by prioridade) = 1
