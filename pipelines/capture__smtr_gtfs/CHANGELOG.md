@@ -1,6 +1,6 @@
 # Changelog - capture__smtr_gtfs
 
-## [1.0.3] - 2026-10-21
+## [1.0.2] - 2026-10-21
 
 ### Adicionado
 
@@ -9,14 +9,9 @@
 
 ### Alterado
 
+- As falhas do contrato de dados enviadas ao Google Chat mostram a partição capturada de cada tabela (`data_versao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
 - Em `trips`, `block_id`, `wheelchair_accessible` e `bikes_allowed` ficam fora da validação do contrato, pois só aparecem em algumas versões do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 - Os arquivos brutos são validados a partir de uma cópia em Parquet, o que reduz o tempo da validação de `ordem_servico_faixa_horaria_sentido`; os arquivos enviados ao GCS continuam em CSV (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
-
-## [1.0.2] - 2026-10-21
-
-### Alterado
-
-- As falhas do contrato de dados enviadas ao Google Chat mostram a partição capturada de cada tabela (`data_versao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
 
 ## [1.0.1] - 2026-10-19
 

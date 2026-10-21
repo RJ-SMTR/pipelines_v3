@@ -1,16 +1,11 @@
 # Changelog - treatment__gtfs
 
-## [1.0.4] - 2026-10-21
-
-### Alterado
-
-- Os testes dbt notificados passam a incluir o `not_null` e o relationship de `shape_id` em `staging_trips`, que substituem o `test_shape_id_gtfs` de `trips_gtfs`, e os relationships de `tipo_os` entre os stagings de trajetos alternativos e de faixas horárias da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
-
 ## [1.0.3] - 2026-10-21
 
 ### Alterado
 
 - O título das notificações dos testes dbt no Google Chat e no Discord mostra o feed testado (`data_versao_gtfs`), em vez da janela de execução; no Google Chat, o nome do selector sai do título, como no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+- Os testes dbt notificados passam a incluir o `not_null` e o relationship de `shape_id` em `staging_trips`, que substituem o `test_shape_id_gtfs` de `trips_gtfs`, e os relationships de `tipo_os` entre os stagings de trajetos alternativos e de faixas horárias da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ## [1.0.2] - 2026-10-19
 
