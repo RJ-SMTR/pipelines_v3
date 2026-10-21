@@ -34,9 +34,26 @@ GTFS_TABLE_CAPTURE_PARAMS = {
     "calendar_dates": {"primary_keys": ["service_id", "date"]},
     "calendar": {"primary_keys": ["service_id"], "validate_data_contract": True},
     "feed_info": {"primary_keys": ["feed_publisher_name"], "validate_data_contract": True},
-    "frequencies": {"primary_keys": ["trip_id", "start_time"]},
-    "routes": {"primary_keys": ["route_id"]},
-    "stops": {"primary_keys": ["stop_id"]},
+    "frequencies": {
+        "primary_keys": ["trip_id", "start_time"],
+        "validate_data_contract": True,
+    },
+    "routes": {
+        "primary_keys": ["route_id"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": [
+            "route_url",
+            "route_sort_order",
+            "continuous_pickup",
+            "continuous_drop_off",
+            "network_id",
+        ],
+    },
+    "stops": {
+        "primary_keys": ["stop_id"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": ["tts_stop_name", "level_id"],
+    },
     "trips": {
         "primary_keys": ["trip_id"],
         "validate_data_contract": True,
@@ -44,7 +61,16 @@ GTFS_TABLE_CAPTURE_PARAMS = {
     },
     "fare_attributes": {"primary_keys": ["fare_id"]},
     "fare_rules": {"primary_keys": ["fare_id", "route_id"]},
-    "stop_times": {"primary_keys": ["trip_id", "stop_sequence"]},
+    "stop_times": {
+        "primary_keys": ["trip_id", "stop_sequence"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": [
+            "pickup_type",
+            "drop_off_type",
+            "continuous_pickup",
+            "continuous_drop_off",
+        ],
+    },
 }
 
 DATA_GTFS_V2_INICIO = "2025-04-30"
