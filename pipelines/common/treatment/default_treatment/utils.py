@@ -9,7 +9,7 @@ import tempfile
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -1010,7 +1010,76 @@ def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]
     ]
 
 
-def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
+def date_part(value: Any) -> str:
+    """
+    Retorna só a data de um valor de data ou data e hora, separadas por T ou por espaço.
+
+    Args:
+        value (Any): Valor da variável do dbt.
+
+    Returns:
+        str: Data, sem a hora, ou string vazia quando o valor não tem data.
+    """
+    return str(value).replace("T", " ").strip().partition(" ")[0]
+
+
+def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
+    """
+    Retorna o que foi testado a partir das variáveis do dbt, para identificar as notificações.
+
+    Usa a primeira variável com data em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
+    para a mais genérica. Variáveis únicas, como data_versao_gtfs, aparecem com o nome
+    (data_versao_gtfs=2026-10-13); intervalos aparecem como "<início> a <fim>". Datas com
+    hora, separada por T ou por espaço, são reduzidas à data.
+
+    Args:
+        dbt_vars (dict): Variáveis usadas na execução do teste.
+
+    Returns:
+        Optional[str]: Identificação do que foi testado, ou None sem variáveis de data.
+    """
+    start_key, end_key = next(
+        (
+            (start, end)
+            for start, end in constants.DBT_VARS_INTERVAL_KEYS
+            if date_part(dbt_vars.get(start) or "")
+        ),
+        (None, None),
+    )
+    if start_key is None:
+        return None
+    start = date_part(dbt_vars[start_key])
+    if end_key is None:
+        return f"{start_key}={start}"
+    end = date_part(dbt_vars.get(end_key) or "") or start
+    return start if end == start else f"{start} a {end}"
+
+
+def format_dbt_test_lines(test_results: list[dict]) -> list[str]:
+    """
+    Monta as linhas dos resultados dos testes do dbt para o Discord, agrupadas por tabela.
+
+    Args:
+        test_results (list[dict]): Resultados dos testes, com as chaves table, test,
+            description e result.
+
+    Returns:
+        list[str]: Linhas da mensagem.
+    """
+    lines = []
+    current_table = None
+    for test in test_results:
+        if test["table"] != current_table:
+            current_table = test["table"]
+            lines.append(f"*{current_table}:*\n")
+        test_id = test["test"].replace("_", "\\_")
+        description = test["description"] or f"Teste: {test_id}"
+        result_icon = constants.DBT_TEST_RESULT_ICONS.get(test["result"], ":x:")
+        lines.append(f"{result_icon} {description}\n")
+    return lines
+
+
+def dbt_test_notify_discord(  # noqa: PLR0913
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
@@ -1048,79 +1117,30 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
     has_warn = any(test["result"] == "WARN" for test in test_results)
-
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    date_range = (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
-    )
-
-    status_circle = (
-        ":red_circle: "
-        if not test_check
-        else (":yellow_circle: " if has_warn else ":green_circle: ")
-    )
-    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
-        formatted_messages = [
-            status_circle,
-            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-    else:
-        formatted_messages = [
-            status_circle,
-            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-
-    current_table = None
-    for test in test_results:
-        if test["table"] != current_table:
-            current_table = test["table"]
-            formatted_messages.append(f"*{current_table}:*\n")
-
-        test_id = test["test"].replace("_", "\\_")
-        description = test["description"] or f"Teste: {test_id}"
-
-        result_icon = {
-            "PASS": ":white_check_mark:",
-            "WARN": ":warning:",
-        }.get(test["result"], ":x:")
-        formatted_messages.append(f"{result_icon} {description}\n")
-
-    formatted_messages.append("\n")
     if not test_check:
-        status_message = (
-            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-        )
+        status = "FAIL"
     elif has_warn:
-        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
+        status = "WARN"
     else:
-        status_message = ":tada: **Status:** Sucesso"
-    formatted_messages.append(status_message)
+        status = "PASS"
 
+    is_dev = "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs
+    title = " - ".join(
+        part
+        for part in (
+            f"{'[DEV] ' if is_dev else ''}Data Quality Checks",
+            runtime.flow_run.flow_name,
+            format_dbt_vars_interval(dbt_vars),
+        )
+        if part
+    )
+    formatted_messages = [
+        constants.DBT_TEST_STATUS_CIRCLES[status],
+        f"**{title}**\n\n",
+        *format_dbt_test_lines(test_results),
+        "\n",
+        constants.DBT_TEST_STATUS_MESSAGES[status],
+    ]
     if not test_check:
         formatted_messages.append(mention_tags)
 
