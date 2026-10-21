@@ -129,6 +129,15 @@ models:
       - name: trip_headsign
         description: "{{ doc('trip_headsign') }}"
         data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__trip_headsign__staging_trips
+              config:
+                description: "Todos os `trip_headsign` de `trips` com evento de trajeto alternativo terminam com o evento no formato `[a-z0-9_]`, entre colchetes"
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: '^[^\[\]{}]*(?:\[[a-z0-9_]+\])?\s*$'
+                is_raw: true
       - name: trip_short_name
         description: "{{ doc('trip_short_name') }}"
         data_type: string
