@@ -92,10 +92,12 @@
                     ),
                     "'"
                 ) as data_viagem
+            /*
+            Inclui as capturas da Maxtrack após a troca de fonte para recompor as
+            partições e remover as viagens já materializadas
+            */
             from {{ staging_viagem_informada_maxtrack }}
-            where
-                {{ incremental_filter }}
-                and data < date("{{ data_captura_inicio_conecta_sistema_rio }}")
+            where {{ incremental_filter }}
 
             union distinct
 
@@ -196,7 +198,20 @@ with
             datetime_captura
         from {{ staging_viagem_informada_maxtrack }}
         where
-            {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
+            {% if is_incremental() %}
+                (
+                    {{ incremental_filter }}
+                    {% if partitions | length > 0 %}
+                        /*
+                        Relê as capturas anteriores à troca de fonte das partições
+                        recompostas, igualando o resultado ao full refresh
+                        */
+                        or extract(date from datetime_partida)
+                        in ({{ partitions | join(", ") }})
+                    {% endif %}
+                )
+                and
+            {% endif %}
             data < date("{{ data_captura_inicio_conecta_sistema_rio }}")
     ),
     staging_conecta_sistema_rio as (
@@ -277,7 +292,13 @@ with
                 * except (modo, versao, datetime_ultima_atualizacao, id_execucao_dbt),
                 1 as priority
             from {{ this }}
-            where data in ({{ partitions | join(", ") }})
+            where
+                data in ({{ partitions | join(", ") }})
+                and not (
+                    fonte_viagem = "maxtrack"
+                    and date(datetime_captura)
+                    >= date("{{ data_captura_inicio_conecta_sistema_rio }}")
+                )
         {% endif %}
     ),
     deduplicado as (
