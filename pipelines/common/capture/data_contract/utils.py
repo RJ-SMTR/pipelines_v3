@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
 from textwrap import wrap
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import quote
 
 import requests
@@ -119,21 +119,23 @@ def check_description(check: Any) -> str:
     return check.name
 
 
-def contract_test_results(run: Run, table: str) -> list[dict]:
+def contract_test_results(run: Run, table: str, partition: Optional[str] = None) -> list[dict]:
     """Converte os checks do contrato no formato usado nas notificações de testes.
 
     Args:
         run (Run): Resultado do teste do contrato.
         table (str): Nome exibido para agrupar os checks na notificação.
+        partition (Optional[str]): Partição capturada, que identifica o que foi verificado.
 
     Returns:
-        list[dict]: Checks executados, com as chaves table, description e result
+        list[dict]: Checks executados, com as chaves table, partition, description e result
             (PASS, WARN, FAIL ou ERROR).
     """
     results = {"passed": "PASS", "warning": "WARN", "failed": "FAIL"}
     return [
         {
             "table": table,
+            "partition": partition,
             "description": check_description(check),
             "result": results.get(_result_value(check.result), "ERROR"),
         }
