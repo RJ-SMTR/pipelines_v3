@@ -267,3 +267,58 @@ models:
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
         data_type: string
+
+  - name: staging_routes
+    description: |
+      Uma linha por rota (route_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo routes.txt.
+      Fonte: capturas do GTFS (source_gtfs.routes).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, route_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: agency_id
+        description: "{{ doc('agency_id') }}"
+        data_type: string
+      - name: route_short_name
+        description: "{{ doc('route_short_name') }}"
+        data_type: string
+      - name: route_long_name
+        description: "{{ doc('route_long_name') }}"
+        data_type: string
+      - name: route_desc
+        description: "{{ doc('route_desc') }}"
+        data_type: string
+      - name: route_type
+        description: "{{ doc('route_type') }}"
+        data_type: string
+      - name: route_url
+        description: "{{ doc('route_url') }}"
+        data_type: string
+      - name: route_color
+        description: "{{ doc('route_color') }}"
+        data_type: string
+      - name: route_text_color
+        description: "{{ doc('route_text_color') }}"
+        data_type: string
+      - name: route_sort_order
+        description: "{{ doc('route_sort_order') }}"
+        data_type: string
+      - name: continuous_pickup
+        description: "{{ doc('continuous_pickup_route') }}"
+        data_type: string
+      - name: continuous_drop_off
+        description: "{{ doc('continuous_drop_off_route') }}"
+        data_type: string
+      - name: network_id
+        description: "{{ doc('network_id') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
