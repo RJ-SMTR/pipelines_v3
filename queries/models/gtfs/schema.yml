@@ -158,13 +158,13 @@ models:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
       - name: start_time
-        description: "Hora em que o primeiro veículo sai da primeira parada da viagem com o intervalo especificado"
+        description: "{{ doc('start_time') }}"
       - name: end_time
-        description: "Hora em que o serviço muda para um intervalo diferente (ou cessa) na primeira parada da viagem"
+        description: "{{ doc('end_time') }}"
       - name: headway_secs
-        description: "Tempo, em segundos, entre partidas da mesma parada (intervalo) da viagem, durante o intervalo de tempo especificado por start_time e end_time"
+        description: "{{ doc('headway_secs') }}"
       - name: exact_times
-        description: "Indica o tipo de serviço para uma viagem"
+        description: "{{ doc('exact_times') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -180,29 +180,29 @@ models:
       - name: route_id
         description: "{{ doc('route_id') }}"
       - name: agency_id
-        description: "Agência para a rota especificada"
+        description: "{{ doc('agency_id') }}"
       - name: route_short_name
-        description: "Nome abreviado de uma rota"
+        description: "{{ doc('route_short_name') }}"
       - name: route_long_name
-        description: "Nome completo de uma rota"
+        description: "{{ doc('route_long_name') }}"
       - name: route_desc
-        description: "Descrição de uma rota que fornece informações úteis e de qualidade"
+        description: "{{ doc('route_desc') }}"
       - name: route_type
-        description: "Indica o tipo de transporte utilizado em uma rota"
+        description: "{{ doc('route_type') }}"
       - name: route_url
-        description: "URL de uma página da web sobre uma rota específica"
+        description: "{{ doc('route_url') }}"
       - name: route_color
-        description: "Designação de cores da rota que corresponda ao material voltado para o público"
+        description: "{{ doc('route_color') }}"
       - name: route_text_color
-        description: "Cor legível a ser usada para texto desenhado contra um fundo de route_color"
+        description: "{{ doc('route_text_color') }}"
       - name: route_sort_order
-        description: "Ordena as rotas de forma ideal para apresentação aos clientes"
+        description: "{{ doc('route_sort_order') }}"
       - name: continuous_pickup
-        description: "Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem do trajeto"
+        description: "{{ doc('continuous_pickup_route') }}"
       - name: continuous_drop_off
-        description: "Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem da rota"
+        description: "{{ doc('continuous_drop_off_route') }}"
       - name: network_id
-        description: "Identifica um grupo de rotas. Várias linhas em rotas.txt podem ter o mesmo network_id"
+        description: "{{ doc('network_id') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -262,35 +262,35 @@ models:
     description: "Paradas onde os veículos pegam ou deixam os passageiros [também define estações e entradas de estação]"
     columns:
       - name: stop_id
-        description: "Identifica uma localização: paragem/plataforma, estação, entrada/saída, nó genérico ou área de embarque"
+        description: "{{ doc('stop_id') }}"
       - name: stop_code
-        description: "Texto curto ou um número que identifica a localização dos passageiros"
+        description: "{{ doc('stop_code') }}"
       - name: stop_name
-        description: "Nome do local"
+        description: "{{ doc('stop_name') }}"
       - name: tts_stop_name
-        description: "Versão legível do stop_name"
+        description: "{{ doc('tts_stop_name') }}"
       - name: stop_desc
-        description: "Descrição do local que fornece informações úteis e de qualidade"
+        description: "{{ doc('stop_desc') }}"
       - name: stop_lat
-        description: "Latitude do local"
+        description: "{{ doc('stop_lat') }}"
       - name: stop_lon
-        description: "Longitude do local"
+        description: "{{ doc('stop_lon') }}"
       - name: zone_id
-        description: "Identifica a zona tarifária para uma parada"
+        description: "{{ doc('zone_id') }}"
       - name: stop_url
-        description: "URL de uma página da web sobre o local"
+        description: "{{ doc('stop_url') }}"
       - name: location_type
-        description: "Tipo de localização"
+        description: "{{ doc('location_type') }}"
       - name: parent_station
-        description: "Define a hierarquia entre os diferentes locais definidos em stops.txt"
+        description: "{{ doc('parent_station') }}"
       - name: stop_timezone
-        description: "Fuso horário do local"
+        description: "{{ doc('stop_timezone') }}"
       - name: wheelchair_boarding
-        description: "Indica se o embarque para cadeiras de rodas é possível no local"
+        description: "{{ doc('wheelchair_boarding') }}"
       - name: level_id
-        description: "Nível do local"
+        description: "{{ doc('level_id') }}"
       - name: platform_code
-        description: "Identificador de plataforma para uma parada de plataforma (uma parada pertencente a uma estação)"
+        description: "{{ doc('platform_code') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -306,27 +306,27 @@ models:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
       - name: stop_sequence
-        description: "Ordem das paradas para uma viagem específica"
+        description: "{{ doc('stop_sequence') }}"
       - name: stop_id
-        description: "Identifica a parada atendida"
+        description: "{{ doc('stop_id_stop_time') }}"
       - name: arrival_time
-        description: "Hora de chegada na parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone"
+        description: "{{ doc('arrival_time') }}"
       - name: departure_time
-        description: "Hora de partida da parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone"
+        description: "{{ doc('departure_time') }}"
       - name: stop_headsign
         description: "{{ doc('trip_headsign') }}"
       - name: pickup_type
-        description: "Indica o método de coleta"
+        description: "{{ doc('pickup_type') }}"
       - name: drop_off_type
-        description: " Indica o método de entrega"
+        description: "{{ doc('drop_off_type') }}"
       - name: continuous_pickup
-        description: "Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem"
+        description: "{{ doc('continuous_pickup_stop_time') }}"
       - name: continuous_drop_off
-        description: "Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do caminho de viagem do veículo, conforme descrito por shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem"
+        description: "{{ doc('continuous_drop_off_stop_time') }}"
       - name: shape_dist_traveled
-        description: "Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro"
+        description: "{{ doc('shape_dist_traveled_stop_time') }}"
       - name: timepoint
-        description: "Indica se os horários de chegada e saída de uma parada são rigorosamente respeitados pelo veículo ou se são horários aproximados e/ou interpolados"
+        description: "{{ doc('timepoint') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date

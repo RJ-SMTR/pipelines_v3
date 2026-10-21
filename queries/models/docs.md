@@ -358,6 +358,166 @@ Sequência na qual os pontos da forma se conectam para formar a forma
 Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro
 {% enddocs %}
 
+{% docs stop_sequence %}
+Ordem das paradas para uma viagem específica
+{% enddocs %}
+
+{% docs stop_id_stop_time %}
+Identifica a parada atendida
+{% enddocs %}
+
+{% docs arrival_time %}
+Hora de chegada na parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+{% enddocs %}
+
+{% docs departure_time %}
+Hora de partida da parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+{% enddocs %}
+
+{% docs pickup_type %}
+Indica o método de coleta
+{% enddocs %}
+
+{% docs drop_off_type %}
+Indica o método de entrega
+{% enddocs %}
+
+{% docs continuous_pickup_stop_time %}
+Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+{% enddocs %}
+
+{% docs continuous_drop_off_stop_time %}
+Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do caminho de viagem do veículo, conforme descrito por shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+{% enddocs %}
+
+{% docs shape_dist_traveled_stop_time %}
+Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro
+{% enddocs %}
+
+{% docs timepoint %}
+Indica se os horários de chegada e saída de uma parada são rigorosamente respeitados pelo veículo ou se são horários aproximados e/ou interpolados
+{% enddocs %}
+
+{% docs stop_id %}
+Identifica uma localização: paragem/plataforma, estação, entrada/saída, nó genérico ou área de embarque
+{% enddocs %}
+
+{% docs stop_code %}
+Texto curto ou um número que identifica a localização dos passageiros
+{% enddocs %}
+
+{% docs stop_name %}
+Nome do local
+{% enddocs %}
+
+{% docs tts_stop_name %}
+Versão legível do stop_name
+{% enddocs %}
+
+{% docs stop_desc %}
+Descrição do local que fornece informações úteis e de qualidade
+{% enddocs %}
+
+{% docs stop_lat %}
+Latitude do local
+{% enddocs %}
+
+{% docs stop_lon %}
+Longitude do local
+{% enddocs %}
+
+{% docs zone_id %}
+Identifica a zona tarifária para uma parada
+{% enddocs %}
+
+{% docs stop_url %}
+URL de uma página da web sobre o local
+{% enddocs %}
+
+{% docs location_type %}
+Tipo de localização
+{% enddocs %}
+
+{% docs parent_station %}
+Define a hierarquia entre os diferentes locais definidos em stops.txt
+{% enddocs %}
+
+{% docs stop_timezone %}
+Fuso horário do local
+{% enddocs %}
+
+{% docs wheelchair_boarding %}
+Indica se o embarque para cadeiras de rodas é possível no local
+{% enddocs %}
+
+{% docs level_id %}
+Nível do local
+{% enddocs %}
+
+{% docs platform_code %}
+Identificador de plataforma para uma parada de plataforma (uma parada pertencente a uma estação)
+{% enddocs %}
+
+{% docs route_short_name %}
+Nome abreviado de uma rota
+{% enddocs %}
+
+{% docs route_long_name %}
+Nome completo de uma rota
+{% enddocs %}
+
+{% docs route_desc %}
+Descrição de uma rota que fornece informações úteis e de qualidade
+{% enddocs %}
+
+{% docs route_type %}
+Indica o tipo de transporte utilizado em uma rota
+{% enddocs %}
+
+{% docs route_url %}
+URL de uma página da web sobre uma rota específica
+{% enddocs %}
+
+{% docs route_color %}
+Designação de cores da rota que corresponda ao material voltado para o público
+{% enddocs %}
+
+{% docs route_text_color %}
+Cor legível a ser usada para texto desenhado contra um fundo de route_color
+{% enddocs %}
+
+{% docs route_sort_order %}
+Ordena as rotas de forma ideal para apresentação aos clientes
+{% enddocs %}
+
+{% docs continuous_pickup_route %}
+Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem do trajeto
+{% enddocs %}
+
+{% docs continuous_drop_off_route %}
+Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem da rota
+{% enddocs %}
+
+{% docs network_id %}
+Identifica um grupo de rotas. Várias linhas em rotas.txt podem ter o mesmo network_id
+{% enddocs %}
+
+{% docs start_time %}
+Hora em que o primeiro veículo sai da primeira parada da viagem com o intervalo especificado
+{% enddocs %}
+
+{% docs end_time %}
+Hora em que o serviço muda para um intervalo diferente (ou cessa) na primeira parada da viagem
+{% enddocs %}
+
+{% docs headway_secs %}
+Tempo, em segundos, entre partidas da mesma parada (intervalo) da viagem, durante o intervalo de tempo especificado por start_time e end_time
+{% enddocs %}
+
+{% docs exact_times %}
+Indica o tipo de serviço para uma viagem
+{% enddocs %}
+
 {% docs evento_trajeto_alternativo %}
 Evento relacionado ao trajeto alternativo
 {% enddocs %}
