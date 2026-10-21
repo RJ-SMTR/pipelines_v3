@@ -109,6 +109,8 @@ models:
     description: |
       Uma linha por viagem (trip_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo trips.txt.
       Fonte: capturas do GTFS (source_gtfs.trips).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `trip_id`.
     config:
       meta:
         datacontract_cli:
@@ -202,6 +204,8 @@ models:
     description: |
       Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
       Fonte: capturas do GTFS (source_gtfs.shapes).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `shape_id`.
     config:
       meta:
         datacontract_cli:
@@ -233,6 +237,8 @@ models:
     description: |
       Uma linha por local (stop_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo stops.txt.
       Fonte: capturas do GTFS (source_gtfs.stops).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `stop_id`.
     config:
       meta:
         datacontract_cli:
@@ -294,6 +300,8 @@ models:
     description: |
       Uma linha por rota (route_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo routes.txt.
       Fonte: capturas do GTFS (source_gtfs.routes).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `route_id`.
     config:
       meta:
         datacontract_cli:
@@ -349,6 +357,8 @@ models:
     description: |
       Uma linha por parada (trip_id, stop_sequence) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo stop_times.txt.
       Fonte: capturas do GTFS (source_gtfs.stop_times).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` com `trip_id` (viagem) ou `stop_id` (parada).
     config:
       meta:
         datacontract_cli:
@@ -423,6 +433,8 @@ models:
     description: |
       Uma linha por intervalo (trip_id, start_time) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo frequencies.txt.
       Fonte: capturas do GTFS (source_gtfs.frequencies).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `trip_id`.
     config:
       meta:
         datacontract_cli:

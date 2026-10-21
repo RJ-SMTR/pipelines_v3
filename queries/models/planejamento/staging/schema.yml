@@ -104,6 +104,8 @@ models:
     description: |
       Uma linha por serviço, sentido e tipo de OS por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de faixas horárias da OS.
       Fonte: capturas do GTFS (source_gtfs.ordem_servico_faixa_horaria_sentido).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` com `servico`, `sentido` e `tipo_os`.
     config:
       meta:
         datacontract_cli:
