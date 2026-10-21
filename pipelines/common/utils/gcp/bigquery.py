@@ -304,6 +304,10 @@ class SourceTable(BQTable):
             for d in prefect_file["deployments"]
             if d["name"] == f"rj-{flow_name.replace('__', '--', 1)}--prod"
         ).get("schedules", [{}])
+        schedules = [sched for sched in schedules if sched.get("active", True)]
+
+        if not schedules:
+            return None
 
         for sched in schedules:
             ids = (sched.get("parameters") or {}).get("source_table_ids") or []
