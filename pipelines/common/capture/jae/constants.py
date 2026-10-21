@@ -239,9 +239,10 @@ JAE_TABLE_CAPTURE_PARAMS = {
                     fiscalizacao f
                 LEFT JOIN
                     tipo_fiscalizacao t on f.id_tipo_fiscalizacao = t.id
-                WHERE
+                /*WHERE
                     f.dt_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND f.dt_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                    AND f.dt_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'*/
+                ORDER BY id
             """,
         "database": "fiscalizacao_db",
         "capture_delay_minutes": {"0": 5},
