@@ -10,7 +10,7 @@
 
 ### Alterado
 
-- Altera `viagem_informada_monitoramento` para usar a Conecta (`fonte_viagem = "conecta"`) no lugar da Maxtrack nas capturas a partir de `2026-10-16`, data da troca do endpoint da API, removendo as viagens da Maxtrack capturadas a partir dessa data das partições recompostas (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `viagem_informada_monitoramento` para considerar as viagens da Maxtrack apenas com partida até `2026-10-15` e processadas até `2026-10-20`, e as viagens da Conecta (`fonte_viagem = "conecta"`) com partida a partir de `2026-10-16` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera `view_gps_onibus` para incluir o GPS da Conecta para o Sistema RIO com `fonte_gps = "conecta"` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera `viagem_validacao` para classificar as viagens com `fonte_viagem = "conecta"` no sistema `RIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera a macro `gps_staging_registros_v2`, adicionando o parâmetro `table_id` (padrão `registros`) (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
