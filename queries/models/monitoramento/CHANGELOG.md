@@ -15,6 +15,10 @@
 - Altera `viagem_validacao` para classificar as viagens com `fonte_viagem = "conecta"` no sistema `RIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera a macro `gps_staging_registros_v2`, adicionando o parâmetro `table_id` (padrão `registros`) (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 
+### Corrigido
+
+- Corrige a macro `gps_aux_parada` para não gerar `feed_start_date in ()` quando não há feed GTFS no período, como na criação de tabelas com `--empty` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
 ## [2.4.2] - 2026-10-15
 
 ### Corrigido
