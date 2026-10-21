@@ -91,19 +91,21 @@ def validate_raw_data_contract(
 def add_referenced_sources(
     contract: dict,
     context: SourceCaptureContext,
-    contexts_by_model: dict[str, SourceCaptureContext],
+    contexts_by_source: dict[tuple[str, str], SourceCaptureContext],
     contracts_dir: Path,
 ) -> tuple[dict, dict[str, list[str]]]:
     """
     Anexa ao contrato os schemas referenciados pelos relationships e reúne os arquivos brutos.
 
-    Um schema referenciado sem fonte capturada nesta execução não é anexado; o datacontract
-    gera um check de relationship com alerta para ele.
+    As referências vêm da mesma partição da fonte: numa recaptura, cada partição é validada
+    com os arquivos da sua própria captura. Um schema referenciado sem fonte capturada nessa
+    partição não é anexado; o datacontract gera um check de relationship com alerta para ele.
 
     Args:
         contract (dict): Contrato da fonte, já adaptado.
         context (SourceCaptureContext): Contexto da fonte que declara os relationships.
-        contexts_by_model (dict[str, SourceCaptureContext]): Contextos da execução por modelo.
+        contexts_by_source (dict[tuple[str, str], SourceCaptureContext]): Contextos da
+            execução por modelo e partição.
         contracts_dir (Path): Diretório com os contratos baixados.
 
     Returns:
@@ -112,9 +114,9 @@ def add_referenced_sources(
     """
     files_by_schema = {context.source.data_contract_model: context.captured_raw_filepaths}
     for schema_name in sorted(referenced_schema_names(contract)):
-        referenced_context = contexts_by_model.get(schema_name)
+        referenced_context = contexts_by_source.get((schema_name, context.partition))
         if referenced_context is None:
-            print(f"{schema_name} não capturado nesta execução; relationship não verificado.")
+            print(f"{schema_name} sem captura em {context.partition}; relationship não verificado.")
             continue
         _, referenced_contract = load_contract(contracts_dir, schema_name)
         contract = add_referenced_schema(
@@ -138,10 +140,11 @@ def validate_data_contract_relationships(
     Valida os relationships dos contratos com os arquivos brutos das fontes referenciadas.
 
     Cada fonte com relationships é testada junto com os arquivos das fontes referenciadas,
-    capturadas na mesma execução, e só os checks de relationship são devolvidos. Fontes com
-    ERROR em validate_raw_data_contract (arquivo ilegível, por exemplo) ficam de fora, como
-    origem e como referência, para não repetir a mesma causa na notificação. Uma fonte
-    referenciada que não foi capturada gera um check de relationship com alerta.
+    capturadas na mesma execução e na mesma partição, e só os checks de relationship são
+    devolvidos. Fontes com ERROR em validate_raw_data_contract (arquivo ilegível, por exemplo)
+    ficam de fora naquela partição, como origem e como referência, para não repetir a mesma
+    causa na notificação. Uma fonte referenciada que não foi capturada na partição gera um
+    check de relationship com alerta.
 
     Args:
         contexts (list[SourceCaptureContext]): Contextos das fontes capturadas.
@@ -158,17 +161,24 @@ def validate_data_contract_relationships(
     """
     if contracts_dir is None:
         return None
-    error_models = {
-        context.source.data_contract_model
+    error_sources = {
+        (context.source.data_contract_model, context.partition)
         for context, validation in zip(contexts, validations, strict=True)
         if any(result["result"] == "ERROR" for result in validation or [])
     }
-    contexts_by_model = {context.source.data_contract_model: context for context in contexts}
+    contexts_by_source = {
+        (context.source.data_contract_model, context.partition): context for context in contexts
+    }
     results = []
     for context in contexts:
         source = context.source
-        if not source.validate_data_contract or source.data_contract_model in error_models:
+        if not source.validate_data_contract or (
+            (source.data_contract_model, context.partition) in error_sources
+        ):
             continue
+        error_models = {
+            model for model, partition in error_sources if partition == context.partition
+        }
         contract_path, contract = load_contract(contracts_dir, source.data_contract_model)
         runtime_contract = adapt_contract_schema(
             remove_relationships(contract, schema_names=error_models),
@@ -178,7 +188,7 @@ def validate_data_contract_relationships(
         if not referenced_schema_names(runtime_contract):
             continue
         runtime_contract, files_by_schema = add_referenced_sources(
-            runtime_contract, context, contexts_by_model, contracts_dir
+            runtime_contract, context, contexts_by_source, contracts_dir
         )
         result = run_contract_test(
             keep_relationship_properties(runtime_contract), files_by_schema, source.raw_filetype
