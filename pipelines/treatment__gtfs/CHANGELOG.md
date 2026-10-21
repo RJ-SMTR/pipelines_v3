@@ -1,5 +1,11 @@
 # Changelog - treatment__gtfs
 
+## [1.0.3] - 2026-10-21
+
+### Alterado
+
+- O título das notificações dos testes dbt no Google Chat e no Discord mostra o feed testado (`data_versao_gtfs`), em vez da janela de execução (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+
 ## [1.0.2] - 2026-10-19
 
 ### Adicionado
