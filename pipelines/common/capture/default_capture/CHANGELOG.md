@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona a task `validate_data_contract_relationships`, que valida os relationships dos contratos com os arquivos brutos das fontes referenciadas, capturadas na mesma execução; as falhas são notificadas junto com as da validação individual em `check_data_contract` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona a task `validate_data_contract_relationships`, que valida os relationships dos contratos com os arquivos brutos das fontes referenciadas, capturadas na mesma execução e na mesma partição; as falhas são notificadas junto com as da validação individual em `check_data_contract` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 - O importador dos contratos traduz os testes dbt `relationships` e `dbt_utils.relationships_where` em relationships do tipo `foreignKey` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ### Alterado
