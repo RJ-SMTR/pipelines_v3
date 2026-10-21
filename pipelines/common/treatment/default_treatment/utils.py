@@ -9,7 +9,7 @@ import tempfile
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -1010,14 +1010,27 @@ def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]
     ]
 
 
+def date_part(value: Any) -> str:
+    """
+    Retorna só a data de um valor de data ou data e hora, separadas por T ou por espaço.
+
+    Args:
+        value (Any): Valor da variável do dbt.
+
+    Returns:
+        str: Data, sem a hora.
+    """
+    return str(value).replace("T", " ").split()[0]
+
+
 def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
     """
     Retorna o que foi testado a partir das variáveis do dbt, para identificar as notificações.
 
-    Usa a primeira variável encontrada em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
+    Usa a primeira variável preenchida em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
     para a mais genérica. Variáveis únicas, como data_versao_gtfs, aparecem com o nome
     (data_versao_gtfs=2026-10-13); intervalos aparecem como "<início> a <fim>". Datas com
-    hora são reduzidas à data.
+    hora, separada por T ou por espaço, são reduzidas à data.
 
     Args:
         dbt_vars (dict): Variáveis usadas na execução do teste.
@@ -1026,15 +1039,15 @@ def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
         Optional[str]: Identificação do que foi testado, ou None sem variáveis de data.
     """
     start_key, end_key = next(
-        ((start, end) for start, end in constants.DBT_VARS_INTERVAL_KEYS if start in dbt_vars),
+        ((start, end) for start, end in constants.DBT_VARS_INTERVAL_KEYS if dbt_vars.get(start)),
         (None, None),
     )
     if start_key is None:
         return None
-    start = str(dbt_vars[start_key]).split("T")[0]
+    start = date_part(dbt_vars[start_key])
     if end_key is None:
         return f"{start_key}={start}"
-    end = str(dbt_vars.get(end_key, start)).split("T")[0]
+    end = date_part(dbt_vars.get(end_key) or start)
     return start if end == start else f"{start} a {end}"
 
 
