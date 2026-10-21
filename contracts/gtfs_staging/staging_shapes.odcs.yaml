@@ -10,6 +10,8 @@ schema:
   description: |
     Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
     Fonte: capturas do GTFS (source_gtfs.shapes).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` e `shape_id`.
   logicalType: object
   physicalName: rj-smtr.gtfs_staging.shapes
   properties:
@@ -17,12 +19,14 @@ schema:
     physicalType: DATE
     description: Data de referência do planejamento [versão] (partição)
     logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
   - name: shape_id
     physicalType: STRING
     description: Código identificador do shape [trajeto]
     logicalType: string
     primaryKey: true
-    primaryKeyPosition: 1
+    primaryKeyPosition: 2
   - name: shape_pt_lat
     physicalType: STRING
     description: Latitude de um ponto de forma
@@ -36,7 +40,7 @@ schema:
     description: Sequência na qual os pontos da forma se conectam para formar a forma
     logicalType: string
     primaryKey: true
-    primaryKeyPosition: 2
+    primaryKeyPosition: 3
   - name: shape_dist_traveled
     physicalType: STRING
     description: Distância real percorrida ao longo da forma desde o primeiro ponto

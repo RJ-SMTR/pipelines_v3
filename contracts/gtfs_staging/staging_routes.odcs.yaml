@@ -10,6 +10,8 @@ schema:
   description: |
     Uma linha por rota (route_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo routes.txt.
     Fonte: capturas do GTFS (source_gtfs.routes).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` e `route_id`.
   logicalType: object
   physicalName: rj-smtr.gtfs_staging.routes
   properties:

@@ -10,6 +10,8 @@ schema:
   description: |
     Uma linha por serviço, sentido e tipo de OS por versão do GTFS (data_versao), com os nomes das colunas do arquivo bruto do anexo de faixas horárias da OS.
     Fonte: capturas do GTFS (source_gtfs.ordem_servico_faixa_horaria_sentido).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` com `servico`, `sentido` e `tipo_os`.
   logicalType: object
   physicalName: rj-smtr.planejamento_staging.ordem_servico_faixa_horaria_sentido
   properties:
@@ -48,7 +50,7 @@ schema:
       metric: invalidValues
       mustBe: 0
       arguments:
-        pattern: ^0*[1-9][0-9]*(?:[.,][0-9]+)?$
+        pattern: ^(?:0*[1-9][0-9]*(?:\.[0-9]*)?|0*\.[0-9]*[1-9][0-9]*)$
       description: Todas as extensões dos serviços na OS de faixas horárias são números
         maiores que zero
   - name: partidas_entre_00h_a_01h_dias_uteis

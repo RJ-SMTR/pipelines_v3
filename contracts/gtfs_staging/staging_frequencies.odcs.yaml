@@ -10,6 +10,8 @@ schema:
   description: |
     Uma linha por intervalo (trip_id, start_time) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo frequencies.txt.
     Fonte: capturas do GTFS (source_gtfs.frequencies).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` e `trip_id`.
   logicalType: object
   physicalName: rj-smtr.gtfs_staging.frequencies
   properties:
