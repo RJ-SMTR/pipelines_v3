@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona tabela sem índice `evento_processado` no exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/749)
+- Adiciona tabela sem índice `evento_processado` no exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/788)
 
 ## [1.2.1] - 2026-10-08
 
