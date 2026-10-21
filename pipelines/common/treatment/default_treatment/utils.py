@@ -1113,7 +1113,12 @@ def dbt_test_notify_discord(  # noqa: PLR0913
 
     test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
     has_warn = any(test["result"] == "WARN" for test in test_results)
-    status = "FAIL" if not test_check else ("WARN" if has_warn else "PASS")
+    if not test_check:
+        status = "FAIL"
+    elif has_warn:
+        status = "WARN"
+    else:
+        status = "PASS"
 
     is_dev = "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs
     title = " - ".join(
