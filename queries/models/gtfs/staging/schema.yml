@@ -112,7 +112,7 @@ models:
     config:
       meta:
         datacontract_cli:
-          primaryKey: [trip_id]
+          primaryKey: [data_versao, trip_id]
     columns:
       - name: data_versao
         description: "{{ doc('data_versao') }} (partição)"
@@ -205,7 +205,7 @@ models:
     config:
       meta:
         datacontract_cli:
-          primaryKey: [shape_id, shape_pt_sequence]
+          primaryKey: [data_versao, shape_id, shape_pt_sequence]
     columns:
       - name: data_versao
         description: "{{ doc('data_versao') }} (partição)"
