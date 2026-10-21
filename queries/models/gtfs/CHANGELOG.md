@@ -6,6 +6,7 @@
 
 - Cria `staging_trips` e `staging_shapes`, com as colunas dos arquivos `trips.txt` e `shapes.txt`, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 - Adiciona os testes `not_null` e `dbt_utils.relationships_where` de `shape_id` em `staging_trips`, que referencia `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona o teste de regex de `trip_headsign` em `staging_trips`: o evento de trajeto alternativo, quando houver, fica no final e no formato `[a-z0-9_]`, entre colchetes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ### Alterado
 

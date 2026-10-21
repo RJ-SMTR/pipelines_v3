@@ -4,8 +4,8 @@
 
 ### Adicionado
 
-- Valida os contratos de dados dos arquivos brutos de `trips`, `shapes` e `ordem_servico_faixa_horaria_sentido` antes do upload ao GCS (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
-- Verifica os relationships entre os arquivos de uma mesma captura: `shape_id` de `trips` em `shapes` e `tipo_os` entre `ordem_servico_trajeto_alternativo_sentido` e `ordem_servico_faixa_horaria_sentido`, nas duas direções (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Valida os contratos de dados dos arquivos brutos de `trips`, `shapes` e `ordem_servico_faixa_horaria_sentido` antes do upload ao GCS, incluindo o formato do evento de trajeto alternativo em `trip_headsign` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Verifica os relationships entre os arquivos de uma mesma captura: `shape_id` de `trips` em `shapes`, `tipo_os` entre `ordem_servico_trajeto_alternativo_sentido` e `ordem_servico_faixa_horaria_sentido`, nas duas direções, e `servico` do trajeto alternativo na faixa horária (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ### Alterado
 
