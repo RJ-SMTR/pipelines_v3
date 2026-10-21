@@ -83,6 +83,8 @@ def format_test_failures_message(title: str, failures: list[dict]) -> list[str]:
     """
     Monta as linhas da mensagem com os testes que falharam, agrupados por tabela e partição.
 
+    Os grupos seguem a ordem em que cada tabela e partição aparecem pela primeira vez.
+
     A partição, quando informada (contrato de dados), identifica o que foi verificado em cada
     tabela; nos testes dbt, o intervalo vem no título.
 
@@ -94,15 +96,14 @@ def format_test_failures_message(title: str, failures: list[dict]) -> list[str]:
     Returns:
         list[str]: Linhas da mensagem na sintaxe do Google Chat.
     """
-    lines = [f"🔴 *{title}*"]
-    current_group = None
+    groups = {}
     for failure in failures:
-        group = (failure["table"], failure.get("partition"))
-        if group != current_group:
-            current_group = group
-            table, partition = group
-            lines.extend(["", f"*{table}* ({partition})" if partition else f"*{table}*"])
-        lines.append(f"❌ {failure['description']}")
+        key = (failure["table"], failure.get("partition"))
+        groups.setdefault(key, []).append(failure["description"])
+    lines = [f"🔴 *{title}*"]
+    for (table, partition), descriptions in groups.items():
+        lines.extend(["", f"*{table}* ({partition})" if partition else f"*{table}*"])
+        lines.extend(f"❌ {description}" for description in descriptions)
     return lines
 
 
