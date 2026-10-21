@@ -4,6 +4,7 @@ Constantes para o flow de verificação da captura dos dados da Jaé
 """
 
 from pipelines.capture__jae_auxiliar import constants as auxiliar_constants
+from pipelines.capture__jae_fiscalizacao import constants as fiscalizacao_constants
 from pipelines.capture__jae_fiscalizacao_veiculo import constants as fiscalizacao_veiculo_constants
 from pipelines.capture__jae_gps_validador import constants as gps_validador_constants
 from pipelines.capture__jae_lancamento import constants as lancamento_constants
@@ -69,6 +70,13 @@ CHECK_CAPTURE_PARAMS = {
         "datalake_table": "rj-smtr.monitoramento_staging.gps_validador",
         "timestamp_column": "data_tracking",
         "primary_keys": gps_validador_constants.GPS_VALIDADOR_SOURCE.primary_keys,
+        "final_timestamp_exclusive": True,
+    },
+    jae_constants.FISCALIZACAO_TABLE_ID: {
+        "source": fiscalizacao_constants.FISCALIZACAO_SOURCE,
+        "datalake_table": "rj-smtr.bilhetagem_interno_staging.fiscalizacao",
+        "timestamp_column": "dt_inclusao",
+        "primary_keys": fiscalizacao_constants.FISCALIZACAO_SOURCE.primary_keys,
         "final_timestamp_exclusive": True,
     },
     jae_constants.LANCAMENTO_TABLE_ID: {
