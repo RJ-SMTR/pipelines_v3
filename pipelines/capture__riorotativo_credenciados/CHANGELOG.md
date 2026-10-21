@@ -1,5 +1,11 @@
 # Changelog - capture__riorotativo_credenciados
 
+## [1.0.5] - 2026-10-21
+
+### Alterado
+
+- As falhas do contrato de dados enviadas ao Google Chat mostram a partição capturada de cada tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+
 ## [1.0.4] - 2026-10-15
 
 ### Adicionado
