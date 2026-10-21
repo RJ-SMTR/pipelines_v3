@@ -328,7 +328,9 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_ult_transacao_midia_avulsa_09032026",
             "temp_contas_transacoes_discrepancias",
             "temp_vendas_analise_avulso_12032026",
+            # sem índice
             "evento_recebido",
+            "evento_processado",
         ],
         "filter": {
             "conta": [
@@ -343,7 +345,7 @@ BACKUP_JAE_BILLING_PAY = {
             ],
             # "evento_recebido": ["dt_inclusao"],
             "movimento": ["dt_movimento"],
-            "evento_processado": ["dt_inclusao"],
+            # "evento_processado": ["dt_inclusao"],
             "evento_erro": ["dt_inclusao"],
             "midia_gravacao_fisica_141": ["dt_gravacao"],
             "midia_gravacao_fisica_148": ["id"],
