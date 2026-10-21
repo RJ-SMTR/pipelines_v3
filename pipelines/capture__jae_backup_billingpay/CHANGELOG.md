@@ -1,5 +1,11 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.2.2] - 2026-10-21
+
+### Adicionado
+
+- Adiciona tabela sem índice `evento_processado` no exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/749)
+
 ## [1.2.1] - 2026-10-08
 
 ### Adicionado
