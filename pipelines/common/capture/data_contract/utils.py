@@ -628,7 +628,7 @@ def add_referenced_schema(
     return adapted_contract
 
 
-def validation_format(file_format: str) -> str:
+def validation_format(file_format: str, convert: bool = True) -> str:
     """
     Retorna o formato em que o arquivo bruto é validado.
 
@@ -637,14 +637,15 @@ def validation_format(file_format: str) -> str:
 
     Args:
         file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
 
     Returns:
         str: Formato usado na validação.
     """
-    return "parquet" if file_format == "csv" else file_format
+    return "parquet" if convert and file_format == "csv" else file_format
 
 
-def prepare_raw_file(source: str, target: Path, file_format: str) -> None:
+def prepare_raw_file(source: str, target: Path, file_format: str, convert: bool = True) -> None:
     """
     Prepara uma cópia do arquivo bruto para a validação, no formato de validation_format.
 
@@ -655,10 +656,14 @@ def prepare_raw_file(source: str, target: Path, file_format: str) -> None:
         source (str): Caminho do arquivo bruto.
         target (Path): Caminho do arquivo preparado, sem extensão.
         file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
+
+    Raises:
+        duckdb.Error: O CSV não pôde ser lido na conversão.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
-    path = target.with_suffix(f".{validation_format(file_format)}")
-    if file_format != "csv":
+    path = target.with_suffix(f".{validation_format(file_format, convert)}")
+    if validation_format(file_format, convert) == file_format:
         path.symlink_to(Path(source).resolve())
         return
     source_sql = str(Path(source).resolve()).replace("'", "''")
@@ -713,8 +718,11 @@ def add_local_server(
     return adapted_contract
 
 
-def run_contract_test(
-    contract: dict[str, Any], files_by_schema: dict[str, list[str]], file_format: str
+def run_prepared_contract_test(
+    contract: dict[str, Any],
+    files_by_schema: dict[str, list[str]],
+    file_format: str,
+    convert: bool,
 ) -> Run:
     """
     Testa o contrato com os arquivos brutos de cada schema, preparados em um diretório temporário.
@@ -726,18 +734,24 @@ def run_contract_test(
         contract (dict[str, Any]): Contrato a testar.
         files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
         file_format (str): Formato dos arquivos brutos.
+        convert (bool): Se os arquivos CSV são convertidos em Parquet.
 
     Returns:
         Run: Resultado do teste do contrato.
+
+    Raises:
+        duckdb.Error: Um CSV não pôde ser lido na conversão.
     """
     with TemporaryDirectory() as folder:
         for schema_name, filepaths in files_by_schema.items():
             for position, filepath in enumerate(filepaths):
-                prepare_raw_file(filepath, Path(folder) / schema_name / str(position), file_format)
+                prepare_raw_file(
+                    filepath, Path(folder) / schema_name / str(position), file_format, convert
+                )
         server_contract = add_local_server(
             contract,
             raw_filepath=str(Path(folder) / "{model}" / "*"),
-            file_format=validation_format(file_format),
+            file_format=validation_format(file_format, convert),
         )
         run = DataContract(
             data_contract_str=yaml.safe_dump(server_contract),
@@ -745,6 +759,31 @@ def run_contract_test(
             include_failed_samples=True,
         ).test()
     return keep_checks(run, lambda check: check.type != "field_type")
+
+
+def run_contract_test(
+    contract: dict[str, Any], files_by_schema: dict[str, list[str]], file_format: str
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos, validando os CSV como Parquet.
+
+    Se um CSV não puder ser lido na conversão (por exemplo, com codificação inválida), o teste
+    é refeito com os arquivos originais: o datacontract devolve os checks com erro, que são
+    notificados antes de barrar o upload, em vez de interromper a task.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+    """
+    try:
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=True)
+    except duckdb.Error as error:
+        print(f"Arquivo bruto não convertido para Parquet ({error}); validando o arquivo original.")
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=False)
 
 
 def declares_contract(node: dict[str, Any]) -> bool:
