@@ -1,103 +1,116 @@
-WITH n_passengers AS (SELECT h3_gps.as_at,
-                             h3_gps.vehicle_id,
-                             h3_gps.service,
-                             h3_gps.mode,
-                             h3_gps.tile_id,
-                             h3_gps.tile_entry_time,
-                             h3_gps.tile_exit_time,
-                             COUNT(*) - 1 AS n
+with
+    n_passengers as (
+        select
+            h3_gps.service_date,
+            h3_gps.vehicle_id,
+            h3_gps.service,
+            h3_gps.mode,
+            h3_gps.tile_id,
+            h3_gps.tile_entry_time,
+            h3_gps.tile_exit_time,
+            count(*) - 1 as n
 
-                      FROM `rj-smtr-dev`.mit_ipea_project.h3_gps_res9 AS h3_gps
+        from {{ ref("h3_gps") }} as h3_gps
 
-                               LEFT JOIN `rj-smtr-dev`.mit_ipea_project.origin_destination_res9 AS origin_destination
-                                         ON h3_gps.as_at = origin_destination.as_at -- Same date
-                                             AND RIGHT(h3_gps.vehicle_id, 5) =
-                                                 origin_destination.transaction_vehicle_id -- Same vehicle
-                                             -- On bus cases:
-                                             -- 1. Getting on (transaction time between tile time)
-                                             -- 2. Getting off (destination_time_1 = tile_entry_time)
-                                             -- 3. Riding (tile time is between transaction time and destination time)
+        left join
+            {{ ref("origin_destination") }} as origin_destination
+            on h3_gps.service_date = origin_destination.service_date  -- Same date
+            and right(h3_gps.vehicle_id, 5) = origin_destination.boarding_vehicle_id  -- Same vehicle
+            -- On bus cases:
+            -- 1. Getting on (transaction time between tile time)
+            -- 2. Getting off (alighting_tile_entry_time = tile_entry_time)
+            -- 3. Riding (tile time is between transaction time and destination time)
+            -- CASE 1
+            and (
+                origin_destination.boarding_time
+                between h3_gps.tile_entry_time and h3_gps.tile_exit_time
+                -- CASE 2
+                or origin_destination.alighting_tile_entry_time = h3_gps.tile_entry_time
+                -- CASE 3
+                or h3_gps.tile_entry_time
+                between origin_destination.boarding_time
+                and origin_destination.alighting_tile_entry_time
+            )
+        -- AND (
+        -- alighting_tile_entry_time <= next_boarding_time
+        -- OR chain_position IN ('last', 'only')
+        -- )
+        where h3_gps.service_date between '2023-03-01' and '2023-06-30'
+        -- AND alighting_to_next_boarding_distance_m <= 2000
+        -- AND h3_gps.vehicle_id = 'A41190'
+        group by
+            h3_gps.service_date,
+            h3_gps.vehicle_id,
+            h3_gps.service,
+            h3_gps.mode,
+            h3_gps.tile_id,
+            h3_gps.tile_entry_time,
+            h3_gps.tile_exit_time
+    ),
 
-                                             -- CASE 1
-                                             AND
-                                            (origin_destination.transaction_time BETWEEN h3_gps.tile_entry_time AND h3_gps.tile_exit_time
-                                                -- CASE 2
-                                                OR origin_destination.destination_time1 = h3_gps.tile_entry_time
-                                                -- CASE 3
-                                                OR
-                                             h3_gps.tile_entry_time BETWEEN origin_destination.transaction_time AND origin_destination.destination_time1
-                                                )
-                                            --AND (
-                                            --    destination_time1 <= next_transaction_time
-                                            --    OR daily_trip_stage IN ('Last transaction', 'Only transaction')
-                                            --    )
+    capacity as (
+        select
+            n_passengers.service_date,
+            n_passengers.vehicle_id,
+            service,
+            n_passengers.mode,
+            tile_id,
+            tile_entry_time,
+            tile_exit_time,
+            n,
+            nullif(passengers_sitting, 0) as capacity_sitting,
+            nullif(passengers_standing, 0) as capacity_standing,
+            nullif(passengers_sitting + passengers_standing, 0) as capacity_total
 
-                      WHERE h3_gps.as_at BETWEEN '2023-03-01' AND '2023-06-30'
-                      --AND distance_from_next_transaction <= 2000
-                    --AND h3_gps.vehicle_id = 'A41190'
+        from n_passengers
 
-                      GROUP BY h3_gps.as_at,
-                               h3_gps.vehicle_id,
-                               h3_gps.service,
-                               h3_gps.mode,
-                               h3_gps.tile_id,
-                               h3_gps.tile_entry_time,
-                               h3_gps.tile_exit_time),
+        left join
+            (
+                select *
+                from {{ ref("vw_vehicle_details") }}
+                where latest_capture = 'TRUE'
+            ) as vw_vehicle_details
+            on n_passengers.vehicle_id = vw_vehicle_details.vehicle_id
+    ),
 
-capacity AS (SELECT n_passengers.as_at,
-                    n_passengers.vehicle_id,
-                    service,
-                    n_passengers.mode,
-                    tile_id,
-                    tile_entry_time,
-                    tile_exit_time,
-                    n,
-                    NULLIF(passengers_sitting, 0)                       AS capacity_sitting,
-                    NULLIF(passengers_standing, 0)                      AS capacity_standing,
-                    NULLIF(passengers_sitting + passengers_standing, 0) AS capacity_total
+    capacity_percentages as (
+        select
+            *,
+            round(n / capacity_sitting, 2) as p_sitting_utilization,
+            round(n / capacity_total, 2) as p_utilization
+        from capacity
+    )
 
-             FROM n_passengers
-
-                      LEFT JOIN (SELECT *
-                                 FROM `rj-smtr-dev`.mit_ipea_project.vw_vehicle_details
-                                 WHERE latest_capture = 'TRUE') AS vw_vehicle_details
-                                ON n_passengers.vehicle_id = vw_vehicle_details.vehicle_id),
-
-capacity_percentages AS (SELECT *,
-                                ROUND(n / capacity_sitting, 2) AS p_sitting_utilization,
-                                ROUND(n / capacity_total, 2)   AS p_utilization
-                         FROM capacity)
-
-SELECT
+select
     utilisation_observations.int64_field_0,
     utilisation_observations.time,
-    cp.as_at,
-       cp.vehicle_id,
-       cp.tile_id,
-       cp.n,
-       cp.p_sitting_utilization,
-       cp.p_utilization,
-       stop_lat,
-       stop_lon,
-       centroid,
-       ST_DISTANCE(centroid, ST_GEOGPOINT(stop_lon, stop_lat)) AS distance,
-       utilisation,
-       utilisation_observations.line,
-       utilisation_observations.researcher,
-       utilisation_observations.location
+    cp.service_date,
+    cp.vehicle_id,
+    cp.tile_id,
+    cp.n,
+    cp.p_sitting_utilization,
+    cp.p_utilization,
+    stop_lat,
+    stop_lon,
+    centroid,
+    st_distance(centroid, st_geogpoint(stop_lon, stop_lat)) as distance,
+    utilisation,
+    utilisation_observations.line,
+    utilisation_observations.researcher,
+    utilisation_observations.location
 
-FROM capacity_percentages AS cp
-INNER JOIN `rj-smtr-dev`.mit_ipea_project.utilisation_observations
-ON
-    RIGHT(cp.vehicle_id, 5) = utilisation_observations.vehicle_id -- Same Vehicle
-    AND cp.as_at = utilisation_observations.date -- Same date
-    AND EXTRACT(TIME FROM datetime)
-        BETWEEN TIME_SUB(tile_entry_time, INTERVAL 5 MINUTE)
-        AND TIME_ADD(tile_exit_time, INTERVAL 5 MINUTE) -- Obs time match
+from capacity_percentages as cp
+inner join
+    `rj-smtr-dev`.mit_ipea_project.utilisation_observations
+    on right(cp.vehicle_id, 5) = utilisation_observations.vehicle_id  -- Same Vehicle
+    and cp.service_date = utilisation_observations.date  -- Same date
+    and extract(
+        time
+        from datetime
+    ) between time_sub(tile_entry_time, interval 5 minute) and time_add(
+        tile_exit_time, interval 5 minute
+    )  -- Obs time match
 
-LEFT JOIN `rj-smtr-dev`.mit_ipea_project.vw_h3_res9 AS vw_h3
-    ON cp.tile_id = vw_h3.tile_id
+left join {{ ref("vw_h3") }} as vw_h3 on cp.tile_id = vw_h3.tile_id
 
-ORDER BY  int64_field_0
-
-
+order by int64_field_0

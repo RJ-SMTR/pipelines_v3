@@ -1,73 +1,98 @@
 -- Purpose: Create a table that assigns each GPS ping to a H3 tile
-
 {{
     config(
-        materialized='incremental',
-        incremental_strategy='insert_overwrite',
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
-            "field": "as_at",
+            "field": "service_date",
             "data_type": "date",
-            "granularity": "day"
-        }
+            "granularity": "day",
+        },
     )
 }}
 
-WITH
--- Union DISTINCT, both BRT and SPPO gps tables
+with
+    -- Union DISTINCT, both BRT and SPPO gps tables
     -- The tables do contain some duplicates
-brt_sppo_gps AS (
+    -- SPPO: rj-smtr.monitoramento.view_gps_onibus unions the per-provider feeds
+    -- (conecta, zirix, cittati, maxtrack) and is the only source after 2026-08-05.
+    -- BRT: rj-smtr.monitoramento.view_gps_brt_completo unions the legacy table
+    -- (until 2026-05-06) with gps_brt_sonda.
+    -- Neither view carries `modo`, and both expose `hora` as an integer hour, so the
+    -- legacy `modo` literals and the TIME-typed `hora` are rebuilt here.
+    brt_sppo_gps as (
 
-    SELECT
-        modo, timestamp_gps, data, hora, id_veiculo, servico, latitude, longitude
-    FROM `rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo`
-    WHERE data = "{{ var('run_date') }}" 
+        select
+            'SPPO' as modo,
+            datetime_gps as timestamp_gps,
+            data,
+            extract(time from datetime_gps) as hora,
+            id_veiculo,
+            servico,
+            latitude,
+            longitude
+        from `rj-smtr.monitoramento.view_gps_onibus`
+        where data = "{{ var('run_date') }}"
 
-    UNION DISTINCT
+        union distinct
 
-    SELECT
-        modo, timestamp_gps, data, hora, id_veiculo, servico, latitude, longitude
-    FROM `rj-smtr.br_rj_riodejaneiro_veiculos.gps_brt`
-    WHERE data = "{{ var('run_date') }}" 
-),
+        select
+            'BRT' as modo,
+            timestamp_gps,
+            data,
+            extract(time from timestamp_gps) as hora,
+            id_veiculo,
+            servico,
+            latitude,
+            longitude
+        from `rj-smtr.monitoramento.view_gps_brt_completo`
+        where data = "{{ var('run_date') }}"
+    ),
 
--- Rename columns into english, join on H3 table via a circle fully encapsulating each tile
--- Each row is now a set of possible H3 tiles for each observation
-gps AS (
-    SELECT
-        modo AS mode,
-        timestamp_gps,
-        data AS as_at,
-        hora AS time,
-        id_veiculo AS vehicle_id,
-        servico AS service,
-        latitude,
-        longitude,
-        ST_GEOGPOINT(longitude, latitude) AS geography,
-        tile_id
-    FROM brt_sppo_gps
-    LEFT JOIN {{ ref("vw_h3") }} AS h3
-    ON ST_DWITHIN(ST_GEOGPOINT(longitude, latitude), h3.centroid, 560)
+    -- Rename columns into english, join on H3 table via a circle fully encapsulating
+    -- each tile
+    -- Each row is now a set of possible H3 tiles for each observation
+    gps as (
+        select
+            modo as mode,
+            timestamp_gps,
+            data as service_date,
+            hora as time,
+            id_veiculo as vehicle_id,
+            servico as service,
+            latitude,
+            longitude,
+            st_geogpoint(longitude, latitude) as geography,
+            tile_id
+        from brt_sppo_gps
+        left join
+            {{ ref("vw_h3") }} as h3
+            on st_dwithin(st_geogpoint(longitude, latitude), h3.centroid, 250)
 
-),
+    ),
 
-h3_gps AS (
-    SELECT
-        *,
-        CASE
-          WHEN LAG(tile_id) OVER (PARTITION BY vehicle_id ORDER BY timestamp_gps) = tile_id THEN 0
-          ELSE 1
-        END AS tile_entry -- 1 when the vehicle first enters the tile. If 0, the vehicle is already in the tile.
-    FROM gps
-    LEFT JOIN {{ ref("vw_h3") }} AS h3
-        USING (tile_id)
+    h3_gps as (
+        select
+            *,
+            case
+                when
+                    lag(tile_id) over (partition by vehicle_id order by timestamp_gps)
+                    = tile_id
+                then 0
+                else 1
+            end as tile_entry  -- 1 when the vehicle first enters the tile. If 0, the vehicle is already in the tile.
+        from gps
+        left join {{ ref("vw_h3") }} as h3 using (tile_id)
 
-    WHERE ST_INTERSECTS(gps.geography, h3.geometry) IS TRUE
+        where st_intersects(gps.geography, h3.geometry) is true
 
-)
-SELECT
-    as_at,
-    time                                                           AS tile_entry_time,
-    LEAD(time) OVER (PARTITION BY vehicle_id ORDER BY as_at, time) AS tile_exit_time,
+    )
+select
+    service_date,
+    time as tile_entry_time,
+    lead(time) over (
+        partition by vehicle_id order by service_date, time
+    ) as tile_exit_time,
     mode,
     service,
     vehicle_id,
@@ -76,5 +101,5 @@ SELECT
     tile_id,
     centroid
 
-FROM h3_gps
-WHERE tile_entry = 1
+from h3_gps
+where tile_entry = 1
