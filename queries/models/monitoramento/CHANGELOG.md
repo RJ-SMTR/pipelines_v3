@@ -4,14 +4,14 @@
 
 ### Adicionado
 
-- Cria os modelos `staging_gps_v2_conecta_sistema_rio`, `aux_gps_filtrada_v2_onibus_conecta_sistema_rio` e `gps_v2_onibus_conecta_sistema_rio` para o GPS da Conecta para o Sistema RIO, contingência da Maxtrack (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Cria os modelos `staging_gps_v2_conecta_sistema_rio`, `aux_gps_filtrada_v2_onibus_conecta_sistema_rio` e `gps_v2_onibus_conecta_sistema_rio` para o GPS da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Cria o modelo `staging_viagem_informada_conecta_sistema_rio` para as viagens informadas da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Cria o selector `gps_v2_conecta_sistema_rio` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 
 ### Alterado
 
 - Altera `viagem_informada_monitoramento` para usar a Conecta (`fonte_viagem = "conecta"`) no lugar da Maxtrack nas capturas a partir de `2026-10-16`, data da troca do endpoint da API (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
-- Altera `view_gps_onibus` para incluir o GPS da Conecta para o Sistema RIO com `fonte_gps = "conecta"`, removendo os registros do mesmo veículo e `datetime_gps` já enviados pela Maxtrack (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `view_gps_onibus` para incluir o GPS da Conecta para o Sistema RIO com `fonte_gps = "conecta"` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera `viagem_validacao` para classificar as viagens com `fonte_viagem = "conecta"` no sistema `RIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 - Altera a macro `gps_staging_registros_v2`, adicionando o parâmetro `table_id` (padrão `registros`) (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
 
