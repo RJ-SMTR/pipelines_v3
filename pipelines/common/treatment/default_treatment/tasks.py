@@ -338,7 +338,6 @@ def task_dbt_selector_test_notify(  # noqa: PLR0913
                 for part in (
                     f"Testes dbt ({mode})",
                     runtime.flow_run.flow_name,
-                    context.selector.name,
                     format_dbt_vars_interval(dbt_vars),
                 )
                 if part

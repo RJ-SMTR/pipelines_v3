@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- O título das notificações dos testes dbt no Google Chat mostra o intervalo testado, como no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+- O título das notificações dos testes dbt no Google Chat mostra o intervalo testado e deixa de mostrar o nome do selector, como no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
 
 ## [2.0.3] - 2026-10-21
 

@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- O título das notificações dos testes dbt no Google Chat e no Discord mostra o feed testado (`data_versao_gtfs`), em vez da janela de execução (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+- O título das notificações dos testes dbt no Google Chat e no Discord mostra o feed testado (`data_versao_gtfs`), em vez da janela de execução; no Google Chat, o nome do selector sai do título, como no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
 
 ## [1.0.2] - 2026-10-19
 
