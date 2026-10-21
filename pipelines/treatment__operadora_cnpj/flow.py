@@ -15,12 +15,13 @@ from pipelines.treatment__operadora_cnpj import constants
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
 )
-def treatment__operadora_cnpj(
+def treatment__operadora_cnpj(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
     datetime_end: Optional[str] = None,
     flags: Optional[list[str]] = None,
     additional_vars: Optional[dict] = None,
+    fallback_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -30,4 +31,5 @@ def treatment__operadora_cnpj(
         flags=flags,
         additional_vars=additional_vars,
         test_scheduled_time=None,
+        fallback_run=fallback_run,
     )
