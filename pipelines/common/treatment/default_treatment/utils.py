@@ -1012,47 +1012,30 @@ def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]
 
 def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
     """
-    Retorna o intervalo testado a partir das variáveis do dbt, para identificar as notificações.
+    Retorna o que foi testado a partir das variáveis do dbt, para identificar as notificações.
 
-    As variáveis são procuradas nesta ordem: date_range_start/date_range_end,
-    start_date/end_date, run_date e data_versao_gtfs. Datas com hora são reduzidas à data.
+    Usa a primeira variável encontrada em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
+    para a mais genérica. Variáveis únicas, como data_versao_gtfs, aparecem com o nome
+    (data_versao_gtfs=2026-10-13); intervalos aparecem como "<início> a <fim>". Datas com
+    hora são reduzidas à data.
 
     Args:
         dbt_vars (dict): Variáveis usadas na execução do teste.
 
     Returns:
-        Optional[str]: Data ou intervalo no formato "<início> a <fim>", ou None sem variáveis
-            de data.
+        Optional[str]: Identificação do que foi testado, ou None sem variáveis de data.
     """
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    return (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
+    start_key, end_key = next(
+        ((start, end) for start, end in constants.DBT_VARS_INTERVAL_KEYS if start in dbt_vars),
+        (None, None),
     )
+    if start_key is None:
+        return None
+    start = str(dbt_vars[start_key]).split("T")[0]
+    if end_key is None:
+        return f"{start_key}={start}"
+    end = str(dbt_vars.get(end_key, start)).split("T")[0]
+    return start if end == start else f"{start} a {end}"
 
 
 def dbt_test_notify_discord(  # noqa: PLR0913
