@@ -5,8 +5,10 @@
 -- previous journey, any other tap starts a new one. A gap of more than
 -- max_transfer_gap_minutes between taps also starts a new journey, as a guard.
 -- The survey asks about the final leg's alighting stop, so a journey is included
--- only when that leg has a prediction within the walking cap and a full set of
--- four options in origin_destination_stop_candidates.
+-- only when that leg is a bus tap with a predicted alighting stop and a full set of
+-- four options in origin_destination_stop_candidates. Predictions of every
+-- confidence tier are kept, including those beyond the walking cap, so the sample
+-- can be stratified by confidence_tier; filter on it when drawing a batch.
 -- stop_id_1..4 are the options in display order; prediction_slot says which is the
 -- model's prediction and is for analysis only, not for the message.
 {{
@@ -130,6 +132,9 @@ select
     final_leg.servico as alighting_servico,
     final_od.alighting_time,
     final_od.alighting_to_next_boarding_distance_m as predicted_walk_distance_m,
+    final_od.runner_up_walk_distance_m,
+    final_od.alighting_within_walk_cap,
+    final_od.confidence_tier,
     final_od.direction_source,
     o.stop_id_1,
     o.stop_id_2,
@@ -167,4 +172,7 @@ join
     and o.service_date = j.service_date
     and o.trip_sequence = j.final_trip_sequence
 left join stops as boarding_stop on boarding_stop.stop_id = first_od.boarding_stop_id
-where final_od.alighting_within_walk_cap and o.n_options = 4
+where
+    final_leg.mode = 'Ônibus'
+    and final_od.alighting_stop_id is not null
+    and o.n_options = 4

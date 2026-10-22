@@ -19,6 +19,13 @@
 -- gps_service_matches_transaction records whether the GPS feed reported the same
 -- service as the ticketing registry.
 --
+-- confidence_tier is a heuristic label on each prediction: high when the walk is
+-- short, the runner-up candidate is clearly farther and the next origin was an
+-- observed later tap; low when the walk is long or the runner-up is about as
+-- close; medium otherwise. The last journey of the day uses the morning's first
+-- tap as next origin, a weaker anchor, so it is capped at medium. Thresholds are
+-- the Jinja constants above and should be recalibrated against survey results.
+--
 -- Next origin fallback: when the next tap has no boarding stop (BRT, VLT, van,
 -- metro, or an unmatched bus tap) its tap_location from ticketing stands in as
 -- the next boarding location: the tile centroid for the sample source, the
@@ -38,6 +45,13 @@
 
 {% set max_boarding_gap_s = 600 %}
 {% set max_walk_m = 1000 %}
+-- Confidence tier thresholds (metres). Stop options are ~290 m apart, so a margin
+-- over the runner-up of 150 m means the best stop is clearly closer than its
+-- neighbour, and under 50 m means the choice is effectively a coin toss.
+{% set walk_high_m = 300 %}
+{% set walk_low_m = 700 %}
+{% set margin_high_m = 150 %}
+{% set margin_low_m = 50 %}
 
 with
     ticketing as (
@@ -208,6 +222,15 @@ with
             and c.chain_position != 'only'
             -- No alighting can be scored without a next boarding location
             and c.next_boarding_location is not null
+        -- One row per stop: a stop the vehicle visited twice within the window
+        -- (e.g. on a second run) keeps its earliest visit, so the runner-up is
+        -- always a different stop and n_candidate_stops counts stops, not visits
+        qualify
+            row_number() over (
+                partition by c.service_date, c.rider_id, c.trip_sequence, se.stop_id
+                order by se.arrival_time
+            )
+            = 1
     ),
 
     ranked as (
@@ -220,7 +243,12 @@ with
                 partition by service_date, rider_id, trip_sequence
                 order by
                     alighting_to_next_boarding_distance_m asc nulls last, alighting_time
-            ) as candidate_rank
+            ) as candidate_rank,
+            lead(alighting_to_next_boarding_distance_m) over (
+                partition by service_date, rider_id, trip_sequence
+                order by
+                    alighting_to_next_boarding_distance_m asc nulls last, alighting_time
+            ) as runner_up_walk_distance_m
         from candidates
     )
 
@@ -255,7 +283,24 @@ select
         boarding_stop_geography, alighting_stop_geography
     ) as boarding_to_alighting_distance_m,
     n_candidate_stops,
+    runner_up_walk_distance_m,
     alighting_to_next_boarding_distance_m
-    <= {{ max_walk_m }} as alighting_within_walk_cap
+    <= {{ max_walk_m }} as alighting_within_walk_cap,
+    case
+        when alighting_stop_id is null
+        then null
+        when
+            alighting_to_next_boarding_distance_m > {{ walk_low_m }}
+            or runner_up_walk_distance_m - alighting_to_next_boarding_distance_m
+            < {{ margin_low_m }}
+        then 'low'
+        when
+            alighting_to_next_boarding_distance_m <= {{ walk_high_m }}
+            and runner_up_walk_distance_m - alighting_to_next_boarding_distance_m
+            >= {{ margin_high_m }}
+            and chain_position != 'last'
+        then 'high'
+        else 'medium'
+    end as confidence_tier
 from ranked
 where candidate_rank = 1
