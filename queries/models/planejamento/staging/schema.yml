@@ -115,7 +115,7 @@ models:
         description: "{{ doc('data_versao') }} (partição)"
         data_type: date
       - name: servico
-        description: "{{ doc('servico') }}"
+        description: "{{ doc('servico_variacao') }}"
         data_type: string
       - name: vista
         description: "{{ doc('vista') }}"
