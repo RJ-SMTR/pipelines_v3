@@ -362,7 +362,7 @@ with
             case
                 when spg.fonte_viagem = "rioonibus"
                 then "SPPO"
-                when spg.fonte_viagem = "maxtrack"
+                when spg.fonte_viagem in ("maxtrack", "conecta")
                 then "RIO"
                 when spg.fonte_viagem = "mobirio"
                 then cast(null as string)

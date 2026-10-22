@@ -2007,3 +2007,146 @@ models:
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
+
+  - name: gps_v2_onibus_conecta_sistema_rio
+    description: "Um registro por sinal de GPS da API da Conecta para o Sistema RIO aprovado no filtro geográfico, identificado por `id_registro`. Histórico particionado por `data`, construído a partir de `staging_gps_v2_conecta_sistema_rio` e enriquecido pelas macros `gps_aux_*` (versão 2 do payload). Use `id_registro` para junções; registros sem correspondência nos indicadores auxiliares não são materializados."
+    tests:
+      - check_gps_treatment_v2:
+          name: check_gps_treatment__gps_v2_onibus_conecta_sistema_rio
+          config:
+            description: "Todos os dados de GPS foram devidamente tratados"
+            severity: warn
+          arguments:
+            registros: staging_gps_v2_conecta_sistema_rio
+            aux_filtrada: aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__id_registro__gps_v2_onibus_conecta_sistema_rio
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - id_registro
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_gps') }}"
+        data_type: int64
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__gps_v2_onibus_conecta_sistema_rio
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_gps__gps_v2_onibus_conecta_sistema_rio
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_envio__gps_v2_onibus_conecta_sistema_rio
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_veiculo__gps_v2_onibus_conecta_sistema_rio
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: status
+        description: "{{ doc('status_veiculo_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__status__gps_v2_onibus_conecta_sistema_rio
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__latitude__gps_v2_onibus_conecta_sistema_rio
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+        tests:
+          - not_null:
+              name: not_null__longitude__gps_v2_onibus_conecta_sistema_rio
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+        data_type: float64
+      - name: velocidade_instantanea
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+      - name: velocidade_estimada_10_min
+        description: "{{ doc('velocidade_estimada_10_min') }}"
+        data_type: float64
+      - name: distancia
+        description: "{{ doc('distancia_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string

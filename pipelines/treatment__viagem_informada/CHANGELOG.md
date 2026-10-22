@@ -1,5 +1,11 @@
 # CHANGELOG - treatment\_\_viagem_informada
 
+## [1.2.0] - 2026-10-20
+
+### Alterado
+
+- Adiciona a captura `capture__conecta_sistema_rio_viagem_informada` às fontes de dados do flow `treatment__viagem_informada` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
 ## [1.1.2] - 2026-10-14
 
 ### Removido
