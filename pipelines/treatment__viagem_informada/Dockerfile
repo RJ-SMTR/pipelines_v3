@@ -14,6 +14,8 @@ COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__riooni
 
 COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
 
+COPY ./pipelines/capture__conecta_sistema_rio_viagem_informada ./pipelines/capture__conecta_sistema_rio_viagem_informada/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 

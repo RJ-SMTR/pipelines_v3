@@ -1,5 +1,11 @@
 # Changelog - default_capture
 
+## [1.0.7] - 2026-10-21
+
+### Corrigido
+
+- `SourceTable` passa a ignorar schedules com `active: false` ao obter o cron da captura, deixando de esperar arquivos de capturas desativadas na verificação de completude das fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
 ## [1.0.6] - 2026-10-13
 
 ### Corrigido
