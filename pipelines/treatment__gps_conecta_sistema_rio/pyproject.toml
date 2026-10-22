@@ -1,0 +1,4 @@
+[project]
+name = "treatment__gps_conecta_sistema_rio"
+version = "0.1.0"
+description = "Pipeline de materialização do GPS da Conecta para o Sistema RIO da secretaria rj-smtr"
