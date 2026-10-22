@@ -71,11 +71,11 @@ Número sequencial histórico, contínuo e crescente gerado nativamente pelo ban
 {% enddocs %}
 
 {% docs tipo_viagem_informada %}
-Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" (viagem planejada no PLANO OPERACIONAL) ou "AUTORIZADA" (viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL). Nos demais casos, este campo deve permanecer nulo.
+Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" [viagem planejada no PLANO OPERACIONAL] ou "AUTORIZADA" [viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL]. Nos demais casos, este campo deve permanecer nulo.
 {% enddocs %}
 
 {% docs tipo_execucao_viagem %}
-Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" (viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final) ou "INCOMPLETA" (viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA).
+Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" [viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final] ou "INCOMPLETA" [viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA].
 {% enddocs %}
 
 {% docs project_id %}
@@ -343,11 +343,11 @@ Indica se bicicletas são permitidas
 {% enddocs %}
 
 {% docs shape_pt_lat %}
-Latitude de um ponto de forma
+Latitude de um ponto de forma (graus decimais)
 {% enddocs %}
 
 {% docs shape_pt_lon %}
-Longitude de um ponto de forma
+Longitude de um ponto de forma (graus decimais)
 {% enddocs %}
 
 {% docs shape_pt_sequence %}
@@ -355,7 +355,7 @@ Sequência na qual os pontos da forma se conectam para formar a forma
 {% enddocs %}
 
 {% docs shape_dist_traveled %}
-Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro
+Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro (m)
 {% enddocs %}
 
 {% docs stop_sequence %}
@@ -367,11 +367,11 @@ Identifica a parada atendida
 {% enddocs %}
 
 {% docs arrival_time %}
-Hora de chegada na parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+Hora de chegada na parada [definida por stop_times.stop_id] para uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
 {% enddocs %}
 
 {% docs departure_time %}
-Hora de partida da parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+Hora de partida da parada [definida por stop_times.stop_id] para uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
 {% enddocs %}
 
 {% docs pickup_type %}
@@ -391,7 +391,7 @@ Indica que o passageiro pode descer do veículo de transporte público em qualqu
 {% enddocs %}
 
 {% docs shape_dist_traveled_stop_time %}
-Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro
+Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro (m)
 {% enddocs %}
 
 {% docs timepoint %}
@@ -419,11 +419,11 @@ Descrição do local que fornece informações úteis e de qualidade
 {% enddocs %}
 
 {% docs stop_lat %}
-Latitude do local
+Latitude do local (graus decimais)
 {% enddocs %}
 
 {% docs stop_lon %}
-Longitude do local
+Longitude do local (graus decimais)
 {% enddocs %}
 
 {% docs zone_id %}
@@ -455,7 +455,7 @@ Nível do local
 {% enddocs %}
 
 {% docs platform_code %}
-Identificador de plataforma para uma parada de plataforma (uma parada pertencente a uma estação)
+Identificador de plataforma para uma parada de plataforma [uma parada pertencente a uma estação]
 {% enddocs %}
 
 {% docs route_short_name %}
@@ -507,11 +507,11 @@ Hora em que o primeiro veículo sai da primeira parada da viagem com o intervalo
 {% enddocs %}
 
 {% docs end_time %}
-Hora em que o serviço muda para um intervalo diferente (ou cessa) na primeira parada da viagem
+Hora em que o serviço muda para um intervalo diferente [ou cessa] na primeira parada da viagem
 {% enddocs %}
 
 {% docs headway_secs %}
-Tempo, em segundos, entre partidas da mesma parada (intervalo) da viagem, durante o intervalo de tempo especificado por start_time e end_time
+Tempo entre partidas da mesma parada [intervalo] da viagem, durante o intervalo de tempo especificado por start_time e end_time (segundos)
 {% enddocs %}
 
 {% docs exact_times %}
@@ -1614,7 +1614,7 @@ Saldo entre a receita esperada e a receita aferida [(receita_total_aferida - rec
 {% enddocs %}
 
 {% docs quinzena %}
-Identificador da quinzena (1 ou 2) dentro do mês de referência
+Identificador da quinzena [1 ou 2] dentro do mês de referência
 {% enddocs %}
 
 {% docs data_inicial_quinzena %}

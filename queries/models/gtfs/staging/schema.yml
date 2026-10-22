@@ -15,7 +15,7 @@ models:
               mustBe: 1
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: feed_publisher_name
         description: "{{ doc('feed_publisher_name') }}"
@@ -30,10 +30,10 @@ models:
         description: "{{ doc('default_lang') }}"
         data_type: string
       - name: feed_start_date
-        description: "Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        description: "Data inicial do serviço coberto pelo conjunto de dados [YYYYMMDD]"
         data_type: string
       - name: feed_end_date
-        description: "Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        description: "Data final do serviço coberto pelo conjunto de dados [YYYYMMDD]"
         data_type: string
       - name: feed_version
         description: "{{ doc('feed_version') }}"
@@ -61,7 +61,7 @@ models:
           primaryKey: [data_versao, service_id]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: service_id
         description: "{{ doc('service_id') }}"
@@ -96,10 +96,10 @@ models:
         description: "{{ doc('sunday') }}"
         data_type: string
       - name: start_date
-        description: "Dia inicial do intervalo de serviço (YYYYMMDD)"
+        description: "Dia inicial do intervalo de serviço [YYYYMMDD]"
         data_type: string
       - name: end_date
-        description: "Dia final do intervalo de serviço (YYYYMMDD)"
+        description: "Dia final do intervalo de serviço [YYYYMMDD]"
         data_type: string
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
@@ -117,7 +117,7 @@ models:
           primaryKey: [data_versao, trip_id]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: route_id
         description: "{{ doc('route_id') }}"
@@ -212,7 +212,7 @@ models:
           primaryKey: [data_versao, shape_id, shape_pt_sequence]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: shape_id
         description: "{{ doc('shape_id') }}"
@@ -245,7 +245,7 @@ models:
           primaryKey: [data_versao, stop_id]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: stop_id
         description: "{{ doc('stop_id') }}"
@@ -308,7 +308,7 @@ models:
           primaryKey: [data_versao, route_id]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: route_id
         description: "{{ doc('route_id') }}"
@@ -365,7 +365,7 @@ models:
           primaryKey: [data_versao, trip_id, stop_sequence]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: trip_id
         description: "{{ doc('trip_id') }}"
@@ -441,7 +441,7 @@ models:
           primaryKey: [data_versao, trip_id, start_time]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: trip_id
         description: "{{ doc('trip_id') }}"
