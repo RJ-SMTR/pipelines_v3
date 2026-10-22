@@ -1,5 +1,11 @@
 # Changelog - dashboard_subsidio_sppo
 
+## [8.3.4] - 2026-10-22
+
+### Alterado
+
+- Alterado o modelo `aux_viagem_remunerada_excecao` para adicionar exceção para o limite de viagens de servicos especificados no Processo nº 000300.034004/2026-54, referente aos períodos 01/10 a 03/10 e 05/10 a 15/10, e no Processo nº 000399.031856/2026-48, referente ao dia 04/10 (eleição de 1º turno).
+
 ## [8.3.3] - 2026-10-14
 
 ### Adicionado
