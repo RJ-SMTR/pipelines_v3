@@ -6,6 +6,8 @@ WORKDIR /opt/prefect/pipelines_v3
 
 COPY ./pyproject.toml ./uv.lock /opt/prefect/pipelines_v3/
 
+COPY ./pipelines/treatment__operadora_cnpj/ ./pipelines/treatment__operadora_cnpj/
+
 COPY ./pipelines/treatment__cadastro ./pipelines/treatment__cadastro/
 
 COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
@@ -32,6 +34,17 @@ COPY ./pipelines/treatment__transacao_valor_ordem ./pipelines/treatment__transac
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-COPY ./queries ./queries
+
+RUN UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
+    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv python install 3.11 \
+    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
+    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv venv \
+    --python 3.11 /opt/openmetadata \
+    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache uv --no-config pip install --no-cache \
+    --python /opt/openmetadata/bin/python \
+    "openmetadata-ingestion[dbt]==1.13.3.0" \
+    && PYTHONHOME=/usr/local PYTHONPATH=/usr/local/lib/python3.13 \
+    /opt/openmetadata/bin/python -I /opt/openmetadata/bin/metadata --version \
+    && rm -rf /tmp/openmetadata-uv-cache
 
 RUN uv sync --all-packages

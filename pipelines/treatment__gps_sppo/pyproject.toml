@@ -1,0 +1,4 @@
+[project]
+name = "treatment__gps_sppo"
+version = "0.1.0"
+description = "Pipeline gps_sppo da secretaria rj-smtr"

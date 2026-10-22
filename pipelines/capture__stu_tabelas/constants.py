@@ -29,7 +29,8 @@ STU_TABLE_CAPTURE_PARAMS = {
         "primary_keys": ["cod_mod_carroceria"],
     },
     "mod_chassi": {
-        "primary_keys": ["cod_fab_chassi"],
+        "primary_keys": ["cod_mod_chassi"],
+        "first_timestamp": datetime(2026, 6, 16, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
     "multa": {
         "primary_keys": ["serie", "cm"],
@@ -83,7 +84,7 @@ STU_TABLE_CAPTURE_PARAMS = {
         "first_timestamp": datetime(2025, 12, 5, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
     "multa_postagem": {
-        "primary_keys": ["serie", "cm"],
+        "primary_keys": ["Serie", "CM"],
         "first_timestamp": datetime(2026, 3, 24, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
 }

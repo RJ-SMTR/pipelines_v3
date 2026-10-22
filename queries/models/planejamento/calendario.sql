@@ -15,18 +15,25 @@
 {% set calendar_dates_gtfs = ref("calendar_dates_gtfs") %}
 {% set calendario_manual = ref("aux_calendario_manual") %}
 
+{% set date_range_end_extended %}
+    {% if var("materializar_periodo_exato", false) %}
+        date("{{ var('date_range_end') }}")
+    {% else %}
+        last_day(date_add(date("{{ var('date_range_end') }}"), interval 1 month))
+    {% endif %}
+{% endset %}
+
 {# {% set feed_info_gtfs = "rj-smtr.gtfs.feed_info" %} #}
 {# {% set calendar_gtfs = "rj-smtr.gtfs.calendar" %} #}
 {# {% set calendar_dates_gtfs = "rj-smtr.gtfs.calendar_dates" %} #}
 {# {% set calendario_manual = "rj-smtr.planejamento_staging.aux_calendario_manual" %} #}
-
 {% if execute %}
     {% if is_incremental() %}
         {% set gtfs_feeds_query %}
             select concat("'", feed_start_date, "'") as feed_start_date
             from {{ feed_info_gtfs }}
             where
-                feed_start_date <= date("{{ var('date_range_end') }}")
+                feed_start_date <= {{ date_range_end_extended }}
                 and (feed_end_date IS NULL OR feed_end_date >= date("{{ var('date_range_start') }}"))
 
             union distinct
@@ -35,7 +42,7 @@
             from {{ calendario_manual }}
             where
                 data between date("{{ var('date_range_start') }}")
-                and date("{{ var('date_range_end') }}")
+                and {{ date_range_end_extended }}
                 and feed_start_date is not null
         {% endset %}
 
@@ -59,7 +66,7 @@ with
                 generate_date_array(
                     {% if is_incremental() %}
                         date("{{ var('date_range_start') }}"),
-                        date("{{ var('date_range_end') }}")
+                        {{ date_range_end_extended }}
                     {% else %}date("2024-10-01"), current_date("America/Sao_Paulo")
                     {% endif %}
                 )
@@ -87,7 +94,7 @@ with
                 then
                     regexp_replace(
                         cd.service_id,
-                        "^[U|S|D]_",
+                        "^[U|S|D|F]_",
                         case
                             when extract(dayofweek from cd.date) = 7
                             then "S_"
@@ -108,9 +115,9 @@ with
         where
             {% if is_incremental() %}
                 cd.feed_start_date in ({{ gtfs_feeds | join(", ") }})
-                and cd.date between date("{{ var('date_range_start') }}") and date(
-                    "{{ var('date_range_end') }}"
-                )
+                and cd.date between date(
+                    "{{ var('date_range_start') }}"
+                ) and {{ date_range_end_extended }}
             {% else %} date <= current_date("America/Sao_Paulo")
             {% endif %}
     ),
@@ -128,6 +135,9 @@ with
                 or (d.dia_semana = 5 and c.thursday = '1')
                 or (d.dia_semana = 6 and c.friday = '1')
                 or (d.dia_semana = 7 and c.saturday = '1')
+            )
+            and (
+                not starts_with(c.service_id, "F_") or d.tipo_dia = "Ponto Facultativo"
             )
     ),
     service_ids_retirados as (
@@ -157,11 +167,15 @@ with
             tipo_os,
             case
                 when tipo_dia = "Domingo"
-                then regexp_replace(service_id, "^[U|S]_", "D_")
+                then regexp_replace(service_id, "^[U|S|F]_", "D_")
                 when tipo_dia = "Sabado"
-                then regexp_replace(service_id, "^[U|D]_", "S_")
+                then regexp_replace(service_id, "^[U|D|F]_", "S_")
                 when tipo_dia = "Dia Útil"
-                then regexp_replace(service_id, "^[S|D]_", "U_")
+                then regexp_replace(service_id, "^[S|D|F]_", "U_")
+                when
+                    tipo_dia = "Ponto Facultativo"
+                    and feed_start_date >= date("{{ var('DATA_GTFS_V6_INICIO') }}")
+                then regexp_replace(service_id, "^[U|S|D]_", "F_")
                 else service_id
             end as service_id,
             feed_start_date
@@ -173,15 +187,17 @@ with
             tipo_dia,
             tipo_os,
             feed_start_date,
-            array_agg(service_id) as service_ids
+            array_agg(distinct service_id) as service_ids
         from service_id_corrigido
         group by 1, 2, 3, 4
     )
 select
-    data,
+    c.data,
     case
         when c.tipo_dia is not null
         then c.tipo_dia
+        when "F_REG" in unnest(c.service_ids)
+        then "Ponto Facultativo"
         when "D_REG" in unnest(c.service_ids)
         then "Domingo"
         when "S_REG" in unnest(c.service_ids)
@@ -189,23 +205,24 @@ select
         when "U_REG" in unnest(c.service_ids)
         then "Dia Útil"
     end as tipo_dia,
-    case
-        when c.tipo_os = "Extraordinária - Verão"
-        then "Verão"
-        when c.tipo_os like "%Madonna%"
-        then "Madonna"
-        when
-            data between date(2025, 05, 03) and date(2025, 05, 04)
-            and c.tipo_os = "Dia Atípico"
-        then "Lady Gaga"  -- Processo.Rio MTR-PRO-2025/04520 [Operação Especial "Todo Mundo no Rio" - Lady Gaga]
-        when
-            data = date(2025, 05, 24)
-            and c.tipo_os = "Dia Atípico"
-        then "Marcha para Jesus"  -- [processo] [Operação especial evento "Marcha para Jesus"]
-        when c.tipo_os = "Regular"
-        then null
-        else c.tipo_os
-    end as subtipo_dia,
+    coalesce(
+        mm.subtipo_dia,
+        case
+            when c.tipo_os = "Extraordinária - Verão"
+            then "Verão"
+            when c.tipo_os like "%Madonna%"
+            then "Madonna"
+            when
+                c.data between date(2025, 05, 03) and date(2025, 05, 04)
+                and c.tipo_os = "Dia Atípico"
+            then "Lady Gaga"  -- Processo.Rio MTR-PRO-2025/04520 [Operação Especial "Todo Mundo no Rio" - Lady Gaga]
+            when c.data = date(2025, 05, 24) and c.tipo_os = "Dia Atípico"
+            then "Marcha para Jesus"  -- [processo] [Operação especial evento "Marcha para Jesus"]
+            when c.tipo_os = "Regular"
+            then null
+            else c.tipo_os
+        end
+    ) as subtipo_dia,
     c.tipo_os,
     c.service_ids,
     i.feed_version,
@@ -214,3 +231,4 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
 from service_id_agg c
 join {{ feed_info_gtfs }} i using (feed_start_date)
+left join {{ calendario_manual }} mm using (data)

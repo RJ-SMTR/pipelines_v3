@@ -42,20 +42,24 @@ with
             t.data_transacao as datetime_transacao,
             t.data_processamento as datetime_processamento,
             t.timestamp_captura as datetime_captura,
-            coalesce(do.modo, dc.modo) as modo,
+            coalesce(do.modo, dc.modo, oh.modo_jae) as modo,
             dc.id_consorcio,
             dc.consorcio,
             t.cd_operadora as id_operadora_jae,
-            do.id_operadora,
-            do.operadora,
-            l.id_servico_jae,
+            coalesce(
+                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
+            coalesce(
+                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
+            t.cd_linha as id_servico_jae,
             l.servico_jae,
             l.descricao_servico_jae,
             t.sentido,
             case
-                when do.modo = "VLT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "VLT"
                 then substring(t.veiculo_id, 1, 3)
-                when do.modo = "BRT"
+                when coalesce(do.modo, dc.modo, oh.modo_jae) = "BRT"
                 then null
                 else t.veiculo_id
             end as id_veiculo,
@@ -65,7 +69,20 @@ with
             st_geogpoint(t.longitude_trx, t.latitude_trx) as geo_point_transacao,
             t.valor_transacao
         from staging_transacao t
-        left join {{ ref("operadoras") }} do on t.cd_operadora = do.id_operadora_jae
+        left join
+            {{ ref("operadoras") }} do
+            on t.cd_operadora = do.id_operadora_jae
+            and date(t.data_transacao) < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            {{ ref("operadora_historico") }} oh
+            on t.cd_operadora = oh.id_operadora_jae
+            and date(t.data_transacao)
+            >= "{{ var('data_inicial_operadora_historico') }}"
+            and t.data_transacao >= oh.datetime_inicio_validade
+            and (
+                t.data_transacao < oh.datetime_fim_validade
+                or oh.datetime_fim_validade is null
+            )
         left join
             {{ ref("aux_servico_jae") }} l
             on t.cd_linha = l.id_servico_jae

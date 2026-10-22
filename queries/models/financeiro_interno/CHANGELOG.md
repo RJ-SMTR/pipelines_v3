@@ -1,0 +1,35 @@
+# Changelog - financeiro_interno
+
+## [1.0.4] - 2026-06-25
+
+### Alterado
+
+- Altera o modelo `subsidio_faixa_servico_dia_tipo_viagem_v2` para usar `viagem_valida` em substituição a `viagem_completa` a partir de `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/312)
+
+## [1.0.3] - 2026-06-01
+
+### Adicionado
+
+- Cria modelo `aux_subsidio_penalidade_servico_faixa_excecao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+### Alterado
+
+- Altera lógica das exceções do modelo `subsidio_penalidade_servico_faixa_v2.sql`, removendo da query e consultando o modelo auxiliar (https://github.com/RJ-SMTR/pipelines_v3/pull/220)
+
+## [1.0.2] - 2026-04-10
+
+### Alterado
+
+- Adiciona exceção ao modelo `subsidio_penalidade_servico_faixa_v2` para suspensão das penalidades do percentual de operação por faixa horárias em virtude do desempenho da operação em serviços especificados no Processo SEI_000301.005390_2026_67 (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1390)
+
+## [1.0.1] - 2026-02-27
+
+### Alterado
+
+- Altera a descrição das colunas `valor_acima_limite` e  `indicador_viagem_dentro_limite` adicionando limite de 110% de `rj-smtr.financeiro` para `rj-smtr.financeiro_interno` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1275)
+
+## [1.0.0] - 2025-09-24
+
+### Adicionado
+
+- Move modelos das tabelas do subsídio de `rj-smtr.financeiro` para `rj-smtr.financeiro_interno` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/893)

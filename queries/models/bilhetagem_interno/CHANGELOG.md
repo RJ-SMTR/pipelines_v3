@@ -1,5 +1,23 @@
 # Changelog - bilhetagem_interno
 
+## [1.3.3] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.3.2] - 2026-09-10
+
+### Alterado
+
+- Altera fonte das colunas `id_cliente` e `hash_cartao` no modelo `extrato_cliente_cartao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/661)
+
+## [1.3.1] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_transacao_erro_completa.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
 ## [1.3.0] - 2026-03-04
 
 ### Adicionado

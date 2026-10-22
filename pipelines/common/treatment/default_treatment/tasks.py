@@ -1,29 +1,62 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, time, timedelta
+from pathlib import Path
 from time import sleep
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from prefect import task
+from google.cloud import storage
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
+from prefect.tasks import exponential_backoff
 
 from pipelines.common import constants as smtr_constants
+from pipelines.common.treatment.default_treatment import constants
 from pipelines.common.treatment.default_treatment.utils import (
     DBTSelector,
     DBTSelectorMaterializationContext,
     DBTTest,
     IncompleteDataError,
+    clone_queries_from_github,
     dbt_test_notify_discord,
+    format_dbt_vars_interval,
+    get_dbt_paths,
+    get_model_table,
     run_dbt,
+    run_dbt_deps,
+    run_dbt_empty_for_missing_relations,
     run_dbt_tests,
 )
 from pipelines.common.utils.cron import cron_get_last_date
-from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.gcp.bigquery import BQTable, SourceTable
+from pipelines.common.utils.google_chat import notify_test_failures_google_chat
+from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
 
 
 @task(cache_policy=NO_CACHE)
+def ingest_dbt_artifacts_to_openmetadata(
+    env: str,
+    deployment_name: str,
+    flow_run_id: object,
+) -> None:
+    """Ingere os artefatos dbt preservados ou os envia ao fallback GCS."""
+    if env != "prod":
+        print(f"OpenMetadata: ingestão ignorada no ambiente {env}")
+        return
+
+    _, _, target_path = get_dbt_paths()
+    ingest_dbt_artifacts(
+        artifacts_path=Path(target_path) / "openmetadata" / str(flow_run_id),
+        upload_to_gcs=True,
+        env=env,
+        deployment_name=deployment_name,
+        flow_run_id=flow_run_id,
+    )
+
+
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
 def create_materialization_contexts(  # noqa: PLR0913
     env: str,
     selectors: list[DBTSelector],
@@ -34,6 +67,8 @@ def create_materialization_contexts(  # noqa: PLR0913
     test_scheduled_time: time,
     force_test_run: bool,
     snapshot_selector: Optional[DBTSelector] = None,
+    skip_pre_test: bool = False,
+    test_only: bool = False,
 ) -> list[DBTSelectorMaterializationContext]:
     """
     Cria os contextos de materialização a partir dos selectors informados.
@@ -48,11 +83,14 @@ def create_materialization_contexts(  # noqa: PLR0913
         test_scheduled_time (time): Horário agendado para execução dos testes.
         force_test_run (bool): Força a execução dos testes.
         snapshot_selector (Optional[DBTSelector]): Selector para snapshot.
+        skip_pre_test (bool): Se True, ignora a execução do pre_test dos selectors.
+        test_only (bool): Se True, executa apenas os testes.
 
     Returns:
         list[DBTSelectorMaterializationContext]: Lista de contextos de materialização.
     """
     contexts = []
+    force_test_run = True if test_only else force_test_run
     for s in selectors:
         ctx = DBTSelectorMaterializationContext(
             env=env,
@@ -64,6 +102,7 @@ def create_materialization_contexts(  # noqa: PLR0913
             test_scheduled_time=test_scheduled_time,
             force_test_run=force_test_run,
             snapshot_selector=snapshot_selector,
+            skip_pre_test=skip_pre_test,
         )
         if ctx.should_run:
             contexts.append(ctx)
@@ -186,7 +225,13 @@ def run_dbt_selectors(
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
     for context in contexts:
-        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags)
+        run_dbt_empty_for_missing_relations(
+            dbt_obj=context.selector,
+            dbt_vars=context.dbt_vars,
+            flags=flags,
+            env=context.env,
+        )
+        run_dbt(dbt_obj=context.selector, dbt_vars=context.dbt_vars, flags=flags, env=context.env)
 
     return contexts
 
@@ -203,14 +248,16 @@ def run_dbt_snapshots(
         contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
         flags (Optional[list[str]]): Flags adicionais para execução do dbt.
     """
+    snapshot_flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     for context in contexts:
         if context.snapshot_selector is None:
             continue
         run_dbt(
             dbt_obj=context.snapshot_selector,
             dbt_vars=context.dbt_vars,
-            flags=flags,
+            flags=snapshot_flags,
             is_snapshot=True,
+            env=context.env,
         )
 
     return contexts
@@ -220,13 +267,15 @@ def run_dbt_snapshots(
 def run_dbt_selector_tests(
     contexts: list[DBTSelectorMaterializationContext],
     mode: str,
+    flags: Optional[list[str]] = None,
 ):
     """
     Executa os testes do dbt para cada contexto de materialização.
 
     Args:
-        contexts (list[DBTSelectorMaterializationContext]): Lista de contextos de materialização.
+        contexts (list[DBTSelectorMaterializationContext]): Contextos de materialização.
         mode (str): Modo de execução do teste (pre ou post).
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
     """
     for context in contexts:
         if not context[f"should_run_{mode}_test"]:
@@ -235,26 +284,34 @@ def run_dbt_selector_tests(
         dbt_test: DBTTest = context.selector[f"{mode}_test"]
 
         if dbt_test is not None:
-            log, _ = run_dbt_tests(
+            log, _, test_results = run_dbt_tests(
                 dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
+                env=context.env,
+                flags=flags,
+                additional_vars=context.additional_vars,
             )
         context[f"{mode}_test_log"] = log
+        context[f"{mode}_test_results"] = test_results
 
     return contexts
 
 
 @task(cache_policy=NO_CACHE)
-def task_dbt_selector_test_notify_discord(
+def task_dbt_selector_test_notify(  # noqa: PLR0913
     context: DBTSelectorMaterializationContext,
     mode: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    google_chat_webhook_key: Optional[str] = None,
 ):
     """
-    Processa os resultados dos testes do dbt e envia notificações para o Discord.
+    Notifica os resultados dos testes do dbt no Discord e, se configurado, no Google Chat.
+
+    O Google Chat recebe só as falhas e é notificado antes do Discord, que pode interromper o
+    flow quando algum teste falha.
 
     Args:
         context (DBTSelectorMaterializationContext): Contexto de materialização.
@@ -262,30 +319,128 @@ def task_dbt_selector_test_notify_discord(
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        google_chat_webhook_key (Optional[str]): Chave do webhook do Google Chat no secret;
+            sem chave, não notifica no Google Chat.
     """
-    test: DBTTest = context.selector[f"{mode}_test"]
     dbt_vars: dict = context[f"{mode}_test_dbt_vars"]
     dbt_logs: str = context[f"{mode}_test_log"]
+    test_results: list[dict] = context[f"{mode}_test_results"]
+
+    if google_chat_webhook_key and test_results:
+        notify_test_failures_google_chat(
+            failures=[
+                {**result, "description": result["description"] or result["test"]}
+                for result in test_results
+                if result["result"] in ("FAIL", "ERROR")
+            ],
+            title=" - ".join(
+                part
+                for part in (
+                    f"Testes dbt ({mode})",
+                    runtime.flow_run.flow_name,
+                    format_dbt_vars_interval(dbt_vars),
+                )
+                if part
+            ),
+            env=context.env,
+            webhook_key=google_chat_webhook_key,
+        )
 
     dbt_test_notify_discord(
-        dbt_test=test,
         dbt_vars=dbt_vars,
         dbt_logs=dbt_logs,
         webhook_key=webhook_key,
         raise_check_error=raise_check_error,
         additional_mentions=additional_mentions,
+        test_results=test_results,
     )
 
 
-@task(cache_policy=NO_CACHE)
-def save_materialization_datetime_redis(contexts: list[DBTSelectorMaterializationContext]):
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
+def save_materialization_datetime_redis(
+    contexts: list[DBTSelectorMaterializationContext],
+    save_redis: Optional[bool] = True,
+):
     """
     Salva no Redis o datetime da última materialização do selector.
 
     Args:
         contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+        save_redis (Optional[bool]): Se True, atualiza o checkpoint; se False, preserva;
+            se None, decide pela origem agendada da flow run.
     """
+    if not (save_redis if save_redis is not None else "auto-scheduled" in runtime.flow_run.tags):
+        print("Checkpoint de materialização no Redis preservado")
+        return
+
     for context in contexts:
         context.selector.set_redis_materialized_datetime(
             env=context.env, timestamp=context.datetime_end
         )
+
+
+@task(cache_policy=NO_CACHE)
+def setup_dbt_queries(env: str) -> Path:
+    """
+    Clona a pasta queries/ do repositório GitHub via sparse-checkout.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar.
+
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
+
+    Returns:
+        Path: Caminho para a pasta queries/.
+    """
+    return clone_queries_from_github(env=env)
+
+
+@task(cache_policy=NO_CACHE)
+def download_dbt_state() -> Path:
+    """Baixa o manifest de produção usado pelo defer do dbt."""
+    project_dir, _, _ = get_dbt_paths()
+    state_dir = project_dir / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = state_dir / "manifest.json"
+
+    blob = storage.Client().bucket(constants.DBT_STATE_BUCKET).blob(constants.DBT_STATE_BLOB)
+    blob.download_to_filename(str(manifest_path))
+
+    print(f"Manifest dbt baixado para {manifest_path}")
+    return manifest_path
+
+
+@task(cache_policy=NO_CACHE)
+def install_dbt_packages() -> None:
+    """
+    Executa dbt deps para instalar pacotes do dbt.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    run_dbt_deps()
+
+
+@task(cache_policy=NO_CACHE)
+def copy_tables_to_private(env: str, contexts: list[DBTSelectorMaterializationContext]):
+    """
+    Copia tabelas definidas no DBTSelector para o projeto private
+
+    env (str): Ambiente de execução, prod ou dev.
+    contexts (list[DBTSelectorMaterializationContext]): Contexto de materialização.
+    """
+    for context in contexts:
+        if env == "prod":
+            tables = get_model_table(models=context.selector.copy_private_models)
+            for table in tables.values():
+                BQTable(
+                    env=env,
+                    dataset_id=table["dataset_id"],
+                    table_id=table["table_id"],
+                    project_id=table["project_id"],
+                ).copy_table(
+                    copy_project_id=smtr_constants.PRIVATE_PROJECT_NAME,
+                    copy_dataset_id=table["dataset_id"],
+                    copy_table_id=table["table_id"],
+                ).remove_policy_tags()
+        else:
+            print("Cópia para projeto private ignorada no ambiente dev")

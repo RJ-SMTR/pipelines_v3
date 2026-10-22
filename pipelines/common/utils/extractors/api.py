@@ -15,6 +15,7 @@ def get_api_data(
     headers: Union[None, dict] = None,
     params: Union[None, dict] = None,
     raw_filetype: str = "json",
+    timeout: Union[None, int] = constants.MAX_TIMEOUT_SECONDS,
 ) -> Union[str, dict, list[dict]]:
     """
     Get data from a single API endpoint.
@@ -24,43 +25,74 @@ def get_api_data(
         headers (Union[None, dict]): Request headers
         params (Union[None, dict]): Request parameters
         raw_filetype (str): File type for response (json, csv, etc.)
+        timeout (Union[None, int]): Request timeout in seconds. Defaults to MAX_TIMEOUT_SECONDS.
 
     Returns:
         Union[str, dict, list[dict]]: API response data
     """
 
-    for retry in range(constants.MAX_RETRIES):
-        response = requests.get(
-            url,
-            headers=headers,
-            timeout=constants.MAX_TIMEOUT_SECONDS,
-            params=params,
-        )
-
-        if response.ok:
-            break
-        if response.status_code >= constants.HTTP_SERVER_ERROR_STATUS:
-            print(f"Server error {response.status_code}")
-            if retry == constants.MAX_RETRIES - 1:
-                response.raise_for_status()
+    for attempt in range(1, constants.MAX_RETRIES + 1):
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=timeout,
+                params=params,
+            )
+        except (
+            requests.Timeout,
+            requests.ConnectionError,
+            requests.exceptions.ChunkedEncodingError,
+            requests.exceptions.ContentDecodingError,
+        ):
+            if attempt == constants.MAX_RETRIES:
+                raise
             time.sleep(60)
-        else:
+            continue
+
+        if not response.ok:
+            if response.status_code >= constants.HTTP_SERVER_ERROR_STATUS:
+                print(f"Server error {response.status_code}")
+                if attempt == constants.MAX_RETRIES:
+                    response.raise_for_status()
+                time.sleep(60)
+                continue
             response.raise_for_status()
 
-    if raw_filetype == "json":
-        data = response.json()
-    else:
-        data = response.text
+        if raw_filetype == "json":
+            try:
+                response_data = response.json()
+            except ValueError as error:
+                if attempt == constants.MAX_RETRIES:
+                    raise ValueError(
+                        "API response is not valid JSON: "
+                        f"status={response.status_code}, "
+                        f"content_type={response.headers.get('Content-Type')}, "
+                        f"length={len(response.content)}"
+                    ) from error
+                time.sleep(60)
+                continue
+            if not isinstance(response_data, (dict, list)):
+                raise ValueError(
+                    "API JSON response must be an object or an array, "
+                    f"got {type(response_data).__name__}"
+                )
+        else:
+            response_data = response.text
 
-    return data
+        return response_data
+
+    raise RuntimeError("API request failed after all retries")
 
 
-def get_raw_api(
+def get_raw_api(  # noqa: PLR0913
     url: str,
     raw_filepath: str,
     headers: Union[None, dict] = None,
     params: Union[None, dict] = None,
     raw_filetype: str = "json",
+    response_key: Union[None, str] = None,
+    timeout: Union[None, int] = constants.MAX_TIMEOUT_SECONDS,
 ) -> list[str]:
     """
     Get data from a single API endpoint and save to a local file.
@@ -71,14 +103,93 @@ def get_raw_api(
         headers (Union[None, dict]): Request headers
         params (Union[None, dict]): Request parameters
         raw_filetype (str): File type for response (json, csv, etc.)
+        response_key (Union[None, str]): If set, extracts data[response_key] before saving
+        timeout (Union[None, int]): Request timeout in seconds. Defaults to MAX_TIMEOUT_SECONDS.
 
     Returns:
         list[str]: List with the path where data was saved
     """
-    data = get_api_data(url=url, headers=headers, params=params, raw_filetype=raw_filetype)
+    data = get_api_data(
+        url=url,
+        headers=headers,
+        params=params,
+        raw_filetype=raw_filetype,
+        timeout=timeout,
+    )
+    if response_key is not None:
+        data = data[response_key]
     filepath = raw_filepath.format(page=0)
     save_local_file(filepath=filepath, filetype=raw_filetype, data=data)
     return [filepath]
+
+
+def get_raw_api_paginated(  # noqa: PLR0913
+    url: str,
+    raw_filepath: str,
+    page_param_name: str,
+    page_size_param_name: str,
+    page_size: int,
+    params: dict,
+    headers: Union[None, dict] = None,
+    response_key: Union[None, str] = None,
+    first_page: int = 0,
+) -> list[str]:
+    """Get data from a page-number paginated API and save each page locally.
+
+    Args:
+        url (str): API endpoint URL.
+        raw_filepath (str): File path template with a ``{page}`` placeholder.
+        page_param_name (str): Name of the page-number query parameter.
+        page_size_param_name (str): Name of the page-size query parameter.
+        page_size (int): Maximum number of records requested per page.
+        headers (Union[None, dict]): Request headers.
+        params (dict): Additional request parameters.
+        response_key (Union[None, str]): Key containing the records when the response is an object.
+        first_page (int): First page number accepted by the API. Defaults to 0.
+
+    Returns:
+        list[str]: Paths of the saved page files.
+    """
+    if page_size <= 0:
+        raise ValueError("page_size must be greater than zero")
+
+    filepaths = []
+    page_index = 0
+    page_data_len = page_size
+
+    while page_data_len == page_size:
+        current_page = first_page + page_index
+        page_params = {
+            **params,
+            page_param_name: current_page,
+            page_size_param_name: page_size,
+        }
+        response_data = get_api_data(
+            url=url,
+            headers=headers,
+            params=page_params,
+            raw_filetype="json",
+        )
+        page_data = response_data[response_key] if response_key is not None else response_data
+        if not isinstance(page_data, list):
+            raise ValueError("Paginated API response must contain a list of records")
+
+        page_data_len = len(page_data)
+        print(
+            f"Page size: {page_size}\n"
+            f"Current page: {current_page}\n"
+            f"Current page returned {page_data_len} rows"
+        )
+
+        filepath = raw_filepath.format(page=page_index)
+        save_local_file(filepath=filepath, filetype="json", data=page_data)
+        filepaths.append(filepath)
+
+        if page_data_len < page_size:
+            print("Last page, ending extraction")
+        page_index += 1
+
+    return filepaths
 
 
 def get_raw_api_list(
@@ -86,6 +197,7 @@ def get_raw_api_list(
     raw_filepath: str,
     params_list: Union[None, list[dict]] = None,
     headers: Union[None, dict] = None,
+    timeout: Union[None, int] = constants.MAX_TIMEOUT_SECONDS,
 ) -> list[str]:
     """
     Get data from API by aggregating multiple calls and save to a local file.
@@ -95,6 +207,7 @@ def get_raw_api_list(
         raw_filepath (str): File path template with {page} placeholder
         params_list (list[dict]): List of parameter dicts for multiple requests
         headers (Union[None, dict]): Request headers
+        timeout (Union[None, int]): Request timeout in seconds. Defaults to MAX_TIMEOUT_SECONDS.
 
     Returns:
         list[str]: List with the path where data was saved
@@ -102,7 +215,16 @@ def get_raw_api_list(
     data = []
     if isinstance(url, list):
         for single_url in url:
-            page_data = get_api_data(url=single_url, headers=headers, raw_filetype="json")
+            page_data = get_api_data(
+                url=single_url,
+                headers=headers,
+                raw_filetype="json",
+                timeout=timeout,
+            )
+            if not isinstance(page_data, list):
+                raise ValueError(
+                    f"API JSON response must be an array, got {type(page_data).__name__}"
+                )
             data += page_data
     else:
         if params_list is None:
@@ -112,7 +234,17 @@ def get_raw_api_list(
             )
 
         for params in params_list:
-            page_data = get_api_data(url=url, headers=headers, params=params, raw_filetype="json")
+            page_data = get_api_data(
+                url=url,
+                headers=headers,
+                params=params,
+                raw_filetype="json",
+                timeout=timeout,
+            )
+            if not isinstance(page_data, list):
+                raise ValueError(
+                    f"API JSON response must be an array, got {type(page_data).__name__}"
+                )
             data += page_data
 
     filepath = raw_filepath.format(page=0)

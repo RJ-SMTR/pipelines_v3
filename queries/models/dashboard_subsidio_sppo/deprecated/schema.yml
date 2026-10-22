@@ -1,0 +1,28 @@
+
+version: 2
+
+models:
+  - name: sumario_servico_glosa_dia
+    description: "[Descontinuada a partir de 2024-08-16]"
+    columns:
+      - name: data
+        description: "{{ doc('data_gps') }}"
+      - name: consorcio
+        description: "{{ doc('consorcio') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: perc_km_planejada
+        description: "{{ doc('perc_km_planejada') }}"
+      - name: km_apurada
+        description: "{{ doc('km_apurada') }}"
+      - name: km_apurada_tipo_viagem
+        description: "Distância apurada para o serviço por dia (km) [Desconsidera veículos não licenciados]"
+      - name: valor_subsidio_com_glosa
+        description: "Valor efetivo de pagamento"
+      - name: valor_subsidio_tipo_viagem
+        description: "Quando há subsidio, a glosa é o pagamento diferenciado por km dos tipos de viagem"
+      - name: glosa_subsidio_tipo_viagem
+        description: "Quando não subsidio, a glosa é o não pagamento do subsidio + penalidade (< 40% ou <60%)"
+      - name: glosa_penalidade
+        description: "Valor penalidade"
+

@@ -5,7 +5,7 @@ Flow para captura de dados de ordem de pagamento da Jaé
 Common: 2026-03-19
 """
 
-from prefect import flow
+from typing import Optional
 
 from pipelines.capture__jae_ordem_pagamento import constants
 from pipelines.capture__jae_ordem_pagamento.tasks import create_ressarcimento_db_extractor
@@ -13,18 +13,19 @@ from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.utils.prefect import flow
 
 sources = constants.JAE_ORDEM_PAGAMENTO_SOURCES
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__jae_ordem_pagamento(  # noqa: PLR0913
-    env=None,
-    source_table_ids=tuple([s.table_id for s in sources]),
-    timestamp=None,
-    recapture=True,
-    recapture_days=2,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    source_table_ids: list[str] = tuple([s.table_id for s in sources]),
+    timestamp: Optional[str] = None,
+    recapture: bool = True,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,

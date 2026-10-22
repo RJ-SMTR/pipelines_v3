@@ -7,17 +7,31 @@ profile: "queries"
 model-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
-seed-paths: ["data"]
+seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-
-target-path: "target"
 clean-targets:
   - "target"
   - "dbt_modules"
 
+dispatch:
+  - macro_namespace: dbt
+    search_order: ["dbt_project_evaluator", "dbt"]
+
 vars:
+  ### Elementary ###
+  # Sample of failing rows persisted by elementary in elementary.elementary_test_result_rows.
+  test_sample_row_count: 100
+  disable_run_results: true
+  disable_tests_results: "{{ target.name != 'prod' }}"
+  disable_dbt_artifacts_autoupload: true
+  disable_dbt_invocation_autoupload: true
+
+  ### dbt utils ###
+  surrogate_key_treat_nulls_as_empty_strings: true
+
   ### Date default variables ###
+  "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"
   start_date: "2022-01-01T01:00:00"
@@ -39,9 +53,6 @@ vars:
   sppo_registros_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.registros"
   sppo_realocacao_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.realocacao"
   data_inicio_realocacao: "2022-11-15"
-  15_minutos: false
-  modo_gps: "onibus"
-  fonte_gps: "conecta"
   # Parametros de intersecção do ônibus com rota
   ## Tamanho do buffer da rota
   tamanho_buffer_metros: 500 # flag_trajeto_correto
@@ -98,6 +109,7 @@ vars:
   DATA_GTFS_V2_INICIO: "2025-04-30"
   DATA_GTFS_V4_INICIO: "2025-07-16"
   DATA_GTFS_V5_INICIO: "2025-12-21"
+  DATA_GTFS_V6_INICIO: "2026-10-19"
 
   ### Subsídio SPPO (Ônibus) ###
   buffer: 500 # distância em metros para buffer
@@ -115,9 +127,13 @@ vars:
   frequencies_version: "YYYY-MM-DD"
   tipo_materializacao: "subsidio"
   tipo_teste: ""
+  tolerancia_teste_lacre: 5
   data_inicio_trips_shapes: "2023-04-01"
   data_inclusao_autuacao_disciplinar: "2025-07-10"
-  data_processamento_veiculo_licenciamento_dia: ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
+  data_processamento_veiculo_licenciamento_dia:
+    ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
+  # Idade máxima padrão das partições reprocessadas na validação de viagens
+  viagem_validacao_max_age_days: 6
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
@@ -156,15 +172,28 @@ vars:
   DATA_SUBSIDIO_V17_INICIO: "2025-07-16"
   # Feature validadores e transações Jaé [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629), RESOLUÇÃO SMTR 3843/2025 e RESOLUÇÃO SMTR 3858/2025]
   DATA_SUBSIDIO_V18_INICIO: "2025-08-01"
+  # Início da operação exclusiva com SBD Jaé
+  DATA_SUBSIDIO_V18A_INICIO: "2025-08-02"
   # Feature Não pagamento de viagens licenciadas sem ar condicionado [ACORDO JUDICIAL NOS AUTOS DA ACP 0045547-94.2019.8.19.0001 (FLS. 24567-24629) e RESOLUÇÃO SMTR 3843/2025]
   DATA_SUBSIDIO_V19_INICIO: "2025-11-01"
   # Feature Inciso IV Climatização
   DATA_SUBSIDIO_V20_INICIO: "2025-08-16"
   # Feature RESOLUÇÃO SMTR 3878/2025
   DATA_SUBSIDIO_V21_INICIO: "2025-10-01"
+  # Processo.SEI 006400.000323/2026-14 - Condição de temperatura nula para veículos com `indicador_falha_recorrente igual a True
+  DATA_SUBSIDIO_V22_INICIO: "2026-03-01"
+  # Processo.SEI 006400.000323/2026-14 - Temperatura máxima e ajuste de horário no INMET
+  DATA_SUBSIDIO_V23_INICIO: "2026-04-16"
+  # Inclui coluna shape_id_planejado para identificação das viagens circulares que possuem ida e volta consecutiva
+  DATA_SUBSIDIO_V24_INICIO: "2026-05-16"
+  # Início da vigência da Resolução SMTR 3934/2026 e do uso de viagem_valida como base de apuração
+  DATA_SUBSIDIO_V25_INICIO: "2026-08-01"
+  # Início da vigência do prazo de envio de até 5 dias corridos
+  DATA_SUBSIDIO_V26_INICIO: "2026-08-16"
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
-   # Recursos #
+
+  # Recursos #
   recurso_staging: "rj-smtr-staging.projeto_subsidio_sppo_staging.recurso"
   recurso_prazo: "rj-smtr.projeto_subsidio_sppo.recurso_prazo"
   recurso_julgamento: "rj-smtr.projeto_subsidio_sppo.recurso_julgamento"
@@ -183,6 +212,8 @@ vars:
   sppo_licenciamento_validade_vistoria_ano: 1
   # Tolerância de vistoria para veículos novos
   sppo_licenciamento_tolerancia_primeira_vistoria_dia: 15
+  # Novo source licenciamento_stu / Infração / Agente de verão
+  data_inicio_source_veiculo: "2026-04-30"
 
   ### RDO ###
   rho_registros_sppo_staging: "rj-smtr-staging.br_rj_riodejaneiro_rdo_staging.rho_registros_sppo"
@@ -192,65 +223,78 @@ vars:
   ### Bilhetagem ###
   var_percentual_tarifa_cbd: 0.04
   quantidade_integracoes_max: 5
-  colunas_integracao: {
-    "data_transacao": {"type": "DATETIME", "select": true},
-    "id_aplicacao": {"type": "ID", "select": false},
-    "id_consorcio": {"type": "ID", "select": true},
-    "id_emissor": {"type": "ID", "select": false},
-    "id_linha": {"type": "ID", "select": true},
-    "id_matriz_integracao": {"type": "ID", "select": false},
-    "id_operadora": {"type": "ID", "select": true},
-    "id_ordem_rateio": {"type": "ID", "select": false},
-    "id_secao": {"type": "STRING", "select": false},
-    "id_servico": {"type": "ID", "select": false},
-    "id_tipo_modal": {"type": "ID", "select": true},
-    "id_transacao": {"type": "STRING", "select": true},
-    "latitude_trx": {"type": "FLOAT64", "select": false},
-    "longitude_trx": {"type": "FLOAT64", "select": false},
-    "nr_logico_midia_operador": {"type": "STRING", "select": false},
-    "perc_rateio": {"type": "FLOAT64", "select": true},
-    "posicao_validador": {"type": "STRING", "select": false},
-    "sentido": {"type": "ID", "select": true},
-    "valor_rateio_compensacao": {"type": "FLOAT64", "select": true},
-    "valor_rateio": {"type": "FLOAT64", "select": true},
-    "valor_tarifa": {"type": "FLOAT64", "select": true},
-    "valor_transacao": {"type": "FLOAT64", "select": true},
-    "veiculo_id": {"type": "ID", "select": false},
-    "id_ordem_rateio": {"type": "ID", "select": true},
-  }
+  data_inicial_operadora_historico: "2026-05-12"
+  colunas_integracao:
+    {
+      "data_transacao": { "type": "DATETIME", "select": true },
+      "id_aplicacao": { "type": "ID", "select": false },
+      "id_consorcio": { "type": "ID", "select": true },
+      "id_emissor": { "type": "ID", "select": false },
+      "id_linha": { "type": "ID", "select": true },
+      "id_matriz_integracao": { "type": "ID", "select": false },
+      "id_operadora": { "type": "ID", "select": true },
+      "id_ordem_rateio": { "type": "ID", "select": true },
+      "id_secao": { "type": "STRING", "select": false },
+      "id_servico": { "type": "ID", "select": false },
+      "id_tipo_modal": { "type": "ID", "select": true },
+      "id_transacao": { "type": "STRING", "select": true },
+      "latitude_trx": { "type": "FLOAT64", "select": false },
+      "longitude_trx": { "type": "FLOAT64", "select": false },
+      "nr_logico_midia_operador": { "type": "STRING", "select": false },
+      "perc_rateio": { "type": "FLOAT64", "select": true },
+      "posicao_validador": { "type": "STRING", "select": false },
+      "sentido": { "type": "ID", "select": true },
+      "valor_rateio_compensacao": { "type": "FLOAT64", "select": true },
+      "valor_rateio": { "type": "FLOAT64", "select": true },
+      "valor_tarifa": { "type": "FLOAT64", "select": true },
+      "valor_transacao": { "type": "FLOAT64", "select": true },
+      "veiculo_id": { "type": "ID", "select": false },
+    }
+  data_final_pagamento_dinheiro: "2026-06-28"
 
   ### Diretorios ###
-  ids_consorcios: {"'221000014'": "'6'", "'221000023'": "'4'", "'221000032'": "'3'", "'221000041'": "'5'", "'221000050'": "NULL", "'229000010'": "'1'"}
+  ids_consorcios:
+    {
+      "'221000014'": "'6'",
+      "'221000023'": "'4'",
+      "'221000032'": "'3'",
+      "'221000041'": "'5'",
+      "'221000050'": "NULL",
+      "'229000010'": "'1'",
+    }
 
   ### Encontro de Contas ###
   encontro_contas_modo: ""
   # Datas que serão desconsideradas no encontro de contas juntamente com o motivo
-  encontro_contas_datas_excecoes: {
-    "'2024-10-06'": "'Eleições 2024'",
-    "'2024-02-09'": "'Carnaval 2024'",
-    "'2024-02-10'": "'Carnaval 2024'",
-    "'2024-02-11'": "'Carnaval 2024'",
-    "'2024-02-12'": "'Carnaval 2024'",
-    "'2024-02-13'": "'Carnaval 2024'",
-    "'2024-02-14'": "'Carnaval 2024'",
-    "'2025-02-28'": "'Carnaval 2025'",
-    "'2025-03-01'": "'Carnaval 2025'",
-    "'2025-03-02'": "'Carnaval 2025'",
-    "'2025-03-03'": "'Carnaval 2025'",
-    "'2025-03-04'": "'Carnaval 2025'",
-    "'2025-03-05'": "'Carnaval 2025'",
-    "'2025-03-07'": "'Carnaval 2025'",
-    "'2025-03-08'": "'Carnaval 2025'",
-    "'2025-03-09'": "'Carnaval 2025'"
-  }
+  encontro_contas_datas_excecoes:
+    {
+      "'2024-10-06'": "'Eleições 2024'",
+      "'2024-02-09'": "'Carnaval 2024'",
+      "'2024-02-10'": "'Carnaval 2024'",
+      "'2024-02-11'": "'Carnaval 2024'",
+      "'2024-02-12'": "'Carnaval 2024'",
+      "'2024-02-13'": "'Carnaval 2024'",
+      "'2024-02-14'": "'Carnaval 2024'",
+      "'2025-02-28'": "'Carnaval 2025'",
+      "'2025-03-01'": "'Carnaval 2025'",
+      "'2025-03-02'": "'Carnaval 2025'",
+      "'2025-03-03'": "'Carnaval 2025'",
+      "'2025-03-04'": "'Carnaval 2025'",
+      "'2025-03-05'": "'Carnaval 2025'",
+      "'2025-03-07'": "'Carnaval 2025'",
+      "'2025-03-08'": "'Carnaval 2025'",
+      "'2025-03-09'": "'Carnaval 2025'",
+    }
   # Versões
   encontro_contas_datas_v2_inicio: "2024-01-01"
 
   ### Viagens 2.0 ###
 
-  limite_reducao_area_buffer:  0.5
+  limite_reducao_area_buffer: 0.5
+  limite_validacao_inicio_fim_minutos: 30
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
+  buffer_validacao_inicio_fim_metros: 100
   buffer_tunel_metros: 50
   parametro_validacao: 0.9
   comprimento_shape: 1000
@@ -260,29 +304,36 @@ vars:
 
   ### Planejamento ###
   feed_inicial_viagem_planejada: "2024-09-29"
+  data_inicio_calendario_sheets: "2026-06-29"
 
   ### Infraestrutura ###
   data_inicial_logs_bigquery: "2024-09-30"
   data_inicial_custo_cloud: "2024-10-01"
   data_final_valor_bq_manual: "2025-03-21"
 
-
-
   ### Monitoramento ###
   data_final_veiculo_arquitetura_1: "2025-03-31"
+  datetime_gps_sppo_2: "2026-04-29T10:00:00"
+  datetime_gps_brt_2: "2026-05-06T12:00:00"
+
+  ### Rio Rotativo Digital ###
+  ignorar_diferenca_ordem: false
 
 query-comment: "{{ query_comment(node) }}"
 
+unit_tests:
+  rj_smtr:
+    +compute: local
+
 tests:
   rj_smtr:
-    where: "data between date('{date_range_start}') and date('{date_range_end}')"
     dashboard_subsidio_sppo:
-      where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V9_INICIO}')"
+      +where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V9_INICIO}')"
     dashboard_subsidio_sppo_v2:
-      where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V14_INICIO}')"
+      +where: "data between date('{date_range_start}') and date('{date_range_end}') and data < date('{DATA_SUBSIDIO_V14_INICIO}')"
     bilhetagem:
-      where: "data in ({partitions})"
-
+      +where: "data in ({partitions})"
+    +where: "data between date('{date_range_start}') and date('{date_range_end}')"
 snapshots:
   +persist_docs:
     relation: true
@@ -292,6 +343,9 @@ models:
   +persist_docs:
     relation: true
     columns: true
+  elementary:
+    +schema: elementary
+    +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     mit_ipea_project:
         +schema: mit_ipea_project
@@ -374,6 +428,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: gtfs
+      +meta:
+        openmetadata:
+          domain: "planejamento.planejamento_operacional"
       deprecated:
         +materialized: view
         +schema: dashboard_subsidio_van
@@ -410,9 +467,11 @@ models:
     controle_financeiro:
       +materialized: table
       +schema: controle_financeiro
+      +description: "Dados de controle financeiro da CCT"
       staging:
         +materialized: view
         +schema: controle_financeiro_staging
+        +description: "Dados de controle financeiro da CCT [Tratamento]"
     br_rj_riodejaneiro_viagem_zirix:
       +materialized: table
       +schema: br_rj_riodejaneiro_viagem_zirix
@@ -455,19 +514,15 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: planejamento
+      staging:
+        +materialized: view
+        +schema: planejamento_staging
     transito:
       +materialized: incremental
       +schema: transito
       staging:
         +materialized: view
         +schema: transito_staging
-    planejamento:
-      +materialized: incremental
-      +incremental_strategy: insert_overwrite
-      +schema: planejamento
-      staging:
-        +materialized: view
-        +schema: planejamento_staging
     monitoramento:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
@@ -479,6 +534,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: bilhetagem
+      +meta:
+        openmetadata:
+          domain: "bilhetagem_receita.transacao"
       staging:
         +materialized: view
         +schema: bilhetagem_staging
@@ -486,6 +544,9 @@ models:
       +materialized: incremental
       +incremental_strategy: insert_overwrite
       +schema: bilhetagem_interno
+      +meta:
+        openmetadata:
+          domain: "bilhetagem_receita.transacao"
       staging:
         +materialized: view
         +schema: bilhetagem_interno_staging
@@ -517,13 +578,25 @@ models:
       staging:
         +materialized: view
         +schema: cadastro_interno_staging
+    riorotativo:
+      +materialized: table
+      +schema: riorotativo
+      staging:
+        +materialized: view
+        +schema: riorotativo_staging
+    riorotativo_interno:
+      +materialized: table
+      +schema: riorotativo_interno
+      staging:
+        +materialized: view
+        +schema: riorotativo_interno_staging
     br_rj_riodejaneiro_stpl_gps:
       deprecated:
         +materialized: view
         +schema: br_rj_riodejaneiro_stpl_gps
     br_rj_riodejaneiro_transporte:
-        +materialized: table
-        +schema: br_rj_riodejaneiro_transporte
+      +materialized: table
+      +schema: br_rj_riodejaneiro_transporte
     dashboard_subsidio_van:
       +materialized: view
       +schema: dashboard_subsidio_van
@@ -584,3 +657,20 @@ models:
       staging:
         +materialized: view
         +schema: transito_interno_staging
+    projeto_riorotativo_cct:
+      +materialized: view
+      +schema: projeto_riorotativo_cct
+    dashboard_riorotativo:
+      +materialized: view
+      +schema: dashboard_riorotativo
+      +description: "Views para os Dashboards do Rio Rotativo Digital"
+    dashboard_controle_financeiro:
+      +materialized: view
+      +schema: dashboard_controle_financeiro
+      +description: "Views para o Dashboards de controle financeiro"
+flags:
+  require_generic_test_arguments_property: true
+  warn_error_options:
+    silence:
+      - UnusedResourceConfigPath
+      - NoNodeForYamlKey

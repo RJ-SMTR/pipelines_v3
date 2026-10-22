@@ -1,18 +1,28 @@
 name: DBT Checks
 
 on:
-  push:
+  pull_request:
     branches:
       - master
-      - staging/*
-      - fix/*
     paths:
       - "queries/**/*.sql"
       - "queries/**/*.yml"
+      - "queries/**/*.yaml"
+      - .github/workflows/dbt-checks.yaml
+  push:
+    branches:
+      - master
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
       - .github/workflows/dbt-checks.yaml
 
 env:
   DBT_USER: ${{ github.actor }}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCS_BUCKET_NAME: rj-smtr-public
+  GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
 
 jobs:
   check-files:
@@ -25,10 +35,21 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ env.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: "latest"
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           activate-environment: true
 
       - name: Install project dependencies
@@ -38,28 +59,12 @@ jobs:
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
           uv sync --all-packages
 
-      # - name: Activate python venv
-      #   run: |
-      #     echo "VIRTUAL_ENV=$GITHUB_WORKSPACE/.venv" >> $GITHUB_ENV
-
-# echo "$GITHUB_WORKSPACE/.venv/bin:$PATH" >> $GITHUB_ENV
-
-
       - name: Install sqlfmt
         run: pip install 'shandy-sqlfmt[jinjafmt]'
 
       - name: Get changed files
         id: files
         uses: tj-actions/changed-files@v34
-
-      # - name: Check sh script
-      #   run: |
-      #     ls /home/runner/work/_temp | grep .sh | cat
-      #     cat queries/setup_dbt_profiles.sh
-
-      # - name: Setup DBT profile
-      #   working-directory: queries
-      #   run: sh setup_dbt_profiles.sh ${{ secrets.GKE_SA_KEY }}
 
       - name: Setup dbt profiles
         working-directory: queries
@@ -70,8 +75,8 @@ jobs:
 
           echo "Mounting files from env..."
 
-          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-dev/dev.json
-          echo "${{ secrets.GKE_SA_KEY }}" > ./credentials-prod/prod.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-dev/dev.json
+          echo '${{ secrets.GKE_SA_KEY }}' > ./credentials-prod/prod.json
 
           echo """
           queries:
@@ -80,7 +85,7 @@ jobs:
               dev:
                 type: bigquery
                 method: service-account
-                project: rj-smtr
+                project: rj-smtr-dev
                 dataset: dbt
                 location: US
                 threads: 2
@@ -101,6 +106,11 @@ jobs:
         run: |-
           uv run dbt deps --profiles-dir profiles
 
+      - name: Download production manifest
+        run: |-
+          mkdir -p queries/state
+          gsutil cp gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/manifest.json queries/state/manifest.json || true
+
       - name: Run sqlfmt
         if: steps.files.outputs.all_changed_files != ''
         run: sqlfmt --diff ${{ steps.files.outputs.all_changed_files }}
@@ -108,6 +118,8 @@ jobs:
       - name: Run DBT compile
         working-directory: queries
         run: |-
-          uv run dbt compile --profiles-dir profiles
-
-#trigger
+          if [ -f state/manifest.json ]; then
+            uv run dbt compile --profiles-dir profiles --state state --defer --select state:modified+
+          else
+            uv run dbt compile --profiles-dir profiles
+          fi

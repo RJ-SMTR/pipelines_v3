@@ -1,0 +1,4 @@
+[project]
+name = "capture__riorotativo_vagas"
+version = "0.1.0"
+description = "Pipeline de captura de vagas do Rio Rotativo Digital"

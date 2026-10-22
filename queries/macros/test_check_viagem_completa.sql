@@ -1,53 +1,66 @@
 {% test check_viagem_completa(model) -%}
-WITH
-    data_versao_efetiva AS (
-    SELECT
-        *
-    FROM
-        -- rj-smtr.projeto_subsidio_sppo.subsidio_data_versao_efetiva
-        {{ ref('subsidio_data_versao_efetiva') }}
-    WHERE
-        DATA >= "{{ var('DATA_SUBSIDIO_V6_INICIO') }}"
-        AND DATA BETWEEN DATE("{{ var('start_date') }}")
-        AND DATE("{{ var('end_date') }}")),
-    viagem_completa AS (
-    SELECT
-        *
-    FROM
-        -- rj-smtr.projeto_subsidio_sppo.viagem_completa
-        {{ ref('viagem_completa') }}
-    WHERE
-        DATA >= "{{ var('DATA_SUBSIDIO_V6_INICIO') }}"
-        AND DATA BETWEEN DATE("{{ var('start_date') }}")
-        AND DATE("{{ var('end_date') }}")),
-    feed_info AS (
-    SELECT
-        *
-    FROM
-        -- rj-smtr.gtfs.feed_info
-        {{ ref('feed_info_gtfs') }}
-    WHERE
-        feed_version IN (
-        SELECT
-        feed_version
-        FROM
-        data_versao_efetiva) )
-    SELECT
-    DISTINCT DATA
-    FROM
-    viagem_completa
-    LEFT JOIN
-    data_versao_efetiva AS d
-    USING
-    (DATA)
-    LEFT JOIN
-    feed_info AS i
-    ON
-    (DATA BETWEEN i.feed_start_date
-        AND i.feed_end_date
-        OR (DATA >= i.feed_start_date
-        AND i.feed_end_date IS NULL))
-    WHERE
-    i.feed_start_date != d.feed_start_date
-    OR datetime_ultima_atualizacao < feed_update_datetime
+    with
+        data_versao_efetiva as (
+            select data, feed_start_date
+            from
+                -- rj-smtr.projeto_subsidio_sppo.subsidio_data_versao_efetiva
+                {{ ref("subsidio_data_versao_efetiva") }}
+            where
+                data >= "{{ var('DATA_SUBSIDIO_V6_INICIO') }}"
+                and data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select data, feed_start_date
+            from {{ ref("calendario") }}
+            where
+                data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        ),
+        viagem_completa as (
+            select data, datetime_ultima_atualizacao
+            from
+                -- rj-smtr.projeto_subsidio_sppo.viagem_completa
+                {{ ref("viagem_completa") }}
+            where
+                data >= "{{ var('DATA_SUBSIDIO_V6_INICIO') }}"
+                and data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+
+            union all
+
+            select data, datetime_ultima_atualizacao
+            from {{ ref("viagem_valida") }}
+            where
+                data between date("{{ var('start_date') }}") and date(
+                    "{{ var('end_date') }}"
+                )
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        ),
+        feed_info as (
+            select *
+            from
+                -- rj-smtr.gtfs.feed_info
+                {{ ref("feed_info_gtfs") }}
+            where feed_start_date in (select feed_start_date from data_versao_efetiva)
+        )
+    select distinct data
+    from viagem_completa
+    left join data_versao_efetiva as d using (data)
+    left join
+        feed_info as i
+        on (
+            data between i.feed_start_date and i.feed_end_date
+            or (data >= i.feed_start_date and i.feed_end_date is null)
+        )
+    where
+        i.feed_start_date != d.feed_start_date
+        or datetime_ultima_atualizacao < feed_update_datetime
 {%- endtest %}

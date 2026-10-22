@@ -3,33 +3,34 @@
 Flow de materialização de viagem informada
 
 Executa o selector DBT 'viagem_informada' para materializar dados de viagens
-informadas pela Rio Ônibus no BigQuery.
+informadas pela Rio Ônibus e pela Maxtrack no BigQuery.
 
 Schedule:
 - Diariamente às 7h30 (horário de São Paulo)
-- Depende de dados do Planejamento Diário e da Rio Ônibus
+- Depende das capturas da Rio Ônibus e da Maxtrack
 
-DBT: 2026-03-24
+DBT: 2026-10-20
 """
 
-from prefect import flow
+from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__viagem_informada import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__viagem_informada(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
-    skip_source_check=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

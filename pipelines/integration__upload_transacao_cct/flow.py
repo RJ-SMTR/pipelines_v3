@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from prefect import flow, runtime
+from prefect import runtime
 
 from pipelines.common.tasks import (
     get_run_env,
@@ -10,11 +10,14 @@ from pipelines.common.tasks import (
     setup_environment,
 )
 from pipelines.common.treatment.default_treatment.tasks import (
+    ingest_dbt_artifacts_to_openmetadata,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
-    task_dbt_selector_test_notify_discord,
+    setup_dbt_queries,
+    task_dbt_selector_test_notify,
 )
-from pipelines.common.utils.prefect import handler_notify_failure, rename_flow_run
+from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
 from pipelines.integration__upload_transacao_cct.tasks import (
     create_sincronizacao_materialization_context,
     delete_all_files,
@@ -32,17 +35,21 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     flow_run_name=rename_flow_run,
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    timeout_seconds=18000,
 )
-def integration__upload_transacao_cct(
+def integration__upload_transacao_cct(  # noqa: PLR0913
     env: Optional[str] = None,
     full_refresh: bool = False,
     data_ordem_start: Optional[str] = None,
     data_ordem_end: Optional[str] = None,
     param_test_dates: Optional[list[str]] = None,
+    flags: Optional[list[str]] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     sentry = initialize_sentry(env=env)
-    setup_environment(env=env, wait_for=[sentry])
+    setup_env = setup_environment(env=env, wait_for=[sentry])
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp()
 
@@ -94,8 +101,8 @@ def integration__upload_transacao_cct(
 
     run_sincronizacao_model = run_dbt_selectors(
         contexts=contexts,
-        flags=None,
-        wait_for=[upload_test_bq],
+        flags=flags,
+        wait_for=[upload_test_bq, dbt_deps],
     )
 
     run_sincronizacao_test = run_dbt_selector_tests(
@@ -104,7 +111,14 @@ def integration__upload_transacao_cct(
         wait_for=[run_sincronizacao_model],
     )
 
-    notify_discord = task_dbt_selector_test_notify_discord(
+    ingest_dbt_artifacts_to_openmetadata(
+        env=env,
+        deployment_name=runtime.deployment.name,
+        flow_run_id=runtime.flow_run.id,
+        wait_for=[run_sincronizacao_test],
+    )
+
+    test_notify = task_dbt_selector_test_notify(
         context=contexts[0],
         mode="post",
         webhook_key="alertas_bilhetagem",
@@ -116,5 +130,5 @@ def integration__upload_transacao_cct(
         timestamp=timestamp,
         data_ordem_start=data_ordem_start,
         param_test_dates=param_test_dates,
-        wait_for=[upload_postgres, notify_discord],
+        wait_for=[upload_postgres, test_notify],
     )

@@ -1,0 +1,4 @@
+[project]
+name = "treatment__gps_maxtrack"
+version = "0.1.0"
+description = "Pipeline de materialização do GPS Maxtrack da secretaria rj-smtr"

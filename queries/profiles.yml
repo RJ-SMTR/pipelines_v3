@@ -2,7 +2,7 @@ queries:
   outputs:
     dev:
       dataset: dbt
-      job_execution_timeout_seconds: 5400
+      job_execution_timeout_seconds: 14400
       job_retries: 1
       keyfile: /tmp/credentials.json
       location: us
@@ -13,7 +13,7 @@ queries:
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
-      gcs_bucket: rj-smtr
+      gcs_bucket: rj-smtr-dev
       dataproc_region: us-central1
       submission_method: serverless
       dataproc_batch:
@@ -28,7 +28,7 @@ queries:
             spark.driver.memoryOverhead: 1g
     hmg:
       dataset: dbt
-      job_execution_timeout_seconds: 5400
+      job_execution_timeout_seconds: 14400
       job_retries: 1
       keyfile: /tmp/credentials.json
       location: us
@@ -39,7 +39,7 @@ queries:
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
-      gcs_bucket: rj-smtr
+      gcs_bucket: rj-smtr-dev
       dataproc_region: us-central1
       submission_method: serverless
       dataproc_batch:
@@ -54,7 +54,7 @@ queries:
             spark.driver.memoryOverhead: 1g
     prod:
       dataset: dbt
-      job_execution_timeout_seconds: 5400
+      job_execution_timeout_seconds: 14400
       job_retries: 1
       keyfile: /tmp/credentials.json
       location: us

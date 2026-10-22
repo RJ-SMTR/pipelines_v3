@@ -1,0 +1,4 @@
+[project]
+name = "maintenance__db_retention"
+version = "0.1.0"
+description = "Pipeline db_retention da secretaria rj-smtr"

@@ -48,7 +48,9 @@ def get_db_data(  # noqa: PLR0913
             data = data.to_dict(orient="records")
             for d in data:
                 for k, v in d.items():
-                    if pd.isna(v):
+                    missing = pd.isna(v)
+
+                    if isinstance(missing, bool) and missing:
                         d[k] = None
             return data
 

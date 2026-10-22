@@ -4,6 +4,7 @@ Valores constantes gerais para pipelines da rj-smtr
 """
 
 PROJECT_NAME = {"dev": "rj-smtr-dev", "prod": "rj-smtr-staging"}
+PRIVATE_PROJECT_NAME = "rj-smtr-private"
 DEFAULT_BUCKET_NAME = {"dev": "rj-smtr-dev", "prod": "rj-smtr-staging"}
 TIMEZONE = "America/Sao_Paulo"
 
@@ -12,9 +13,12 @@ MAX_TIMEOUT_SECONDS = 60
 MAX_RETRIES = 3
 RETRY_DELAY = 10
 
+DEFAULT_FLOW_TIMEOUT = 3600
+
 HTTP_SERVER_ERROR_STATUS = 500
 
 WEBHOOKS_SECRET_PATH = "webhooks"
+GOOGLE_CHAT_MAX_MESSAGE_BYTES = 32_000
 OWNERS_DISCORD_MENTIONS = {
     "pipeliners": {
         "user_id": "962067746651275304",

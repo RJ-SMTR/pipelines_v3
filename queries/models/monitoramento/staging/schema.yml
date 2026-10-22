@@ -1,13 +1,14 @@
 version: 2
 
 models:
-  - name: staging_gps
-    description: "Tabela com todos os registros de GPS da API {{ var('fonte_gps') }}"
+  - name: staging_gps_conecta
+    description: "Tabela com todos os registros de GPS da API Conecta"
     tests:
       - check_gps_capture:
-          table_id: registros
-          interval: 1
-          name: check_gps_capture__staging_gps
+          name: check_gps_capture__staging_gps_conecta
+          arguments:
+            table_id: registros
+            interval: 1
     columns:
       - name: data
         description: "{{ doc('data_captura') }}"
@@ -41,13 +42,557 @@ models:
         description: "{{ doc('datetime_servidor_gps') }}"
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
-  - name: staging_realocacao
-    description: "Tabela com todas as realocações de linha informadas pela API {{ var('fonte_gps') }}"
+      - name: datetime_execucao_flow
+        description: "Data e hora de execução do flow de captura"
+        data_type: datetime
+
+  - name: staging_gps_zirix
+    description: "Tabela com todos os registros de GPS da API Zirix"
     tests:
       - check_gps_capture:
-          table_id: realocacao
-          interval: 10
-          name: check_gps_capture__staging_realocacao
+          name: check_gps_capture__staging_gps_zirix
+          arguments:
+            table_id: registros
+            interval: 1
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: datetime_execucao_flow
+        description: "Data e hora de execução do flow de captura"
+        data_type: datetime
+
+  - name: staging_gps_cittati
+    description: "Tabela com todos os registros de GPS da API Cittati"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_gps_cittati
+          arguments:
+            table_id: registros
+            interval: 1
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: datetime_execucao_flow
+        description: "Data e hora de execução do flow de captura"
+        data_type: datetime
+
+  - name: staging_gps_sppo
+    description: "Tabela com todos os registros de GPS da API SPPO"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_gps_sppo
+          arguments:
+            table_id: registros
+            interval: 1
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: datetime_execucao_flow
+        description: "Data e hora de execução do flow de captura"
+        data_type: datetime
+
+  - name: staging_gps_sonda
+    description: "Tabela com todos os registros de GPS da API Sonda"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_gps_sonda
+          arguments:
+            table_id: registros
+            interval: 1
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: datetime_execucao_flow
+        description: "Data e hora de execução do flow de captura"
+        data_type: datetime
+
+  - name: staging_gps_v2_maxtrack
+    description: "Tabela com todos os registros de GPS da API Maxtrack"
+    tests:
+      - check_gps_capture_v2:
+          name: check_gps_capture__staging_gps_v2_maxtrack
+          arguments:
+            table_id: registros
+            interval: 1
+          config:
+            severity: warn
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__staging_gps_v2_maxtrack
+          - unique:
+              name: unique__id_registro__staging_gps_v2_maxtrack
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_onibus_conecta
+    description: "Registros de GPS da API Conecta filtrados pela caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_onibus_zirix
+    description: "Registros de GPS da API Zirix filtrados pela caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_onibus_cittati
+    description: "Registros de GPS da API Cittati filtrados pela caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_onibus_sppo
+    description: "Registros de GPS da API SPPO filtrados pela caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_brt_sonda
+    description: "Registros de GPS da API Sonda filtrados pela caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_v2_onibus_maxtrack
+    description: "Registros do payload GPS v2 da API Maxtrack dentro da caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__aux_gps_filtrada_v2_onibus_maxtrack
+          - unique:
+              name: unique__id_registro__aux_gps_filtrada_v2_onibus_maxtrack
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+
+  - name: staging_realocacao_conecta
+    description: "Tabela com todas as realocações de linha informadas pela API Conecta"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_realocacao_conecta
+          arguments:
+            table_id: realocacao
+            interval: 10
     columns:
       - name: data
         description: "{{ doc('data_captura') }}"
@@ -67,6 +612,119 @@ models:
         description: "{{ doc('datetime_processamento') }}"
       - name: datetime_captura
         description: "{{ doc('datetime_captura') }}"
+
+  - name: staging_realocacao_zirix
+    description: "Tabela com todas as realocações de linha informadas pela API Zirix"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_realocacao_zirix
+          arguments:
+            table_id: realocacao
+            interval: 10
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_operacao
+        description: "{{ doc('datetime_operacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico_realocacao') }}"
+      - name: datetime_entrada
+        description: "{{ doc('datetime_entrada') }}"
+      - name: datetime_saida
+        description: "{{ doc('datetime_saida') }}"
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+
+  - name: staging_realocacao_cittati
+    description: "Tabela com todas as realocações de linha informadas pela API Cittati"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_realocacao_cittati
+          arguments:
+            table_id: realocacao
+            interval: 10
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_operacao
+        description: "{{ doc('datetime_operacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico_realocacao') }}"
+      - name: datetime_entrada
+        description: "{{ doc('datetime_entrada') }}"
+      - name: datetime_saida
+        description: "{{ doc('datetime_saida') }}"
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+
+  - name: staging_realocacao_sppo
+    description: "Tabela com todas as realocações de linha informadas pela API SPPO"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_realocacao_sppo
+          arguments:
+            table_id: realocacao
+            interval: 10
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_operacao
+        description: "{{ doc('datetime_operacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico_realocacao') }}"
+      - name: datetime_entrada
+        description: "{{ doc('datetime_entrada') }}"
+      - name: datetime_saida
+        description: "{{ doc('datetime_saida') }}"
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+
+  - name: staging_realocacao_sonda
+    description: "Tabela com todas as realocações de linha informadas pela API Sonda"
+    tests:
+      - check_gps_capture:
+          name: check_gps_capture__staging_realocacao_sonda
+          arguments:
+            table_id: realocacao
+            interval: 10
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_operacao
+        description: "{{ doc('datetime_operacao') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico_realocacao') }}"
+      - name: datetime_entrada
+        description: "{{ doc('datetime_entrada') }}"
+      - name: datetime_saida
+        description: "{{ doc('datetime_saida') }}"
+      - name: datetime_processamento
+        description: "{{ doc('datetime_processamento') }}"
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+
   - name: aux_veiculo_falha_ar_condicionado
     description: "Tabela auxiliar para controle de falhas consecutivas de ar condicionado por veículo"
     columns:
@@ -117,6 +775,13 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
   - name: temperatura_inmet
     description: "Tabela com dados de temperatura das estações meteorológicas do INMET"
+    tests:
+      - test_completude_temperatura_inmet:
+          name: test_completude__temperatura_inmet
+          config:
+            description: "Há pelo menos uma temperatura INMET não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
+            severity: warn
+            where: "data between date('{date_range_start}') and date_add(date('{date_range_end}'), interval 1 day)"
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
@@ -143,6 +808,15 @@ models:
         description: "{{ doc('id_execucao_dbt') }}"
   - name: temperatura_alertario
     description: "Tabela com dados de temperatura das estações meteorológicas do Sistema de Alerta Rio"
+    tests:
+      - test_completude_temperatura:
+          name: test_completude__temperatura_alertario
+          config:
+            description: "Há pelo menos uma temperatura AlertaRio não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
+            severity: warn
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            expected_qtd: 96
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
@@ -167,3 +841,220 @@ models:
         description: "{{ doc('versao') }}"
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
+  - name: staging_infracao
+    description: |
+      Uma linha por auto de infração (`id_auto_infracao`) por data do arquivo FTP (`data`).
+      Mantém o histórico de todas as partições de captura: o mesmo auto pode reaparecer em arquivos posteriores enquanto permanecer na base STU, não sendo um estado atual único.
+      Use (`data`, `id_auto_infracao`) para o recorte do arquivo do dia; use `id_auto_infracao` para o histórico do auto.
+      Fonte: FTP RDO `MULTAS/MULTAS`. Lê `veiculo_staging.infracao` antes de `data_inicio_source_veiculo` e `source_veiculo.infracao` a partir dessa data.
+      Premissas: `data_infracao`/`datetime_infracao` são parseados de dd/mm/yyyy com hora opcional; `data_pagamento` vazia vira nulo; `timestamp_captura` é truncado ao segundo em America/Sao_Paulo; `data` permanece string.
+
+    tests:
+      - dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart:
+          name: dbt_expectations__expect_row_values_to_have_data_for_every_n_datepart__staging_infracao
+          arguments:
+            date_col: "safe_cast(data as date)"
+            row_condition: "1=1"
+            test_start_date: "{{ var('date_range_start') }}"
+            test_end_date: "{{ modules.datetime.datetime.fromisoformat(var('date_range_end')) + modules.datetime.timedelta(1) }}"
+          config:
+            description: "Arquivo de infração ingerido em todas as datas da janela"
+            tags: ["freshness", "daily"]
+            severity: warn
+            where: "safe_cast(data as date) between date('{date_range_start}') and date('{date_range_end}')"
+    columns:
+      - name: data
+        description: Data do arquivo de infração [partição]
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+
+  - name: staging_gps_v2_conecta_sistema_rio
+    description: "Tabela com todos os registros de GPS da API da Conecta para o Sistema RIO"
+    tests:
+      - check_gps_capture_v2:
+          name: check_gps_capture__staging_gps_v2_conecta_sistema_rio
+          arguments:
+            table_id: registros_sistema_rio
+            interval: 1
+          config:
+            severity: warn
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: servico
+        description: "{{ doc('servico') }}"
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__staging_gps_v2_conecta_sistema_rio
+          - unique:
+              name: unique__id_registro__staging_gps_v2_conecta_sistema_rio
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64
+
+  - name: aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+    description: "Registros do payload GPS v2 da API da Conecta para o Sistema RIO dentro da caixa geográfica do município"
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }}"
+        data_type: date
+      - name: hora
+        description: "{{ doc('hora_captura') }}"
+        data_type: int64
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
+        data_type: datetime
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+        data_type: string
+      - name: servico
+        description: "{{ doc('servico') }}"
+        data_type: string
+      - name: latitude
+        description: "{{ doc('latitude_gps') }}"
+        data_type: float64
+      - name: longitude
+        description: "{{ doc('longitude_gps') }}"
+        data_type: float64
+      - name: posicao_veiculo_geo
+        description: "Ponto geográfico da posição do veículo"
+        data_type: geography
+      - name: datetime_captura
+        description: "{{ doc('datetime_captura') }}"
+        data_type: datetime
+      - name: velocidade
+        description: "{{ doc('velocidade_instantanea') }}"
+        data_type: float64
+      - name: id_registro
+        description: "{{ doc('id_registro_gps') }}"
+        data_type: string
+        tests:
+          - not_null:
+              name: not_null__id_registro__aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+          - unique:
+              name: unique__id_registro__aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+      - name: datetime_envio
+        description: "{{ doc('datetime_envio_gps') }}"
+        data_type: datetime
+      - name: datetime_servidor
+        description: "{{ doc('datetime_servidor_gps') }}"
+        data_type: datetime
+      - name: id_equipamento
+        description: "{{ doc('id_equipamento') }}"
+        data_type: string
+      - name: sequencial_equipamento
+        description: "{{ doc('sequencial_equipamento') }}"
+        data_type: int64
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: id_viagem_planejada
+        description: "{{ doc('id_viagem_planejada') }}"
+        data_type: string
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: int64
+      - name: sentido
+        description: "{{ doc('sentido') }}"
+        data_type: string
+      - name: qualidade_sinal
+        description: "{{ doc('qualidade_sinal') }}"
+        data_type: string
+      - name: fonte_posicao
+        description: "{{ doc('fonte_posicao') }}"
+        data_type: string
+      - name: fonte_velocidade
+        description: "{{ doc('fonte_velocidade') }}"
+        data_type: string
+      - name: altitude
+        description: "{{ doc('altitude_gps') }}"
+        data_type: float64
+      - name: direcao
+        description: "{{ doc('direcao_gps') }}"
+        data_type: float64
+      - name: quantidade_satelites
+        description: "{{ doc('quantidade_satelites') }}"
+        data_type: int64
+      - name: hdop
+        description: "{{ doc('hdop') }}"
+        data_type: float64
+      - name: vdop
+        description: "{{ doc('vdop') }}"
+        data_type: float64
+      - name: pdop
+        description: "{{ doc('pdop') }}"
+        data_type: float64

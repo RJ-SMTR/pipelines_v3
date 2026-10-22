@@ -124,7 +124,8 @@ def export_data_from_bq_to_gcs(  # noqa: PLR0913
 
     table_full_name = f"{project_id}.{constants.TRANSACAO_CCT_VIEW_FULL_NAME}"
     if full_refresh:
-        export_filter = f"datetime_ultima_atualizacao <= DATETIME('{end_ts}')"
+        export_filter = f"datetime_ultima_atualizacao <= DATETIME('{end_ts}') and \
+data <= current_datetime('America/Sao_Paulo')"
         partitions = pandas_gbq.read_gbq(
             f"""
                 SELECT DISTINCT CONCAT("'", data, "'") AS particao

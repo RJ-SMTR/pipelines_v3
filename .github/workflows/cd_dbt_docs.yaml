@@ -1,0 +1,102 @@
+name: CD - DBT Docs Generation and Upload
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "queries/**"
+      - ".github/workflows/cd_dbt_docs.yaml"
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCS_BUCKET_NAME: rj-smtr-public
+  GCP_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+  OPENMETADATA_HOST_PORT: https://openmetadata.mobilidade.rio/api
+  OPENMETADATA_INGESTION_VERSION: 1.13.3.0
+
+jobs:
+  generate-and-upload-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install yq
+        run: sudo apt-get install -y yq
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ env.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: "latest"
+
+      - name: Setup credentials for dbt
+        run: |-
+
+          echo "Mounting files from env..."
+
+          echo '${{ env.GCP_SA_KEY }}'> /tmp/credentials.json
+
+      - name: Add threads to dbt profiles
+        run: |
+          yq -iy '.queries.outputs.prod.threads = 3' queries/profiles.yml
+
+      - name: Generate dbt docs
+        run: |
+          cd queries
+          uv run dbt deps --target prod
+          uv run dbt docs generate --static --target prod
+
+      - name: Validate dbt artifacts
+        run: |
+          test -s queries/target/manifest.json
+          test -s queries/target/catalog.json
+
+      - name: Upload docs to GCS
+        if: github.ref == 'refs/heads/master'
+        run: |
+          gsutil -m cp queries/target/static_index.html gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
+          gsutil -m cp queries/target/manifest.json gs://${{ env.GCS_BUCKET_NAME }}/dbt-docs/
+
+      - name: Check OpenMetadata API
+        if: github.ref == 'refs/heads/master'
+        run: |
+          curl --fail --silent --show-error \
+            "${OPENMETADATA_HOST_PORT}/v1/system/version"
+
+      - name: Install OpenMetadata CLI
+        if: github.ref == 'refs/heads/master'
+        run: |
+          uv python install 3.11
+          uv venv --python 3.11 /tmp/openmetadata
+          uv --no-config pip install \
+            --python /tmp/openmetadata/bin/python \
+            "openmetadata-ingestion[dbt]==${OPENMETADATA_INGESTION_VERSION}"
+          /tmp/openmetadata/bin/metadata --version
+
+      - name: Ingest dbt docs into OpenMetadata
+        if: github.ref == 'refs/heads/master'
+        env:
+          OPENMETADATA_JWT_TOKEN: ${{ secrets.OPENMETADATA_JWT_TOKEN }}
+          OPENMETADATA_SERVICE_NAME: ${{ secrets.OPENMETADATA_SERVICE_NAME }}
+          OPENMETADATA_DBT_MANIFEST_PATH: ${{ github.workspace }}/queries/target/manifest.json
+          OPENMETADATA_DBT_CATALOG_PATH: ${{ github.workspace }}/queries/target/catalog.json
+        run: |
+          /tmp/openmetadata/bin/metadata ingest \
+            -c pipelines/common/config/openmetadata/dbt_docs.yaml

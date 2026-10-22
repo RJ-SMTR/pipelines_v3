@@ -1,0 +1,4 @@
+[project]
+name = "treatment__subsidio_sppo_apuracao"
+version = "0.1.0"
+description = "Pipeline subsidio_sppo_apuracao da secretaria rj-smtr"

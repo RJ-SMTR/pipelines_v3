@@ -16,8 +16,7 @@ with
             c.modo,
             c.id_consorcio,
             c.consorcio,
-            o.id_operadora,
-            o.operadora,
+            lco.cd_operadora_transporte as id_operadora_jae,
             lco.cd_linha as id_servico_jae,
             l.servico_jae,
             l.descricao_servico_jae,
@@ -46,9 +45,6 @@ with
                 then datetime(lco.dt_fim_validade)
             end as data_fim_validade
         from {{ ref("staging_linha_consorcio_operadora_transporte") }} lco
-        join
-            {{ ref("operadoras") }} o
-            on lco.cd_operadora_transporte = o.id_operadora_jae
         join {{ ref("consorcios") }} c on lco.cd_consorcio = c.id_consorcio_jae
         join linha_jae l on lco.cd_linha = l.id_servico_jae
         left join {{ ref("aux_linha_tarifa") }} lt on lco.cd_linha = lt.cd_linha

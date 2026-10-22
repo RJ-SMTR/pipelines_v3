@@ -9,9 +9,7 @@ with
 
 select
     * except (arrival_time, arrival_time_parts),
-    make_interval(
-        hour => cast(arrival_time_parts[0] as integer),
-        minute => cast(arrival_time_parts[1] as integer),
-        second => cast(arrival_time_parts[2] as integer)
-    ) as arrival_time
+    cast(arrival_time_parts[0] as int64) * 3600
+    + cast(arrival_time_parts[1] as int64) * 60
+    + cast(arrival_time_parts[2] as int64) as arrival_seconds
 from stop_times

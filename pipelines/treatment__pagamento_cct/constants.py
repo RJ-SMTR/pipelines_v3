@@ -14,5 +14,5 @@ PAGAMENTO_CCT_SELECTOR = DBTSelector(
     name="pagamento_cct",
     initial_datetime=datetime(2025, 10, 8, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__pagamento_cct",
-    data_sources=[cct_pagamento_constants.PAGAMENTO_SOURCES],
+    data_sources=cct_pagamento_constants.PAGAMENTO_SOURCES,
 )

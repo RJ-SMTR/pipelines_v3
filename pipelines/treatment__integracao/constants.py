@@ -15,14 +15,6 @@ from pipelines.treatment__financeiro_bilhetagem import constants as financeiro_c
 
 INTEGRACAO_DAILY_TEST = DBTTest(
     test_select="integracao",
-    test_descriptions={
-        "integracao": {
-            "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-            "dbt_utils.unique_combination_of_columns__integracao": {
-                "description": "Todos os registros são únicos"
-            },
-        },
-    },
     truncate_date=True,
     delay_days_start=1,
 )

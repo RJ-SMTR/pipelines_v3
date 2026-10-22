@@ -1,5 +1,17 @@
 # Changelog - transito
 
+## [1.0.6] - 2026-09-15
+
+### Alterado
+
+- Altera policy tag das coluna `id_auto_infracao` e `endereco_autuacao` da tabela `autuacao`, e `id_auto_infracao` da tabela auxiliar `aux_autuacao_id` (https://github.com/RJ-SMTR/pipelines_v3/pull/675)
+
+## [1.0.5] - 2026-06-26
+
+### Adicionado
+
+- Adiciona teste de freshness `dbt_expectations.expect_row_values_to_have_recent_data` na coluna `datetime_ultima_atualizacao` da tabela `autuacao`, com tags `freshness` e `daily` (https://github.com/RJ-SMTR/pipelines_v3/pull/317)
+
 ## [1.0.4] - 2025-04-14
 
 ### Adicionado

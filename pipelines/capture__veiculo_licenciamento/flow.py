@@ -5,10 +5,10 @@ Flow de captura de licenciamento de veículos SPPO
 Executa a captura de dados de licenciamento de veículos via FTP RDO ou GCS,
 aplica pré-tratamento e carrega em BigQuery.
 
-Common: 2026-04-17
+Common: 2026-05-04
 """
 
-from prefect import flow
+from typing import Optional
 
 from pipelines.capture__veiculo_licenciamento import constants
 from pipelines.common.capture.default_capture.flow import (
@@ -16,15 +16,16 @@ from pipelines.common.capture.default_capture.flow import (
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
 from pipelines.common.capture.veiculo.tasks import create_veiculo_extractor
+from pipelines.common.utils.prefect import flow
 
 
 @flow(log_prints=True, flow_run_name=rename_capture_flow_run)
 def capture__veiculo_licenciamento(
-    env=None,
-    timestamp=None,
-    recapture=True,
-    recapture_days=2,
-    recapture_timestamps=None,
+    env: Optional[str] = None,
+    timestamp: Optional[str] = None,
+    recapture: bool = False,
+    recapture_days: int = 2,
+    recapture_timestamps: Optional[list[str]] = None,
 ):
     create_capture_flows_default_tasks(
         env=env,

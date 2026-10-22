@@ -31,7 +31,7 @@ sources:
       - name: endereco
       - name: linha_tarifa
 
-  - name: br_rj_riodejaneiro_gtfs_staging
+  - name: source_gtfs
     database: rj-smtr-staging
 
     tables:
@@ -52,6 +52,16 @@ sources:
       - name: ordem_servico_faixa_horaria
       - name: ordem_servico_faixa_horaria_sentido
       - name: ordem_servico_trajeto_alternativo_sentido
+        columns:
+          - name: evento
+            tests:
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  name: dbt_expectations__expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging
+                  config:
+                    where: "data_versao = '{{ var('data_versao_gtfs') }}' and data_versao >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+                  arguments:
+                    regex: '^\[[a-z0-9_]+\]$'
+                    is_raw: true
 
   - name: br_rj_riodejaneiro_stu_staging
     database: rj-smtr-staging
@@ -131,6 +141,14 @@ sources:
       - name: infracao
       - name: licenciamento_stu
 
+  - name: source_veiculo
+    database: rj-smtr-staging
+
+    tables:
+      - name: sppo_registro_agente_verao
+      - name: infracao
+      - name: licenciamento_stu
+
   - name: dashboard_subsidio_sppo_staging
     database: rj-smtr-staging
 
@@ -205,47 +223,49 @@ sources:
     tables:
       - name: transacao_ordem
       - name: transacao
-        freshness:
-          warn_after:
-            count: 1
-            period: hour
-          filter: |
-            {% set end = modules.datetime.datetime.now(
-                modules.pytz.timezone("America/Sao_Paulo")
-            ) %}
-            {% set start = end - modules.datetime.timedelta(hours=1) %}
+        config:
+          freshness:
+            warn_after:
+              count: 1
+              period: hour
+            filter: |
+              {% set end = modules.datetime.datetime.now(
+                  modules.pytz.timezone("America/Sao_Paulo")
+              ) %}
+              {% set start = end - modules.datetime.timedelta(hours=1) %}
 
-            {% set days = (end.date() - start.date()).days %}
+              {% set days = (end.date() - start.date()).days %}
 
-            {% if days == 0 %}
-                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+              {% if days == 0 %}
+                  data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
 
-            {% elif days == 1 %}
-                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
-                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
-            {% endif %}
-        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
+              {% elif days == 1 %}
+                  (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                  or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+              {% endif %}
+          loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
       - name: transacao_riocard
-        freshness:
-          warn_after:
-            count: 1
-            period: hour
-          filter: |
-            {% set end = modules.datetime.datetime.now(
-                modules.pytz.timezone("America/Sao_Paulo")
-            ) %}
-            {% set start = end - modules.datetime.timedelta(hours=1) %}
+        config:
+          freshness:
+            warn_after:
+              count: 1
+              period: hour
+            filter: |
+              {% set end = modules.datetime.datetime.now(
+                  modules.pytz.timezone("America/Sao_Paulo")
+              ) %}
+              {% set start = end - modules.datetime.timedelta(hours=1) %}
 
-            {% set days = (end.date() - start.date()).days %}
+              {% set days = (end.date() - start.date()).days %}
 
-            {% if days == 0 %}
-                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+              {% if days == 0 %}
+                  data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
 
-            {% elif days == 1 %}
-                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
-                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
-            {% endif %}
-        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
+              {% elif days == 1 %}
+                  (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                  or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+              {% endif %}
+          loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E6S%Ez', safe_cast(json_value(content, '$.data_transacao') as string))"
       - name: linha
       - name: dicionario
       - name: consorcio
@@ -259,26 +279,27 @@ sources:
       - name: integracao_transacao
       - name: tipo_modal
       - name: gps_validador
-        freshness:
-          warn_after:
-            count: 1
-            period: hour
-          filter: |
-            {% set end = modules.datetime.datetime.now(
-                modules.pytz.timezone("America/Sao_Paulo")
-            ) %}
-            {% set start = end - modules.datetime.timedelta(hours=1) %}
+        config:
+          freshness:
+            warn_after:
+              count: 1
+              period: hour
+            filter: |
+              {% set end = modules.datetime.datetime.now(
+                  modules.pytz.timezone("America/Sao_Paulo")
+              ) %}
+              {% set start = end - modules.datetime.timedelta(hours=1) %}
 
-            {% set days = (end.date() - start.date()).days %}
+              {% set days = (end.date() - start.date()).days %}
 
-            {% if days == 0 %}
-                data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
+              {% if days == 0 %}
+                  data = date("{{ start.date() }}") and hora between {{ start.hour }} and {{ end.hour }}
 
-            {% elif days == 1 %}
-                (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
-                or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
-            {% endif %}
-        loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E*S%Ez', safe_cast(json_value(content, '$.data_tracking') as string))"
+              {% elif days == 1 %}
+                  (data = date("{{ start.date() }}") and hora >= {{ start.hour }})
+                  or (data = date("{{ end.date() }}") and hora <= {{ end.hour }})
+              {% endif %}
+          loaded_at_field: "parse_timestamp('%Y-%m-%dT%H:%M:%E*S%Ez', safe_cast(json_value(content, '$.data_tracking') as string))"
       - name: gratuidade
       - name: ordem_rateio
       - name: servico_motorista
@@ -292,18 +313,27 @@ sources:
       - name: linha_tarifa
       - name: transacao_retificada
       - name: lancamento
+      - name: movimento
+      - name: conta
       - name: estudante
       - name: escola
       - name: laudo_pcd
       - name: resultado_verificacao_captura_jae
       - name: device_operadora
       - name: transacao_erro
+      - name: movimento_estacionamento_veiculo
+      - name: estacionamento_veiculo
+      - name: fiscalizacao_veiculo
+      - name: veiculo
+      - name: veiculo_cliente
 
   - name: source_sonda
     database: rj-smtr-staging
 
     tables:
       - name: viagem_informada
+      - name: registros
+      - name: realocacao
 
   - name: source_smtr
     database: rj-smtr-staging
@@ -312,7 +342,24 @@ sources:
       - name: matriz_reparticao_tarifaria
       - name: matriz_transferencia
       - name: matriz_integracao_excecao
+      - name: matriz_servico_modo
       - name: dicionario_subsidio
+      - name: calendario_manual
+      - name: controle_financeiro_staging
+      - name: cb
+      - name: cett
+      - name: caer
+
+  - name: source_riorotativo
+    database: rj-smtr-staging
+
+    tables:
+      - name: entidade_05019730000158
+      - name: entidade_34152025000122
+      - name: lista_bloqueio
+      - name: area_estacionamento
+      - name: perfil_funcionamento
+      - name: perfil_funcionamento_excecao
 
   - name: planejamento_staging
     database: rj-smtr-staging
@@ -374,12 +421,23 @@ sources:
     database: rj-smtr
 
     tables:
-      - name: gps_onibus_conecta
       - name: gps_onibus_cittati
-      - name: gps_onibus_zirix
-      - name: gps_15_minutos_onibus_conecta
-      - name: gps_15_minutos_onibus_cittati
-      - name: gps_15_minutos_onibus_zirix
+
+  - name: br_rj_riodejaneiro_veiculos
+    database: rj-smtr
+
+    tables:
+      - name: gps_sppo
+      - name: gps_brt
+
+  - name: br_rj_riodejaneiro_sigmob
+    database: rj-smtr
+
+    tables:
+      - name: shapes_geom
+      - name: stops_desaninhada
+      - name: agg_stops_vistoriadas
+      - name: stop_details_desaninhada
 
   - name: source_veiculo_fiscalizacao
     database: rj-smtr-staging
@@ -406,6 +464,10 @@ sources:
     tables:
       - name: registros
       - name: realocacao
+      - name: registros_sistema_rio
+        description: "Posições GPS da Conecta para o Sistema RIO, separadas da captura SPPO."
+      - name: viagem_informada_sistema_rio
+        description: "Viagens informadas da Conecta para o Sistema RIO, separadas da captura SPPO."
 
   - name: source_zirix
     database: rj-smtr-staging
@@ -413,6 +475,20 @@ sources:
     tables:
       - name: registros
       - name: realocacao
+
+  - name: source_sppo
+    database: rj-smtr-staging
+
+    tables:
+      - name: registros
+      - name: realocacao
+
+  - name: source_maxtrack
+    database: rj-smtr-staging
+
+    tables:
+      - name: viagem_informada
+      - name: registros
 
   - name: clima_estacao_meteorologica
     database: rj-cor
@@ -478,6 +554,7 @@ sources:
     tables:
       - name: servico_contrato_abreviado
       - name: valor_km_tipo_viagem
+      - name: valor_tipo_penalidade
 
   - name: source_previnity
     database: rj-smtr-staging
@@ -490,3 +567,40 @@ sources:
 
     tables:
       - name: autuacao_controle_negativacao
+
+  - name: rmi_dados_mestres
+    database: rj-crm-registry
+
+    tables:
+      - name: pessoa_juridica
+
+  - name: bilhetagem_staging
+    database: rj-smtr-staging
+
+    tables:
+      - name: excecao_teste_transacao_valor_ordem
+
+  - name: mit_ipea_project
+    database: rj-smtr-dev
+
+    tables:
+      - name: origin_destination_res9
+
+  - name: cloudcosts
+    database: rj-smtr
+
+    tables:
+      - name: cloud_pricing_export
+
+  - name: dashboard_bilhetagem_jae
+    database: rj-smtr
+
+    tables:
+      - name: ultimo_datetime_captura_confiavel
+
+  - name: bilhetagem_private
+    database: rj-smtr-private
+    schema: bilhetagem
+
+    tables:
+      - name: transacao

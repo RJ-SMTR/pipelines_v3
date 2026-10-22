@@ -1,5 +1,59 @@
 # Changelog - cadastro
 
+## [1.8.6] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.8.5] - 2026-09-25
+
+### Corrigido
+
+- No preenchimento de lacre e vistoria de `veiculo_licenciamento_dia`, o desempate passa a manter o `data_arquivo_fonte` mais recente e, em seguida, a `data_processamento` mais recente. (https://github.com/RJ-SMTR/pipelines_v3/pull/713)
+
+- O teste `test_check_data_arquivo_licenciamento` compara `data_processamento` mais recente de cada `id_veiculo` e `placa`. (https://github.com/RJ-SMTR/pipelines_v3/pull/713)
+
+## [1.8.4] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_licenciamento_stu` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
+## [1.8.3] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_licenciamento_stu` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de licenciamento STU em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
+## [1.8.2] - 2026-09-03
+
+### Removido
+
+- Renomeia modelo `aux_operadora_jae_cliente_historico.sql` para `aux_cliente_jae_historico.sql` e move para o `cadastro_interno` (https://github.com/RJ-SMTR/pipelines_v3/pull/633)
+
+## [1.8.1] - 2026-05-14
+
+### Removido
+
+- Remove join com dados de operador dos modelos `servico_operadora.sql` e `validador_operadora.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+
+## [1.8.0] - 2026-05-05
+
+### Adicionado
+
+- Cria modelos (https://github.com/RJ-SMTR/pipelines_v3/pull/144):
+  - `aux_operadora_stu.sql`
+  - `aux_operadora_jae_cliente_historico.sql`
+  - `aux_operadora_jae_historico.sql`
+  - `aux_operadora_cliente_join_jae_historico.sql`
+  - `aux_operadora_jae_stu_historico.sql`
+  - `operadora_historico.sql`
+
+### Alterado
+
+- Altera arquitetura do modelo `operadoras.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/144)
+
 ## [1.7.6] - 2026-01-15
 
 ### Adicionado

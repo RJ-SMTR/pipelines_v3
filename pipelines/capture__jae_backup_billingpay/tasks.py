@@ -16,6 +16,7 @@ from pipelines.capture__jae_backup_billingpay.utils import (
     get_redis_last_backup,
 )
 from pipelines.common.capture.jae import constants as jae_constants
+from pipelines.common.capture.jae.utils import get_jae_database_settings
 from pipelines.common.treatment.default_treatment import (
     constants as treatment_constants,
 )
@@ -42,7 +43,7 @@ def get_jae_db_config(database_name: str) -> dict[str, str]:
         dict[str, str]: Dicionário com os argumentos para a função create_database_url
     """
     secrets = get_env_secret(jae_constants.JAE_SECRET_PATH)
-    settings = jae_constants.JAE_DATABASE_SETTINGS[database_name]
+    settings = get_jae_database_settings(database_name)
     return {
         "engine": settings["engine"],
         "host": settings["host"],
@@ -108,6 +109,7 @@ def get_table_info(
             ),
             "partition": partition,
             "custom_select": custom_select.get(t),
+            "pk": inspector.get_pk_constraint(t)["constrained_columns"],
         }
         for t in table_names
         if t not in filtered_tables
@@ -142,6 +144,7 @@ def get_table_info(
                             "partition": partition,
                             "custom_select": custom_select.get(table),
                             "redis_save_value": current_count,
+                            "pk": inspector.get_pk_constraint(table)["constrained_columns"],
                         }
                     )
             continue
@@ -178,6 +181,7 @@ def get_table_info(
                 ),
                 "partition": partition,
                 "custom_select": custom_select.get(table),
+                "pk": inspector.get_pk_constraint(table)["constrained_columns"],
             }
         )
 
@@ -278,6 +282,11 @@ def get_raw_backup_billingpay(
 
         if "{filter}" not in sql:
             sql += " WHERE {filter}"
+
+        if "order by" not in sql.lower():
+            pk = table["pk"]
+            pk = pk if len(pk) > 0 else ["1"]
+            sql += f" ORDER BY {', '.join(pk)}"
 
         where = "1=1"
         if table["incremental_type"] == "datetime":

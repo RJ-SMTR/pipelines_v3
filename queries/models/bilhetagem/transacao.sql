@@ -170,12 +170,16 @@ with
             m.modo,
             dc.id_consorcio,
             dc.consorcio,
-            do.id_operadora,
+            coalesce(
+                do.id_operadora, oh.id_operadora_stu, oh.id_operadora_jae
+            ) as id_operadora,
             t.cd_operadora as id_operadora_jae,
-            do.operadora,
-            do.documento as documento_operadora,
-            do.tipo_documento as tipo_documento_operadora,
-            s.id_servico_jae,
+            coalesce(
+                do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
+            ) as operadora,
+            ifnull(do.documento, oh.documento) as documento_operadora,
+            ifnull(do.tipo_documento, oh.tipo_documento) as tipo_documento_operadora,
+            t.cd_linha as id_servico_jae,
             s.servico_jae,
             s.descricao_servico_jae,
             sentido,
@@ -203,7 +207,20 @@ with
         from transacao_staging as t
         left join
             {{ ref("modos") }} m on t.id_tipo_modal = m.id_modo and m.fonte = "jae"
-        left join {{ ref("operadoras") }} do on t.cd_operadora = do.id_operadora_jae
+        left join
+            {{ ref("operadoras") }} do
+            on t.cd_operadora = do.id_operadora_jae
+            and date(t.data_transacao) < "{{ var('data_inicial_operadora_historico') }}"
+        left join
+            {{ ref("operadora_historico") }} oh
+            on t.cd_operadora = oh.id_operadora_jae
+            and date(t.data_transacao)
+            >= "{{ var('data_inicial_operadora_historico') }}"
+            and t.data_transacao >= oh.datetime_inicio_validade
+            and (
+                t.data_transacao < oh.datetime_fim_validade
+                or oh.datetime_fim_validade is null
+            )
         left join {{ ref("consorcios") }} dc on t.cd_consorcio = dc.id_consorcio_jae
         left join
             {{ ref("aux_servico_jae") }} s
@@ -214,7 +231,7 @@ with
                 or s.datetime_fim_validade is null
             )
         left join {{ ref("staging_produto") }} p on t.id_produto = p.cd_produto
-        left join {{ ref("cliente_jae") }} c using (id_cliente)
+        left join {{ ref("cliente_jae") }} c on t.id_cliente = c.id_cliente
         left join tipo_transacao tt on tt.id_tipo_transacao = t.tipo_transacao
         left join tipo_pagamento tp on t.id_tipo_midia = tp.id_tipo_pagamento
         left join
@@ -359,7 +376,14 @@ with
                 then "Integração"
                 when
                     t.tipo_transacao_jae in (
-                        "Débito", "Débito EMV", "Débito EMV emissor externo", "Botoeira"
+                        "Débito",
+                        "Débito EMV",
+                        "Débito EMV emissor externo",
+                        "Botoeira",
+                        "Débito PIX a bordo",
+                        "QRCode Evento",
+                        "Crédito EMV Bancário",
+                        "Débito EMV Bancário"
                     )
                 then "Integral"
                 when t.tipo_transacao_jae = "Transferência EMV"
@@ -404,29 +428,58 @@ with
                 else "Cadastrado"
             end as cadastro_cliente,
             case
-                when t.produto_jae in ("Conta Jaé", "Conta digital")
-                then "Carteira"
-                when t.produto_jae = "Conta Jaé Gratuidade"
+                when
+                    t.produto_jae = "Conta Jaé Gratuidade"
+                    or lower(tipo_transacao_jae) like "%gratuidade%"
                 then "Gratuidade"
+                when
+                    t.produto_jae in ("Conta Jaé", "Conta digital")
+                    or t.tipo_transacao_jae = 'QRCode Evento'
+                then "Carteira"
                 when t.produto_jae = "Conta Jaé VT"
                 then "VT"
                 when t.produto_jae = "Avulso"
                 then "Cartão Avulso"
                 when
-                    t.tipo_transacao_jae like "% EMV %"
-                    or t.tipo_transacao_jae like "% EMV"
-                then "Visa Internacional"
-                when t.tipo_transacao_jae = "Botoeira"
+                    (
+                        t.tipo_transacao_jae like "% EMV %"
+                        or t.tipo_transacao_jae like "% EMV"
+                    )
+                    and t.tipo_transacao_jae not like "%Crédito%"
+                then "Cartão Bancário Débito"
+                when
+                    (
+                        t.tipo_transacao_jae like "% EMV %"
+                        or t.tipo_transacao_jae like "% EMV"
+                    )
+                    and t.tipo_transacao_jae like "%Crédito%"
+                then "Cartão Bancário Crédito"
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro (Botoeira)"
-                when tipo_transacao_jae like "Gratuidade operador%"
-                then "Gratuidade Operadora"
+                when t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
+                when
+                    t.meio_pagamento_jae = "PIX"
+                    or t.tipo_transacao_jae = "Débito PIX a bordo"
+                then "PIX"
             end as produto,
             case
-                when t.produto_jae = "Conta Jaé Gratuidade"
+                when
+                    t.produto_jae = "Conta Jaé Gratuidade"
+                    or (
+                        t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                        and t.tipo_transacao_jae = "Botoeira"
+                    )
                 then "Gratuidade"
                 else t.tipo_transacao_atualizado
             end as tipo_transacao,
             case
+                when
+                    t.data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                    and t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
                 when
                     t.tipo_transacao_jae not like "%Gratuidade%"
                     and (
@@ -452,7 +505,7 @@ with
                 when
                     t.tipo_transacao_jae = "Gratuidade acompanhante"
                     or (
-                        t.tipo_transacao_jae not like "%Gratuidade%"
+                        lower(t.tipo_transacao_jae) not like "%gratuidade%"
                         and (
                             t.produto_jae != "Conta Jaé Gratuidade"
                             or t.produto_jae is null
@@ -486,9 +539,25 @@ with
                 then "DC"
             end as subtipo_usuario_protegido,
             case
-                when t.tipo_transacao_jae = "Botoeira"
+                when
+                    t.tipo_transacao_jae = "Botoeira"
+                    and t.data < "{{ var('data_final_pagamento_dinheiro') }}"
                 then "Dinheiro"
-                when t.meio_pagamento_jae like "Cartão%"
+                when t.tipo_transacao_jae = "Botoeira"
+                then "Botoeira"
+                when
+                    t.tipo_transacao_jae = 'Débito PIX a bordo'
+                    and t.meio_pagamento_jae = 'PIX'
+                then 'QRCode'
+                when
+                    t.meio_pagamento_jae like "Cartão%"
+                    or t.tipo_transacao_jae like "% EMV %"
+                    or t.tipo_transacao_jae like "% EMV"
+                    or t.tipo_transacao_jae = "Gratuidade operadora"
+                    or (
+                        lower(t.tipo_transacao_jae) like "%gratuidade%"
+                        and t.meio_pagamento_jae is null
+                    )
                 then "Cartão"
                 else t.meio_pagamento_jae
             end as meio_pagamento,
@@ -545,8 +614,20 @@ with
             latitude,
             longitude,
             geo_point_transacao,
-            valor_transacao,
-            valor_pagamento,
+            case
+                when
+                    tipo_transacao_jae = "Botoeira"
+                    and data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                then null
+                else valor_transacao
+            end as valor_transacao,
+            case
+                when
+                    tipo_transacao_jae = "Botoeira"
+                    and data >= "{{ var('data_final_pagamento_dinheiro') }}"
+                then null
+                else valor_pagamento
+            end as valor_pagamento,
             data_ordem,
             id_ordem_pagamento_servico_operador_dia,
             id_ordem_pagamento_consorcio_operador_dia,

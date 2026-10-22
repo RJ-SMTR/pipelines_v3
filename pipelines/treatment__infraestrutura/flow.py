@@ -7,25 +7,26 @@ Executa o selector DBT 'infraestrutura' para materializar dados no BigQuery.
 Schedule:
 - Diariamente às 9h00 (horário de São Paulo)
 
-DBT: 2026-04-20
+DBT: 2026-04-27
 """
 
-from prefect import flow
+from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__infraestrutura import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__infraestrutura(
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     create_materialization_flows_default_tasks(
         env=env,

@@ -1,5 +1,11 @@
 # Changelog - transito_interno
 
+## [1.0.2] - 2026-07-20
+
+### Corrigido
+
+- Corrige `view_pessoa_fisica_negativacao` para não gerar `IN ()` inválido quando não há partições no período (https://github.com/RJ-SMTR/pipelines_v3/pull/395)
+
 ## [1.0.1] - 2026-02-25
 
 ### Corrigido

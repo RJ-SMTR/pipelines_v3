@@ -1,5 +1,41 @@
 # Changelog - integration__upload_transacao_cct
 
+## [1.2.2] - 2026-10-14
+
+### Removido
+
+- Remove as descrições dos testes das constantes; as notificações usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.2.1] - 2026-10-14
+
+### Alterado
+
+- Usa a task `task_dbt_selector_test_notify` (antiga `task_dbt_selector_test_notify_discord`) (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+## [1.2.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a materialização e os testes da integração (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
+## [1.1.1] - 2026-06-23
+
+### Alterado
+
+- Passa o ambiente resolvido para `setup_dbt_queries`, mantendo o checkout de `queries/` consistente com a regra de deploy de dev/prod. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.1.0] - 2026-06-10
+
+### Adicionado
+
+- Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
+## [1.0.1] - 2026-06-09
+
+### Adicionado
+
+- Adiciona filtro de data na extração em caso de full refresh (https://github.com/RJ-SMTR/pipelines_v3/pull/232)
+
 ## [1.0.0] - 2026-04-13
 
 ### Adicionado

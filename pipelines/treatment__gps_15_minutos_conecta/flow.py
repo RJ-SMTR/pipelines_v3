@@ -2,22 +2,22 @@
 """
 Flow de materialização de dados do GPS 15 minutos conecta
 
-Executa o selector DBT 'gps_15_minutos' para materializar dados no BigQuery.
+Executa o selector DBT 'gps_15_minutos_conecta' para materializar dados no BigQuery.
 
 Schedule:
 - A cada 15 minutos (horário de São Paulo)
 - Envia notificações em caso de falha
 
-DBT: 2026-03-16
+DBT: 2026-10-13
 """
 
-from prefect import flow
+from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.prefect import handler_notify_failure
+from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.treatment__gps_15_minutos_conecta import constants
 
 
@@ -28,12 +28,13 @@ from pipelines.treatment__gps_15_minutos_conecta import constants
     on_crashed=[handler_notify_failure(webhook="dataplex")],
 )
 def treatment__gps_15_minutos_conecta(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars={"modo_gps": "onibus", "fonte_gps": "conecta", "15_minutos": True},  # noqa: B006
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
+    skip_source_check: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,
@@ -43,4 +44,5 @@ def treatment__gps_15_minutos_conecta(  # noqa: PLR0913
         flags=flags,
         additional_vars=additional_vars,
         force_test_run=force_test_run,
+        skip_source_check=skip_source_check,
     )

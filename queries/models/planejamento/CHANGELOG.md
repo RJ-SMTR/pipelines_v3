@@ -1,5 +1,169 @@
 # Changelog - planejamento
 
+## [1.10.0] - 2026-10-19
+
+### Adicionado
+
+- Classifica viagens com `service_id` de prefixo `F_` como ponto facultativo em `viagem_planejada_planejamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Ajusta `calendario` para permitir serviços `F_` da programação semanal somente em datas definidas manualmente como ponto facultativo, preservando as inclusões e remoções de `calendar_dates` e a prioridade do calendário manual (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+- Limita a conversão dos identificadores para `F_` aos feeds a partir de `DATA_GTFS_V6_INICIO` (`2026-10-19`), preserva os identificadores dos feeds antigos e elimina repetições no array de serviços (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+## [1.9.3] - 2026-10-14
+
+### Corrigido
+
+- Corrige os trajetos alternativos do Sistema RIO em `viagem_planejada_planejamento`, usando a extensão de `extensao_shape` quando a extensão da Ordem de Serviço estiver nula ou zerada e associando viagens e alternativas com `tipo_os` nulo (https://github.com/RJ-SMTR/pipelines_v3/pull/766)
+
+## [1.9.2] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.9.1] - 2026-10-13
+
+### Alterado
+
+- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II no teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` e considere as partidas e quilometragem no GTFS apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR em razão das especificidades do feed eleitoral (https://github.com/RJ-SMTR/pipelines_v3/pull/760 e https://github.com/RJ-SMTR/pipelines_v3/pull/756)
+
+## [1.9.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos `ordem_servico_faixa_horaria`, `ordem_servico_faixa_horaria_sentido` e `ordem_servico_trajeto_alternativo_sentido` de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
+## [1.8.10] - 2026-09-30
+
+### Adicionado
+
+- Adiciona `tipo_bilhete_unico` nos modelos `aux_matriz_integracao_modo.sql`, `matriz_reparticao_tarifaria.sql` e `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona transferências BUM no modelo `matriz_integracao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Adiciona tratamento das colunas de quarta perna no modelo `matriz_reparticao_tarifaria.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+- Cria modelo `matriz_integracao_servico_modo.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/313)
+
+## [1.8.9] - 2026-09-10
+
+### Alterado
+
+- Substitui os testes genéricos de nulidade das tecnologias permitidas por um teste singular que valida as colunas `maior_tecnologia_permitida` e `menor_tecnologia_permitida` ([PR #638](https://github.com/RJ-SMTR/pipelines_v3/pull/638), [commit 5a1ca494](https://github.com/RJ-SMTR/pipelines_v3/commit/5a1ca494)).
+
+## [1.8.8] - 2026-08-28
+
+### Alterado
+
+- Ajusta `servico_planejado_faixa_horaria` para partir das viagens planejadas e preservar seus metadados de sistema, modo, feed e extensão ao associá-las às faixas horárias da Ordem de Serviço (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+## [1.8.7] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.unique_combination_of_columns` em `ordem_servico_faixa_horaria_sentido`(https://github.com/RJ-SMTR/pipelines_v3/pull/574)
+
+## [1.8.6] - 2026-08-17
+
+### Adicionado
+
+- Adiciona testes `dbt_expectations.expect_table_aggregation_to_equal_other_table` para os trajetos alternativos em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona o teste `planejamento_gtfs_freshness` para validar que feeds GTFS com `feed_update_datetime` na janela foram materializados em `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` com o `feed_start_date` esperado e partição gravada após a atualização do feed (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+- Adiciona o teste `test_consistencia_servico_planejado_faixa_horaria` para comparar os totais de partidas e quilometragem dos serviços planejados com a Ordem de Serviço. (https://github.com/RJ-SMTR/pipelines_v3/pull/478)
+
+### Alterado
+
+- Adiciona as colunas `consorcio`, `sistema` e `vista` aos modelos `viagem_planejada_planejamento`, `viagem_planejada_planejamento_dia` e `servico_planejado_faixa_horaria`, inclui `vista` nos trajetos alternativos e remove os campos redundantes `evento` e `indicador_trajeto_alternativo` das estruturas de trajetos regulares (https://github.com/RJ-SMTR/pipelines_v3/pull/519)
+
+## [1.8.5] - 2026-08-14
+
+### Corrigido
+
+- Ajusta os modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` para processar somente o feed atual e manter partidas com horários iguais ou superiores a 24:00:00 associadas ao mesmo dia operacional, normalizando `horario_partida` com módulo 24 (https://github.com/RJ-SMTR/pipelines_v3/pull/516)
+
+## [1.8.4] - 2026-07-31
+
+### Corrigido
+
+- Corrigido o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para tratar corretamente os sentidos circulares, considerando-os como sentido de ida (I) ao invés de circular (C) (https://github.com/RJ-SMTR/pipelines_v3/pull/468)
+
+## [1.8.3] - 2026-07-30
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido` no modelo `ordem_servico_trajeto_alternativo_sentido` (planejamento) e registra `dbt_expectations.expect_column_values_to_match_regex__evento__ordem_servico_trajeto_alternativo_sentido_staging` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_utils.relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido` para validar que todo `(servico, evento)` da OS existe em `trips_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+- Adiciona o teste `dbt_expectations.expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` para validar que a quantidade distinta de `evento` por `(servico, sentido)` em `ordem_servico_trajeto_alternativo_sentido` é igual à quantidade distinta de eventos extraídos de `vista` em `ordem_servico_trips_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
+## [1.8.2] - 2026-07-09
+
+### Alterado
+
+- Alterado o `tipo_dia` no modelo `aux_calendario_manual.sql` de `2026-06-29` -> `Ponto Facultativo` DECRETO RIO Nº 58230 DE 24 DE JUNHO DE 2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
+
+## [1.8.1] - 2026-06-24
+
+### Adicionado
+
+- Adiciona leitura do calendário manual pela tabela `source_smtr.calendario_manual` a partir de `data_inicio_calendario_sheets` no modelo `aux_calendario_manual`, preservando o histórico hardcoded antes da data de corte. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+- Adiciona a coluna `subtipo_dia` ao calendário manual e passa a priorizá-la no modelo `calendario`. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+### Alterado
+
+- Ajusta filtros de `servico_planejado_faixa_horaria` para não materializar dados quando não há feeds GTFS no intervalo incremental. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+## [1.7.5] - 2026-06-23
+
+### Alterado
+
+- Estende a materialização incremental do modelo `calendario` até o fim do mês seguinte por padrão, mantendo materialização exata apenas quando `materializar_periodo_exato=true`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Estende a janela de `viagem_planejada_planejamento_dia` até D+2. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.7.4] - 2026-06-22
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para os dias `2026-06-13` -> `Copa_13_Junho`, `2026-06-19` -> `Copa_19_Junho`, `2026-06-24` -> `Copa_24_Junho`,  conforme Processo SEI 000399.016030/2026-59. (https://github.com/RJ-SMTR/pipelines_v3/pull/307)
+
+## [1.7.3] - 2026-06-11
+
+### Adicionado
+
+- Cria modelo `viagem_planejada_planejamento_dia` com viagens planejadas por dia (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelos `aux_ordem_servico_diaria_v1` e `aux_ordem_servico_diaria_v2` para separar lógica de cálculo da ordem de serviço diária por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelos `aux_trajeto_alternativo_sentido`, `aux_trajeto_alternativo_sentido_v1` e `aux_trajeto_alternativo_sentido_v2` para separar lógica de tratamento do anexo de trajeto alternativo por versão do GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Cria modelo `aux_trips` em substituição ao `aux_trips_dia`, com trajeto alternativo por sentido e join com `aux_ordem_servico_horario_tratado` por sentido (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Adiciona testes de unicidade nos modelos `viagem_planejada_planejamento` e `viagem_planejada_planejamento_dia` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `viagem_planejada_planejamento` para ser particionado por `feed_start_date` (quadro horário por tipo de dia), removendo a coluna `data` e a dependência da tabela `calendario`, e adicionando a coluna `trajetos_alternativos` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Refatora modelo `aux_ordem_servico_diaria` para utilizar novos modelos versionados (`v1` e `v2`) com separação pela variável `DATA_GTFS_V4_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Altera modelos `aux_frequencies_horario_tratado` (`start_time`/`end_time` -> `start_seconds`/`end_seconds`) e `aux_stop_times_horario_tratado` (`arrival_time` -> `arrival_seconds`) para representar horários em segundos (int64) ao invés de `interval` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Altera modelo `servico_planejado_faixa_horaria` para utilizar `viagem_planejada_planejamento_dia` como fonte (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Removido
+
+- Remove modelo `aux_trips_dia`, substituído por `aux_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+## [1.7.2] - 2026-06-09
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para o dia `2026-05-17` -> `Oper_634`, conforme Processo SEi 000399.011715/2026-17, e `tipo_dia` para o dia `2026-06-04` -> `Domingo` devido ao feriado de Corpus Christi e `2026-06-05` -> `Ponto Facultativo` conforme DECRETO RIO Nº 58105 DE 27 DE MAIO DE 2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/234)
+
+## [1.7.1] - 2026-05-22
+
+### Alterado
+
+- Alterado o `tipo_os` no modelo `aux_calendario_manual.sql` para o dia `2026-05-02` -> `Shakira_02-05` e para o dia `2026-05-03` -> `Shakira_03-05` conforme Processo SEI 000399.009326/2026-13 (https://github.com/RJ-SMTR/pipelines_v3/pull/204)
+
+## [1.7.0] - 2026-05-04
+
+### Alterado
+
+- Alterado o `tipo_dia` no modelo `aux_calendario_manual.sql` de `2024-04-24` -> `Ponto Facultativo` conforme DECRETO RIO Nº 57867 DE 13 DE ABRIL DE 2026 (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/145)
+
 ## [1.6.9] - 2026-03-31
 
 ### Alterado

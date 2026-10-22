@@ -9,8 +9,11 @@ Schedule:
 DBT: 2026-03-23
 """
 
+from datetime import datetime
+from typing import Optional
+
 import pandas as pd
-from prefect import flow, runtime
+from prefect import runtime
 from prefect.utilities.annotations import unmapped
 
 from pipelines.common import constants as common_constants
@@ -29,33 +32,42 @@ from pipelines.common.tasks import (
 )
 from pipelines.common.treatment.default_treatment.tasks import (
     create_materialization_contexts,
+    ingest_dbt_artifacts_to_openmetadata,
+    install_dbt_packages,
     run_dbt_selector_tests,
     run_dbt_selectors,
     save_materialization_datetime_redis,
-    task_dbt_selector_test_notify_discord,
+    setup_dbt_queries,
+    task_dbt_selector_test_notify,
 )
+from pipelines.common.treatment.default_treatment.utils import IncompleteDataError
+from pipelines.common.utils.prefect import flow
 from pipelines.integration__previnity_negativacao import constants
 from pipelines.integration__previnity_negativacao.tasks import (
+    ensure_source_file_does_not_exist,
     get_previnity_credentials,
     get_previnity_date_range,
     prepare_previnity_payloads,
 )
+from pipelines.treatment__transito_autuacao.constants import TRANSITO_AUTUACAO_SELECTOR
 
 
-@flow(log_prints=True)
+@flow(log_prints=True, timeout_seconds=10800)
 async def integration__previnity_negativacao(  # noqa: PLR0913
-    timestamp=None,
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
+    timestamp: Optional[datetime] = None,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
 ):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
 
     # initialize sentry for error capturing
     initialize_sentry(env)
+    queries = setup_dbt_queries(env=env, wait_for=[setup_env])
+    dbt_deps = install_dbt_packages(wait_for=[queries])
 
     previnity_key, previnity_token = get_previnity_credentials(wait_for=[setup_env])
 
@@ -66,6 +78,11 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     }
 
     ts = get_scheduled_timestamp(timestamp=timestamp)
+
+    if not TRANSITO_AUTUACAO_SELECTOR.is_up_to_date(env=env, timestamp=ts):
+        raise IncompleteDataError(
+            f"{type(TRANSITO_AUTUACAO_SELECTOR)} {TRANSITO_AUTUACAO_SELECTOR.name} incompleto"
+        )
 
     datetime_start, datetime_end = get_previnity_date_range(
         env=env,
@@ -100,6 +117,8 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
     )
 
     if payloads_with_metadata:
+        ensure_source_file_does_not_exist(context=context)
+
         payloads, metadata_list = zip(*payloads_with_metadata, strict=True)
 
         api_results = await async_api_post_request(
@@ -139,6 +158,7 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
         run_dbt_future = run_dbt_selectors(
             contexts=materialization_contexts,
             flags=flags,
+            wait_for=[dbt_deps],
         )
 
         run_tests_future = run_dbt_selector_tests(
@@ -147,12 +167,19 @@ async def integration__previnity_negativacao(  # noqa: PLR0913
             wait_for=[run_dbt_future],
         )
 
-        task_dbt_selector_test_notify_discord.map(
+        ingest_dbt_artifacts_to_openmetadata(
+            env=env,
+            deployment_name=runtime.deployment.name,
+            flow_run_id=runtime.flow_run.id,
+            wait_for=[run_tests_future],
+        )
+
+        post_tests_notify_future = task_dbt_selector_test_notify.map(
             context=materialization_contexts,
             mode=unmapped("post"),
             wait_for=unmapped([run_tests_future]),
         )
 
         save_materialization_datetime_redis(
-            contexts=materialization_contexts, wait_for=[run_dbt_future]
+            contexts=materialization_contexts, wait_for=[post_tests_notify_future]
         )

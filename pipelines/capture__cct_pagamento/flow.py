@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from prefect import flow
-
 from pipelines.capture__cct_pagamento import constants
 from pipelines.capture__cct_pagamento.tasks import create_cct_general_extractor
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.utils.prefect import flow
 
 sources = constants.PAGAMENTO_SOURCES
 

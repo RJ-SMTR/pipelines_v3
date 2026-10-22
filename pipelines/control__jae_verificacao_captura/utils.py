@@ -13,6 +13,7 @@ from pytz import timezone
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.jae import constants as jae_constants
+from pipelines.common.capture.jae.utils import get_jae_database_settings
 from pipelines.common.utils.database import create_database_url, create_engine
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.secret import get_env_secret
@@ -243,7 +244,7 @@ def get_jae_timestamp_captura_count(
     table_capture_params = jae_constants.JAE_TABLE_CAPTURE_PARAMS[source.table_id]
     database = table_capture_params["database"]
     credentials = get_env_secret(jae_constants.JAE_SECRET_PATH)
-    database_settings = jae_constants.JAE_DATABASE_SETTINGS[database]
+    database_settings = get_jae_database_settings(database)
     engine = database_settings["engine"]
     url = create_database_url(
         engine=engine,

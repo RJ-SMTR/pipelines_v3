@@ -26,8 +26,14 @@ SECRET_PATH = "previnity_api"
 
 QUERY_PF = """
     SELECT * FROM `rj-smtr.transito_interno.view_pessoa_fisica_negativacao`
-    WHERE (data_inclusao BETWEEN DATE('{datetime_start}') AND DATE('{datetime_end}'))
-    OR (data_baixa BETWEEN DATE('{datetime_start}') AND DATE('{datetime_end}'))
+    WHERE (
+        data_inclusao BETWEEN DATE('{datetime_start}', 'America/Sao_Paulo')
+        AND DATE('{datetime_end}', 'America/Sao_Paulo')
+    )
+    OR (
+        data_baixa BETWEEN DATE('{datetime_start}', 'America/Sao_Paulo')
+        AND DATE('{datetime_end}', 'America/Sao_Paulo')
+    )
 """
 
 QUERY_PJ = "SELECT * FROM `rj-smtr.transito_interno.view_pessoa_juridica_negativacao`"
@@ -42,17 +48,9 @@ PREVINITY_SOURCES = [
     )
 ]
 
-NEGATIVACAO_POST_CHECKS_LIST = {
-    "autuacao_negativacao": {
-        "test_consistencia_autuacoes_negativadas_pagas_sem_baixa": {
-            "description": "Todas as autuacoes pagas foram devidamente baixadas da negativacao"
-        },
-    },
-}
 
 NEGATIVACAO_TEST = DBTTest(
     test_select="test_consistencia_autuacoes_negativadas_pagas_sem_baixa",
-    test_descriptions=NEGATIVACAO_POST_CHECKS_LIST,
 )
 
 NEGATIVACAO_SELECTOR = DBTSelector(

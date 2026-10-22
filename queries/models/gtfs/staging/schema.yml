@@ -1,0 +1,106 @@
+version: 2
+
+models:
+  - name: staging_feed_info
+    description: |
+      Uma linha por versão do GTFS (data_versao), com os nomes das colunas do arquivo feed_info.txt.
+      Fonte: capturas do GTFS (source_gtfs.feed_info).
+      O contrato de dados exige exatamente uma linha no arquivo bruto de cada captura.
+    config:
+      meta:
+        datacontract_cli:
+          quality:
+            - type: library
+              metric: rowCount
+              mustBe: 1
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: feed_publisher_name
+        description: "{{ doc('feed_publisher_name') }}"
+        data_type: string
+      - name: feed_publisher_url
+        description: "{{ doc('feed_publisher_url') }}"
+        data_type: string
+      - name: feed_lang
+        description: "{{ doc('feed_lang') }}"
+        data_type: string
+      - name: default_lang
+        description: "{{ doc('default_lang') }}"
+        data_type: string
+      - name: feed_start_date
+        description: "Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        data_type: string
+      - name: feed_end_date
+        description: "Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        data_type: string
+      - name: feed_version
+        description: "{{ doc('feed_version') }}"
+        data_type: string
+      - name: feed_contact_email
+        description: "{{ doc('feed_contact_email') }}"
+        data_type: string
+      - name: feed_contact_url
+        description: "{{ doc('feed_contact_url') }}"
+        data_type: string
+      - name: feed_id
+        description: "Identificador do conjunto de dados GTFS"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_calendar
+    description: |
+      Uma linha por service_id por versão do GTFS (data_versao), com os nomes das colunas do arquivo calendar.txt.
+      Fonte: capturas do GTFS (source_gtfs.calendar).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, service_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} (partição)"
+        data_type: date
+      - name: service_id
+        description: "{{ doc('service_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__service_id__staging_calendar
+              config:
+                description: "Todos os 'service\\_id' começam com 'U\\_', 'S\\_', 'D\\_', 'F\\_' ou 'EXCEP'."
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: "^([USDF]_|EXCEP)"
+      - name: monday
+        description: "{{ doc('monday') }}"
+        data_type: string
+      - name: tuesday
+        description: "{{ doc('tuesday') }}"
+        data_type: string
+      - name: wednesday
+        description: "{{ doc('wednesday') }}"
+        data_type: string
+      - name: thursday
+        description: "{{ doc('thursday') }}"
+        data_type: string
+      - name: friday
+        description: "{{ doc('friday') }}"
+        data_type: string
+      - name: saturday
+        description: "{{ doc('saturday') }}"
+        data_type: string
+      - name: sunday
+        description: "{{ doc('sunday') }}"
+        data_type: string
+      - name: start_date
+        description: "Dia inicial do intervalo de serviço (YYYYMMDD)"
+        data_type: string
+      - name: end_date
+        description: "Dia final do intervalo de serviço (YYYYMMDD)"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string

@@ -2,9 +2,10 @@
 from time import sleep
 
 import sentry_sdk
-from prefect import flow, task
+from prefect import task
 from prefect.cache_policies import NO_CACHE
 
+from pipelines.common.utils.prefect import flow
 from pipelines.common.utils.secret import get_env_secret
 
 # from pipelines.common.utils.state_handlers import handler_post_sentry

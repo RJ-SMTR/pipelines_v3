@@ -1,0 +1,4 @@
+[project]
+name = "capture__conecta_sistema_rio_viagem_informada"
+version = "0.1.0"
+description = "Pipeline conecta_sistema_rio_viagem_informada da secretaria rj-smtr"

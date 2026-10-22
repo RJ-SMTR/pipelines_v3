@@ -1,5 +1,41 @@
 # Changelog - integration__previnity_negativacao
 
+## [1.3.2] - 2026-10-14
+
+### Removido
+
+- Remove as descrições dos testes das constantes; as notificações usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.3.1] - 2026-10-14
+
+### Alterado
+
+- Usa a task `task_dbt_selector_test_notify` (antiga `task_dbt_selector_test_notify_discord`) (https://github.com/RJ-SMTR/pipelines_v3/pull/748)
+
+## [1.3.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a materialização e os testes da integração (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
+## [1.2.1] - 2026-06-23
+
+### Alterado
+
+- Passa o ambiente resolvido para `setup_dbt_queries`, mantendo o checkout de `queries/` consistente com a regra de deploy de dev/prod. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.2.0] - 2026-05-27
+
+### Adicionado
+
+- Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
+## [1.1.2] - 2026-05-12
+
+### Corrigido
+
+- Corrige cálculo do intervalo em `get_previnity_date_range` para evitar reprocessamento do último dia já materializado quando a autuação falha ou está atrasada (https://github.com/RJ-SMTR/pipelines_v3/pull/176)
+
 ## [1.1.1] - 2026-03-26
 
 ### Alterado

@@ -2,12 +2,11 @@
 {% if cookiecutter.flow_type == "capture" -%}
 from typing import Optional
 
-from prefect import flow
-
 from pipelines.common.capture.default_capture.flow import (
     create_capture_flows_default_tasks,
 )
 from pipelines.common.capture.default_capture.utils import rename_capture_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} import constants
 
 
@@ -31,12 +30,11 @@ def {{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }}(
 {% elif cookiecutter.flow_type == "treatment" -%}
 from typing import Optional
 
-from prefect import flow
-
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} import constants
 
 

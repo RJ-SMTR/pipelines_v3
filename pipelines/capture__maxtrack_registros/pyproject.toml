@@ -1,0 +1,4 @@
+[project]
+name = "capture__maxtrack_registros"
+version = "0.1.0"
+description = "Pipeline maxtrack_registros da secretaria rj-smtr"

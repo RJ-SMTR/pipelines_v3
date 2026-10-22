@@ -8,8 +8,24 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common import constants as common_constants
+from pipelines.common.treatment.default_treatment.utils import run_dbt
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.secret import get_env_secret
+
+
+@task(cache_policy=NO_CACHE, name="Run Source Freshness")
+def run_source_freshness(flags: Optional[list[str]] = None, env: Optional[str] = None) -> str:
+    """
+    Executa o comando `dbt source freshness` e retorna os logs gerados.
+
+    Args:
+        flags (Optional[list[str]]): Flags adicionais para o dbt.
+        env (Optional[str]): Ambiente de execução (prod ou dev).
+
+    Returns:
+        str: Conteúdo do arquivo de log do dbt.
+    """
+    return run_dbt(dbt_command="source freshness", flags=flags, env=env)
 
 
 @task(cache_policy=NO_CACHE, name="Parse Source Freshness Output")

@@ -1,0 +1,4 @@
+[project]
+name = "control__model_freshness"
+version = "0.1.0"
+description = "Pipeline de verificação de freshness de modelos via testes do Elementary"

@@ -1,5 +1,73 @@
 # Changelog - gtfs
 
+## [1.6.0] - 2026-10-19
+
+### Adicionado
+
+- Aceita o prefixo `F_` no teste de `service_id` de `staging_calendar`, usado na geração do contrato de dados, e classifica as trips com esse prefixo como ponto facultativo em `trips_filtrada_aux_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Restringe a associação de trips de dia útil às Ordens de Serviço de ponto facultativo aos feeds anteriores a `2026-10-19`, evitando associações duplicadas com as trips `F_` dos novos feeds (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Removido
+
+- Remove o teste de regex de `service_id` em `calendar_gtfs`, mantendo a validação em `staging_calendar` e evitando falhas repetidas na notificação (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+## [1.5.1] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.5.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` nos joins com `feed_info_gtfs` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
+## [1.4.3] - 2026-08-26
+
+### Adicionado
+
+- Adiciona o teste `unique` em `feed_info_gtfs.feed_start_date`. (https://github.com/RJ-SMTR/pipelines_v3/pull/569)
+
+## [1.4.2] - 2026-07-31
+
+### Corrigido
+
+- Corrigida a lógica do modelo `ordem_servico_trajeto_alternativo_sentido_atualizado_aux_gtfs_v3` para tratar corretamente os sentidos circulares (https://github.com/RJ-SMTR/pipelines_v3/pull/468)
+
+## [1.4.1] - 2026-07-30
+
+### Adicionado
+
+- Remove o teste de agregação de trajeto alternativo de `trips_gtfs` (substituído por `dbt_utils.relationships_where` em `ordem_servico_trajeto_alternativo_sentido`) (https://github.com/RJ-SMTR/pipelines_v3/pull/411)
+
+## [1.4.0] - 2026-07-13
+
+### Corrigido
+
+- Corrigida a lógica do modelo `trips_filtrada_aux_gtfs`, afetada durante a migração. (https://github.com/RJ-SMTR/pipelines_v3/pull/371)
+
+## [1.3.9] - 2026-06-11
+
+### Adicionado
+
+- Cria macros `is_shape_circular`, `normalize_text` e `ordem_servico_excecoes_join` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+### Alterado
+
+- Refatora modelo `shapes_geom_gtfs` para utilizar a macro `is_shape_circular` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+- Refatora modelo `ordem_servico_trips_shapes_gtfs_v2` para utilizar a macro `ordem_servico_excecoes_join` (https://github.com/RJ-SMTR/pipelines_v3/pull/101)
+
+## [1.3.8] - 2026-05-15
+
+### Alterado
+
+- Atualiza calculo do `feed_end_date` no modelo `feed_info_gtfs` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/189)
+
 ## [1.3.7] - 2026-01-08
 
 ### Adicionado

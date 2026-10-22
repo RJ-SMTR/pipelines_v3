@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.2.0] - 2026-08-27
+
+### Adicionado
+
+- Adiciona a ingestão dos artefatos dbt no OpenMetadata após a execução do freshness das fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
+## [1.1.2] - 2026-06-23
+
+### Alterado
+
+- Passa o ambiente resolvido para `setup_dbt_queries`, mantendo o checkout de `queries/` consistente com a regra de deploy de dev/prod. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.1.1] - 2026-06-12
+
+### Adicionado
+
+- Adiciona type hints nos parâmetros do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/247)
+
+## [1.1.0] - 2026-05-27
+
+### Adicionado
+
+- Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
 ## [1.0.0] - 2026-03-10
 
 ### Adicionado

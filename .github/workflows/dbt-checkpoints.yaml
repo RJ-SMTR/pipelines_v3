@@ -1,12 +1,20 @@
 name: DBT Checkpoints
 
 on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
   push:
     branches:
       - master
-      - staging/*
-      - actions/*
-      - devops/*
+    paths:
+      - "queries/**/*.sql"
+      - "queries/**/*.yml"
+      - "queries/**/*.yaml"
 
 jobs:
   check-files:

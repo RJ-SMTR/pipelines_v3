@@ -1,0 +1,4 @@
+[project]
+name = "treatment__datario"
+version = "0.1.0"
+description = "Pipeline de materialização das views do datario da secretaria rj-smtr"

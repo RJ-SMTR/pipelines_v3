@@ -34,9 +34,47 @@ selectors:
             - method: fqn
               value: aux_viagem_temperatura
         - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
           value: viagens_remuneradas
         - method: fqn
           value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
+        - method: fqn
+          value: subsidio_penalidade_servico_faixa
+        - method: fqn
+          value: subsidio_sumario_servico_dia_pagamento
+        - method: path
+          value: models/dashboard_subsidio_sppo_v2
+        - method: fqn
+          value: dicionario_dashboard_subsidio_sppo
+
+  - name: apuracao_subsidio_v14
+    description: Apuração com faixa horária e classificação de viagens (V14+)
+    definition:
+      union:
+        - method: path
+          value: models/dashboard_subsidio_sppo_staging
+        - method: fqn
+          value: valor_tipo_penalidade
+        - method: fqn
+          value: staging_tecnologia_servico
+        - method: fqn
+          value: tecnologia_servico
+        - method: path
+          value: models/subsidio
+        - exclude:
+            - method: fqn
+              value: aux_viagem_temperatura
+        - method: fqn
+          value: aux_viagem_remunerada_excecao
+        - method: fqn
+          value: viagens_remuneradas
+        - method: fqn
+          value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: aux_subsidio_penalidade_servico_faixa_excecao
         - method: fqn
           value: subsidio_penalidade_servico_faixa
         - method: fqn
@@ -58,10 +96,33 @@ selectors:
         - method: fqn
           value: planejamento
 
+  - name: viagem_inferida
+    description: Materialização e validação das viagens inferidas para monitoramento
+    definition:
+      union:
+        - method: fqn
+          value: aux_monitoramento_registros_status_trajeto
+        - method: fqn
+          value: view_gps_onibus
+        - method: fqn
+          value: viagem_inferida
+        - method: fqn
+          value: registros_status_viagem_inferida
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        - method: fqn
+          value: view_viagem_monitoramento
+
   - name: viagem_validacao
     description: Materialização da tabela de validação das viagens informadas
     definition:
       union:
+        - method: fqn
+          value: view_gps_onibus
         - method: fqn
           value: gps_viagem
         - method: fqn
@@ -72,6 +133,8 @@ selectors:
           value: viagem_valida
         - method: fqn
           value: dicionario_monitoramento
+        - method: fqn
+          value: view_viagem_onibus_datario
 
   - name: planejamento_diario
     description: Materialização das tabelas de planejamento que devem rodar diariamente
@@ -84,7 +147,9 @@ selectors:
         - method: fqn
           value: servico_planejado_faixa_horaria
         - method: fqn
-          value: viagem_planejada_planejamento
+          value: viagem_planejada_planejamento_dia
+        - method: fqn
+          value: matriz_integracao_servico_modo
 
   - name: transacao_ordem
     description: Materialização da tabela auxiliar de relacionamento entre as ordens de pagamento e as transações
@@ -119,6 +184,8 @@ selectors:
           value: matriz_reparticao_tarifaria
         - method: fqn
           value: matriz_integracao
+        - method: fqn
+          value: matriz_integracao_servico_modo
 
   - name: validacao_dados_jae
     description: Materialização das tabelas de validação dos dados da Jaé
@@ -177,11 +244,23 @@ selectors:
         - method: fqn
           value: aux_servico_jae
         - method: fqn
+          value: aux_operadora_stu
+        - method: fqn
+          value: aux_cliente_jae_historico
+        - method: fqn
+          value: aux_operadora_jae_historico
+        - method: fqn
+          value: aux_operadora_cliente_join_jae_historico
+        - method: fqn
+          value: aux_operadora_jae_stu_historico
+        - method: fqn
           value: consorcios
         - method: fqn
           value: cliente_jae
         - method: fqn
           value: operadoras_contato
+        - method: fqn
+          value: operadora_historico
         - method: fqn
           value: operadoras
         - method: fqn
@@ -355,9 +434,9 @@ selectors:
     definition:
       union:
         - method: fqn
-          value: autuacao_citran
+          value: view_autuacao_citran
         - method: fqn
-          value: autuacao_serpro
+          value: view_autuacao_serpro
         - method: fqn
           value: aux_autuacao_id
         - method: fqn
@@ -372,31 +451,136 @@ selectors:
       method: fqn
       value: snapshot_autuacao
 
-  - name: gps
-    description: Materialização das tabelas de gps
+  - name: gps_conecta
+    description: Materialização das tabelas de GPS da API Conecta
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps_conecta
         - method: fqn
-          value: staging_realocacao
+          value: staging_realocacao_conecta
         - method: fqn
-          value: staging_garagens
+          value: aux_gps_filtrada_onibus_conecta
         - method: fqn
-          value: gps
+          value: gps_onibus_conecta
 
-  - name: gps_15_minutos
-    description: Materialização das tabelas de gps 15 minutos
+  - name: gps_zirix
+    description: Materialização das tabelas de GPS da API Zirix
     definition:
       union:
         - method: fqn
-          value: staging_gps
+          value: staging_gps_zirix
         - method: fqn
-          value: staging_realocacao
+          value: staging_realocacao_zirix
         - method: fqn
-          value: staging_garagens
+          value: aux_gps_filtrada_onibus_zirix
         - method: fqn
-          value: gps_15_minutos
+          value: gps_onibus_zirix
+
+  - name: gps_cittati
+    description: Materialização das tabelas de GPS da API Cittati
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_cittati
+        - method: fqn
+          value: staging_realocacao_cittati
+        - method: fqn
+          value: aux_gps_filtrada_onibus_cittati
+        - method: fqn
+          value: gps_onibus_cittati
+
+  - name: gps_sppo
+    description: Materialização das tabelas de GPS da API SPPO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sppo
+        - method: fqn
+          value: staging_realocacao_sppo
+        - method: fqn
+          value: aux_gps_filtrada_onibus_sppo
+        - method: fqn
+          value: gps_onibus_sppo
+
+  - name: gps_sonda
+    description: Materialização das tabelas de GPS da API Sonda
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sonda
+        - method: fqn
+          value: staging_realocacao_sonda
+        - method: fqn
+          value: aux_gps_filtrada_brt_sonda
+        - method: fqn
+          value: gps_brt_sonda
+
+  - name: gps_15_minutos_conecta
+    description: Materialização das tabelas de GPS 15 minutos da API Conecta
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_conecta
+        - method: fqn
+          value: staging_realocacao_conecta
+        - method: fqn
+          value: gps_15_minutos_onibus_conecta
+
+  - name: gps_15_minutos_zirix
+    description: Materialização das tabelas de GPS 15 minutos da API Zirix
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_zirix
+        - method: fqn
+          value: staging_realocacao_zirix
+        - method: fqn
+          value: gps_15_minutos_onibus_zirix
+
+  - name: gps_15_minutos_cittati
+    description: Materialização das tabelas de GPS 15 minutos da API Cittati
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_cittati
+        - method: fqn
+          value: staging_realocacao_cittati
+        - method: fqn
+          value: gps_15_minutos_onibus_cittati
+
+  - name: gps_15_minutos_sppo
+    description: Materialização das tabelas de GPS 15 minutos da API SPPO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_sppo
+        - method: fqn
+          value: staging_realocacao_sppo
+        - method: fqn
+          value: gps_15_minutos_onibus_sppo
+
+  - name: gps_v2_maxtrack
+    description: Materialização das tabelas de GPS v2 da API Maxtrack
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_v2_maxtrack
+        - method: fqn
+          value: aux_gps_filtrada_v2_onibus_maxtrack
+        - method: fqn
+          value: gps_v2_onibus_maxtrack
+
+  - name: gps_v2_conecta_sistema_rio
+    description: Materialização das tabelas de GPS v2 da API da Conecta para o Sistema RIO
+    definition:
+      union:
+        - method: fqn
+          value: staging_gps_v2_conecta_sistema_rio
+        - method: fqn
+          value: aux_gps_filtrada_v2_onibus_conecta_sistema_rio
+        - method: fqn
+          value: gps_v2_onibus_conecta_sistema_rio
 
   - name: snapshot_viagem
     definition:
@@ -491,6 +675,10 @@ selectors:
         - method: fqn
           value: temperatura_inmet
         - method: fqn
+          value: temperatura_alertario
+        - method: fqn
+          value: temperatura
+        - method: fqn
           value: viagem_classificada
         - method: fqn
           value: aux_viagem_temperatura
@@ -500,6 +688,8 @@ selectors:
           value: veiculo_regularidade_temperatura_dia
         - method: fqn
           value: dicionario_subsidio
+        - method: fqn
+          value: monitoramento_viagem_transacao
 
   - name: snapshot_temperatura
     definition:
@@ -510,6 +700,10 @@ selectors:
           value: snapshot_viagem_regularidade_temperatura
         - method: fqn
           value: snapshot_temperatura_inmet
+        - method: fqn
+          value: snapshot_temperatura_alertario
+        - method: fqn
+          value: snapshot_temperatura
 
   - name: pagamento_cct
     description: Materialização dos dados de pagamento da CCT
@@ -553,7 +747,185 @@ selectors:
         - method: fqn
           value: transacao_erro
 
+  - name: viagens_sppo
+    description: Materialização das viagens SPPO
+    definition:
+      intersection:
+        - method: fqn
+          value: viagem_completa
+          parents: true
+        - method: path
+          value: models/projeto_subsidio_sppo
+
+  - name: viagens_sppo_d0
+    description: >
+      Materialização dos modelos D0 das viagens SPPO (subsidio_data_versao_efetiva e
+      viagem_planejada), executados na segunda run diária (14h) para o dia seguinte.
+    definition:
+      intersection:
+        - method: fqn
+          value: viagem_planejada
+          parents: true
+        - method: path
+          value: models/projeto_subsidio_sppo
+
   - name: teste_sincronizacao_transacao_cct
     definition:
       method: fqn
       value: teste_sincronizacao_transacao_cct
+
+  - name: operadora_cnpj
+    definition:
+      method: fqn
+      value: aux_operadora_cnpj
+
+  - name: riorotativo_auxiliar
+    description: >
+      Materialização dos dados auxiliares Rio Rotativo: stagings, modelos de estado atual
+      (última captura da janela date_range_start/end), históricos diários
+      e o histórico de vigência das entidades credenciadoras
+      (razão social/nome fantasia a partir de pessoa_juridica).
+      Os modelos de estado atual saem do DAG quando uma janela explícita
+      não alcança a data corrente (macro is_current_state_enabled) —
+      backfills executam apenas stagings e históricos, sem regredir o
+      estado atual.
+    definition:
+      union:
+        - method: fqn
+          value: staging_agente_verificacao_riorotativo
+        - method: fqn
+          value: staging_area_estacionamento_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_05019730000158_riorotativo
+        - method: fqn
+          value: staging_guardador_veiculo_34152025000122_riorotativo
+        - method: fqn
+          value: staging_lista_bloqueio_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_excecao_riorotativo
+        - method: fqn
+          value: staging_perfil_funcionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo
+        - method: fqn
+          value: area_estacionamento_riorotativo
+        - method: fqn
+          value: agente_verificacao_riorotativo_historico
+        - method: fqn
+          value: entidade_credenciadora_riorotativo_historico
+        - method: fqn
+          value: guardador_veiculo_riorotativo
+        - method: fqn
+          value: guardador_veiculo_riorotativo_historico
+        - method: fqn
+          value: perfil_funcionamento_riorotativo
+        - method: fqn
+          value: staging_veiculo_cliente_riorotativo
+        - method: fqn
+          value: staging_veiculo_riorotativo
+        - method: fqn
+          value: veiculo_riorotativo
+        - method: fqn
+          value: perfil_funcionamento_riorotativo_historico
+
+  - name: snapshot_riorotativo_auxiliar
+    description: >
+      Snapshots das tabelas área de estacionamento e
+      perfil de funcionamento do Rio Rotativo Digital.
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_area_estacionamento
+        - method: fqn
+          value: snapshot_perfil_funcionamento
+
+  - name: riorotativo_operacao
+    description: Materialização de tabelas da operação do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: staging_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: staging_movimento_estacionamento_veiculo_riorotativo
+        - method: fqn
+          value: aux_ativacao_particao_captura_riorotativo
+        - method: fqn
+          value: ativacao_riorotativo
+        - method: fqn
+          value: staging_fiscalizacao_veiculo_riorotativo
+        - method: fqn
+          value: aux_verificacao_particao_captura_riorotativo
+        - method: fqn
+          value: verificacao_guardador_veiculo_riorotativo
+
+  - name: riorotativo_ordem_pagamento
+    description: Materialização de tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: ordem_pagamento_guardador_veiculo_dia_riorotativo
+        - method: fqn
+          value: ordem_pagamento_entidade_dia_riorotativo
+        - method: fqn
+          value: view_ordem_pagamento_riorotativo
+
+  - name: snapshot_riorotativo_ordem_pagamento
+    description: Snapshots das tabelas de ordem pagamento do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: snapshot_ordem_pagamento_entidade_dia
+        - method: fqn
+          value: snapshot_ordem_pagamento_guardador_veiculo_dia
+
+  - name: riorotativo_ativacao_hora
+    description: Tabelas agregadas do Rio Rotativo Digital
+    definition:
+      union:
+        - method: fqn
+          value: ativacao_hora_riorotativo
+        - method: fqn
+          value: view_ativacao_hora_riorotativo
+        - method: fqn
+          value: view_ativacao_dia_riorotativo
+
+  - name: controle_financeiro
+    description: Materialização da tabela de controle financeiro da CCT
+    definition:
+      union:
+        - method: fqn
+          value: staging_caer
+        - method: fqn
+          value: staging_cb
+        - method: fqn
+          value: staging_cett
+        - method: fqn
+          value: controle_cct
+        - method: fqn
+          value: view_controle_cct
+
+  - name: gtfs
+    description: Materialização das tabelas GTFS e dos modelos base do planejamento
+    definition:
+      union:
+        - method: path
+          value: models/gtfs
+        - method: path
+          value: models/planejamento
+        - exclude:
+            - method: fqn
+              value: calendario
+            - method: fqn
+              value: aux_calendario_manual
+            - method: fqn
+              value: viagem_planejada_planejamento_dia
+            - method: fqn
+              value: matriz_integracao
+            - method: fqn
+              value: tecnologia_servico
+            - method: fqn
+              value: aux_ordem_servico_faixa_horaria
+            - method: fqn
+              value: servico_planejado_faixa_horaria
+            - method: fqn
+              value: matriz_reparticao_tarifaria

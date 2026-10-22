@@ -14,6 +14,7 @@ from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.capture.jae import constants
 from pipelines.common.capture.jae.utils import (
     get_capture_delay_minutes,
+    get_jae_database_settings,
 )
 from pipelines.common.utils.extractors.db import get_raw_db, get_raw_db_paginated
 from pipelines.common.utils.secret import get_env_secret
@@ -57,7 +58,8 @@ def create_jae_general_extractor(context: SourceCaptureContext):
         delay=delay,
     )
     database_name = params["database"]
-    database = constants.JAE_DATABASE_SETTINGS[database_name]
+    database = get_jae_database_settings(database_name)
+    print(database["host"])
     general_func_arguments = {
         "query": query,
         "engine": database["engine"],

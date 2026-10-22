@@ -138,7 +138,7 @@ class Storage(GCPBase):
         filename: str,
         filetype: Optional[str] = None,
         partition: Optional[str] = None,
-    ) -> Blob:
+    ) -> Optional[Blob]:
         """
         Pega um blob no storage e retorna no formato de objeto Blob
 
@@ -149,7 +149,8 @@ class Storage(GCPBase):
             partition (str): partições no formato Hive
 
         Returns:
-            Blob: o objeto que representa o arquivo no storage
+            Optional[Blob]: o objeto que representa o arquivo no storage, ou None
+                quando o arquivo não existe
         """
         blob_name = self.create_blob_name(
             mode=mode,

@@ -28,4 +28,5 @@ def create_stu_extractor(context: SourceCaptureContext):
         extract_stu_data,
         source=context.source,
         timestamp=context.timestamp,
+        raw_filepath=context.raw_filepath,
     )

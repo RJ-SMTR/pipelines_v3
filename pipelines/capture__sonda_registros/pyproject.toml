@@ -1,0 +1,4 @@
+[project]
+name = "capture__sonda_registros"
+version = "0.1.0"
+description = "Pipeline sonda_registros da secretaria rj-smtr"

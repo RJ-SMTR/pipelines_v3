@@ -66,6 +66,7 @@ def get_capture_gaps(
     table_id: str,
     timestamp_captura_start: datetime,
     timestamp_captura_end: datetime,
+    save_results: bool = True,
 ) -> list[str]:
     """
     Identifica timestamps com divergência entre os dados presentes
@@ -100,17 +101,19 @@ def get_capture_gaps(
     else:
         primary_keys = f"DISTINCT TO_JSON_STRING(STRUCT({', '.join(primary_keys)}))"
 
+    timstamp_captura_column = params.get("datalake_timestamp_captura_column", "timestamp_captura")
+
     query_datalake = f"""
     WITH contagens AS (
         SELECT
-            timestamp_captura,
+            {timstamp_captura_column} as timestamp_captura,
             COUNT({primary_keys}) AS total_datalake
         FROM
             {params["datalake_table"]}
         WHERE
             DATA BETWEEN '{timestamp_captura_start.date().isoformat()}'
             AND '{timestamp_captura_end.date().isoformat()}'
-            AND timestamp_captura BETWEEN '{timestamp_captura_start.strftime("%Y-%m-%d %H:%M:%S")}'
+            AND {timstamp_captura_column} BETWEEN '{timestamp_captura_start.strftime("%Y-%m-%d %H:%M:%S")}'
             AND '{timestamp_captura_end.strftime("%Y-%m-%d %H:%M:%S")}'
         GROUP BY
             1
@@ -162,7 +165,8 @@ def get_capture_gaps(
         .tolist()
     )
 
-    save_capture_check_results(env=env, table_id=table_id, results=df_merge)
+    if save_results:
+        save_capture_check_results(env=env, table_id=table_id, results=df_merge)
 
     if len(timestamps) > 0:
         ts_log = [f'"{t}",' for t in timestamps]
@@ -207,7 +211,7 @@ Foram encontradas {timestamps_len} timestamps com dados faltantes
         message = f":red_circle: {message}"
         message += (
             "\n"
-            + f"https://prefect.mobilidade.rio/runs/flow-run/{runtime.flow_run.id}"
+            + f"https://prefect-v3.mobilidade.rio/runs/flow-run/{runtime.flow_run.id}"
             + "\n"
             + mentions_tag
         )

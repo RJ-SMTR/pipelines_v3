@@ -1,9 +1,4 @@
-{{
-  config(materialized="table")
-}}
+{{ config(materialized="table") }}
 
-SELECT
-  tile_id,
-  ST_GEOGFROMTEXT(geometry) AS geometry
-FROM
-  {{ source("br_rj_riodejaneiro_geo", "h3_res9") }}
+select tile_id, st_geogfromtext(geometry) as geometry
+from {{ source("br_rj_riodejaneiro_geo", "h3_res9") }}

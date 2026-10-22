@@ -3,14 +3,20 @@ import inspect
 import json
 import os
 import re
+import shutil
+import subprocess
+import tempfile
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pytz
 import requests
 import yaml
+from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
 from prefect import runtime
 from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
@@ -20,6 +26,7 @@ from pipelines.common.utils.cron import cron_get_last_date, cron_get_next_date
 from pipelines.common.utils.discord import format_send_discord_message
 from pipelines.common.utils.fs import get_project_root_path
 from pipelines.common.utils.gcp.bigquery import SourceTable
+from pipelines.common.utils.openmetadata import preserve_dbt_run_results
 from pipelines.common.utils.prefect import rename_flow_run
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.secret import get_env_secret
@@ -33,7 +40,6 @@ class DBTTest:
     Args:
         test_select (str): Select do dbt que define quais testes serão executados.
         exclude (Optional[str]): Parâmetro exclude do dbt.
-        test_descriptions (Optional[dict]): Descrições dos testes para uso em notificações.
         delay_days_start (int): Dias subtraídos do datetime inicial da materialização.
         delay_days_end (int): Dias subtraídos do datetime final da materialização.
         truncate_date (bool): Se True, ajusta o intervalo para o dia inteiro.
@@ -45,7 +51,6 @@ class DBTTest:
         self,
         test_select: str,
         exclude: Optional[str] = None,
-        test_descriptions: Optional[dict] = None,
         delay_days_start: int = 0,
         delay_days_end: int = 0,
         truncate_date: bool = False,
@@ -55,7 +60,6 @@ class DBTTest:
     ):
         self.test_select = test_select
         self.exclude = exclude
-        self.test_descriptions = test_descriptions or {}
         self.delay_days_start = delay_days_start
         self.delay_days_end = delay_days_end
         self.truncate_date = truncate_date
@@ -71,6 +75,7 @@ class DBTTest:
         datetime_start: datetime,
         datetime_end: datetime,
         partitions: Optional[list[str]] = None,
+        additional_vars: Optional[dict] = None,
     ) -> dict:
         """
         Gera as variáveis para execução do teste do dbt.
@@ -78,6 +83,8 @@ class DBTTest:
         Args:
             datetime_start (datetime): Datetime inicial da materialização.
             datetime_end (datetime): Datetime final da materialização.
+            additional_vars (Optional[dict]): Variáveis adicionais da execução do flow. Não
+                sobrescrevem as variáveis reservadas nem as definidas no próprio teste.
 
         Returns:
             dict: Variáveis formatadas para execução do teste do dbt.
@@ -102,7 +109,7 @@ class DBTTest:
         if collision:
             raise ValueError(f"Variáveis reservadas não podem ser sobrescritas: {collision}")
 
-        return final_dict | self.additional_vars
+        return (additional_vars or {}) | final_dict | self.additional_vars
 
     def adjust_datetime_range(
         self, datetime_start: datetime, datetime_end: datetime
@@ -159,6 +166,7 @@ class DBTSelector:
         pre_test: Optional[DBTTest] = None,
         post_test: Optional[DBTTest] = None,
         data_sources: Optional[list[Union["DBTSelector", SourceTable, dict]]] = None,
+        copy_private_models: Optional[list[str]] = None,
     ):
         self.name = name
         self.flow_folder_name = flow_folder_name
@@ -173,6 +181,7 @@ class DBTSelector:
         self.post_test = post_test
 
         self.data_sources = data_sources or []
+        self.copy_private_models = copy_private_models or []
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -319,6 +328,21 @@ class DBTSelector:
             redis_client.set(redis_key, content)
 
 
+def get_repo_version() -> str:
+    """
+    Retorna o SHA do último commit do repositório no GitHub.
+
+    Returns:
+        str: SHA do último commit do repositório.
+    """
+    response = requests.get(
+        f"{constants.REPO_URL}/commits",
+        timeout=60,
+    )
+    response.raise_for_status()
+    return response.json()[0]["sha"]
+
+
 class DBTSelectorMaterializationContext:
     def __init__(  # noqa: PLR0913
         self,
@@ -331,6 +355,7 @@ class DBTSelectorMaterializationContext:
         test_scheduled_time: Optional[time],
         force_test_run: bool,
         snapshot_selector: Optional[DBTSelector] = None,
+        skip_pre_test: bool = False,
     ):
         """
         Armazena o contexto completo necessário para materializar um selector do DBT.
@@ -345,6 +370,7 @@ class DBTSelectorMaterializationContext:
             test_scheduled_time (Optional[time]): Horário agendado para execução dos testes.
             force_test_run (bool): Força a execução dos testes.
             snapshot_selector (Optional[DBTSelector]): Selector para snapshot opcional.
+            skip_pre_test (bool): Se True, ignora a execução do pre_test do selector.
         """
         self.env = env
         self.selector = selector
@@ -353,6 +379,7 @@ class DBTSelectorMaterializationContext:
         self.datetime_start = self.get_datetime_start(datetime_start=datetime_start)
         self.datetime_end = self.get_datetime_end(datetime_end=datetime_end)
 
+        self.additional_vars = additional_vars or {}
         self.dbt_vars = self.get_dbt_vars(
             datetime_start=self.datetime_start,
             datetime_end=self.datetime_end,
@@ -363,7 +390,7 @@ class DBTSelectorMaterializationContext:
             False
             if (
                 selector.final_datetime is not None
-                and self.datetime_start > selector.final_datetime
+                and self.datetime_start >= selector.final_datetime
             )
             else True
         )
@@ -372,7 +399,9 @@ class DBTSelectorMaterializationContext:
             force_test_run or test_scheduled_time is None or timestamp.time() == test_scheduled_time
         ) and self.should_run
 
-        self.should_run_pre_test = selector.pre_test is not None and is_test_scheduled_time
+        self.should_run_pre_test = (
+            selector.pre_test is not None and is_test_scheduled_time and not skip_pre_test
+        )
 
         self.should_run_post_test = selector.post_test is not None and is_test_scheduled_time
 
@@ -380,6 +409,7 @@ class DBTSelectorMaterializationContext:
             selector.pre_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_pre_test
             else None
@@ -389,6 +419,7 @@ class DBTSelectorMaterializationContext:
             selector.post_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_post_test
             else None
@@ -396,6 +427,8 @@ class DBTSelectorMaterializationContext:
 
         self.pre_test_log = None
         self.post_test_log = None
+        self.pre_test_results = None
+        self.post_test_results = None
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -453,22 +486,6 @@ class DBTSelectorMaterializationContext:
 
         return datetime_end
 
-    def get_repo_version(self) -> str:
-        """
-        Retorna o SHA do último commit do repositório no GITHUB
-
-        Returns:
-            str: SHA do último commit do repositório no GITHUB
-        """
-        response = requests.get(
-            f"{constants.REPO_URL}/commits",
-            timeout=60,
-        )
-
-        response.raise_for_status()
-
-        return response.json()[0]["sha"]
-
     def get_dbt_vars(
         self,
         datetime_start: datetime,
@@ -493,7 +510,9 @@ class DBTSelectorMaterializationContext:
         dbt_vars = {
             "date_range_start": datetime_start.strftime(pattern),
             "date_range_end": datetime_end.strftime(pattern),
-            "version": self.get_repo_version(),
+            "version": get_repo_version(),
+            "start_date": datetime_start.strftime("%Y-%m-%d"),
+            "end_date": datetime_end.strftime("%Y-%m-%d"),
         }
 
         if additional_vars:
@@ -502,43 +521,239 @@ class DBTSelectorMaterializationContext:
         return dbt_vars
 
 
+def get_dbt_target(env: str) -> str:
+    """
+    Retorna o target do dbt com base no ambiente e no contexto de execução.
+
+    Args:
+        env (str): Ambiente de execução ("prod" ou "dev").
+
+    Returns:
+        str: "prod" se env for prod; "dev" se rodando localmente; "hmg" caso contrário.
+    """
+    if env == "prod":
+        return "prod"
+    return "dev" if is_running_locally() else "hmg"
+
+
+def get_dbt_paths() -> tuple[Path, Path, Path]:
+    """
+    Resolve os diretórios padrão do projeto dbt.
+
+    Returns:
+        tuple[Path, Path, Path]: ``project_dir`` (pasta ``queries``), ``profiles_dir``
+        (``queries/dev`` localmente, ``queries`` em deploy) e ``target_path``
+        (``queries/target``).
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    target_path = project_dir / "target"
+    return project_dir, profiles_dir, target_path
+
+
+def get_dbt_selection_args(
+    dbt_obj: Optional[DBTSelector],
+    dbt_command: Optional[Union[str, list[str]]],
+) -> list[str]:
+    """
+    Extrai os argumentos de seleção dbt (``--select``/``--exclude``/``--selector``).
+
+    Reutiliza a seleção da materialização normal para reaproveitá-la no ``dbt ls``.
+
+    Args:
+        dbt_obj (Optional[DBTSelector]): Selector usado quando a materialização roda via objeto.
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado; quando for uma lista
+            iniciada por ``run``, os argumentos após ``run`` são a seleção.
+
+    Returns:
+        list[str]: Argumentos de seleção, ou lista vazia quando não há seleção aplicável.
+    """
+    if isinstance(dbt_command, list) and dbt_command and dbt_command[0] == "run":
+        return dbt_command[1:]
+    if isinstance(dbt_obj, DBTSelector):
+        return ["--selector", dbt_obj.name]
+    return []
+
+
+def get_missing_dbt_relations(nodes: list[dict]) -> list[dict]:
+    """
+    Filtra os nós dbt cuja relação ainda não existe no BigQuery.
+
+    Considera apenas materializações que geram relação (incremental, materialized_view,
+    table, view) e consulta as tabelas existentes por dataset (``database.schema``),
+    comparando pelo ``alias`` de cada nó.
+
+    Args:
+        nodes (list[dict]): Nós retornados por ``dbt ls --output json`` (com ``database``,
+            ``schema``, ``alias`` e ``config``).
+
+    Returns:
+        list[dict]: Subconjunto de ``nodes`` cujas relações não existem no target.
+    """
+    relation_nodes = [
+        node
+        for node in nodes
+        if node.get("config", {}).get("materialized")
+        in {"incremental", "materialized_view", "table", "view"}
+    ]
+    nodes_by_dataset = defaultdict(list)
+    for node in relation_nodes:
+        nodes_by_dataset[(node["database"], node["schema"])].append(node)
+
+    missing_nodes = []
+    for (database, schema), dataset_nodes in nodes_by_dataset.items():
+        client = bigquery.Client(project=database)
+        try:
+            existing_relations = {
+                table.table_id for table in client.list_tables(f"{database}.{schema}")
+            }
+        except NotFound:
+            existing_relations = set()
+
+        missing_nodes.extend(
+            node for node in dataset_nodes if node["alias"] not in existing_relations
+        )
+
+    return missing_nodes
+
+
+def run_dbt_empty_for_missing_relations(
+    dbt_obj: Optional[DBTSelector] = None,
+    dbt_command: Optional[list[str]] = None,
+    dbt_vars: Optional[dict] = None,
+    flags: Optional[list[str]] = None,
+    env: Optional[str] = None,
+) -> None:
+    """
+    Cria relações dbt ausentes com ``--empty`` antes da materialização normal.
+
+    O ``--empty`` é executado somente para modelos selecionados cuja materialização
+    gera uma relação (incremental, table ou view) e que ainda não existem no target.
+    Relações existentes não são executadas, evitando que lógica incremental consulte
+    entradas vazias durante o pre-run.
+    """
+    if env != "dev":
+        return
+
+    selection_args = get_dbt_selection_args(dbt_obj=dbt_obj, dbt_command=dbt_command)
+    if not selection_args:
+        return
+
+    flags = [flag for flag in (flags or []) if flag != "--full-refresh"]
+    has_target_flag = "--target" in flags
+    target = flags[flags.index("--target") + 1] if has_target_flag else get_dbt_target(env)
+    if target == "prod":
+        return
+
+    project_dir, profiles_dir, target_path = get_dbt_paths()
+
+    dbt_vars = dbt_vars or {}
+    dbt_vars["flow_name"] = runtime.flow_run.flow_name
+    vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
+
+    invoke = [
+        "ls",
+        *selection_args,
+        "--resource-type",
+        "model",
+        "--output",
+        "json",
+        "--output-keys",
+        "unique_id",
+        "fqn",
+        "database",
+        "schema",
+        "alias",
+        "config",
+        "--vars",
+        vars_yaml,
+    ]
+    if not has_target_flag:
+        invoke.extend(["--target", target])
+    invoke.extend(flags)
+
+    os.environ["DBT_PROJECT_DIR"] = str(project_dir)
+    os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
+    os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
+
+    result = PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+            target_path=target_path,
+        ),
+        raise_on_failure=False,
+        _disable_callbacks=True,  # suprime o print de cada nó JSON no stdout
+    ).invoke(invoke)
+    if not result.success:
+        raise ValueError(f"Falha ao listar modelos dbt: {result.exception}")
+
+    nodes = [json.loads(line) for line in result.result]
+    missing_nodes = get_missing_dbt_relations(nodes)
+
+    if not missing_nodes:
+        print("Nenhuma relação dbt ausente encontrada. Pulando pre-run com --empty.")
+        return
+
+    missing_selectors = [".".join(node["fqn"]) for node in missing_nodes]
+    missing_relations = [
+        f"{node['database']}.{node['schema']}.{node['alias']}" for node in missing_nodes
+    ]
+    print(f"Relações dbt ausentes no target {target}: {', '.join(missing_relations)}")
+    run_dbt(
+        dbt_command=["run", "--select", *missing_selectors],
+        dbt_vars=dbt_vars,
+        flags=[*flags, "--empty"],
+        env=env,
+    )
+
+
 def run_dbt(  # noqa: PLR0913
     dbt_obj: Optional[Union[DBTSelector, DBTTest]] = None,
-    dbt_command: Optional[str] = None,
+    dbt_command: Optional[Union[str, list[str]]] = None,
     dbt_vars: Optional[dict] = None,
     flags: Optional[list[str]] = None,
     raise_on_failure=True,
     is_snapshot: bool = False,
+    env: Optional[str] = None,
 ):
     """
     Executa comandos do DBT e retorna os logs gerados.
 
     Args:
         dbt_obj (Optional[Union[DBTSelector, DBTTest]]): Objeto DBT a ser executado.
-        dbt_command (Optional[str]): Comando customizado (ex: "source freshness").
+        dbt_command (Optional[Union[str, list[str]]]): Comando customizado. String para
+            atalhos conhecidos (ex: "source freshness") ou lista para invocações livres
+            (ex: ["run", "--select", "model", "--exclude", "other"]).
         dbt_vars (Optional[dict]): Variáveis para execução do DBT.
         flags (Optional[list[str]]): Flags adicionais do DBT.
         raise_on_failure (bool): Indica se deve lançar erro em falha.
         is_snapshot (bool): Se True, executa 'dbt snapshot' ao invés de 'dbt run'.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
 
     Returns:
         str: Conteúdo do arquivo de log do DBT.
     """
-    root_path = get_project_root_path()
-    project_dir = root_path / "queries"
+    project_dir, profiles_dir, target_path = get_dbt_paths()
     flags = flags or []
+    has_target_flag = "--target" in flags
     log_dir = f"{project_dir}/logs/{runtime.task_run.id}"
 
-    flags = [*flags, "--log-path", log_dir, "--log-level-file", "info", "--log-format", "json"]
-    if is_running_locally():
-        profiles_dir = project_dir / "dev"
-    else:
-        profiles_dir = project_dir
-
-    target_path = project_dir / "target"
-
+    flags = [
+        *flags,
+        "--log-path",
+        log_dir,
+        "--log-level-file",
+        "info",
+        "--log-format",
+        "json",
+    ]
     invoke = []
-    if dbt_command == "source freshness":
+    if isinstance(dbt_command, list):
+        invoke = dbt_command
+    elif dbt_command == "source freshness":
         invoke = ["source", "freshness"]
     elif dbt_obj is not None:
         if isinstance(dbt_obj, DBTSelector):
@@ -556,56 +771,118 @@ def run_dbt(  # noqa: PLR0913
     vars_yaml = yaml.safe_dump(dbt_vars, default_flow_style=True)
     invoke = [*invoke, "--vars", vars_yaml]
 
+    if env is not None and not has_target_flag:
+        invoke = [*invoke, "--target", get_dbt_target(env)]
+
     invoke = invoke + flags
     print(f"Running DBT Command:\n{' '.join(invoke)}")
     os.environ["DBT_PROJECT_DIR"] = str(project_dir)
     os.environ["DBT_PROFILES_DIR"] = str(profiles_dir)
     os.environ["DBT_TARGET_PATH"] = str(target_path)
+    os.environ.setdefault("DBT_USER", "prefect")
 
-    PrefectDbtRunner(
-        settings=PrefectDbtSettings(
-            project_dir=project_dir,
-            profiles_dir=profiles_dir,
-            target_path=target_path,
-        ),
-        raise_on_failure=raise_on_failure,
-    ).invoke(invoke)
+    (Path(target_path) / "run_results.json").unlink(missing_ok=True)
+    (Path(target_path) / "manifest.json").unlink(missing_ok=True)
+    try:
+        PrefectDbtRunner(
+            settings=PrefectDbtSettings(
+                project_dir=project_dir,
+                profiles_dir=profiles_dir,
+                target_path=target_path,
+            ),
+            raise_on_failure=raise_on_failure,
+        ).invoke(invoke)
+    finally:
+        preserve_dbt_run_results(target_path, runtime.flow_run.id)
 
     with (Path(log_dir) / "dbt.log").open("r") as logs:
         return logs.read()
 
 
-def run_dbt_tests(
+def get_dbt_test_descriptions() -> dict[str, str]:
+    """
+    Lê do manifest do dbt as descrições dos testes.
+
+    Deve ser chamada logo após a execução dos testes, antes que outra invocação do dbt
+    substitua o manifest.
+
+    Returns:
+        dict[str, str]: Descrição de cada teste (config.description ou description), por nome.
+    """
+    _, _, target_path = get_dbt_paths()
+    manifest_path = Path(target_path) / "manifest.json"
+    if not manifest_path.is_file():
+        return {}
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    descriptions = {}
+    for node in manifest["nodes"].values():
+        if node.get("resource_type") != "test":
+            continue
+        description = (node.get("config") or {}).get("description") or node.get("description")
+        if description:
+            descriptions[node["name"]] = description
+    return descriptions
+
+
+def run_dbt_tests(  # noqa: PLR0913
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
     datetime_end: Optional[datetime],
     partitions: Optional[list[str]] = None,
-) -> tuple[str, dict]:
+    env: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+) -> tuple[str, dict, list[dict]]:
     """
-    Executa o DBT test
+    Executa o DBT test e associa a cada resultado a tabela e a descrição do teste
 
     Args:
         dbt_test (DBTTest): Objeto representando o teste do DBT.
         datetime_start (Optional[datetime]): Datetime inicial da execução.
         datetime_end (Optional[datetime]): Datetime final da execução.
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
+        env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
+        flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
+        additional_vars (Optional[dict]): Variáveis adicionais da execução do flow.
 
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
+        list[dict]: Resultados dos testes (ver get_dbt_test_results).
     """
 
-    flags = []
+    flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
     if dbt_test.exclude is not None:
         flags += ["--exclude", dbt_test.exclude]
     dbt_vars = dbt_test.get_test_vars(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
+        additional_vars=additional_vars,
     )
-    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False)
+    log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 
-    return log, dbt_vars
+    test_results = get_dbt_test_results(
+        checks_results=parse_dbt_test_output(log),
+        test_descriptions=get_dbt_test_descriptions(),
+    )
+    return log, dbt_vars, test_results
+
+
+RELATION_RE = re.compile(r"`([^`]+)`\.`([^`]+)`\.`([^`]+)`")
+
+
+def extract_relation_from_query(query: Optional[str]) -> Optional[str]:
+    """
+    Extrai nome completo da tabela (`project.dataset.table`) da primeira referência
+    em uma query compilada do dbt.
+    """
+    if not query:
+        return None
+    match = RELATION_RE.search(query)
+    if not match:
+        return None
+    return ".".join(match.groups())
 
 
 def parse_dbt_test_output(dbt_logs: str) -> dict:
@@ -657,7 +934,7 @@ def parse_dbt_test_output(dbt_logs: str) -> dict:
         result = info["result"]
         log_message += f"Test: {test} Status: {result}\n"
 
-        if result == "FAIL":
+        if result in ("FAIL", "WARN"):
             log_message += "Query:\n"
             log_message += f"{info['query']}\n"
 
@@ -687,31 +964,149 @@ def rename_treatment_flow_run() -> str:
     return rename_flow_run()
 
 
-def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
-    dbt_test: DBTTest,
+def get_dbt_test_table_name(test_id: str) -> str:
+    """
+    Extrai a tabela do nome do teste (<teste>__<coluna>__<tabela> ou <teste>__<tabela>).
+
+    Args:
+        test_id (str): Nome do teste no dbt.
+
+    Returns:
+        str: Nome da tabela, sem o prefixo do pacote (dbt_utils, dbt_expectations).
+    """
+    parts = test_id.split("__")
+    if parts[0] in ("dbt_utils", "dbt_expectations"):
+        parts = parts[1:]
+    return parts[-1] if len(parts) >= 2 else parts[0]  # noqa: PLR2004
+
+
+def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]) -> list[dict]:
+    """
+    Associa a cada resultado de teste do dbt a tabela e a descrição para notificação.
+
+    Args:
+        checks_results (dict): Resultados retornados por parse_dbt_test_output.
+        test_descriptions (dict[str, str]): Descrições dos testes lidas do manifest do dbt.
+
+    Returns:
+        list[dict]: Testes agrupados por tabela, com as chaves table, test, description
+            (None quando o teste não tem descrição), result e query (query compilada de testes
+            com FAIL ou WARN).
+    """
+    table_groups = {}
+    for test_id, test_result in checks_results.items():
+        table_groups.setdefault(get_dbt_test_table_name(test_id), []).append((test_id, test_result))
+
+    return [
+        {
+            "table": table_name,
+            "test": test_id,
+            "description": test_descriptions.get(test_id),
+            "result": test_result["result"],
+            "query": test_result.get("query"),
+        }
+        for table_name, tests in table_groups.items()
+        for test_id, test_result in tests
+    ]
+
+
+def date_part(value: Any) -> str:
+    """
+    Retorna só a data de um valor de data ou data e hora, separadas por T ou por espaço.
+
+    Args:
+        value (Any): Valor da variável do dbt.
+
+    Returns:
+        str: Data, sem a hora, ou string vazia quando o valor não tem data.
+    """
+    return str(value).replace("T", " ").strip().partition(" ")[0]
+
+
+def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
+    """
+    Retorna o que foi testado a partir das variáveis do dbt, para identificar as notificações.
+
+    Usa a primeira variável com data em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
+    para a mais genérica. Variáveis únicas, como data_versao_gtfs, aparecem com o nome
+    (data_versao_gtfs=2026-10-13); intervalos aparecem como "<início> a <fim>". Datas com
+    hora, separada por T ou por espaço, são reduzidas à data.
+
+    Args:
+        dbt_vars (dict): Variáveis usadas na execução do teste.
+
+    Returns:
+        Optional[str]: Identificação do que foi testado, ou None sem variáveis de data.
+    """
+    start_key, end_key = next(
+        (
+            (start, end)
+            for start, end in constants.DBT_VARS_INTERVAL_KEYS
+            if date_part(dbt_vars.get(start) or "")
+        ),
+        (None, None),
+    )
+    if start_key is None:
+        return None
+    start = date_part(dbt_vars[start_key])
+    if end_key is None:
+        return f"{start_key}={start}"
+    end = date_part(dbt_vars.get(end_key) or "") or start
+    return start if end == start else f"{start} a {end}"
+
+
+def format_dbt_test_lines(test_results: list[dict]) -> list[str]:
+    """
+    Monta as linhas dos resultados dos testes do dbt para o Discord, agrupadas por tabela.
+
+    Args:
+        test_results (list[dict]): Resultados dos testes, com as chaves table, test,
+            description e result.
+
+    Returns:
+        list[str]: Linhas da mensagem.
+    """
+    lines = []
+    current_table = None
+    for test in test_results:
+        if test["table"] != current_table:
+            current_table = test["table"]
+            lines.append(f"*{current_table}:*\n")
+        test_id = test["test"].replace("_", "\\_")
+        description = test["description"] or f"Teste: {test_id}"
+        result_icon = constants.DBT_TEST_RESULT_ICONS.get(test["result"], ":x:")
+        lines.append(f"{result_icon} {description}\n")
+    return lines
+
+
+def dbt_test_notify_discord(  # noqa: PLR0913
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    test_results: Optional[list[dict]] = None,
 ):
     """
     Processa os resultados dos testes do dbt e envia notificações para o Discord.
 
     Args:
-        dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        test_results (Optional[list[dict]]): Resultados retornados por run_dbt_tests; sem eles,
+            os resultados são extraídos de dbt_logs com as descrições do manifest do dbt.
     """
     if dbt_logs is None:
         return
 
-    test_descriptions = dbt_test.test_descriptions
-
-    checks_results = parse_dbt_test_output(dbt_logs)
+    if test_results is None:
+        test_results = get_dbt_test_results(
+            checks_results=parse_dbt_test_output(dbt_logs),
+            test_descriptions=get_dbt_test_descriptions(),
+        )
 
     webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
     additional_mentions = additional_mentions or []
@@ -720,98 +1115,32 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(test["result"] == "PASS" for test in checks_results.values())
-
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    date_range = (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
-    )
-
-    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
-        formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
-            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
+    test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
+    has_warn = any(test["result"] == "WARN" for test in test_results)
+    if not test_check:
+        status = "FAIL"
+    elif has_warn:
+        status = "WARN"
     else:
-        formatted_messages = [
-            ":green_circle: " if test_check else ":red_circle: ",
-            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
+        status = "PASS"
 
-    table_groups = {}
-
-    for test_id, test_result in checks_results.items():
-        parts = test_id.split("__")
-        if len(parts) >= 3:  # noqa: PLR2004
-            table_name = parts[2]
-        elif len(parts) == 2:  # noqa: PLR2004
-            table_name = parts[1]
-        else:
-            table_name = parts[0]
-
-        if table_name not in table_groups:
-            table_groups[table_name] = []
-
-        table_groups[table_name].append((test_id, test_result))
-
-    for table_name, tests in table_groups.items():
-        formatted_messages.append(f"*{table_name}:*\n")
-
-        for test_id, test_result in tests:
-            matched_description = None
-            for existing_table_id, test_configs in test_descriptions.items():
-                if table_name in existing_table_id:
-                    for existing_test_id, test_info in test_configs.items():
-                        if existing_test_id in test_id:
-                            matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}",
-                                test_id.split("__")[1] if "__" in test_id else test_id,
-                            )
-                            break
-                    if matched_description:
-                        break
-
-            test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
-            description = matched_description or f"Teste: {test_id}"
-
-            test_message = (
-                f"{':white_check_mark:' if test_result['result'] == 'PASS' else ':x:'} "
-                f"{description}\n"
-            )
-            formatted_messages.append(test_message)
-
-    formatted_messages.append("\n")
-    formatted_messages.append(
-        ":tada: **Status:** Sucesso"
-        if test_check
-        else ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
+    is_dev = "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs
+    title = " - ".join(
+        part
+        for part in (
+            f"{'[DEV] ' if is_dev else ''}Data Quality Checks",
+            runtime.flow_run.flow_name,
+            format_dbt_vars_interval(dbt_vars),
+        )
+        if part
     )
-
+    formatted_messages = [
+        constants.DBT_TEST_STATUS_CIRCLES[status],
+        f"**{title}**\n\n",
+        *format_dbt_test_lines(test_results),
+        "\n",
+        constants.DBT_TEST_STATUS_MESSAGES[status],
+    ]
     if not test_check:
         formatted_messages.append(mention_tags)
 
@@ -823,3 +1152,157 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
 
     if not test_check and raise_check_error:
         raise DBTTestFailedError()
+
+
+def get_deployment_commit_sha() -> Optional[str]:
+    """
+    Resolve o SHA completo do commit que gerou o deployment em execução.
+
+    Usa ``runtime.deployment.version`` (que, por convenção dos ``prefect.yaml``, termina
+    no short hash do commit do build) e resolve para o SHA completo via API pública do
+    GitHub.
+
+    Returns:
+        Optional[str]: SHA completo do commit do deploy, ou None se não houver deployment
+        em contexto ou se a resolução falhar (cai no comportamento padrão de clonar a
+        branch default).
+    """
+    try:
+        version = runtime.deployment.version
+    except AttributeError:
+        version = None
+    if not version:
+        return None
+
+    short_sha = version.rsplit("-", 1)[-1]
+    try:
+        response = requests.get(f"{constants.REPO_URL}/commits/{short_sha}", timeout=60)
+        response.raise_for_status()
+        return response.json()["sha"]
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        print(f"Não foi possível resolver o SHA do deployment '{version}': {exc}")
+        return None
+
+
+def clone_queries_from_github(env: str) -> Path:
+    """
+    Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
+
+    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em deploy
+    de dev, fixa o ``queries/`` no commit que gerou o deployment (mesmo código da
+    imagem) quando o SHA é resolvível. Em prod, usa a versão mais recente da branch
+    default do repositório, permitindo atualizar queries sem redeploy dos flows.
+
+    Args:
+        env (str): Ambiente de execução, ``prod`` ou ``dev``.
+
+    Returns:
+        Path: Caminho para a pasta queries/ no projeto.
+    """
+    root_path = get_project_root_path()
+    queries_path = root_path / "queries"
+
+    if is_running_locally():
+        if not queries_path.is_dir():
+            raise FileNotFoundError(f"Pasta queries/ não encontrada: {queries_path}")
+        print(f"Local: usando queries/ existente em {queries_path}")
+        return queries_path
+
+    git_bin = shutil.which("git")
+    if git_bin is None:
+        raise RuntimeError("Executável git não encontrado no ambiente.")
+
+    repo_url = (
+        f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
+    )
+    commit_sha = get_deployment_commit_sha() if env == "dev" else None
+    print(f"Clonando queries/ de {repo_url}...")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.run(
+            [
+                git_bin,
+                "clone",
+                "--depth",
+                "1",
+                "--filter=blob:none",
+                "--no-checkout",
+                repo_url,
+                tmpdir,
+            ],
+            check=True,
+            timeout=120,
+        )
+        subprocess.run(
+            [git_bin, "sparse-checkout", "init", "--cone"], cwd=tmpdir, check=True, timeout=30
+        )
+        subprocess.run(
+            [git_bin, "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True, timeout=30
+        )
+        if commit_sha:
+            print(f"Fixando queries/ no commit do deploy: {commit_sha}")
+            subprocess.run(
+                [git_bin, "fetch", "--depth", "1", "--filter=blob:none", "origin", commit_sha],
+                cwd=tmpdir,
+                check=True,
+                timeout=120,
+            )
+        checkout_cmd = [git_bin, "checkout", commit_sha or "HEAD"]
+        subprocess.run(checkout_cmd, cwd=tmpdir, check=True, timeout=60)
+        if queries_path.exists():
+            shutil.rmtree(queries_path)
+        shutil.copytree(Path(tmpdir) / "queries", queries_path)
+
+    print(f"queries/ clonado em {queries_path}")
+    return queries_path
+
+
+def run_dbt_deps() -> None:
+    """
+    Executa dbt deps para instalar pacotes.
+
+    Se estiver rodando localmente e dbt_packages/ já existir, pula a execução.
+    """
+    root_path = get_project_root_path()
+    project_dir = root_path / "queries"
+
+    if is_running_locally() and (project_dir / "dbt_packages").exists():
+        print("Local: dbt_packages/ já existe, pulando dbt deps.")
+        return
+
+    profiles_dir = project_dir / "dev" if is_running_locally() else project_dir
+    print("Executando dbt deps...")
+    PrefectDbtRunner(
+        settings=PrefectDbtSettings(
+            project_dir=project_dir,
+            profiles_dir=profiles_dir,
+        ),
+        raise_on_failure=True,
+    ).invoke(["deps"])
+
+
+def get_model_table(models: list[str]) -> dict[str, dict[str, str]]:
+    """
+    Retorna informações da tabela correspondente a um modelo DBT
+
+    Args:
+        models (list[str]): Lista com nomes dos modelos DBT
+
+    Returns:
+        dict[str, dict[str, str]]: Dicionario no formato:
+            {<nome_modelo>: {"project_id": <nome>, "dataset_id": <nome>, "table_id": <nome>}, ...}
+    """
+    _, _, target_path = get_dbt_paths()
+    with (target_path / "manifest.json").open("r") as fi:
+        manifest = json.load(fi)
+
+    nodes = manifest["nodes"]
+
+    result = {}
+    for model in models:
+        model_info = nodes[f"model.rj_smtr.{model}"]
+        result[model] = {
+            "project_id": model_info["database"],
+            "dataset_id": model_info["schema"],
+            "table_id": model_info["alias"],
+        }
+    return result

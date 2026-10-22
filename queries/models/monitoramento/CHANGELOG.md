@@ -1,5 +1,364 @@
 # Changelog - monitoramento
 
+## [2.5.0] - 2026-10-20
+
+### Adicionado
+
+- Cria os modelos `staging_gps_v2_conecta_sistema_rio`, `aux_gps_filtrada_v2_onibus_conecta_sistema_rio` e `gps_v2_onibus_conecta_sistema_rio` para o GPS da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Cria o modelo `staging_viagem_informada_conecta_sistema_rio` para as viagens informadas da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Cria o selector `gps_v2_conecta_sistema_rio` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+### Alterado
+
+- Altera `viagem_informada_monitoramento` para considerar as viagens da Maxtrack apenas com partida até `2026-10-15` e processadas até `2026-10-20`, e as viagens da Conecta (`fonte_viagem = "conecta"`) com partida a partir de `2026-10-16` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `view_gps_onibus` para incluir o GPS da Conecta para o Sistema RIO com `fonte_gps = "conecta"` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `viagem_validacao` para classificar as viagens com `fonte_viagem = "conecta"` no sistema `RIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera a macro `gps_staging_registros_v2`, adicionando o parâmetro `table_id` (padrão `registros`) (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+### Corrigido
+
+- Corrige a macro `gps_aux_parada` para não gerar `feed_start_date in ()` quando não há feed GTFS no período, como na criação de tabelas com `--empty` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+## [2.4.2] - 2026-10-15
+
+### Corrigido
+
+- Corrige a recomposição das partições das tabelas de GPS filtradas e tratadas das fontes v1 e da Maxtrack (v2), preservando os registros já materializados nas datas da janela de processamento mesmo sem novas capturas ou na virada do dia (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Corrige o tratamento GPS da Maxtrack para usar as partições de captura em `staging_gps_v2_maxtrack` e restringir a leitura de `aux_gps_filtrada_v2_onibus_maxtrack` à janela de processamento, preservando a recomposição das partições existentes e a data do evento em `gps_v2_onibus_maxtrack` (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+
+## [2.4.1] - 2026-10-15
+
+### Adicionado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` (sistema RIO) na quinzena `2026-09-16` a `2026-09-30`, com data limite de envio em `2026-10-14` [Processo SEI 000301.016828_2026_32].
+
+## [2.4.0] - 2026-10-14
+
+### Adicionado
+
+- Cria um modelo por tabela física de GPS, sem `alias` dinâmico: `staging_gps_<fonte>`, `staging_realocacao_<fonte>`, `aux_gps_filtrada_<modo>_<fonte>`, `gps_<modo>_<fonte>` e `gps_15_minutos_onibus_<fonte>` para as fontes `conecta`, `zirix`, `sppo` e `sonda`, e `staging_gps_v2_maxtrack`, `aux_gps_filtrada_v2_onibus_maxtrack` e `gps_v2_onibus_maxtrack` para a Maxtrack, mantendo nomes e configurações das tabelas existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Cria os modelos da fonte `cittati` desabilitados (`enabled=false`) (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Alterado
+
+- Altera `view_gps_onibus`, `view_gps_sppo_completo`, `view_gps_brt_completo` e `view_gps_sppo_15_minutos` para referenciar os modelos de GPS com `ref` em vez de `source` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+### Removido
+
+- Remove os modelos versionados `staging_gps`, `aux_gps_filtrada` e `gps` (v1 e v2), os modelos `staging_realocacao` e `gps_15_minutos` e os modelos efêmeros `aux_gps_realocacao`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (v1 e v2), substituídos pelos modelos por fonte e pelas macros de GPS (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Remove o modelo `gps_15_minutos_union` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+- Remove as sources `monitoramento.gps_*` substituídas por `ref`, mantendo apenas `gps_onibus_cittati` (https://github.com/RJ-SMTR/pipelines_v3/pull/757)
+
+## [2.3.4] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [2.3.3] - 2026-10-08
+
+### Alterado
+
+- Altera o modelo `staging_viagem_informada_rioonibus` para aceitar fração de segundos opcional em `datetime_partida`, `datetime_chegada` e `datetime_processamento`, conforme a API v1.1 da Rio Ônibus (https://github.com/RJ-SMTR/pipelines_v3/pull/751).
+
+### Adicionado
+
+- Adiciona exceções de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `rioonibus` nas quinzenas `2026-09-16` a `2026-09-30` (limite `2026-10-06`) e `2026-10-01` a `2026-10-15` (limite `2026-10-21`) [Processo SEI nº 000301.016828/2026-32]. (https://github.com/RJ-SMTR/pipelines_v3/pull/755).
+
+## [2.3.2] - 2026-10-06
+
+### Alterado
+
+- Altera a coluna `modo` de `viagem_informada_monitoramento` para usar somente `fonte_viagem`: `mobirio` corresponde a `BRT` e os demais valores a `Ônibus`. Remove as consultas e os joins com `calendario` e `routes_gtfs`, preservando viagens sem correspondência no GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/741).
+
+## [2.3.1] - 2026-10-05
+
+### Alterado
+
+- Altera `viagem_validacao` no modo monitoramento (`treatment__viagem_inferida`) para aplicar o desempate de `filtro_desvio`, `filtro_partida` e `filtro_chegada` (índice, distância e tipo de trajeto) e exclusão de viagens concorrentes sobrepostas do mesmo veículo. Só entram na disputa viagens com `indicador_viagem_valida` e match no planejado (`indicador_trajeto_alternativo` não nulo); inválidas e sem match permanecem na saída (https://github.com/RJ-SMTR/pipelines_v3/pull/673).
+
+## [2.3.0] - 2026-09-30
+
+### Adicionado
+
+- Inclui GPS do validador Jaé (`gps_validador`) no modelo `gps_viagem` para as operadoras GTU (`2801`, prefixo `A2`) e TUSE (`2802`, prefixo `B2`), até `2026-09-16`, descartando coordenadas zeradas e o veículo `99999`. Posições Jaé passam a ser associadas a viagens com `fonte_gps = maxtrack` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `maxtrack` entre `2026-08-24` e `2026-09-15`, com data limite de envio em `2026-09-30` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+### Alterado
+
+- No modelo `gps_viagem`, a coluna `fonte_gps` passa a refletir o fornecedor do registro de GPS em vez da fonte declarada na viagem (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+- No modelo `gps_segmento_viagem`, entre `2026-08-24` e `2026-09-15`, registros com `fonte_gps` `jae` ou `maxtrack` são desconsiderados no indicador de serviço convergente, e ambos são considerados na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/682).
+
+## [2.2.19] - 2026-09-29
+
+### Alterado
+
+- Amplia de 5 para 6 dias a janela de processamento incremental dos modelos `viagem_validacao`, `viagem_valida`, `gps_viagem` e `gps_segmento_viagem`. A alteração permite que a execução do dia seguinte capture viagens disponibilizadas na API ao fim do quinto dia do prazo de envio, após a captura das 7h20 (https://github.com/RJ-SMTR/pipelines_v3/pull/720).
+
+## [2.2.18] - 2026-09-28
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-28` devido à ausência de dados brutos de licenciamento, o reprocessamento ocorreu em `2026-09-28`.(https://github.com/RJ-SMTR/pipelines_v3/pull/714)
+
+## [2.2.18] - 2026-09-24
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-09-01` e `2026-09-15` com `data_processamento` entre `2026-09-01` e `2026-09-22` devido à ausência de dados brutos de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/695)
+
+## [2.2.17] - 2026-09-16
+
+### Corrigido
+
+- Corrige o `where` do teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `staging_infracao` para converter `data` (string) para date e evitar erro de `BETWEEN` no BigQuery (https://github.com/RJ-SMTR/pipelines_v3/pull/687)
+
+## [2.2.16] - 2026-09-16
+
+### Alterado
+
+- Adiciona exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento entre `2026-08-16` e `2026-08-31` com `data_processamento` entre `2026-08-16` e `2026-09-10` devido à falha na captura dos dados de licenciamento.(https://github.com/RJ-SMTR/pipelines_v3/pull/684)
+
+## [2.2.15] - 2026-09-15
+
+### Adicionado
+
+- Cria o modelo ephemeral `aux_viagem_validacao_excecao` e permite configurar exceções por período, fornecedor, prazo de envio e data limite no modelo `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona exceções de prazo de envio das viagens informadas das quinzenas 15 a 31/08/2026 (limite 06/09/2026, Ofício SMTR nº 8656/2026, processo 000301.015075/2026-48) e 01 a 15/09/2026 (limite 21/09/2026, Ofício SMTR nº 9523/2026, processo 000301.015961/2026-71) (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+- Adiciona a coluna `fonte_viagem` em `viagem_informada`, `gps_viagem` e `gps_segmento_viagem` (`rioonibus`, `maxtrack`, `mobirio`) e a coluna `fonte_gps` em `gps_segmento_viagem`. (https://github.com/RJ-SMTR/pipelines_v3/pull/642)
+
+## [2.2.14] - 2026-09-10
+
+### Alterado
+
+- Ajusta `indicador_servico_planejado_os` para ser aplicado somente ao sistema SPPO, buscando o sistema por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+- Obtém `sistema` e `consorcio` do serviço planejado por data e serviço, independentemente da faixa horária da OS (https://github.com/RJ-SMTR/pipelines_v3/pull/664)
+
+## [2.2.13] - 2026-09-09
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations.expect_row_values_to_have_data_for_every_n_datepart` em `data` de `staging_infracao` (severity `warn`, tags `freshness` e `daily`) para alertar quando faltar o arquivo de infração em alguma data da janela (https://github.com/RJ-SMTR/pipelines_v3/pull/658)
+
+## [2.2.12] - 2026-09-02
+
+### Adicionado
+
+- Adiciona testes `not_null` e `unique` em `viagem_valida` para o pré-teste da apuração V25. (https://github.com/RJ-SMTR/pipelines_v3/pull/614)
+
+## [2.2.11] - 2026-08-28
+
+### Adicionado
+
+- Adiciona suporte às viagens informadas da Maxtrack em `viagem_informada_monitoramento`, incluindo as colunas `sequencial_viagem`, `direction_id`, `tipo_viagem` e `tipo_execucao_viagem` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+### Alterado
+
+- Reordena as colunas de `viagem_informada_monitoramento` conforme a ontologia (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+- Adiciona fallback para a ausência de feeds GTFS recentes em `gps_segmento_viagem` e `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+## [2.2.10] - 2026-08-25
+
+### Adicionado
+
+- Adiciona o teste `dbt_utils.not_constant` em `veiculo_dia.status` agrupado por `data` para falhar quando todos os veículos de um dia têm o mesmo status(https://github.com/RJ-SMTR/pipelines_v3/pull/558)
+
+### Alterado
+
+- Adiciona `sistema` e `route_id` aos modelos `viagem_validacao` e `viagem_valida`, aplica o prazo de envio de cinco dias corridos a partir de `DATA_SUBSIDIO_V26_INICIO` e parametriza a janela de reprocessamento incremental da cadeia de validação (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+- Altera `aux_veiculo_gps_dia` para usar `view_gps_onibus` a partir de `DATA_SUBSIDIO_V25_INICIO`, mantendo `view_gps_sppo_completo` para o período legado (https://github.com/RJ-SMTR/pipelines_v3/pull/552)
+
+## [2.2.9] - 2026-08-24
+
+### Alterado
+
+- Altera a descrição da tabela `viagem_valida` conforme o tipo de materialização, identificando quando a tabela no `monitoramento_interno` deve ser utilizada exclusivamente para fins de monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/540)
+
+## [2.2.8] - 2026-08-13
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-07-16` e `2026-07-31` com `data_processamento` entre `2026-07-16` e `2026-08-12` devido à falha no processamento dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/499)
+
+## [2.2.7] - 2026-07-31
+
+### Alterado
+
+- Altera `view_gps_onibus` para consolidar `gps_onibus_conecta` e `gps_onibus_zirix` (remove `gps_onibus_sppo`) (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+- Usa `id_viagem_planejada` de `viagem_inferida` em `gps_segmento_viagem` no modo monitoramento (https://github.com/RJ-SMTR/pipelines_v3/pull/444)
+
+## [2.2.6] - 2026-07-29
+
+### Alterado
+
+- Altera o modelo `viagem_validacao` para considerar o prazo de envio de até 5 dias corridos, usar `CEIL` no cálculo de segmentos tolerados e desconsiderar viagens com inconsistências temporais na verificação de sobreposição conforme Resolução SMTR 3934/2026 (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Altera `gps_viagem`, `gps_segmento_viagem` e `viagem_validacao` para processar partições modificadas de `viagem_informada` via macro `get_modified_partitions_filter`, utilizando as partições adjacentes apenas como contexto na verificação de viagens sobrepostas, e altera `viagem_valida` para processar as partições modificadas de `viagem_validacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+- Renomeia indicadores de `viagem_validacao` / `gps_segmento_viagem` para polaridade única (`true` = critério atendido) e inclui `indicador_servico_convergente` na composição de `indicador_viagem_valida`(https://github.com/RJ-SMTR/pipelines_v3/pull/439)
+
+## [2.2.5] - 2026-07-16
+
+### Alterado
+
+- Altera teste `not_null` das colunas `id_servico_jae` e `servico_jae` adicionando `severity: warn` na tabela `gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/375)
+
+## [2.2.4] - 2026-07-09
+
+### Adicionado
+
+- Adiciona exceção de vistoria para veículos incluídos no Processo Nº 000301.009966/2026-65 e no Processo Nº 000301.009968/2026-54. (https://github.com/RJ-SMTR/pipelines_v3/pull/364)
+
+## [2.2.3] - 2026-06-26
+
+### Corrigido
+
+- Corrige o filtro de validade dos registros de GPS no modelo `staging_gps` para considerar o atraso entre `datetime_envio` e `datetime_servidor` (https://github.com/RJ-SMTR/pipelines_v3/pull/314)
+
+## [2.2.2] - 2026-06-25
+
+### Adicionado
+
+- Adiciona a coluna `consorcio` nos modelos `viagem_validacao` e `viagem_valida` (https://github.com/RJ-SMTR/pipelines_v3/pull/311)
+
+## [2.2.1] - 2026-06-23
+
+### Alterado
+
+- Adiciona tolerância de 5 minutos na regra de sobreposição de viagens do modelo `viagem_validacao`. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [2.2.0] - 2026-06-17
+
+### Alterado
+
+- Altera materialização do modelo `aux_gps_filtrada` de `ephemeral` para `incremental` (particionada por `data`, clusterizada por `datetime_gps`) quando `15_minutos = false`, eliminando leituras repetidas dos dados brutos de GPS nos modelos `gps`, `aux_gps_velocidade`, `aux_gps_parada`, `aux_gps_trajeto_correto` e no teste `check_gps_treatment` (redução de ~66% dos bytes processados por materialização horária) (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Adiciona filtro de partição nas leituras de `aux_gps_filtrada` nos modelos `gps`, `gps_15_minutos`, `aux_gps_velocidade`, `aux_gps_parada` e `aux_gps_trajeto_correto` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Remove colunas não utilizadas e torna incondicional o filtro de partição na CTE `gps_filtrada` do teste `check_gps_treatment` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+- Adiciona `aux_gps_filtrada` ao seletor `gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/248)
+
+## [2.1.1] - 2026-06-16
+
+### Corrigido
+
+- Corrige o teste `dbt_utils.relationships_where__id_auto_infracao__autuacao_disciplinar_historico` para adicionar tolerância entre o teste das tabelas `veiculo_fiscalizacao_lacre` e `autuacao_disciplinar_historico` (https://github.com/RJ-SMTR/pipelines_v3/pull/265)
+
+## [2.1.0] - 2026-05-19
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-05-01` e `2026-05-18` com `data_processamento`entre `2026-05-01` e `2026-05-18` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/195)
+
+## [2.0.9] - 2026-05-14
+
+### Alterado
+
+- Altera fonte dos dados de operador de `operadoras` para `operadora_historico` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/182)
+- Ajusta `test_completude_temperatura` para aceitar parâmetro `expected_qtd` (default 24) e define 96 para `temperatura_alertario`. Substitui lógica de `data_fim_ajustada` por `least(date_range_end, ontem)` em `test_completude_temperatura` e `test_completude_temperatura_inmet` para evitar falso negativo no dia corrente sem perder cobertura em reprocessamentos. (https://github.com/RJ-SMTR/pipelines_v3/pull/183)
+
+### Adicionado
+
+- Adiciona teste `dbt_expectations.expect_row_values_to_have_recent_data__datetime_captura__gps_validador` ao modelo `gps_validador` para conferir atualização da tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/181)
+
+## [2.0.8] - 2026-05-13
+
+### Alterado
+
+- Remove filtro da coluna `data` nas CTEs dos modelos `view_gps_brt_completo` e `view_gps_sppo_completo`, forçando a obrigatoriedade de um filtro de partição explícito por parte do usuário e evitando o consumo acidental de grandes volumes de dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/179)
+
+## [2.0.7] - 2026-05-11
+
+### Alterado
+
+- Altera exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-16` e `2026-04-30` com `data_processamento`entre `2026-04-16` e `2026-05-11` devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/175)
+
+## [2.0.6] - 2026-05-08
+
+### Adicionado
+
+- Adiciona teste de completude aos modelos `temperatura_inmet` e `temperatura_alertario` (https://github.com/RJ-SMTR/pipelines_v3/pull/167)
+
+## [2.0.5] - 2026-05-06
+
+### Adicionado
+
+- Cria exceção no modelo `veiculo_dia` para tratamento de dados de licenciamento e infração entre `2026-04-25` e `2026-05-06`  devido à falha no fornecimento e captura dos dados. (https://github.com/RJ-SMTR/pipelines_v3/pull/161)
+- Cria o modelo `view_gps_sppo_15_minutos` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
+
+### Alterado
+
+- Adiciona `require_partition_filter=true` à configuração do modelo `gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/162)
+
+## [2.0.4] - 2026-05-06
+
+### Adicionado
+
+- Cria modelo `view_gps_brt_completo` que une o histórico legado `br_rj_riodejaneiro_veiculos.gps_brt` com o novo `monitoramento.gps_brt_sonda` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+
+### Alterado
+
+- Altera modelo `gps_viagem` para referenciar `view_gps_brt_completo` em substituição a `gps_brt` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+- Altera modelo `staging_temperatura_inmet` para adicionar a coluna `temperatura_maxima` (`TEM_MAX`), mantendo `temperatura` (`TEM_INS`) (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
+- Altera modelo `temperatura_inmet` para utilizar `temperatura_maxima` a partir de `DATA_SUBSIDIO_V23_INICIO` (2026-04-16) e `temperatura` (instantânea) antes dessa data, aplicando a regra tanto na fonte `meteorologia_inmet` quanto na contingência via `staging_temperatura_inmet` (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
+- Altera modelo `temperatura` para aplicar deslocamento de 1 hora nos dados do INMET apenas a partir de `DATA_SUBSIDIO_V23_INICIO` (2026-04-16), ajustando a janela de referência da temperatura máxima (https://github.com/RJ-SMTR/pipelines_v3/pull/150)
+
+### Removido
+
+- Remove modelo temporário `gps_brt` (https://github.com/RJ-SMTR/pipelines_v3/pull/148)
+
+## [2.0.3] - 2026-04-16
+
+### Adicionado
+
+- Cria modelo `view_gps_sppo_completo` que une o histórico legado `br_rj_riodejaneiro_veiculos.gps_sppo` com o novo `gps_onibus_sppo` (https://github.com/RJ-SMTR/pipelines_v3/pull/119)
+-
+## [2.0.2] - 2026-03-19
+
+### Alterado
+
+- Alterado o teste `dbt_utils.relationships_where__id_auto_infracao__veiculo_fiscalizacao_lacre` para adicionar um atraso de 5 dias ao teste (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1333)
+
+## [2.0.1] - 2026-03-09
+
+### Adicionado
+
+- Adiciona colunas `indicador_primeiro_segmento_valido` e `indicador_ultimo_segmento_valido` no modelo `gps_segmento_viagem` para validar se o primeiro e último segmento da viagem são considerados e possuem registros de GPS (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1302)
+- Adiciona colunas `indicador_primeiro_segmento_valido` e `indicador_ultimo_segmento_valido` no modelo `viagem_validacao` e inclui na composição do `indicador_viagem_valida` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1302)
+
+## [2.0.0] - 2026-02-25
+
+### Adicionado
+
+- Adiciona colunas `datetime_partida_informada`, `datetime_chegada_informada`, `datetime_partida_automatica`, `datetime_chegada_automatica`, `datetime_partida_considerada` e `datetime_chegada_considerada` nos modelos `gps_segmento_viagem`, `viagem_validacao` e `viagem_informada_monitoramento` para validação de início e fim de viagem com base em cerca eletrônica (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona colunas `indicador_processamento_posterior_captura`, `indicador_processamento_anterior_chegada` e `indicador_prazo_envio` no modelo `viagem_validacao` para validação de inconsistências temporais (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona coluna `indicador_viagem_sobreposta` no modelo `viagem_validacao` utilizando `datetime_partida_considerada` e `datetime_chegada_considerada` para detecção de sobreposição temporal (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona coluna `id_viagem_planejada` nos modelos `staging_viagem_informada_rioonibus`, `staging_viagem_informada_brt`, `viagem_informada_monitoramento`, `gps_segmento_viagem`, `viagem_validacao` e `viagem_valida` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona coluna `indice_validacao` na saída do modelo `viagem_validacao` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona colunas `datetime_inicio_segmento`, `datetime_fim_segmento` e `datetime_processamento` no modelo `gps_segmento_viagem` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona desambiguação temporal para rotas circulares no modelo `gps_segmento_viagem` utilizando ponto médio da viagem para distinguir primeiro e último segmento (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Adiciona macro `partida_chegada_automatica_case` para cálculo de partida e chegada automáticas com base em cerca eletrônica (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+
+### Alterado
+
+- Altera modelo `gps_segmento_viagem` para filtrar GPS apenas entre `datetime_partida_considerada` e `datetime_chegada_considerada` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Altera cálculo de `velocidade_media` no modelo `viagem_validacao` para utilizar `datetime_partida_considerada` e `datetime_chegada_considerada` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Altera filtros de deduplicação no modelo `viagem_validacao` para particionar por `datetime_partida_considerada` e `datetime_chegada_considerada` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Altera modelo `viagem_valida` para expor `datetime_partida_considerada` e `datetime_chegada_considerada` como `datetime_partida` e `datetime_chegada` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Renomeia coluna `quantidade_segmentos_verificados` para `quantidade_segmentos_considerados` no modelo `viagem_validacao` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Altera critérios de `indicador_viagem_valida` no modelo `viagem_validacao` para incluir validações de `indicador_processamento_posterior_captura`, `indicador_processamento_anterior_chegada` e `indicador_prazo_envio` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Separa validação `datetime_chegada_considerada > datetime_partida_considerada` do `indicador_campos_obrigatorios` em novo indicador `indicador_chegada_posterior_partida` no modelo `viagem_validacao` (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+- Altera parsing de `datetime_captura` nos modelos `staging_viagem_informada_rioonibus` e `staging_viagem_informada_brt` para utilizar coluna `timestamp_captura` diretamente (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1240)
+
+## [1.9.4] - 2026-02-23
+
+### Corrigido
+
+- Corrige o teste `test_check_regularidade_temperatura`, ajustando a lógica para o `indicador_temperatura_transmitida_viagem` quando o `indicador_temperatura_nula_viagem` for `false`. (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1254)
+- Corrige o teste `test_consistencia_indicadores_temperatura`para considerar o `indicador_regularidade_ar_condicionado_viagem`como true quando a temperatura for nula.(https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1254)
+
+## [1.9.3] - 2026-02-12
+
+### Alterado
+
+- Alterados os testes do modelo `gps_validador` para testar apenas o modo `Ônibus` quando executado pelo flow do subsídio (https://github.com/prefeitura-rio/pipelines_rj_smtr/pull/1247)
+
 ## [1.9.2] - 2026-02-10
 
 ### Adicionado

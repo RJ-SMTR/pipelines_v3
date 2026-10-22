@@ -1,5 +1,62 @@
 # Changelog - default_treatment
 
+## [1.5.1] - 2026-10-21
+
+### Alterado
+
+- Adiciona retry nas tasks de acesso ao Redis (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
+
+## [1.5.0] - 2026-08-31
+
+### Alterado
+
+- Habilita por padrão a ingestão dos artefatos dbt no OpenMetadata nos flows genéricos de materialização (https://github.com/RJ-SMTR/pipelines_v3/pull/579)
+
+## [1.4.2] - 2026-08-28
+
+### Adicionado
+
+- Adiciona o download do manifest dbt de produção quando o flow de materialização utiliza `--state`, habilitando o uso de defer (https://github.com/RJ-SMTR/pipelines_v3/pull/577)
+
+## [1.4.1] - 2026-07-29
+
+### Corrigido
+
+- Permite preservar o checkpoint de materialização no Redis e, quando `save_redis=None`, atualizá-lo somente em execuções criadas automaticamente pelo agendamento do Prefect. (https://github.com/RJ-SMTR/pipelines_v3/pull/437)
+
+## [1.4.0] - 2026-06-23
+
+### Alterado
+
+- Propaga `flags` para testes dbt pré e pós-materialização. (https://github.com/RJ-SMTR/pipelines_v3/pull/306)
+
+### Adicionado
+
+- Adiciona criação seletiva de relações dbt ausentes com `--empty` antes da materialização normal em ambiente dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+- Adiciona resolução do SHA do deployment para clonar `queries/` no mesmo commit da imagem em deploys de dev. (https://github.com/RJ-SMTR/pipelines_v3/pull/292)
+
+## [1.3.0] - 2026-06-02
+
+### Adicionado
+
+- Adiciona tasks `setup_dbt_queries` e `install_dbt_packages` ao flow genérico de materialização para download da pasta `queries/` e instalação de pacotes dbt em runtime (https://github.com/RJ-SMTR/pipelines_v3/pull/214)
+
+## [1.2.2] - 2026-06-02
+
+### Adicionado
+
+- Adiciona parâmetro `test_only` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
+### Corrigido
+
+- Altera should_run da classe `DBTSelectorMaterializationContext` para `self.datetime_start >= selector.final_datetime` (https://github.com/RJ-SMTR/pipelines_v3/pull/223)
+
+## [1.2.1] - 2026-05-11
+
+### Alterado
+
+- Suporta testes singulares na notificação do Discord em `dbt_test_notify_discord` (https://github.com/RJ-SMTR/pipelines_v3/pull/170)
+
 ## [1.2.0] - 2026-03-30
 
 ### Adicionado

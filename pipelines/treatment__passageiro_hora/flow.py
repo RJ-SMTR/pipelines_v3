@@ -2,33 +2,28 @@
 """
 Flow de materialização de passageiros por hora
 
-Executa o selector DBT 'passageiro_hora' para materializar dados no BigQuery.
-
-Schedule:
-- Diariamente às 0h35 (horário de São Paulo)
-
-DBT: 2026-03-06
+DBT: 2026-05-08
 """
 
 from datetime import time
-
-from prefect import flow
+from typing import Optional
 
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
+from pipelines.common.utils.prefect import flow
 from pipelines.treatment__passageiro_hora import constants
 
 
 @flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
 def treatment__passageiro_hora(  # noqa: PLR0913
-    env=None,
-    datetime_start=None,
-    datetime_end=None,
-    flags=None,
-    additional_vars=None,
-    force_test_run=False,
+    env: Optional[str] = None,
+    datetime_start: Optional[str] = None,
+    datetime_end: Optional[str] = None,
+    flags: Optional[list[str]] = None,
+    additional_vars: Optional[dict] = None,
+    force_test_run: bool = False,
 ):
     create_materialization_flows_default_tasks(
         env=env,

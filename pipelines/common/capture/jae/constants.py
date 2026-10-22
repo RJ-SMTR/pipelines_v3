@@ -14,71 +14,75 @@ JAE_SOURCE_NAME = "jae"
 JAE_DATABASE_SETTINGS = {
     "principal_db": {
         "engine": "mysql",
-        "host": "10.5.113.205",
+        "host": "10.60.14.142",
     },
     "tarifa_db": {
         "engine": "postgresql",
-        "host": "10.5.113.254",
+        "host": "10.128.0.59",
     },
     "transacao_db": {
         "engine": "postgresql",
-        "host": "10.5.114.104",
+        "host": "10.128.0.62",
     },
     "tracking_db": {
         "engine": "postgresql",
-        "host": "10.5.12.106",
+        "host": "10.128.15.195",
     },
     "ressarcimento_db": {
         "engine": "postgresql",
-        "host": "10.5.12.50",
+        "host": "10.128.15.246",
     },
     "gratuidade_db": {
         "engine": "postgresql",
-        "host": "10.5.14.19",
+        "host": "10.128.15.247",
     },
     "fiscalizacao_db": {
         "engine": "postgresql",
-        "host": "10.5.115.29",
+        "host": "10.128.15.248",
     },
     "atm_gateway_db": {
         "engine": "postgresql",
-        "host": "10.5.15.127",
+        "host": "10.128.15.249",
     },
     "device_db": {
         "engine": "postgresql",
-        "host": "10.5.114.114",
+        "host": "10.128.15.250",
     },
     "erp_integracao_db": {
         "engine": "postgresql",
-        "host": "10.5.12.105",
+        "host": "10.128.15.251",
     },
     "financeiro_db": {
         "engine": "postgresql",
-        "host": "10.5.12.109",
+        "host": "10.128.15.252",
     },
     "midia_db": {
         "engine": "postgresql",
-        "host": "10.5.12.52",
+        "host": "10.128.15.253",
     },
     "processador_transacao_db": {
         "engine": "postgresql",
-        "host": "10.5.14.59",
+        "host": "10.128.0.64",
     },
     "atendimento_db": {
         "engine": "postgresql",
-        "host": "10.5.14.170",
+        "host": "10.128.0.65",
     },
     "gateway_pagamento_db": {
         "engine": "postgresql",
-        "host": "10.5.113.130",
+        "host": "10.128.0.66",
     },
     # "iam_db": {
     #     "engine": "mysql",
-    #     "host": "10.5.13.201",
+    #     "host": "10.128.0.120",
     # },
     "vendas_db": {
         "engine": "postgresql",
-        "host": "10.5.114.15",
+        "host": "10.128.0.31",
+    },
+    "estacionamento_db": {
+        "engine": "postgresql",
+        "host": "10.5.113.57",
     },
 }
 
@@ -98,19 +102,24 @@ CLIENTE_TABLE_ID = "cliente"
 GRATUIDADE_TABLE_ID = "gratuidade"
 ESTUDANTE_TABLE_ID = "estudante"
 LAUDO_PCD_TABLE_ID = "laudo_pcd"
-
+MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID = "movimento_estacionamento_veiculo"
+ESTACIONAMENTO_VEICULO_TABLE_ID = "estacionamento_veiculo"
+VEICULO_TABLE_ID = "veiculo"
+VEICULO_CLIENTE_TABLE_ID = "veiculo_cliente"
+FISCALIZACAO_VEICULO_TABLE_ID = "fiscalizacao_veiculo"
+DENUNCIA_TABLE_ID = "denuncia"
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
         "query": """
-                SELECT
-                    *
-                FROM
-                    transacao
-                WHERE
-                    data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
-            """,
+            SELECT
+                *
+            FROM
+                transacao
+            WHERE
+                data_processamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND data_processamento < timestamp '{end}' - INTERVAL '{delay} minutes'
+        """,
         "database": "transacao_db",
         "capture_delay_minutes": {"0": 0, "2025-03-26 15:36:00": 5},
     },
@@ -200,37 +209,21 @@ JAE_TABLE_CAPTURE_PARAMS = {
     },
     LANCAMENTO_TABLE_ID: {
         "query": """
-                SELECT
-                    l.*,
-                    m.cd_tipo_movimento,
-                    tm.ds_tipo_movimento,
-                    tc.ds_tipo_conta,
-                    tc.id_tipo_moeda,
-                    tmo.descricao as tipo_moeda,
-                    c.cd_cliente,
-                    c.nr_logico_midia
-                FROM
-                    lancamento l
-                LEFT JOIN
-                    movimento m
-                USING(id_movimento)
-                LEFT JOIN
-                    tipo_movimento tm
-                USING(cd_tipo_movimento)
-                LEFT JOIN
-                    conta c
-                USING(id_conta)
-                LEFT JOIN
-                    tipo_conta tc
-                USING(cd_tipo_conta)
-                LEFT JOIN
-                    tipo_moeda tmo
-                ON tc.id_tipo_moeda = tmo.id
-                WHERE
-                    l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
-                    AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
-                ORDER BY l.dt_lancamento DESC
-
+            SELECT
+                l.*,
+                m.cd_tipo_movimento,
+                tm.ds_tipo_movimento
+            FROM
+                lancamento l
+            LEFT JOIN
+                movimento m
+            USING(id_movimento)
+            LEFT JOIN
+                tipo_movimento tm
+            USING(cd_tipo_movimento)
+            WHERE
+                l.dt_lancamento >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND l.dt_lancamento < timestamp '{end}' - INTERVAL '{delay} minutes'
             """,
         "database": "financeiro_db",
         "capture_delay_minutes": {"0": 5, "2025-12-12 22:53:00": 1440},
@@ -586,6 +579,20 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "capture_flow": "ordem_pagamento",
         "pretreat_funcs": [raise_if_column_isna(column_name="id_ordem_pagamento")],
     },
+    # "ordem_pagamento_estacionamento": {
+    #     "query": """
+    #             SELECT
+    #                 *
+    #             FROM
+    #                 ordem_pagamento_estacionamento
+    #             WHERE
+    #                 data_inclusao BETWEEN '{start}'
+    #                 AND '{end}'
+    #         """,
+    #     "database": "ressarcimento_db",
+    #     "primary_keys": ["id"],
+    #     "capture_flow": "ordem_pagamento",
+    # },
     "linha_sem_ressarcimento": {
         "query": """
                 SELECT
@@ -599,5 +606,92 @@ JAE_TABLE_CAPTURE_PARAMS = {
         "database": "ressarcimento_db",
         "primary_keys": ["id_linha"],
         "capture_flow": "ordem_pagamento",
+    },
+    MOVIMENTO_ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    m.*,
+                    e.id_veiculo_cliente,
+                    e.latitude,
+                    e.longitude,
+                    e.area_codigo
+                FROM
+                    movimento_estacionamento_veiculo m
+                JOIN estacionamento_veiculo e ON m.id_estacionamento_veiculo = e.id
+                WHERE
+                    m.data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND m.data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    ESTACIONAMENTO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    estacionamento_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    FISCALIZACAO_VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    fiscalizacao_veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+            """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    DENUNCIA_TABLE_ID: {
+        "query": """
+            SELECT
+                *
+            FROM
+                denuncia
+            WHERE
+                data_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                AND data_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'
+                """,
+        "database": "estacionamento_db",
+        "capture_delay_minutes": {"0": 5},
+    },
+    VEICULO_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    veiculo
+                WHERE
+                    data_inclusao >= timestamp '{start}'
+                    AND data_inclusao < timestamp '{end}'
+            """,
+        "database": "estacionamento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "riorotativo_auxiliar",
+    },
+    VEICULO_CLIENTE_TABLE_ID: {
+        "query": """
+                SELECT
+                    *
+                FROM
+                    veiculo_cliente
+                WHERE
+                    (data_inclusao >= timestamp '{start}'
+                    AND data_inclusao < timestamp '{end}')
+                    OR (data_inativacao >= timestamp '{start}'
+                    AND data_inativacao < timestamp '{end}')
+            """,
+        "database": "estacionamento_db",
+        "primary_keys": ["id"],
+        "capture_flow": "riorotativo_auxiliar",
     },
 }

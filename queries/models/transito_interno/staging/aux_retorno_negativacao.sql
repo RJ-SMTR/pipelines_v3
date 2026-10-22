@@ -19,7 +19,10 @@ with
             "previnity" as fonte
         from {{ source("source_previnity", "retorno_negativacao") }}
         {% if is_incremental() %}
-            where data between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+            where
+                data between date("{{var('date_range_start')}}") and date(
+                    "{{var('date_range_end')}}"
+                )
         {% endif %}
     ),
     parsed as (

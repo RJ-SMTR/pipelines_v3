@@ -1,4 +1,1 @@
-SELECT
-    1 AS test_column_1,
-    2 AS test_column_2,
-    3 AS test_column_3
+select 1 as test_column_1, 2 as test_column_2,

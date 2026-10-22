@@ -11,6 +11,7 @@
 # ///
 
 import asyncio
+import json
 import logging
 import sys
 from collections.abc import Awaitable, Iterable
@@ -254,8 +255,26 @@ async def cleanup_docker_system() -> None:
         _ = await process.communicate()
 
 
-def build_deployment_command(package: str, deployment: str, file_path: str) -> list[str]:
-    """Build deployment command array."""
+def build_deployment_command(
+    package: str, deployment: str, file_path: str, environment: str
+) -> list[str]:
+    """Build deployment command array with the source branch in worker env."""
+    branch = (
+        "master"
+        if environment == "prod"
+        else (environ.get("GITHUB_HEAD_REF") or environ.get("GITHUB_REF_NAME"))
+    )
+    if not branch:
+        raise RuntimeError("Could not determine deployment branch from GitHub environment")
+
+    content: PrefectYaml = safe_load(Path(file_path).read_text()) or {}
+    job_variables = {}
+    for item in content.get("deployments", []):
+        if item.get("name") == deployment:
+            job_variables = dict(item.get("work_pool", {}).get("job_variables", {}))
+            break
+    job_variables["env"] = {**(job_variables.get("env") or {}), "GIT_BRANCH": branch}
+
     return [
         "uv",
         "run",
@@ -269,6 +288,8 @@ def build_deployment_command(package: str, deployment: str, file_path: str) -> l
         deployment,
         "--prefect-file",
         file_path,
+        "--job-variable",
+        json.dumps(job_variables),
     ]
 
 
@@ -419,7 +440,7 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
         )
         return file, 0
 
-    command = build_deployment_command(package, deployment, str(file))
+    command = build_deployment_command(package, deployment, str(file), environment)
 
     process = await run_subprocess(command)
 
@@ -438,12 +459,14 @@ async def deploy_flow(file: Path, environment: str) -> tuple[Path, int]:
         if is_retryable_error(stderr_text):
             raise RuntimeError(f"Network error deploying `{package}`: {stderr_text}")
 
+        stdout_text = stdout.decode().strip()
         logging.error(f"Failed to deploy `{package}` to {environment} environment.")
-        logging.error(f"Non-retryable error for `{package}`: {stderr_text}")
+        if stderr_text:
+            logging.error(f"STDERR: {stderr_text}")
+        if stdout_text:
+            logging.error(f"STDOUT: {stdout_text}")
         logging.debug(f"Command: `{' '.join(command)}`")
         logging.debug(f"Exit code: {process.returncode}")
-        logging.debug(f"STDOUT: {stdout.decode().strip()}")
-        logging.debug(f"STDERR: {stderr.decode().strip()}")
 
         deployment_results["failed"].append(package)
 
@@ -537,4 +560,5 @@ async def main() -> None:
         sys.exit(1)
 
 
-uvloop.run(main())
+if __name__ == "__main__":
+    uvloop.run(main())

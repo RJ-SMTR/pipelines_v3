@@ -114,19 +114,11 @@ with
             from ids as i
             left join shapes_half as s using (feed_start_date, shape_id)
             where
-                (
-                    round(st_y(i.start_pt), 4) = round(st_y(i.end_pt), 4)
-                    and round(st_x(i.start_pt), 4) = round(st_x(i.end_pt), 4)
-                )
-                or (
-                    feed_start_date >= "{{ var('DATA_GTFS_V4_INICIO') }}"
-                    and trunc(st_y(i.start_pt), 4) = trunc(st_y(i.end_pt), 4)
-                    and trunc(st_x(i.start_pt), 4) = trunc(st_x(i.end_pt), 4)
-                )
-                or (
-                    feed_start_date in ("2025-05-01", "2025-12-27")
-                    and shape_id in ("iz18", "ycug")
-                )  -- Operação Especial "Todo Mundo no Rio" - Lady Gaga e Reveillon 2025
+                {{
+                    is_shape_circular(
+                        "i.start_pt", "i.end_pt", "feed_start_date", "shape_id"
+                    )
+                }}
         )
     )
 select

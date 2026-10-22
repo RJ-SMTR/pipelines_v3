@@ -12,10 +12,9 @@ from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment.utils import DBTSelector
 
 GPS_15_MINUTOS_CITTATI_SELECTOR = DBTSelector(
-    name="gps_15_minutos",
+    name="gps_15_minutos_cittati",
     initial_datetime=datetime(2025, 5, 27, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__gps_15_minutos_cittati",
-    redis_key_suffix="cittati",
     data_sources=[
         registros_constants.CITTATI_REGISTROS_SOURCE,
         realocacao_constants.CITTATI_REALOCACAO_SOURCE,

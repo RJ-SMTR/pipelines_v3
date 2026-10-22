@@ -1,35 +1,25 @@
 {% test teto_pagamento_valor_subsidio_pago(model, table_id, schema, expression) -%}
-WITH
-{{ table_id }} AS (
-    SELECT
-        *,
-    FROM
-        {{ model }}
-    WHERE
-        DATA BETWEEN DATE("{{ var('date_range_start') }}")
-        AND DATE("{{ var('date_range_end') }}")),
-subsidio_valor_km_tipo_viagem AS (
-    SELECT
-        data_inicio,
-        data_fim,
-        MAX(subsidio_km) AS subsidio_km_teto
-    FROM
-        -- `rj-smtr`.`dashboard_subsidio_sppo_staging`.`subsidio_valor_km_tipo_viagem`
-        {{ ref('subsidio_valor_km_tipo_viagem') }}
-    WHERE
-        subsidio_km > 0
-    GROUP BY
-        1,
-        2)
-SELECT
-    *
-FROM
-    {{ table_id }} AS s
-LEFT JOIN
-    subsidio_valor_km_tipo_viagem AS p
-ON
-    s.data BETWEEN p.data_inicio
-    AND p.data_fim
-WHERE
-    NOT({{ expression }})
+    with
+        {{ table_id }} as (
+            select *,
+            from {{ model }}
+            where
+                data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+        ),
+        subsidio_valor_km_tipo_viagem as (
+            select data_inicio, data_fim, max(subsidio_km) as subsidio_km_teto
+            from
+                -- `rj-smtr`.`dashboard_subsidio_sppo_staging`.`subsidio_valor_km_tipo_viagem`
+                {{ ref("subsidio_valor_km_tipo_viagem") }}
+            where subsidio_km > 0
+            group by 1, 2
+        )
+    select *
+    from {{ table_id }} as s
+    left join
+        subsidio_valor_km_tipo_viagem as p
+        on s.data between p.data_inicio and p.data_fim
+    where not ({{ expression }})
 {%- endtest %}

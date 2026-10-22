@@ -1,0 +1,4 @@
+[project]
+name = "capture__sonda_viagem_informada"
+version = "0.1.0"
+description = "Pipeline viagem_informada do BRT da secretaria rj-smtr"
