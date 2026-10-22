@@ -15,7 +15,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1
@@ -65,11 +65,11 @@ schema:
     logicalType: string
   - name: start_date
     physicalType: STRING
-    description: Dia inicial do intervalo de serviço (YYYYMMDD)
+    description: Dia inicial do intervalo de serviço [YYYYMMDD]
     logicalType: string
   - name: end_date
     physicalType: STRING
-    description: Dia final do intervalo de serviço (YYYYMMDD)
+    description: Dia final do intervalo de serviço [YYYYMMDD]
     logicalType: string
   - name: timestamp_captura
     physicalType: STRING

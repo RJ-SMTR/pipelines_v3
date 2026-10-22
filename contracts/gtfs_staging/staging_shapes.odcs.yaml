@@ -17,7 +17,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1
@@ -29,11 +29,11 @@ schema:
     primaryKeyPosition: 2
   - name: shape_pt_lat
     physicalType: STRING
-    description: Latitude de um ponto de forma
+    description: Latitude de um ponto de forma (graus decimais)
     logicalType: string
   - name: shape_pt_lon
     physicalType: STRING
-    description: Longitude de um ponto de forma
+    description: Longitude de um ponto de forma (graus decimais)
     logicalType: string
   - name: shape_pt_sequence
     physicalType: STRING
@@ -44,7 +44,7 @@ schema:
   - name: shape_dist_traveled
     physicalType: STRING
     description: Distância real percorrida ao longo da forma desde o primeiro ponto
-      da forma até o ponto especificado neste registro
+      da forma até o ponto especificado neste registro (m)
     logicalType: string
   - name: timestamp_captura
     physicalType: STRING

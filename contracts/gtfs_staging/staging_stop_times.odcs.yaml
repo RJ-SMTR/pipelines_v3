@@ -17,7 +17,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1
@@ -32,14 +32,14 @@ schema:
       to: staging_trips.trip_id
   - name: arrival_time
     physicalType: STRING
-    description: Hora de chegada na parada (definida por stop_times.stop_id) para
-      uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado
+    description: Hora de chegada na parada [definida por stop_times.stop_id] para
+      uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado
       por agency.agency_timezone, não por stops.stop_timezone
     logicalType: string
   - name: departure_time
     physicalType: STRING
-    description: Hora de partida da parada (definida por stop_times.stop_id) para
-      uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado
+    description: Hora de partida da parada [definida por stop_times.stop_id] para
+      uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado
       por agency.agency_timezone, não por stops.stop_timezone
     logicalType: string
   - name: stop_id
@@ -83,7 +83,7 @@ schema:
   - name: shape_dist_traveled
     physicalType: STRING
     description: Distância real percorrida ao longo do formato associado, desde a
-      primeira parada até a parada especificada neste registro
+      primeira parada até a parada especificada neste registro (m)
     logicalType: string
   - name: timepoint
     physicalType: STRING

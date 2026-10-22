@@ -17,7 +17,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1

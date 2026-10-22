@@ -17,7 +17,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1
@@ -46,11 +46,11 @@ schema:
     logicalType: string
   - name: stop_lat
     physicalType: STRING
-    description: Latitude do local
+    description: Latitude do local (graus decimais)
     logicalType: string
   - name: stop_lon
     physicalType: STRING
-    description: Longitude do local
+    description: Longitude do local (graus decimais)
     logicalType: string
   - name: zone_id
     physicalType: STRING
@@ -82,8 +82,8 @@ schema:
     logicalType: string
   - name: platform_code
     physicalType: STRING
-    description: Identificador de plataforma para uma parada de plataforma (uma parada
-      pertencente a uma estação)
+    description: Identificador de plataforma para uma parada de plataforma [uma parada
+      pertencente a uma estação]
     logicalType: string
   - name: timestamp_captura
     physicalType: STRING
