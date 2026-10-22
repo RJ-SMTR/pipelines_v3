@@ -88,6 +88,7 @@ members = [
     "treatment-gps-15-minutos-zirix",
     "treatment-gps-cittati",
     "treatment-gps-conecta",
+    "treatment-gps-conecta-sistema-rio",
     "treatment-gps-maxtrack",
     "treatment-gps-sonda",
     "treatment-gps-sppo",
@@ -3538,6 +3539,11 @@ source = { virtual = "pipelines/treatment__gps_cittati" }
 name = "treatment-gps-conecta"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__gps_conecta" }
+
+[[package]]
+name = "treatment-gps-conecta-sistema-rio"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__gps_conecta_sistema_rio" }
 
 [[package]]
 name = "treatment-gps-maxtrack"

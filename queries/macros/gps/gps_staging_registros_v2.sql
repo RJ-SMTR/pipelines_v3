@@ -1,4 +1,4 @@
-{% macro gps_staging_registros_v2(fonte) %}
+{% macro gps_staging_registros_v2(fonte, table_id="registros") %}
     with
         source_data as (
             select
@@ -58,7 +58,7 @@
                 datetime(
                     safe_cast(timestamp_captura as timestamp), "America/Sao_Paulo"
                 ) as datetime_captura
-            from {{ source("source_" ~ fonte, "registros") }}
+            from {{ source("source_" ~ fonte, table_id) }}
         )
     select *
     from source_data
