@@ -9,7 +9,7 @@ Schedule:
 - Diariamente às 7h30 (horário de São Paulo)
 - Depende das capturas da Rio Ônibus e da Maxtrack
 
-DBT: 2026-03-24
+DBT: 2026-10-20
 """
 
 from typing import Optional
