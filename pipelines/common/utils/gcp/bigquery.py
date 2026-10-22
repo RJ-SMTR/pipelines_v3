@@ -281,7 +281,7 @@ class SourceTable(BQTable):
         self.data_contract_model = data_contract_model or f"staging_{table_id}"
         self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)
 
-    def _get_schedule_cron(self) -> str:
+    def _get_schedule_cron(self) -> Optional[str]:
         """
         Retorna o cron do schedule do deployment do flow associado ao Source
         """
@@ -304,10 +304,7 @@ class SourceTable(BQTable):
             for d in prefect_file["deployments"]
             if d["name"] == f"rj-{flow_name.replace('__', '--', 1)}--prod"
         ).get("schedules", [{}])
-        schedules = [sched for sched in schedules if sched.get("active", True)]
-
-        if not schedules:
-            return None
+        schedules = [sched for sched in schedules if sched.get("active", True)] or [{}]
 
         for sched in schedules:
             ids = (sched.get("parameters") or {}).get("source_table_ids") or []
