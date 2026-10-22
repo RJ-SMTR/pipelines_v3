@@ -9,7 +9,7 @@
 
 ### Alterado
 
-- `ordem_servico_faixa_horaria_sentido` passa a ler de `staging_ordem_servico_faixa_horaria_sentido` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- `ordem_servico_faixa_horaria_sentido` passa a ler de `staging_ordem_servico_faixa_horaria_sentido`, e a descrição de `servico` passa a ser a mesma do trajeto alternativo (`servico_variacao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ## [1.10.0] - 2026-10-19
 
