@@ -1,5 +1,31 @@
 # Changelog - monitoramento
 
+## [2.5.0] - 2026-10-20
+
+### Adicionado
+
+- Cria os modelos `staging_gps_v2_conecta_sistema_rio`, `aux_gps_filtrada_v2_onibus_conecta_sistema_rio` e `gps_v2_onibus_conecta_sistema_rio` para o GPS da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Cria o modelo `staging_viagem_informada_conecta_sistema_rio` para as viagens informadas da Conecta para o Sistema RIO (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Cria o selector `gps_v2_conecta_sistema_rio` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+### Alterado
+
+- Altera `viagem_informada_monitoramento` para considerar as viagens da Maxtrack apenas com partida até `2026-10-15` e processadas até `2026-10-20`, e as viagens da Conecta (`fonte_viagem = "conecta"`) com partida a partir de `2026-10-16` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `view_gps_onibus` para incluir o GPS da Conecta para o Sistema RIO com `fonte_gps = "conecta"` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera `viagem_validacao` para classificar as viagens com `fonte_viagem = "conecta"` no sistema `RIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+- Altera a macro `gps_staging_registros_v2`, adicionando o parâmetro `table_id` (padrão `registros`) (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+### Corrigido
+
+- Corrige a macro `gps_aux_parada` para não gerar `feed_start_date in ()` quando não há feed GTFS no período, como na criação de tabelas com `--empty` (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
+
+## [2.4.2] - 2026-10-15
+
+### Corrigido
+
+- Corrige a recomposição das partições das tabelas de GPS filtradas e tratadas das fontes v1 e da Maxtrack (v2), preservando os registros já materializados nas datas da janela de processamento mesmo sem novas capturas ou na virada do dia (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+- Corrige o tratamento GPS da Maxtrack para usar as partições de captura em `staging_gps_v2_maxtrack` e restringir a leitura de `aux_gps_filtrada_v2_onibus_maxtrack` à janela de processamento, preservando a recomposição das partições existentes e a data do evento em `gps_v2_onibus_maxtrack` (https://github.com/RJ-SMTR/pipelines_v3/pull/770).
+
 ## [2.4.1] - 2026-10-15
 
 ### Adicionado

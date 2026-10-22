@@ -274,6 +274,74 @@ String que indica a versão atual do conjunto de dados GTFS
 Data final do feed [versão]
 {% enddocs %}
 
+{% docs feed_publisher_name %}
+Nome completo da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_publisher_url %}
+URL do site da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_lang %}
+Idioma padrão usado para o texto neste conjunto de dados
+{% enddocs %}
+
+{% docs default_lang %}
+Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro
+{% enddocs %}
+
+{% docs feed_contact_email %}
+Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs feed_contact_url %}
+URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs service_id %}
+Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+{% enddocs %}
+
+{% docs monday %}
+Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date
+{% enddocs %}
+
+{% docs tuesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras
+{% enddocs %}
+
+{% docs wednesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras
+{% enddocs %}
+
+{% docs thursday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras
+{% enddocs %}
+
+{% docs friday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras
+{% enddocs %}
+
+{% docs saturday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados
+{% enddocs %}
+
+{% docs sunday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos
+{% enddocs %}
+
+{% docs evento_trajeto_alternativo %}
+Evento relacionado ao trajeto alternativo
+{% enddocs %}
+
+{% docs ativacao_trajeto_alternativo %}
+Modo de ativação do trajeto alternativo
+{% enddocs %}
+
+{% docs descricao_trajeto_alternativo %}
+Descrição sobre o trajeto alternativo
+{% enddocs %}
+
 {% docs tipo_servico %}
 Tipo de serviço da linha, conforme RDO [Relatório Diário de Operação]
 {% enddocs %}
@@ -2067,4 +2135,56 @@ Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geome
 
 {% docs longitude_centroide_area_riorotativo %}
 Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}
+
+{% docs data_operacao_controle_ctt %}
+Data da operação financeira
+{% enddocs %}
+
+{% docs tipo_operacao_controle_ctt %}
+Se a operação é de Entrada ou Saída
+{% enddocs %}
+
+{% docs operacao_controle_ctt %}
+Descrição da operação
+{% enddocs %}
+
+{% docs favorecido_operacao_controle_ctt %}
+Nome do favorecido da operação
+{% enddocs %}
+
+{% docs modal_operacao_controle_ctt %}
+Modo de transporte do favorecido da operação
+{% enddocs %}
+
+{% docs valor_operacao_controle_ctt %}
+Valor financeiro da operação (R$)
+{% enddocs %}
+
+{% docs ano_competencia_operacao_controle_ctt %}
+Ano de competência da operação
+{% enddocs %}
+
+{% docs mes_competencia_operacao_controle_ctt %}
+Mês de competência da operação
+{% enddocs %}
+
+{% docs quinzena_semana_competencia_operacao_controle_ctt %}
+Quinzena ou semana de competência da operação
+{% enddocs %}
+
+{% docs numero_processo_operacao_controle_ctt %}
+Número do processo que gerou a operação
+{% enddocs %}
+
+{% docs observacoes_operacao_controle_ctt %}
+Observações sobre a operação
+{% enddocs %}
+
+{% docs numero_nf_operacao_controle_ctt %}
+Número da nota fiscal da operação
+{% enddocs %}
+
+{% docs tipo_conta_operacao_controle_ctt %}
+Tipo da conta [CETT, CB ou CAER]
 {% enddocs %}

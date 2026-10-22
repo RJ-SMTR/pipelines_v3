@@ -15,30 +15,29 @@ GTFS_CONTROLE_OS_URL = (
 )
 
 GTFS_DATASET_ID = "br_rj_riodejaneiro_gtfs"
+GTFS_GOOGLE_CHAT_WEBHOOK_KEY = "google_chat_planejamento"
 
 GTFS_TABLE_CAPTURE_PARAMS = {
-    "ordem_servico": ["servico", "tipo_os"],
-    "ordem_servico_trajeto_alternativo": ["servico", "tipo_os", "evento"],
-    "ordem_servico_trajeto_alternativo_sentido": [
-        "servico",
-        "sentido",
-        "tipo_os",
-        "evento",
-    ],
-    "ordem_servico_faixa_horaria": ["servico", "tipo_os"],
-    "ordem_servico_faixa_horaria_sentido": ["servico", "sentido", "tipo_os"],
-    "shapes": ["shape_id", "shape_pt_sequence"],
-    "agency": ["agency_id"],
-    "calendar_dates": ["service_id", "date"],
-    "calendar": ["service_id"],
-    "feed_info": ["feed_publisher_name"],
-    "frequencies": ["trip_id", "start_time"],
-    "routes": ["route_id"],
-    "stops": ["stop_id"],
-    "trips": ["trip_id"],
-    "fare_attributes": ["fare_id"],
-    "fare_rules": ["fare_id", "route_id"],
-    "stop_times": ["trip_id", "stop_sequence"],
+    "ordem_servico": {"primary_keys": ["servico", "tipo_os"]},
+    "ordem_servico_trajeto_alternativo": {"primary_keys": ["servico", "tipo_os", "evento"]},
+    "ordem_servico_trajeto_alternativo_sentido": {
+        "primary_keys": ["servico", "sentido", "tipo_os", "evento"],
+        "validate_data_contract": True,
+    },
+    "ordem_servico_faixa_horaria": {"primary_keys": ["servico", "tipo_os"]},
+    "ordem_servico_faixa_horaria_sentido": {"primary_keys": ["servico", "sentido", "tipo_os"]},
+    "shapes": {"primary_keys": ["shape_id", "shape_pt_sequence"]},
+    "agency": {"primary_keys": ["agency_id"]},
+    "calendar_dates": {"primary_keys": ["service_id", "date"]},
+    "calendar": {"primary_keys": ["service_id"], "validate_data_contract": True},
+    "feed_info": {"primary_keys": ["feed_publisher_name"], "validate_data_contract": True},
+    "frequencies": {"primary_keys": ["trip_id", "start_time"]},
+    "routes": {"primary_keys": ["route_id"]},
+    "stops": {"primary_keys": ["stop_id"]},
+    "trips": {"primary_keys": ["trip_id"]},
+    "fare_attributes": {"primary_keys": ["fare_id"]},
+    "fare_rules": {"primary_keys": ["fare_id", "route_id"]},
+    "stop_times": {"primary_keys": ["trip_id", "stop_sequence"]},
 }
 
 DATA_GTFS_V2_INICIO = "2025-04-30"
@@ -193,15 +192,17 @@ FAIXA_HORARIA_INTERVALOS_V4 = [
 GTFS_SOURCES = [
     SourceTable(
         source_name="gtfs",
-        table_id=table_id,
+        table_id=k,
         first_timestamp=datetime(2000, 1, 1, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
         flow_folder_name="capture__smtr_gtfs",
-        primary_keys=primary_keys,
+        primary_keys=v["primary_keys"],
         pretreatment_reader_args={"dtype": str, "chunksize": 50_000},
         pretreat_funcs=[strip_string_columns],
         partition_date_only=True,
         raw_filetype="csv",
         partition_key="data_versao",
+        validate_data_contract=v.get("validate_data_contract", False),
+        data_contract_ignored_columns=["data_versao"],
     )
-    for table_id, primary_keys in GTFS_TABLE_CAPTURE_PARAMS.items()
+    for k, v in GTFS_TABLE_CAPTURE_PARAMS.items()
 ]

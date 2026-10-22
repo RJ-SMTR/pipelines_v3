@@ -12,13 +12,19 @@ COPY ./pipelines/treatment__viagem_informada ./pipelines/treatment__viagem_infor
 
 COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
 
+COPY ./pipelines/capture__conecta_sistema_rio_viagem_informada ./pipelines/capture__conecta_sistema_rio_viagem_informada/
+
 COPY ./pipelines/capture__maxtrack_registros ./pipelines/capture__maxtrack_registros/
+
+COPY ./pipelines/capture__conecta_sistema_rio_registros ./pipelines/capture__conecta_sistema_rio_registros/
 
 COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
 
 COPY ./pipelines/treatment__gps_conecta ./pipelines/treatment__gps_conecta/
 
 COPY ./pipelines/treatment__gps_maxtrack ./pipelines/treatment__gps_maxtrack/
+
+COPY ./pipelines/treatment__gps_conecta_sistema_rio ./pipelines/treatment__gps_conecta_sistema_rio/
 
 # COPY ./pipelines/treatment__gps_cittati ./pipelines/treatment__gps_cittati/
 

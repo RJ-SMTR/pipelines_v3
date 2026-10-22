@@ -1,0 +1,81 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_calendar
+name: gtfs_staging/staging_calendar
+status: active
+schema:
+- name: staging_calendar
+  physicalType: view
+  description: |
+    Uma linha por service_id por versão do GTFS (data_versao), com os nomes das colunas do arquivo calendar.txt.
+    Fonte: capturas do GTFS (source_gtfs.calendar).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.calendar
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] (partição)
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: service_id
+    physicalType: STRING
+    description: Identifica um conjunto de datas em que o serviço está disponível
+      para uma ou mais rotas
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+    quality:
+    - type: library
+      metric: invalidValues
+      mustBe: 0
+      arguments:
+        pattern: ^([USDF]_|EXCEP)
+      description: Todos os 'service\_id' começam com 'U\_', 'S\_', 'D\_', 'F\_' ou
+        'EXCEP'.
+  - name: monday
+    physicalType: STRING
+    description: Indica se o serviço funciona todas as segundas-feiras no intervalo
+      de datas especificado pelos campos start_date e end_date
+    logicalType: string
+  - name: tuesday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras
+    logicalType: string
+  - name: wednesday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras
+    logicalType: string
+  - name: thursday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras
+    logicalType: string
+  - name: friday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras
+    logicalType: string
+  - name: saturday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados
+    logicalType: string
+  - name: sunday
+    physicalType: STRING
+    description: Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos
+    logicalType: string
+  - name: start_date
+    physicalType: STRING
+    description: Dia inicial do intervalo de serviço (YYYYMMDD)
+    logicalType: string
+  - name: end_date
+    physicalType: STRING
+    description: Dia final do intervalo de serviço (YYYYMMDD)
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11

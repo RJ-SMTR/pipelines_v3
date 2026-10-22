@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
 from textwrap import wrap
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import quote
 
 import requests
@@ -92,7 +92,8 @@ def check_description(check: Any) -> str:
     Usa a description da regra de qualidade que originou o check e, na ausência, uma
     descrição padrão pelo tipo do check. Sem correspondência, mantém o nome do datacontract.
     Em relationships, a coluna referenciada vem do nome do check, único lugar do resultado
-    que a informa.
+    que a informa. Nos checks do modelo, sem coluna, as colunas da chave e o limite vêm dos
+    diagnostics do check.
 
     Args:
         check (Any): Check do resultado do teste do contrato.
@@ -105,27 +106,36 @@ def check_description(check: Any) -> str:
         if rule.get("description"):
             return rule["description"]
     template = CHECK_DESCRIPTIONS.get(check.type)
-    if template is not None and check.field is not None:
+    if template is not None and (check.field is not None or "{field}" not in template):
+        diagnostics = check.diagnostics or {}
         reference = (check.name or "").partition(" missing from ")[2]
-        return template.format(field=check.field, reference=reference)
+        columns = ", ".join(f"`{column}`" for column in diagnostics.get("columns") or [])
+        return template.format(
+            field=check.field,
+            reference=reference,
+            columns=columns,
+            threshold=diagnostics.get("threshold", ""),
+        ).strip()
     return check.name
 
 
-def contract_test_results(run: Run, table: str) -> list[dict]:
+def contract_test_results(run: Run, table: str, partition: Optional[str] = None) -> list[dict]:
     """Converte os checks do contrato no formato usado nas notificações de testes.
 
     Args:
         run (Run): Resultado do teste do contrato.
         table (str): Nome exibido para agrupar os checks na notificação.
+        partition (Optional[str]): Partição capturada, que identifica o que foi verificado.
 
     Returns:
-        list[dict]: Checks executados, com as chaves table, description e result
+        list[dict]: Checks executados, com as chaves table, partition, description e result
             (PASS, WARN, FAIL ou ERROR).
     """
     results = {"passed": "PASS", "warning": "WARN", "failed": "FAIL"}
     return [
         {
             "table": table,
+            "partition": partition,
             "description": check_description(check),
             "result": results.get(_result_value(check.result), "ERROR"),
         }

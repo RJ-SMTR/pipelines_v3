@@ -1,21 +1,9 @@
-{% macro gps_staging_registros_v2(fonte) %}
+{% macro gps_staging_registros_v2(fonte, table_id="registros") %}
     with
         source_data as (
             select
-                date(
-                    datetime(
-                        safe_cast(json_value(content, "$.datetime") as timestamp),
-                        "America/Sao_Paulo"
-                    )
-                ) as data,
-                extract(
-                    hour
-                    from
-                        datetime(
-                            safe_cast(json_value(content, "$.datetime") as timestamp),
-                            "America/Sao_Paulo"
-                        )
-                ) as hora,
+                data,
+                hora,
                 safe_cast(id_registro as string) as id_registro,
                 datetime(
                     safe_cast(json_value(content, "$.datetime") as timestamp),
@@ -70,7 +58,7 @@
                 datetime(
                     safe_cast(timestamp_captura as timestamp), "America/Sao_Paulo"
                 ) as datetime_captura
-            from {{ source("source_" ~ fonte, "registros") }}
+            from {{ source("source_" ~ fonte, table_id) }}
         )
     select *
     from source_data
