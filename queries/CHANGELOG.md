@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.2.2] - 2026-10-22
+
+### Adicionado
+
+- Cria o teste genérico `sequential_order`, que aponta registros cuja coluna sequencial é maior que a de registros com valor posterior na coluna de ordenação (https://github.com/RJ-SMTR/pipelines_v3/pull/790)
+
 ## [1.2.1] - 2026-10-15
 
 ### Corrigido
