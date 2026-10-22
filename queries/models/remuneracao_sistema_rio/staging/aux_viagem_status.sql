@@ -56,6 +56,11 @@ with
         from {{ ref("tecnologia_servico") }}
     ),
     prioridade_tecnologia as (select * from {{ ref("tecnologia_prioridade") }}),
+    oferta as (
+        select data, servico, sentido, faixa_horaria_inicio, faixa_horaria_fim
+        from {{ ref("servico_oferta_faixa") }}
+        where {{ incremental_filter }}
+    ),
     veiculo_autuacao as (
         select
             ad.data,
@@ -203,6 +208,16 @@ select
         af.indicador_autuado_nao_concluir_itinerario, false
     ) as indicador_autuado_nao_concluir_itinerario,
     vt.status = "Registrado com ar inoperante" as indicador_registrado_ar_inoperante,
+    exists (
+        select 1
+        from oferta as o
+        where
+            o.data = vt.data
+            and o.servico = vt.servico
+            and o.sentido = vt.sentido
+            and vt.datetime_partida
+            between o.faixa_horaria_inicio and o.faixa_horaria_fim
+    ) as indicador_viagem_apurada,
     json_set(
         json_set(
             vt.indicadores,

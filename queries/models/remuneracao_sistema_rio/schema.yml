@@ -251,7 +251,9 @@ models:
       e indicadores. Entrada `viagens` do
       `rio_rac_bus_subsidy.calculate_remuneration`. A faixa vem de
       `servico_oferta_faixa` por left join; sem faixa, início e fim ficam
-      nulos. Viagem INCOMPLETA grava `km_percorrida` pela soma dos
+      nulos. `indicador_viagem_apurada` vem de `aux_viagem_status`.
+      Viagem INCOMPLETA grava
+      `km_percorrida` pela soma dos
       segmentos com GPS, limitada à planejada.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -294,6 +296,13 @@ models:
         tests:
           - not_null:
               name: not_null__indicador_viagem_conforme__viagem_valida_classificada
+      - name: indicador_viagem_apurada
+        description: >
+          Vem de `aux_viagem_status.indicador_viagem_apurada`. false não
+          vai ao OpenFisca.
+        tests:
+          - not_null:
+              name: not_null__indicador_viagem_apurada__viagem_valida_classificada
       - name: km_programada
         description: "Km planejada da viagem"
       - name: km_percorrida
@@ -327,8 +336,9 @@ models:
       - name: indicadores
         description: >
           Flags da classificação, cada uma em `.valor`. Não inclui
-          `indicador_viagem_completa`, `indicador_viagem_valida` nem
-          `indicador_viagem_conforme`, que ficam em coluna.
+          `indicador_viagem_completa`, `indicador_viagem_valida`,
+          `indicador_viagem_conforme` nem `indicador_viagem_apurada`, que
+          ficam em coluna.
       - name: tecnologia_apurada
         description: "Tecnologia aferida do veículo (eco classificação)"
       - name: tecnologia_fcf

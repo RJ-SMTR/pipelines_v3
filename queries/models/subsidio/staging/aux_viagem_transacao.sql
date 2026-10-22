@@ -96,6 +96,8 @@ with
                     or data = date_sub(date({{ date_range_start }}), interval 1 day)
                 {% endif %}
             )
+            {% if var("sistema") == "rio" %} and indicador_viagem_apurada
+            {% endif %}
 
         {% if target.name in ("dev", "hmg") %}
             --fmt:off

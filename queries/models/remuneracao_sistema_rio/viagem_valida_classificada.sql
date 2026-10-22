@@ -59,7 +59,8 @@ with
             indicador_autuado_vista_inoperante,
             indicador_autuado_nao_atender_parada,
             indicador_autuado_nao_concluir_itinerario,
-            indicador_registrado_ar_inoperante
+            indicador_registrado_ar_inoperante,
+            indicador_viagem_apurada
         from {{ ref("aux_viagem_status") }}
         where {{ incremental_filter }}
     ),
@@ -170,6 +171,7 @@ with
             coalesce(
                 v.indicador_registrado_ar_inoperante, false
             ) as indicador_registrado_ar_inoperante,
+            v.indicador_viagem_apurada,
             coalesce(
                 t.indicador_detectado_ar_inoperante, false
             ) as indicador_detectado_ar_inoperante,
@@ -264,6 +266,7 @@ select
     != "INCOMPLETA" as indicador_viagem_completa,
     coalesce(f.indicador_viagem_valida, true) as indicador_viagem_valida,
     coalesce(f.indicador_viagem_conforme, true) as indicador_viagem_conforme,
+    c.indicador_viagem_apurada,
     cast(c.distancia_planejada as float64) as km_programada,
     cast(
         if(

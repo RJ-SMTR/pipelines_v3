@@ -4,8 +4,9 @@ models:
   - name: aux_viagem_apurada_openfisca
     description: >
       Saída de `rio_rac_bus_subsidy.calculate_remuneration` no grão viagem,
-      mais `versao_regra` e `id_execucao`. `aux_viagem_apurada` lê essa
-      saída e completa o contrato.
+      mais `versao_regra` e `id_execucao`. Só entram viagens com
+      `indicador_viagem_apurada`. `aux_viagem_apurada` lê essa saída e
+      completa o contrato.
     config:
       date_range_start: "{{ var('date_range_start') }}"
       date_range_end: "{{ var('date_range_end') }}"
@@ -15,7 +16,9 @@ models:
     description: >
       Viagem válida do Sistema RIO com status do veículo, tecnologia e
       autuações disciplinares na janela da viagem. `tipo_execucao_viagem`
-      entra como COMPLETA.
+      entra como COMPLETA. `indicador_viagem_apurada` marca a partida
+      dentro de uma faixa de `servico_oferta_faixa`. A viagem fora do
+      quadro permanece.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__aux_viagem_status
@@ -62,6 +65,14 @@ models:
         description: "{{ doc('tipo_dia') }}"
       - name: tipo_execucao_viagem
         description: "{{ doc('tipo_execucao_viagem') }}"
+      - name: indicador_viagem_apurada
+        description: >
+          true quando a partida cai numa faixa de `servico_oferta_faixa`
+          para a mesma data, serviço e sentido. false mantém a viagem no
+          status e na classificação, fora de temperatura, transação e OpenFisca.
+        tests:
+          - not_null:
+              name: not_null__indicador_viagem_apurada__aux_viagem_status
       - name: indicador_nao_licenciado
         description: "Indica se o veículo não estava licenciado na data da viagem"
       - name: indicador_nao_vistoriado

@@ -31,8 +31,8 @@ with
                 cast(null as string) as tecnologia_remunerada,
                 sentido,
                 modo
-            from {{ ref("aux_viagem_status") }}
-            where {{ partition_filter }}
+            from {{ ref("aux_viagem_status") }} as v
+            where {{ partition_filter }} and v.indicador_viagem_apurada
         {% else %}
                 data,
                 servico,
