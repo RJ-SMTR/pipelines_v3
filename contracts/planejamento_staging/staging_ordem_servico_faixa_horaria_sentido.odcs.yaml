@@ -23,7 +23,8 @@ schema:
     primaryKeyPosition: 1
   - name: servico
     physicalType: STRING
-    description: Serviço realizado pelo veículo
+    description: 'Nome curto da linha operada pelo veículo com variação de serviço
+      [ex: 010, 011SN, ...]'
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 2
