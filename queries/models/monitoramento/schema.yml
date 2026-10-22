@@ -93,10 +93,18 @@ models:
               description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
               config:
                 description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
-                where: "fonte_viagem in ('maxtrack', 'conecta') and data between date('{date_range_start}') and date('{date_range_end}')"
+                where: "fonte_viagem in ('maxtrack', 'conecta') and data between date_sub(date('{date_range_start}'), interval {{ var('viagem_validacao_max_age_days') }} day) and date('{date_range_end}')"
                 severity: warn
               arguments:
                 interval: 1
+          - sequential_order:
+              name: sequential_order__sequencial_viagem__viagem_informada_monitoramento
+              config:
+                description: "Nenhuma viagem é inserida após viagens de datas posteriores, ou seja, o `sequencial_viagem` acompanha a data da viagem."
+                where: "fonte_viagem = 'conecta' and data between date_sub(date('{date_range_start}'), interval {{ var('viagem_validacao_max_age_days') }} day) and date('{date_range_end}')"
+                severity: warn
+              arguments:
+                order_column_name: data
       - name: id_viagem_planejada
         description: "{{ doc('id_viagem_planejada') }}"
         data_type: string
