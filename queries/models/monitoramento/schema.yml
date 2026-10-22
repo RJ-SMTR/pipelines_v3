@@ -93,7 +93,7 @@ models:
               description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
               config:
                 description: "Os valores de `sequencial_viagem` são contínuos, sem buracos, no intervalo testado."
-                where: "fonte_viagem in ('maxtrack', 'conecta')"
+                where: "fonte_viagem in ('maxtrack', 'conecta') and data between date('{date_range_start}') and date('{date_range_end}')"
                 severity: warn
               arguments:
                 interval: 1
