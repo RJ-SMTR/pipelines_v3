@@ -9,7 +9,7 @@ from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
-    add_referenced_schema,
+    add_referenced_sources,
     contract_test_results,
     download_contracts_from_commit,
     format_test_results,
@@ -86,48 +86,6 @@ def validate_raw_data_contract(
             contract_test_results(result, table=source.table_id, partition=context.partition)
         )
     return results
-
-
-def add_referenced_sources(
-    contract: dict,
-    context: SourceCaptureContext,
-    contexts_by_source: dict[tuple[str, str], SourceCaptureContext],
-    contracts_dir: Path,
-) -> tuple[dict, dict[str, list[str]]]:
-    """
-    Anexa ao contrato os schemas referenciados pelos relationships e reúne os arquivos brutos.
-
-    As referências vêm da mesma partição da fonte: numa recaptura, cada partição é validada
-    com os arquivos da sua própria captura. Um schema referenciado sem fonte capturada nessa
-    partição não é anexado; o datacontract gera um check de relationship com alerta para ele.
-
-    Args:
-        contract (dict): Contrato da fonte, já adaptado.
-        context (SourceCaptureContext): Contexto da fonte que declara os relationships.
-        contexts_by_source (dict[tuple[str, str], SourceCaptureContext]): Contextos da
-            execução por modelo e partição.
-        contracts_dir (Path): Diretório com os contratos baixados.
-
-    Returns:
-        tuple[dict, dict[str, list[str]]]: Contrato com os schemas referenciados e arquivos
-            brutos de cada schema.
-    """
-    files_by_schema = {context.source.data_contract_model: context.captured_raw_filepaths}
-    for schema_name in sorted(referenced_schema_names(contract)):
-        referenced_context = contexts_by_source.get((schema_name, context.partition))
-        if referenced_context is None:
-            print(f"{schema_name} sem captura em {context.partition}; relationship não verificado.")
-            continue
-        _, referenced_contract = load_contract(contracts_dir, schema_name)
-        contract = add_referenced_schema(
-            contract,
-            adapt_contract_schema(
-                referenced_contract,
-                ignored_columns=referenced_context.source.data_contract_ignored_columns,
-            ),
-        )
-        files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
-    return contract, files_by_schema
 
 
 @task(cache_policy=NO_CACHE)
