@@ -54,11 +54,19 @@ with
                         ] as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
-                    struct(  -- Processo nº 000399.031856/2026-48. Eleição 1º turno.
+                    struct(  -- Processo nº 000399.031856/2026-48. Eleição 1º turno, 06h às 21h.
                         '2026-10-04' as data_inicio,
                         '2026-10-04' as data_fim,
-                        cast(null as string) as faixa_horaria_inicio,
-                        cast(null as string) as faixa_horaria_fim,
+                        '2026-10-04T06:00:00' as faixa_horaria_inicio,
+                        '2026-10-04T20:59:59' as faixa_horaria_fim,
+                        cast([] as array<string>) as servicos,
+                        true as indicador_viagem_dentro_limite
+                    ),
+                    struct(  -- Eleição 2º turno, 06h às 21h. Mesma regra do Processo nº 000399.031856/2026-48.
+                        '2026-10-25' as data_inicio,
+                        '2026-10-25' as data_fim,
+                        '2026-10-25T06:00:00' as faixa_horaria_inicio,
+                        '2026-10-25T20:59:59' as faixa_horaria_fim,
                         cast([] as array<string>) as servicos,
                         true as indicador_viagem_dentro_limite
                     ),
