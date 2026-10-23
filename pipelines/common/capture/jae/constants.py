@@ -108,6 +108,8 @@ VEICULO_TABLE_ID = "veiculo"
 VEICULO_CLIENTE_TABLE_ID = "veiculo_cliente"
 FISCALIZACAO_VEICULO_TABLE_ID = "fiscalizacao_veiculo"
 DENUNCIA_TABLE_ID = "denuncia"
+FISCALIZACAO_TABLE_ID = "fiscalizacao"
+
 
 JAE_TABLE_CAPTURE_PARAMS = {
     TRANSACAO_TABLE_ID: {
@@ -227,6 +229,23 @@ JAE_TABLE_CAPTURE_PARAMS = {
             """,
         "database": "financeiro_db",
         "capture_delay_minutes": {"0": 5, "2025-12-12 22:53:00": 1440},
+    },
+    FISCALIZACAO_TABLE_ID: {
+        "query": """
+                SELECT
+                    f.*,
+                    t.descricao as descricao_tipo_fiscalizacao
+                FROM
+                    fiscalizacao f
+                LEFT JOIN
+                    tipo_fiscalizacao t on f.id_tipo_fiscalizacao = t.id
+                /*WHERE
+                    f.dt_inclusao >= timestamp '{start}' - INTERVAL '{delay} minutes'
+                    AND f.dt_inclusao < timestamp '{end}' - INTERVAL '{delay} minutes'*/
+                ORDER BY id
+            """,
+        "database": "fiscalizacao_db",
+        "capture_delay_minutes": {"0": 5},
     },
     "linha": {
         "query": """
