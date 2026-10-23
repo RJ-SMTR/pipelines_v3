@@ -4,17 +4,21 @@
 from pathlib import Path
 from typing import Optional
 
-import yaml
-from datacontract.data_contract import DataContract
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.capture.data_contract.utils import (
     adapt_contract_schema,
-    add_local_server,
+    add_referenced_sources,
     contract_test_results,
     download_contracts_from_commit,
     format_test_results,
+    keep_checks,
+    keep_relationship_properties,
+    load_contract,
+    referenced_schema_names,
+    remove_relationships,
+    run_contract_test,
 )
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.google_chat import notify_test_failures_google_chat
@@ -45,7 +49,8 @@ def validate_raw_data_contract(
     Valida os arquivos brutos antes do upload usando uma cópia local do contrato.
 
     A reprovação não interrompe a task: os resultados são devolvidos para que
-    check_data_contract notifique as falhas e barre o upload.
+    check_data_contract notifique as falhas e barre o upload. Os relationships são removidos,
+    pois dependem de outras fontes e são validados em validate_data_contract_relationships.
 
     Args:
         context (SourceCaptureContext): Fonte e arquivos brutos capturados.
@@ -61,27 +66,17 @@ def validate_raw_data_contract(
     source = context.source
     if not source.validate_data_contract:
         return None
-    contract_path = next(contracts_dir.rglob(f"{source.data_contract_model}.odcs.yaml"), None)
-    if contract_path is None:
-        raise ValueError(
-            f"Contrato {source.data_contract_model} não encontrado em {contracts_dir}."
-        )
-    contract = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+    contract_path, contract = load_contract(contracts_dir, source.data_contract_model)
     runtime_contract = adapt_contract_schema(
-        contract,
+        remove_relationships(contract),
         ignored_columns=source.data_contract_ignored_columns,
         primary_keys=source.primary_keys,
     )
     results = []
     for raw_filepath in context.captured_raw_filepaths:
-        runtime_contract = add_local_server(
-            runtime_contract, raw_filepath=raw_filepath, file_format=source.raw_filetype
+        result = run_contract_test(
+            runtime_contract, {source.data_contract_model: [raw_filepath]}, source.raw_filetype
         )
-        result = DataContract(
-            data_contract_str=yaml.safe_dump(runtime_contract),
-            server="incoming",
-            include_failed_samples=True,
-        ).test()
         print(
             f"Testando {contract_path.name}\n"
             f"Servidor: incoming (caminho={raw_filepath})\n"
@@ -91,6 +86,81 @@ def validate_raw_data_contract(
             contract_test_results(result, table=source.table_id, partition=context.partition)
         )
     return results
+
+
+@task(cache_policy=NO_CACHE)
+def validate_data_contract_relationships(
+    contexts: list[SourceCaptureContext],
+    contracts_dir: Path | None,
+    validations: list[list[dict] | None],
+) -> list[dict] | None:
+    """
+    Valida os relationships dos contratos com os arquivos brutos das fontes referenciadas.
+
+    Cada fonte com relationships é testada junto com os arquivos das fontes referenciadas,
+    capturadas na mesma execução e na mesma partição, e só os checks de relationship são
+    devolvidos. Fontes com ERROR em validate_raw_data_contract (arquivo ilegível, por exemplo)
+    ficam de fora naquela partição, como origem e como referência, para não repetir a mesma
+    causa na notificação. Uma fonte referenciada que não foi capturada na partição gera um
+    check de relationship com alerta.
+
+    Args:
+        contexts (list[SourceCaptureContext]): Contextos das fontes capturadas.
+        contracts_dir (Path | None): Diretório com os contratos baixados.
+        validations (list[list[dict] | None]): Resultados de validate_raw_data_contract, na
+            mesma ordem de contexts.
+
+    Returns:
+        list[dict] | None: Checks de relationship (ver contract_test_results), ou None quando
+            nenhuma fonte declara relationships.
+
+    Raises:
+        ValueError: Contrato da fonte ou da fonte referenciada não encontrado.
+    """
+    if contracts_dir is None:
+        return None
+    error_sources = {
+        (context.source.data_contract_model, context.partition)
+        for context, validation in zip(contexts, validations, strict=True)
+        if any(result["result"] == "ERROR" for result in validation or [])
+    }
+    contexts_by_source = {
+        (context.source.data_contract_model, context.partition): context for context in contexts
+    }
+    results = []
+    for context in contexts:
+        source = context.source
+        if not source.validate_data_contract or (
+            (source.data_contract_model, context.partition) in error_sources
+        ):
+            continue
+        error_models = {
+            model for model, partition in error_sources if partition == context.partition
+        }
+        contract_path, contract = load_contract(contracts_dir, source.data_contract_model)
+        runtime_contract = adapt_contract_schema(
+            remove_relationships(contract, schema_names=error_models),
+            ignored_columns=source.data_contract_ignored_columns,
+            primary_keys=source.primary_keys,
+        )
+        if not referenced_schema_names(runtime_contract):
+            continue
+        runtime_contract, files_by_schema = add_referenced_sources(
+            runtime_contract, context, contexts_by_source, contracts_dir
+        )
+        result = run_contract_test(
+            keep_relationship_properties(runtime_contract), files_by_schema, source.raw_filetype
+        )
+        keep_checks(result, lambda check: check.type == "field_relationships")
+        print(
+            f"Testando relationships de {contract_path.name}\n"
+            f"Schemas: {', '.join(sorted(files_by_schema))}\n"
+            f"{format_test_results(result)}"
+        )
+        results.extend(
+            contract_test_results(result, table=source.table_id, partition=context.partition)
+        )
+    return results or None
 
 
 @task(cache_policy=NO_CACHE)

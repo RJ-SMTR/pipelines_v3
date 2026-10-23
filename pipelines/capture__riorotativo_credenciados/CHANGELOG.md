@@ -5,6 +5,7 @@
 ### Alterado
 
 - As falhas do contrato de dados enviadas ao Google Chat mostram a partição capturada de cada tabela (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+- Os arquivos brutos são validados a partir de uma cópia em Parquet, mais rápida; os arquivos enviados ao GCS continuam em CSV (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ## [1.0.4] - 2026-10-15
 
