@@ -1,10 +1,10 @@
 # Changelog - control__jae_verificacao_captura
 
-## [1.0.6] - 2026-10-21
+## [1.0.6] - 2026-10-26
 
 ### Adicionado
 
-- Adiciona tabela `fiscalizacao`
+- Adiciona tabela `fiscalizacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/787)
 
 ## [1.0.5] - 2026-08-27
 
