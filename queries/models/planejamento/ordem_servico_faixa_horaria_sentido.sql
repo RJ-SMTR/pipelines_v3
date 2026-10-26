@@ -34,38 +34,9 @@
 with
     dados as (
         select
-            data_versao,
-            safe_cast(tipo_os as string) as tipo_os,
-            safe_cast(servico as string) as servico,
-            safe_cast(sentido as string) as sentido,
-            safe_cast(json_value(content, '$.vista') as string) as vista,
-            safe_cast(json_value(content, '$.consorcio') as string) as consorcio,
-            safe_cast(json_value(content, '$.extensao') as float64) as extensao,
-            {% for dia in dias %}
-                {% for intervalo in intervalos %}
-                    safe_cast(
-                        json_value(
-                            content,
-                            "$.partidas_entre_{{ intervalo.inicio }}h_a_{{ intervalo.fim }}h_{{ dia|lower }}"
-                        ) as string
-                    )
-                    as {{ "partidas_entre_" ~ intervalo.inicio ~ "h_a_" ~ intervalo.fim ~ "h_" ~ dia | lower }},
-                    safe_cast(
-                        json_value(
-                            content,
-                            "$.quilometragem_entre_{{ intervalo.inicio }}h_a_{{ intervalo.fim }}h_{{ dia|lower }}"
-                        ) as string
-                    )
-                    as {{ "quilometragem_entre_" ~ intervalo.inicio ~ "h_a_" ~ intervalo.fim ~ "h_" ~ dia | lower }},
-                {% endfor %}
-            {% endfor %}
-        from
-            {{
-                source(
-                    "source_gtfs",
-                    "ordem_servico_faixa_horaria_sentido",
-                )
-            }}
+            * except (extensao, timestamp_captura),
+            safe_cast(extensao as float64) as extensao
+        from {{ ref("staging_ordem_servico_faixa_horaria_sentido") }}
         {% if is_incremental() -%}
             where data_versao = '{{ var("data_versao_gtfs") }}'
         {% endif %}
