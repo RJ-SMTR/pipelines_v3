@@ -1,0 +1,61 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_frequencies
+name: gtfs_staging/staging_frequencies
+status: active
+schema:
+- name: staging_frequencies
+  physicalType: view
+  description: |
+    Uma linha por intervalo (trip_id, start_time) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo frequencies.txt.
+    Fonte: capturas do GTFS (source_gtfs.frequencies).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` e `trip_id`.
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.frequencies
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] [partição]
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: trip_id
+    physicalType: STRING
+    description: Código identificador de trip de referência no GTFS
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+    relationships:
+    - type: foreignKey
+      to: staging_trips.trip_id
+  - name: start_time
+    physicalType: STRING
+    description: Hora em que o primeiro veículo sai da primeira parada da viagem com
+      o intervalo especificado
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 3
+  - name: end_time
+    physicalType: STRING
+    description: Hora em que o serviço muda para um intervalo diferente [ou cessa]
+      na primeira parada da viagem
+    logicalType: string
+  - name: headway_secs
+    physicalType: STRING
+    description: Tempo entre partidas da mesma parada [intervalo] da viagem, durante
+      o intervalo de tempo especificado por start_time e end_time (segundos)
+    logicalType: string
+  - name: exact_times
+    physicalType: STRING
+    description: Indica o tipo de serviço para uma viagem
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11
