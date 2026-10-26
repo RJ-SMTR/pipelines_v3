@@ -322,6 +322,8 @@ selectors:
         - method: fqn
           value: staging_transacao_retificada
         - method: fqn
+          value: staging_fiscalizacao
+        - method: fqn
           value: transacao_retificada
         - method: fqn
           value: transacao
