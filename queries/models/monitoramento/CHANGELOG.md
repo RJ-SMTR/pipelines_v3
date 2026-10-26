@@ -1,5 +1,19 @@
 # Changelog - monitoramento
 
+## [2.5.1] - 2026-10-22
+
+### Adicionado
+
+- Cria o teste `sequential_order__sequencial_viagem__viagem_informada_monitoramento`, que aponta viagens da Conecta inseridas após viagens de datas posteriores (https://github.com/RJ-SMTR/pipelines_v3/pull/790)
+
+### Alterado
+
+- Altera o teste `dbt_utils__sequential_values__sequencial_viagem__viagem_informada_monitoramento` para usar o intervalo do teste estendido em `viagem_validacao_max_age_days` dias, em vez da tabela inteira (https://github.com/RJ-SMTR/pipelines_v3/pull/790)
+
+### Corrigido
+
+- Corrige os testes de `sequencial_viagem` em `viagem_informada_monitoramento` para filtrar por `fonte_viagem` (Maxtrack e Conecta) em vez de `fonte_gps` (https://github.com/RJ-SMTR/pipelines_v3/pull/790)
+
 ## [2.5.0] - 2026-10-20
 
 ### Adicionado
