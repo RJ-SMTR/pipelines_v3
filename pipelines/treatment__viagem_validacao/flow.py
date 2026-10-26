@@ -2,6 +2,11 @@
 """
 Flow de materialização de viagem validação
 
+Parâmetros:
+
+- use_partition_dates: se True, reprocessa as partições do intervalo informado
+  (datetime_start/datetime_end) em vez das partições modificadas no upstream
+
 DBT: 2026-05-07
 """
 
@@ -24,7 +29,11 @@ def treatment__viagem_validacao(  # noqa: PLR0913
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
     skip_source_check: bool = False,
+    use_partition_dates: bool = False,
 ):
+    if use_partition_dates:
+        additional_vars = (additional_vars or {}) | {"use_partition_dates": True}
+
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.VIAGEM_VALIDACAO_SELECTOR],
