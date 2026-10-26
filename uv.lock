@@ -25,6 +25,7 @@ members = [
     "capture-jae-backup-billingpay",
     "capture-jae-denuncia",
     "capture-jae-estacionamento-veiculo",
+    "capture-jae-fiscalizacao",
     "capture-jae-fiscalizacao-veiculo",
     "capture-jae-gps-validador",
     "capture-jae-integracao",
@@ -465,6 +466,11 @@ source = { virtual = "pipelines/capture__jae_denuncia" }
 name = "capture-jae-estacionamento-veiculo"
 version = "0.1.0"
 source = { virtual = "pipelines/capture__jae_estacionamento_veiculo" }
+
+[[package]]
+name = "capture-jae-fiscalizacao"
+version = "0.1.0"
+source = { virtual = "pipelines/capture__jae_fiscalizacao" }
 
 [[package]]
 name = "capture-jae-fiscalizacao-veiculo"
