@@ -3,7 +3,8 @@
 -- option. Alternates are chosen by sequence distance from the prediction, nearest
 -- first (the stop before and the stop after), then by walking distance to the
 -- rider's next boarding location to break ties (e.g. which of the two stops two
--- places away). Only stops after the boarding stop are eligible. Trips whose
+-- places away), then by stop sequence so loop routes that visit a stop twice rank
+-- deterministically. Only stops after the boarding stop are eligible. Trips whose
 -- prediction sits at the end of the route get alternates on the other side.
 -- display_order is a deterministic shuffle so the prediction is not always first.
 {{
@@ -77,7 +78,11 @@ with
             *,
             row_number() over (
                 partition by service_date, rider_id, trip_sequence
-                order by sequence_offset = 0 desc, abs(sequence_offset), walk_distance_m
+                order by
+                    sequence_offset = 0 desc,
+                    abs(sequence_offset),
+                    walk_distance_m,
+                    stop_sequence
             ) as option_rank
         from options
     )
