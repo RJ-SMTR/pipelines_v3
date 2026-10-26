@@ -5,6 +5,7 @@
 ### Alterado
 
 - O título das notificações dos testes dbt no Google Chat e no Discord mostra o feed testado (`data_versao_gtfs`), em vez da janela de execução; no Google Chat, o nome do selector sai do título, como no Discord (https://github.com/RJ-SMTR/pipelines_v3/pull/786)
+- Os testes dbt notificados passam a incluir o `not_null` e o relationship de `shape_id` em `staging_trips`, que substituem o `test_shape_id_gtfs` de `trips_gtfs`, o teste de regex de `trip_headsign` e os relationships de `route_id` e `service_id` em `staging_trips`, os relationships de `stop_times` e `frequencies`, os relationships de `tipo_os` e `servico` entre os stagings de trajetos alternativos e de faixas horárias da OS e o teste de `extensao` positiva na faixa horária (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ## [1.0.2] - 2026-10-19
 
