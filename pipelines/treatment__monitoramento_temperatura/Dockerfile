@@ -20,6 +20,8 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 
 COPY ./pipelines/treatment__gps_conecta ./pipelines/treatment__gps_conecta/
 
+COPY ./pipelines/treatment__gps_maxtrack ./pipelines/treatment__gps_maxtrack/
+
 COPY ./pipelines/treatment__gps_zirix ./pipelines/treatment__gps_zirix/
 
 COPY ./pipelines/capture__rioonibus_viagem_informada ./pipelines/capture__rioonibus_viagem_informada/
@@ -31,6 +33,10 @@ COPY ./pipelines/capture__conecta_realocacao ./pipelines/capture__conecta_realoc
 COPY ./pipelines/capture__zirix_registros ./pipelines/capture__zirix_registros/
 
 COPY ./pipelines/capture__zirix_realocacao ./pipelines/capture__zirix_realocacao/
+
+COPY ./pipelines/capture__maxtrack_viagem_informada ./pipelines/capture__maxtrack_viagem_informada/
+
+COPY ./pipelines/capture__maxtrack_registros ./pipelines/capture__maxtrack_registros/
 
 COPY ./pipelines/common/ ./pipelines/common/
 
