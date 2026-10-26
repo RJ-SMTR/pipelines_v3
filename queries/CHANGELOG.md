@@ -1,5 +1,11 @@
 # Changelog - queries
 
+## [1.2.2] - 2026-10-21
+
+### Removido
+
+- Remove o macro `test_shape_id_gtfs`, substituído pelo relationship de `shape_id` em `staging_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ## [1.2.1] - 2026-10-15
 
 ### Corrigido
