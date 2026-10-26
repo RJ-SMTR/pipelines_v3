@@ -4,13 +4,16 @@
 import json
 import os
 import re
-from collections.abc import Iterable
+from collections import defaultdict
+from collections.abc import Callable, Iterable, Iterator
 from copy import deepcopy
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from textwrap import wrap
 from typing import Any, Optional
 from urllib.parse import quote
 
+import duckdb
 import requests
 import yaml
 from datacontract.data_contract import DataContract
@@ -22,11 +25,13 @@ from pipelines.common.capture.data_contract.constants import (
     DEFAULT_MANIFEST,
     GITHUB_API,
     METRIC_LABELS,
+    PROPERTY_RULE_KEYS,
     REQUEST_TIMEOUT,
     RESULT_LABELS,
     ROOT,
 )
 from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.utils import is_running_locally
 
 REASON_PATTERN = re.compile(
@@ -457,6 +462,278 @@ def adapt_contract_schema(
     return adapted_contract
 
 
+def load_contract(contracts_dir: Path, model: str) -> tuple[Path, dict[str, Any]]:
+    """
+    Carrega o contrato de um modelo a partir do diretório de contratos.
+
+    Args:
+        contracts_dir (Path): Diretório com os contratos baixados.
+        model (str): Nome do modelo dbt do contrato.
+
+    Returns:
+        tuple[Path, dict[str, Any]]: Caminho e conteúdo do contrato.
+
+    Raises:
+        ValueError: Contrato não encontrado.
+    """
+    contract_path = next(contracts_dir.rglob(f"{model}.odcs.yaml"), None)
+    if contract_path is None:
+        raise ValueError(f"Contrato {model} não encontrado em {contracts_dir}.")
+    return contract_path, yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+
+
+def relationship_targets(relationship: dict[str, Any]) -> list[tuple[str, str]]:
+    """
+    Retorna o schema e a coluna de cada destino de um relationship.
+
+    Args:
+        relationship (dict[str, Any]): Relationship ODCS, com to no formato schema.coluna.
+
+    Returns:
+        list[tuple[str, str]]: Pares (schema, coluna) citados em relationship.to.
+    """
+    targets = relationship["to"]
+    targets = targets if isinstance(targets, list) else [targets]
+    return [tuple(target.rsplit(".", 1)) for target in targets]
+
+
+def iter_relationships(
+    contract: dict[str, Any],
+) -> Iterator[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    """
+    Percorre os relationships declarados nas colunas do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Yields:
+        tuple[dict[str, Any], dict[str, Any], dict[str, Any]]: Schema, coluna e relationship.
+    """
+    for schema in contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            for relationship in property_.get("relationships") or []:
+                yield schema, property_, relationship
+
+
+def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
+    """
+    Retorna os schemas referenciados pelos relationships do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        set[str]: Nomes dos schemas citados em relationships.to.
+    """
+    return {
+        schema_name
+        for _, _, relationship in iter_relationships(contract)
+        for schema_name, _ in relationship_targets(relationship)
+    }
+
+
+def remove_relationships(
+    contract: dict[str, Any], schema_names: Optional[Iterable[str]] = None
+) -> dict[str, Any]:
+    """
+    Remove os relationships do contrato, todos ou só os que referenciam os schemas informados.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+        schema_names (Optional[Iterable[str]]): Schemas referenciados cujos relationships são
+            removidos. None remove todos.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato sem os relationships removidos.
+    """
+    names = None if schema_names is None else set(schema_names)
+
+    def is_removed(relationship: dict[str, Any]) -> bool:
+        targets = {schema_name for schema_name, _ in relationship_targets(relationship)}
+        return names is None or bool(targets & names)
+
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            relationships = [
+                relationship
+                for relationship in property_.pop("relationships", None) or []
+                if not is_removed(relationship)
+            ]
+            if relationships:
+                property_["relationships"] = relationships
+    return adapted_contract
+
+
+def relationship_columns(contract: dict[str, Any]) -> dict[str, set[str]]:
+    """
+    Retorna as colunas de origem e de destino dos relationships, agrupadas por schema.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        dict[str, set[str]]: Colunas que participam dos relationships, por schema.
+    """
+    columns = defaultdict(set)
+    for schema, property_, relationship in iter_relationships(contract):
+        columns[schema["name"]].add(property_["name"])
+        for schema_name, column in relationship_targets(relationship):
+            columns[schema_name].add(column)
+    return columns
+
+
+def keep_relationship_properties(contract: dict[str, Any]) -> dict[str, Any]:
+    """
+    Mantém em cada schema só as colunas que participam dos relationships do contrato.
+
+    O teste dos relationships não repete as verificações da validação individual: as demais
+    colunas, as regras de qualidade e as chaves são removidas.
+
+    Args:
+        contract (dict[str, Any]): Contrato com os schemas da origem e das referências.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato só com as colunas dos relationships.
+    """
+    columns = relationship_columns(contract)
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract["schema"]:
+        schema.pop("quality", None)
+        schema["properties"] = [
+            {key: value for key, value in property_.items() if key not in PROPERTY_RULE_KEYS}
+            for property_ in schema.get("properties", [])
+            if property_["name"] in columns[schema["name"]]
+        ]
+    return adapted_contract
+
+
+def add_referenced_schema(
+    contract: dict[str, Any], referenced_contract: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    Anexa ao contrato os schemas de outro contrato, sem os relationships deles.
+
+    Os schemas anexados só servem de referência: seus próprios relationships são validados
+    quando a fonte deles é a origem.
+
+    Args:
+        contract (dict[str, Any]): Contrato que declara os relationships.
+        referenced_contract (dict[str, Any]): Contrato do schema referenciado.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato com os schemas referenciados.
+    """
+    adapted_contract = deepcopy(contract)
+    adapted_contract["schema"].extend(remove_relationships(referenced_contract)["schema"])
+    return adapted_contract
+
+
+def add_referenced_sources(
+    contract: dict,
+    context: SourceCaptureContext,
+    contexts_by_source: dict[tuple[str, str], SourceCaptureContext],
+    contracts_dir: Path,
+) -> tuple[dict, dict[str, list[str]]]:
+    """
+    Anexa ao contrato os schemas referenciados pelos relationships e reúne os arquivos brutos.
+
+    As referências vêm da mesma partição da fonte: numa recaptura, cada partição é validada
+    com os arquivos da sua própria captura. Um schema referenciado sem fonte capturada nessa
+    partição não é anexado; o datacontract gera um check de relationship com alerta para ele.
+
+    Args:
+        contract (dict): Contrato da fonte, já adaptado.
+        context (SourceCaptureContext): Contexto da fonte que declara os relationships.
+        contexts_by_source (dict[tuple[str, str], SourceCaptureContext]): Contextos da
+            execução por modelo e partição.
+        contracts_dir (Path): Diretório com os contratos baixados.
+
+    Returns:
+        tuple[dict, dict[str, list[str]]]: Contrato com os schemas referenciados e arquivos
+            brutos de cada schema.
+    """
+    files_by_schema = {context.source.data_contract_model: context.captured_raw_filepaths}
+    for schema_name in sorted(referenced_schema_names(contract)):
+        referenced_context = contexts_by_source.get((schema_name, context.partition))
+        if referenced_context is None:
+            print(f"{schema_name} sem captura em {context.partition}; relationship não verificado.")
+            continue
+        _, referenced_contract = load_contract(contracts_dir, schema_name)
+        contract = add_referenced_schema(
+            contract,
+            adapt_contract_schema(
+                referenced_contract,
+                ignored_columns=referenced_context.source.data_contract_ignored_columns,
+            ),
+        )
+        files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
+    return contract, files_by_schema
+
+
+def validation_format(file_format: str, convert: bool = True) -> str:
+    """
+    Retorna o formato em que o arquivo bruto é validado.
+
+    O CSV é validado como Parquet: o datacontract relê o CSV a cada verificação de presença de
+    coluna, enquanto no Parquet o schema vem dos metadados do arquivo.
+
+    Args:
+        file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
+
+    Returns:
+        str: Formato usado na validação.
+    """
+    return "parquet" if convert and file_format == "csv" else file_format
+
+
+def prepare_raw_file(source: str, target: Path, file_format: str, convert: bool = True) -> None:
+    """
+    Prepara uma cópia do arquivo bruto para a validação, no formato de validation_format.
+
+    O CSV é convertido em Parquet com todas as colunas como texto, como no CSV; os demais
+    formatos recebem um link. O arquivo bruto original não é alterado.
+
+    Args:
+        source (str): Caminho do arquivo bruto.
+        target (Path): Caminho do arquivo preparado, sem extensão.
+        file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
+
+    Raises:
+        duckdb.Error: O CSV não pôde ser lido na conversão.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    path = target.with_suffix(f".{validation_format(file_format, convert)}")
+    if validation_format(file_format, convert) == file_format:
+        path.symlink_to(Path(source).resolve())
+        return
+    source_sql = str(Path(source).resolve()).replace("'", "''")
+    path_sql = str(path).replace("'", "''")
+    with duckdb.connect() as connection:
+        connection.sql(
+            f"COPY (SELECT * FROM read_csv('{source_sql}', all_varchar = true, header = true)) "
+            f"TO '{path_sql}' (FORMAT parquet)"
+        )
+
+
+def keep_checks(run: Run, condition: Callable[[Any], bool]) -> Run:
+    """
+    Mantém no resultado do teste só os checks que atendem à condição.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        condition (Callable[[Any], bool]): Condição que o check deve atender.
+
+    Returns:
+        Run: O mesmo resultado, com os checks filtrados e o resultado recalculado.
+    """
+    run.checks = [check for check in run.checks if condition(check)]
+    run.calculate_result()
+    return run
+
+
 def add_local_server(
     contract: dict[str, Any],
     raw_filepath: str,
@@ -484,6 +761,92 @@ def add_local_server(
     return adapted_contract
 
 
+def run_prepared_contract_test(
+    contract: dict[str, Any],
+    files_by_schema: dict[str, list[str]],
+    file_format: str,
+    convert: bool,
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos de cada schema, preparados em um diretório temporário.
+
+    Os checks de tipo são removidos: o datacontract não os executa nos arquivos validados como
+    Parquet e não os gera para CSV, então o resultado é o mesmo do arquivo bruto.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+        convert (bool): Se os arquivos CSV são convertidos em Parquet.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+
+    Raises:
+        duckdb.Error: Um CSV não pôde ser lido na conversão.
+    """
+    with TemporaryDirectory() as folder:
+        for schema_name, filepaths in files_by_schema.items():
+            for position, filepath in enumerate(filepaths):
+                prepare_raw_file(
+                    filepath, Path(folder) / schema_name / str(position), file_format, convert
+                )
+        server_contract = add_local_server(
+            contract,
+            raw_filepath=str(Path(folder) / "{model}" / "*"),
+            file_format=validation_format(file_format, convert),
+        )
+        run = DataContract(
+            data_contract_str=yaml.safe_dump(server_contract),
+            server="incoming",
+            include_failed_samples=True,
+        ).test()
+    return keep_checks(run, lambda check: check.type != "field_type")
+
+
+def run_contract_test(
+    contract: dict[str, Any], files_by_schema: dict[str, list[str]], file_format: str
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos, validando os CSV como Parquet.
+
+    Se um CSV não puder ser lido na conversão (por exemplo, com codificação inválida), o teste
+    é refeito com os arquivos originais: o datacontract devolve os checks com erro, que são
+    notificados antes de barrar o upload, em vez de interromper a task.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+    """
+    try:
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=True)
+    except duckdb.Error as error:
+        print(f"Arquivo bruto não convertido para Parquet ({error}); validando o arquivo original.")
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=False)
+
+
+def declares_contract(node: dict[str, Any]) -> bool:
+    """
+    Indica se o node é um modelo staging_ com datacontract_cli nos metadados dele ou das colunas.
+
+    Args:
+        node (dict[str, Any]): Node do manifest dbt.
+
+    Returns:
+        bool: True quando o contrato do modelo deve ser gerado.
+    """
+    if node["resource_type"] != "model" or not node["name"].startswith("staging_"):
+        return False
+    return any(
+        "datacontract_cli" in ((item.get("config") or {}).get("meta") or item.get("meta") or {})
+        for item in [node, *node["columns"].values()]
+    )
+
+
 def generate_contracts(
     *,
     manifest_path: Path = DEFAULT_MANIFEST,
@@ -508,21 +871,7 @@ def generate_contracts(
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     generated_paths = set()
     for model in sorted(manifest["nodes"].values(), key=lambda node: node["name"]):
-        if model["resource_type"] != "model" or not model["name"].startswith("staging_"):
-            continue
-
-        columns = model["columns"]
-        nodes_to_check = [model]
-        nodes_to_check.extend(columns.values())
-        has_contract = False
-        for node in nodes_to_check:
-            config = node.get("config") or {}
-            metadata = config.get("meta") or node.get("meta") or {}
-            if "datacontract_cli" in metadata:
-                has_contract = True
-                break
-
-        if not has_contract:
+        if not declares_contract(model):
             continue
 
         model_name = model["name"]
