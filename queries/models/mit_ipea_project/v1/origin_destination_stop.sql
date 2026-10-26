@@ -74,6 +74,7 @@ with
     boarding as (
         select
             t.*,
+            se.feed_version,
             se.direction_id,
             case
                 when se.direction_id = t.transaction_direction_id
@@ -117,79 +118,53 @@ with
             = 1
     ),
 
-    -- CTE 2: Trip chaining, the next tap's boarding stop
+    -- CTE 2: Trip chaining. The next tap's boarding fields travel together in one
+    -- struct: the following tap for most taps, the day's first tap for the last one
     chained as (
         select
             *,
             case
                 when chain_position != 'last'
                 then
-                    lead(boarding_time) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
+                    lead(
+                        struct(
+                            boarding_time,
+                            boarding_vehicle_id,
+                            boarding_stop_id,
+                            boarding_stop_geography,
+                            tap_location
+                        )
+                    ) over (partition by service_date, rider_id order by trip_sequence)
                 else
-                    first_value(boarding_time) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-            end as next_boarding_time,
-            case
-                when chain_position != 'last'
-                then
-                    lead(boarding_vehicle_id) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-                else
-                    first_value(boarding_vehicle_id) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-            end as next_boarding_vehicle_id,
-            case
-                when chain_position != 'last'
-                then
-                    lead(boarding_stop_id) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-                else
-                    first_value(boarding_stop_id) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-            end as next_boarding_stop_id,
-            case
-                when chain_position != 'last'
-                then
-                    lead(boarding_stop_geography) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-                else
-                    first_value(boarding_stop_geography) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-            end as next_boarding_stop_geography,
-            case
-                when chain_position != 'last'
-                then
-                    lead(tap_location) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-                else
-                    first_value(tap_location) over (
-                        partition by service_date, rider_id order by trip_sequence
-                    )
-            end as next_tap_location
+                    first_value(
+                        struct(
+                            boarding_time,
+                            boarding_vehicle_id,
+                            boarding_stop_id,
+                            boarding_stop_geography,
+                            tap_location
+                        )
+                    ) over (partition by service_date, rider_id order by trip_sequence)
+            end as nxt
         from boarding
     ),
 
     -- Next boarding location: the next tap's stop when known, else its tap point
     with_next_location as (
         select
-            *,
+            * except (nxt),
+            nxt.boarding_time as next_boarding_time,
+            nxt.boarding_vehicle_id as next_boarding_vehicle_id,
+            nxt.boarding_stop_id as next_boarding_stop_id,
+            nxt.boarding_stop_geography as next_boarding_stop_geography,
+            nxt.tap_location as next_tap_location,
             coalesce(
-                next_boarding_stop_geography, next_tap_location
+                nxt.boarding_stop_geography, nxt.tap_location
             ) as next_boarding_location,
             case
-                when next_boarding_stop_geography is not null
+                when nxt.boarding_stop_geography is not null
                 then 'stop'
-                when next_tap_location is not null
+                when nxt.tap_location is not null
                 then 'tap'
             end as next_boarding_location_source
         from chained
@@ -259,6 +234,7 @@ select
     chain_position,
     boarding_time,
     boarding_vehicle_id,
+    feed_version,
     route_id,
     servico,
     transaction_direction_id,
