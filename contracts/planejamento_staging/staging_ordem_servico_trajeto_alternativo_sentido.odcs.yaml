@@ -15,7 +15,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
     primaryKey: true
     primaryKeyPosition: 1
@@ -26,6 +26,9 @@ schema:
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 2
+    relationships:
+    - type: foreignKey
+      to: staging_ordem_servico_faixa_horaria_sentido.servico
   - name: consorcio
     physicalType: STRING
     description: Consórcio ao qual o serviço pertence
@@ -36,6 +39,9 @@ schema:
     logicalType: string
     primaryKey: true
     primaryKeyPosition: 4
+    relationships:
+    - type: foreignKey
+      to: staging_ordem_servico_faixa_horaria_sentido.tipo_os
   - name: vista
     physicalType: STRING
     description: 'Itinerário do serviço [ex: Bananal ↔ Saens Peña]'
@@ -63,7 +69,7 @@ schema:
       arguments:
         pattern: ^\[[a-z0-9_]+\]$
       description: Todos os valores de `evento` em `staging_ordem_servico_trajeto_alternativo_sentido`
-        estão no formato `[a-z0-9_]`, entre colchetes (sem acentos ou caracteres especiais).
+        estão no formato `[a-z0-9_]`, entre colchetes [sem acentos ou caracteres especiais].
   - name: descricao
     physicalType: STRING
     description: Descrição sobre o trajeto alternativo
