@@ -19,15 +19,13 @@ select
     fi.feed_version,
     s.data_versao as feed_start_date,
     fi.feed_end_date,
-    safe_cast(s.shape_id as string) shape_id,
-    safe_cast(json_value(s.content, '$.shape_pt_lat') as float64) shape_pt_lat,
-    safe_cast(json_value(s.content, '$.shape_pt_lon') as float64) shape_pt_lon,
+    s.shape_id,
+    safe_cast(s.shape_pt_lat as float64) shape_pt_lat,
+    safe_cast(s.shape_pt_lon as float64) shape_pt_lon,
     safe_cast(s.shape_pt_sequence as int64) shape_pt_sequence,
-    safe_cast(
-        json_value(s.content, '$.shape_dist_traveled') as float64
-    ) shape_dist_traveled,
+    safe_cast(s.shape_dist_traveled as float64) shape_dist_traveled,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "shapes") }} s
+from {{ ref("staging_shapes") }} s
 join {{ ref("feed_info_gtfs") }} fi on s.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where

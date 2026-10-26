@@ -16,7 +16,7 @@ schema:
   properties:
   - name: data_versao
     physicalType: DATE
-    description: Data de referência do planejamento [versão] (partição)
+    description: Data de referência do planejamento [versão] [partição]
     logicalType: date
   - name: feed_publisher_name
     physicalType: STRING
@@ -37,11 +37,11 @@ schema:
     logicalType: string
   - name: feed_start_date
     physicalType: STRING
-    description: Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)
+    description: Data inicial do serviço coberto pelo conjunto de dados [YYYYMMDD]
     logicalType: string
   - name: feed_end_date
     physicalType: STRING
-    description: Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)
+    description: Data final do serviço coberto pelo conjunto de dados [YYYYMMDD]
     logicalType: string
   - name: feed_version
     physicalType: STRING
