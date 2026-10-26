@@ -1,10 +1,16 @@
 # Changelog - queries
 
-## [1.2.2] - 2026-10-22
+## [1.2.3] - 2026-10-22
 
 ### Adicionado
 
 - Cria o teste genérico `sequential_order`, que aponta registros cuja coluna sequencial é maior que a de registros com valor posterior na coluna de ordenação (https://github.com/RJ-SMTR/pipelines_v3/pull/790)
+
+## [1.2.2] - 2026-10-21
+
+### Removido
+
+- Remove o macro `test_shape_id_gtfs`, substituído pelo relationship de `shape_id` em `staging_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
 
 ## [1.2.1] - 2026-10-15
 

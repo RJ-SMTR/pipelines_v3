@@ -15,7 +15,7 @@ models:
               mustBe: 1
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: feed_publisher_name
         description: "{{ doc('feed_publisher_name') }}"
@@ -30,10 +30,10 @@ models:
         description: "{{ doc('default_lang') }}"
         data_type: string
       - name: feed_start_date
-        description: "Data inicial do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        description: "Data inicial do serviço coberto pelo conjunto de dados [YYYYMMDD]"
         data_type: string
       - name: feed_end_date
-        description: "Data final do serviço coberto pelo conjunto de dados (YYYYMMDD)"
+        description: "Data final do serviço coberto pelo conjunto de dados [YYYYMMDD]"
         data_type: string
       - name: feed_version
         description: "{{ doc('feed_version') }}"
@@ -61,7 +61,7 @@ models:
           primaryKey: [data_versao, service_id]
     columns:
       - name: data_versao
-        description: "{{ doc('data_versao') }} (partição)"
+        description: "{{ doc('data_versao') }} [partição]"
         data_type: date
       - name: service_id
         description: "{{ doc('service_id') }}"
@@ -96,10 +96,378 @@ models:
         description: "{{ doc('sunday') }}"
         data_type: string
       - name: start_date
-        description: "Dia inicial do intervalo de serviço (YYYYMMDD)"
+        description: "Dia inicial do intervalo de serviço [YYYYMMDD]"
         data_type: string
       - name: end_date
-        description: "Dia final do intervalo de serviço (YYYYMMDD)"
+        description: "Dia final do intervalo de serviço [YYYYMMDD]"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_trips
+    description: |
+      Uma linha por viagem (trip_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo trips.txt.
+      Fonte: capturas do GTFS (source_gtfs.trips).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `trip_id`.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, trip_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__route_id__staging_trips
+              config:
+                description: "Todas as viagens pertencem a uma rota cadastrada no GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_routes')
+                field: route_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: service_id
+        description: "{{ doc('service_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__service_id__staging_trips
+              config:
+                description: "Todos os calendários de serviço das viagens estão cadastrados no GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_calendar')
+                field: service_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+      - name: trip_headsign
+        description: "{{ doc('trip_headsign') }}"
+        data_type: string
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              name: dbt_expectations__expect_column_values_to_match_regex__trip_headsign__staging_trips
+              config:
+                description: "Todos os `trip_headsign` de `trips` com evento de trajeto alternativo terminam com o evento no formato `[a-z0-9_]`, entre colchetes"
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+              arguments:
+                regex: '^[^\[\]{}]*(?:\[[a-z0-9_]+\])?\s*$'
+                is_raw: true
+      - name: trip_short_name
+        description: "{{ doc('trip_short_name') }}"
+        data_type: string
+      - name: direction_id
+        description: "{{ doc('direction_id') }}"
+        data_type: string
+      - name: block_id
+        description: "{{ doc('block_id') }}"
+        data_type: string
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+        data_tests:
+          - not_null:
+              name: not_null__shape_id__staging_trips
+              config:
+                description: "Todos os `shape_id` de `trips` estão preenchidos"
+                where: "data_versao = '{{ var('data_versao_gtfs') }}'"
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__shape_id__staging_trips
+              config:
+                description: "Todos os `shape_id` de `trips` constam em `shapes`"
+                where: "1=1"
+              arguments:
+                to: ref('staging_shapes')
+                field: shape_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: wheelchair_accessible
+        description: "{{ doc('wheelchair_accessible') }}"
+        data_type: string
+      - name: bikes_allowed
+        description: "{{ doc('bikes_allowed') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_shapes
+    description: |
+      Uma linha por ponto (shape_id, shape_pt_sequence) por versão do GTFS (data_versao), com os nomes das colunas do arquivo shapes.txt.
+      Fonte: capturas do GTFS (source_gtfs.shapes).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `shape_id`.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, shape_id, shape_pt_sequence]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: shape_id
+        description: "{{ doc('shape_id') }}"
+        data_type: string
+      - name: shape_pt_lat
+        description: "{{ doc('shape_pt_lat') }}"
+        data_type: string
+      - name: shape_pt_lon
+        description: "{{ doc('shape_pt_lon') }}"
+        data_type: string
+      - name: shape_pt_sequence
+        description: "{{ doc('shape_pt_sequence') }}"
+        data_type: string
+      - name: shape_dist_traveled
+        description: "{{ doc('shape_dist_traveled') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_stops
+    description: |
+      Uma linha por local (stop_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo stops.txt.
+      Fonte: capturas do GTFS (source_gtfs.stops).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `stop_id`.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, stop_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: stop_id
+        description: "{{ doc('stop_id') }}"
+        data_type: string
+      - name: stop_code
+        description: "{{ doc('stop_code') }}"
+        data_type: string
+      - name: stop_name
+        description: "{{ doc('stop_name') }}"
+        data_type: string
+      - name: tts_stop_name
+        description: "{{ doc('tts_stop_name') }}"
+        data_type: string
+      - name: stop_desc
+        description: "{{ doc('stop_desc') }}"
+        data_type: string
+      - name: stop_lat
+        description: "{{ doc('stop_lat') }}"
+        data_type: string
+      - name: stop_lon
+        description: "{{ doc('stop_lon') }}"
+        data_type: string
+      - name: zone_id
+        description: "{{ doc('zone_id') }}"
+        data_type: string
+      - name: stop_url
+        description: "{{ doc('stop_url') }}"
+        data_type: string
+      - name: location_type
+        description: "{{ doc('location_type') }}"
+        data_type: string
+      - name: parent_station
+        description: "{{ doc('parent_station') }}"
+        data_type: string
+      - name: stop_timezone
+        description: "{{ doc('stop_timezone') }}"
+        data_type: string
+      - name: wheelchair_boarding
+        description: "{{ doc('wheelchair_boarding') }}"
+        data_type: string
+      - name: level_id
+        description: "{{ doc('level_id') }}"
+        data_type: string
+      - name: platform_code
+        description: "{{ doc('platform_code') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_routes
+    description: |
+      Uma linha por rota (route_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo routes.txt.
+      Fonte: capturas do GTFS (source_gtfs.routes).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `route_id`.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, route_id]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: route_id
+        description: "{{ doc('route_id') }}"
+        data_type: string
+      - name: agency_id
+        description: "{{ doc('agency_id') }}"
+        data_type: string
+      - name: route_short_name
+        description: "{{ doc('route_short_name') }}"
+        data_type: string
+      - name: route_long_name
+        description: "{{ doc('route_long_name') }}"
+        data_type: string
+      - name: route_desc
+        description: "{{ doc('route_desc') }}"
+        data_type: string
+      - name: route_type
+        description: "{{ doc('route_type') }}"
+        data_type: string
+      - name: route_url
+        description: "{{ doc('route_url') }}"
+        data_type: string
+      - name: route_color
+        description: "{{ doc('route_color') }}"
+        data_type: string
+      - name: route_text_color
+        description: "{{ doc('route_text_color') }}"
+        data_type: string
+      - name: route_sort_order
+        description: "{{ doc('route_sort_order') }}"
+        data_type: string
+      - name: continuous_pickup
+        description: "{{ doc('continuous_pickup_route') }}"
+        data_type: string
+      - name: continuous_drop_off
+        description: "{{ doc('continuous_drop_off_route') }}"
+        data_type: string
+      - name: network_id
+        description: "{{ doc('network_id') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_stop_times
+    description: |
+      Uma linha por parada (trip_id, stop_sequence) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo stop_times.txt.
+      Fonte: capturas do GTFS (source_gtfs.stop_times).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` com `trip_id` (viagem) ou `stop_id` (parada).
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, trip_id, stop_sequence]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__trip_id__staging_stop_times
+              config:
+                description: "Todas as paradas programadas pertencem a uma viagem do GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_trips')
+                field: trip_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: arrival_time
+        description: "{{ doc('arrival_time') }}"
+        data_type: string
+      - name: departure_time
+        description: "{{ doc('departure_time') }}"
+        data_type: string
+      - name: stop_id
+        description: "{{ doc('stop_id_stop_time') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__stop_id__staging_stop_times
+              config:
+                description: "Todas as paradas programadas das viagens estão cadastradas no GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_stops')
+                field: stop_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: stop_sequence
+        description: "{{ doc('stop_sequence') }}"
+        data_type: string
+      - name: stop_headsign
+        description: "{{ doc('trip_headsign') }}"
+        data_type: string
+      - name: pickup_type
+        description: "{{ doc('pickup_type') }}"
+        data_type: string
+      - name: drop_off_type
+        description: "{{ doc('drop_off_type') }}"
+        data_type: string
+      - name: continuous_pickup
+        description: "{{ doc('continuous_pickup_stop_time') }}"
+        data_type: string
+      - name: continuous_drop_off
+        description: "{{ doc('continuous_drop_off_stop_time') }}"
+        data_type: string
+      - name: shape_dist_traveled
+        description: "{{ doc('shape_dist_traveled_stop_time') }}"
+        data_type: string
+      - name: timepoint
+        description: "{{ doc('timepoint') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_frequencies
+    description: |
+      Uma linha por intervalo (trip_id, start_time) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo frequencies.txt.
+      Fonte: capturas do GTFS (source_gtfs.frequencies).
+      Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+      Chaves de junção: `data_versao` e `trip_id`.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [data_versao, trip_id, start_time]
+    columns:
+      - name: data_versao
+        description: "{{ doc('data_versao') }} [partição]"
+        data_type: date
+      - name: trip_id
+        description: "{{ doc('trip_id') }}"
+        data_type: string
+        data_tests:
+          - dbt_utils.relationships_where:
+              name: dbt_utils__relationships_where__trip_id__staging_frequencies
+              config:
+                description: "Todos os intervalos de partidas pertencem a uma viagem do GTFS"
+                where: "1=1"
+              arguments:
+                to: ref('staging_trips')
+                field: trip_id
+                from_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+                to_condition: "data_versao = '{{ var('data_versao_gtfs') }}'"
+      - name: start_time
+        description: "{{ doc('start_time') }}"
+        data_type: string
+      - name: end_time
+        description: "{{ doc('end_time') }}"
+        data_type: string
+      - name: headway_secs
+        description: "{{ doc('headway_secs') }}"
+        data_type: string
+      - name: exact_times
+        description: "{{ doc('exact_times') }}"
         data_type: string
       - name: timestamp_captura
         description: "{{ doc('timestamp_captura') }}"
