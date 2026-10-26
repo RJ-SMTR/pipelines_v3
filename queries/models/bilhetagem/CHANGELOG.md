@@ -1,11 +1,5 @@
 # Changelog - bilhetagem
 
-## [3.3.16] - 2026-10-26
-
-### Adicionado
-
-- Cria modelo `staging_fiscalizacao.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/787)
-
 ## [3.3.15] - 2026-10-14
 
 ### Adicionado
