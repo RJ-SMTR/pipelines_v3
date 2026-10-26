@@ -17,5 +17,4 @@ FISCALIZACAO_SOURCE = SourceTable(
     flow_folder_name="capture__jae_fiscalizacao",
     primary_keys=["id"],
     bucket_names=jae_constants.JAE_PRIVATE_BUCKET_NAMES,
-    file_chunk_size=200_000,
 )
