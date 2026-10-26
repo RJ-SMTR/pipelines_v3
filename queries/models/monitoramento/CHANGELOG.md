@@ -1,11 +1,14 @@
 # Changelog - monitoramento
 
-## [2.5.1] - 2026-10-26
+## [2.6.0] - 2026-10-26
+
+### Adicionado
+
+- Adiciona a variável `use_partition_dates` à macro `get_modified_partitions_filter` para usar as datas do `date_range` em vez das partições modificadas (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ### Alterado
 
-- Ajusta `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para reprocessar partições modificadas a partir de `DATA_SUBSIDIO_V25_INICIO`, com lookback de 6 dias (`viagem_validacao_max_age_days`). No flow `treatment--monitoramento-temperatura`, a janela regular (`date_range`) fica limitada a datas anteriores à V25 e as partições V25+ entram pelo `last_modified`. No flow de subsídio, a quinzena (`start_date`/`end_date`) é reprocessada por inteiro e as partições V25+ modificadas se somam a esse recorte. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
-- Preserva datas V25+ na carga completa (sem `is_incremental()`) e calcula as falhas consecutivas em `aux_veiculo_falha_ar_condicionado` sobre um intervalo contínuo entre as datas selecionadas. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+- Altera `aux_veiculo_falha_ar_condicionado` e `veiculo_regularidade_temperatura_dia` para processar as partições V25+ modificadas no upstream (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ## [2.5.0] - 2026-10-20
 

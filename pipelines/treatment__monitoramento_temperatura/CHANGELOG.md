@@ -2,10 +2,17 @@
 
 ## [1.0.3] - 2026-10-26
 
+### Adicionado
+
+- Adiciona o parâmetro `use_partition_dates` para reprocessar diretamente as partições do intervalo informado (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ### Alterado
 
-- Altera schedule de produção de 6h para 9h (após `viagem_validacao` às 8h) e inclui `viagem_validacao` nas fontes do flow. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
-- Inclui as dependências da Maxtrack no flow. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+- Altera o schedule de 7h para 9h e inclui `viagem_validacao` nas fontes do flow (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
+### Corrigido
+
+- Inclui as dependências de `treatment__viagem_validacao` no Dockerfile (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 
 ## [1.0.2] - 2026-10-14
 
@@ -23,4 +30,4 @@
 
 ### Adicionado
 
-- Cria flow `treatment__monitoramento_temperatura`(https://github.com/RJ-SMTR/pipelines_v3/pull/120)
+- Cria flow `treatment__monitoramento_temperatura` (https://github.com/RJ-SMTR/pipelines_v3/pull/120)
