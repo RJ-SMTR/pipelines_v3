@@ -22,7 +22,9 @@
             data between date("{{ var('date_range_start') }}") and date(
                 "{{ var('date_range_end') }}"
             )
-            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% if is_incremental() %}
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            {% endif %}
             {% if is_incremental() and modified_partitions | length > 0 %}
                 or (
                     data in ({{ modified_partitions | join(", ") }})
