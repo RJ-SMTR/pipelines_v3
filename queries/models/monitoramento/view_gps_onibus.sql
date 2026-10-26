@@ -41,7 +41,7 @@ select
     cast(null as datetime) as datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_onibus_conecta") }}
+from {{ ref("gps_onibus_conecta") }}
 
 union all
 
@@ -81,7 +81,7 @@ select
     cast(null as datetime) as datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_onibus_zirix") }}
+from {{ ref("gps_onibus_zirix") }}
 
 union all
 
@@ -161,4 +161,44 @@ select
     datetime_captura,
     datetime_ultima_atualizacao,
     versao
-from {{ source("monitoramento", "gps_v2_onibus_maxtrack") }}
+from {{ ref("gps_v2_onibus_maxtrack") }}
+
+union all
+
+select
+    data,
+    hora,
+    "conecta" as fonte_gps,
+    id_registro,
+    datetime_gps,
+    datetime_envio,
+    datetime_servidor,
+    id_veiculo,
+    id_equipamento,
+    sequencial_equipamento,
+    route_id,
+    servico,
+    id_viagem_planejada,
+    trip_id,
+    shape_id,
+    direction_id,
+    sentido,
+    status,
+    qualidade_sinal,
+    fonte_posicao,
+    fonte_velocidade,
+    latitude,
+    longitude,
+    altitude,
+    direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    quantidade_satelites,
+    hdop,
+    vdop,
+    pdop,
+    datetime_captura,
+    datetime_ultima_atualizacao,
+    versao
+from {{ ref("gps_v2_onibus_conecta_sistema_rio") }}

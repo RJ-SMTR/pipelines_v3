@@ -11,49 +11,9 @@ from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTT
 from pipelines.treatment__monitoramento_veiculo import constants as monitoramento_veiculo_constants
 from pipelines.treatment__viagem_validacao import constants as viagem_validacao_constants
 
-MONITORAMENTO_TEMPERATURA_CHECKS_LIST = {
-    "temperatura_inmet": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "test_completude__temperatura_inmet": {
-            "description": "Há pelo menos uma temperatura INMET não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
-        },
-    },
-    "aux_viagem_temperatura": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils__unique_combination_of_columns__aux_viagem_temperatura": {
-            "description": "Todos os registros são únicos"
-        },
-    },
-    "aux_veiculo_falha_ar_condicionado": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils__unique_combination_of_columns__aux_veiculo_falha_ar_condicionado": {
-            "description": "Todos os registros são únicos"
-        },
-    },
-    "veiculo_regularidade_temperatura_dia": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "dbt_utils__unique_combination_of_columns__veiculo_regularidade_temperatura_dia": {
-            "description": "Todos os registros são únicos"
-        },
-    },
-    "temperatura_alertario": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "test_completude__temperatura_alertario": {
-            "description": "Há pelo menos uma temperatura AlertaRio não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
-        },
-    },
-    "temperatura": {
-        "not_null": {"description": "Todos os valores da coluna `{column_name}` não nulos"},
-        "test_completude__temperatura": {
-            "description": "Há pelo menos uma temperatura não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
-        },
-    },
-}
-
 MONITORAMENTO_TEMPERATURA_TEST = DBTTest(
     test_select="temperatura_inmet temperatura_alertario aux_viagem_temperatura aux_veiculo_falha_ar_condicionado veiculo_regularidade_temperatura_dia temperatura",
     exclude="test_check_regularidade_temperatura__viagem_regularidade_temperatura test_consistencia_indicadores_temperatura__viagem_regularidade_temperatura",
-    test_descriptions=MONITORAMENTO_TEMPERATURA_CHECKS_LIST,
     truncate_date=True,
 )
 

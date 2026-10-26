@@ -17,8 +17,12 @@
 {% set staging_viagem_informada_brt = ref("staging_viagem_informada_brt") %}
 {# {% set staging_viagem_informada_brt = ("rj-smtr.monitoramento_staging.viagem_informada_brt") %} #}
 {% set staging_viagem_informada_maxtrack = ref("staging_viagem_informada_maxtrack") %}
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
+{% set staging_viagem_informada_conecta_sistema_rio = ref(
+    "staging_viagem_informada_conecta_sistema_rio"
+) %}
+{# Viagens da Maxtrack consideradas até esta data de partida e processadas até esta data; a Conecta assume a partir do dia seguinte #}
+{% set data_partida_fim_maxtrack = "2026-10-15" %}
+{% set data_processamento_fim_maxtrack = "2026-10-20" %}
 {% if execute %}
     {% if is_incremental() %}
         {% set partitions_query %}
@@ -90,7 +94,28 @@
                     "'"
                 ) as data_viagem
             from {{ staging_viagem_informada_maxtrack }}
-            where {{ incremental_filter }}
+            where
+                {{ incremental_filter }}
+                and extract(date from datetime_partida) <= date("{{ data_partida_fim_maxtrack }}")
+                and date(datetime_processamento)
+                <= date("{{ data_processamento_fim_maxtrack }}")
+
+            union distinct
+
+            select distinct
+                concat(
+                    "'",
+                    extract(
+                        date
+                        from datetime_partida
+                    ),
+                    "'"
+                ) as data_viagem
+            from {{ staging_viagem_informada_conecta_sistema_rio }}
+            where
+                {{ incremental_filter }}
+                and extract(date from datetime_partida)
+                > date("{{ data_partida_fim_maxtrack }}")
         {% endset %}
 
         {% set partitions = (
@@ -100,16 +125,6 @@
             | sort
         ) %}
 
-        {% if partitions | length > 0 %}
-            {% set gtfs_feeds_query %}
-                select distinct concat("'", feed_start_date, "'") as feed_start_date
-                from {{ calendario }}
-                where data in ({{ partitions | join(", ") }})
-            {% endset %}
-
-            {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-        {% else %} {% set gtfs_feeds = [] %}
-        {% endif %}
     {% endif %}
 
 {% endif %}
@@ -184,7 +199,38 @@ with
             datetime_processamento,
             datetime_captura
         from {{ staging_viagem_informada_maxtrack }}
-        {% if is_incremental() %} where {{ incremental_filter }} {% endif %}
+        where
+            {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
+            extract(date from datetime_partida)
+            <= date("{{ data_partida_fim_maxtrack }}")
+            and date(datetime_processamento)
+            <= date("{{ data_processamento_fim_maxtrack }}")
+    ),
+    staging_conecta_sistema_rio as (
+        select
+            id_viagem,
+            sequencial_viagem,
+            id_viagem_planejada,
+            datetime_partida,
+            datetime_chegada,
+            id_veiculo,
+            trip_id,
+            route_id,
+            shape_id,
+            servico,
+            sentido,
+            direction_id,
+            tipo_viagem,
+            tipo_execucao_viagem,
+            fornecedor as fonte_gps,
+            "conecta" as fonte_viagem,
+            datetime_processamento,
+            datetime_captura
+        from {{ staging_viagem_informada_conecta_sistema_rio }}
+        where
+            {% if is_incremental() %} {{ incremental_filter }} and {% endif %}
+            extract(date from datetime_partida)
+            > date("{{ data_partida_fim_maxtrack }}")
     ),
     staging_union as (
         select *
@@ -199,6 +245,11 @@ with
 
         select *
         from staging_maxtrack
+
+        union all
+
+        select *
+        from staging_conecta_sistema_rio
     ),
     staging as (
         select
@@ -247,21 +298,6 @@ with
             )
             = 1
     ),
-    calendario as (
-        select *
-        from {{ calendario }}
-        {% if is_incremental() %}
-            where data in ({{ partitions | join(", ") }})
-        {% endif %}
-    ),
-    routes as (
-        select *
-        from {{ ref("routes_gtfs") }}
-        {# from `rj-smtr.gtfs.routes` #}
-        {% if is_incremental() %}
-            where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        {% endif %}
-    ),
     viagem_modo as (
         select
             data,
@@ -271,14 +307,7 @@ with
             v.datetime_partida,
             v.datetime_chegada,
             v.datetime_processamento,
-            case
-                when v.fonte_gps = 'brt'
-                then 'BRT'
-                when
-                    r.agency_id in ("22005", "22002", "22004", "22003")
-                    or regexp_contains(r.agency_id, r"^[A-Z][0-9]$")
-                then 'Ônibus'
-            end as modo,
+            case when v.fonte_viagem = 'mobirio' then 'BRT' else 'Ônibus' end as modo,
             if(trim(v.servico) = '', null, v.servico) as servico,
             if(trim(v.route_id) = '', null, v.route_id) as route_id,
             if(trim(v.trip_id) = '', null, v.trip_id) as trip_id,
@@ -292,8 +321,6 @@ with
             v.fonte_viagem,
             v.datetime_captura
         from deduplicado v
-        join calendario c using (data)
-        left join routes r using (route_id, feed_start_date, feed_version)
     )
 select
     *,

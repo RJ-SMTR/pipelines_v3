@@ -16,26 +16,21 @@
 
 select
     fi.feed_version,
-    safe_cast(t.data_versao as date) as feed_start_date,
+    t.data_versao as feed_start_date,
     fi.feed_end_date,
-    safe_cast(json_value(t.content, '$.route_id') as string) route_id,
-    safe_cast(json_value(t.content, '$.service_id') as string) service_id,
-    safe_cast(t.trip_id as string) trip_id,
-    safe_cast(json_value(t.content, '$.trip_headsign') as string) trip_headsign,
-    safe_cast(json_value(t.content, '$.trip_short_name') as string) trip_short_name,
-    regexp_replace(
-        safe_cast(json_value(t.content, '$.direction_id') as string), r'\.0$', ''
-    ) as direction_id,
-    safe_cast(json_value(t.content, '$.block_id') as string) block_id,
-    safe_cast(json_value(t.content, '$.shape_id') as string) shape_id,
-    safe_cast(
-        json_value(t.content, '$.wheelchair_accessible') as string
-    ) wheelchair_accessible,
-    safe_cast(json_value(t.content, '$.bikes_allowed') as string) bikes_allowed,
+    t.route_id,
+    t.service_id,
+    t.trip_id,
+    t.trip_headsign,
+    t.trip_short_name,
+    regexp_replace(t.direction_id, r'\.0$', '') as direction_id,
+    t.block_id,
+    t.shape_id,
+    t.wheelchair_accessible,
+    t.bikes_allowed,
     '{{ var("version") }}' as versao_modelo
-from {{ source("br_rj_riodejaneiro_gtfs_staging", "trips") }} t
-join
-    {{ ref("feed_info_gtfs") }} fi on t.data_versao = cast(fi.feed_start_date as string)
+from {{ ref("staging_trips") }} t
+join {{ ref("feed_info_gtfs") }} fi on t.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
         t.data_versao in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')

@@ -1,5 +1,52 @@
 # Changelog - planejamento
 
+## [1.11.0] - 2026-10-21
+
+### Adicionado
+
+- Cria `staging_ordem_servico_faixa_horaria_sentido`, com as colunas do arquivo bruto do anexo de faixas horárias da OS, usado na geração do contrato de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `dbt_utils.relationships_where` de `tipo_os` entre `staging_ordem_servico_trajeto_alternativo_sentido` e `staging_ordem_servico_faixa_horaria_sentido`, nas duas direções, e de `servico`, do trajeto alternativo para a faixa horária, e o teste de regex de `extensao` positiva em `staging_ordem_servico_faixa_horaria_sentido` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Alterado
+
+- `ordem_servico_faixa_horaria_sentido` passa a ler de `staging_ordem_servico_faixa_horaria_sentido`, e a descrição de `servico` passa a ser a mesma do trajeto alternativo (`servico_variacao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+## [1.10.0] - 2026-10-19
+
+### Adicionado
+
+- Classifica viagens com `service_id` de prefixo `F_` como ponto facultativo em `viagem_planejada_planejamento` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Ajusta `calendario` para permitir serviços `F_` da programação semanal somente em datas definidas manualmente como ponto facultativo, preservando as inclusões e remoções de `calendar_dates` e a prioridade do calendário manual (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+- Limita a conversão dos identificadores para `F_` aos feeds a partir de `DATA_GTFS_V6_INICIO` (`2026-10-19`), preserva os identificadores dos feeds antigos e elimina repetições no array de serviços (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+## [1.9.3] - 2026-10-14
+
+### Corrigido
+
+- Corrige os trajetos alternativos do Sistema RIO em `viagem_planejada_planejamento`, usando a extensão de `extensao_shape` quando a extensão da Ordem de Serviço estiver nula ou zerada e associando viagens e alternativas com `tipo_os` nulo (https://github.com/RJ-SMTR/pipelines_v3/pull/766)
+
+## [1.9.2] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.9.1] - 2026-10-13
+
+### Alterado
+
+- Alterada condição de teste para no caso do feed de `2026-10-04`, em razão da eleição, considere a alteração de sentido para "C" em relação ao Anexo II no teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` e considere as partidas e quilometragem no GTFS apenas do sistema RIO no teste `test_consistencia_servico_planejado_faixa_horaria`. Neste feed, há diferenças na quantidade de partidas e quilometragem entre OS e GTFS, a pedido da TR/SUBTOP/CGR em razão das especificidades do feed eleitoral (https://github.com/RJ-SMTR/pipelines_v3/pull/760 e https://github.com/RJ-SMTR/pipelines_v3/pull/756)
+
+## [1.9.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos `ordem_servico_faixa_horaria`, `ordem_servico_faixa_horaria_sentido` e `ordem_servico_trajeto_alternativo_sentido` de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.8.10] - 2026-09-30
 
 ### Adicionado

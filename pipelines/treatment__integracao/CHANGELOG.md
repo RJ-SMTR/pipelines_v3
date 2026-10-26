@@ -1,5 +1,17 @@
 # Changelog - treatment__passageiro_hora
 
+## [1.0.1] - 2026-10-21
+
+### Adicionado
+
+- Adiciona run de fallback às 16h (https://github.com/RJ-SMTR/pipelines_v3/pull/784)
+
+## [1.0.1] - 2026-10-14
+
+### Removido
+
+- Remove as descrições dos testes das constantes; as notificações usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
 ## [1.0.0] - 2026-03-31
 
 ### Adicionado

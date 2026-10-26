@@ -1,0 +1,899 @@
+# -*- coding: utf-8 -*-
+"""Funções auxiliares para geração e validação de contratos ODCS."""
+
+import json
+import os
+import re
+from collections import defaultdict
+from collections.abc import Callable, Iterable, Iterator
+from copy import deepcopy
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from textwrap import wrap
+from typing import Any, Optional
+from urllib.parse import quote
+
+import duckdb
+import requests
+import yaml
+from datacontract.data_contract import DataContract
+from datacontract.model.run import Run
+
+from pipelines.common.capture.data_contract.constants import (
+    CAPTURE_METADATA_COLUMNS,
+    CHECK_DESCRIPTIONS,
+    DEFAULT_MANIFEST,
+    GITHUB_API,
+    METRIC_LABELS,
+    PROPERTY_RULE_KEYS,
+    REQUEST_TIMEOUT,
+    RESULT_LABELS,
+    ROOT,
+)
+from pipelines.common.capture.data_contract.dbt_importer import import_contract_from_manifest
+from pipelines.common.capture.default_capture.utils import SourceCaptureContext
+from pipelines.common.utils.utils import is_running_locally
+
+REASON_PATTERN = re.compile(
+    r"^Actual (?P<metric>\w+\([^)]*\)) was (?P<actual>[^,]+), expected (?P<expected>.+)$", re.S
+)
+METRIC_PATTERN = re.compile(r"^(?P<name>\w+)(?=\()")
+
+
+def translate_reason(reason: Any) -> str | None:
+    """Traduz o motivo padrão retornado pelo datacontract para português.
+
+    Args:
+        reason (Any): Motivo retornado pelo check.
+
+    Returns:
+        str | None: Motivo traduzido, ou o original quando não segue o padrão conhecido.
+            Métricas fora de METRIC_LABELS mantêm o nome original.
+    """
+    if reason is None:
+        return None
+    match = REASON_PATTERN.match(str(reason))
+    if match is None:
+        return str(reason)
+    metric = METRIC_PATTERN.sub(
+        lambda name: METRIC_LABELS.get(name["name"], name["name"]), match["metric"]
+    )
+    return f"Obtido {metric} = {match['actual']}, esperado {match['expected']}"
+
+
+def _result_value(result: Any) -> str:
+    """Retorna o valor textual de um resultado, inclusive quando ele é um enum.
+
+    Args:
+        result (Any): Resultado retornado pelo datacontract.
+
+    Returns:
+        str: Valor textual do resultado.
+    """
+    return getattr(result, "value", str(result))
+
+
+def to_field(run: Run, check: Any) -> str | None:
+    """Retorna o campo do check, qualificando-o quando há vários modelos.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        check (Any): Check cujo campo será exibido.
+
+    Returns:
+        str | None: Campo simples ou qualificado pelo nome do modelo.
+    """
+    models = [item.model for item in run.checks]
+    if len(set(models)) > 1:
+        if check.field is None:
+            return check.model
+        return f"{check.model}.{check.field}"
+    return check.field
+
+
+def check_description(check: Any) -> str:
+    """Retorna a descrição em português do check.
+
+    Usa a description da regra de qualidade que originou o check e, na ausência, uma
+    descrição padrão pelo tipo do check. Sem correspondência, mantém o nome do datacontract.
+    Em relationships, a coluna referenciada vem do nome do check, único lugar do resultado
+    que a informa. Nos checks do modelo, sem coluna, as colunas da chave e o limite vêm dos
+    diagnostics do check.
+
+    Args:
+        check (Any): Check do resultado do teste do contrato.
+
+    Returns:
+        str: Descrição do check.
+    """
+    if check.qualityDefinition:
+        rule = yaml.safe_load(check.qualityDefinition) or {}
+        if rule.get("description"):
+            return rule["description"]
+    template = CHECK_DESCRIPTIONS.get(check.type)
+    if template is not None and (check.field is not None or "{field}" not in template):
+        diagnostics = check.diagnostics or {}
+        reference = (check.name or "").partition(" missing from ")[2]
+        columns = ", ".join(f"`{column}`" for column in diagnostics.get("columns") or [])
+        return template.format(
+            field=check.field,
+            reference=reference,
+            columns=columns,
+            threshold=diagnostics.get("threshold", ""),
+        ).strip()
+    return check.name
+
+
+def contract_test_results(run: Run, table: str, partition: Optional[str] = None) -> list[dict]:
+    """Converte os checks do contrato no formato usado nas notificações de testes.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        table (str): Nome exibido para agrupar os checks na notificação.
+        partition (Optional[str]): Partição capturada, que identifica o que foi verificado.
+
+    Returns:
+        list[dict]: Checks executados, com as chaves table, partition, description e result
+            (PASS, WARN, FAIL ou ERROR).
+    """
+    results = {"passed": "PASS", "warning": "WARN", "failed": "FAIL"}
+    return [
+        {
+            "table": table,
+            "partition": partition,
+            "description": check_description(check),
+            "result": results.get(_result_value(check.result), "ERROR"),
+        }
+        for check in run.checks
+        if _result_value(check.result) != "skipped"
+    ]
+
+
+def _format_table_border(widths: tuple[int, ...]) -> str:
+    """Cria a borda ASCII usada no início, meio e fim da tabela.
+
+    Args:
+        widths (tuple[int, ...]): Largura de cada coluna.
+
+    Returns:
+        str: Linha de borda com a largura das colunas informada.
+    """
+    return "+" + "+".join("-" * (width + 2) for width in widths) + "+"
+
+
+def _wrap_cell(value: Any, width: int) -> list[str]:
+    """Quebra o conteúdo de uma célula na largura definida para a tabela.
+
+    Args:
+        value (Any): Valor que será exibido na célula.
+        width (int): Largura máxima da célula.
+
+    Returns:
+        list[str]: Linhas da célula já ajustadas à largura informada.
+    """
+    text = "" if value is None else str(value)
+    lines = []
+    for line in text.splitlines() or [""]:
+        lines.extend(wrap(line, width=width, break_long_words=True, break_on_hyphens=False) or [""])
+    return lines
+
+
+def _format_table_row(values: list[Any], widths: tuple[int, ...]) -> list[str]:
+    """Formata uma linha textual, preservando o alinhamento entre as células.
+
+    Args:
+        values (list[Any]): Valores das células da linha.
+        widths (tuple[int, ...]): Largura de cada coluna.
+
+    Returns:
+        list[str]: Linhas da tabela correspondentes à linha formatada.
+    """
+    wrapped_values = [_wrap_cell(value, width) for value, width in zip(values, widths, strict=True)]
+    return [
+        "| "
+        + " | ".join(
+            (cell_lines[index] if index < len(cell_lines) else "").ljust(width)
+            for cell_lines, width in zip(wrapped_values, widths, strict=True)
+        )
+        + " |"
+        for index in range(max(map(len, wrapped_values)))
+    ]
+
+
+def _format_test_results_table(run: Run) -> str:
+    """Formata os checks em uma tabela ASCII de largura controlada.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+
+    Returns:
+        str: Tabela textual dos checks, sem renderização Rich.
+    """
+    widths = (10, 28, 15, 22)
+    border = _format_table_border(widths)
+    lines = [
+        border,
+        *_format_table_row(["Resultado", "Verificação", "Campo", "Detalhes"], widths),
+        border,
+    ]
+    checks = sorted(
+        run.checks,
+        key=lambda item: (
+            _result_value(item.result),
+            item.model or "",
+            item.field or "",
+        ),
+    )
+    for check in checks:
+        lines.extend(
+            _format_table_row(
+                [
+                    RESULT_LABELS.get(_result_value(check.result), _result_value(check.result)),
+                    check_description(check),
+                    to_field(run, check),
+                    translate_reason(check.reason),
+                ],
+                widths,
+            )
+        )
+    lines.append(border)
+    return "\n".join(lines)
+
+
+def _format_failed_checks(run: Run, width: int = 88) -> list[str]:
+    """Formata os checks reprovados e as amostras coletadas.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        width (int): Largura máxima das linhas do resumo.
+
+    Returns:
+        list[str]: Linhas com os motivos e as amostras dos checks reprovados.
+    """
+    lines = []
+    position = 1
+    for check in run.checks:
+        if _result_value(check.result) in ("passed", "skipped"):
+            continue
+        prefix = f"{position}) {check_description(check)}: "
+        reason_lines = wrap(
+            prefix + (translate_reason(check.reason) or ""),
+            width=width,
+            subsequent_indent="   ",
+            break_long_words=True,
+            break_on_hyphens=False,
+        )
+        lines.extend(reason_lines or [prefix.rstrip()])
+        if check.failedSamples:
+            lines.append("   Amostras com falha:")
+            for sample in check.failedSamples:
+                sample_json = json.dumps(sample, ensure_ascii=False, default=str)
+                lines.extend(
+                    wrap(
+                        f"   - {sample_json}",
+                        width=width,
+                        subsequent_indent="     ",
+                        break_long_words=True,
+                        break_on_hyphens=False,
+                    )
+                )
+        position += 1
+    return lines
+
+
+def _format_test_results_summary(run: Run) -> list[str]:
+    """Formata o resumo textual do resultado do contrato.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+
+    Returns:
+        list[str]: Linhas do resumo, incluindo erros e amostras quando existirem.
+    """
+    if _result_value(run.result) == "passed":
+        skipped = sum(1 for check in run.checks if _result_value(check.result) == "skipped")
+        skipped_info = f" ({skipped} ignoradas)" if skipped else ""
+        duration = (run.timestampEnd - run.timestampStart).total_seconds()
+        return [
+            "🟢 Contrato de dados válido. "
+            f"{len(run.checks)} verificações executadas{skipped_info} em {duration} segundos."
+        ]
+    if _result_value(run.result) == "skipped":
+        return ["🔵 Validação do contrato de dados ignorada"]
+    if _result_value(run.result) == "warning":
+        return [
+            "🟠 Contrato de dados com alertas:",
+            *_format_failed_checks(run),
+        ]
+    return ["🔴 Contrato de dados inválido. Erros encontrados:", *_format_failed_checks(run)]
+
+
+def format_test_results(run: Run) -> str:
+    """Formata tabela, sumário e amostras para impressão direta no log.
+
+    A saída usa somente texto ASCII na tabela e quebras de linha controladas, evitando
+    a renderização Rich e a quebra estrutural da tabela na interface de logs do Prefect.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+
+    Returns:
+        str: Texto com largura controlada para ser escrito diretamente no log.
+    """
+    return "\n".join([_format_test_results_table(run), *_format_test_results_summary(run)])
+
+
+def _github_get(
+    session: requests.Session,
+    repository: str,
+    endpoint: str,
+    **request_options: Any,
+) -> requests.Response:
+    """
+    Consulta um endpoint da API do GitHub.
+
+    Args:
+        session (requests.Session): Sessão HTTP usada na requisição.
+        repository (str): Repositório no formato `owner/name`.
+        endpoint (str): Caminho do endpoint relativo ao repositório.
+        request_options (Any): Opções adicionais encaminhadas para `Session.get`.
+
+    Returns:
+        requests.Response: Resposta HTTP da API do GitHub.
+
+    Raises:
+        requests.HTTPError: A resposta da API indica uma falha HTTP.
+    """
+    response = session.get(
+        f"{GITHUB_API}/repos/{repository}/{endpoint}",
+        timeout=REQUEST_TIMEOUT,
+        **request_options,
+    )
+    response.raise_for_status()
+    return response
+
+
+def download_contracts_from_commit(env: str) -> Path:
+    """
+    Disponibiliza os contratos no diretório compartilhado do flow.
+
+    Args:
+        env (str): Ambiente usado para selecionar a branch em execução remota.
+
+    Returns:
+        Path: Diretório com os contratos ODCS.
+
+    Raises:
+        ValueError: Árvore do repositório incompleta.
+        KeyError: GIT_BRANCH ausente em execução remota não produtiva.
+        requests.HTTPError: Falha na consulta ao GitHub.
+    """
+    contracts_dir = ROOT / "contracts"
+    if is_running_locally():
+        return contracts_dir
+
+    repository = "RJ-SMTR/pipelines_v3"
+    ref = "master" if env == "prod" else os.environ["GIT_BRANCH"]
+
+    with requests.Session() as session:
+        session.headers.update({"Accept": "application/vnd.github+json"})
+        sha = _github_get(session, repository, f"commits/{quote(ref, safe='')}").json()["sha"]
+
+        tree = _github_get(
+            session,
+            repository,
+            f"git/trees/{sha}",
+            params={"recursive": "1"},
+        ).json()
+        if tree.get("truncated"):
+            raise ValueError("GitHub retornou uma árvore incompleta para descobrir contratos.")
+        contract_paths = [
+            item["path"]
+            for item in tree["tree"]
+            if item["type"] == "blob"
+            and item["path"].startswith("contracts/")
+            and item["path"].endswith(".odcs.yaml")
+        ]
+
+        contracts_dir.mkdir(parents=True, exist_ok=True)
+        for relative_path in sorted(set(contract_paths)):
+            path = ROOT / relative_path
+            content = _github_get(
+                session,
+                repository,
+                f"contents/{quote(relative_path, safe='/')}",
+                params={"ref": sha},
+                headers={"Accept": "application/vnd.github.raw+json"},
+            ).content
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+    return contracts_dir
+
+
+def adapt_contract_schema(
+    contract: dict[str, Any],
+    ignored_columns: Iterable[str] = (),
+    primary_keys: Iterable[str] | None = (),
+) -> dict[str, Any]:
+    """
+    Remove colunas ausentes no bruto e aplica as chaves primárias da fonte.
+
+    Args:
+        contract (dict[str, Any]): Contrato importado do dbt.
+        ignored_columns (Iterable[str]): Colunas que não existem no bruto.
+        primary_keys (Iterable[str] | None): Chaves primárias configuradas na fonte.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato com colunas e chaves ajustadas.
+
+    Raises:
+        ValueError: Uma chave primária não existe entre as colunas do contrato.
+    """
+    ignored = CAPTURE_METADATA_COLUMNS | set(ignored_columns)
+    keys = list(primary_keys or ())
+    adapted_contract = deepcopy(contract)
+
+    for schema in adapted_contract.get("schema", []):
+        properties = schema.get("properties", [])
+        schema["properties"] = [
+            property_ for property_ in properties if property_.get("name") not in ignored
+        ]
+        properties_by_name = {
+            property_.get("name"): property_ for property_ in schema["properties"]
+        }
+        missing_keys = [key for key in keys if key not in properties_by_name]
+        if missing_keys:
+            raise ValueError(
+                f"Chaves primárias não encontradas no contrato "
+                f"{schema.get('name', '<sem nome>')}: {', '.join(missing_keys)}"
+            )
+        for property_ in schema["properties"]:
+            property_.pop("primaryKey", None)
+            property_.pop("primaryKeyPosition", None)
+        custom_properties = schema.get("customProperties")
+        if isinstance(custom_properties, list):
+            schema["customProperties"] = [
+                item for item in custom_properties if item.get("property") != "primaryKey"
+            ]
+        for position, key in enumerate(keys, start=1):
+            properties_by_name[key]["primaryKey"] = True
+            properties_by_name[key]["primaryKeyPosition"] = position
+
+    return adapted_contract
+
+
+def load_contract(contracts_dir: Path, model: str) -> tuple[Path, dict[str, Any]]:
+    """
+    Carrega o contrato de um modelo a partir do diretório de contratos.
+
+    Args:
+        contracts_dir (Path): Diretório com os contratos baixados.
+        model (str): Nome do modelo dbt do contrato.
+
+    Returns:
+        tuple[Path, dict[str, Any]]: Caminho e conteúdo do contrato.
+
+    Raises:
+        ValueError: Contrato não encontrado.
+    """
+    contract_path = next(contracts_dir.rglob(f"{model}.odcs.yaml"), None)
+    if contract_path is None:
+        raise ValueError(f"Contrato {model} não encontrado em {contracts_dir}.")
+    return contract_path, yaml.safe_load(contract_path.read_text(encoding="utf-8"))
+
+
+def relationship_targets(relationship: dict[str, Any]) -> list[tuple[str, str]]:
+    """
+    Retorna o schema e a coluna de cada destino de um relationship.
+
+    Args:
+        relationship (dict[str, Any]): Relationship ODCS, com to no formato schema.coluna.
+
+    Returns:
+        list[tuple[str, str]]: Pares (schema, coluna) citados em relationship.to.
+    """
+    targets = relationship["to"]
+    targets = targets if isinstance(targets, list) else [targets]
+    return [tuple(target.rsplit(".", 1)) for target in targets]
+
+
+def iter_relationships(
+    contract: dict[str, Any],
+) -> Iterator[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    """
+    Percorre os relationships declarados nas colunas do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Yields:
+        tuple[dict[str, Any], dict[str, Any], dict[str, Any]]: Schema, coluna e relationship.
+    """
+    for schema in contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            for relationship in property_.get("relationships") or []:
+                yield schema, property_, relationship
+
+
+def referenced_schema_names(contract: dict[str, Any]) -> set[str]:
+    """
+    Retorna os schemas referenciados pelos relationships do contrato.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        set[str]: Nomes dos schemas citados em relationships.to.
+    """
+    return {
+        schema_name
+        for _, _, relationship in iter_relationships(contract)
+        for schema_name, _ in relationship_targets(relationship)
+    }
+
+
+def remove_relationships(
+    contract: dict[str, Any], schema_names: Optional[Iterable[str]] = None
+) -> dict[str, Any]:
+    """
+    Remove os relationships do contrato, todos ou só os que referenciam os schemas informados.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+        schema_names (Optional[Iterable[str]]): Schemas referenciados cujos relationships são
+            removidos. None remove todos.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato sem os relationships removidos.
+    """
+    names = None if schema_names is None else set(schema_names)
+
+    def is_removed(relationship: dict[str, Any]) -> bool:
+        targets = {schema_name for schema_name, _ in relationship_targets(relationship)}
+        return names is None or bool(targets & names)
+
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract.get("schema", []):
+        for property_ in schema.get("properties", []):
+            relationships = [
+                relationship
+                for relationship in property_.pop("relationships", None) or []
+                if not is_removed(relationship)
+            ]
+            if relationships:
+                property_["relationships"] = relationships
+    return adapted_contract
+
+
+def relationship_columns(contract: dict[str, Any]) -> dict[str, set[str]]:
+    """
+    Retorna as colunas de origem e de destino dos relationships, agrupadas por schema.
+
+    Args:
+        contract (dict[str, Any]): Contrato ODCS.
+
+    Returns:
+        dict[str, set[str]]: Colunas que participam dos relationships, por schema.
+    """
+    columns = defaultdict(set)
+    for schema, property_, relationship in iter_relationships(contract):
+        columns[schema["name"]].add(property_["name"])
+        for schema_name, column in relationship_targets(relationship):
+            columns[schema_name].add(column)
+    return columns
+
+
+def keep_relationship_properties(contract: dict[str, Any]) -> dict[str, Any]:
+    """
+    Mantém em cada schema só as colunas que participam dos relationships do contrato.
+
+    O teste dos relationships não repete as verificações da validação individual: as demais
+    colunas, as regras de qualidade e as chaves são removidas.
+
+    Args:
+        contract (dict[str, Any]): Contrato com os schemas da origem e das referências.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato só com as colunas dos relationships.
+    """
+    columns = relationship_columns(contract)
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract["schema"]:
+        schema.pop("quality", None)
+        schema["properties"] = [
+            {key: value for key, value in property_.items() if key not in PROPERTY_RULE_KEYS}
+            for property_ in schema.get("properties", [])
+            if property_["name"] in columns[schema["name"]]
+        ]
+    return adapted_contract
+
+
+def add_referenced_schema(
+    contract: dict[str, Any], referenced_contract: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    Anexa ao contrato os schemas de outro contrato, sem os relationships deles.
+
+    Os schemas anexados só servem de referência: seus próprios relationships são validados
+    quando a fonte deles é a origem.
+
+    Args:
+        contract (dict[str, Any]): Contrato que declara os relationships.
+        referenced_contract (dict[str, Any]): Contrato do schema referenciado.
+
+    Returns:
+        dict[str, Any]: Cópia do contrato com os schemas referenciados.
+    """
+    adapted_contract = deepcopy(contract)
+    adapted_contract["schema"].extend(remove_relationships(referenced_contract)["schema"])
+    return adapted_contract
+
+
+def add_referenced_sources(
+    contract: dict,
+    context: SourceCaptureContext,
+    contexts_by_source: dict[tuple[str, str], SourceCaptureContext],
+    contracts_dir: Path,
+) -> tuple[dict, dict[str, list[str]]]:
+    """
+    Anexa ao contrato os schemas referenciados pelos relationships e reúne os arquivos brutos.
+
+    As referências vêm da mesma partição da fonte: numa recaptura, cada partição é validada
+    com os arquivos da sua própria captura. Um schema referenciado sem fonte capturada nessa
+    partição não é anexado; o datacontract gera um check de relationship com alerta para ele.
+
+    Args:
+        contract (dict): Contrato da fonte, já adaptado.
+        context (SourceCaptureContext): Contexto da fonte que declara os relationships.
+        contexts_by_source (dict[tuple[str, str], SourceCaptureContext]): Contextos da
+            execução por modelo e partição.
+        contracts_dir (Path): Diretório com os contratos baixados.
+
+    Returns:
+        tuple[dict, dict[str, list[str]]]: Contrato com os schemas referenciados e arquivos
+            brutos de cada schema.
+    """
+    files_by_schema = {context.source.data_contract_model: context.captured_raw_filepaths}
+    for schema_name in sorted(referenced_schema_names(contract)):
+        referenced_context = contexts_by_source.get((schema_name, context.partition))
+        if referenced_context is None:
+            print(f"{schema_name} sem captura em {context.partition}; relationship não verificado.")
+            continue
+        _, referenced_contract = load_contract(contracts_dir, schema_name)
+        contract = add_referenced_schema(
+            contract,
+            adapt_contract_schema(
+                referenced_contract,
+                ignored_columns=referenced_context.source.data_contract_ignored_columns,
+            ),
+        )
+        files_by_schema[schema_name] = referenced_context.captured_raw_filepaths
+    return contract, files_by_schema
+
+
+def validation_format(file_format: str, convert: bool = True) -> str:
+    """
+    Retorna o formato em que o arquivo bruto é validado.
+
+    O CSV é validado como Parquet: o datacontract relê o CSV a cada verificação de presença de
+    coluna, enquanto no Parquet o schema vem dos metadados do arquivo.
+
+    Args:
+        file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
+
+    Returns:
+        str: Formato usado na validação.
+    """
+    return "parquet" if convert and file_format == "csv" else file_format
+
+
+def prepare_raw_file(source: str, target: Path, file_format: str, convert: bool = True) -> None:
+    """
+    Prepara uma cópia do arquivo bruto para a validação, no formato de validation_format.
+
+    O CSV é convertido em Parquet com todas as colunas como texto, como no CSV; os demais
+    formatos recebem um link. O arquivo bruto original não é alterado.
+
+    Args:
+        source (str): Caminho do arquivo bruto.
+        target (Path): Caminho do arquivo preparado, sem extensão.
+        file_format (str): Formato do arquivo bruto.
+        convert (bool): Se o CSV é convertido em Parquet.
+
+    Raises:
+        duckdb.Error: O CSV não pôde ser lido na conversão.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    path = target.with_suffix(f".{validation_format(file_format, convert)}")
+    if validation_format(file_format, convert) == file_format:
+        path.symlink_to(Path(source).resolve())
+        return
+    source_sql = str(Path(source).resolve()).replace("'", "''")
+    path_sql = str(path).replace("'", "''")
+    with duckdb.connect() as connection:
+        connection.sql(
+            f"COPY (SELECT * FROM read_csv('{source_sql}', all_varchar = true, header = true)) "
+            f"TO '{path_sql}' (FORMAT parquet)"
+        )
+
+
+def keep_checks(run: Run, condition: Callable[[Any], bool]) -> Run:
+    """
+    Mantém no resultado do teste só os checks que atendem à condição.
+
+    Args:
+        run (Run): Resultado do teste do contrato.
+        condition (Callable[[Any], bool]): Condição que o check deve atender.
+
+    Returns:
+        Run: O mesmo resultado, com os checks filtrados e o resultado recalculado.
+    """
+    run.checks = [check for check in run.checks if condition(check)]
+    run.calculate_result()
+    return run
+
+
+def add_local_server(
+    contract: dict[str, Any],
+    raw_filepath: str,
+    file_format: str = "csv",
+    server_name: str = "incoming",
+) -> dict[str, Any]:
+    """
+    Cria uma cópia do contrato para validar o arquivo bruto localmente.
+
+    Args:
+        contract (dict[str, Any]): Contrato versionado.
+        raw_filepath (str): Caminho do arquivo bruto.
+        file_format (str): Formato do arquivo bruto.
+        server_name (str): Nome do servidor local.
+
+    Returns:
+        dict[str, Any]: Cópia com servidor local e nomes usados pelo executor.
+    """
+    adapted_contract = deepcopy(contract)
+    for schema in adapted_contract["schema"]:
+        schema["physicalName"] = schema["name"]
+    adapted_contract["servers"] = [
+        {"server": server_name, "type": "local", "path": raw_filepath, "format": file_format}
+    ]
+    return adapted_contract
+
+
+def run_prepared_contract_test(
+    contract: dict[str, Any],
+    files_by_schema: dict[str, list[str]],
+    file_format: str,
+    convert: bool,
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos de cada schema, preparados em um diretório temporário.
+
+    Os checks de tipo são removidos: o datacontract não os executa nos arquivos validados como
+    Parquet e não os gera para CSV, então o resultado é o mesmo do arquivo bruto.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+        convert (bool): Se os arquivos CSV são convertidos em Parquet.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+
+    Raises:
+        duckdb.Error: Um CSV não pôde ser lido na conversão.
+    """
+    with TemporaryDirectory() as folder:
+        for schema_name, filepaths in files_by_schema.items():
+            for position, filepath in enumerate(filepaths):
+                prepare_raw_file(
+                    filepath, Path(folder) / schema_name / str(position), file_format, convert
+                )
+        server_contract = add_local_server(
+            contract,
+            raw_filepath=str(Path(folder) / "{model}" / "*"),
+            file_format=validation_format(file_format, convert),
+        )
+        run = DataContract(
+            data_contract_str=yaml.safe_dump(server_contract),
+            server="incoming",
+            include_failed_samples=True,
+        ).test()
+    return keep_checks(run, lambda check: check.type != "field_type")
+
+
+def run_contract_test(
+    contract: dict[str, Any], files_by_schema: dict[str, list[str]], file_format: str
+) -> Run:
+    """
+    Testa o contrato com os arquivos brutos, validando os CSV como Parquet.
+
+    Se um CSV não puder ser lido na conversão (por exemplo, com codificação inválida), o teste
+    é refeito com os arquivos originais: o datacontract devolve os checks com erro, que são
+    notificados antes de barrar o upload, em vez de interromper a task.
+
+    Args:
+        contract (dict[str, Any]): Contrato a testar.
+        files_by_schema (dict[str, list[str]]): Arquivos brutos de cada schema do contrato.
+        file_format (str): Formato dos arquivos brutos.
+
+    Returns:
+        Run: Resultado do teste do contrato.
+    """
+    try:
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=True)
+    except duckdb.Error as error:
+        print(f"Arquivo bruto não convertido para Parquet ({error}); validando o arquivo original.")
+        return run_prepared_contract_test(contract, files_by_schema, file_format, convert=False)
+
+
+def declares_contract(node: dict[str, Any]) -> bool:
+    """
+    Indica se o node é um modelo staging_ com datacontract_cli nos metadados dele ou das colunas.
+
+    Args:
+        node (dict[str, Any]): Node do manifest dbt.
+
+    Returns:
+        bool: True quando o contrato do modelo deve ser gerado.
+    """
+    if node["resource_type"] != "model" or not node["name"].startswith("staging_"):
+        return False
+    return any(
+        "datacontract_cli" in ((item.get("config") or {}).get("meta") or item.get("meta") or {})
+        for item in [node, *node["columns"].values()]
+    )
+
+
+def generate_contracts(
+    *,
+    manifest_path: Path = DEFAULT_MANIFEST,
+    contracts_dir: Path = ROOT / "contracts",
+) -> None:
+    """
+    Gera contratos para modelos staging_ com datacontract_cli nos metadados.
+
+    Args:
+        manifest_path (Path): Caminho do manifest gerado pelo dbt Core.
+        contracts_dir (Path): Diretório dos contratos gerados.
+
+    Raises:
+        FileNotFoundError: Manifest dbt não encontrado.
+        ValueError: Contrato inválido.
+    """
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Manifest dbt não encontrado em {manifest_path}; execute dbt parse primeiro"
+        )
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    generated_paths = set()
+    for model in sorted(manifest["nodes"].values(), key=lambda node: node["name"]):
+        if not declares_contract(model):
+            continue
+
+        model_name = model["name"]
+        path = Path(model["schema"]) / f"{model_name}.odcs.yaml"
+        contract = import_contract_from_manifest(manifest, model)
+        contract.update(
+            apiVersion="v3.1.0",
+            id=f"urn:datacontract:{path.parts[0]}:{model_name}",
+            name=f"{path.parts[0]}/{model_name}",
+            status="active",
+        )
+        expected = yaml.safe_dump(contract, sort_keys=False, allow_unicode=True)
+        result = DataContract(data_contract_str=expected).lint()
+        if not result.has_passed():
+            raise ValueError(f"Contrato inválido para {model_name}: {result.model_dump_json()}")
+        output = contracts_dir / path
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(expected, encoding="utf-8")
+        generated_paths.add(path)
+        print(f"Contrato gerado: {output}")
+
+    for output in sorted(contracts_dir.rglob("*.odcs.yaml")):
+        if output.relative_to(contracts_dir) not in generated_paths:
+            output.unlink()
+            print(f"Contrato obsoleto removido: {output}")

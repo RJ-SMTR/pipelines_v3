@@ -198,6 +198,8 @@ with
                 then "Sabado"
                 when service_id like "%D_%"
                 then "Domingo"
+                when service_id like "%F_%"
+                then "Ponto Facultativo"
                 else service_id
             end as tipo_dia,
             trip_id,
@@ -246,7 +248,8 @@ with
     ),
     /*
     Constrói o array de trajetos alternativos (trip, shape, vista, evento e extensão)
-    por serviço/sentido/tipo_os, ignorando alternativas sem extensão válida.
+    por serviço/sentido/tipo_os, usando a extensão do shape quando a OS não
+    informa uma extensão válida e ignorando alternativas sem extensão válida.
     */
     trips_alternativas as (
         select
@@ -256,14 +259,14 @@ with
             tas.tipo_os,
             array_agg(
                 case
-                    when tas.extensao is not null and tas.extensao != 0
+                    when coalesce(nullif(tas.extensao, 0), es.extensao) != 0
                     then
                         struct(
                             t.trip_id as trip_id,
                             t.shape_id as shape_id,
                             t.vista || " " || t.evento as vista,
                             t.evento as evento,
-                            tas.extensao as extensao
+                            coalesce(nullif(tas.extensao, 0), es.extensao) as extensao
                         )
                 end ignore nulls
             ) as trajetos_alternativos
@@ -274,6 +277,10 @@ with
             and t.servico = tas.servico
             and t.evento = tas.evento
             and t.direction_id = tas.direction_id
+        left join
+            {{ ref("extensao_shape") }} es
+            on t.feed_start_date = es.feed_start_date
+            and t.shape_id = es.shape_id
         where t.service_id = 'EXCEP'
         group by 1, 2, 3, 4
     ),
@@ -284,9 +291,11 @@ with
         select v.*, ta.trajetos_alternativos
         from viagem_planejada_os v
         left join
-            trips_alternativas ta using (
-                feed_start_date, servico, direction_id, tipo_os
-            )
+            trips_alternativas ta
+            on v.feed_start_date = ta.feed_start_date
+            and v.servico = ta.servico
+            and v.direction_id = ta.direction_id
+            and v.tipo_os is not distinct from ta.tipo_os
     ),
     /*
     Constrói o identificador único da viagem (id_viagem) concatenando

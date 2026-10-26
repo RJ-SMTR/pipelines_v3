@@ -1,4 +1,9 @@
-{{ config(severity="warn") }}
+{{
+    config(
+        description="Todas as autuações pagas com inclusão confirmada possuem baixa confirmada",
+        severity="warn",
+    )
+}}
 
 -- =============================================================================
 -- Teste de consistência: Autuações negativadas pagas sem confirmação de baixa

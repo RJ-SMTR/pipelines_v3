@@ -1,5 +1,51 @@
 # Changelog - gtfs
 
+## [1.7.0] - 2026-10-21
+
+### Adicionado
+
+- Cria `staging_trips` e `staging_shapes`, com as colunas dos arquivos `trips.txt` e `shapes.txt`, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `not_null` e `dbt_utils.relationships_where` de `shape_id` em `staging_trips`, que referencia `staging_shapes` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona o teste de regex de `trip_headsign` em `staging_trips`: o evento de trajeto alternativo, quando houver, fica no final e no formato `[a-z0-9_]`, entre colchetes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Cria `staging_stop_times`, `staging_stops`, `staging_routes` e `staging_frequencies`, com as colunas dos arquivos do GTFS, usados na geração dos contratos de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `dbt_utils.relationships_where` de `trip_id` e `stop_id` em `staging_stop_times`, de `route_id` e `service_id` em `staging_trips` e de `trip_id` em `staging_frequencies` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Alterado
+
+- `trips_gtfs`, `shapes_gtfs`, `stop_times_gtfs`, `stops_gtfs`, `routes_gtfs` e `frequencies_gtfs` passam a ler dos stagings correspondentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- As descrições das colunas de `trips`, `shapes`, `stop_times`, `stops`, `routes` e `frequencies` passam a vir do `docs.md`, compartilhadas entre os stagings e os modelos finais; `direction_id`, `shape_id` e `agency_id` usam as descrições existentes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Removido
+
+- Remove o teste `test_shape_id_gtfs` de `trips_gtfs`, substituído pelo relationship de `shape_id` em `staging_trips` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+## [1.6.0] - 2026-10-19
+
+### Adicionado
+
+- Aceita o prefixo `F_` no teste de `service_id` de `staging_calendar`, usado na geração do contrato de dados, e classifica as trips com esse prefixo como ponto facultativo em `trips_filtrada_aux_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Corrigido
+
+- Restringe a associação de trips de dia útil às Ordens de Serviço de ponto facultativo aos feeds anteriores a `2026-10-19`, evitando associações duplicadas com as trips `F_` dos novos feeds (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+### Removido
+
+- Remove o teste de regex de `service_id` em `calendar_gtfs`, mantendo a validação em `staging_calendar` e evitando falhas repetidas na notificação (https://github.com/RJ-SMTR/pipelines_v3/pull/773)
+
+## [1.5.1] - 2026-10-14
+
+### Adicionado
+
+- Adiciona a descrição dos testes no `config.description` do schema, usada nas notificações dos testes (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
+
+## [1.5.0] - 2026-10-08
+
+### Alterado
+
+- Altera a origem dos modelos de `br_rj_riodejaneiro_gtfs_staging` para `source_gtfs` (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+- Trata `data_versao` como `DATE` nos joins com `feed_info_gtfs` e remove os casts redundantes (https://github.com/RJ-SMTR/pipelines_v3/pull/736)
+
 ## [1.4.3] - 2026-08-26
 
 ### Adicionado

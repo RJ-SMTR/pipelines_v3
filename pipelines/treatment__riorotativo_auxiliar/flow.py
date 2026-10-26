@@ -18,15 +18,23 @@ DBT: 2026-07-08
 from datetime import time
 from typing import Optional
 
+from pipelines.capture__riorotativo_credenciados import (
+    constants as riorotativo_credenciados_constants,
+)
 from pipelines.common.treatment.default_treatment.flow import (
     create_materialization_flows_default_tasks,
 )
 from pipelines.common.treatment.default_treatment.utils import rename_treatment_flow_run
-from pipelines.common.utils.prefect import flow
+from pipelines.common.utils.prefect import flow, handler_notify_failure
 from pipelines.treatment__riorotativo_auxiliar import constants
 
 
-@flow(log_prints=True, flow_run_name=rename_treatment_flow_run)
+@flow(
+    log_prints=True,
+    flow_run_name=rename_treatment_flow_run,
+    on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
+    on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
+)
 def treatment__riorotativo_auxiliar(  # noqa: PLR0913
     env: Optional[str] = None,
     datetime_start: Optional[str] = None,
@@ -46,4 +54,7 @@ def treatment__riorotativo_auxiliar(  # noqa: PLR0913
         force_test_run=force_test_run,
         test_scheduled_time=time(5, 10, 0),
         test_webhook_key="alertas_bilhetagem",
+        test_google_chat_webhook_key=(
+            riorotativo_credenciados_constants.RIOROTATIVO_GOOGLE_CHAT_WEBHOOK_KEY
+        ),
     )

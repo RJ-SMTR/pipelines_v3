@@ -9,7 +9,7 @@ import tempfile
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -40,7 +40,6 @@ class DBTTest:
     Args:
         test_select (str): Select do dbt que define quais testes serão executados.
         exclude (Optional[str]): Parâmetro exclude do dbt.
-        test_descriptions (Optional[dict]): Descrições dos testes para uso em notificações.
         delay_days_start (int): Dias subtraídos do datetime inicial da materialização.
         delay_days_end (int): Dias subtraídos do datetime final da materialização.
         truncate_date (bool): Se True, ajusta o intervalo para o dia inteiro.
@@ -52,7 +51,6 @@ class DBTTest:
         self,
         test_select: str,
         exclude: Optional[str] = None,
-        test_descriptions: Optional[dict] = None,
         delay_days_start: int = 0,
         delay_days_end: int = 0,
         truncate_date: bool = False,
@@ -62,7 +60,6 @@ class DBTTest:
     ):
         self.test_select = test_select
         self.exclude = exclude
-        self.test_descriptions = test_descriptions or {}
         self.delay_days_start = delay_days_start
         self.delay_days_end = delay_days_end
         self.truncate_date = truncate_date
@@ -78,6 +75,7 @@ class DBTTest:
         datetime_start: datetime,
         datetime_end: datetime,
         partitions: Optional[list[str]] = None,
+        additional_vars: Optional[dict] = None,
     ) -> dict:
         """
         Gera as variáveis para execução do teste do dbt.
@@ -85,6 +83,8 @@ class DBTTest:
         Args:
             datetime_start (datetime): Datetime inicial da materialização.
             datetime_end (datetime): Datetime final da materialização.
+            additional_vars (Optional[dict]): Variáveis adicionais da execução do flow. Não
+                sobrescrevem as variáveis reservadas nem as definidas no próprio teste.
 
         Returns:
             dict: Variáveis formatadas para execução do teste do dbt.
@@ -109,7 +109,7 @@ class DBTTest:
         if collision:
             raise ValueError(f"Variáveis reservadas não podem ser sobrescritas: {collision}")
 
-        return final_dict | self.additional_vars
+        return (additional_vars or {}) | final_dict | self.additional_vars
 
     def adjust_datetime_range(
         self, datetime_start: datetime, datetime_end: datetime
@@ -379,6 +379,7 @@ class DBTSelectorMaterializationContext:
         self.datetime_start = self.get_datetime_start(datetime_start=datetime_start)
         self.datetime_end = self.get_datetime_end(datetime_end=datetime_end)
 
+        self.additional_vars = additional_vars or {}
         self.dbt_vars = self.get_dbt_vars(
             datetime_start=self.datetime_start,
             datetime_end=self.datetime_end,
@@ -408,6 +409,7 @@ class DBTSelectorMaterializationContext:
             selector.pre_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_pre_test
             else None
@@ -417,6 +419,7 @@ class DBTSelectorMaterializationContext:
             selector.post_test.get_test_vars(
                 datetime_start=self.datetime_start,
                 datetime_end=self.datetime_end,
+                additional_vars=self.additional_vars,
             )
             if self.should_run_post_test
             else None
@@ -424,6 +427,8 @@ class DBTSelectorMaterializationContext:
 
         self.pre_test_log = None
         self.post_test_log = None
+        self.pre_test_results = None
+        self.post_test_results = None
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -794,6 +799,31 @@ def run_dbt(  # noqa: PLR0913
         return logs.read()
 
 
+def get_dbt_test_descriptions() -> dict[str, str]:
+    """
+    Lê do manifest do dbt as descrições dos testes.
+
+    Deve ser chamada logo após a execução dos testes, antes que outra invocação do dbt
+    substitua o manifest.
+
+    Returns:
+        dict[str, str]: Descrição de cada teste (config.description ou description), por nome.
+    """
+    _, _, target_path = get_dbt_paths()
+    manifest_path = Path(target_path) / "manifest.json"
+    if not manifest_path.is_file():
+        return {}
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    descriptions = {}
+    for node in manifest["nodes"].values():
+        if node.get("resource_type") != "test":
+            continue
+        description = (node.get("config") or {}).get("description") or node.get("description")
+        if description:
+            descriptions[node["name"]] = description
+    return descriptions
+
+
 def run_dbt_tests(  # noqa: PLR0913
     dbt_test: DBTTest,
     datetime_start: Optional[datetime],
@@ -801,9 +831,10 @@ def run_dbt_tests(  # noqa: PLR0913
     partitions: Optional[list[str]] = None,
     env: Optional[str] = None,
     flags: Optional[list[str]] = None,
-) -> tuple[str, dict]:
+    additional_vars: Optional[dict] = None,
+) -> tuple[str, dict, list[dict]]:
     """
-    Executa o DBT test
+    Executa o DBT test e associa a cada resultado a tabela e a descrição do teste
 
     Args:
         dbt_test (DBTTest): Objeto representando o teste do DBT.
@@ -812,10 +843,12 @@ def run_dbt_tests(  # noqa: PLR0913
         partitions (Optional[list[str]]): Lista de partições para execução dos testes.
         env (Optional[str]): Ambiente de execução (prod ou dev). Define o target do dbt.
         flags (Optional[list[str]]): Flags adicionais compatíveis com ``dbt test``.
+        additional_vars (Optional[dict]): Variáveis adicionais da execução do flow.
 
     Returns:
         str: Logs da execução do DBT.
         dict: Dicionário contendo as variáveis utilizadas na execução do teste.
+        list[dict]: Resultados dos testes (ver get_dbt_test_results).
     """
 
     flags = [flag for flag in (flags or []) if flag not in {"--empty", "--full-refresh"}]
@@ -825,10 +858,15 @@ def run_dbt_tests(  # noqa: PLR0913
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         partitions=partitions,
+        additional_vars=additional_vars,
     )
     log = run_dbt(dbt_obj=dbt_test, dbt_vars=dbt_vars, flags=flags, raise_on_failure=False, env=env)
 
-    return log, dbt_vars
+    test_results = get_dbt_test_results(
+        checks_results=parse_dbt_test_output(log),
+        test_descriptions=get_dbt_test_descriptions(),
+    )
+    return log, dbt_vars, test_results
 
 
 RELATION_RE = re.compile(r"`([^`]+)`\.`([^`]+)`\.`([^`]+)`")
@@ -926,31 +964,149 @@ def rename_treatment_flow_run() -> str:
     return rename_flow_run()
 
 
-def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
-    dbt_test: DBTTest,
+def get_dbt_test_table_name(test_id: str) -> str:
+    """
+    Extrai a tabela do nome do teste (<teste>__<coluna>__<tabela> ou <teste>__<tabela>).
+
+    Args:
+        test_id (str): Nome do teste no dbt.
+
+    Returns:
+        str: Nome da tabela, sem o prefixo do pacote (dbt_utils, dbt_expectations).
+    """
+    parts = test_id.split("__")
+    if parts[0] in ("dbt_utils", "dbt_expectations"):
+        parts = parts[1:]
+    return parts[-1] if len(parts) >= 2 else parts[0]  # noqa: PLR2004
+
+
+def get_dbt_test_results(checks_results: dict, test_descriptions: dict[str, str]) -> list[dict]:
+    """
+    Associa a cada resultado de teste do dbt a tabela e a descrição para notificação.
+
+    Args:
+        checks_results (dict): Resultados retornados por parse_dbt_test_output.
+        test_descriptions (dict[str, str]): Descrições dos testes lidas do manifest do dbt.
+
+    Returns:
+        list[dict]: Testes agrupados por tabela, com as chaves table, test, description
+            (None quando o teste não tem descrição), result e query (query compilada de testes
+            com FAIL ou WARN).
+    """
+    table_groups = {}
+    for test_id, test_result in checks_results.items():
+        table_groups.setdefault(get_dbt_test_table_name(test_id), []).append((test_id, test_result))
+
+    return [
+        {
+            "table": table_name,
+            "test": test_id,
+            "description": test_descriptions.get(test_id),
+            "result": test_result["result"],
+            "query": test_result.get("query"),
+        }
+        for table_name, tests in table_groups.items()
+        for test_id, test_result in tests
+    ]
+
+
+def date_part(value: Any) -> str:
+    """
+    Retorna só a data de um valor de data ou data e hora, separadas por T ou por espaço.
+
+    Args:
+        value (Any): Valor da variável do dbt.
+
+    Returns:
+        str: Data, sem a hora, ou string vazia quando o valor não tem data.
+    """
+    return str(value).replace("T", " ").strip().partition(" ")[0]
+
+
+def format_dbt_vars_interval(dbt_vars: dict) -> Optional[str]:
+    """
+    Retorna o que foi testado a partir das variáveis do dbt, para identificar as notificações.
+
+    Usa a primeira variável com data em constants.DBT_VARS_INTERVAL_KEYS, da mais específica
+    para a mais genérica. Variáveis únicas, como data_versao_gtfs, aparecem com o nome
+    (data_versao_gtfs=2026-10-13); intervalos aparecem como "<início> a <fim>". Datas com
+    hora, separada por T ou por espaço, são reduzidas à data.
+
+    Args:
+        dbt_vars (dict): Variáveis usadas na execução do teste.
+
+    Returns:
+        Optional[str]: Identificação do que foi testado, ou None sem variáveis de data.
+    """
+    start_key, end_key = next(
+        (
+            (start, end)
+            for start, end in constants.DBT_VARS_INTERVAL_KEYS
+            if date_part(dbt_vars.get(start) or "")
+        ),
+        (None, None),
+    )
+    if start_key is None:
+        return None
+    start = date_part(dbt_vars[start_key])
+    if end_key is None:
+        return f"{start_key}={start}"
+    end = date_part(dbt_vars.get(end_key) or "") or start
+    return start if end == start else f"{start} a {end}"
+
+
+def format_dbt_test_lines(test_results: list[dict]) -> list[str]:
+    """
+    Monta as linhas dos resultados dos testes do dbt para o Discord, agrupadas por tabela.
+
+    Args:
+        test_results (list[dict]): Resultados dos testes, com as chaves table, test,
+            description e result.
+
+    Returns:
+        list[str]: Linhas da mensagem.
+    """
+    lines = []
+    current_table = None
+    for test in test_results:
+        if test["table"] != current_table:
+            current_table = test["table"]
+            lines.append(f"*{current_table}:*\n")
+        test_id = test["test"].replace("_", "\\_")
+        description = test["description"] or f"Teste: {test_id}"
+        result_icon = constants.DBT_TEST_RESULT_ICONS.get(test["result"], ":x:")
+        lines.append(f"{result_icon} {description}\n")
+    return lines
+
+
+def dbt_test_notify_discord(  # noqa: PLR0913
     dbt_vars: dict,
     dbt_logs: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    test_results: Optional[list[dict]] = None,
 ):
     """
     Processa os resultados dos testes do dbt e envia notificações para o Discord.
 
     Args:
-        dbt_test (DBTTest): Objeto que representa o teste do dbt.
         dbt_vars(dict): Dicionário contendo as variáveis utilizadas na execução do teste.
         dbt_logs (str): Logs retornados pelo DBT.
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        test_results (Optional[list[dict]]): Resultados retornados por run_dbt_tests; sem eles,
+            os resultados são extraídos de dbt_logs com as descrições do manifest do dbt.
     """
     if dbt_logs is None:
         return
 
-    test_descriptions = dbt_test.test_descriptions
-
-    checks_results = parse_dbt_test_output(dbt_logs)
+    if test_results is None:
+        test_results = get_dbt_test_results(
+            checks_results=parse_dbt_test_output(dbt_logs),
+            test_descriptions=get_dbt_test_descriptions(),
+        )
 
     webhook_url = get_env_secret(secret_path=smtr_constants.WEBHOOKS_SECRET_PATH)[webhook_key]
     additional_mentions = additional_mentions or []
@@ -959,128 +1115,32 @@ def dbt_test_notify_discord(  # noqa: PLR0912, PLR0913, PLR0915
         [f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS[m]['user_id']}>\n" for m in mentions]
     )
 
-    test_check = all(test["result"] in ("PASS", "WARN") for test in checks_results.values())
-    has_warn = any(test["result"] == "WARN" for test in checks_results.values())
-
-    keys = [
-        ("date_range_start", "date_range_end"),
-        ("start_date", "end_date"),
-        ("run_date", None),
-        ("data_versao_gtfs", None),
-    ]
-
-    start_date = None
-    end_date = None
-
-    for start_key, end_key in keys:
-        if start_key in dbt_vars and "T" in dbt_vars[start_key]:
-            start_date = dbt_vars[start_key].split("T")[0]
-
-            if end_key and end_key in dbt_vars and "T" in dbt_vars[end_key]:
-                end_date = dbt_vars[end_key].split("T")[0]
-
-            break
-        elif start_key in dbt_vars:
-            start_date = dbt_vars[start_key]
-
-            if end_key and end_key in dbt_vars:
-                end_date = dbt_vars[end_key]
-
-    date_range = (
-        start_date
-        if not end_date
-        else (start_date if start_date == end_date else f"{start_date} a {end_date}")
-    )
-
-    status_circle = (
-        ":red_circle: "
-        if not test_check
-        else (":yellow_circle: " if has_warn else ":green_circle: ")
-    )
-    if "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs:
-        formatted_messages = [
-            status_circle,
-            f"**[DEV] Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-    else:
-        formatted_messages = [
-            status_circle,
-            f"**Data Quality Checks - {runtime.flow_run.flow_name} - {date_range}**\n\n",
-        ]
-
-    table_groups = {}
-
-    for test_id, test_result in checks_results.items():
-        parts = test_id.split("__")
-        # Strip sanitized package prefix (dbt_utils__..., dbt_expectations__...)
-        if parts and parts[0] in ("dbt_utils", "dbt_expectations"):
-            parts = parts[1:]
-        if len(parts) >= 3:  # noqa: PLR2004
-            table_name = parts[-1]
-        elif len(parts) == 2:  # noqa: PLR2004
-            table_name = parts[1]
-        else:
-            table_name = parts[0]
-
-        if table_name not in table_groups:
-            table_groups[table_name] = []
-
-        table_groups[table_name].append((test_id, test_result))
-
-    for table_name, tests in table_groups.items():
-        formatted_messages.append(f"*{table_name}:*\n")
-
-        for test_id, test_result in tests:
-            matched_description = None
-
-            for key, value in test_descriptions.items():
-                # singular: {test_id: {"description": ...}}
-                if "description" in value:
-                    if key == test_id:
-                        matched_description = value["description"]
-                        break
-                    continue
-
-                # grupo por tabela: {table_name: {test_id: {"description": ...}}}
-                if table_name in key:
-                    for existing_test_id, test_info in value.items():
-                        if existing_test_id in test_id:
-                            name_parts = test_id.split("__")
-                            if name_parts and name_parts[0] in ("dbt_utils", "dbt_expectations"):
-                                name_parts = name_parts[1:]
-                            column = (
-                                name_parts[1]
-                                if len(name_parts) >= 3  # noqa: PLR2004
-                                else (name_parts[0] if name_parts else test_id)
-                            )
-                            matched_description = test_info.get("description", test_id).replace(
-                                "{column_name}", column
-                            )
-                            break
-                    if matched_description:
-                        break
-
-            test_id = test_id.replace("_", "\\_")  # noqa: PLW2901
-            description = matched_description or f"Teste: {test_id}"
-
-            result_icon = {
-                "PASS": ":white_check_mark:",
-                "WARN": ":warning:",
-            }.get(test_result["result"], ":x:")
-            test_message = f"{result_icon} {description}\n"
-            formatted_messages.append(test_message)
-
-    formatted_messages.append("\n")
+    test_check = all(test["result"] in ("PASS", "WARN") for test in test_results)
+    has_warn = any(test["result"] == "WARN" for test in test_results)
     if not test_check:
-        status_message = (
-            ":warning: **Status:** Testes falharam. Necessidade de revisão dos dados finais!\n"
-        )
+        status = "FAIL"
     elif has_warn:
-        status_message = ":warning: **Status:** Sucesso com avisos. Verificar testes em WARN."
+        status = "WARN"
     else:
-        status_message = ":tada: **Status:** Sucesso"
-    formatted_messages.append(status_message)
+        status = "PASS"
 
+    is_dev = "(target='dev')" in dbt_logs or "(target='hmg')" in dbt_logs
+    title = " - ".join(
+        part
+        for part in (
+            f"{'[DEV] ' if is_dev else ''}Data Quality Checks",
+            runtime.flow_run.flow_name,
+            format_dbt_vars_interval(dbt_vars),
+        )
+        if part
+    )
+    formatted_messages = [
+        constants.DBT_TEST_STATUS_CIRCLES[status],
+        f"**{title}**\n\n",
+        *format_dbt_test_lines(test_results),
+        "\n",
+        constants.DBT_TEST_STATUS_MESSAGES[status],
+    ]
     if not test_check:
         formatted_messages.append(mention_tags)
 

@@ -113,7 +113,7 @@ with
             and latitude != 0
             and longitude != 0
             and id_veiculo != '99999'
-            and data <= "2026-09-15"
+            and data <= "2026-10-01"
     /*
         2801 - GTU (A2)
         2802 - TUSE (B2)
@@ -135,7 +135,7 @@ with
     )
 select
     v.data,
-    g.datetime_gps,
+    datetime_trunc(g.datetime_gps, second) as datetime_gps,
     v.modo,
     g.id_veiculo,
     v.servico as servico_viagem,

@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from google.cloud import storage
 from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
+from prefect.tasks import exponential_backoff
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.treatment.default_treatment import constants
@@ -18,6 +19,7 @@ from pipelines.common.treatment.default_treatment.utils import (
     IncompleteDataError,
     clone_queries_from_github,
     dbt_test_notify_discord,
+    format_dbt_vars_interval,
     get_dbt_paths,
     get_model_table,
     run_dbt,
@@ -27,6 +29,7 @@ from pipelines.common.treatment.default_treatment.utils import (
 )
 from pipelines.common.utils.cron import cron_get_last_date
 from pipelines.common.utils.gcp.bigquery import BQTable, SourceTable
+from pipelines.common.utils.google_chat import notify_test_failures_google_chat
 from pipelines.common.utils.openmetadata import ingest_dbt_artifacts
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
@@ -53,7 +56,7 @@ def ingest_dbt_artifacts_to_openmetadata(
     )
 
 
-@task(cache_policy=NO_CACHE)
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
 def create_materialization_contexts(  # noqa: PLR0913
     env: str,
     selectors: list[DBTSelector],
@@ -281,28 +284,34 @@ def run_dbt_selector_tests(
         dbt_test: DBTTest = context.selector[f"{mode}_test"]
 
         if dbt_test is not None:
-            log, _ = run_dbt_tests(
+            log, _, test_results = run_dbt_tests(
                 dbt_test=dbt_test,
                 datetime_start=context.datetime_start,
                 datetime_end=context.datetime_end,
                 env=context.env,
                 flags=flags,
+                additional_vars=context.additional_vars,
             )
         context[f"{mode}_test_log"] = log
+        context[f"{mode}_test_results"] = test_results
 
     return contexts
 
 
 @task(cache_policy=NO_CACHE)
-def task_dbt_selector_test_notify_discord(
+def task_dbt_selector_test_notify(  # noqa: PLR0913
     context: DBTSelectorMaterializationContext,
     mode: str,
     webhook_key: str = "dataplex",
     raise_check_error: bool = True,
     additional_mentions: Optional[list] = None,
+    google_chat_webhook_key: Optional[str] = None,
 ):
     """
-    Processa os resultados dos testes do dbt e envia notificações para o Discord.
+    Notifica os resultados dos testes do dbt no Discord e, se configurado, no Google Chat.
+
+    O Google Chat recebe só as falhas e é notificado antes do Discord, que pode interromper o
+    flow quando algum teste falha.
 
     Args:
         context (DBTSelectorMaterializationContext): Contexto de materialização.
@@ -310,22 +319,44 @@ def task_dbt_selector_test_notify_discord(
         webhook_key (str): Chave do webhook do Discord.
         raise_check_error (bool): Indica se deve lançar erro em caso de falha nos testes.
         additional_mentions (Optional[list]): Menções adicionais na mensagem.
+        google_chat_webhook_key (Optional[str]): Chave do webhook do Google Chat no secret;
+            sem chave, não notifica no Google Chat.
     """
-    test: DBTTest = context.selector[f"{mode}_test"]
     dbt_vars: dict = context[f"{mode}_test_dbt_vars"]
     dbt_logs: str = context[f"{mode}_test_log"]
+    test_results: list[dict] = context[f"{mode}_test_results"]
+
+    if google_chat_webhook_key and test_results:
+        notify_test_failures_google_chat(
+            failures=[
+                {**result, "description": result["description"] or result["test"]}
+                for result in test_results
+                if result["result"] in ("FAIL", "ERROR")
+            ],
+            title=" - ".join(
+                part
+                for part in (
+                    f"Testes dbt ({mode})",
+                    runtime.flow_run.flow_name,
+                    format_dbt_vars_interval(dbt_vars),
+                )
+                if part
+            ),
+            env=context.env,
+            webhook_key=google_chat_webhook_key,
+        )
 
     dbt_test_notify_discord(
-        dbt_test=test,
         dbt_vars=dbt_vars,
         dbt_logs=dbt_logs,
         webhook_key=webhook_key,
         raise_check_error=raise_check_error,
         additional_mentions=additional_mentions,
+        test_results=test_results,
     )
 
 
-@task(cache_policy=NO_CACHE)
+@task(cache_policy=NO_CACHE, retries=4, retry_delay_seconds=exponential_backoff(backoff_factor=10))
 def save_materialization_datetime_redis(
     contexts: list[DBTSelectorMaterializationContext],
     save_redis: Optional[bool] = True,

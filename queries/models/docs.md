@@ -71,11 +71,11 @@ Número sequencial histórico, contínuo e crescente gerado nativamente pelo ban
 {% enddocs %}
 
 {% docs tipo_viagem_informada %}
-Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" (viagem planejada no PLANO OPERACIONAL) ou "AUTORIZADA" (viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL). Nos demais casos, este campo deve permanecer nulo.
+Classificação qualitativa da natureza de planejamento da viagem. Restrito exclusivamente a duas categorias: "PROGRAMADA" [viagem planejada no PLANO OPERACIONAL] ou "AUTORIZADA" [viagem adicional previamente autorizada pelo PODER CONCEDENTE devido à necessidade operacional de atendimento e que não consta no PLANO OPERACIONAL]. Nos demais casos, este campo deve permanecer nulo.
 {% enddocs %}
 
 {% docs tipo_execucao_viagem %}
-Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" (viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final) ou "INCOMPLETA" (viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA).
+Classificação qualitativa da extensão percorrida. Restrito a duas categorias: "COMPLETA" [viagem que percorre todo o trajeto do serviço vinculado, do ponto inicial ao ponto final] ou "INCOMPLETA" [viagem que percorre apenas parte do trajeto e é interrompida por fatos alheios à responsabilidade da CONCESSIONÁRIA].
 {% enddocs %}
 
 {% docs project_id %}
@@ -272,6 +272,262 @@ String que indica a versão atual do conjunto de dados GTFS
 
 {% docs feed_end_date %}
 Data final do feed [versão]
+{% enddocs %}
+
+{% docs feed_publisher_name %}
+Nome completo da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_publisher_url %}
+URL do site da organização que publica o conjunto de dados
+{% enddocs %}
+
+{% docs feed_lang %}
+Idioma padrão usado para o texto neste conjunto de dados
+{% enddocs %}
+
+{% docs default_lang %}
+Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro
+{% enddocs %}
+
+{% docs feed_contact_email %}
+Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs feed_contact_url %}
+URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados
+{% enddocs %}
+
+{% docs service_id %}
+Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas
+{% enddocs %}
+
+{% docs monday %}
+Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date
+{% enddocs %}
+
+{% docs tuesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras
+{% enddocs %}
+
+{% docs wednesday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras
+{% enddocs %}
+
+{% docs thursday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras
+{% enddocs %}
+
+{% docs friday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras
+{% enddocs %}
+
+{% docs saturday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados
+{% enddocs %}
+
+{% docs sunday %}
+Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos
+{% enddocs %}
+
+{% docs block_id %}
+Identifica o bloco ao qual pertence a viagem
+{% enddocs %}
+
+{% docs wheelchair_accessible %}
+Indica acessibilidade para cadeiras de rodas
+{% enddocs %}
+
+{% docs bikes_allowed %}
+Indica se bicicletas são permitidas
+{% enddocs %}
+
+{% docs shape_pt_lat %}
+Latitude de um ponto de forma (graus decimais)
+{% enddocs %}
+
+{% docs shape_pt_lon %}
+Longitude de um ponto de forma (graus decimais)
+{% enddocs %}
+
+{% docs shape_pt_sequence %}
+Sequência na qual os pontos da forma se conectam para formar a forma
+{% enddocs %}
+
+{% docs shape_dist_traveled %}
+Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro (m)
+{% enddocs %}
+
+{% docs stop_sequence %}
+Ordem das paradas para uma viagem específica
+{% enddocs %}
+
+{% docs stop_id_stop_time %}
+Identifica a parada atendida
+{% enddocs %}
+
+{% docs arrival_time %}
+Hora de chegada na parada [definida por stop_times.stop_id] para uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+{% enddocs %}
+
+{% docs departure_time %}
+Hora de partida da parada [definida por stop_times.stop_id] para uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone
+{% enddocs %}
+
+{% docs pickup_type %}
+Indica o método de coleta
+{% enddocs %}
+
+{% docs drop_off_type %}
+Indica o método de entrega
+{% enddocs %}
+
+{% docs continuous_pickup_stop_time %}
+Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+{% enddocs %}
+
+{% docs continuous_drop_off_stop_time %}
+Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do caminho de viagem do veículo, conforme descrito por shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+{% enddocs %}
+
+{% docs shape_dist_traveled_stop_time %}
+Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro (m)
+{% enddocs %}
+
+{% docs timepoint %}
+Indica se os horários de chegada e saída de uma parada são rigorosamente respeitados pelo veículo ou se são horários aproximados e/ou interpolados
+{% enddocs %}
+
+{% docs stop_id %}
+Identifica uma localização: paragem/plataforma, estação, entrada/saída, nó genérico ou área de embarque
+{% enddocs %}
+
+{% docs stop_code %}
+Texto curto ou um número que identifica a localização dos passageiros
+{% enddocs %}
+
+{% docs stop_name %}
+Nome do local
+{% enddocs %}
+
+{% docs tts_stop_name %}
+Versão legível do stop_name
+{% enddocs %}
+
+{% docs stop_desc %}
+Descrição do local que fornece informações úteis e de qualidade
+{% enddocs %}
+
+{% docs stop_lat %}
+Latitude do local (graus decimais)
+{% enddocs %}
+
+{% docs stop_lon %}
+Longitude do local (graus decimais)
+{% enddocs %}
+
+{% docs zone_id %}
+Identifica a zona tarifária para uma parada
+{% enddocs %}
+
+{% docs stop_url %}
+URL de uma página da web sobre o local
+{% enddocs %}
+
+{% docs location_type %}
+Tipo de localização
+{% enddocs %}
+
+{% docs parent_station %}
+Define a hierarquia entre os diferentes locais definidos em stops.txt
+{% enddocs %}
+
+{% docs stop_timezone %}
+Fuso horário do local
+{% enddocs %}
+
+{% docs wheelchair_boarding %}
+Indica se o embarque para cadeiras de rodas é possível no local
+{% enddocs %}
+
+{% docs level_id %}
+Nível do local
+{% enddocs %}
+
+{% docs platform_code %}
+Identificador de plataforma para uma parada de plataforma [uma parada pertencente a uma estação]
+{% enddocs %}
+
+{% docs route_short_name %}
+Nome abreviado de uma rota
+{% enddocs %}
+
+{% docs route_long_name %}
+Nome completo de uma rota
+{% enddocs %}
+
+{% docs route_desc %}
+Descrição de uma rota que fornece informações úteis e de qualidade
+{% enddocs %}
+
+{% docs route_type %}
+Indica o tipo de transporte utilizado em uma rota
+{% enddocs %}
+
+{% docs route_url %}
+URL de uma página da web sobre uma rota específica
+{% enddocs %}
+
+{% docs route_color %}
+Designação de cores da rota que corresponda ao material voltado para o público
+{% enddocs %}
+
+{% docs route_text_color %}
+Cor legível a ser usada para texto desenhado contra um fundo de route_color
+{% enddocs %}
+
+{% docs route_sort_order %}
+Ordena as rotas de forma ideal para apresentação aos clientes
+{% enddocs %}
+
+{% docs continuous_pickup_route %}
+Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem do trajeto
+{% enddocs %}
+
+{% docs continuous_drop_off_route %}
+Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem da rota
+{% enddocs %}
+
+{% docs network_id %}
+Identifica um grupo de rotas. Várias linhas em rotas.txt podem ter o mesmo network_id
+{% enddocs %}
+
+{% docs start_time %}
+Hora em que o primeiro veículo sai da primeira parada da viagem com o intervalo especificado
+{% enddocs %}
+
+{% docs end_time %}
+Hora em que o serviço muda para um intervalo diferente [ou cessa] na primeira parada da viagem
+{% enddocs %}
+
+{% docs headway_secs %}
+Tempo entre partidas da mesma parada [intervalo] da viagem, durante o intervalo de tempo especificado por start_time e end_time (segundos)
+{% enddocs %}
+
+{% docs exact_times %}
+Indica o tipo de serviço para uma viagem
+{% enddocs %}
+
+{% docs evento_trajeto_alternativo %}
+Evento relacionado ao trajeto alternativo
+{% enddocs %}
+
+{% docs ativacao_trajeto_alternativo %}
+Modo de ativação do trajeto alternativo
+{% enddocs %}
+
+{% docs descricao_trajeto_alternativo %}
+Descrição sobre o trajeto alternativo
 {% enddocs %}
 
 {% docs tipo_servico %}
@@ -1358,7 +1614,7 @@ Saldo entre a receita esperada e a receita aferida [(receita_total_aferida - rec
 {% enddocs %}
 
 {% docs quinzena %}
-Identificador da quinzena (1 ou 2) dentro do mês de referência
+Identificador da quinzena [1 ou 2] dentro do mês de referência
 {% enddocs %}
 
 {% docs data_inicial_quinzena %}
@@ -2067,4 +2323,56 @@ Parte da coordenada geográfica [eixo y] em graus decimais do centroide da geome
 
 {% docs longitude_centroide_area_riorotativo %}
 Parte da coordenada geográfica [eixo x] em graus decimais do centroide da geometria da área de estacionamento [EPSG:4326 - WGS84]
+{% enddocs %}
+
+{% docs data_operacao_controle_ctt %}
+Data da operação financeira
+{% enddocs %}
+
+{% docs tipo_operacao_controle_ctt %}
+Se a operação é de Entrada ou Saída
+{% enddocs %}
+
+{% docs operacao_controle_ctt %}
+Descrição da operação
+{% enddocs %}
+
+{% docs favorecido_operacao_controle_ctt %}
+Nome do favorecido da operação
+{% enddocs %}
+
+{% docs modal_operacao_controle_ctt %}
+Modo de transporte do favorecido da operação
+{% enddocs %}
+
+{% docs valor_operacao_controle_ctt %}
+Valor financeiro da operação (R$)
+{% enddocs %}
+
+{% docs ano_competencia_operacao_controle_ctt %}
+Ano de competência da operação
+{% enddocs %}
+
+{% docs mes_competencia_operacao_controle_ctt %}
+Mês de competência da operação
+{% enddocs %}
+
+{% docs quinzena_semana_competencia_operacao_controle_ctt %}
+Quinzena ou semana de competência da operação
+{% enddocs %}
+
+{% docs numero_processo_operacao_controle_ctt %}
+Número do processo que gerou a operação
+{% enddocs %}
+
+{% docs observacoes_operacao_controle_ctt %}
+Observações sobre a operação
+{% enddocs %}
+
+{% docs numero_nf_operacao_controle_ctt %}
+Número da nota fiscal da operação
+{% enddocs %}
+
+{% docs tipo_conta_operacao_controle_ctt %}
+Tipo da conta [CETT, CB ou CAER]
 {% enddocs %}

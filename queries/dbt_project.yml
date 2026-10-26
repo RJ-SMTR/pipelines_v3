@@ -53,9 +53,6 @@ vars:
   sppo_registros_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.registros"
   sppo_realocacao_staging: "rj-smtr-staging.br_rj_riodejaneiro_onibus_gps_staging.realocacao"
   data_inicio_realocacao: "2022-11-15"
-  15_minutos: false
-  modo_gps: "onibus"
-  fonte_gps: "conecta"
   # Parametros de intersecção do ônibus com rota
   ## Tamanho do buffer da rota
   tamanho_buffer_metros: 500 # flag_trajeto_correto
@@ -112,6 +109,7 @@ vars:
   DATA_GTFS_V2_INICIO: "2025-04-30"
   DATA_GTFS_V4_INICIO: "2025-07-16"
   DATA_GTFS_V5_INICIO: "2025-12-21"
+  DATA_GTFS_V6_INICIO: "2026-10-19"
 
   ### Subsídio SPPO (Ônibus) ###
   buffer: 500 # distância em metros para buffer
@@ -469,9 +467,11 @@ models:
     controle_financeiro:
       +materialized: table
       +schema: controle_financeiro
+      +description: "Dados de controle financeiro da CCT"
       staging:
         +materialized: view
         +schema: controle_financeiro_staging
+        +description: "Dados de controle financeiro da CCT [Tratamento]"
     br_rj_riodejaneiro_viagem_zirix:
       +materialized: table
       +schema: br_rj_riodejaneiro_viagem_zirix
@@ -664,6 +664,10 @@ models:
       +materialized: view
       +schema: dashboard_riorotativo
       +description: "Views para os Dashboards do Rio Rotativo Digital"
+    dashboard_controle_financeiro:
+      +materialized: view
+      +schema: dashboard_controle_financeiro
+      +description: "Views para o Dashboards de controle financeiro"
 flags:
   require_generic_test_arguments_property: true
   warn_error_options:

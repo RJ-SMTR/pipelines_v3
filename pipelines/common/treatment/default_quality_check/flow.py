@@ -126,9 +126,9 @@ def create_quality_check_flows_default_tasks(  # noqa: PLR0913
     )
 
     tasks["notify_discord"] = task_dbt_test_notify_discord(
-        dbt_test=dbt_test,
         dbt_vars=tasks["run_dbt_tests"][1],
         dbt_logs=tasks["run_dbt_tests"][0],
+        test_results=tasks["run_dbt_tests"][2],
         webhook_key=webhook_key,
         additional_mentions=additional_mentions,
         wait_for=tasks_wait_for.get("notify_discord"),

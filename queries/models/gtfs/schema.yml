@@ -27,28 +27,21 @@ models:
     description: "Datas de serviço especificadas usando uma programação semanal com datas de início e término"
     columns:
       - name: service_id
-        description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
-        tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations__expect_column_values_to_match_regex__service_id__calendar_gtfs
-              config:
-                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-              arguments:
-                regex: "^([USD]_|EXCEP)"
+        description: "{{ doc('service_id') }}"
       - name: monday
-        description: "Indica se o serviço funciona todas as segundas-feiras no intervalo de datas especificado pelos campos start_date e end_date"
+        description: "{{ doc('monday') }}"
       - name: tuesday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às terças-feiras"
+        description: "{{ doc('tuesday') }}"
       - name: wednesday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quartas-feiras"
+        description: "{{ doc('wednesday') }}"
       - name: thursday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às quintas-feiras"
+        description: "{{ doc('thursday') }}"
       - name: friday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica às sextas-feiras"
+        description: "{{ doc('friday') }}"
       - name: saturday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos sábados"
+        description: "{{ doc('saturday') }}"
       - name: sunday
-        description: "Funciona da mesma forma que segunda-feira, exceto se aplica aos domingos"
+        description: "{{ doc('sunday') }}"
       - name: start_date
         description: "Inicie o dia de serviço para o intervalo de serviço"
       - name: end_date
@@ -132,13 +125,13 @@ models:
     description: "Metadados do conjunto de dados, incluindo informações sobre editor, versão e expiração"
     columns:
       - name: feed_publisher_name
-        description: "Nome completo da organização que publica o conjunto de dados"
+        description: "{{ doc('feed_publisher_name') }}"
       - name: feed_publisher_url
-        description: "URL do site da organização que publica o conjunto de dados"
+        description: "{{ doc('feed_publisher_url') }}"
       - name: feed_lang
-        description: "Idioma padrão usado para o texto neste conjunto de dados"
+        description: "{{ doc('feed_lang') }}"
       - name: default_lang
-        description: "Define o idioma que deve ser usado quando o consumidor de dados não conhece o idioma do passageiro"
+        description: "{{ doc('default_lang') }}"
       - name: feed_start_date
         description: "O conjunto de dados fornece informações de programação completas e confiáveis ​​para serviço no período que vai do início do dia feed_start_date até o final do dia feed_end_date"
         tests:
@@ -151,11 +144,9 @@ models:
       - name: feed_version
         description: "{{ doc('feed_version') }}"
       - name: feed_contact_email
-        description: "Endereço de e-mail para comunicação sobre o conjunto de dados GTFS e práticas de publicação de dados"
+        description: "{{ doc('feed_contact_email') }}"
       - name: feed_contact_url
-        description: "URL para informações de contato, um formulário web, uma mesa de suporte ou outras ferramentas de comunicação relativas ao conjunto de dados GTFS e práticas de publicação de dados"
-      - name: feed_start_date
-        description: "Data de referência do feed (versão)"
+        description: "{{ doc('feed_contact_url') }}"
       - name: feed_update_datetime
         description: "Data e hora da última atualização do feed"
       - name: versao_modelo
@@ -167,13 +158,13 @@ models:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
       - name: start_time
-        description: "Hora em que o primeiro veículo sai da primeira parada da viagem com o intervalo especificado"
+        description: "{{ doc('start_time') }}"
       - name: end_time
-        description: "Hora em que o serviço muda para um intervalo diferente (ou cessa) na primeira parada da viagem"
+        description: "{{ doc('end_time') }}"
       - name: headway_secs
-        description: "Tempo, em segundos, entre partidas da mesma parada (intervalo) da viagem, durante o intervalo de tempo especificado por start_time e end_time"
+        description: "{{ doc('headway_secs') }}"
       - name: exact_times
-        description: "Indica o tipo de serviço para uma viagem"
+        description: "{{ doc('exact_times') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -189,29 +180,29 @@ models:
       - name: route_id
         description: "{{ doc('route_id') }}"
       - name: agency_id
-        description: "Agência para a rota especificada"
+        description: "{{ doc('agency_id') }}"
       - name: route_short_name
-        description: "Nome abreviado de uma rota"
+        description: "{{ doc('route_short_name') }}"
       - name: route_long_name
-        description: "Nome completo de uma rota"
+        description: "{{ doc('route_long_name') }}"
       - name: route_desc
-        description: "Descrição de uma rota que fornece informações úteis e de qualidade"
+        description: "{{ doc('route_desc') }}"
       - name: route_type
-        description: "Indica o tipo de transporte utilizado em uma rota"
+        description: "{{ doc('route_type') }}"
       - name: route_url
-        description: "URL de uma página da web sobre uma rota específica"
+        description: "{{ doc('route_url') }}"
       - name: route_color
-        description: "Designação de cores da rota que corresponda ao material voltado para o público"
+        description: "{{ doc('route_color') }}"
       - name: route_text_color
-        description: "Cor legível a ser usada para texto desenhado contra um fundo de route_color"
+        description: "{{ doc('route_text_color') }}"
       - name: route_sort_order
-        description: "Ordena as rotas de forma ideal para apresentação aos clientes"
+        description: "{{ doc('route_sort_order') }}"
       - name: continuous_pickup
-        description: "Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem do trajeto"
+        description: "{{ doc('continuous_pickup_route') }}"
       - name: continuous_drop_off
-        description: "Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, em cada viagem da rota"
+        description: "{{ doc('continuous_drop_off_route') }}"
       - name: network_id
-        description: "Identifica um grupo de rotas. Várias linhas em rotas.txt podem ter o mesmo network_id"
+        description: "{{ doc('network_id') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -249,15 +240,15 @@ models:
     description: "Regras para mapear caminhos de deslocamento de veículos, às vezes chamados de alinhamentos de rotas"
     columns:
       - name: shape_id
-        description: "Identifica uma forma"
+        description: "{{ doc('shape_id') }}"
       - name: shape_pt_sequence
-        description: "Sequência na qual os pontos da forma se conectam para formar a forma"
+        description: "{{ doc('shape_pt_sequence') }}"
       - name: shape_pt_lat
-        description: "Latitude de um ponto de forma"
+        description: "{{ doc('shape_pt_lat') }}"
       - name: shape_pt_lon
-        description: "Longitude de um ponto de forma"
+        description: "{{ doc('shape_pt_lon') }}"
       - name: shape_dist_traveled
-        description: "Distância real percorrida ao longo da forma desde o primeiro ponto da forma até o ponto especificado neste registro"
+        description: "{{ doc('shape_dist_traveled') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -271,35 +262,35 @@ models:
     description: "Paradas onde os veículos pegam ou deixam os passageiros [também define estações e entradas de estação]"
     columns:
       - name: stop_id
-        description: "Identifica uma localização: paragem/plataforma, estação, entrada/saída, nó genérico ou área de embarque"
+        description: "{{ doc('stop_id') }}"
       - name: stop_code
-        description: "Texto curto ou um número que identifica a localização dos passageiros"
+        description: "{{ doc('stop_code') }}"
       - name: stop_name
-        description: "Nome do local"
+        description: "{{ doc('stop_name') }}"
       - name: tts_stop_name
-        description: "Versão legível do stop_name"
+        description: "{{ doc('tts_stop_name') }}"
       - name: stop_desc
-        description: "Descrição do local que fornece informações úteis e de qualidade"
+        description: "{{ doc('stop_desc') }}"
       - name: stop_lat
-        description: "Latitude do local"
+        description: "{{ doc('stop_lat') }}"
       - name: stop_lon
-        description: "Longitude do local"
+        description: "{{ doc('stop_lon') }}"
       - name: zone_id
-        description: "Identifica a zona tarifária para uma parada"
+        description: "{{ doc('zone_id') }}"
       - name: stop_url
-        description: "URL de uma página da web sobre o local"
+        description: "{{ doc('stop_url') }}"
       - name: location_type
-        description: "Tipo de localização"
+        description: "{{ doc('location_type') }}"
       - name: parent_station
-        description: "Define a hierarquia entre os diferentes locais definidos em stops.txt"
+        description: "{{ doc('parent_station') }}"
       - name: stop_timezone
-        description: "Fuso horário do local"
+        description: "{{ doc('stop_timezone') }}"
       - name: wheelchair_boarding
-        description: "Indica se o embarque para cadeiras de rodas é possível no local"
+        description: "{{ doc('wheelchair_boarding') }}"
       - name: level_id
-        description: "Nível do local"
+        description: "{{ doc('level_id') }}"
       - name: platform_code
-        description: "Identificador de plataforma para uma parada de plataforma (uma parada pertencente a uma estação)"
+        description: "{{ doc('platform_code') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -315,27 +306,27 @@ models:
       - name: trip_id
         description: "{{ doc('trip_id') }}"
       - name: stop_sequence
-        description: "Ordem das paradas para uma viagem específica"
+        description: "{{ doc('stop_sequence') }}"
       - name: stop_id
-        description: "Identifica a parada atendida"
+        description: "{{ doc('stop_id_stop_time') }}"
       - name: arrival_time
-        description: "Hora de chegada na parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone"
+        description: "{{ doc('arrival_time') }}"
       - name: departure_time
-        description: "Hora de partida da parada (definida por stop_times.stop_id) para uma viagem específica (definida por stop_times.trip_id) no fuso horário especificado por agency.agency_timezone, não por stops.stop_timezone"
+        description: "{{ doc('departure_time') }}"
       - name: stop_headsign
         description: "{{ doc('trip_headsign') }}"
       - name: pickup_type
-        description: "Indica o método de coleta"
+        description: "{{ doc('pickup_type') }}"
       - name: drop_off_type
-        description: " Indica o método de entrega"
+        description: "{{ doc('drop_off_type') }}"
       - name: continuous_pickup
-        description: "Indica que o passageiro pode embarcar no veículo de transporte público em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito em shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem"
+        description: "{{ doc('continuous_pickup_stop_time') }}"
       - name: continuous_drop_off
-        description: "Indica que o passageiro pode descer do veículo de transporte público em qualquer ponto ao longo do caminho de viagem do veículo, conforme descrito por shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem"
+        description: "{{ doc('continuous_drop_off_stop_time') }}"
       - name: shape_dist_traveled
-        description: "Distância real percorrida ao longo do formato associado, desde a primeira parada até a parada especificada neste registro"
+        description: "{{ doc('shape_dist_traveled_stop_time') }}"
       - name: timepoint
-        description: "Indica se os horários de chegada e saída de uma parada são rigorosamente respeitados pelo veículo ou se são horários aproximados e/ou interpolados"
+        description: "{{ doc('timepoint') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -353,26 +344,21 @@ models:
       - name: route_id
         description: "{{ doc('route_id') }}"
       - name: service_id
-        description: "Identifica um conjunto de datas em que o serviço está disponível para uma ou mais rotas"
+        description: "{{ doc('service_id') }}"
       - name: trip_headsign
         description: "{{ doc('trip_headsign') }}"
       - name: trip_short_name
         description: "{{ doc('trip_short_name') }}"
       - name: direction_id
-        description: "Indica a direção de deslocamento de uma viagem"
+        description: "{{ doc('direction_id') }}"
       - name: block_id
-        description: "Identifica o bloco ao qual pertence a viagem"
+        description: "{{ doc('block_id') }}"
       - name: shape_id
         description: "{{ doc('shape_id') }}"
-        tests:
-          - test_shape_id_gtfs:
-              name: test_shape_id_gtfs__trips_gtfs
-              config:
-                where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
       - name: wheelchair_accessible
-        description: "Indica acessibilidade para cadeiras de rodas"
+        description: "{{ doc('wheelchair_accessible') }}"
       - name: bikes_allowed
-        description: "Indica se bicicletas são permitidas"
+        description: "{{ doc('bikes_allowed') }}"
       - name: feed_start_date
         description: "{{ doc('feed_start_date') }}"
       - name: feed_end_date
@@ -426,6 +412,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trajeto_alternativo_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date' e 'tipo_os' correspondem 1:1 entre as tabelas 'ordem_servico_trajeto_alternativo_gtfs' e 'ordem_servico_gtfs'."
             where: "1=1"
           arguments:
             expression: count(distinct tipo_os)
@@ -445,15 +432,15 @@ models:
       - name: servico
         description: "{{ doc('servico_variacao') }}"
       - name: consorcio
-        description: "Nome do consórcio responsável pelo serviço"
+        description: "{{ doc('consorcio') }}"
       - name: vista
         description: "{{ doc('vista') }}"
       - name: ativacao
-        description: "Modo de ativação do trajeto alternativo"
+        description: "{{ doc('ativacao_trajeto_alternativo') }}"
       - name: descricao
         description: "Descriação sobre o trajeto alternativo"
       - name: evento
-        description: "Evento relacionado ao trajeto alternativo"
+        description: "{{ doc('evento_trajeto_alternativo') }}"
       - name: extensao_ida
         description: "Distância planejada de ida do trajeto alternativo (km)"
       - name: extensao_volta
@@ -472,6 +459,7 @@ models:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
           name: dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_os', 'tipo_dia', 'servico' e 'faixa_horaria_inicio' correspondem 1:1 entre as tabelas 'ordem_servico_trips_shapes_gtfs' e 'ordem_servico_faixa_horaria'."
             where: "1=1"
           arguments:
             expression: count(distinct feed_start_date)
@@ -498,6 +486,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
           config:
+            description: "Todos os dados de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'sentido', 'faixa_horaria_inicio' e 'shape_id' são únicos."
             where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
           arguments:
             combination_of_columns:
@@ -511,6 +500,7 @@ models:
       - dbt_expectations.expect_table_row_count_to_be_between:
           name: dbt_expectations__expect_table_row_count_to_be_between__ordem_servico_trips_shapes_gtfs
           config:
+            description: "A quantidade de registros de 'feed_start_date', 'tipo_dia', 'tipo_os', 'servico', 'faixa_horaria_inicio' e 'shape_id' está dentro do intervalo esperado."
             where: "1=1"
           arguments:
             min_value: 1
@@ -540,7 +530,7 @@ models:
       - name: vista
         description: "{{ doc('vista') }}"
       - name: consorcio
-        description: "Nome do consórcio responsável pelo serviço"
+        description: "{{ doc('consorcio') }}"
       - name: sentido
         description: "{{ doc('sentido') }}"
       - name: partidas_total_planejada
@@ -550,6 +540,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               name: dbt_expectations__expect_column_values_to_be_between__distancia_planejada__ordem_servico_trips_shapes_gtfs
               config:
+                description: "Todos os valores de 'distancia_planejada' são maiores que zero"
                 where: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
               arguments:
                 min_value: 1

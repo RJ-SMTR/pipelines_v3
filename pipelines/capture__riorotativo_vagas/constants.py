@@ -68,14 +68,17 @@ RIOROTATIVO_VAGAS_SOURCES, RIOROTATIVO_VAGAS_EXTRA_PARAMETERS = create_google_sh
             sheet_name="perfil_funcionamento",
             primary_keys=["perfil_funcionamento_codigo"],
         ),
-        # GoogleSheetTable(
-        #     table_id="perfil_funcionamento_excecao",
-        #     sheet_name="perfil_funcionamento_excecao",
-        #     primary_keys=[
-        #         "area_codigo",
-        #         "perfil_funcionamento_codigo",
-        #         "perfil_funcionamento_excecao_decisao", considerar adicionar motivo como pk
-        #     ],
-        # ),
+        GoogleSheetTable(
+            table_id="perfil_funcionamento_excecao",
+            sheet_name="perfil_funcionamento_excecao",
+            primary_keys=[
+                "area_codigo",
+                "perfil_funcionamento_codigo",
+                "perfil_funcionamento_excecao_decisao",
+            ],
+            first_timestamp=datetime(
+                2026, 10, 15, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)
+            ),
+        ),
     ],
 )

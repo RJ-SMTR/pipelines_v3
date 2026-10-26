@@ -64,6 +64,8 @@ COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/captu
 
 COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_riorotativo_auxiliar/
 
+COPY ./pipelines/capture__jae_fiscalizacao ./pipelines/capture__jae_fiscalizacao/
+
 COPY ./pipelines/control__jae_verificacao_captura ./pipelines/control__jae_verificacao_captura/
 
 COPY ./pipelines/treatment__jae_timestamps_divergentes ./pipelines/treatment__jae_timestamps_divergentes/

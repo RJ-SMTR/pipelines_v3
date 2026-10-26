@@ -10,7 +10,11 @@
             and {{ t }}.tipo_dia = "Sabado"
             and {{ o }}.servico in ("LECD126")
         )
-        or ({{ o }}.tipo_dia = "Ponto Facultativo" and {{ t }}.tipo_dia = "Dia Útil")
+        or (
+            {{ o }}.tipo_dia = "Ponto Facultativo"
+            and {{ t }}.tipo_dia = "Dia Útil"
+            and {{ o }}.feed_start_date < date("{{ var('DATA_GTFS_V6_INICIO') }}")
+        )
         or (
             {{ o }}.feed_start_date = "2025-11-08"
             and {{ o }}.tipo_os in ("ENEM", "V+ENEM")

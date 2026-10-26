@@ -1,46 +1,93 @@
 version: 2
 
 models:
-  - name: staging_guardador_veiculo_riorotativo
+  - name: staging_guardador_veiculo_05019730000158_riorotativo
     description: |
-      Uma linha por guardador de veículo (documento) por entidade credenciadora (cnpj), por data de captura.
-      Staging com todas as partições de captura, deduplicadas pela última captura de cada dia.
-      Use documento e data para junções.
-      Fonte: capturas diárias das entidades credenciadoras (source_riorotativo.entidade_<cnpj>).
+      Uma linha por guardador de veículo (cpf) por captura da entidade credenciadora 05019730000158.
+      Staging com os nomes das colunas da captura, sem deduplicação; a última captura de cada dia é
+      selecionada em guardador_veiculo_riorotativo_historico.
+      As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
+      Fonte: source_riorotativo.entidade_05019730000158.
       Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [cpf]
     columns:
       - name: data
         description: "{{ doc('data_captura') }} (partição)"
         data_type: date
-      - name: documento
-        description: "{{ doc('documento_cliente') }}"
+      - name: cpf
+        description: "{{ doc('cpf_guardador') }}"
         data_type: string
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
-        tests:
-          - not_null:
-              name: not_null__documento__staging_guardador_veiculo_riorotativo
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations__expect_column_values_to_match_regex__documento__staging_guardador_veiculo_riorotativo
-              arguments:
-                regex: "^[0-9]{11}$"
-      - name: tipo_documento
-        description: "{{ doc('tipo_documento_guardador_veiculo_riorotativo') }}"
-        data_type: string
-      - name: numero_identificacao
+        config:
+          meta:
+            datacontract_cli:
+              classification: restricted
+      - name: identificacao
         description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
         data_type: string
-        tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              name: dbt_expectations__expect_column_values_to_match_regex__numero_identificacao__staging_guardador_veiculo_riorotativo
-              arguments:
-                regex: "^[0-9]+$"
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                  description: "Todos os valores da coluna `identificacao` são únicos na captura"
+        data_tests:
+          - not_null:
+              name: not_null__identificacao__staging_guardador_veiculo_05019730000158_riorotativo
       - name: cnpj
         description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
         data_type: string
-      - name: datetime_captura
-        description: "{{ doc('datetime_captura') }}"
-        data_type: datetime
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
+
+  - name: staging_guardador_veiculo_34152025000122_riorotativo
+    description: |
+      Uma linha por guardador de veículo (cpf) por captura da entidade credenciadora 34152025000122.
+      Staging com os nomes das colunas da captura, sem deduplicação; a última captura de cada dia é
+      selecionada em guardador_veiculo_riorotativo_historico.
+      As colunas cpf e identificacao são normalizadas no staging; os modelos consumidores apenas as renomeiam.
+      Fonte: source_riorotativo.entidade_34152025000122.
+      Contém apenas a presença no credenciamento — sem dados cadastrais nem bloqueio.
+    config:
+      meta:
+        datacontract_cli:
+          primaryKey: [cpf]
+    columns:
+      - name: data
+        description: "{{ doc('data_captura') }} (partição)"
+        data_type: date
+      - name: cpf
+        description: "{{ doc('cpf_guardador') }}"
+        data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              classification: restricted
+      - name: identificacao
+        description: "{{ doc('numero_identificacao_guardador_veiculo_riorotativo') }}"
+        data_type: string
+        config:
+          meta:
+            datacontract_cli:
+              quality:
+                - type: library
+                  metric: duplicateValues
+                  mustBe: 0
+                  description: "Todos os valores da coluna `identificacao` são únicos na captura"
+        data_tests:
+          - not_null:
+              name: not_null__identificacao__staging_guardador_veiculo_34152025000122_riorotativo
+      - name: cnpj
+        description: "{{ doc('cnpj_entidade_credenciadora_riorotativo') }}"
+        data_type: string
+      - name: timestamp_captura
+        description: "{{ doc('timestamp_captura') }}"
+        data_type: string
 
   - name: staging_agente_verificacao_riorotativo
     description: |
@@ -58,8 +105,6 @@ models:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
         tests:
           - not_null:
               name: not_null__documento__staging_agente_verificacao_riorotativo
@@ -200,8 +245,6 @@ models:
       - name: documento
         description: "{{ doc('documento_cliente') }}"
         data_type: string
-        policy_tags:
-          - "projects/rj-smtr/locations/us/taxonomies/3253131507972485630/policyTags/7025840748337599362"
         tests:
           - not_null:
               name: not_null__documento__staging_lista_bloqueio_riorotativo

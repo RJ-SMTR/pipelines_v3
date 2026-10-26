@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module to get data from Google Drive"""
 
+import io
 import os
 from typing import Any, Optional
 
@@ -8,9 +9,11 @@ import pandas as pd
 from google.auth import default
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 
 from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.pretreatment import normalize_text
+from pipelines.common.utils.utils import is_running_locally
 
 
 def get_google_api_service(service_name: str, version: str, scopes: Optional[list[str]] = None):
@@ -36,7 +39,7 @@ def get_google_api_service(service_name: str, version: str, scopes: Optional[lis
             service_name, ["https://www.googleapis.com/auth/drive.readonly"]
         )
 
-    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
+    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ or is_running_locally():
         creds, _ = default(scopes=scopes)
     else:
         creds = service_account.Credentials.from_service_account_file(
@@ -44,6 +47,36 @@ def get_google_api_service(service_name: str, version: str, scopes: Optional[lis
         )
 
     return build(service_name, version, credentials=creds)
+
+
+def download_drive_file(file_link: str, drive_service) -> bytes:
+    """
+    Baixa um arquivo do Google Drive. Planilhas Google são exportadas como XLSX.
+
+    Args:
+        file_link: Link de compartilhamento do arquivo (``.../d/<file_id>/...``)
+        drive_service: Serviço do Google Drive retornado por ``get_google_api_service``
+
+    Returns:
+        bytes: Conteúdo do arquivo
+    """
+    file_id = file_link.split("/")[-2]
+    file = drive_service.files().get(fileId=file_id, supportsAllDrives=True).execute()
+
+    if "google-apps" in file.get("mimeType"):
+        request = drive_service.files().export(
+            fileId=file_id,
+            mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    else:
+        request = drive_service.files().get_media(fileId=file_id, supportsAllDrives=True)
+
+    file_bytes = io.BytesIO()
+    downloader = MediaIoBaseDownload(file_bytes, request)
+    done = False
+    while not done:
+        _, done = downloader.next_chunk()
+    return file_bytes.getvalue()
 
 
 def get_google_sheet_xlsx(  # noqa: PLR0913

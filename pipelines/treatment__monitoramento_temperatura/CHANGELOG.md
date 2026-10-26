@@ -1,11 +1,17 @@
 # Changelog - treatment__monitoramento_temperatura
 
-## [1.0.2] - 2026-10-02
+## [1.0.3] - 2026-10-26
 
 ### Alterado
 
 - Altera schedule de produção de 6h para 9h (após `viagem_validacao` às 8h) e inclui `viagem_validacao` nas fontes do flow. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
 - Inclui as dependências da Maxtrack no flow. (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
+## [1.0.2] - 2026-10-14
+
+### Removido
+
+- Remove as descrições dos testes das constantes; as notificações usam as descrições definidas no dbt (https://github.com/RJ-SMTR/pipelines_v3/pull/763)
 
 ## [1.0.1] - 2026-09-09
 
