@@ -2,6 +2,16 @@
 
 ## [1.0.7] - 2026-10-21
 
+### Adicionado
+
+- Adiciona a task `validate_data_contract_relationships`, que valida os relationships dos contratos com os arquivos brutos das fontes referenciadas, capturadas na mesma execução e na mesma partição; as falhas são notificadas junto com as da validação individual em `check_data_contract` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- O importador dos contratos traduz os testes dbt `relationships` e `dbt_utils.relationships_where` em relationships do tipo `foreignKey` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Alterado
+
+- `validate_raw_data_contract` deixa de validar os relationships, que dependem de outras fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Os arquivos brutos em CSV são validados a partir de uma cópia em Parquet: o datacontract relia o CSV a cada verificação de presença de coluna; se o CSV não puder ser convertido, a validação usa o arquivo original e as falhas são notificadas (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ### Corrigido
 
 - `SourceTable` passa a ignorar schedules com `active: false` ao obter o cron da captura, deixando de esperar arquivos de capturas desativadas na verificação de completude das fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/783)
