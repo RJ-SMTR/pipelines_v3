@@ -28,6 +28,8 @@ COPY ./pipelines/capture__jae_movimento_estacionamento_veiculo ./pipelines/captu
 
 COPY ./pipelines/capture__jae_fiscalizacao_veiculo ./pipelines/capture__jae_fiscalizacao_veiculo/
 
+COPY ./pipelines/capture__jae_fiscalizacao ./pipelines/capture__jae_fiscalizacao/
+
 COPY ./pipelines/common/ ./pipelines/common/
 
 RUN uv sync --all-packages
