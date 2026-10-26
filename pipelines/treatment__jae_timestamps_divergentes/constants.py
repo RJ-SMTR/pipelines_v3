@@ -4,6 +4,7 @@ Valores constantes para o flow treatment__jae_timestamps_divergentes
 """
 
 from pipelines.capture__jae_auxiliar.flow import capture__jae_auxiliar
+from pipelines.capture__jae_fiscalizacao.flow import capture__jae_fiscalizacao
 from pipelines.capture__jae_fiscalizacao_veiculo.flow import capture__jae_fiscalizacao_veiculo
 from pipelines.capture__jae_gps_validador.flow import capture__jae_gps_validador
 from pipelines.capture__jae_lancamento.flow import capture__jae_lancamento
@@ -37,6 +38,7 @@ CAPTURE_GAP_TABLES = {
     jae_constants.ESTUDANTE_TABLE_ID: {"flow": capture__jae_auxiliar},
     jae_constants.LAUDO_PCD_TABLE_ID: {"flow": capture__jae_auxiliar},
     jae_constants.FISCALIZACAO_VEICULO_TABLE_ID: {"flow": capture__jae_fiscalizacao_veiculo},
+    jae_constants.FISCALIZACAO_TABLE_ID: {"flow": capture__jae_fiscalizacao},
 }
 
 
