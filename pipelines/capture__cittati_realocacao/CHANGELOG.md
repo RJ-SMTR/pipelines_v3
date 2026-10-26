@@ -1,5 +1,11 @@
 # Changelog - capture__cittati_realocacao
 
+## [1.0.3] - 2026-10-26
+
+### Alterado
+
+- Desativa os schedules de produção de captura e recaptura horária (`active: false`) (https://github.com/RJ-SMTR/pipelines_v3/pull/793)
+
 ## [1.0.2] - 2026-06-12
 
 ### Adicionado
