@@ -300,7 +300,7 @@ BACKUP_JAE_BILLING_PAY = {
         },
     },
     "fiscalizacao_db": {
-        "filter": {"fiscalizacao": ["dt_inclusao"]},
+        "exclude": ["fiscalizacao"],
     },
     "atm_gateway_db": {
         "filter": {

@@ -1,5 +1,11 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.2.3] - 2026-10-26
+
+### Alterado
+
+- Altera classificação da tabela `fiscalizacao_db.fiscalizacao` para exclude (https://github.com/RJ-SMTR/pipelines_v3/pull/787)
+
 ## [1.2.2] - 2026-10-21
 
 ### Adicionado
