@@ -1,5 +1,11 @@
 # Changelog - treatment__jae_timestamps_divergentes
 
+## [1.2.1] - 2026-10-26
+
+### Adicionado
+
+- Adiciona recaptura da tabela `fiscalizacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/787)
+
 ## [1.2.0] - 2026-09-29
 
 ### Adicionado

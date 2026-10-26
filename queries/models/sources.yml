@@ -326,6 +326,7 @@ sources:
       - name: fiscalizacao_veiculo
       - name: veiculo
       - name: veiculo_cliente
+      - name: fiscalizacao
 
   - name: source_sonda
     database: rj-smtr-staging
