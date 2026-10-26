@@ -1,0 +1,100 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_stop_times
+name: gtfs_staging/staging_stop_times
+status: active
+schema:
+- name: staging_stop_times
+  physicalType: view
+  description: |
+    Uma linha por parada (trip_id, stop_sequence) de cada viagem por versão do GTFS (data_versao), com os nomes das colunas do arquivo stop_times.txt.
+    Fonte: capturas do GTFS (source_gtfs.stop_times).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` com `trip_id` (viagem) ou `stop_id` (parada).
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.stop_times
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] [partição]
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: trip_id
+    physicalType: STRING
+    description: Código identificador de trip de referência no GTFS
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+    relationships:
+    - type: foreignKey
+      to: staging_trips.trip_id
+  - name: arrival_time
+    physicalType: STRING
+    description: Hora de chegada na parada [definida por stop_times.stop_id] para
+      uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado
+      por agency.agency_timezone, não por stops.stop_timezone
+    logicalType: string
+  - name: departure_time
+    physicalType: STRING
+    description: Hora de partida da parada [definida por stop_times.stop_id] para
+      uma viagem específica [definida por stop_times.trip_id] no fuso horário especificado
+      por agency.agency_timezone, não por stops.stop_timezone
+    logicalType: string
+  - name: stop_id
+    physicalType: STRING
+    description: Identifica a parada atendida
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: staging_stops.stop_id
+  - name: stop_sequence
+    physicalType: STRING
+    description: Ordem das paradas para uma viagem específica
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 3
+  - name: stop_headsign
+    physicalType: STRING
+    description: Texto que aparece na sinalização identificando o destino da viagem
+      aos passageiros
+    logicalType: string
+  - name: pickup_type
+    physicalType: STRING
+    description: Indica o método de coleta
+    logicalType: string
+  - name: drop_off_type
+    physicalType: STRING
+    description: Indica o método de entrega
+    logicalType: string
+  - name: continuous_pickup
+    physicalType: STRING
+    description: Indica que o passageiro pode embarcar no veículo de transporte público
+      em qualquer ponto ao longo do trajeto de viagem do veículo, conforme descrito
+      em shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+    logicalType: string
+  - name: continuous_drop_off
+    physicalType: STRING
+    description: Indica que o passageiro pode descer do veículo de transporte público
+      em qualquer ponto ao longo do caminho de viagem do veículo, conforme descrito
+      por shape.txt, deste stop_time até o próximo stop_time na stop_sequence da viagem
+    logicalType: string
+  - name: shape_dist_traveled
+    physicalType: STRING
+    description: Distância real percorrida ao longo do formato associado, desde a
+      primeira parada até a parada especificada neste registro (m)
+    logicalType: string
+  - name: timepoint
+    physicalType: STRING
+    description: Indica se os horários de chegada e saída de uma parada são rigorosamente
+      respeitados pelo veículo ou se são horários aproximados e/ou interpolados
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11
