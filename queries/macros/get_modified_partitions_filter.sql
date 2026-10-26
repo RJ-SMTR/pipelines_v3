@@ -6,6 +6,27 @@
 ) %}
     {% if not execute %} {{ return([]) }} {% endif %}
 
+    {% if var("use_partition_dates", false) %}
+        {% set adjacent_days = 1 if include_adjacent else 0 %}
+        {% set partitions_query %}
+            select concat("'", data, "'") as data
+            from
+                unnest(
+                    generate_date_array(
+                        date_sub(
+                            date("{{ var('date_range_start') }}"),
+                            interval {{ adjacent_days }} day
+                        ),
+                        date_add(
+                            date("{{ var('date_range_end') }}"),
+                            interval {{ adjacent_days }} day
+                        )
+                    )
+                ) as data
+        {% endset %}
+        {{ return(run_query(partitions_query).columns[0].values()) }}
+    {% endif %}
+
     {% if truncate_date %}
         {% set modified_filter %}
             date(datetime(last_modified_time, "America/Sao_Paulo")) between date(

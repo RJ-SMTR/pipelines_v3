@@ -136,6 +136,8 @@ vars:
     ["'2025-07-10'", "'2025-07-24'", "'2025-10-16'"]
   # Idade máxima padrão das partições reprocessadas na validação de viagens
   viagem_validacao_max_age_days: 6
+  # Usa as datas do date_range como partições em vez de buscar as partições modificadas no upstream
+  use_partition_dates: false
   # Feature penalidade de autuação por inoperância do ar condicionado (DECRETO RIO 51940/2023)
   DATA_SUBSIDIO_V2_INICIO: "2023-01-16"
   # Feature penalidade de autuação por segurança e limpeza/equipamento (DECRETO RIO 52820/2023)
