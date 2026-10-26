@@ -33,45 +33,24 @@
 
 with
     datas_selecionadas as (
-        {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
-            select data
-            from
-                unnest(
-                    generate_date_array(
-                        date("{{ var('date_range_start') }}"),
-                        date("{{ var('date_range_end') }}")
-                    )
-                ) as data
-            where
-                data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-                {% if is_incremental() %}
-                    and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-                {% endif %}
-            {% if is_incremental() and modified_partitions | length > 0 %}
-                union distinct
-                select date(partition_date) as data
-                from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
-                where
-                    date(partition_date)
-                    >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        select data
+        from
+            unnest(
+                generate_date_array(
+                    date("{{ var('date_range_start') }}"),
+                    date("{{ var('date_range_end') }}")
+                )
+            ) as data
+        where
+            data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            {% if is_incremental() %}
+                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             {% endif %}
-        {% else %}
-            select data
-            from
-                unnest(
-                    generate_date_array(
-                        date("{{ var('start_date') }}"), date("{{ var('end_date') }}")
-                    )
-                ) as data
-            where data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-            {% if is_incremental() and modified_partitions | length > 0 %}
-                union distinct
-                select date(partition_date) as data
-                from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
-                where
-                    date(partition_date)
-                    >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            {% endif %}
+        {% if is_incremental() and modified_partitions | length > 0 %}
+            union distinct
+            select date(partition_date) as data
+            from unnest([{{ modified_partitions | join(", ") }}]) as partition_date
+            where date(partition_date) >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
         {% endif %}
     ),
     /* Intervalo contínuo entre as datas selecionadas para não quebrar a contagem de falhas consecutivas */

@@ -21,36 +21,21 @@
 {% endif %}
 
 {% set incremental_filter %}
-    {% if var("flow_name") == "treatment--monitoramento-temperatura" %}
-        (
-            data between date("{{ var('date_range_start') }}") and date(
-                "{{ var('date_range_end') }}"
-            )
-            {% if is_incremental() %}
-                and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            {% endif %}
-            {% if is_incremental() and modified_partitions | length > 0 %}
-                or (
-                    data in ({{ modified_partitions | join(", ") }})
-                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-                )
-            {% endif %}
+    (
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
         )
-        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-    {% else %}
-        (
-            data between date("{{ var('start_date') }}") and date(
-                "{{ var('end_date') }}"
+        {% if is_incremental() %}
+            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+        {% endif %}
+        {% if is_incremental() and modified_partitions | length > 0 %}
+            or (
+                data in ({{ modified_partitions | join(", ") }})
+                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
             )
-            {% if is_incremental() and modified_partitions | length > 0 %}
-                or (
-                    data in ({{ modified_partitions | join(", ") }})
-                    and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-                )
-            {% endif %}
-        )
-        and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
-    {% endif %}
+        {% endif %}
+    )
+    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset %}
 with
     aux_veiculo as (
