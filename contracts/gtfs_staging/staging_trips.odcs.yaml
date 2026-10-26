@@ -1,0 +1,99 @@
+version: 1.0.0
+kind: DataContract
+apiVersion: v3.1.0
+id: urn:datacontract:gtfs_staging:staging_trips
+name: gtfs_staging/staging_trips
+status: active
+schema:
+- name: staging_trips
+  physicalType: view
+  description: |
+    Uma linha por viagem (trip_id) por versão do GTFS (data_versao), com os nomes das colunas do arquivo trips.txt.
+    Fonte: capturas do GTFS (source_gtfs.trips).
+    Histórico: reúne todas as versões capturadas, sem filtro; use `data_versao` para selecionar a versão.
+    Chaves de junção: `data_versao` e `trip_id`.
+  logicalType: object
+  physicalName: rj-smtr.gtfs_staging.trips
+  properties:
+  - name: data_versao
+    physicalType: DATE
+    description: Data de referência do planejamento [versão] [partição]
+    logicalType: date
+    primaryKey: true
+    primaryKeyPosition: 1
+  - name: route_id
+    physicalType: STRING
+    description: Identificador de uma rota da tabela routes do GTFS
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: staging_routes.route_id
+  - name: service_id
+    physicalType: STRING
+    description: Identifica um conjunto de datas em que o serviço está disponível
+      para uma ou mais rotas
+    logicalType: string
+    relationships:
+    - type: foreignKey
+      to: staging_calendar.service_id
+  - name: trip_id
+    physicalType: STRING
+    description: Código identificador de trip de referência no GTFS
+    logicalType: string
+    primaryKey: true
+    primaryKeyPosition: 2
+  - name: trip_headsign
+    physicalType: STRING
+    description: Texto que aparece na sinalização identificando o destino da viagem
+      aos passageiros
+    logicalType: string
+    quality:
+    - type: library
+      metric: invalidValues
+      mustBe: 0
+      arguments:
+        pattern: ^[^\[\]{}]*(?:\[[a-z0-9_]+\])?\s*$
+      description: Todos os `trip_headsign` de `trips` com evento de trajeto alternativo
+        terminam com o evento no formato `[a-z0-9_]`, entre colchetes
+  - name: trip_short_name
+    physicalType: STRING
+    description: Texto voltado ao público usado para identificar a viagem aos passageiros,
+      por exemplo, para identificar os números dos trens para viagens de trens suburbanos
+    logicalType: string
+  - name: direction_id
+    physicalType: STRING
+    description: Sentido da viagem em formato numérico, conforme o campo direction_id
+      do GTFS
+    logicalType: string
+  - name: block_id
+    physicalType: STRING
+    description: Identifica o bloco ao qual pertence a viagem
+    logicalType: string
+  - name: shape_id
+    physicalType: STRING
+    description: Código identificador do shape [trajeto]
+    logicalType: string
+    quality:
+    - type: library
+      metric: nullValues
+      mustBe: 0
+      description: Todos os `shape_id` de `trips` estão preenchidos
+    relationships:
+    - type: foreignKey
+      to: staging_shapes.shape_id
+  - name: wheelchair_accessible
+    physicalType: STRING
+    description: Indica acessibilidade para cadeiras de rodas
+    logicalType: string
+  - name: bikes_allowed
+    physicalType: STRING
+    description: Indica se bicicletas são permitidas
+    logicalType: string
+  - name: timestamp_captura
+    physicalType: STRING
+    description: Timestamp de captura pela SMTR
+    logicalType: string
+  quality: []
+customProperties:
+- property: dbt_version
+  value: 1.10.11

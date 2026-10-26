@@ -25,19 +25,52 @@ GTFS_TABLE_CAPTURE_PARAMS = {
         "validate_data_contract": True,
     },
     "ordem_servico_faixa_horaria": {"primary_keys": ["servico", "tipo_os"]},
-    "ordem_servico_faixa_horaria_sentido": {"primary_keys": ["servico", "sentido", "tipo_os"]},
-    "shapes": {"primary_keys": ["shape_id", "shape_pt_sequence"]},
+    "ordem_servico_faixa_horaria_sentido": {
+        "primary_keys": ["servico", "sentido", "tipo_os"],
+        "validate_data_contract": True,
+    },
+    "shapes": {"primary_keys": ["shape_id", "shape_pt_sequence"], "validate_data_contract": True},
     "agency": {"primary_keys": ["agency_id"]},
     "calendar_dates": {"primary_keys": ["service_id", "date"]},
     "calendar": {"primary_keys": ["service_id"], "validate_data_contract": True},
     "feed_info": {"primary_keys": ["feed_publisher_name"], "validate_data_contract": True},
-    "frequencies": {"primary_keys": ["trip_id", "start_time"]},
-    "routes": {"primary_keys": ["route_id"]},
-    "stops": {"primary_keys": ["stop_id"]},
-    "trips": {"primary_keys": ["trip_id"]},
+    "frequencies": {
+        "primary_keys": ["trip_id", "start_time"],
+        "validate_data_contract": True,
+    },
+    "routes": {
+        "primary_keys": ["route_id"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": [
+            "route_url",
+            "route_sort_order",
+            "continuous_pickup",
+            "continuous_drop_off",
+            "network_id",
+        ],
+    },
+    "stops": {
+        "primary_keys": ["stop_id"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": ["tts_stop_name", "level_id"],
+    },
+    "trips": {
+        "primary_keys": ["trip_id"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": ["block_id", "wheelchair_accessible", "bikes_allowed"],
+    },
     "fare_attributes": {"primary_keys": ["fare_id"]},
     "fare_rules": {"primary_keys": ["fare_id", "route_id"]},
-    "stop_times": {"primary_keys": ["trip_id", "stop_sequence"]},
+    "stop_times": {
+        "primary_keys": ["trip_id", "stop_sequence"],
+        "validate_data_contract": True,
+        "data_contract_ignored_columns": [
+            "pickup_type",
+            "drop_off_type",
+            "continuous_pickup",
+            "continuous_drop_off",
+        ],
+    },
 }
 
 DATA_GTFS_V2_INICIO = "2025-04-30"
@@ -202,7 +235,7 @@ GTFS_SOURCES = [
         raw_filetype="csv",
         partition_key="data_versao",
         validate_data_contract=v.get("validate_data_contract", False),
-        data_contract_ignored_columns=["data_versao"],
+        data_contract_ignored_columns=["data_versao", *v.get("data_contract_ignored_columns", [])],
     )
     for k, v in GTFS_TABLE_CAPTURE_PARAMS.items()
 ]

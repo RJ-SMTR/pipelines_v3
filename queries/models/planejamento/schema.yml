@@ -771,7 +771,7 @@ models:
       - name: tipo_os
         description: "{{ doc('tipo_os') }}"
       - name: servico
-        description: "{{ doc('servico') }}"
+        description: "{{ doc('servico_variacao') }}"
       - name: vista
         description: "{{ doc('vista') }}"
       - name: consorcio

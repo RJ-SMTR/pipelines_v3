@@ -1,5 +1,16 @@
 # Changelog - planejamento
 
+## [1.11.0] - 2026-10-21
+
+### Adicionado
+
+- Cria `staging_ordem_servico_faixa_horaria_sentido`, com as colunas do arquivo bruto do anexo de faixas horárias da OS, usado na geração do contrato de dados (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+- Adiciona os testes `dbt_utils.relationships_where` de `tipo_os` entre `staging_ordem_servico_trajeto_alternativo_sentido` e `staging_ordem_servico_faixa_horaria_sentido`, nas duas direções, e de `servico`, do trajeto alternativo para a faixa horária, e o teste de regex de `extensao` positiva em `staging_ordem_servico_faixa_horaria_sentido` (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
+### Alterado
+
+- `ordem_servico_faixa_horaria_sentido` passa a ler de `staging_ordem_servico_faixa_horaria_sentido`, e a descrição de `servico` passa a ser a mesma do trajeto alternativo (`servico_variacao`) (https://github.com/RJ-SMTR/pipelines_v3/pull/781)
+
 ## [1.10.0] - 2026-10-19
 
 ### Adicionado

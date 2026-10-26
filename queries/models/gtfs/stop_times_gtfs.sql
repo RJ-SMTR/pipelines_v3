@@ -19,25 +19,19 @@ select
     st.data_versao as feed_start_date,
     fi.feed_end_date,
     safe_cast(st.trip_id as string) trip_id,
-    safe_cast(json_value(st.content, '$.arrival_time') as string) arrival_time,
-    safe_cast(json_value(st.content, '$.departure_time') as datetime) departure_time,
-    safe_cast(json_value(st.content, '$.stop_id') as string) stop_id,
+    safe_cast(st.arrival_time as string) arrival_time,
+    safe_cast(st.departure_time as datetime) departure_time,
+    safe_cast(st.stop_id as string) stop_id,
     safe_cast(st.stop_sequence as int64) stop_sequence,
-    safe_cast(json_value(st.content, '$.stop_headsign') as string) stop_headsign,
-    safe_cast(json_value(st.content, '$.pickup_type') as string) pickup_type,
-    safe_cast(json_value(st.content, '$.drop_off_type') as string) drop_off_type,
-    safe_cast(
-        json_value(st.content, '$.continuous_pickup') as string
-    ) continuous_pickup,
-    safe_cast(
-        json_value(st.content, '$.continuous_drop_off') as string
-    ) continuous_drop_off,
-    safe_cast(
-        json_value(st.content, '$.shape_dist_traveled') as float64
-    ) shape_dist_traveled,
-    safe_cast(json_value(st.content, '$.timepoint') as string) timepoint,
+    safe_cast(st.stop_headsign as string) stop_headsign,
+    safe_cast(st.pickup_type as string) pickup_type,
+    safe_cast(st.drop_off_type as string) drop_off_type,
+    safe_cast(st.continuous_pickup as string) continuous_pickup,
+    safe_cast(st.continuous_drop_off as string) continuous_drop_off,
+    safe_cast(st.shape_dist_traveled as float64) shape_dist_traveled,
+    safe_cast(st.timepoint as string) timepoint,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "stop_times") }} st
+from {{ ref("staging_stop_times") }} st
 join {{ ref("feed_info_gtfs") }} fi on st.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where
