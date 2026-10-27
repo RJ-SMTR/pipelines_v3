@@ -1,0 +1,6 @@
+id_viagem,id_veiculo,servico,sentido,tipo_viagem,tecnologia_remunerada
+A29200_LECD136_V_5dva_20260802050915,A29200,LECD136,V,Licenciado com ar e não autuado,BASICO
+A29042_161_C_hz72_20260802105622,A29042,161,C,Detectado com ar inoperante,BASICO
+A29200_nao_licenciado,A29200,LECD136,V,Não licenciado,BASICO
+A29200_nula_regularidade,A29200,LECD136,V,Licenciado com ar e não autuado,BASICO
+A29200_irregular_sem_detectado,A29200,LECD136,V,Licenciado com ar e não autuado,BASICO

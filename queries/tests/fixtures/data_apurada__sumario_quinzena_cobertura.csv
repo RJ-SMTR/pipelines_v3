@@ -1,0 +1,6 @@
+data,lote,tipo_dia,frota_operante,lote_frota_estimada,lote_km_referencia_quinzena,tarifa_remuneracao,alpha
+2026-10-01,A2,Dia Útil,50,100,1500,10,0.5
+2026-10-02,A2,Sabado,0,100,1500,10,0.5
+2026-10-16,A2,Dia Útil,50,100,1500,10,0.5
+2026-10-01,B2,Dia Útil,10,0,300,10,0.5
+2026-10-16,B2,Dia Útil,10,0,300,10,0.5

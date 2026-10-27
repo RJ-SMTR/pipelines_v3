@@ -1,0 +1,2 @@
+data,id_viagem,id_veiculo,datetime_partida,datetime_chegada,modo,tecnologia_apurada,tecnologia_remunerada,tipo_viagem,servico,sentido,distancia_planejada
+2026-08-02,A29200_LECD136_V_5dva_20260802050915,A29200,2026-08-02 05:09:15,2026-08-02 05:29:39,Ônibus,BASICO,BASICO,Licenciado com ar e não autuado,LECD136,V,13.716
