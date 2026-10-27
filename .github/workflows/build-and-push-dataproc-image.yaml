@@ -12,10 +12,6 @@ on:
       - .github/workflows/build-and-push-dataproc-image.yaml
   workflow_dispatch:
     inputs:
-      package_version:
-        description: "PyPI version of rio-rac-bus-subsidy (empty = latest published version)"
-        type: string
-        default: ""
       force:
         description: "Rebuild even when this version and image inputs already exist"
         type: boolean
@@ -43,8 +39,6 @@ jobs:
 
       - name: Resolve package version and image inputs
         id: inputs
-        env:
-          REQUESTED_VERSION: ${{ inputs.package_version }}
         shell: python
         run: |
           import hashlib
@@ -54,18 +48,14 @@ jobs:
           import urllib.request
           from pathlib import Path
 
-          version = os.environ.get("REQUESTED_VERSION", "").strip()
-          if version and not re.fullmatch(r"[0-9][A-Za-z0-9.!+_-]{0,100}", version):
-              raise ValueError("Invalid package version")
-          endpoint = f"{version}/json" if version else "json"
-          url = f"https://pypi.org/pypi/rio-rac-bus-subsidy/{endpoint}"
+          url = "https://pypi.org/pypi/rio-rac-bus-subsidy/json"
           with urllib.request.urlopen(url, timeout=30) as response:
               release = json.load(response)
           version = release["info"]["version"]
           if not re.fullmatch(r"[0-9][A-Za-z0-9.!+_-]{0,100}", version):
               raise ValueError("Invalid PyPI version")
           if not any(not file.get("yanked", False) for file in release["urls"]):
-              raise ValueError("The requested release has no non-yanked distributions")
+              raise ValueError("The latest release has no non-yanked distributions")
           fingerprint = hashlib.sha256(version.encode())
           for name in [
               "dataproc.Dockerfile",
@@ -128,14 +118,11 @@ jobs:
           load: true
           pull: true
           tags: ${{ env.IMAGE }}:${{ steps.inputs.outputs.tag }}
-          build-args: |
-            RIO_RAC_BUS_SUBSIDY_VERSION=${{ steps.inputs.outputs.version }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ steps.inputs.outputs.version }}
-          cache-from: type=gha,scope=dataproc
-          cache-to: type=gha,scope=dataproc,mode=max
-          no-cache: ${{ inputs.force == true }}
+          # Always resolve unpinned dependencies again when building an image.
+          no-cache: true
 
       - name: Verify dependencies and model imports
         if: steps.image.outputs.build == 'true'
