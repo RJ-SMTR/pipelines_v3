@@ -1,0 +1,4 @@
+data,servico_realizado,datetime_partida,datetime_chegada,id_veiculo,id_viagem,distancia_planejada,sentido
+2024-07-19,548,2024-07-19 06:00:00,2024-07-19 07:00:00,A27501,A27501_pre_v8,23.052,V
+2024-10-06,548,2024-10-06 10:00:00,2024-10-06 11:00:00,A27502,A27502_eleicao,23.052,V
+2024-11-15,548,2024-11-15 06:00:00,2024-11-15 07:00:00,A27503,A27503_pre_v12,23.052,V

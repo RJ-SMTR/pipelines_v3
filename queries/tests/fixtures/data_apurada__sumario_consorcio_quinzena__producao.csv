@@ -1,0 +1,9 @@
+data,lote,tipo_dia,frota_operante,lote_frota_estimada,lote_km_referencia_quinzena,tarifa_remuneracao,alpha
+2026-08-24,A2,Dia Útil,53,0,407386.5,9.94,0.24
+2026-08-25,A2,Dia Útil,61,0,407386.5,9.94,0.24
+2026-08-26,A2,Dia Útil,60,0,407386.5,9.94,0.24
+2026-08-27,A2,Dia Útil,69,0,407386.5,9.94,0.24
+2026-08-28,A2,Dia Útil,69,0,407386.5,9.94,0.24
+2026-08-29,A2,Sabado,0,0,407386.5,9.94,0.24
+2026-08-30,A2,Domingo,0,0,407386.5,9.94,0.24
+2026-08-31,A2,Dia Útil,64,0,407386.5,9.94,0.24

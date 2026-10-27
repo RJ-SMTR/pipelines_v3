@@ -1,0 +1,6 @@
+data,tipo_dia,lote,consorcio,servico,sentido,desconto_operacao_precaria,remuneracao_opex_faixa
+2026-08-25,Dia Útil,A2,GTU,SN898,V,0,100
+2026-08-25,Dia Útil,A2,GTU,SN898,V,10,50
+2026-08-25,Dia Útil,A2,GTU,SN898,I,,20
+2026-08-25,Dia Útil,A2,GTU,870,V,5,30
+2026-08-24,Dia Útil,A2,GTU,SN898,V,1,1

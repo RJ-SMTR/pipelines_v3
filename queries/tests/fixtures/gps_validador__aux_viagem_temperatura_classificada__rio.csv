@@ -1,0 +1,3 @@
+modo,data,datetime_gps,datetime_captura,id_operadora,servico_jae,id_veiculo,id_validador,latitude,longitude,estado_equipamento,temperatura
+Ônibus,2026-08-25,2026-08-25 02:00:00,2026-08-25 02:01:00,2801,SN898,50,VR,-22.90000000,-43.21000000,ABERTO,20.0
+Ônibus,2026-08-25,2026-08-25 02:01:00,2026-08-25 02:02:00,2801,SN898,50,VR,-22.90000000,-43.21000000,ABERTO,24.0
