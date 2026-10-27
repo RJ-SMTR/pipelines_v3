@@ -183,6 +183,8 @@ with
         select
             v.data,
             v.id_viagem,
+            v.datetime_partida,
+            v.datetime_chegada,
             safe_cast(json_value(item, '$.id_validador') as string) as id_validador,
             coalesce(t.quantidade_transacao, 0) as quantidade_transacao,
             coalesce(
@@ -255,11 +257,21 @@ with
                             )
                         )
                     )
+                    -- Eleição 1º turno (2026-10-04), 06h às 20h.
+                    -- Viagem que cruza a janela mantém o tipo original.
+                    and not (
+                        datetime_partida <= datetime("2026-10-04 20:00:00")
+                        and datetime_chegada >= datetime("2026-10-04 06:00:00")
+                    )
                 then 'Sem transação'
 
                 when
                     data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
                     and not indicador_estado_equipamento_aberto
+                    and not (
+                        datetime_partida <= datetime("2026-10-04 20:00:00")
+                        and datetime_chegada >= datetime("2026-10-04 06:00:00")
+                    )
                 then 'Validador fechado'
 
                 when

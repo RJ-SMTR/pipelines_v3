@@ -1,5 +1,11 @@
 # Changelog - subsidio
 
+## [2.3.10] - 2026-10-27
+
+### Alterado
+
+- Altera `viagem_transacao_aux_v2` para manter o tipo original da viagem em 04/10/2026 quando ela cruza o horário das 06:00 às 20:00, em vez de reclassificá-la como `Sem transação` ou `Validador fechado`. A ausência de bilhetagem continua registrada em `indicador_sem_transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+
 ## [2.3.9] - 2026-10-14
 
 ### Adicionado
