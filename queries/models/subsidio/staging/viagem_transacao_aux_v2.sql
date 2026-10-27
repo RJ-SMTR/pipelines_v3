@@ -184,7 +184,6 @@ with
             v.data,
             v.id_viagem,
             v.datetime_partida,
-            v.datetime_chegada,
             safe_cast(json_value(item, '$.id_validador') as string) as id_validador,
             coalesce(t.quantidade_transacao, 0) as quantidade_transacao,
             coalesce(
@@ -222,6 +221,14 @@ with
             id_viagem,
             id_validador,
             case
+                -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
+                -- Processo SEI nº 000399.031856/2026-48.
+                when
+                    datetime_partida
+                    between datetime("2026-10-04 06:00:00") and datetime("2026-10-04 20:00:00")
+                    or datetime_partida
+                    between datetime("2026-10-25 06:00:00") and datetime("2026-10-25 20:00:00")
+                then false
                 when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
                 then quantidade_transacao_riocard = 0
                 else (quantidade_transacao_riocard = 0 and quantidade_transacao = 0)
@@ -257,11 +264,17 @@ with
                             )
                         )
                     )
-                    -- Eleição 1º turno (2026-10-04), 06h às 20h.
-                    -- Viagem que cruza a janela mantém o tipo original.
+                    -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
+                    -- Processo SEI nº 000399.031856/2026-48.
                     and not (
-                        datetime_partida <= datetime("2026-10-04 20:00:00")
-                        and datetime_chegada >= datetime("2026-10-04 06:00:00")
+                        datetime_partida
+                        between datetime("2026-10-04 06:00:00") and datetime(
+                            "2026-10-04 20:00:00"
+                        )
+                        or datetime_partida
+                        between datetime("2026-10-25 06:00:00") and datetime(
+                            "2026-10-25 20:00:00"
+                        )
                     )
                 then 'Sem transação'
 
@@ -269,8 +282,14 @@ with
                     data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
                     and not indicador_estado_equipamento_aberto
                     and not (
-                        datetime_partida <= datetime("2026-10-04 20:00:00")
-                        and datetime_chegada >= datetime("2026-10-04 06:00:00")
+                        datetime_partida
+                        between datetime("2026-10-04 06:00:00") and datetime(
+                            "2026-10-04 20:00:00"
+                        )
+                        or datetime_partida
+                        between datetime("2026-10-25 06:00:00") and datetime(
+                            "2026-10-25 20:00:00"
+                        )
                     )
                 then 'Validador fechado'
 

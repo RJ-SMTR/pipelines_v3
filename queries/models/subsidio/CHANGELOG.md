@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera `viagem_transacao_aux_v2` para manter o tipo original da viagem em 04/10/2026 quando ela cruza o horário das 06:00 às 20:00, em vez de reclassificá-la como `Sem transação` ou `Validador fechado`. A ausência de bilhetagem continua registrada em `indicador_sem_transacao` (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+- Altera `viagem_transacao_aux_v2` para manter o tipo original da viagem e definir `indicador_sem_transacao` como falso quando a partida cai entre 06:00 e 20:00 em 04/10/2026 e 25/10/2026, em vez de reclassificá-la como `Sem transação` ou `Validador fechado` [Processo SEI nº 000399.031856/2026-48] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
 
 ## [2.3.9] - 2026-10-14
 
