@@ -605,3 +605,46 @@ sources:
 
     tables:
       - name: transacao
+
+  - name: rj_smtr_planejamento
+    description: >
+      Tabelas de planejamento em produção lidas pela oferta do Sistema RIO.
+    database: rj-smtr
+    schema: planejamento
+    tables:
+      - name: calendario
+      - name: servico_planejado_faixa_horaria
+
+  - name: rj_smtr_gtfs
+    description: GTFS em produção usado para o lote do serviço no Sistema RIO.
+    database: rj-smtr
+    schema: gtfs
+    tables:
+      - name: routes
+
+  - name: rj_smtr_financeiro
+    description: >
+      Financeiro em produção. A receita da quinzena lê a bilhetagem já
+      materializada, sem rebuildar o modelo no flow de remuneração.
+    database: rj-smtr
+    schema: financeiro
+    tables:
+      - name: bilhetagem_consorcio_operador_dia
+
+  - name: rj_smtr_projeto_subsidio_sppo
+    description: >
+      Viagem completa de produção. Em dev e hmg, a véspera da bilhetagem
+      SPPO anterior a 01/08/2026 lê esta tabela já materializada.
+    database: rj-smtr
+    schema: projeto_subsidio_sppo
+    tables:
+      - name: viagem_completa
+
+  - name: rj_smtr_monitoramento
+    description: >
+      Viagem válida de produção. Em dev e hmg, a véspera da bilhetagem
+      SPPO a partir de 01/08/2026 lê esta tabela já materializada.
+    database: rj-smtr
+    schema: monitoramento
+    tables:
+      - name: viagem_valida
