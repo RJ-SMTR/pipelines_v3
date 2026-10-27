@@ -1,6 +1,6 @@
-openfisca-core
-pandas
-numpy
-pyproj
-shapely
+openfisca-core==44.7.0
+pandas>=2.0
+numpy<2
+pyproj>=3.7.1
+shapely>=2.1.2
 rio-rac-bus-subsidy
