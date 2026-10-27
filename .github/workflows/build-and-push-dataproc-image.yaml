@@ -7,7 +7,6 @@ on:
     branches: [master]
     paths:
       - dataproc.Dockerfile
-      - dataproc.Dockerfile.dockerignore
       - requirements-dataproc.txt
       - .github/workflows/build-and-push-dataproc-image.yaml
   workflow_dispatch:
@@ -59,7 +58,6 @@ jobs:
           fingerprint = hashlib.sha256(version.encode())
           for name in [
               "dataproc.Dockerfile",
-              "dataproc.Dockerfile.dockerignore",
               "requirements-dataproc.txt",
               ".github/workflows/build-and-push-dataproc-image.yaml",
           ]:
