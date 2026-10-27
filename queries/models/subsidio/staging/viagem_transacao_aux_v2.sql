@@ -232,8 +232,7 @@ with
             case
                 -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
                 -- Processo SEI nº 000399.031856/2026-48.
-                when
-                    {{ eleicao_2026_excecao }}
+                when {{ eleicao_2026_excecao }}
                 then false
                 when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
                 then quantidade_transacao_riocard = 0
@@ -272,17 +271,13 @@ with
                     )
                     -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
                     -- Processo SEI nº 000399.031856/2026-48.
-                    and not (
-
-                    )
+                    and not ({{ eleicao_2026_excecao }})
                 then 'Sem transação'
 
                 when
                     data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
                     and not indicador_estado_equipamento_aberto
-                    and not (
-                        {{ eleicao_2026_excecao }}
-                    )
+                    and not ({{ eleicao_2026_excecao }})
                 then 'Validador fechado'
 
                 when

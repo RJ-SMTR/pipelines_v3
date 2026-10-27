@@ -66,5 +66,6 @@
         datetime_servidor is not null
         and datetime_envio is not null
         and datetime_diff(datetime_servidor, datetime_envio, second)
-        between -20 and {{ gps_tolerancia_atraso_envio_segundos("datetime_envio", fonte) }}
+        between -20
+        and {{ gps_tolerancia_atraso_envio_segundos("datetime_envio", fonte) }}
 {% endmacro %}
