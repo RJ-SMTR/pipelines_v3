@@ -75,7 +75,8 @@
             (clock skew) entre envio e servidor
             */
                 datetime_diff(datetime_servidor, datetime_envio, second) >= -20
-                and datetime_diff(datetime_servidor, datetime_envio, second) <= 3600
+                and datetime_diff(datetime_servidor, datetime_envio, second)
+                <= {{ gps_tolerancia_atraso_envio_segundos("datetime_envio") }}
         )
     select
         data,
