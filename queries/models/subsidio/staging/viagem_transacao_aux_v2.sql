@@ -20,7 +20,16 @@
        "{{var('end_date')}}"
     {% endif %}
 {% endset %}
-
+{% set eleicao_2026_excecao %}
+    datetime_partida
+    between datetime("2026-10-04 06:00:00") and datetime(
+        "2026-10-04 19:59:59"
+    )
+    or datetime_partida
+    between datetime("2026-10-25 06:00:00") and datetime(
+        "2026-10-25 19:59:59"
+    )
+{% endset %}
 with
     -- Transações Jaé
     transacao as (
@@ -224,14 +233,7 @@ with
                 -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
                 -- Processo SEI nº 000399.031856/2026-48.
                 when
-                    datetime_partida
-                    between datetime("2026-10-04 06:00:00") and datetime(
-                        "2026-10-04 20:00:00"
-                    )
-                    or datetime_partida
-                    between datetime("2026-10-25 06:00:00") and datetime(
-                        "2026-10-25 20:00:00"
-                    )
+                    {{ eleicao_2026_excecao }}
                 then false
                 when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
                 then quantidade_transacao_riocard = 0
@@ -271,14 +273,7 @@ with
                     -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
                     -- Processo SEI nº 000399.031856/2026-48.
                     and not (
-                        datetime_partida
-                        between datetime("2026-10-04 06:00:00") and datetime(
-                            "2026-10-04 20:00:00"
-                        )
-                        or datetime_partida
-                        between datetime("2026-10-25 06:00:00") and datetime(
-                            "2026-10-25 20:00:00"
-                        )
+                        
                     )
                 then 'Sem transação'
 
@@ -286,14 +281,7 @@ with
                     data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
                     and not indicador_estado_equipamento_aberto
                     and not (
-                        datetime_partida
-                        between datetime("2026-10-04 06:00:00") and datetime(
-                            "2026-10-04 20:00:00"
-                        )
-                        or datetime_partida
-                        between datetime("2026-10-25 06:00:00") and datetime(
-                            "2026-10-25 20:00:00"
-                        )
+                        {{ eleicao_2026_excecao }}
                     )
                 then 'Validador fechado'
 
