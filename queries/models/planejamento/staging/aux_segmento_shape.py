@@ -16,17 +16,15 @@ def model(dbt, session):  # noqa: ARG001
     df = dbt.ref("aux_shapes_geom_filtrada")
     bq_projection = pyproj.CRS(dbt.config.get("projecao_wgs_84"))
     shapely_projection = pyproj.CRS(dbt.config.get("projecao_sirgas_2000"))
+    project_to_shapely = pyproj.Transformer.from_crs(
+        bq_projection, shapely_projection, always_xy=True
+    ).transform
+    project_to_bq = pyproj.Transformer.from_crs(
+        shapely_projection, bq_projection, always_xy=True
+    ).transform
 
     def transform_projection(shape, from_shapely=False):
-        if from_shapely:
-            project = pyproj.Transformer.from_crs(
-                shapely_projection, bq_projection, always_xy=True
-            ).transform
-        else:
-            project = pyproj.Transformer.from_crs(
-                bq_projection, shapely_projection, always_xy=True
-            ).transform
-
+        project = project_to_bq if from_shapely else project_to_shapely
         return transform(project, shape)
 
     def cut(line, distance, buffer_size):
