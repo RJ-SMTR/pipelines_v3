@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera a tolerância de atraso entre `datetime_envio` e `datetime_servidor` nas macros `gps_staging_registros` e `gps_staging_registros_v2` para 12 horas quando o envio cai na excepcionalidade de `2026-10-06 20:00:00` até `2026-10-07 07:00:00` (exclusive). Fora dessa janela, a tolerância permanece de 1 hora (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+- Altera a tolerância de atraso entre `datetime_envio` e `datetime_servidor` nas macros `gps_staging_registros` e `gps_staging_registros_v2` para 12 horas quando o envio cai na excepcionalidade de `2026-10-06 20:00:00` até `2026-10-07 07:00:00` (exclusive). Fora dessa janela, a tolerância permanece de 1 hora [Ofício Consórcios nº 184/2026] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
 
 - Altera o prazo de envio de outubro Q1 (`2026-10-01` a `2026-10-15`) no modelo `aux_viagem_validacao_excecao` para `2026-10-27`, nas viagens SPPO (`rioonibus`) e RIO (`maxtrack`) [Processos SEI nº 000301.016828/2026-32 e nº 000301.018035/2026-58] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
 

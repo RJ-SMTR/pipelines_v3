@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Altera `gps_staging_registros` e `gps_staging_registros_v2` para aceitar até 12 horas de atraso entre `datetime_envio` e `datetime_servidor` quando o envio cai na excepcionalidade de `2026-10-06 20:00:00` até `2026-10-07 07:00:00` (exclusive). Fora dessa janela, a tolerância permanece de 1 hora (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+- Altera `gps_staging_registros` e `gps_staging_registros_v2` para aceitar até 12 horas de atraso entre `datetime_envio` e `datetime_servidor` quando o envio cai na excepcionalidade de `2026-10-06 20:00:00` até `2026-10-07 07:00:00` (exclusive). Fora dessa janela, a tolerância permanece de 1 hora [Ofício Consórcios nº 184/2026] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
 
 ## [1.2.3] - 2026-10-22
 
