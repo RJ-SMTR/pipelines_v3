@@ -273,7 +273,7 @@ with
                     -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
                     -- Processo SEI nº 000399.031856/2026-48.
                     and not (
-                        
+
                     )
                 then 'Sem transação'
 
