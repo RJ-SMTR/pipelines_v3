@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.11.1] - 2026-10-27
+
+### Alterado
+
+- Otimiza o processamento do modelo `aux_segmento_shape` (https://github.com/RJ-SMTR/pipelines_v3/pull/809)
+
 ## [1.11.0] - 2026-10-21
 
 ### Adicionado
