@@ -2,7 +2,7 @@
 """
 Flow de captura de dados de GPS registros da Conecta
 
-Common: 2026-03-18.
+Common: 2026-03-18
 """
 
 from typing import Optional
