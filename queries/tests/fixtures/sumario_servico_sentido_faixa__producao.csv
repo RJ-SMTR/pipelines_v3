@@ -1,0 +1,7 @@
+data,tipo_dia,lote,sentido,servico,viagens_atendimento_faixa,viagens_programadas_faixa,percentual_atendimento,ipa,km_remuneravel_faixa,km_ponderada_ipa_faixa,remuneracao_opex_faixa,desconto_operacao_precaria
+2026-08-25,Dia Útil,A2,V,SN898,1,1,1,1,32.658,32.658,246.71159519999998,0
+2026-08-25,Dia Útil,A2,V,SN898,,2,0,0,0,0,0,
+2026-08-25,Dia Útil,A2,V,SN898,,1,0,0,0,0,0,
+2026-08-25,Dia Útil,A2,V,809,6,7,0.8571428571428571,0.90000000000000002,90.695999999999998,81.626400000000004,616.63847615999998,0
+2026-08-24,Dia Útil,A2,V,807,,1,0,0,0,0,0,
+2026-08-24,Dia Útil,A2,V,809,2,3,0.66666666666666663,0.59999999999999998,30.231999999999999,18.139199999999999,137.03077247999997,0

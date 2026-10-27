@@ -1,0 +1,9 @@
+id_viagem,tipo_viagem,quantidade_transacao,quantidade_transacao_riocard,indicador_estado_equipamento_aberto,datetime_partida_bilhetagem
+A27501_pre_v8,Licenciado com ar e não autuado,0,0,true,2024-07-19 04:00:00
+A27502_eleicao,Licenciado com ar e não autuado,0,0,true,2024-10-06 08:00:00
+A27503_pre_v12,Licenciado com ar e não autuado,0,1,true,2024-11-15 04:00:00
+A27501-548-V-ugt3-20250715061350,Licenciado com ar e não autuado,1,1,true,2025-07-15 04:13:51
+A27504_sem_transacao,Licenciado com ar e não autuado,1,0,true,2025-07-15 06:00:00
+A27505_nao_licenciado,Não licenciado,0,0,true,2025-07-15 08:00:00
+A27506_fechado,Sem transação,1,0,false,2025-07-15 10:00:00
+A27507_multiplos_validadores,Licenciado com ar e não autuado,1,0,true,2025-07-15 12:00:00

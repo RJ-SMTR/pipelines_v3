@@ -1,0 +1,12 @@
+id_viagem,quantidade_transacao,quantidade_transacao_riocard,indicador_sem_transacao,indicador_sem_transacao_tipo,indicador_validador_fechado,indicador_validador_associado_incorretamente,indicador_estado_equipamento_aberto
+A29200_base,1,0,false,false,false,false,true
+A29200_riocard,1,1,false,false,false,false,true
+A29200_fora_janela,0,0,true,true,false,false,true
+A29200_atraso,0,0,true,true,false,false,true
+A29200_modo,0,0,true,true,false,false,true
+A29200_divergente,1,0,false,false,false,false,true
+A29200_fechado,1,0,false,true,false,false,false
+A29200_gps_div,1,0,false,false,false,false,true
+A29200_multiplos,1,0,false,true,false,false,true
+A29200_sem_validador,0,0,true,true,false,false,
+A29200_sem_transacao,0,0,true,true,false,false,true
