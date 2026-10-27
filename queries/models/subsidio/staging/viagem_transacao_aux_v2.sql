@@ -225,9 +225,13 @@ with
                 -- Processo SEI nº 000399.031856/2026-48.
                 when
                     datetime_partida
-                    between datetime("2026-10-04 06:00:00") and datetime("2026-10-04 20:00:00")
+                    between datetime("2026-10-04 06:00:00") and datetime(
+                        "2026-10-04 20:00:00"
+                    )
                     or datetime_partida
-                    between datetime("2026-10-25 06:00:00") and datetime("2026-10-25 20:00:00")
+                    between datetime("2026-10-25 06:00:00") and datetime(
+                        "2026-10-25 20:00:00"
+                    )
                 then false
                 when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
                 then quantidade_transacao_riocard = 0
