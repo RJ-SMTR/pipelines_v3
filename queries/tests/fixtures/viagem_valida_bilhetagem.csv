@@ -1,0 +1,4 @@
+id_viagem,id_veiculo,servico,sentido,quantidade_transacao,indicador_sem_transacao,indicador_sem_transacao_tipo,indicador_validador_fechado,indicador_validador_associado_incorretamente
+A2-050_SN898_V_O0898AAA0AVDU01_20260825045904,A2-050,SN898,V,2,false,false,false,false
+A2-050_flags_true,A2-050,SN898,V,0,true,true,true,true
+A2-050_flags_nulos,A2-050,SN898,V,0,,,,
