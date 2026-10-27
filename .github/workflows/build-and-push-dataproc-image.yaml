@@ -1,0 +1,172 @@
+name: Build and push Dataproc image
+
+on:
+  schedule:
+    - cron: "23 6 * * *" # Daily at 03:23 America/Sao_Paulo (UTC-3).
+  push:
+    branches: [master]
+    paths:
+      - dataproc.Dockerfile
+      - dataproc.Dockerfile.dockerignore
+      - requirements-dataproc.txt
+      - .github/workflows/build-and-push-dataproc-image.yaml
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: "PyPI version of rio-rac-bus-subsidy (empty = latest published version)"
+        type: string
+        default: ""
+      force:
+        description: "Rebuild even when this version and image inputs already exist"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dataproc-image
+  cancel-in-progress: false
+
+env:
+  IMAGE: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Resolve package version and image inputs
+        id: inputs
+        env:
+          REQUESTED_VERSION: ${{ inputs.package_version }}
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          import re
+          import urllib.request
+          from pathlib import Path
+
+          version = os.environ.get("REQUESTED_VERSION", "").strip()
+          if version and not re.fullmatch(r"[0-9][A-Za-z0-9.!+_-]{0,100}", version):
+              raise ValueError("Invalid package version")
+          endpoint = f"{version}/json" if version else "json"
+          url = f"https://pypi.org/pypi/rio-rac-bus-subsidy/{endpoint}"
+          with urllib.request.urlopen(url, timeout=30) as response:
+              release = json.load(response)
+          version = release["info"]["version"]
+          if not re.fullmatch(r"[0-9][A-Za-z0-9.!+_-]{0,100}", version):
+              raise ValueError("Invalid PyPI version")
+          if not any(not file.get("yanked", False) for file in release["urls"]):
+              raise ValueError("The requested release has no non-yanked distributions")
+          fingerprint = hashlib.sha256(version.encode())
+          for name in [
+              "dataproc.Dockerfile",
+              "dataproc.Dockerfile.dockerignore",
+              "requirements-dataproc.txt",
+              ".github/workflows/build-and-push-dataproc-image.yaml",
+          ]:
+              fingerprint.update(name.encode())
+              fingerprint.update(Path(name).read_bytes())
+          tag = "build-" + fingerprint.hexdigest()[:24]
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+              output.write(f"version={version}\ntag={tag}\n")
+          print(f"Package: rio-rac-bus-subsidy=={version}; image tag: {tag}")
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: rj-smtr
+
+      - name: Check whether the image already exists
+        id: image
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          if gcloud artifacts docker images describe "$IMAGE:$IMAGE_TAG" \
+              --format='value(image_summary.digest)' > /tmp/dataproc-digest 2> /tmp/dataproc-error; then
+            if [ "$FORCE" = "true" ]; then
+              echo 'build=true' >> "$GITHUB_OUTPUT"
+            else
+              echo 'build=false' >> "$GITHUB_OUTPUT"
+            fi
+          elif grep -q 'NOT_FOUND' /tmp/dataproc-error; then
+            echo 'build=true' >> "$GITHUB_OUTPUT"
+          else
+            cat /tmp/dataproc-error >&2
+            exit 1
+          fi
+
+      - name: Configure Docker authentication
+        if: steps.image.outputs.build == 'true'
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Set up Docker Buildx
+        if: steps.image.outputs.build == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image locally for verification
+        if: steps.image.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./dataproc.Dockerfile
+          platforms: linux/amd64
+          load: true
+          pull: true
+          tags: ${{ env.IMAGE }}:${{ steps.inputs.outputs.tag }}
+          build-args: |
+            RIO_RAC_BUS_SUBSIDY_VERSION=${{ steps.inputs.outputs.version }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.inputs.outputs.version }}
+          cache-from: type=gha,scope=dataproc
+          cache-to: type=gha,scope=dataproc,mode=max
+          no-cache: ${{ inputs.force == true }}
+
+      - name: Verify dependencies and model imports
+        if: steps.image.outputs.build == 'true'
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+          PACKAGE_VERSION: ${{ steps.inputs.outputs.version }}
+        run: |
+          docker run --rm "$IMAGE:$IMAGE_TAG" python -m pip check
+          docker run --rm -e PACKAGE_VERSION "$IMAGE:$IMAGE_TAG" python -c '
+          import os
+          from importlib.metadata import version
+          from rio_rac_bus_subsidy import calculate_remuneration, get_rule_version
+          import openfisca_core, pandas, numpy, pyproj, shapely
+          assert version("rio-rac-bus-subsidy") == os.environ["PACKAGE_VERSION"]
+          print("Verified rio-rac-bus-subsidy", version("rio-rac-bus-subsidy"))
+          '
+
+      - name: Push verified image
+        if: steps.image.outputs.build == 'true'
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+        run: docker push "$IMAGE:$IMAGE_TAG"
+
+      - name: Promote verified image
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+        run: |
+          gcloud artifacts docker tags add "$IMAGE:$IMAGE_TAG" "$IMAGE:latest" --quiet
+          {
+            echo '### Dataproc image'
+            echo "Image: \`$IMAGE:$IMAGE_TAG\`"
+            echo "Built: ${{ steps.image.outputs.build }}"
+            echo 'The verified image is available as `latest` for dbt profiles.'
+          } >> "$GITHUB_STEP_SUMMARY"
