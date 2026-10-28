@@ -3,8 +3,8 @@
     -- Processo SEI nº 000301.018035/2026-58.
     {% if fonte == "conecta" %}
         if(
-            {{ datetime_envio }} >= datetime("2026-10-06 20:00:00")
-            and {{ datetime_envio }} < datetime("2026-10-07 07:00:00"),
+            {{ datetime_gps }} >= datetime("2026-10-06 20:00:00")
+            and {{ datetime_gps }} < datetime("2026-10-07 07:00:00"),
             12 * 3600,
             3600
         )
