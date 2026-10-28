@@ -5,45 +5,19 @@
     )
 }}
 
-with
-    legado as (
-        select
-            data,
-            extract(hour from timestamp_gps) as hora,
-            timestamp_gps,
-            id_veiculo,
-            servico,
-            latitude,
-            longitude,
-            status,
-            velocidade_instantanea,
-            velocidade_estimada_10_min,
-            distancia,
-            versao,
-            cast(null as datetime) as datetime_ultima_atualizacao
-        from {{ source("br_rj_riodejaneiro_veiculos", "gps_sppo") }}
-        where timestamp_gps < datetime("{{ var('datetime_gps_sppo_2') }}")
-    ),
-    novo as (
-        select
-            data,
-            hora,
-            datetime_gps as timestamp_gps,
-            id_veiculo,
-            servico,
-            latitude,
-            longitude,
-            status,
-            velocidade_instantanea,
-            velocidade_estimada_10_min,
-            distancia,
-            versao,
-            datetime_ultima_atualizacao
-        from {{ ref("gps_onibus_sppo") }}
-        where datetime_gps >= datetime("{{ var('datetime_gps_sppo_2') }}")
-    )
-select *
-from legado
-union all
-select *
-from novo
+select
+    data,
+    hora,
+    datetime_gps as timestamp_gps,
+    id_veiculo,
+    servico,
+    latitude,
+    longitude,
+    status,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    versao,
+    datetime_ultima_atualizacao
+from {{ ref("view_gps_onibus") }}
+where sistema in ("SPPO", "SPPO Executivo")

@@ -6,8 +6,8 @@ models:
     columns:
       - name: modo
         description: "{{ doc('modo_brt') }}"
-      - name: timestamp_gps
-        description: "{{ doc('timestamp_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
@@ -24,8 +24,6 @@ models:
         description: "{{ doc('flag_em_movimento') }}"
       - name: tipo_parada
         description: "{{ doc('tipo_parada') }}"
-      - name: flag_linha_existe_sigmob
-        description: "{{ doc('flag_linha_existe_sigmob') }}"
       - name: velocidade_instantanea
         description: "{{ doc('velocidade_instantanea') }}"
       - name: velocidade_estimada_10_min
@@ -39,9 +37,11 @@ models:
     description: "Dados tratados de registros de GPS dos Ônibus"
     columns:
       - name: modo
-        description: "{{ doc('modo_sppo') }}"
-      - name: timestamp_gps
-        description: "{{ doc('timestamp_gps') }}"
+        description: "{{ doc('modo_onibus') }}"
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
@@ -58,8 +58,6 @@ models:
         description: "{{ doc('flag_em_movimento') }}"
       - name: tipo_parada
         description: "{{ doc('tipo_parada') }}"
-      - name: flag_linha_existe_sigmob
-        description: "{{ doc('flag_linha_existe_sigmob') }}"
       - name: velocidade_instantanea
         description: "{{ doc('velocidade_instantanea') }}"
       - name: velocidade_estimada_10_min

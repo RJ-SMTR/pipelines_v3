@@ -82,7 +82,7 @@ with
     gps_brt as (
         select
             data,
-            timestamp_gps as datetime_gps,
+            datetime_gps,
             servico,
             id_veiculo,
             latitude,

@@ -1,5 +1,11 @@
 # Changelog - treatment__gtfs
 
+## [1.0.4] - 2026-10-28
+
+### Alterado
+
+- Inclui o `test_consistencia_planejamento_feed` nos testes do feed e exclui os testes com a tag `freshness`, que rodam no `control__model_freshness` (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+
 ## [1.0.3] - 2026-10-21
 
 ### Alterado

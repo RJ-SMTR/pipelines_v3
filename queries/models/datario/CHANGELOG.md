@@ -1,5 +1,20 @@
 # Changelog - datario
 
+## [1.1.0] - 2026-10-28
+
+### Adicionado
+
+- Adiciona a coluna `sistema` em `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+
+### Alterado
+
+- Altera `gps_onibus_datario` para ler de `view_gps_onibus` e `modo` para `Ônibus` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+- Renomeia a coluna `timestamp_gps` para `datetime_gps` em `gps_brt_datario` e `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+
+### Removido
+
+- Remove o join com o SIGMOB e a coluna `flag_linha_existe_sigmob` de `gps_brt_datario` e `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+
 ## [1.0.5] - 2026-09-02
 
 ### Alterado
