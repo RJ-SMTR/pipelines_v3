@@ -1,5 +1,17 @@
 # Changelog - monitoramento
 
+## [2.6.0] - 2026-10-28
+
+### Adicionado
+
+- Adiciona a coluna `sistema` (`SPPO`, `SPPO Executivo` ou `RIO`) em `view_gps_onibus` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+
+### Alterado
+
+- Altera `view_gps_onibus` para incluir o histórico de `gps_sppo` e `gps_onibus_sppo` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+- Altera `view_gps_sppo_completo` para ler de `view_gps_onibus`, com os sistemas `SPPO` e `SPPO Executivo` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+- Altera o teste de freshness de `view_gps_onibus` para agrupar por `sistema` e `fonte_gps` e ignorar `sppo` e `cittati` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+
 ## [2.5.1] - 2026-10-22
 
 ### Adicionado
