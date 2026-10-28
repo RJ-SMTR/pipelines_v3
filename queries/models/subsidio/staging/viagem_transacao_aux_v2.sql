@@ -20,7 +20,16 @@
        "{{var('end_date')}}"
     {% endif %}
 {% endset %}
-
+{% set eleicao_2026_excecao %}
+    datetime_partida
+    between datetime("2026-10-04 06:00:00") and datetime(
+        "2026-10-04 19:59:59"
+    )
+    or datetime_partida
+    between datetime("2026-10-25 06:00:00") and datetime(
+        "2026-10-25 19:59:59"
+    )
+{% endset %}
 with
     -- Transações Jaé
     transacao as (
@@ -183,6 +192,7 @@ with
         select
             v.data,
             v.id_viagem,
+            v.datetime_partida,
             safe_cast(json_value(item, '$.id_validador') as string) as id_validador,
             coalesce(t.quantidade_transacao, 0) as quantidade_transacao,
             coalesce(
@@ -220,6 +230,10 @@ with
             id_viagem,
             id_validador,
             case
+                -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
+                -- Processo SEI nº 000399.031856/2026-48.
+                when {{ eleicao_2026_excecao }}
+                then false
                 when data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
                 then quantidade_transacao_riocard = 0
                 else (quantidade_transacao_riocard = 0 and quantidade_transacao = 0)
@@ -255,11 +269,15 @@ with
                             )
                         )
                     )
+                    -- Eleição 2026, 06h às 20h, pela partida: 04/10 e 25/10.
+                    -- Processo SEI nº 000399.031856/2026-48.
+                    and not ({{ eleicao_2026_excecao }})
                 then 'Sem transação'
 
                 when
                     data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
                     and not indicador_estado_equipamento_aberto
+                    and not ({{ eleicao_2026_excecao }})
                 then 'Validador fechado'
 
                 when

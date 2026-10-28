@@ -22,7 +22,7 @@
 ) %}
 {# Viagens da Maxtrack consideradas até esta data de partida e processadas até esta data; a Conecta assume a partir do dia seguinte #}
 {% set data_partida_fim_maxtrack = "2026-10-15" %}
-{% set data_processamento_fim_maxtrack = "2026-10-20" %}
+{% set data_processamento_fim_maxtrack = "2026-10-27" %}
 {% if execute %}
     {% if is_incremental() %}
         {% set partitions_query %}
