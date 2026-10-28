@@ -59,18 +59,11 @@ jobs:
           IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
           FORCE: ${{ inputs.force }}
         run: |
-          if gcloud artifacts docker images describe "$IMAGE:$IMAGE_TAG" \
-              --format='value(image_summary.digest)' > /tmp/dataproc-digest 2> /tmp/dataproc-error; then
-            if [ "$FORCE" = "true" ]; then
-              echo 'build=true' >> "$GITHUB_OUTPUT"
-            else
-              echo 'build=false' >> "$GITHUB_OUTPUT"
-            fi
-          elif grep -qiE 'NOT_FOUND|not found' /tmp/dataproc-error; then
+          tags=$(gcloud artifacts docker tags list "$IMAGE" --format='value(tag)')
+          if [ "$FORCE" = "true" ] || ! grep -qFx "$IMAGE_TAG" <<< "$tags"; then
             echo 'build=true' >> "$GITHUB_OUTPUT"
           else
-            cat /tmp/dataproc-error >&2
-            exit 1
+            echo 'build=false' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Configure Docker authentication
