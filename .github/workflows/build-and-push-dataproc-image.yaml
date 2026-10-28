@@ -84,6 +84,7 @@ jobs:
           load: true
           pull: true
           tags: ${{ env.IMAGE }}:${{ steps.inputs.outputs.tag }}
+          build-args: PACKAGE_VERSION=${{ steps.inputs.outputs.version }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ steps.inputs.outputs.version }}

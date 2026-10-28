@@ -5,8 +5,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends procps tini \
     && rm -rf /var/lib/apt/lists/*
 
+# Resolved from PyPI by the build workflow, so new releases need no file change.
+ARG PACKAGE_VERSION
 COPY requirements-dataproc.txt /tmp/requirements-dataproc.txt
-RUN python -m pip install --no-cache-dir --upgrade -r /tmp/requirements-dataproc.txt
+RUN test -n "$PACKAGE_VERSION" \
+    && python -m pip install --no-cache-dir --upgrade -r /tmp/requirements-dataproc.txt \
+    "rio-rac-bus-subsidy==${PACKAGE_VERSION}"
 
 ENV PYSPARK_PYTHON=/usr/local/bin/python
 
