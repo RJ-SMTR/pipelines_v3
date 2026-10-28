@@ -4,11 +4,14 @@ on:
   schedule:
     - cron: "23 6 * * *" # Daily at 03:23 America/Sao_Paulo (UTC-3).
   push:
-    branches: [master]
+    branches:
+      - master
+      - staging/openfisca-dataproc-image
     paths:
       - dataproc.Dockerfile
       - requirements-dataproc.txt
       - .github/workflows/build-and-push-dataproc-image.yaml
+      - .github/scripts/resolve_dataproc_image.py
   workflow_dispatch:
     inputs:
       force:
@@ -38,35 +41,7 @@ jobs:
 
       - name: Resolve package version and image inputs
         id: inputs
-        shell: python
-        run: |
-          import hashlib
-          import json
-          import os
-          import re
-          import urllib.request
-          from pathlib import Path
-
-          url = "https://pypi.org/pypi/rio-rac-bus-subsidy/json"
-          with urllib.request.urlopen(url, timeout=30) as response:
-              release = json.load(response)
-          version = release["info"]["version"]
-          if not re.fullmatch(r"[0-9][A-Za-z0-9.!+_-]{0,100}", version):
-              raise ValueError("Invalid PyPI version")
-          if not any(not file.get("yanked", False) for file in release["urls"]):
-              raise ValueError("The latest release has no non-yanked distributions")
-          fingerprint = hashlib.sha256(version.encode())
-          for name in [
-              "dataproc.Dockerfile",
-              "requirements-dataproc.txt",
-              ".github/workflows/build-and-push-dataproc-image.yaml",
-          ]:
-              fingerprint.update(name.encode())
-              fingerprint.update(Path(name).read_bytes())
-          tag = "build-" + fingerprint.hexdigest()[:24]
-          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
-              output.write(f"version={version}\ntag={tag}\n")
-          print(f"Package: rio-rac-bus-subsidy=={version}; image tag: {tag}")
+        run: python .github/scripts/resolve_dataproc_image.py
 
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v3
