@@ -1,5 +1,11 @@
 # Changelog - integration__openmetadata_bigquery
 
+## [0.1.3] - 2026-10-26
+
+### Alterado
+
+- Inclui o projeto `rj-smtr-private` na ingestão de metadados do BigQuery no OpenMetadata (https://github.com/RJ-SMTR/pipelines_v3/pull/817).
+
 ## [0.1.2] - 2026-09-29
 
 ### Alterado
