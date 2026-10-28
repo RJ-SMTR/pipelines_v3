@@ -2,7 +2,7 @@
 
 select
     "BRT" as modo,
-    g.timestamp_gps,
+    g.timestamp_gps as datetime_gps,
     g.data,
     g.hora,
     g.id_veiculo,

@@ -6,8 +6,8 @@ models:
     columns:
       - name: modo
         description: "{{ doc('modo_brt') }}"
-      - name: timestamp_gps
-        description: "{{ doc('timestamp_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
@@ -40,8 +40,8 @@ models:
         description: "{{ doc('modo_onibus') }}"
       - name: sistema
         description: "{{ doc('sistema') }}"
-      - name: timestamp_gps
-        description: "{{ doc('timestamp_gps') }}"
+      - name: datetime_gps
+        description: "{{ doc('datetime_gps') }}"
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora

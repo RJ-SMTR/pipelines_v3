@@ -3,7 +3,7 @@
 select
     "Ônibus" as modo,
     g.sistema,
-    g.datetime_gps as timestamp_gps,
+    g.datetime_gps,
     g.data,
     g.hora,
     g.id_veiculo,

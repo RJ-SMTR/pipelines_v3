@@ -9,6 +9,7 @@
 ### Alterado
 
 - Altera `gps_onibus_datario` para ler de `view_gps_onibus` e `modo` para `Ônibus` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+- Renomeia a coluna `timestamp_gps` para `datetime_gps` em `gps_brt_datario` e `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
 
 ### Removido
 
