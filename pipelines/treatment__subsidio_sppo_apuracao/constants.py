@@ -37,7 +37,7 @@ PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
     " not_null__data_ordem__transacao"
     " sincronizacao_tabelas__transacao_gratuidade_estudante_municipal"
-    " dbt_expectations__expect_row_values_to_have_recent_data__datetime_captura__gps_validador"
+    " tag:freshness"
 )
 
 
