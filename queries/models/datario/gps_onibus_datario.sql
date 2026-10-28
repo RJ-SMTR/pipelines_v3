@@ -1,16 +1,9 @@
 {{ config(alias="gps_onibus") }}
 
-with
-    linhas_sigmob as (
-        select distinct linha_gtfs
-        from {{ source("br_rj_riodejaneiro_sigmob", "shapes_geom") }}
-        where
-            id_modal_smtr in ({{ var("sppo_id_modal_smtr") | join(", ") }})
-            and data_versao = date("{{ var('versao_fixa_sigmob') }}")
-    )
 select
-    "SPPO" as modo,
-    g.timestamp_gps,
+    "Ônibus" as modo,
+    g.sistema,
+    g.datetime_gps as timestamp_gps,
     g.data,
     g.hora,
     g.id_veiculo,
@@ -28,11 +21,10 @@ select
         when g.status = 'Parado garagem'
         then 'garagem'
     end as tipo_parada,
-    s.linha_gtfs is not null as flag_linha_existe_sigmob,
+    cast(null as boolean) as flag_linha_existe_sigmob,
     g.velocidade_instantanea,
     g.velocidade_estimada_10_min,
     g.distancia,
-    'conecta' as fonte_gps,
+    g.fonte_gps,
     g.versao
-from {{ ref("view_gps_sppo_completo") }} g
-left join linhas_sigmob s on g.servico = s.linha_gtfs
+from {{ ref("view_gps_onibus") }} g

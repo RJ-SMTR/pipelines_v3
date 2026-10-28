@@ -39,7 +39,9 @@ models:
     description: "Dados tratados de registros de GPS dos Ônibus"
     columns:
       - name: modo
-        description: "{{ doc('modo_sppo') }}"
+        description: "{{ doc('modo_onibus') }}"
+      - name: sistema
+        description: "{{ doc('sistema') }}"
       - name: timestamp_gps
         description: "{{ doc('timestamp_gps') }}"
       - name: data
