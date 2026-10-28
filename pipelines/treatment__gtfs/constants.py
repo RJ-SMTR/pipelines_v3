@@ -15,7 +15,7 @@ GTFS_DBT_TEST_EXCLUDE = (
     "tecnologia_servico sumario_faixa_servico_dia sumario_faixa_servico_dia_pagamento "
     "viagem_planejada viagens_remuneradas sumario_servico_dia_historico "
     "viagem_planejada_planejamento_dia "
-    "planejamento_gtfs_freshness__viagem_planejada_planejamento"
+    "tag:freshness"
 )
 
 GTFS_DBT_TEST_SELECT = "gtfs planejamento test_consistencia_servicos_ordem_servico_gtfs"
