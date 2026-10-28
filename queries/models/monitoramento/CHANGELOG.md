@@ -1,5 +1,14 @@
 # Changelog - monitoramento
 
+## [2.5.2] - 2026-10-28
+
+### Alterado
+
+- Altera a tolerância de atraso entre `datetime_envio` e `datetime_servidor` na macro `gps_staging_registros` para 12 horas na fonte `conecta` quando `datetime_gps` cai na excepcionalidade de `2026-10-06 20:00:00` até `2026-10-07 07:00:00` (exclusive). Nas demais fontes, e fora dessa janela, a tolerância permanece de 1 hora [Ofício Consórcios nº 184/2026, Processo SEI nº 000301.018035/2026-58] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+
+- Altera o prazo de envio de outubro Q1 (`2026-10-01` a `2026-10-15`) no modelo `aux_viagem_validacao_excecao` para `2026-10-27`, nas viagens SPPO (`rioonibus`) e RIO (`maxtrack`) [Processos SEI nº 000301.016828/2026-32 e nº 000301.018035/2026-58] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+- Altera `viagem_informada_monitoramento` para aceitar viagens da Maxtrack com `datetime_processamento` até `2026-10-27`. A partida permanece limitada a `2026-10-15` [Ofício SMTR nº 13428/2026, Processo SEI nº 000301.018035/2026-58] (https://github.com/RJ-SMTR/pipelines_v3/pull/791)
+
 ## [2.5.1] - 2026-10-22
 
 ### Adicionado
