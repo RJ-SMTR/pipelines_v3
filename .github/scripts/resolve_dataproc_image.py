@@ -30,7 +30,9 @@ def main():
     for name in IMAGE_INPUTS:
         fingerprint.update(name.encode())
         fingerprint.update(Path(name).read_bytes())
-    tag = "build-" + fingerprint.hexdigest()[:24]
+    # Docker tags only allow [A-Za-z0-9_.-]; PEP 440 versions may contain "+" or "!".
+    safe_version = re.sub(r"[^A-Za-z0-9_.-]", "-", version)
+    tag = f"{safe_version}-{fingerprint.hexdigest()[:12]}"
     with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
         output.write(f"version={version}\ntag={tag}\n")
     print(f"Package: rio-rac-bus-subsidy=={version}; image tag: {tag}")
