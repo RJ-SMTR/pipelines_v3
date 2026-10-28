@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.10] - 2026-10-28
+
+### Alterado
+
+- Exclui do pré-teste os testes com a tag `freshness`, que rodam no `control__model_freshness`, no lugar da exclusão nominal do freshness de `gps_validador` (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+
 ## [1.0.9] - 2026-10-14
 
 ### Removido

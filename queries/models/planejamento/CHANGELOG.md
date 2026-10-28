@@ -1,5 +1,16 @@
 # Changelog - planejamento
 
+## [1.11.2] - 2026-10-28
+
+### Adicionado
+
+- Adiciona o teste `dbt_expectations__expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__servico_planejado_faixa_horaria`, que verifica se a partição da data atual de `servico_planejado_faixa_horaria` foi materializada nas últimas 24 horas; o teste roda no monitoramento diário do `control__model_freshness` (tags `freshness` e `daily`), que notifica no Discord quando o `planejamento_diario` não atualiza o planejamento (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+- Adiciona o teste `test_consistencia_planejamento_feed`, que compara as partidas e a quilometragem das viagens de `viagem_planejada_planejamento` com `ordem_servico_faixa_horaria_sentido` por `feed_start_date`, `tipo_dia`, `tipo_os`, `servico`, `sentido` e faixa horária, com exceção dos feeds das eleições (`2026-10-04` e `2026-10-25`) e do Ponto Facultativo dos feeds `2026-10-24` e `2026-10-26` (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+
+### Removido
+
+- Remove o teste `test_consistencia_servico_planejado_faixa_horaria`, que consultava `servico_planejado_faixa_horaria`, atualizada apenas pelo `planejamento_diario`, e por isso falhava nos testes do GTFS; a consistência do feed com a OS passa a ser verificada pelo `test_consistencia_planejamento_feed`, e a da tabela com a OS segue coberta pelo `check_km_planejada__servico_planejado_faixa_horaria` no pré-teste do subsídio (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+
 ## [1.11.1] - 2026-10-27
 
 ### Alterado

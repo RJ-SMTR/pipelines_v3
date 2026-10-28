@@ -10,7 +10,7 @@ with
         select
             data,
             extract(hour from timestamp_gps) as hora,
-            timestamp_gps,
+            timestamp_gps as datetime_gps,
             id_veiculo,
             servico,
             latitude,
@@ -28,7 +28,7 @@ with
         select
             data,
             hora,
-            datetime_gps as timestamp_gps,
+            datetime_gps,
             id_veiculo,
             servico,
             latitude,
