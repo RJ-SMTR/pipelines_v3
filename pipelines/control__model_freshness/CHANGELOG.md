@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.2] - 2026-10-28
+
+### Adicionado
+
+- Inclui no monitoramento diário (`tag:daily`) o freshness de `servico_planejado_faixa_horaria`, com notificação no Discord quando o planejamento diário está atrasado (https://github.com/RJ-SMTR/pipelines_v3/pull/818)
+
 ## [1.2.1] - 2026-10-14
 
 ### Alterado

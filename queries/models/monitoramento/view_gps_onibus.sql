@@ -5,10 +5,19 @@
     )
 }}
 
+{% set sistema_sppo %}
+    case
+        when regexp_contains(servico, r"^2[0-9]{3}")
+        then "SPPO Executivo"
+        else "SPPO"
+    end
+{% endset %}
+
 select
     data,
     hora,
     "conecta" as fonte_gps,
+    {{ sistema_sppo }} as sistema,
     cast(null as string) as id_registro,
     datetime_gps,
     cast(null as datetime) as datetime_envio,
@@ -49,6 +58,7 @@ select
     data,
     hora,
     "zirix" as fonte_gps,
+    {{ sistema_sppo }} as sistema,
     cast(null as string) as id_registro,
     datetime_gps,
     cast(null as datetime) as datetime_envio,
@@ -89,6 +99,7 @@ select
     data,
     hora,
     "cittati" as fonte_gps,
+    {{ sistema_sppo }} as sistema,
     cast(null as string) as id_registro,
     datetime_gps,
     cast(null as datetime) as datetime_envio,
@@ -129,6 +140,7 @@ select
     data,
     hora,
     "maxtrack" as fonte_gps,
+    "RIO" as sistema,
     id_registro,
     datetime_gps,
     datetime_envio,
@@ -169,6 +181,7 @@ select
     data,
     hora,
     "conecta" as fonte_gps,
+    "RIO" as sistema,
     id_registro,
     datetime_gps,
     datetime_envio,
@@ -202,3 +215,91 @@ select
     datetime_ultima_atualizacao,
     versao
 from {{ ref("gps_v2_onibus_conecta_sistema_rio") }}
+
+union all
+
+select
+    data,
+    hora,
+    "sppo" as fonte_gps,
+    {{ sistema_sppo }} as sistema,
+    cast(null as string) as id_registro,
+    datetime_gps,
+    cast(null as datetime) as datetime_envio,
+    cast(null as datetime) as datetime_servidor,
+    id_veiculo,
+    cast(null as string) as id_equipamento,
+    cast(null as int64) as sequencial_equipamento,
+    cast(null as string) as route_id,
+    servico,
+    cast(null as string) as id_viagem_planejada,
+    cast(null as string) as trip_id,
+    cast(null as string) as shape_id,
+    cast(null as int64) as direction_id,
+    cast(null as string) as sentido,
+    status,
+    cast(null as string) as qualidade_sinal,
+    cast(null as string) as fonte_posicao,
+    cast(null as string) as fonte_velocidade,
+    latitude,
+    longitude,
+    cast(null as float64) as altitude,
+    cast(null as float64) as direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    cast(null as int64) as quantidade_satelites,
+    cast(null as float64) as hdop,
+    cast(null as float64) as vdop,
+    cast(null as float64) as pdop,
+    cast(null as datetime) as datetime_captura,
+    datetime_ultima_atualizacao,
+    versao
+from {{ ref("gps_onibus_sppo") }}
+where
+    data >= date("{{ var('datetime_gps_sppo_2') }}")
+    and datetime_gps >= datetime("{{ var('datetime_gps_sppo_2') }}")
+
+union all
+
+select
+    data,
+    extract(hour from timestamp_gps) as hora,
+    "sppo" as fonte_gps,
+    {{ sistema_sppo }} as sistema,
+    cast(null as string) as id_registro,
+    timestamp_gps as datetime_gps,
+    cast(null as datetime) as datetime_envio,
+    cast(null as datetime) as datetime_servidor,
+    id_veiculo,
+    cast(null as string) as id_equipamento,
+    cast(null as int64) as sequencial_equipamento,
+    cast(null as string) as route_id,
+    servico,
+    cast(null as string) as id_viagem_planejada,
+    cast(null as string) as trip_id,
+    cast(null as string) as shape_id,
+    cast(null as int64) as direction_id,
+    cast(null as string) as sentido,
+    status,
+    cast(null as string) as qualidade_sinal,
+    cast(null as string) as fonte_posicao,
+    cast(null as string) as fonte_velocidade,
+    latitude,
+    longitude,
+    cast(null as float64) as altitude,
+    cast(null as float64) as direcao,
+    velocidade_instantanea,
+    velocidade_estimada_10_min,
+    distancia,
+    cast(null as int64) as quantidade_satelites,
+    cast(null as float64) as hdop,
+    cast(null as float64) as vdop,
+    cast(null as float64) as pdop,
+    cast(null as datetime) as datetime_captura,
+    cast(null as datetime) as datetime_ultima_atualizacao,
+    versao
+from {{ source("br_rj_riodejaneiro_veiculos", "gps_sppo") }}
+where
+    data <= date("{{ var('datetime_gps_sppo_2') }}")
+    and timestamp_gps < datetime("{{ var('datetime_gps_sppo_2') }}")
