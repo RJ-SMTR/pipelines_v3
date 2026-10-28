@@ -586,6 +586,16 @@ models:
         data_type: string
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              name: dbt_expectations__expect_row_values_to_have_recent_data__datetime_ultima_atualizacao__servico_planejado_faixa_horaria
+              arguments:
+                datepart: day
+                interval: 1
+              config:
+                where: data = current_date("America/Sao_Paulo")
+                tags: ["freshness", "daily"]
+                severity: warn
         data_type: datetime
   - name: matriz_reparticao_tarifaria
     description: Matriz de repartição tarifária de integrações válidas no sistema de transporte municipal
