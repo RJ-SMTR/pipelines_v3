@@ -21,7 +21,6 @@ select
         when g.status = 'Parado garagem'
         then 'garagem'
     end as tipo_parada,
-    cast(null as boolean) as flag_linha_existe_sigmob,
     g.velocidade_instantanea,
     g.velocidade_estimada_10_min,
     g.distancia,

@@ -9,7 +9,7 @@
 ### Alterado
 
 - Altera `gps_onibus_datario` para ler de `view_gps_onibus` e `modo` para `Ônibus` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
-- Remove o join com o SIGMOB de `gps_brt_datario` e `gps_onibus_datario`; `flag_linha_existe_sigmob` passa a ser nula (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
+- Remove o join com o SIGMOB e a coluna `flag_linha_existe_sigmob` de `gps_brt_datario` e `gps_onibus_datario` (https://github.com/RJ-SMTR/pipelines_v3/pull/826)
 
 ## [1.0.5] - 2026-09-02
 
