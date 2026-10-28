@@ -18,12 +18,19 @@ with
                             "rioonibus" as fonte_viagem,
                             date("2026-10-07") as data_limite_envio
                         ),
-                        -- Processo SEI_000301.016828_2026_32
+                        -- Outubro Q1. SPPO (rioonibus) e RIO (maxtrack) até 2026-10-27.
+                        -- Processos SEI 000301.016828/2026-32 e 000301.018035/2026-58
                         struct(
                             date("2026-10-01") as data_inicio,
                             date("2026-10-15") as data_fim,
                             "rioonibus" as fonte_viagem,
-                            date("2026-10-21") as data_limite_envio
+                            date("2026-10-27") as data_limite_envio
+                        ),
+                        struct(
+                            date("2026-10-01") as data_inicio,
+                            date("2026-10-15") as data_fim,
+                            "maxtrack" as fonte_viagem,
+                            date("2026-10-27") as data_limite_envio
                         ),
                         -- Ofício SMTR nº 8656/2026 (Consórcios nº 143/2026)
                         -- Processo 000301.015075/2026-48
