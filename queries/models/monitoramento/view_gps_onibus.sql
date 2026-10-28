@@ -256,7 +256,9 @@ select
     datetime_ultima_atualizacao,
     versao
 from {{ ref("gps_onibus_sppo") }}
-where datetime_gps >= datetime("{{ var('datetime_gps_sppo_2') }}")
+where
+    data >= date("{{ var('datetime_gps_sppo_2') }}")
+    and datetime_gps >= datetime("{{ var('datetime_gps_sppo_2') }}")
 
 union all
 
@@ -298,4 +300,6 @@ select
     cast(null as datetime) as datetime_ultima_atualizacao,
     versao
 from {{ source("br_rj_riodejaneiro_veiculos", "gps_sppo") }}
-where timestamp_gps < datetime("{{ var('datetime_gps_sppo_2') }}")
+where
+    data <= date("{{ var('datetime_gps_sppo_2') }}")
+    and timestamp_gps < datetime("{{ var('datetime_gps_sppo_2') }}")
