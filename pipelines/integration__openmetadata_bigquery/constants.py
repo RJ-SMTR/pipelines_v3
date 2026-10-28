@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-BIGQUERY_PROJECT_IDS = ["rj-smtr", "rj-smtr-staging"]
+BIGQUERY_PROJECT_IDS = ["rj-smtr", "rj-smtr-staging", "rj-smtr-private"]
 BIGQUERY_DATASET_EXCLUDES = ["bq_logs"]
 BIGQUERY_TABLE_EXCLUDES: list[str] = []
 BILLING_PROJECT_ID = "rj-smtr"
