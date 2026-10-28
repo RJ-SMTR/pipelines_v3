@@ -55,7 +55,7 @@ unit_tests:
       - input: ref('view_gps_brt_completo')
         format: csv
         rows: |
-          data,timestamp_gps,servico,id_veiculo,latitude,longitude
+          data,datetime_gps,servico,id_veiculo,latitude,longitude
           2026-09-15,2026-09-15 08:30:00,100,BRT-001,-22.9,-43.2
 
     expect:
