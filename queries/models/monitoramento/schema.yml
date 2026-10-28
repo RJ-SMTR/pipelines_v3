@@ -1037,14 +1037,14 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
 
   - name: view_gps_sppo_completo
-    description: "Visão unificada dos dados de GPS do SPPO, combinando o histórico legado de `br_rj_riodejaneiro_veiculos.gps_sppo` com o novo `gps_onibus_sppo`. O corte é controlado pela variável `datetime_gps_sppo_2` em `dbt_project.yml`. Schema segue o do novo modelo."
+    description: "Registros de GPS do SPPO e do SPPO Executivo, extraídos de `view_gps_onibus`. Não inclui o Sistema RIO."
     columns:
       - name: data
         description: "{{ doc('data_gps') }}"
       - name: hora
         description: "{{ doc('hora_gps') }}"
-      - name: datetime_gps
-        description: "{{ doc('datetime_gps') }}"
+      - name: timestamp_gps
+        description: "{{ doc('timestamp_gps') }}"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
       - name: servico
@@ -1068,17 +1068,18 @@ models:
 
   - name: view_gps_onibus
     description: |
-      View que consolida dados de GPS de todos os fornecedores.
-      Fonte: tabelas de GPS tratadas de cada fornecedor.
-      Usada para validar atualização de dados por fornecedor via testes de freshness agrupados.
+      GPS de ônibus de todos os fornecedores e do histórico SPPO.
+      Fonte do GPS publicado no DataRio e de
+      `view_gps_sppo_completo`. Usada também nos testes de freshness por fornecedor.
     tests:
       - dbt_expectations.expect_grouped_row_values_to_have_recent_data:
           name: dbt_expectations__expect_grouped_row_values_to_have_recent_data__datetime_gps__view_gps_onibus
           arguments:
-            group_by: ["fonte_gps"]
+            group_by: ["sistema", "fonte_gps"]
             timestamp_column: datetime_gps
             datepart: hour
             interval: 3
+            row_condition: "fonte_gps not in ('sppo', 'cittati')"
           config:
             tags: ["freshness", "hourly"]
             severity: warn
@@ -1089,6 +1090,9 @@ models:
         description: "{{ doc('hora_gps') }}"
       - name: fonte_gps
         description: "{{ doc('fonte_gps') }}"
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+        data_type: string
       - name: id_registro
         description: "{{ doc('id_registro_gps') }}"
         data_type: string
