@@ -75,7 +75,15 @@
             (clock skew) entre envio e servidor
             */
                 datetime_diff(datetime_servidor, datetime_envio, second) >= -20
-                and datetime_diff(datetime_servidor, datetime_envio, second) <= 3600
+                -- Recaptura do GPS da Conecta. Ofício Consórcios nº 184/2026.
+                -- Processo SEI nº 000301.018035/2026-58.
+                and datetime_diff(datetime_servidor, datetime_envio, second) <= if(
+                    '{{ fonte }}' = 'conecta'
+                    and datetime_gps >= datetime("2026-10-06 20:00:00")
+                    and datetime_gps < datetime("2026-10-07 07:00:00"),
+                    12 * 3600,
+                    3600
+                )
         )
     select
         data,
