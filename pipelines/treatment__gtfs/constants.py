@@ -18,7 +18,10 @@ GTFS_DBT_TEST_EXCLUDE = (
     "tag:freshness"
 )
 
-GTFS_DBT_TEST_SELECT = "gtfs planejamento test_consistencia_servicos_ordem_servico_gtfs"
+GTFS_DBT_TEST_SELECT = (
+    "gtfs planejamento test_consistencia_servicos_ordem_servico_gtfs "
+    "test_consistencia_planejamento_feed"
+)
 
 
 GTFS_SELECTOR = DBTSelector(
