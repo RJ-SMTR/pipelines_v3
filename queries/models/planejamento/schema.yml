@@ -593,7 +593,6 @@ models:
                 datepart: day
                 interval: 1
               config:
-                description: "O planejamento da data atual foi materializado nas últimas 24 horas. Verificar o flow planejamento_diario, agendado para 01h; o alerta diário de freshness roda às 12h30 (America/Sao_Paulo)."
                 where: data = current_date("America/Sao_Paulo")
                 tags: ["freshness", "daily"]
                 severity: warn
