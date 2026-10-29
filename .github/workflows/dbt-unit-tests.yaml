@@ -57,7 +57,7 @@ jobs:
           project_id: rj-smtr-dev
           version: "latest"
 
-      - name: Download production manifest for read-only deferral
+      - name: Download production manifest for deferral
         run: |
           mkdir -p queries/state
           gcloud storage cp "gs://${GCS_BUCKET_NAME}/dbt-docs/manifest.json" queries/state/manifest.json
@@ -69,23 +69,14 @@ jobs:
           uv run dbt deps --profiles-dir ./ci --target dev
           uv run dbt parse --profiles-dir ./ci --target dev --no-static-parser
 
-      - name: Prepare isolated datasets and parent selection
+      - name: Prepare isolated datasets for tested models
         run: uv run python .github/scripts/dbt_unit_ci.py prepare
-
-      - name: Build empty direct parents
-        working-directory: queries
-        shell: bash
-        run: |
-          mapfile -t parents < target/unit-test-parents.txt
-          if [ "${#parents[@]}" -gt 0 ]; then
-            uv run dbt run --profiles-dir ./ci --target dev --no-static-parser \
-              --empty --select "${parents[@]}" \
-              --defer --favor-state --state state
-          fi
 
       - name: Run unit tests
         working-directory: queries
-        run: uv run dbt test --profiles-dir ./ci --target dev --no-static-parser --select test_type:unit
+        run: |
+          uv run dbt test --profiles-dir ./ci --target dev --no-static-parser \
+            --select test_type:unit --defer --favor-state --state state
 
       - name: Write unit test summary
         if: always()

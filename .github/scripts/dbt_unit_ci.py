@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Prepare and clean the isolated BigQuery relations used by dbt unit tests."""
+"""Prepare and clean the isolated BigQuery datasets where dbt runs the tested models' unit tests."""
 
 import argparse
 import json
@@ -30,14 +30,8 @@ def create_plan(manifest: dict, prefix: str) -> dict:
         for uid in test["depends_on"]["nodes"]
         if uid.startswith("model.")
     }
-    parent_ids = {
-        uid
-        for tested_id in tested_ids
-        for uid in nodes[tested_id]["depends_on"]["nodes"]
-        if uid.startswith("model.") and nodes[uid]["config"]["materialized"] != "ephemeral"
-    }
     schemas = set()
-    for uid in tested_ids | parent_ids:
+    for uid in tested_ids:
         node = nodes[uid]
         if node["database"] != PROJECT_ID:
             raise ValueError(f"Model would write outside the development project: {uid}")
@@ -47,7 +41,6 @@ def create_plan(manifest: dict, prefix: str) -> dict:
         "project": PROJECT_ID,
         "prefix": prefix,
         "schemas": sorted(schemas),
-        "parents": [f"fqn:{'.'.join(nodes[uid]['fqn'])}" for uid in sorted(parent_ids)],
         "unit_tests": sorted(unit_tests),
     }
 
@@ -57,14 +50,13 @@ def prepare() -> None:
     plan = create_plan(manifest, os.environ["DBT_USER"])
     # Persist the complete cleanup scope before any remote writes.
     PLAN_PATH.write_text(json.dumps(plan, indent=2) + "\n")
-    (TARGET_PATH / "unit-test-parents.txt").write_text("".join(f"{p}\n" for p in plan["parents"]))
     client = bigquery.Client(project=PROJECT_ID)
     for schema in plan["schemas"]:
         dataset = bigquery.Dataset(f"{PROJECT_ID}.{schema}")
         dataset.location = "US"
         dataset.default_table_expiration_ms = 24 * 60 * 60 * 1000
         client.create_dataset(dataset, exists_ok=True, timeout=60)
-    print(f"Prepared {len(plan['parents'])} parents for {len(plan['unit_tests'])} unit tests")
+    print(f"Prepared {len(plan['schemas'])} datasets for {len(plan['unit_tests'])} unit tests")
 
 
 def cleanup() -> None:
