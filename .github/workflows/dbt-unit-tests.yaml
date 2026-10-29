@@ -74,11 +74,10 @@ jobs:
         shell: bash
         run: |
           jq -r '[.unit_tests[].depends_on.nodes[] | select(startswith("model."))] as $m
-            | [.nodes[$m[]].schema] | unique[]' target/manifest.json |
+            | [.nodes[$m[]].schema] | unique[]' target/manifest.json > target/unit-test-datasets.txt
           while read -r schema; do
             bq mk --dataset --location=US --default_table_expiration 86400 "rj-smtr-dev:${schema}"
-            echo "${schema}" >> target/unit-test-datasets.txt
-          done
+          done < target/unit-test-datasets.txt
 
       - name: Run unit tests
         working-directory: queries
