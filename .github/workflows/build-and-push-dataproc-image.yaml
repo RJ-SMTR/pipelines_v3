@@ -102,9 +102,10 @@ jobs:
           import os
           from importlib.metadata import version
           from rio_rac_bus_subsidy import calculate_remuneration, get_rule_version
-          import openfisca_core, pandas, numpy, pyproj, shapely
+          import openfisca_core, pandas, numpy, pyarrow, pyproj, shapely
           assert version("rio-rac-bus-subsidy") == os.environ["PACKAGE_VERSION"]
           print("Verified rio-rac-bus-subsidy", version("rio-rac-bus-subsidy"))
+          print("Verified pyarrow", pyarrow.__version__)
           '
 
       - name: Push verified image
