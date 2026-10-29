@@ -15,7 +15,6 @@ def model(dbt, session):  # noqa: ARG001 - assinatura do dbt
     viagens = (
         dbt.ref("viagem_valida_classificada")
         .filter(incremental_filter)
-        .filter(col("indicador_viagem_apurada"))
         .toPandas()
     )
     planejamento = dbt.ref("servico_oferta_faixa").filter(incremental_filter).toPandas()
