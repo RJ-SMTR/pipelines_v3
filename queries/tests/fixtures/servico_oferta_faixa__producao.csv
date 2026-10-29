@@ -1,0 +1,4 @@
+data,tipo_dia,servico,sentido,faixa_horaria_inicio,faixa_horaria_fim,lote,viagens_programadas,km,consorcio,feed_version,lote_frota_estimada,lote_frota_determinada,lote_km_referencia_mensal,lote_km_referencia_quinzena
+2026-08-25,Dia Útil,SN898,V,2026-08-25 01:00:00,2026-08-25 01:59:59,A2,1,32.658,GTU,2026-09-18 13:40:00-03:00,0,0,814773,407386.5
+2026-08-25,Dia Útil,SN898,V,2026-08-25 02:00:00,2026-08-25 02:59:59,A2,2,65.316,GTU,2026-09-18 13:40:00-03:00,0,0,814773,407386.5
+2026-08-25,Dia Útil,SN898,V,2026-08-25 03:00:00,2026-08-25 03:59:59,A2,1,32.658,GTU,2026-09-18 13:40:00-03:00,0,0,814773,407386.5

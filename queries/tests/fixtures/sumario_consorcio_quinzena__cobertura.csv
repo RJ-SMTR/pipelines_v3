@@ -1,0 +1,5 @@
+data_inicio_quinzena,data_fim_quinzena,lote,consorcio,fator_cumprimento_frota,remuneracao_capex_quinzena,receita_tarifa_publica_quinzena,valor_a_pagar_bruto_quinzena,valor_imposto_iss,valor_imposto_irrf
+2026-10-01,2026-10-15,A2,GTU,0.5,3750,100,4650,93,111.60000000000001
+2026-10-16,2026-10-31,A2,GTU,0.5,4000,100,4400,88,105.60000000000001
+2026-10-01,2026-10-15,B2,TUSE,0.0,0,0,200,4,4.8
+2026-10-16,2026-10-31,B2,TUSE,0.0,0,0,200,4,4.8

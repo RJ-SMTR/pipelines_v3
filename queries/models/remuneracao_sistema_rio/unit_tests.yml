@@ -1,0 +1,292 @@
+version: 2
+
+unit_tests:
+  - name: test_vigencia_lote_km_rede_referencia
+    model: lote_km_rede_referencia
+    given: []
+    expect:
+      format: csv
+      fixture: lote_km_rede_referencia
+
+  - name: test_real_servico_oferta_faixa
+    model: servico_oferta_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        unit_test_skip_feed_filter: true
+        version: "unit-test"
+    given:
+      - input: source('rj_smtr_planejamento', 'servico_planejado_faixa_horaria')
+        format: csv
+        fixture: servico_planejado_faixa_horaria__servico_oferta_faixa__producao
+      - input: source('rj_smtr_gtfs', 'routes')
+        format: csv
+        fixture: routes__servico_oferta_faixa
+      - input: ref('lote_km_rede_referencia')
+        format: csv
+        fixture: lote_km_rede_referencia__servico_oferta_faixa__producao
+    expect:
+      format: csv
+      fixture: servico_oferta_faixa__producao
+
+  - name: test_feed_correspondente_servico_oferta_faixa
+    model: servico_oferta_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        unit_test_gtfs_feeds: ["'2026-08-24'"]
+        version: "unit-test"
+    given:
+      - input: source('rj_smtr_planejamento', 'servico_planejado_faixa_horaria')
+        format: csv
+        fixture: servico_planejado_faixa_horaria__servico_oferta_faixa__producao
+      - input: source('rj_smtr_gtfs', 'routes')
+        format: csv
+        fixture: routes__servico_oferta_faixa
+      - input: ref('lote_km_rede_referencia')
+        format: csv
+        fixture: lote_km_rede_referencia__servico_oferta_faixa__producao
+    expect:
+      format: csv
+      fixture: servico_oferta_faixa__producao
+
+  - name: test_feed_divergente_servico_oferta_faixa
+    model: servico_oferta_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        unit_test_gtfs_feeds: ["'2000-01-01'"]
+        version: "unit-test"
+    given:
+      - input: source('rj_smtr_planejamento', 'servico_planejado_faixa_horaria')
+        format: csv
+        fixture: servico_planejado_faixa_horaria__servico_oferta_faixa__producao
+      - input: source('rj_smtr_gtfs', 'routes')
+        format: csv
+        fixture: routes__servico_oferta_faixa
+      - input: ref('lote_km_rede_referencia')
+        format: csv
+        fixture: lote_km_rede_referencia__servico_oferta_faixa__producao
+    expect:
+      format: csv
+      fixture: servico_oferta_faixa__feed_sem_match
+
+  - name: test_feed_vazio_servico_oferta_faixa
+    model: servico_oferta_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        unit_test_empty_feed_filter: true
+        version: "unit-test"
+    given:
+      - input: source('rj_smtr_planejamento', 'servico_planejado_faixa_horaria')
+        format: csv
+        fixture: servico_planejado_faixa_horaria__servico_oferta_faixa__producao
+      - input: source('rj_smtr_gtfs', 'routes')
+        format: csv
+        fixture: routes__servico_oferta_faixa
+      - input: ref('lote_km_rede_referencia')
+        format: csv
+        fixture: lote_km_rede_referencia__servico_oferta_faixa__producao
+    expect:
+      format: csv
+      fixture: servico_oferta_faixa__feed_sem_match
+
+  - name: test_cobertura_servico_oferta_faixa
+    model: servico_oferta_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2027-06-16T00:00:00"
+        unit_test_skip_feed_filter: true
+        version: "unit-test"
+    given:
+      - input: source('rj_smtr_planejamento', 'servico_planejado_faixa_horaria')
+        format: csv
+        fixture: servico_planejado_faixa_horaria__servico_oferta_faixa__cobertura
+      - input: source('rj_smtr_gtfs', 'routes')
+        format: csv
+        fixture: routes__servico_oferta_faixa__cobertura
+      - input: ref('lote_km_rede_referencia')
+        format: csv
+        fixture: lote_km_rede_referencia
+    expect:
+      format: csv
+      fixture: servico_oferta_faixa__cobertura
+
+  - name: test_real_viagem_valida_classificada
+    model: viagem_valida_classificada
+    overrides:
+      vars:
+        date_range_start: "2026-08-24T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        unit_test_gtfs_feeds: ["'2026-08-24'"]
+        version: "unit-test"
+    given:
+      - input: ref('calendario')
+        format: csv
+        fixture: calendario__viagem_valida_classificada
+      - input: ref('aux_viagem_status')
+        format: csv
+        fixture: aux_viagem_status__viagem_valida_classificada
+      - input: ref('viagem_valida_temperatura')
+        format: csv
+        fixture: viagem_valida_temperatura__viagem_valida_classificada
+      - input: ref('viagem_valida_bilhetagem')
+        format: csv
+        fixture: viagem_valida_bilhetagem__viagem_valida_classificada
+      - input: ref('servico_oferta_faixa')
+        format: csv
+        fixture: servico_oferta_faixa__viagem_valida_classificada
+      - input: ref('gps_segmento_viagem')
+        format: csv
+        fixture: gps_segmento_viagem__viagem_valida_classificada
+      - input: ref('segmento_shape')
+        format: csv
+        fixture: segmento_shape__viagem_valida_classificada
+      - input: ref('tecnologia_servico')
+        format: csv
+        fixture: tecnologia_servico__viagem_valida_classificada
+    expect:
+      format: csv
+      fixture: viagem_valida_classificada__producao
+
+  - name: test_ipa_sumario_servico_sentido_faixa
+    model: sumario_servico_sentido_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('servico_oferta_faixa')
+        format: csv
+        fixture: servico_oferta_faixa__sumario_ipa
+      - input: ref('viagem_valida_classificada')
+        format: csv
+        fixture: viagem_valida_classificada__sumario_ipa
+      - input: ref('faixa_apurada')
+        format: csv
+        fixture: faixa_apurada__sumario_ipa
+      - input: ref('data_apurada')
+        format: csv
+        fixture: data_apurada__sumario_ipa
+    expect:
+      format: csv
+      fixture: sumario_servico_sentido_faixa__ipa
+
+  - name: test_real_sumario_servico_sentido_faixa
+    model: sumario_servico_sentido_faixa
+    overrides:
+      vars:
+        date_range_start: "2026-08-24T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('servico_oferta_faixa')
+        format: csv
+        fixture: servico_oferta_faixa__sumario_servico_sentido_faixa
+      - input: ref('viagem_valida_classificada')
+        format: csv
+        fixture: viagem_valida_classificada__sumario_servico_sentido_faixa
+      - input: ref('faixa_apurada')
+        format: csv
+        fixture: faixa_apurada__sumario_servico_sentido_faixa
+      - input: ref('data_apurada')
+        format: csv
+        fixture: data_apurada__sumario_servico_sentido_faixa
+    expect:
+      format: csv
+      fixture: sumario_servico_sentido_faixa__producao
+
+  - name: test_cobertura_sumario_servico_sentido_dia
+    model: sumario_servico_sentido_dia
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('sumario_servico_sentido_faixa')
+        format: csv
+        fixture: sumario_servico_sentido_faixa__sumario_dia_cobertura
+    expect:
+      format: csv
+      fixture: sumario_servico_sentido_dia__cobertura
+
+  - name: test_real_sumario_servico_sentido_dia
+    model: sumario_servico_sentido_dia
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('sumario_servico_sentido_faixa')
+        format: csv
+        fixture: sumario_servico_sentido_faixa__sumario_servico_sentido_dia
+    expect:
+      format: csv
+      fixture: sumario_servico_sentido_dia__producao
+
+  - name: test_cobertura_sumario_consorcio_quinzena
+    model: sumario_consorcio_quinzena
+    overrides:
+      vars:
+        date_range_start: "2026-10-01T00:00:00"
+        date_range_end: "2026-10-31T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('sumario_servico_sentido_dia')
+        format: csv
+        fixture: sumario_servico_sentido_dia__sumario_quinzena_cobertura
+      - input: ref('data_apurada')
+        format: csv
+        fixture: data_apurada__sumario_quinzena_cobertura
+      - input: ref('bilhetagem_consorcio_operador_dia')
+        format: csv
+        fixture: bilhetagem_consorcio_operador_dia__sumario_quinzena_cobertura
+    expect:
+      format: csv
+      fixture: sumario_consorcio_quinzena__cobertura
+
+  - name: test_real_sumario_consorcio_quinzena
+    model: sumario_consorcio_quinzena
+    overrides:
+      vars:
+        date_range_start: "2026-08-24T00:00:00"
+        date_range_end: "2026-08-31T00:00:00"
+        version: "unit-test"
+    given:
+      - input: ref('sumario_servico_sentido_dia')
+        format: csv
+        fixture: sumario_servico_sentido_dia__sumario_consorcio_quinzena__producao
+      - input: ref('data_apurada')
+        format: csv
+        fixture: data_apurada__sumario_consorcio_quinzena__producao
+      - input: ref('bilhetagem_consorcio_operador_dia')
+        format: csv
+        fixture: bilhetagem_consorcio_operador_dia__sumario_consorcio_quinzena__producao
+    expect:
+      format: csv
+      fixture: sumario_consorcio_quinzena__producao
+
+  - name: test_real_viagem_valida_bilhetagem
+    model: viagem_valida_bilhetagem
+    overrides:
+      vars:
+        date_range_start: "2026-08-25T00:00:00"
+        date_range_end: "2026-08-25T00:00:00"
+        version: "unit-test"
+        sistema: rio
+    given:
+      - input: ref('aux_viagem_transacao')
+        format: sql
+        fixture: aux_viagem_transacao__viagem_valida_bilhetagem
+    expect:
+      format: csv
+      fixture: viagem_valida_bilhetagem
