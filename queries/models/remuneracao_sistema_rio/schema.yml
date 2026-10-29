@@ -10,6 +10,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__lote_km_rede_referencia
           config:
+            description: "Todos os registros são únicos"
             where: "true"
           arguments:
             combination_of_columns:
@@ -22,6 +23,7 @@ models:
           - not_null:
               name: not_null__lote__lote_km_rede_referencia
               config:
+                description: "Todos os valores da coluna `lote` não nulos"
                 where: "true"
       - name: data_inicio
         description: "Início da vigência, inclusive"
@@ -29,6 +31,7 @@ models:
           - not_null:
               name: not_null__data_inicio__lote_km_rede_referencia
               config:
+                description: "Todos os valores da coluna `data_inicio` não nulos"
                 where: "true"
       - name: data_fim
         description: "Fim da vigência, inclusive. Nulo enquanto o período está aberto"
@@ -38,10 +41,12 @@ models:
           - not_null:
               name: not_null__km_referencia_mensal__lote_km_rede_referencia
               config:
+                description: "Todos os valores da coluna `km_referencia_mensal` não nulos"
                 where: "true"
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__km_referencia_mensal__lote_km_rede_referencia
               config:
+                description: "Todos os valores da coluna `km_referencia_mensal` maiores que zero"
                 where: "true"
               arguments:
                 min_value: 0
@@ -57,6 +62,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__servico_oferta_faixa
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -69,6 +76,8 @@ models:
         tests:
           - not_null:
               name: not_null__data__servico_oferta_faixa
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
       - name: tipo_dia
         description: "{{ doc('tipo_dia') }}"
       - name: servico
@@ -76,16 +85,22 @@ models:
         tests:
           - not_null:
               name: not_null__servico__servico_oferta_faixa
+              config:
+                description: "Todos os valores da coluna `servico` não nulos"
       - name: sentido
         description: "{{ doc('sentido') }}"
         tests:
           - not_null:
               name: not_null__sentido__servico_oferta_faixa
+              config:
+                description: "Todos os valores da coluna `sentido` não nulos"
       - name: faixa_horaria_inicio
         description: "Início da faixa horária (grão IPA)"
         tests:
           - not_null:
               name: not_null__faixa_horaria_inicio__servico_oferta_faixa
+              config:
+                description: "Todos os valores da coluna `faixa_horaria_inicio` não nulos"
       - name: faixa_horaria_fim
         description: "Fim da faixa horária"
       - name: viagens_programadas
@@ -128,6 +143,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_valida_temperatura
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -138,11 +155,15 @@ models:
         tests:
           - not_null:
               name: not_null__data__viagem_valida_temperatura
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__viagem_valida_temperatura
+              config:
+                description: "Todos os valores da coluna `id_viagem` não nulos"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
       - name: id_validador
@@ -185,6 +206,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_valida_bilhetagem
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -195,11 +218,15 @@ models:
         tests:
           - not_null:
               name: not_null__data__viagem_valida_bilhetagem
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__viagem_valida_bilhetagem
+              config:
+                description: "Todos os valores da coluna `id_viagem` não nulos"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
       - name: datetime_partida
@@ -258,6 +285,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_valida_classificada
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -270,11 +299,15 @@ models:
         tests:
           - not_null:
               name: not_null__data__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `id_viagem` não nulos"
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
       - name: datetime_chegada
@@ -286,16 +319,22 @@ models:
         tests:
           - not_null:
               name: not_null__indicador_viagem_completa__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_completa` não nulos"
       - name: indicador_viagem_valida
         description: "true = validação válida (conforme ou não conforme)"
         tests:
           - not_null:
               name: not_null__indicador_viagem_valida__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_valida` não nulos"
       - name: indicador_viagem_conforme
         description: "true = validação conforme (exige valida)"
         tests:
           - not_null:
               name: not_null__indicador_viagem_conforme__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_conforme` não nulos"
       - name: indicador_viagem_apurada
         description: >
           Vem de `aux_viagem_status.indicador_viagem_apurada`. false não
@@ -303,6 +342,8 @@ models:
         tests:
           - not_null:
               name: not_null__indicador_viagem_apurada__viagem_valida_classificada
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_apurada` não nulos"
       - name: km_programada
         description: "Km planejada da viagem"
       - name: km_percorrida
@@ -365,6 +406,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__viagem_apurada
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - id_apuracao
@@ -449,6 +492,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__faixa_apurada
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -511,6 +556,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__data_apurada
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -567,6 +614,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: >-
             dbt_utils__unique_combination_of_columns__sumario_servico_sentido_faixa
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -609,8 +658,12 @@ models:
         tests:
           - not_null:
               name: not_null__ipa__sumario_servico_sentido_faixa
+              config:
+                description: "Todos os valores da coluna `ipa` não nulos"
           - accepted_values:
               name: accepted_values__ipa__sumario_servico_sentido_faixa
+              config:
+                description: "Todos os valores da coluna `ipa` são aceitos"
               arguments:
                 values: [0, 0.6, 0.9, 1]
                 quote: false
@@ -639,6 +692,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__sumario_servico_sentido_dia
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -680,6 +735,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__sumario_consorcio_quinzena
           config:
+            description: "Todos os registros são únicos"
             where: "data_inicio_quinzena <= date('{date_range_end}') and data_fim_quinzena >= date('{date_range_start}')"
           arguments:
             combination_of_columns:
@@ -709,11 +765,13 @@ models:
           - not_null:
               name: not_null__fator_cumprimento_frota__sumario_consorcio_quinzena
               config:
+                description: "Todos os valores da coluna `fator_cumprimento_frota` não nulos"
                 where: "data_inicio_quinzena <= date('{date_range_end}') and data_fim_quinzena >= date('{date_range_start}')"
           - dbt_utils.accepted_range:
               name: >-
                 dbt_utils__accepted_range__fator_cumprimento_frota__sumario_consorcio_quinzena
               config:
+                description: "Todos os valores da coluna `fator_cumprimento_frota` entre 0 e 1, inclusive"
                 where: "data_inicio_quinzena <= date('{date_range_end}') and data_fim_quinzena >= date('{date_range_start}')"
               arguments:
                 min_value: 0
@@ -744,6 +802,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__valor_imposto_iss__sumario_consorcio_quinzena
               config:
+                description: "Todos os valores da coluna `valor_imposto_iss` maiores ou iguais a zero"
                 where: "data_inicio_quinzena <= date('{date_range_end}') and data_fim_quinzena >= date('{date_range_start}')"
               arguments:
                 min_value: 0
@@ -756,6 +815,7 @@ models:
           - dbt_utils.accepted_range:
               name: dbt_utils__accepted_range__valor_imposto_irrf__sumario_consorcio_quinzena
               config:
+                description: "Todos os valores da coluna `valor_imposto_irrf` maiores ou iguais a zero"
                 where: "data_inicio_quinzena <= date('{date_range_end}') and data_fim_quinzena >= date('{date_range_start}')"
               arguments:
                 min_value: 0

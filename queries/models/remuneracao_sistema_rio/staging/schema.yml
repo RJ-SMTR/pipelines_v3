@@ -22,6 +22,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__aux_viagem_status
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - data
@@ -32,11 +34,15 @@ models:
         tests:
           - not_null:
               name: not_null__data__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
         tests:
           - not_null:
               name: not_null__id_viagem__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `id_viagem` não nulos"
       - name: id_veiculo
         description: "{{ doc('id_veiculo') }}"
       - name: datetime_partida
@@ -73,6 +79,8 @@ models:
         tests:
           - not_null:
               name: not_null__indicador_viagem_apurada__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_apurada` não nulos"
       - name: indicador_nao_licenciado
         description: "Indica se o veículo não estava licenciado na data da viagem"
       - name: indicador_nao_vistoriado
@@ -122,6 +130,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__aux_viagem_apurada
+          config:
+            description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
               - id_apuracao
@@ -131,6 +141,8 @@ models:
         tests:
           - not_null:
               name: not_null__id_apuracao__aux_viagem_apurada
+              config:
+                description: "Todos os valores da coluna `id_apuracao` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
       - name: datetime_partida
