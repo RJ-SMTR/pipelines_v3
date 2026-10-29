@@ -4,8 +4,8 @@
 
 ### Alterado
 
-- Estende a inclusão do GPS do validador Jaé em `gps_viagem` até `2026-10-16` [Processo SEI nº 000300.032337/2026-49].
-- Estende a exceção de divergência de serviço em `gps_segmento_viagem` até `2026-10-16`: registros com `fonte_gps` `jae` ou `maxtrack` continuam desconsiderados no indicador de serviço convergente e entram na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49].
+- Estende a inclusão do GPS do validador Jaé em `gps_viagem` até `2026-10-16` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/831).
+- Estende a exceção de divergência de serviço em `gps_segmento_viagem` até `2026-10-16`: registros com `fonte_gps` `jae` ou `maxtrack` continuam desconsiderados no indicador de serviço convergente e entram na partida e chegada automáticas e na contagem de GPS por segmento mesmo quando `servico_gps` difere de `servico_viagem` [Processo SEI nº 000300.032337/2026-49] (https://github.com/RJ-SMTR/pipelines_v3/pull/831).
 
 ## [2.5.2] - 2026-10-28
 
