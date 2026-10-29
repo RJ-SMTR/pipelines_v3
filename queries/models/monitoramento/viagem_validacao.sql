@@ -274,7 +274,7 @@ with
                 from unnest(v.service_ids) as service_id
                 join unnest(t.service_ids) as service_id using (service_id)
             )
-            > 0 as indicador_servico_planejado_gtfs
+            > 0 as indicador_servico_ativo_gtfs
         from viagens_campos_obrigatorios v
         left join trips t using (feed_start_date, route_id)
     ),
@@ -353,7 +353,8 @@ with
         where alt.shape_id is not null
     ),
     /*
-    Verifica se o serviço está planejado na OS e calcula a velocidade média da viagem
+    Verifica a faixa horária planejada na OS (SPPO) ou no GTFS (demais sistemas)
+    e calcula a velocidade média da viagem
     */
     servicos_planejados_os as (
         select
@@ -374,6 +375,14 @@ with
             -- fmt: off
             safe_divide(spu.extensao*3600, datetime_diff(datetime_chegada_considerada, datetime_partida_considerada, second)) as velocidade_media,
             -- fmt: on
+            case
+                when ss.sistema = "SPPO"
+                then spg.indicador_servico_ativo_gtfs
+                else
+                    spg.indicador_servico_ativo_gtfs
+                    and spu.quilometragem is not null
+                    and spu.quilometragem > 0
+            end as indicador_servico_planejado_gtfs,
             case
                 when
                     ss.sistema = "SPPO"
