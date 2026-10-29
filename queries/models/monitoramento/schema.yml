@@ -283,7 +283,7 @@ models:
         description: "Indica se o veículo cumpriu o trajeto [quantidade_segmentos_validos >= quantidade_segmentos_necessarios]"
         data_type: boolean
       - name: indicador_servico_planejado_gtfs
-        description: "Indica se o serviço estava planejado para a faixa horária no GTFS [apenas para sistemas diferentes do SPPO]"
+        description: "Indica se o serviço estava planejado para o dia no GTFS e, nos sistemas diferentes do SPPO, para a faixa horária da partida"
         data_type: boolean
       - name: indicador_servico_planejado_os
         description: "Indica se o serviço estava planejado para a faixa horária na OS [apenas para SPPO]"
