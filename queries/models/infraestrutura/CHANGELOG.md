@@ -1,5 +1,18 @@
 # Changelog - infraestrutura
 
+## [1.1.0] - 2026-10-29
+
+### Adicionado
+
+- Adiciona `datetime_inicio_job`, `datetime_fim_job` e `id_job_pai` ao `log_bigquery`, com horários em `America/Sao_Paulo`.
+- Adiciona `tipo_statement`, `status_job`, `codigo_erro_job`, `mensagem_erro_job`, `tabela_destino`, `tabelas_referenciadas` e `labels` ao `log_bigquery` para uso como trilha de auditoria.
+- Adiciona teste de unicidade de `id_job`.
+
+### Alterado
+
+- Atribui os jobs filhos ao processo e à execução dbt do pai quando não possuem identificação própria, preservando o filtro de `SCRIPT` na saída e a soma dos bytes faturados.
+- Seleciona os eventos `jobservice.jobcompleted` e deduplica por `id_job` antes de expandir labels e calcular custos.
+
 ## [1.0.3] - 2026-09-10
 
 ### Removido

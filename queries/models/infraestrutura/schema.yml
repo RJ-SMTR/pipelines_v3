@@ -42,11 +42,22 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
   - name: log_bigquery
-    description: Registro dos jobs executados no BigQuery
+    description: Registro dos jobs concluídos no BigQuery, com uma linha por job e atribuição dos filhos ao processo do pai. Scripts são excluídos para evitar dupla contagem de custos.
+    tests:
+      - unique:
+          name: unique__id_job__log_bigquery
+          arguments:
+            column_name: id_job
     columns:
       - name: data
-        description: Data de execução
+        description: Data do evento de conclusão no log de auditoria, em America/Sao_Paulo.
         data_type: date
+      - name: datetime_inicio_job
+        description: Data e hora reais do início da execução do job em America/Sao_Paulo.
+        data_type: datetime
+      - name: datetime_fim_job
+        description: Data e hora reais do fim da execução do job em America/Sao_Paulo.
+        data_type: datetime
       - name: projeto
         description: "{{ doc('project_id') }}"
         data_type: string
@@ -59,9 +70,33 @@ models:
       - name: id_job
         description: Identificador único do Job
         data_type: string
+      - name: id_job_pai
+        description: Identificador completo do job pai, obtido dos metadados de auditoria; nulo para jobs sem pai.
+        data_type: string
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
         data_type: string
+      - name: tipo_statement
+        description: Tipo do statement SQL executado (SELECT, MERGE, INSERT, CREATE_TABLE_AS_SELECT etc.); nulo para jobs que não são queries.
+        data_type: string
+      - name: status_job
+        description: Estado final do job no log de auditoria.
+        data_type: string
+      - name: codigo_erro_job
+        description: Código do erro do job; nulo quando o job terminou sem erro.
+        data_type: int64
+      - name: mensagem_erro_job
+        description: Mensagem do erro do job; nula quando o job terminou sem erro.
+        data_type: string
+      - name: tabela_destino
+        description: Tabela de destino do job no formato projeto.dataset.tabela, quando houver.
+        data_type: string
+      - name: tabelas_referenciadas
+        description: Tabelas lidas pelo job, no formato projeto.dataset.tabela.
+        data_type: array<string>
+      - name: labels
+        description: Labels do job como objeto JSON chave-valor; nulo quando o job não possui labels.
+        data_type: json
       - name: query
         description: Query executada, se houver
         data_type: string
