@@ -44,6 +44,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          cp queries/dev/profiles-example.yml queries/dev/profiles.yml
           uv sync --frozen
 
       - name: Authenticate to GCP
@@ -66,8 +67,8 @@ jobs:
       - name: Install dbt packages and parse unit-test dependencies
         working-directory: queries
         run: |
-          uv run dbt deps --profiles-dir ./ci --target dev
-          uv run dbt parse --profiles-dir ./ci --target dev --no-static-parser
+          uv run dbt deps --profiles-dir ./dev --target dev
+          uv run dbt parse --profiles-dir ./dev --target dev --no-static-parser
 
       - name: Prepare isolated datasets for tested models
         run: uv run python .github/scripts/dbt_unit_ci.py prepare
@@ -75,7 +76,7 @@ jobs:
       - name: Run unit tests
         working-directory: queries
         run: |
-          uv run dbt test --profiles-dir ./ci --target dev --no-static-parser \
+          uv run dbt test --profiles-dir ./dev --target dev --no-static-parser \
             --select test_type:unit --defer --favor-state --state state
 
       - name: Write unit test summary
