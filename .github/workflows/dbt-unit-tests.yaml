@@ -8,7 +8,6 @@ on:
       - "pyproject.toml"
       - "uv.lock"
       - ".github/workflows/dbt-unit-tests.yaml"
-      - ".github/scripts/dbt_unit_ci.py"
 
 permissions:
   contents: read
@@ -62,21 +61,28 @@ jobs:
         run: |
           mkdir -p queries/state
           gcloud storage cp "gs://${GCS_BUCKET_NAME}/dbt-docs/manifest.json" queries/state/manifest.json
-          test -s queries/state/manifest.json
 
       - name: Install dbt packages and parse unit-test dependencies
         working-directory: queries
         run: |
-          uv run dbt deps --profiles-dir ./dev --target dev
-          uv run dbt parse --profiles-dir ./dev --target dev --no-static-parser
+          uv run dbt deps --profiles-dir ./dev
+          uv run dbt parse --profiles-dir ./dev
 
-      - name: Prepare isolated datasets for tested models
-        run: uv run python .github/scripts/dbt_unit_ci.py prepare
+      - name: Create datasets for tested models
+        working-directory: queries
+        shell: bash
+        run: |
+          jq -r '[.unit_tests[].depends_on.nodes[] | select(startswith("model."))] as $m
+            | [.nodes[$m[]].schema] | unique[]' target/manifest.json |
+          while read -r schema; do
+            bq mk --dataset --location=US --default_table_expiration 86400 "rj-smtr-dev:${schema}"
+            echo "${schema}" >> target/unit-test-datasets.txt
+          done
 
       - name: Run unit tests
         working-directory: queries
         run: |
-          uv run dbt test --profiles-dir ./dev --target dev --no-static-parser \
+          uv run dbt test --profiles-dir ./dev \
             --select test_type:unit --defer --favor-state --state state
 
       - name: Write unit test summary
@@ -97,6 +103,11 @@ jobs:
               target/run_results.json
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Delete isolated datasets
+      - name: Delete datasets
         if: always()
-        run: uv run python .github/scripts/dbt_unit_ci.py cleanup
+        working-directory: queries
+        run: |
+          [ -f target/unit-test-datasets.txt ] || exit 0
+          while read -r schema; do
+            bq rm -r -f -d "rj-smtr-dev:${schema}"
+          done < target/unit-test-datasets.txt
