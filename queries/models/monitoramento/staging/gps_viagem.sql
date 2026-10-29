@@ -113,7 +113,7 @@ with
             and latitude != 0
             and longitude != 0
             and id_veiculo != '99999'
-            and data <= "2026-10-01"
+            and data <= "2026-10-16"
     /*
         2801 - GTU (A2)
         2802 - TUSE (B2)
