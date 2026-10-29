@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [Unreleased]
+
+### Alterado
+
+- Altera `indicador_servico_planejado_gtfs` em `viagem_validacao` para verificar o serviço e o shape na faixa horária da partida considerada, com quilometragem planejada positiva, nos sistemas diferentes de SPPO (https://github.com/RJ-SMTR/pipelines_v3/pull/832).
+
 ## [2.5.2] - 2026-10-28
 
 ### Adicionado
