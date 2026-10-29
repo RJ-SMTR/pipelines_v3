@@ -31,7 +31,6 @@ def treatment__infraestrutura(
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.INFRAESTRUTURA_SELECTOR],
-        snapshot_selector=constants.SNAPSHOT_INFRAESTRUTURA_SELECTOR,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         flags=flags,
