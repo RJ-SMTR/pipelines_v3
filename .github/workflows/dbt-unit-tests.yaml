@@ -25,7 +25,6 @@ jobs:
     env:
       DBT_USER: unit_pr_${{ github.event.pull_request.number }}_${{ github.run_id }}_${{ github.run_attempt }}
       GCS_BUCKET_NAME: rj-smtr-public
-      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
 
     steps:
       - name: Checkout
