@@ -65,21 +65,6 @@
     and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
 {% endset %}
 
-{% set calendario = ref("calendario") %}
-{# {% set calendario = "rj-smtr.planejamento.calendario" %} #}
-{% if execute %}
-    {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-        {% set gtfs_feeds_query %}
-            select distinct concat("'", feed_start_date, "'") as feed_start_date
-            from {{ calendario }}
-            where {{ incremental_filter }}
-        {% endset %}
-        {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
-        {% if gtfs_feeds | length == 0 %}
-            {% set gtfs_feeds = ["'2000-01-01'"] %}
-        {% endif %}
-    {% endif %}
-{% endif %}
 
 with
     {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
@@ -252,33 +237,6 @@ with
         select * from indice where indicador_campos_obrigatorios
     ),
     /*
-    Agregação dos service_ids por feed_start_date e route_id
-    */
-    trips as (
-        select distinct feed_start_date, route_id, array_agg(service_id) as service_ids,
-        from {{ ref("trips_gtfs") }}
-        {# from `rj-smtr.gtfs.trips` #}
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
-            where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-        {% endif %}
-        group by 1, 2
-    ),
-    /*
-    Verifica se o serviço da viagem está planejado no GTFS
-    */
-    servicos_planejados_gtfs as (
-        select
-            v.*,
-            (
-                select count(*)
-                from unnest(v.service_ids) as service_id
-                join unnest(t.service_ids) as service_id using (service_id)
-            )
-            > 0 as indicador_servico_planejado_gtfs
-        from viagens_campos_obrigatorios v
-        left join trips t using (feed_start_date, route_id)
-    ),
-    /*
     Quilometragem planejada por serviço, faixa horária e sentido
     */
     servico_planejado as (
@@ -353,7 +311,8 @@ with
         where alt.shape_id is not null
     ),
     /*
-    Verifica se o serviço está planejado na OS e calcula a velocidade média da viagem
+    Verifica a faixa horária planejada na OS (SPPO) ou no GTFS (demais sistemas)
+    e calcula a velocidade média da viagem
     */
     servicos_planejados_os as (
         select
@@ -375,6 +334,11 @@ with
             safe_divide(spu.extensao*3600, datetime_diff(datetime_chegada_considerada, datetime_partida_considerada, second)) as velocidade_media,
             -- fmt: on
             case
+                when ss.sistema = "SPPO"
+                then true
+                else coalesce(spu.quilometragem > 0, false)
+            end as indicador_servico_planejado_gtfs,
+            case
                 when
                     ss.sistema = "SPPO"
                     and spu.quilometragem is not null
@@ -388,7 +352,7 @@ with
                     )
                 then false
             end as indicador_servico_planejado_os
-        from servicos_planejados_gtfs spg
+        from viagens_campos_obrigatorios spg
         left join
             servico_planejado_info ss on ss.data = spg.data and ss.servico = spg.servico
         left join
