@@ -12,11 +12,7 @@ def model(dbt, session):  # noqa: ARG001 - assinatura do dbt
     data_fim = datetime.fromisoformat(dbt.config.get("date_range_end")).date()
     incremental_filter = col("data").between(data_inicio, data_fim)
 
-    viagens = (
-        dbt.ref("viagem_valida_classificada")
-        .filter(incremental_filter)
-        .toPandas()
-    )
+    viagens = dbt.ref("viagem_valida_classificada").filter(incremental_filter).toPandas()
     planejamento = dbt.ref("servico_oferta_faixa").filter(incremental_filter).toPandas()
 
     resultado = calculate_remuneration(trips=viagens, schedule=planejamento)
