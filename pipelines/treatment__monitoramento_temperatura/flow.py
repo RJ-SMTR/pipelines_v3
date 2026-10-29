@@ -5,8 +5,14 @@ Flow de materialização de dados de monitoramento de temperatura
 Executa o selector DBT 'monitoramento_temperatura' para materializar dados no BigQuery.
 
 Schedule:
-- Diariamente às 7h00 (horário de São Paulo)
-- Depende de dados do monitoramento_veiculo
+
+- Diariamente às 9h00 (horário de São Paulo)
+- Depende de dados do monitoramento_veiculo e da viagem_validacao
+
+Parâmetros:
+
+- use_partition_dates: se True, reprocessa as partições do intervalo informado
+  (datetime_start/datetime_end) em vez das partições modificadas no upstream
 
 DBT 2026-05-22
 """
@@ -30,7 +36,11 @@ def treatment__monitoramento_temperatura(  # noqa: PLR0913
     additional_vars: Optional[dict] = None,
     force_test_run: bool = False,
     skip_source_check: bool = False,
+    use_partition_dates: bool = False,
 ):
+    if use_partition_dates:
+        additional_vars = (additional_vars or {}) | {"use_partition_dates": True}
+
     create_materialization_flows_default_tasks(
         env=env,
         selectors=[constants.MONITORAMENTO_TEMPERATURA_SELECTOR],
