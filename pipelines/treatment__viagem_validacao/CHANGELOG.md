@@ -1,5 +1,11 @@
 # Changelog - treatment__viagem_validacao
 
+## [1.0.6] - 2026-10-26
+
+### Adicionado
+
+- Adiciona o parâmetro `use_partition_dates` para reprocessar diretamente as partições do intervalo informado (https://github.com/RJ-SMTR/pipelines_v3/pull/632)
+
 ## [1.0.5] - 2026-10-21
 
 ### Adicionado
