@@ -119,7 +119,8 @@ with
             o.desconto_operacao_precaria_quinzena,
             o.remuneracao_opex_quinzena,
             if(
-                o.data_fim_quinzena <= date('2026-09-30'),
+                o.data_fim_quinzena <= date('2026-10-31'),
+                -- o.data_fim_quinzena <= date('2026-09-30'),
                 1.0,
                 least(
                     1.0,
