@@ -42,7 +42,7 @@ models:
         description: "{{ doc('datetime_ultima_atualizacao') }}"
         data_type: datetime
   - name: log_bigquery
-    description: Registro dos jobs concluídos no BigQuery, com uma linha por job e atribuição dos filhos ao processo do pai. Scripts são excluídos para evitar dupla contagem de custos.
+    description: Registro histórico dos jobs concluídos no BigQuery, com uma linha por `id_job`. Os logs vêm dos datasets `bq_logs` de cada projeto até 2026-04-01 e da sink unificada a partir de 2026-04-02. Jobs `SCRIPT` não entram na tabela, para não contar duas vezes os bytes faturados. Jobs filhos herdam `processo_execucao`, `tipo_processo_execucao` e `id_execucao_dbt` do pai.
     tests:
       - unique:
           name: unique__id_job__log_bigquery
@@ -71,7 +71,7 @@ models:
         description: Identificador único do Job
         data_type: string
       - name: id_job_pai
-        description: Identificador completo do job pai, obtido dos metadados de auditoria; nulo para jobs sem pai.
+        description: Identificador do job pai, obtido dos metadados de auditoria; nulo para jobs sem pai. O pai é sempre um job `SCRIPT`, que não existe nesta tabela; a coluna serve para agrupar os filhos de um mesmo script, não para `join` com `id_job`.
         data_type: string
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
