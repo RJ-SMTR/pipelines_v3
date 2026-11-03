@@ -45,5 +45,4 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
 from {{ ref("aux_viagem_apurada") }}
-where {{ incremental_filter }}
-and id_apuracao is not null
+where {{ incremental_filter }} and id_apuracao is not null
