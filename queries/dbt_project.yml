@@ -349,6 +349,8 @@ models:
     +schema: elementary
     +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
+    mit_ipea_project:
+        +schema: mit_ipea_project
     projeto_subsidio_sppo:
       +materialized: view
       +schema: projeto_subsidio_sppo
