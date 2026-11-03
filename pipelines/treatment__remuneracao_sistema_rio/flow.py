@@ -2,7 +2,7 @@
 """
 Flow de materialização da remuneração do Sistema RIO
 
-Materialização dos dados da remuneração do Sistema RIO.
+Materialização dos dados da remuneração do Sistema RIO
 """
 
 from typing import Optional
