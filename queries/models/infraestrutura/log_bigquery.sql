@@ -8,90 +8,14 @@
 
 with
     eventos as (
-        select
-            date(timestamp, 'America/Sao_Paulo') as data,
-            timestamp as timestamp_evento_log,
-            insertid as id_evento_log,
-            resource.labels.project_id as projeto,
-            protopayload_auditlog.authenticationinfo.principalemail as usuario,
-            protopayload_auditlog.methodname as metodo,
-            protopayload_auditlog.resourcename as id_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.labels
-            as labels,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.query
-            as query,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.statementtype
-            as tipo_statement,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatus.state
-            as status_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatus.error.code
-            as codigo_erro_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatus.error.message
-            as mensagem_erro_job,
-            if(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.destinationtable.tableid
-                is not null,
-                concat(
-                    protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.destinationtable.projectid,
-                    '.',
-                    protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.destinationtable.datasetid,
-                    '.',
-                    protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobconfiguration.query.destinationtable.tableid
-                ),
-                null
-            ) as tabela_destino,
-            array(
-                select concat(t.projectid, '.', t.datasetid, '.', t.tableid)
-                from
-                    unnest(
-                        protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.referencedtables
-                    ) as t
-            ) as tabelas_referenciadas,
-            datetime(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.starttime,
-                'America/Sao_Paulo'
-            ) as datetime_inicio_job,
-            datetime(
-                protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.endtime,
-                'America/Sao_Paulo'
-            ) as datetime_fim_job,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalprocessedbytes
-            as bytes_processados,
-            protopayload_auditlog.servicedata_v1_bigquery.jobcompletedevent.job.jobstatistics.totalbilledbytes
-            as bytes_faturados,
-            coalesce(
-                json_value(
-                    protopayload_auditlog.metadatajson, '$.jobChange.job.jobName'
-                ),
-                json_value(
-                    protopayload_auditlog.metadatajson, '$.jobInsertion.job.jobName'
-                )
-            ) as id_job_metadados,
-            coalesce(
-                json_value(
-                    protopayload_auditlog.metadatajson,
-                    '$.jobChange.job.jobStats.parentJobName'
-                ),
-                json_value(
-                    protopayload_auditlog.metadatajson,
-                    '$.jobInsertion.job.jobStats.parentJobName'
-                )
-            ) as id_job_pai
-        from
-            {{
-                source(
-                    "infraestrutura_staging", "cloudaudit_googleapis_com_data_access"
-                )
-            }}
-        where
-            {% if is_incremental() %}
-                date(timestamp, 'America/Sao_Paulo') between date_sub(
+        select *
+        from {{ ref("aux_logs_bigquery") }}
+        {% if is_incremental() %}
+            where
+                data between date_sub(
                     date('{{ var("date_range_start") }}'), interval 1 day
                 ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
-                and
-            {% endif %}
-            date(timestamp, 'America/Sao_Paulo')
-            >= date('{{ var("data_inicial_logs_bigquery") }}')
+        {% endif %}
     ),
     parentesco_jobs as (
         select id_job_metadados as id_job, id_job_pai
