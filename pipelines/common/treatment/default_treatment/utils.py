@@ -1154,44 +1154,13 @@ def dbt_test_notify_discord(  # noqa: PLR0913
         raise DBTTestFailedError()
 
 
-def get_deployment_commit_sha() -> Optional[str]:
-    """
-    Resolve o SHA completo do commit que gerou o deployment em execução.
-
-    Usa ``runtime.deployment.version`` (que, por convenção dos ``prefect.yaml``, termina
-    no short hash do commit do build) e resolve para o SHA completo via API pública do
-    GitHub.
-
-    Returns:
-        Optional[str]: SHA completo do commit do deploy, ou None se não houver deployment
-        em contexto ou se a resolução falhar (cai no comportamento padrão de clonar a
-        branch default).
-    """
-    try:
-        version = runtime.deployment.version
-    except AttributeError:
-        version = None
-    if not version:
-        return None
-
-    short_sha = version.rsplit("-", 1)[-1]
-    try:
-        response = requests.get(f"{constants.REPO_URL}/commits/{short_sha}", timeout=60)
-        response.raise_for_status()
-        return response.json()["sha"]
-    except (requests.RequestException, KeyError, ValueError) as exc:
-        print(f"Não foi possível resolver o SHA do deployment '{version}': {exc}")
-        return None
-
-
 def clone_queries_from_github(env: str) -> Path:
     """
     Faz sparse-checkout apenas da pasta queries/ do repositório GitHub.
 
-    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em deploy
-    de dev, fixa o ``queries/`` no commit que gerou o deployment (mesmo código da
-    imagem) quando o SHA é resolvível. Em prod, usa a versão mais recente da branch
-    default do repositório, permitindo atualizar queries sem redeploy dos flows.
+    Se estiver rodando localmente, retorna o caminho existente sem clonar. Em dev,
+    usa o commit mais recente da branch informada em GIT_BRANCH. Em prod, usa a
+    versão mais recente da branch default do repositório.
 
     Args:
         env (str): Ambiente de execução, ``prod`` ou ``dev``.
@@ -1215,7 +1184,7 @@ def clone_queries_from_github(env: str) -> Path:
     repo_url = (
         f"{constants.REPO_URL.replace('https://api.github.com/repos/', 'https://github.com/')}.git"
     )
-    commit_sha = get_deployment_commit_sha() if env == "dev" else None
+    branch_args = ["--branch", os.environ["GIT_BRANCH"]] if env == "dev" else []
     print(f"Clonando queries/ de {repo_url}...")
     with tempfile.TemporaryDirectory() as tmpdir:
         subprocess.run(
@@ -1226,6 +1195,7 @@ def clone_queries_from_github(env: str) -> Path:
                 "1",
                 "--filter=blob:none",
                 "--no-checkout",
+                *branch_args,
                 repo_url,
                 tmpdir,
             ],
@@ -1238,16 +1208,7 @@ def clone_queries_from_github(env: str) -> Path:
         subprocess.run(
             [git_bin, "sparse-checkout", "set", "queries"], cwd=tmpdir, check=True, timeout=30
         )
-        if commit_sha:
-            print(f"Fixando queries/ no commit do deploy: {commit_sha}")
-            subprocess.run(
-                [git_bin, "fetch", "--depth", "1", "--filter=blob:none", "origin", commit_sha],
-                cwd=tmpdir,
-                check=True,
-                timeout=120,
-            )
-        checkout_cmd = [git_bin, "checkout", commit_sha or "HEAD"]
-        subprocess.run(checkout_cmd, cwd=tmpdir, check=True, timeout=60)
+        subprocess.run([git_bin, "checkout", "HEAD"], cwd=tmpdir, check=True, timeout=60)
         if queries_path.exists():
             shutil.rmtree(queries_path)
         shutil.copytree(Path(tmpdir) / "queries", queries_path)
