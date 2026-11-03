@@ -1,5 +1,11 @@
 # Changelog - default_treatment
 
+## [1.5.2] - 2026-11-03
+
+### Alterado
+
+- Usa o commit mais recente da branch definida em `GIT_BRANCH` para baixar `queries/` a cada execução remota dos flows de tratamento em dev (https://github.com/RJ-SMTR/pipelines_v3/pull/840)
+
 ## [1.5.1] - 2026-10-21
 
 ### Alterado
