@@ -410,7 +410,7 @@ models:
             description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
-              - id_apuracao
+              - id_viagem
     columns:
       - name: id_apuracao
         description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
