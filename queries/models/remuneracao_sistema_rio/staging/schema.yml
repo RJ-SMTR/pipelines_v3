@@ -126,7 +126,6 @@ models:
     description: >
       Saída do OpenFisca com os tipos e as colunas derivadas da apuração.
       Origem de `viagem_apurada`, `faixa_apurada` e `data_apurada`.
-      `indicador_dentro_do_teto_programado` fica nulo.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__aux_viagem_apurada
@@ -134,7 +133,7 @@ models:
             description: "Todos os registros são únicos"
           arguments:
             combination_of_columns:
-              - id_apuracao
+              - id_viagem
     columns:
       - name: id_apuracao
         description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
@@ -155,8 +154,6 @@ models:
         description: "Indicador se a viagem é válida"
       - name: indicador_viagem_conforme
         description: "Indicador se a viagem é conforme"
-      - name: indicador_dentro_do_teto_programado
-        description: "Nulo. O OpenFisca não ranqueia o teto de programadas"
       - name: km_programada
         description: "Distância do shape planejado (km)"
       - name: km_percorrida
