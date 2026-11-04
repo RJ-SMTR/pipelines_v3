@@ -137,13 +137,13 @@ models:
     columns:
       - name: id_apuracao
         description: "Identificador único da apuração — data|lote|id_veiculo|datetime da execução"
-        tests:
-          - not_null:
-              name: not_null__id_apuracao__aux_viagem_apurada
-              config:
-                description: "Todos os valores da coluna `id_apuracao` não nulos"
       - name: id_viagem
         description: "{{ doc('id_viagem') }}"
+        tests:
+          - not_null:
+              name: not_null__id_viagem__aux_viagem_apurada
+              config:
+                description: "Todos os valores da coluna `id_apuracao` não nulos"
       - name: datetime_partida
         description: "{{ doc('datetime_partida') }}"
       - name: datetime_chegada
