@@ -48,7 +48,7 @@ with
             (
                 select
                     data,
-                    timestamp_gps as datetime_gps,
+                    datetime_gps,
                     id_veiculo,
                     trim(servico) as servico,
                     latitude,
