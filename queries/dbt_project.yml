@@ -310,6 +310,7 @@ vars:
 
   ### Infraestrutura ###
   data_inicial_logs_bigquery: "2024-09-30"
+  data_inicio_sink_unificada_logs_bigquery: "2026-04-02"
   data_inicial_custo_cloud: "2024-10-01"
   data_final_valor_bq_manual: "2025-03-21"
 
