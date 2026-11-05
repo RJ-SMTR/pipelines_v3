@@ -77,7 +77,7 @@ with
             se.feed_version,
             se.direction_id,
             case
-                when se.direction_id = t.transaction_direction_id
+                when cast(se.direction_id as string) = t.transaction_direction_id
                 then 'transaction'
                 when se.direction_id is not null
                 then 'gps_inferred'
@@ -111,7 +111,7 @@ with
             row_number() over (
                 partition by t.service_date, t.rider_id, t.trip_sequence
                 order by
-                    se.direction_id = t.transaction_direction_id desc,
+                    cast(se.direction_id as string) = t.transaction_direction_id desc,
                     boarding_gap_s,
                     se.arrival_time
             )

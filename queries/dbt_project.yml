@@ -350,6 +350,7 @@ models:
     +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     mit_ipea_project:
+      v1:
         +schema: mit_ipea_project
     projeto_subsidio_sppo:
       +materialized: view

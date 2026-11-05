@@ -119,7 +119,8 @@ select
     walk_distance_m,
     row_number() over (
         partition by service_date, rider_id, trip_sequence
-        order by farm_fingerprint(concat(rider_id, '|', trip_sequence, '|', stop_id))
+        order by
+            farm_fingerprint(concat(to_hex(rider_id), '|', trip_sequence, '|', stop_id))
     ) as display_order
 from ranked
 where option_rank <= 1 + {{ n_alternates }}

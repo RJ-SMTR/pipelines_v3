@@ -63,8 +63,8 @@ with
                 extract(time from t.datetime_transacao) as boarding_time,
                 t.datetime_transacao as tap_order,
                 t.hash_cliente as rider_id,
-                t.tipo_pagamento as card_type,
-                t.tipo_transacao as transaction_type,
+                t.meio_pagamento as card_type,
+                t.tipo_transacao_jae as transaction_type,
                 -- Keep the digits of the vehicle number; null for BRT in this table
                 lpad(
                     right(regexp_replace(t.id_veiculo, r'[^0-9]', ''), 5), 5, '0'
@@ -74,12 +74,12 @@ with
                 t.modo as mode,
                 cast(null as string) as tile_id,
                 st_geogpoint(t.longitude, t.latitude) as tap_location
-            from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao` as t
+            from `rj-smtr.bilhetagem.transacao` as t
             where
                 t.data = "{{ var('run_date') }}"
                 and t.hash_cliente is not null
                 -- Cash fares paid on board carry no rider identity
-                and t.tipo_transacao != 'Botoeira'
+                and t.tipo_transacao_jae != 'Botoeira'
         ),
     {% else %}
         {{

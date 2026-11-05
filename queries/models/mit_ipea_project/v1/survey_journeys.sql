@@ -111,7 +111,7 @@ select
     to_hex(
         md5(
             concat(
-                cast(j.rider_id as string),
+                to_hex(j.rider_id),
                 '|',
                 cast(j.service_date as string),
                 '|',
