@@ -90,13 +90,9 @@ with
         select
             data,
             datetime_gps,
-            case
-                when id_operadora = "2801"
-                then "A2-" || lpad(right(id_veiculo, 3), 3, "0")
-                when id_operadora = "2802"
-                then "B2-" || lpad(right(id_veiculo, 3), 3, "0")
-                else id_veiculo
-            end as id_veiculo,
+            coalesce(
+                {{ id_veiculo_jae_rio("id_operadora", "id_veiculo") }}, id_veiculo
+            ) as id_veiculo,
             trim(servico_jae) as servico,
             latitude,
             longitude,
