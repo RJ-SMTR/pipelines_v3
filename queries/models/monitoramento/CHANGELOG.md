@@ -1,5 +1,15 @@
 # Changelog - monitoramento
 
+## [2.5.4] - 2026-11-05
+
+### Adicionado
+
+- Adiciona coluna `tipo_documento_operadora` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
+
+### Alterado
+
+- Altera filtro dos modelos `gps_validador.sql` e `gps_validador_van.sql` para utilizar a coluna `tipo_documento_operadora` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
+
 ## [2.5.3] - 2026-10-29
 
 ### Alterado
