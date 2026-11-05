@@ -1,5 +1,25 @@
 # Changelog - infraestrutura
 
+## [1.1.0] - 2026-10-29
+
+### Adicionado
+
+- Adiciona `datetime_inicio_job`, `datetime_fim_job` e `id_job_pai` ao `log_bigquery`, com horários em `America/Sao_Paulo`. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Adiciona `tipo_statement`, `status_job`, `codigo_erro_job`, `mensagem_erro_job`, `tabela_destino`, `tabelas_referenciadas` e `labels` ao `log_bigquery` para uso como trilha de auditoria. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Adiciona teste de unicidade de `id_job`. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Adiciona o modelo ephemeral `aux_logs_bigquery`, que une os logs de auditoria dos datasets `bq_logs` de `rj-smtr`, `rj-smtr-dev` e `rj-smtr-staging` até 2026-04-01 com a sink unificada `infraestrutura_staging` a partir de `data_inicio_sink_unificada_logs_bigquery`. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Adiciona a variável `data_inicio_sink_unificada_logs_bigquery` (2026-04-02), pois a sink unificada só passou a receber dados em 2026-04-01 às 13:06 UTC. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+
+### Alterado
+
+- Atribui os jobs filhos ao processo e à execução dbt do pai quando não possuem identificação própria, preservando o filtro de `SCRIPT` na saída e a soma dos bytes faturados. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Seleciona os eventos `jobservice.jobcompleted` e deduplica por `id_job` antes de expandir labels e calcular custos. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+- Lê os logs de `aux_logs_bigquery`, permitindo reconstruir o histórico completo desde 2024-09-30 com `--full-refresh`. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+
+### Removido
+
+- Remove do histórico os jobs `SCRIPT` e os eventos de outros métodos que haviam permanecido na tabela por versões antigas do modelo, evitando dupla contagem de bytes faturados. (https://github.com/RJ-SMTR/pipelines_v3/pull/835)
+
 ## [1.0.3] - 2026-09-10
 
 ### Removido
