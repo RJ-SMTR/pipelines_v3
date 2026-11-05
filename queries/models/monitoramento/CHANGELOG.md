@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona coluna `tipo_documento_operadora` no modelo `aux_gps_validador.sql`
+- Adiciona coluna `tipo_documento_operadora` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
 
 ### Alterado
 
