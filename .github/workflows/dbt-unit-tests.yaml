@@ -1,0 +1,113 @@
+name: DBT Unit Tests
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - "queries/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/dbt-unit-tests.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dbt-unit-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Run dbt Core unit tests
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DBT_USER: unit_pr_${{ github.event.pull_request.number }}_${{ github.run_id }}_${{ github.run_attempt }}
+      GCS_BUCKET_NAME: rj-smtr-public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install project dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev unixodbc-dev gcc build-essential
+          cp queries/dev/profiles-example.yml queries/dev/profiles.yml
+          uv sync --frozen
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: rj-smtr-dev
+          version: "latest"
+
+      - name: Download production manifest for deferral
+        run: |
+          mkdir -p queries/state
+          gcloud storage cp "gs://${GCS_BUCKET_NAME}/dbt-docs/manifest.json" queries/state/manifest.json
+
+      - name: Install dbt packages and parse unit-test dependencies
+        working-directory: queries
+        run: |
+          uv run dbt deps --profiles-dir ./dev
+          uv run dbt parse --profiles-dir ./dev
+
+      - name: Create datasets for tested models
+        working-directory: queries
+        shell: bash
+        run: |
+          jq -r '[.unit_tests[].depends_on.nodes[] | select(startswith("model."))] as $m
+            | [.nodes[$m[]].schema] | unique[]' target/manifest.json > target/unit-test-datasets.txt
+          while read -r schema; do
+            bq mk --dataset --location=US --default_table_expiration 86400 "rj-smtr-dev:${schema}"
+          done < target/unit-test-datasets.txt
+
+      - name: Run unit tests
+        working-directory: queries
+        run: |
+          uv run dbt test --profiles-dir ./dev \
+            --select test_type:unit --defer --favor-state --state state
+
+      - name: Write unit test summary
+        if: always()
+        working-directory: queries
+        run: |
+          [ -f target/run_results.json ] || exit 0
+          {
+            echo "## dbt unit tests"
+            echo
+            echo "| Teste | Status | Tempo (s) |"
+            echo "|---|---|---|"
+            jq -r '.results[] | select(.unique_id | startswith("unit_test."))
+              | "| \(.unique_id | split(".")[-1]) | \(.status) | \(.execution_time * 10 | round / 10) |"' \
+              target/run_results.json
+            jq -r '.results[] | select(.unique_id | startswith("unit_test.")) | select(.status != "pass")
+              | "\n<details><summary>\(.unique_id | split(".")[-1])</summary>\n\n```\n\(.message)\n```\n</details>"' \
+              target/run_results.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Delete datasets
+        if: always()
+        working-directory: queries
+        run: |
+          [ -f target/unit-test-datasets.txt ] || exit 0
+          while read -r schema; do
+            bq rm -r -f -d "rj-smtr-dev:${schema}"
+          done < target/unit-test-datasets.txt
