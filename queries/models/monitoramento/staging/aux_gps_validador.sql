@@ -11,6 +11,7 @@ select
     coalesce(
         do.operadora, oh.razao_social, oh.operadora_stu, oh.operadora_jae
     ) as operadora,
+    ifnull(do.tipo_documento, oh.tipo_documento) as tipo_documento_operadora,
     s.id_servico_jae,
     s.servico_jae,
     s.descricao_servico_jae,
