@@ -8,7 +8,7 @@
 
 ### Alterado
 
-- Altera filtro dos modelos `gps_validador.sql` e `gps_validador_van.sql` para utilizar a coluna `tipo_documento_operadora`
+- Altera filtro dos modelos `gps_validador.sql` e `gps_validador_van.sql` para utilizar a coluna `tipo_documento_operadora` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
 
 ## [2.5.3] - 2026-10-29
 
