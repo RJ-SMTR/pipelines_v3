@@ -382,6 +382,7 @@ sources:
     schema: bq_logs
 
     tables:
+      - name: cloudaudit_googleapis_com_data_access
       - name: cloudaudit_googleapis_com_data_access_*
 
   - name: bq_logs_dev
