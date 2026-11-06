@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import redis
-from unittest.mock import patch
 from time import sleep
+from unittest.mock import patch
 from uuid import uuid4
 
+import redis
 import sentry_sdk
 from prefect import task
 from prefect.cache_policies import NO_CACHE
@@ -60,8 +60,9 @@ def _test_redis_pal_methods(client_class, redis_client_class) -> None:
     client = client_class.__new__(client_class)
     expected_value = {"source": "redis-pal-compatibility", "items": [1, 2, 3]}
 
-    with patch.object(redis_client_class, "set", fake_set), patch.object(
-        redis_client_class, "get", fake_get
+    with (
+        patch.object(redis_client_class, "set", fake_set),
+        patch.object(redis_client_class, "get", fake_get),
     ):
         assert client.set("compatibility", expected_value)
         assert client.get("compatibility") == expected_value
