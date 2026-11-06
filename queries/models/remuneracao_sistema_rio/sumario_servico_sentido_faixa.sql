@@ -75,6 +75,7 @@ with
             ) as percentual_atendimento,
             a.desconto_operacao_precaria,
             coalesce(k.km_remuneravel_faixa, 0) as km_remuneravel_faixa,
+            o.km_planejada,
             d.tarifa_remuneracao,
             d.beta
         from oferta as o
@@ -95,6 +96,9 @@ with
     com_ipa as (
         select
             *,
+            least(
+                km_remuneravel_faixa, coalesce(km_planejada, km_remuneravel_faixa)
+            ) as km_opex_faixa,
             case
                 when percentual_atendimento * 100 >= 90
                 then 1.0
@@ -121,11 +125,8 @@ select
     ipa,
     desconto_operacao_precaria,
     km_remuneravel_faixa,
-    km_remuneravel_faixa * com_ipa.ipa as km_ponderada_ipa_faixa,
-    tarifa_remuneracao
-    * beta
-    * km_remuneravel_faixa
-    * com_ipa.ipa as remuneracao_opex_faixa,
+    km_opex_faixa * com_ipa.ipa as km_ponderada_ipa_faixa,
+    tarifa_remuneracao * beta * km_opex_faixa * com_ipa.ipa as remuneracao_opex_faixa,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
