@@ -97,7 +97,7 @@ with
         select
             *,
             least(
-                km_remuneravel_faixa, coalesce(km_planejada, km_remuneravel_faixa)
+                km_remuneravel_faixa, km_planejada)
             ) as km_opex_faixa,
             case
                 when percentual_atendimento * 100 >= 90
