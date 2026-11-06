@@ -1,6 +1,6 @@
 {{
     config(
-        alias="rdo_5_registros_stpl",
+        alias="rdo5_registros_stpl",
     )
 }}
 with
