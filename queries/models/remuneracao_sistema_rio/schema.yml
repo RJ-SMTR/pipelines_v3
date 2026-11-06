@@ -608,8 +608,9 @@ models:
       Sumário por serviço × sentido × faixa, a partir da oferta
       planejada. A km remunerável soma a distância planejada das
       viagens válidas da faixa. O IPA sai dessa km sobre a km
-      planejada. OPEX = tarifa × β × km × IPA. O desconto de operação
-      precária continua o da `faixa_apurada`.
+      planejada. No OPEX, a km não ultrapassa a km planejada da faixa:
+      OPEX = tarifa × β × least(km remunerável, km planejada) × IPA.
+      O desconto de operação precária continua o da `faixa_apurada`.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: >-
@@ -675,7 +676,7 @@ models:
       - name: km_remuneravel_faixa
         description: "Soma da distância planejada das viagens válidas na faixa"
       - name: km_ponderada_ipa_faixa
-        description: "km_remuneravel_faixa × ipa"
+        description: "least(km_remuneravel_faixa, km_planejada) × ipa"
       - name: remuneracao_opex_faixa
         description: "tarifa_remuneracao × β × km_ponderada_ipa_faixa"
       - name: versao
