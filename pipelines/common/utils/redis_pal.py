@@ -27,7 +27,7 @@ class FatalError(Exception):
     """
 
 
-class RedisPal(redis.Redis):
+class _RedisPalMixin:
     """
     RedisPal helps you store data on Redis
     without worrying about serialization
@@ -39,11 +39,8 @@ class RedisPal(redis.Redis):
     structure using "get" and "set"
     methods.
 
-    This class inherits from redis.Redis
-    and the main difference is that it
-    handles serialization and deserialization
-    of objects so you can set anything to
-    a key.
+    The Redis client implementation is provided by a subclass, allowing
+    standalone and cluster clients to share the serialization behavior.
     """
 
     def __repr__(self) -> str:
@@ -51,7 +48,10 @@ class RedisPal(redis.Redis):
         Representation of this object
         """
 
-        return "<RedisPal <pool={}>>".format(self.connection_pool)
+        client_state = getattr(self, "connection_pool", None)
+        if client_state is None:
+            client_state = getattr(self, "nodes_manager", None)
+        return "<{} <pool={}>>".format(type(self).__name__, client_state)
 
     def __str__(self) -> str:
         """
@@ -88,20 +88,32 @@ class RedisPal(redis.Redis):
         _ser = self._serialize(value)
         timestamp_key = "{}_timestamp".format(key)
 
-        result = super(RedisPal, self).set(*args, name=key, value=_ser, **kwargs)
+        result = super().set(*args, name=key, value=_ser, **kwargs)
         if not result and not kwargs.get("get", False):
             return False
 
         timestamp_kwargs = {k: v for k, v in kwargs.items() if k not in ("nx", "xx", "get")}
-        _b = super(RedisPal, self).set(*args, name=timestamp_key, value=time(), **timestamp_kwargs)
+        _b = super().set(*args, name=timestamp_key, value=time(), **timestamp_kwargs)
         return bool(_b)
 
     def get(self, key, *args, **kwargs) -> object:
-        return self._deserialize(super(RedisPal, self).get(*args, name=key, **kwargs))
+        return self._deserialize(super().get(*args, name=key, **kwargs))
 
     def get_with_timestamp(self, key, *args, **kwargs) -> dict:
-        last_modified = super(RedisPal, self).get(*args, name="{}_timestamp".format(key), **kwargs)
+        last_modified = super().get(*args, name="{}_timestamp".format(key), **kwargs)
         return {
-            "value": self._deserialize(super(RedisPal, self).get(*args, name=key, **kwargs)),
+            "value": self._deserialize(super().get(*args, name=key, **kwargs)),
             "last_modified": float(last_modified) if last_modified else 0,
         }
+
+
+class RedisPal(_RedisPalMixin, redis.Redis):
+    """RedisPal client for standalone Redis deployments."""
+
+
+class RedisClusterPal(_RedisPalMixin, redis.RedisCluster):
+    """RedisPal client for Redis Cluster deployments.
+
+    Constructor arguments are passed directly to ``redis.RedisCluster``,
+    including ``startup_nodes`` and the other options supported by redis-py.
+    """
