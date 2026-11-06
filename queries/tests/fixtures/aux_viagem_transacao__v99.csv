@@ -1,0 +1,6 @@
+id_viagem,indicador_sem_transacao,indicador_sem_transacao_tipo,indicador_validador_fechado,indicador_validador_associado_incorretamente,indicador_estado_equipamento_aberto
+A29200_v99_fechado,false,false,true,false,false
+A29200_v99_gps_div,false,false,false,true,true
+A29200_v99_servico_div,false,false,false,true,true
+A29200_v99_multiplos,false,false,true,false,false
+A29200_v99_aberto,false,false,false,false,true
