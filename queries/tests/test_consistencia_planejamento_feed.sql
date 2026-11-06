@@ -89,7 +89,8 @@ where
     /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
     and feed_start_date not in ('2026-10-04', '2026-10-25')
     /* Exceção aprovada: o GTFS de Ponto Facultativo destes feeds diverge da OS */
+    /* Exceção aprovada: Em reunião dia 05-06-2026 (dia 19, 24, 30 de Outubro e 01 Novembro) de 2026 */
     and not (
-        feed_start_date in ('2026-10-24', '2026-10-26')
+        feed_start_date in ('2026-10-19', '2026-10-24', '2026-10-26', '2026-10-30', '2026-11-01')
         and tipo_dia = 'Ponto Facultativo'
     )
