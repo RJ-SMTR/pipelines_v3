@@ -1,0 +1,126 @@
+name: Build and push Dataproc image
+
+on:
+  schedule:
+    - cron: "23 6 * * *" # Daily at 03:23 America/Sao_Paulo (UTC-3).
+  push:
+    branches:
+      - master
+      - staging/openfisca-dataproc-image
+    paths:
+      - dataproc.Dockerfile
+      - requirements-dataproc.txt
+      - .github/workflows/build-and-push-dataproc-image.yaml
+      - .github/scripts/resolve_dataproc_image.py
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild even when this version and image inputs already exist"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dataproc-image
+  cancel-in-progress: false
+
+env:
+  IMAGE: us-central1-docker.pkg.dev/rj-smtr/dataproc/dbt-python
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Resolve package version and image inputs
+        id: inputs
+        run: python .github/scripts/resolve_dataproc_image.py
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: rj-smtr
+
+      - name: Check whether the image already exists
+        id: image
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          tags=$(gcloud artifacts docker tags list "$IMAGE" --format='value(tag)')
+          if [ "$FORCE" = "true" ] || ! grep -qFx "$IMAGE_TAG" <<< "$tags"; then
+            echo 'build=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'build=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure Docker authentication
+        if: steps.image.outputs.build == 'true'
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Set up Docker Buildx
+        if: steps.image.outputs.build == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image locally for verification
+        if: steps.image.outputs.build == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./dataproc.Dockerfile
+          platforms: linux/amd64
+          load: true
+          pull: true
+          tags: ${{ env.IMAGE }}:${{ steps.inputs.outputs.tag }}
+          build-args: PACKAGE_VERSION=${{ steps.inputs.outputs.version }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.inputs.outputs.version }}
+          # Always resolve unpinned dependencies again when building an image.
+          no-cache: true
+
+      - name: Verify dependencies and model imports
+        if: steps.image.outputs.build == 'true'
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+          PACKAGE_VERSION: ${{ steps.inputs.outputs.version }}
+        run: |
+          docker run --rm "$IMAGE:$IMAGE_TAG" python -m pip check
+          docker run --rm -e PACKAGE_VERSION "$IMAGE:$IMAGE_TAG" python -c '
+          import os
+          from importlib.metadata import version
+          from rio_rac_bus_subsidy import calculate_remuneration, get_rule_version
+          import openfisca_core, pandas, numpy, pyproj, shapely
+          assert version("rio-rac-bus-subsidy") == os.environ["PACKAGE_VERSION"]
+          print("Verified rio-rac-bus-subsidy", version("rio-rac-bus-subsidy"))
+          '
+
+      - name: Push verified image
+        if: steps.image.outputs.build == 'true'
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+        run: docker push "$IMAGE:$IMAGE_TAG"
+
+      - name: Promote verified image
+        env:
+          IMAGE_TAG: ${{ steps.inputs.outputs.tag }}
+        run: |
+          gcloud artifacts docker tags add "$IMAGE:$IMAGE_TAG" "$IMAGE:latest" --quiet
+          {
+            echo '### Dataproc image'
+            echo "Image: \`$IMAGE:$IMAGE_TAG\`"
+            echo "Built: ${{ steps.image.outputs.build }}"
+            echo 'The verified image is available as `latest` for dbt profiles.'
+          } >> "$GITHUB_STEP_SUMMARY"
