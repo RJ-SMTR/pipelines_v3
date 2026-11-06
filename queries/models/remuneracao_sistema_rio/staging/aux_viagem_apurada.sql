@@ -19,11 +19,6 @@ with
         select *
         from {{ ref("aux_viagem_apurada_openfisca") }}
         where {{ incremental_filter }}
-    ),
-    viagem as (
-        select data, id_viagem, tecnologia_minima_servico
-        from {{ ref("viagem_valida_classificada") }}
-        where {{ incremental_filter }}
     )
 select
     o.id_apuracao,
@@ -80,4 +75,3 @@ select
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
 from openfisca as o
-left join viagem as v on v.data = o.data and v.id_viagem = o.id_viagem
