@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `rioonibus` (sistema SPPO) na quinzena `2026-10-16` a `2026-10-31`, com data limite de envio em `2026-11-06` [Processo SEI nº 000301.018613/2026-56].
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `rioonibus` (sistema SPPO) na quinzena `2026-10-16` a `2026-10-31`, com data limite de envio em `2026-11-06` [Processo SEI nº 000301.018613/2026-56] (https://github.com/RJ-SMTR/pipelines_v3/pull/850).
 
 ## [2.5.4] - 2026-11-05
 
