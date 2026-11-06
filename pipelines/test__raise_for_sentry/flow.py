@@ -50,11 +50,11 @@ def test__raise_for_sentry() -> list[str]:
 def _test_redis_pal_methods(client_class, redis_client_class) -> None:
     stored_values = {}
 
-    def fake_set(self, *args, name, value, **kwargs):
+    def fake_set(_self, *_args, name, value, **_kwargs):
         stored_values[name] = value
         return True
 
-    def fake_get(self, *args, name, **kwargs):
+    def fake_get(_self, *_args, name, **_kwargs):
         return stored_values.get(name)
 
     client = client_class.__new__(client_class)
