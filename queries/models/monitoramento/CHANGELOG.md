@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.5.6] - 2026-11-06
+
+### Alterado
+
+- Altera a tolerância de atraso entre `datetime_envio` e `datetime_servidor` na macro `gps_staging_registros` para 7 horas quando `datetime_gps` cai entre `2026-10-30 06:58:00` (inclusive) e `2026-10-31 12:07:00` (exclusive). Nas demais datas, a tolerância permanece de 1 hora, salvo a excepcionalidade de 12 horas já vigente da fonte `conecta`.
+
 ## [2.5.5] - 2026-11-06
 
 ### Adicionado

@@ -76,14 +76,21 @@
             */
                 datetime_diff(datetime_servidor, datetime_envio, second) >= -20
                 -- Recaptura do GPS da Conecta. Ofício Consórcios nº 184/2026.
-                -- Processo SEI nº 000301.018035/2026-58.
-                and datetime_diff(datetime_servidor, datetime_envio, second) <= if(
-                    '{{ fonte }}' = 'conecta'
-                    and datetime_gps >= datetime("2026-10-06 20:00:00")
-                    and datetime_gps < datetime("2026-10-07 07:00:00"),
-                    12 * 3600,
-                    3600
-                )
+                -- Processo SEI nº 000301.018035/2026-58. Tolerância de 12 horas.
+                -- Recaptura do GPS de 2026-10-30 06:58:00 a 2026-10-31 12:07:00.
+                -- Tolerância de 7 horas, em todas as fontes.
+                and datetime_diff(datetime_servidor, datetime_envio, second) <= case
+                    when
+                        '{{ fonte }}' = 'conecta'
+                        and datetime_gps >= datetime("2026-10-06 20:00:00")
+                        and datetime_gps < datetime("2026-10-07 07:00:00")
+                    then 12 * 3600
+                    when
+                        datetime_gps >= datetime("2026-10-30 06:58:00")
+                        and datetime_gps < datetime("2026-10-31 12:07:00")
+                    then 7 * 3600
+                    else 3600
+                end
         )
     select
         data,
