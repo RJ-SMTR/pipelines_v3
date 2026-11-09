@@ -15,10 +15,6 @@
     between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
 {% endset %}
 
-{% set data_mudanca_cadencia %}
-    date('{{ var("DATA_ALERTARIO_CADENCIA_5_MINUTOS") }}')
-{% endset %}
-
 with
     dados as (
         select
@@ -41,7 +37,8 @@ with
                     from {{ this }}
                     where
                         data {{ incremental_filter }}
-                        and data < {{ data_mudanca_cadencia }}
+                        and data
+                        < date("{{ var('DATA_ALERTARIO_CADENCIA_5_MINUTOS') }}")
                 )
             {% endif %}
     ),
