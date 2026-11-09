@@ -35,10 +35,9 @@ deployments:
         command: uv run --package test__raise_for_sentry -- prefect flow-run execute
         secretName: prefect-jobs-secrets-staging
         image_pull_policy: Always
-
-  - name: test__redis_pal_compatibility--staging
+  - name: rj-test--raise_for_sentry--prod
     version: "{{ get-commit-hash.stdout }}"
-    entrypoint: pipelines/test__raise_for_sentry/flow.py:test__redis_pal_compatibility
+    entrypoint: pipelines/test__raise_for_sentry/flow.py:test__raise_for_sentry
     schedules:
       - cron: "0 0 * * *"
         timezone: "America/Sao_Paulo"
