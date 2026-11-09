@@ -812,11 +812,11 @@ models:
       - test_completude_temperatura:
           name: test_completude__temperatura_alertario
           config:
-            description: "Há pelo menos uma temperatura AlertaRio não nula registrada em alguma das estações do Rio de Janeiro em cada uma das 24 horas do dia"
+            description: "Há pelo menos uma temperatura AlertaRio não nula em alguma estação em cada horário esperado, a cada 15 minutos no histórico e a cada 5 minutos a partir da mudança de cadência"
             severity: warn
             where: "data between date('{date_range_start}') and date('{date_range_end}')"
           arguments:
-            expected_qtd: 96
+            expected_qtd: "if(data < date('{{ var('DATA_ALERTARIO_CADENCIA_5_MINUTOS') }}'), 96, 288)"
     columns:
       - name: data
         description: "{{ doc('data') }} [partição]"
