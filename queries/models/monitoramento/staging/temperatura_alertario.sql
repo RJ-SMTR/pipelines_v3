@@ -25,7 +25,7 @@ with
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
             "{{ var('version') }}" as versao,
             '{{ invocation_id }}' as id_execucao_dbt
-        from {{ source("clima_estacao_meteorologica", "meteorologia_alertario") }}
+        from {{ source("clima_estacao_meteorologia", "meteorologia_alertario") }}
         where
             data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
             {% if is_incremental() %}
