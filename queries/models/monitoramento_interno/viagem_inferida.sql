@@ -24,8 +24,20 @@ with
             (indicador_segmento_inicio and not indicador_segmento_fim)
             or (indicador_segmento_fim and not indicador_segmento_inicio)
     ),
-    -- Partida: último GPS só no buffer de início. Chegada: primeiro GPS
-    -- só no buffer de fim depois de um intervalo fora dele.
+    /*
+    Partida: último GPS só no buffer de início antes da chegada.
+    Chegada: primeiro GPS só no buffer de fim depois de uma partida.
+    A janela exclui de propósito o tempo nos segmentos extremos, para não
+    abrir mais de uma viagem em trajetos circulares. Por isso a duração é
+    um pouco menor que a real e a cerca eletrônica de gps_segmento_viagem
+    não altera partida/chegada das viagens inferidas (uso só para monitoramento).
+    */
+    Chegada: primeiro GPS só no buffer de fim depois de uma partida.
+    A janela exclui de propósito o tempo nos segmentos extremos, para não
+    abrir mais de uma viagem em trajetos circulares. Por isso a duração é
+    um pouco menor que a real e a cerca eletrônica de gps_segmento_viagem
+    não altera partida/chegada das viagens inferidas (uso só para monitoramento).
+    */
     aux_status as (
         select
             * except (indicador_partida, indicador_chegada),
