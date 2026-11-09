@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 from time import sleep
-from unittest.mock import patch
-from uuid import uuid4
 
-import redis
 import sentry_sdk
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.utils.prefect import flow
-from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.redis_pal import RedisClusterPal, RedisPal
 from pipelines.common.utils.secret import get_env_secret
-from pipelines.common.utils.utils import is_running_locally
 
 # from pipelines.common.utils.state_handlers import handler_post_sentry
 
