@@ -7,11 +7,16 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
+        full_refresh=false,
     )
 }}
 
 {% set incremental_filter %}
     between date("{{var('date_range_start')}}") and date("{{var('date_range_end')}}")
+{% endset %}
+
+{% set data_mudanca_cadencia %}
+    date('{{ var("DATA_ALERTARIO_CADENCIA_5_MINUTOS") }}')
 {% endset %}
 
 with
@@ -30,6 +35,14 @@ with
             data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
             {% if is_incremental() %}
                 and data_particao {{ incremental_filter }}
+                /* Preserva as partições já materializadas na cadência histórica, pois as fontes não têm o histórico completo */
+                and data_particao not in (
+                    select data
+                    from {{ this }}
+                    where
+                        data {{ incremental_filter }}
+                        and data < {{ data_mudanca_cadencia }}
+                )
             {% endif %}
     ),
     dados_deduplicados as (
