@@ -98,7 +98,7 @@ with
             *,
             least(
                 km_remuneravel_faixa, km_planejada)
-            ) as km_opex_faixa,
+            as km_opex_faixa,
             case
                 when percentual_atendimento * 100 >= 90
                 then 1.0
