@@ -38,26 +38,13 @@ with
             data,
             datetime_gps,
             id_veiculo,
-            servico,
+            trim(servico) as servico
             latitude,
             longitude,
-            fonte_gps,
+            "sonda" as fonte_gps
             status,
             distancia
-        from
-            (
-                select
-                    data,
-                    datetime_gps,
-                    id_veiculo,
-                    trim(servico) as servico,
-                    latitude,
-                    longitude,
-                    "sonda" as fonte_gps,
-                    status,
-                    distancia
-                from {{ ref("view_gps_brt_completo") }}
-            ) as gps_brt_raw
+        from {{ ref("view_gps_brt_completo") }}
         where
             {{ gps_data_filter }}
             and ifnull(status, "") != "Parado garagem"
