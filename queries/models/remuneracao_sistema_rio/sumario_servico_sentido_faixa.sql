@@ -36,7 +36,8 @@ with
             servico,
             sentido,
             faixa_horaria_inicio,
-            sum(if(indicador_viagem_completa, km_programada, 0)) as km_remuneravel_faixa
+            sum(if(indicador_viagem_completa, km_programada, 0)) as km_remuneravel_faixa,
+            count(*) as viagens_realizadas_faixa
         from {{ ref("viagem_valida_classificada") }}
         where {{ incremental_filter }}
         group by data, servico, sentido, faixa_horaria_inicio
@@ -71,8 +72,9 @@ with
             a.viagens_atendimento_faixa,
             o.viagens_programadas_faixa,
             safe_divide(
-                coalesce(k.km_remuneravel_faixa, 0), o.km_planejada
+                coalesce(k.viagens_realizadas_faixa, 0), o.viagens_programadas_faixa
             ) as percentual_atendimento,
+            coalesce(k.viagens_realizadas_faixa, 0) as viagens_realizadas_faixa,
             a.desconto_operacao_precaria,
             coalesce(k.km_remuneravel_faixa, 0) as km_remuneravel_faixa,
             o.km_planejada,
@@ -100,11 +102,17 @@ with
                 km_remuneravel_faixa, km_planejada)
             as km_opex_faixa,
             case
-                when percentual_atendimento * 100 >= 90
+                when
+                    viagens_programadas_faixa > 0
+                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 90
                 then 1.0
-                when percentual_atendimento * 100 >= 80
+                when
+                    viagens_programadas_faixa > 0
+                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 80
                 then 0.9
-                when percentual_atendimento * 100 >= 60
+                when
+                    viagens_programadas_faixa > 0
+                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 60
                 then 0.6
                 else 0.0
             end as ipa
