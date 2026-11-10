@@ -7,6 +7,7 @@
             "granularity": "day",
         },
         incremental_strategy="insert_overwrite",
+        full_refresh=false,
     )
 }}
 
@@ -25,11 +26,20 @@ with
             current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
             "{{ var('version') }}" as versao,
             '{{ invocation_id }}' as id_execucao_dbt
-        from {{ source("clima_estacao_meteorologica", "meteorologia_alertario") }}
+        from {{ source("clima_estacao_meteorologia", "meteorologia_alertario") }}
         where
             data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
             {% if is_incremental() %}
                 and data_particao {{ incremental_filter }}
+                /* Preserva as partições já materializadas na cadência histórica, pois as fontes não têm o histórico completo */
+                and data_particao not in (
+                    select data
+                    from {{ this }}
+                    where
+                        data {{ incremental_filter }}
+                        and data
+                        < date("{{ var('DATA_ALERTARIO_CADENCIA_5_MINUTOS') }}")
+                )
             {% endif %}
     ),
     dados_deduplicados as (
