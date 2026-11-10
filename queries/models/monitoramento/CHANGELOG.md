@@ -1,5 +1,13 @@
 # Changelog - monitoramento
 
+## [2.5.6] - 2026-11-09
+
+### Alterado
+
+- Altera a fonte dos modelos `temperatura_alertario` e `temperatura_inmet` para o dataset `clima_estacao_meteorologia`, usando `data_medicao` como data em `temperatura_inmet` (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+- Preserva em `temperatura_alertario` as partições já materializadas anteriores a `DATA_ALERTARIO_CADENCIA_5_MINUTOS` (`2026-10-16`) e desabilita o full refresh do modelo, pois as fontes não têm o histórico completo (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+- Altera o teste de completude de `temperatura_alertario` para esperar 96 horários por dia antes de `2026-10-16` e 288 a partir dessa data, com a mudança da cadência de medição do AlertaRio para 5 minutos (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+
 ## [2.5.5] - 2026-11-06
 
 ### Adicionado
