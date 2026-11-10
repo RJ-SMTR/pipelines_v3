@@ -29,6 +29,7 @@ with
         from {{ source("clima_estacao_meteorologia", "meteorologia_alertario") }}
         where
             data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            and data_medicao is not null
             {% if is_incremental() %}
                 and data_particao {{ incremental_filter }}
                 /* Preserva as partições já materializadas na cadência histórica, pois as fontes não têm o histórico completo */
