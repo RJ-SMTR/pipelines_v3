@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import pickle
 from time import time
-from typing import Union
+from typing import Optional, Union
 
 import dill
 import redis
+from redis.exceptions import RedisClusterException, RedisError
+
+# RedisClusterException não herda de RedisError no redis-py
+REDIS_ERRORS = (RedisError, RedisClusterException)
 
 
 class SerializationError(Exception):
@@ -117,3 +121,67 @@ class RedisClusterPal(_RedisPalMixin, redis.RedisCluster):
     Constructor arguments are passed directly to ``redis.RedisCluster``,
     including ``startup_nodes`` and the other options supported by redis-py.
     """
+
+
+class MigrationRedisPal:
+    """Grava nos Redis antigo e novo e lê o valor mais recente durante a migração.
+
+    O valor mais recente é escolhido pela chave ``{key}_timestamp``. Em caso de
+    empate, o Redis novo vence. Uma falha em um dos Redis só gera erro quando
+    os dois falham.
+    """
+
+    def __init__(self, old: RedisPal, new: Optional[RedisClusterPal]):
+        self.old = old
+        self.new = new
+
+    def __repr__(self) -> str:
+        return "<MigrationRedisPal <old={!r}> <new={!r}>>".format(self.old, self.new)
+
+    def get_clients(self) -> list:
+        clients = [("old", self.old)]
+        if self.new is not None:
+            clients.insert(0, ("new", self.new))
+        return clients
+
+    def set(self, key, value, *args, **kwargs) -> bool:
+        results = []
+        last_error = None
+        for name, client in self.get_clients():
+            try:
+                results.append(client.set(key, value, *args, **kwargs))
+            except REDIS_ERRORS as error:
+                last_error = error
+                print(f"Falha ao gravar a chave {key} no Redis {name}: {error}")
+        if not results:
+            raise RedisError(f"Falha ao gravar a chave {key} em todos os Redis") from last_error
+        return all(results)
+
+    def get_with_timestamp(self, key, *args, **kwargs) -> dict:
+        newest = None
+        last_error = None
+        for name, client in self.get_clients():
+            try:
+                result = client.get_with_timestamp(key, *args, **kwargs)
+            except REDIS_ERRORS as error:
+                last_error = error
+                print(f"Falha ao ler a chave {key} no Redis {name}: {error}")
+                continue
+            rank = (result["last_modified"], result["value"] is not None)
+            if newest is None or rank > (newest["last_modified"], newest["value"] is not None):
+                newest = result
+        if newest is None:
+            raise RedisError(f"Falha ao ler a chave {key} em todos os Redis") from last_error
+        return newest
+
+    def get(self, key, *args, **kwargs) -> object:
+        return self.get_with_timestamp(key, *args, **kwargs)["value"]
+
+    def delete(self, *names) -> int:
+        deleted = 0
+        for name, client in self.get_clients():
+            try:
+                deleted = max(deleted, client.delete(*names))
+            except REDIS_ERRORS as error:
+                print(f"Falha ao apagar {names} no Redis {name}: {error}")
+        return deleted

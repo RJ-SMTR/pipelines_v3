@@ -1,28 +1,41 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
-from pipelines.common.utils.redis_pal import RedisClusterPal, RedisPal
+from pipelines.common.utils.redis_pal import (
+    REDIS_ERRORS,
+    MigrationRedisPal,
+    RedisClusterPal,
+    RedisPal,
+)
 from pipelines.common.utils.utils import is_running_locally
+
+OLD_REDIS_HOST = "redis.redis.svc.cluster.local"
+NEW_REDIS_HOST = "redis-cluster-leader.redis.svc.cluster.local"
 
 
 def get_redis_client(
-    host: str = "redis-cluster-leader.redis.svc.cluster.local",
     port: int = 6379,
-    db: int = 0,  # pylint: disable=C0103
     password: Optional[str] = None,
-    **kwargs: Any,
-) -> Union[RedisPal, RedisClusterPal]:
+) -> Union[RedisPal, MigrationRedisPal]:
     """
-    Returns a standalone Redis client locally and a cluster client otherwise.
+    Returns a standalone Redis client locally and a dual-write client otherwise.
 
-    Additional keyword arguments are passed to RedisClusterPal when running
-    outside a local environment.
+    During the migration to Redis Cluster, writes go to both the old Redis and
+    the cluster, and reads return the most recent value between them.
     """
     if is_running_locally():
-        return RedisPal(host="localhost", port=port, db=db, password=password)
-    if db != 0:
-        raise ValueError("Redis Cluster only supports database 0")
-    cluster_kwargs = {"password": password, **kwargs}
-    if "startup_nodes" not in cluster_kwargs:
-        cluster_kwargs.update(host=host, port=port)
-    return RedisClusterPal(**cluster_kwargs)
+        return RedisPal(host="localhost", port=port, password=password)
+
+    old = RedisPal(host=OLD_REDIS_HOST, port=port, password=password)
+    try:
+        new = RedisClusterPal(
+            host=NEW_REDIS_HOST,
+            port=port,
+            password=password,
+            socket_connect_timeout=5,
+            socket_timeout=5,
+        )
+    except REDIS_ERRORS as error:
+        print(f"Falha ao conectar ao Redis Cluster, usando apenas o Redis antigo: {error}")
+        new = None
+    return MigrationRedisPal(old=old, new=new)
