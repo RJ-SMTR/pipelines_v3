@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.5.7] - 2026-11-10
+
+### Adicionado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `conecta` (sistema RIO) na quinzena `2026-10-16` a `2026-10-31`, com data limite de envio em `2026-11-06`. A fonte é `conecta` porque as partidas do sistema RIO a partir de `2026-10-16` deixam de ser Maxtrack [Processo SEI nº 000300.035567/2026-60] (https://github.com/RJ-SMTR/pipelines_v3/pull/874).
+
 ## [2.5.6] - 2026-11-09
 
 ### Alterado
