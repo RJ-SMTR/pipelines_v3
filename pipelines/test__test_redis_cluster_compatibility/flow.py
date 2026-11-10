@@ -6,7 +6,7 @@ import redis
 
 from pipelines.common.utils.prefect import flow
 from pipelines.common.utils.redis import get_redis_client
-from pipelines.common.utils.redis_pal import RedisClusterPal, RedisPal
+from pipelines.common.utils.redis_pal import MigrationRedisPal, RedisClusterPal, RedisPal
 from pipelines.common.utils.utils import is_running_locally
 
 
@@ -41,7 +41,7 @@ def test__test_redis_cluster_compatibility() -> dict[str, object]:
     _test_redis_pal_methods(RedisClusterPal, redis.RedisCluster)
 
     client = get_redis_client()
-    expected_client_class = RedisPal if is_running_locally() else RedisClusterPal
+    expected_client_class = RedisPal if is_running_locally() else MigrationRedisPal
     assert isinstance(client, expected_client_class)
 
     key = f"test.redis_pal_compatibility.{uuid4().hex}"
@@ -54,17 +54,18 @@ def test__test_redis_cluster_compatibility() -> dict[str, object]:
         result = client.get_with_timestamp(key)
         assert result["value"] == expected_value
         assert result["last_modified"] > 0
+
+        if isinstance(client, MigrationRedisPal):
+            assert client.new is not None, "Não foi possível conectar ao Redis Cluster"
+            assert client.old.get(key) == expected_value
+            assert client.new.get(key) == expected_value
+
+            newer_value = {"source": "redis-pal-compatibility", "value": 43}
+            client.old.set(key, newer_value)
+            assert client.get(key) == newer_value, "O valor mais recente deve vencer"
     finally:
         client.delete(key)
         client.delete(f"{key}_timestamp")
 
     print(f"Redis compatibility checks passed with {type(client).__name__}")
     return {"client": type(client).__name__, "value": expected_value}
-
-
-# @flow(log_prints=True)
-# def test__test_redis_cluster_compatibility() -> list[str]:
-#     use_pandas()
-#     customer_ids = get_customer_ids()
-#     results = process_customer.map(customer_ids)
-#     return results
