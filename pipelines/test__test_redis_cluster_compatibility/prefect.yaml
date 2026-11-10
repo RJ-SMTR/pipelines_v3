@@ -38,9 +38,6 @@ deployments:
   - name: rj-test--test_redis_cluster_compatibility--prod
     version: "{{ get-commit-hash.stdout }}"
     entrypoint: pipelines/test__test_redis_cluster_compatibility/flow.py:test__test_redis_cluster_compatibility
-    schedules:
-      - cron: "0 0 * * *"
-        timezone: "America/Sao_Paulo"
     work_pool:
       name: smtr-pool
       work_queue_name: default
