@@ -195,6 +195,9 @@ vars:
   # Placeholder feature
   DATA_SUBSIDIO_V99_INICIO: "3000-01-01"
 
+  ### AlertaRio ###
+  DATA_ALERTARIO_CADENCIA_5_MINUTOS: "2026-10-16"
+
   # Recursos #
   recurso_staging: "rj-smtr-staging.projeto_subsidio_sppo_staging.recurso"
   recurso_prazo: "rj-smtr.projeto_subsidio_sppo.recurso_prazo"
