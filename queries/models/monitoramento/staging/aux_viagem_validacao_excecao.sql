@@ -73,6 +73,13 @@ with
                             date("2026-10-31") as data_fim,
                             "rioonibus" as fonte_viagem,
                             date("2026-11-06") as data_limite_envio
+                        ),
+                        -- Processo SEI_000300.035567_2026_60
+                        struct(
+                            date("2026-10-16") as data_inicio,
+                            date("2026-10-31") as data_fim,
+                            "maxtrack" as fonte_viagem,
+                            date("2026-11-06") as data_limite_envio
                         )
                     ] as array<
                         struct<
