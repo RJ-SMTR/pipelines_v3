@@ -17,19 +17,19 @@
 with
     dados_temperatura as (
         select
-            data_particao as data,
+            data_medicao as data,
             horario as hora,
             id_estacao,
             case
-                when data_particao >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
+                when data_medicao >= date("{{ var('DATA_SUBSIDIO_V23_INICIO') }}")
                 then temperatura_maxima
                 else temperatura
             end as temperatura
-        from {{ source("clima_estacao_meteorologica", "meteorologia_inmet") }}
+        from {{ source("clima_estacao_meteorologia", "meteorologia_inmet") }}
         where
-            data_particao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+            data_medicao >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
             {% if is_incremental() %}
-                and data_particao {{ incremental_filter }}
+                and data_medicao {{ incremental_filter }}
             {% endif %}
     ),
     dados_contingencia as (
