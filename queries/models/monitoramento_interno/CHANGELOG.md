@@ -8,8 +8,8 @@
 
 ### Alterado
 
-- Em `aux_monitoramento_registros_status_trajeto`, deixa de classificar o GPS em `start`/`end`/`middle`/`out` contra o shape e os pontos extremos. Passa a expor só `indicador_segmento_inicio` e `indicador_segmento_fim` (`st_intersects` com o buffer do primeiro e do último segmento). Lê GPS de `aux_gps_viagem_inferida` no lugar de `view_gps_onibus`. (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
-- Em `viagem_inferida`, emparelha partida e chegada pelos extremos exclusivos: partida é GPS só no primeiro segmento, chegada é GPS só no último. Ponto nos dois buffers (terminal circular) é ignorado para não abrir viagem a cada ping. A partida considerada é o último GPS só no início; a chegada é o primeiro GPS só no fim depois de um intervalo fora dele (`lag` + `last_value`). (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Atualiza `aux_monitoramento_registros_status_trajeto` para usar o GPS consolidado e indicar separadamente a interseção com o primeiro e o último segmento do trajeto (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Altera `viagem_inferida` para associar o último registro de GPS exclusivo do primeiro segmento ao primeiro registro exclusivo do último segmento após a partida. Registros na sobreposição dos dois segmentos não são considerados para identificar partidas ou chegadas (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
 
 ## [1.0.8] - 2026-09-16
 
