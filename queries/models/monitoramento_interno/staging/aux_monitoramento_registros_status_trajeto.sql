@@ -37,13 +37,6 @@ with
             end as data_operacao
         from {{ ref("aux_gps_viagem_inferida") }} g
     ),
-    -- 2. Busca os shapes em formato geográfico
-    shapes as (
-        select *
-        from {{ ref("shapes_geom_gtfs") }}
-        {# from `rj-smtr.gtfs.shapes_geom` #}
-        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-    ),
     servico_planejado as (
         select
             data,
@@ -115,11 +108,6 @@ with
             )
             = 1
     ),
-    servico_planejado_shapes as (
-        select spu.*, s.start_pt, s.end_pt
-        from servico_planejado_unnested as spu
-        left join shapes as s using (feed_start_date, shape_id)
-    ),
     -- 4. Primeiro e último segmento de cada shape, antes de classificar o status
     segmentos_filtrados as (
         select
@@ -153,8 +141,6 @@ with
             s.sentido,
             s.trip_id,
             s.route_id,
-            s.start_pt,
-            s.end_pt,
             s.extensao as distancia_planejada,
             ifnull(g.distancia, 0) as distancia,
             s.feed_start_date,
@@ -166,7 +152,7 @@ with
             ) as indicador_segmento_fim
         from gps g
         inner join
-            servico_planejado_shapes s
+            servico_planejado_unnested s
             on g.data_operacao = s.data
             and g.servico = s.servico
         inner join
