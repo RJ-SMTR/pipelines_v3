@@ -7,7 +7,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.treatment.default_treatment.utils import DBTSelector
+from pipelines.common.treatment.default_treatment.utils import DBTSelector, DBTTest
 
 # from pipelines.treatment__gps_cittati import constants as gps_cittati_constants
 from pipelines.treatment__gps_conecta import constants as gps_conecta_constants
@@ -18,6 +18,12 @@ from pipelines.treatment__gps_maxtrack import constants as gps_maxtrack_constant
 from pipelines.treatment__gps_zirix import constants as gps_zirix_constants
 from pipelines.treatment__planejamento_diario import constants as planejamento_constants
 from pipelines.treatment__viagem_informada import constants as viagem_informada_constants
+
+VIAGEM_VALIDACAO_TEST = DBTTest(
+    test_select="viagem_validacao",
+    delay_days_start=6,
+    truncate_date=True,
+)
 
 VIAGEM_VALIDACAO_SELECTOR = DBTSelector(
     name="viagem_validacao",
@@ -32,4 +38,5 @@ VIAGEM_VALIDACAO_SELECTOR = DBTSelector(
         # gps_cittati_constants.GPS_CITTATI_SELECTOR,
         gps_zirix_constants.GPS_ZIRIX_SELECTOR,
     ],
+    post_test=VIAGEM_VALIDACAO_TEST,
 )
