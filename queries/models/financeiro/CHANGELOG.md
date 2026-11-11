@@ -1,5 +1,11 @@
 # Changelog - financeiro
 
+## [1.2.3] - 2026-11-11
+
+### Alterado
+
+- Altera lógica incremental dos modelos `bilhetagem_consorcio_dia.sql` e `bilhetagem_consorcio_operador_dia.sql` para não ocorrer substituição total de uma partição anterior (https://github.com/RJ-SMTR/pipelines_v3/pull/876)
+
 ## [1.2.2] - 2026-10-14
 
 ### Adicionado
