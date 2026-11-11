@@ -29,7 +29,8 @@
             sha256(
                 concat(
                     {% for c in columns %}
-                        ifnull(cast({{ c }} as string), 'n/a')
+                        ifnull(cast({{ c }} as string), 'n/a'),
+                        "-"
                         {% if not loop.last %}, {% endif %}
 
                     {% endfor %}
@@ -308,14 +309,14 @@ with
             select
                 id_ordem_pagamento_consorcio_operador_dia,
                 {{ sha_column }} as sha_dado_atual,
-                datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
+                datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual
             from dados_atuais
 
         {% else %}
             select
                 cast(null as string) as id_ordem_pagamento_consorcio_operador_dia,
                 cast(null as bytes) as sha_dado_atual,
-                datetime(null) as datetime_ultima_atualizacao_atual,
+                datetime(null) as datetime_ultima_atualizacao_atual
         {% endif %}
     ),
     sha_dados_completos as (
