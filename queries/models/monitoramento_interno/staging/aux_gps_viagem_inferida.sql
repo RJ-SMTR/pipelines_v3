@@ -38,10 +38,10 @@ with
             data,
             datetime_gps,
             id_veiculo,
-            trim(servico) as servico
+            trim(servico) as servico,
             latitude,
             longitude,
-            "sonda" as fonte_gps
+            "sonda" as fonte_gps,
             status,
             distancia
         from {{ ref("view_gps_brt_completo") }}
