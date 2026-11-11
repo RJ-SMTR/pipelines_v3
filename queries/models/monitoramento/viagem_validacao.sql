@@ -89,9 +89,10 @@ with
             where
                 {{ output_filter }}
                 and (
-                    vi.data
-                    >= date_sub(date('{{ var("date_range_end") }}'), interval 5 day)
-                    or exists (
+                    {% if not var("use_partition_dates", false) %}
+                        vi.data
+                        >= date_sub(date('{{ var("date_range_end") }}'), interval 5 day)
+                        or {% endif %} exists (
                         select 1
                         from {{ ref("aux_viagem_validacao_excecao") }} as e
                         where
@@ -456,19 +457,50 @@ with
                 second
             )
             > 300
+            /*
+            Desempate: captura mais recente vence; em caso de empate, processamento
+            mais recente, depois partida mais antiga e, por fim, menor id_viagem.
+            Datas ausentes ficam atrás de datas preenchidas.
+            */
             and (
                 v2.datetime_captura_viagem > v1.datetime_captura_viagem
                 or (
-                    v2.datetime_captura_viagem = v1.datetime_captura_viagem
-                    and v2.datetime_partida_considerada
-                    < v1.datetime_partida_considerada
+                    v1.datetime_captura_viagem is null
+                    and v2.datetime_captura_viagem is not null
+                )
+                or (
+                    v2.datetime_captura_viagem
+                    is not distinct from v1.datetime_captura_viagem
+                    and (
+                        v2.datetime_processamento > v1.datetime_processamento
+                        or (
+                            v1.datetime_processamento is null
+                            and v2.datetime_processamento is not null
+                        )
+                        or (
+                            v2.datetime_processamento
+                            is not distinct from v1.datetime_processamento
+                            and (
+                                v2.datetime_partida_considerada
+                                < v1.datetime_partida_considerada
+                                or (
+                                    v2.datetime_partida_considerada
+                                    = v1.datetime_partida_considerada
+                                    and v2.id_viagem < v1.id_viagem
+                                )
+                            )
+                        )
+                    )
                 )
             )
         qualify
             row_number() over (
                 partition by v1.id_viagem
                 order by
-                    v2.datetime_captura_viagem desc, v2.datetime_partida_considerada
+                    v2.datetime_captura_viagem desc,
+                    v2.datetime_processamento desc,
+                    v2.datetime_partida_considerada,
+                    v2.id_viagem
             )
             = 1
     ),
