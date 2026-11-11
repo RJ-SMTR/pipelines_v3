@@ -1,11 +1,12 @@
 {{
     config(
-        materialized="table",
+        materialized="incremental",
         partition_by={
             "field": "data_inicio_quinzena",
             "data_type": "date",
             "granularity": "day",
         },
+        incremental_strategy="insert_overwrite",
     )
 }}
 
