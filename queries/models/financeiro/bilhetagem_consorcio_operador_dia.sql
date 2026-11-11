@@ -17,6 +17,26 @@
 
 {% if execute %}
     {% if is_incremental() %}
+        {% set columns = (
+            list_columns()
+            | reject(
+                "in",
+                ["versao", "datetime_ultima_atualizacao"],
+            )
+            | list
+        ) %}
+        {% set sha_column %}
+            sha256(
+                concat(
+                    {% for c in columns %}
+                        ifnull(cast({{ c }} as string), 'n/a')
+                        {% if not loop.last %}, {% endif %}
+
+                    {% endfor %}
+                )
+            )
+        {% endset %}
+
         -- Verifica as ordens de pagamento capturadas
         {% set partitions_query %}
             SELECT DISTINCT
@@ -44,6 +64,11 @@
         {% endset %}
 
         {% set paid_orders = run_query(paid_orders_query).columns[0].values() %}
+
+    {% else %}
+        {% set sha_column %}
+            cast(null as bytes)
+        {% endset %}
     {% endif %}
 {% endif %}
 
@@ -143,19 +168,32 @@ with
             o.valor_bruto as valor_total_transacao_bruto,
             o.valor_taxa as valor_desconto_taxa,
             o.valor_liquido as valor_total_transacao_liquido_ordem,
-            o.timestamp_captura as datetime_captura,
-            current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao
+            o.timestamp_captura as datetime_captura
         from staging_ordem_pagamento_consorcio_operadora o
         join {{ ref("staging_ordem_pagamento") }} op using (data_ordem)
         left join {{ ref("operadoras") }} do on o.id_operadora = do.id_operadora_jae
         left join {{ ref("consorcios") }} dc on o.id_consorcio = dc.id_consorcio_jae
         join tarifa_van_data_ordem t using (data_ordem)
     ),
+    {% if is_incremental() %}
+        dados_atuais as (
+            select *
+            from {{ this }}
+            where
+                {% if paid_orders | length > 0 or partitions | length > 0 %}
+                    data_ordem
+                    in ({{ (partitions | list + paid_orders | list) | join(", ") }})
+                {% else %} false
+                {% endif %}
+        ),
+    {% endif %}
     ordem_pagamento_completa as (
         select *, 0 as priority
         from ordem_pagamento
 
-        {% if is_incremental() and paid_orders | length > 0 %}
+        {% if is_incremental() and (
+                paid_orders | length > 0 or partitions | length > 0
+            ) %}
             union all
 
             select
@@ -183,10 +221,8 @@ with
                 valor_desconto_taxa,
                 valor_total_transacao_liquido_ordem,
                 datetime_captura,
-                datetime_ultima_atualizacao,
                 1 as priority
-            from {{ this }}
-            where data_ordem in ({{ paid_orders | join(", ") }})
+            from dados_atuais
         {% endif %}
     ),
     ordem_valor_pagamento as (
@@ -217,46 +253,86 @@ with
             p.data_pagamento,
             p.valor_pago,
             o.datetime_captura,
-            o.datetime_ultima_atualizacao,
             row_number() over (
                 partition by data_ordem, id_consorcio, id_operadora order by priority
             ) as rn
         from ordem_pagamento_completa o
         left join pagamento p using (data_ordem, id_consorcio, id_operadora)
+    ),
+    valor_corrigido as (
+        select
+            data_ordem,
+            id_ordem_pagamento_consorcio_operador_dia,
+            id_consorcio,
+            consorcio,
+            id_operadora,
+            operadora,
+            id_ordem_pagamento,
+            quantidade_transacao_debito,
+            valor_debito,
+            quantidade_transacao_especie,
+            valor_especie,
+            quantidade_transacao_gratuidade,
+            valor_gratuidade,
+            quantidade_transacao_integracao,
+            valor_integracao,
+            quantidade_transacao_rateio_credito,
+            valor_rateio_credito,
+            quantidade_transacao_rateio_debito,
+            valor_rateio_debito,
+            quantidade_total_transacao,
+            valor_total_transacao_bruto,
+            valor_desconto_taxa,
+            valor_total_transacao_liquido_ordem,
+            case
+                when
+                    data_ordem = '2024-06-07'
+                    and id_consorcio = '2'
+                    and id_operadora = '8'
+                then valor_total_transacao_liquido_ordem - 1403.4532  -- Corrigir valor pago incorretamente ao VLT na ordem do dia 2024-05-31
+                else valor_total_transacao_liquido_ordem
+            end as valor_total_transacao_liquido,
+            data_pagamento,
+            valor_pago,
+            datetime_captura
+        from ordem_valor_pagamento
+        where rn = 1
+    ),
+    sha_dados_novos as (
+        select *, {{ sha_column }} as sha_dado_novo from valor_corrigido
+
+    ),
+    sha_dados_atuais as (
+        {% if is_incremental() %}
+
+            select
+                id_ordem_pagamento_consorcio_operador_dia,
+                {{ sha_column }} as sha_dado_atual,
+                datetime_ultima_atualizacao as datetime_ultima_atualizacao_atual,
+            from dados_atuais
+
+        {% else %}
+            select
+                cast(null as string) as id_ordem_pagamento_consorcio_operador_dia,
+                cast(null as bytes) as sha_dado_atual,
+                datetime(null) as datetime_ultima_atualizacao_atual,
+        {% endif %}
+    ),
+    sha_dados_completos as (
+        select n.*, a.* except (id_ordem_pagamento_consorcio_operador_dia)
+        from sha_dados_novos n
+        left join sha_dados_atuais a using (id_ordem_pagamento_consorcio_operador_dia)
+    ),
+    ordem_pagamento_colunas_controle as (
+        select
+            * except (sha_dado_novo, sha_dado_atual, datetime_ultima_atualizacao_atual),
+            '{{ var("version") }}' as versao,
+            case
+                when sha_dado_atual is null or sha_dado_novo != sha_dado_atual
+                then current_datetime("America/Sao_Paulo")
+                else datetime_ultima_atualizacao_atual
+            end as datetime_ultima_atualizacao
+        from sha_dados_completos
     )
-select
-    data_ordem,
-    id_ordem_pagamento_consorcio_operador_dia,
-    id_consorcio,
-    consorcio,
-    id_operadora,
-    operadora,
-    id_ordem_pagamento,
-    quantidade_transacao_debito,
-    valor_debito,
-    quantidade_transacao_especie,
-    valor_especie,
-    quantidade_transacao_gratuidade,
-    valor_gratuidade,
-    quantidade_transacao_integracao,
-    valor_integracao,
-    quantidade_transacao_rateio_credito,
-    valor_rateio_credito,
-    quantidade_transacao_rateio_debito,
-    valor_rateio_debito,
-    quantidade_total_transacao,
-    valor_total_transacao_bruto,
-    valor_desconto_taxa,
-    valor_total_transacao_liquido_ordem,
-    case
-        when data_ordem = '2024-06-07' and id_consorcio = '2' and id_operadora = '8'
-        then valor_total_transacao_liquido_ordem - 1403.4532  -- Corrigir valor pago incorretamente ao VLT na ordem do dia 2024-05-31
-        else valor_total_transacao_liquido_ordem
-    end as valor_total_transacao_liquido,
-    data_pagamento,
-    valor_pago,
-    datetime_captura,
-    '{{ var("version") }}' as versao,
-    datetime_ultima_atualizacao
-from ordem_valor_pagamento
-where rn = 1
+select *
+from ordem_pagamento_colunas_controle
