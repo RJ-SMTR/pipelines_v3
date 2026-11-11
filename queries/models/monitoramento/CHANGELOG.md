@@ -1,5 +1,16 @@
 # Changelog - monitoramento
 
+## [2.5.8] - 2026-11-11
+
+### Corrigido
+
+- Define o desempate de viagens sobrepostas em `viagem_validacao` pela captura mais recente, pelo processamento mais recente, pela partida mais antiga e pelo menor ID. Datas preenchidas têm prioridade sobre datas ausentes. A tolerância de cinco minutos é mantida ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Exige uma exceção aplicável ao reprocessar partições explícitas com `use_partition_dates` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+
+### Adicionado
+
+- Adiciona testes de preenchimento de `datetime_processamento` em `viagem_informada` e de correspondência por `(data, id_viagem)` entre `viagem_validacao` e `viagem_informada` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+
 ## [2.5.7] - 2026-11-10
 
 ### Adicionado
