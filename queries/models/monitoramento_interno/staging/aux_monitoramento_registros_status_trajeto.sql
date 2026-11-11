@@ -24,7 +24,7 @@
     {% endif %}
 {% endif %}
 
--- 1. Seleciona sinais de GPS registrados no período
+-- 1. Sinais de GPS do período (bordo + Jaé) com data de operação
 with
     gps as (
         select
@@ -37,6 +37,7 @@ with
             end as data_operacao
         from {{ ref("aux_gps_viagem_inferida") }} g
     ),
+    -- 2. Serviços planejados do período
     servico_planejado as (
         select
             data,
@@ -53,6 +54,7 @@ with
         from {{ ref("servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }}
     ),
+    -- 3. Expande trips e trajetos alternativos de cada serviço
     servico_planejado_expandido as (
         select
             sp.data,
@@ -88,6 +90,7 @@ with
         from servico_planejado as sp, unnest(sp.trajetos_alternativos) as alt
         where alt.shape_id is not null
     ),
+    -- 4. Mantém uma trip por route_id e shape_id
     servico_planejado_unnested as (
         select
             data,
@@ -108,7 +111,7 @@ with
             )
             = 1
     ),
-    -- 4. Primeiro e último segmento de cada shape, antes de classificar o status
+    -- 5. Primeiro e último segmento de cada shape
     segmentos_filtrados as (
         select
             shape_id,
@@ -124,7 +127,7 @@ with
         where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         group by shape_id, feed_start_date
     ),
-    -- 5. Posição do GPS só no primeiro e no último segmento
+    -- 6. Posição do GPS no primeiro e no último segmento
     posicao_segmento as (
         select
             data_operacao as data,
