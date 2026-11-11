@@ -38,19 +38,21 @@ with
                 t.data as service_date,
                 extract(time from t.datetime_transacao_round) as boarding_time,
                 t.datetime_transacao_round as tap_order,
-                cast(t.hash_cliente_cartao_salt as string) as rider_id,
+                cast(cast(t.hash_cliente_cartao_salt as string) as bytes) as rider_id,
                 t.produto as card_type,
                 t.tipo_transacao_jae as transaction_type,
                 lpad(cast(t.id_veiculo as string), 5, '0') as vehicle_id,
                 cast(t.id_servico_jae as string) as service_id,
-                t.sentido as direction_id,
+                cast(t.sentido as string) as direction_id,
                 t.modo as mode,
                 t.tile_id,
                 h3.centroid as tap_location
             from `rj-smtr-sandbox.mit_ipea_project.transacao_drc_sample` as t
             left join {{ ref("vw_h3") }} as h3 on h3.tile_id = t.tile_id
             where
-                t.data = "{{ var('run_date') }}"
+                t.data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
                 and t.hash_cliente_cartao_salt is not null
                 -- Cash fares paid on board carry no rider identity
                 and t.produto != 'Dinheiro (Botoeira)'
@@ -76,7 +78,9 @@ with
                 st_geogpoint(t.longitude, t.latitude) as tap_location
             from `rj-smtr.bilhetagem.transacao` as t
             where
-                t.data = "{{ var('run_date') }}"
+                t.data between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
                 and t.hash_cliente is not null
                 -- Cash fares paid on board carry no rider identity
                 and t.tipo_transacao_jae != 'Botoeira'
@@ -91,10 +95,10 @@ with
         }}
     {% endif %}
 
-    registry as (
+    servicos as (
         -- Latest registry row per Jaé service id
-        select id_servico_jae, id_servico_gtfs, servico_jae, servico
-        from `rj-smtr.cadastro.servicos`
+        select id_servico_jae, id_servico_gtfs as route_id, servico
+        from {{ ref("servicos") }}
         where id_servico_jae is not null
         qualify
             row_number() over (
@@ -102,33 +106,31 @@ with
             )
             = 1
     ),
-
-    gtfs_routes as (
+    {# gtfs_routes as (
         -- Latest feed's route per short name
         select route_short_name, route_id
-        from `rj-smtr.gtfs.routes`
+        from {{ ref("routes_gtfs") }}
         qualify
             row_number() over (
                 partition by route_short_name order by feed_start_date desc, route_id
             )
             = 1
-    ),
-
-    servicos as (
+    ), #}
+    {# servicos as (
         select
             r.id_servico_jae,
-            coalesce(r.id_servico_gtfs, g.route_id) as route_id,
+            r.id_servico_gtfs as route_id,
+            {# coalesce(r.id_servico_gtfs, g.route_id) as route_id, #}
             r.servico,
             case
+                when r.servico_gtfs is not null
+                then 'short_name'
                 when r.id_servico_gtfs is not null
                 then 'registry'
-                when g.route_id is not null
-                then 'short_name'
             end as route_source
         from registry as r
-        left join gtfs_routes as g on g.route_short_name = r.servico_jae
-    ),
-
+    {# left join gtfs_routes as g on g.route_short_name = r.servico_jae #}
+    ), #}
     sequenced as (
         select
             t.service_date,
@@ -151,7 +153,6 @@ with
         from source as t
         left join servicos as s on s.id_servico_jae = t.service_id
     )
-
 select
     *,
     case

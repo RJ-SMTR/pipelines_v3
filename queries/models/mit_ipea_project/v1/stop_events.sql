@@ -42,10 +42,13 @@ with
             servico as service,
             latitude,
             longitude
-        from `rj-smtr.monitoramento.view_gps_onibus`
-        where data = "{{ var('run_date') }}" and servico is not null
+        from {{ ref("view_gps_onibus") }}
+        where
+            data between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
+            )
+            and servico is not null
     ),
-
     -- The GTFS feed in force on the run date: the latest feed that started on or
     -- before it
     active_feed as (
@@ -54,20 +57,17 @@ with
         where feed_start_date <= date("{{ var('run_date') }}")
         qualify row_number() over (order by feed_start_date desc) = 1
     ),
-
     active_route_stops as (
         select *
         from {{ ref("route_stops") }}
         where feed_version in (select feed_version from active_feed)
     ),
-
     -- One row per stop of the active feed
     active_stops as (
         select stop_id, any_value(geography) as geography
         from active_route_stops
         group by stop_id
     ),
-
     -- Spatial join only: every stop within max_snap_m of each ping
     ping_near_stop as (
         select
@@ -88,7 +88,6 @@ with
                 st_geogpoint(gps.longitude, gps.latitude), s.geography, {{ max_snap_m }}
             )
     ),
-
     -- Attach route direction and stop order, then keep the nearest stop per route
     -- direction serving the ping's service
     nearest_stop as (
@@ -105,7 +104,6 @@ with
             )
             = 1
     ),
-
     -- A visit starts whenever the stop changes between consecutive pings of the
     -- same vehicle, route and direction
     visit_flags as (
@@ -122,7 +120,6 @@ with
             ) as new_visit
         from nearest_stop
     ),
-
     visits as (
         select
             *,
@@ -131,7 +128,6 @@ with
             ) as visit_id
         from visit_flags
     ),
-
     visit_bounds as (
         select
             service_date,

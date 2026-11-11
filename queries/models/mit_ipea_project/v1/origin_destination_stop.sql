@@ -67,9 +67,11 @@ with
             chain_position,
             tap_location
         from {{ ref("ticketing") }}
-        where service_date = "{{ var('run_date') }}"
+        where
+            service_date between date("{{ var('date_range_start') }}") and date(
+                "{{ var('date_range_end') }}"
+            )
     ),
-
     -- CTE 1: Boarding stop, the vehicle's stop visit closest in time to the tap
     boarding as (
         select
@@ -117,7 +119,6 @@ with
             )
             = 1
     ),
-
     -- CTE 2: Trip chaining. The next tap's boarding fields travel together in one
     -- struct: the following tap for most taps, the day's first tap for the last one
     chained as (
@@ -169,7 +170,6 @@ with
             end as next_boarding_location_source
         from chained
     ),
-
     -- CTE 3: Candidate alighting stops, later stops on the same route direction
     -- reached by the boarding vehicle within two hours. Single-tap days and taps
     -- with no next boarding location get none.
@@ -207,7 +207,6 @@ with
             )
             = 1
     ),
-
     ranked as (
         select
             *,
@@ -226,7 +225,6 @@ with
             ) as runner_up_walk_distance_m
         from candidates
     )
-
 select
     rider_id,
     service_date,

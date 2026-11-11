@@ -3,11 +3,66 @@
 -- servico is the route short name, which is what the GPS feeds report.
 -- Feeds starting before 2025 are skipped to keep the build cheap; widen the filter
 -- if older service dates are needed.
-{{ config(materialized="table") }}
+{{
+    config(
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partition_by={
+            "field": "feed_start_date",
+            "data_type": "date",
+            "granularity": "day",
+        },
+    )
+}}
+
+{% if execute and is_incremental() %}
+    {% set last_feed_version = get_last_feed_start_date(var("data_versao_gtfs")) %}
+{% endif %}
 
 with
+    trips as (
+        select *
+        from {{ ref("trips_gtfs") }}
+        where
+            {% if is_incremental() %}
+                feed_start_date
+                in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+            {% else %} feed_start_date >= date('2025-01-01')
+            {% endif %}
+    ),
+    stop_times as (
+        select *
+        from {{ ref("stop_times_gtfs") }}
+        where
+            {% if is_incremental() %}
+                feed_start_date
+                in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+            {% else %} feed_start_date >= date('2025-01-01')
+            {% endif %}
+    ),
+    stops as (
+        select *
+        from {{ ref("vw_stops") }}
+        where
+            {% if is_incremental() %}
+                feed_start_date
+                in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+            {% else %} feed_start_date >= date('2025-01-01')
+            {% endif %}
+    ),
+    routes as (
+        select *
+        from {{ ref("routes_gtfs") }}
+        where
+            {% if is_incremental() %}
+                feed_start_date
+                in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
+            {% else %} feed_start_date >= date('2025-01-01')
+            {% endif %}
+    ),
     trip_stops as (
         select
+            t.feed_start_date,
             t.feed_version,
             t.route_id,
             safe_cast(t.direction_id as int64) as direction_id,
@@ -15,14 +70,12 @@ with
             st.stop_id,
             st.stop_sequence,
             count(*) over (partition by t.feed_version, t.trip_id) as n_stops
-        from `rj-smtr.gtfs.trips` as t
+        from trips as t
         join
-            `rj-smtr.gtfs.stop_times` as st
+            stop_times as st
             on st.feed_version = t.feed_version
             and st.trip_id = t.trip_id
-        where t.feed_start_date >= date('2025-01-01')
     ),
-
     representative as (
         select *
         from trip_stops
@@ -33,8 +86,8 @@ with
             )
             = 1
     )
-
 select
+    r.feed_start_date
     r.feed_version,
     r.route_id,
     rt.route_short_name as servico,
@@ -47,11 +100,5 @@ select
     s.stop_lon,
     s.geography
 from representative as r
-join
-    {{ ref("vw_stops") }} as s
-    on s.feed_version = r.feed_version
-    and s.stop_id = r.stop_id
-join
-    `rj-smtr.gtfs.routes` as rt
-    on rt.feed_version = r.feed_version
-    and rt.route_id = r.route_id
+join stops as s on s.feed_version = r.feed_version and s.stop_id = r.stop_id
+join routes as rt on rt.feed_version = r.feed_version and rt.route_id = r.route_id
