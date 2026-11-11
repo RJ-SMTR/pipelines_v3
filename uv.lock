@@ -76,6 +76,7 @@ members = [
     "test-raise-for-sentry",
     "test-runner-deployment",
     "test-serpro-connection",
+    "test-test-redis-cluster-compatibility",
     "treatment-cadastro",
     "treatment-cadastro-veiculo",
     "treatment-cliente-cpf",
@@ -3409,6 +3410,11 @@ requires-dist = [
     { name = "impyla", specifier = ">=0.22.0" },
     { name = "jaydebeapi", specifier = ">=1.2.3" },
 ]
+
+[[package]]
+name = "test-test-redis-cluster-compatibility"
+version = "0.1.0"
+source = { virtual = "pipelines/test__test_redis_cluster_compatibility" }
 
 [[package]]
 name = "text-unidecode"
