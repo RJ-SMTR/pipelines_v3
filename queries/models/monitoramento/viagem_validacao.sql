@@ -781,6 +781,10 @@ where {{ output_filter }}
 
     union all by name
 
+    /*
+    Mantém as viagens não reprocessadas, desde que o par (data, id_viagem) ainda exista
+    em viagem_informada. Viagens removidas ou movidas de data na fonte são descartadas
+    */
     select atual.*
     from {{ this }} as atual
     where
@@ -789,5 +793,10 @@ where {{ output_filter }}
             select 1
             from viagens_reprocessadas as r
             where r.data = atual.data and r.id_viagem = atual.id_viagem
+        )
+        and exists (
+            select 1
+            from {{ viagem_informada }} as vi
+            where vi.data = atual.data and vi.id_viagem = atual.id_viagem
         )
 {% endif %}
