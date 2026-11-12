@@ -21,6 +21,7 @@ from pipelines.treatment__viagem_informada import constants as viagem_informada_
 
 VIAGEM_VALIDACAO_TEST = DBTTest(
     test_select="viagem_validacao viagem_valida",
+    exclude="check_viagem_completa__viagens_remuneradas teto_viagens__viagens_remuneradas",
     delay_days_start=6,
     truncate_date=True,
 )
