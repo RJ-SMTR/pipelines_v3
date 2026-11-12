@@ -427,8 +427,30 @@ with
         from servicos_planejados_os
     ),
     /*
-    Verifica se a viagem não está sobreposta a outra viagem elegível do mesmo veículo
+    Verifica se a viagem não está sobreposta a outra viagem elegível do mesmo veículo.
+    Viagens fora do conjunto reprocessado disputam com a validade armazenada.
     */
+    viagens_disputa as (
+        select
+            v.*,
+            {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+                r.id_viagem is null as indicador_nao_reprocessada,
+                ifnull(a.indicador_viagem_valida, false) as indicador_valida_armazenada
+            {% else %}
+                false as indicador_nao_reprocessada,
+                false as indicador_valida_armazenada
+            {% endif %}
+        from viagens_velocidade_media as v
+        {% if is_incremental() and var("tipo_materializacao") != "monitoramento" %}
+            left join viagens_reprocessadas as r using (data, id_viagem)
+            left join
+                (
+                    select data, id_viagem, indicador_viagem_valida
+                    from {{ this }}
+                    where {{ incremental_filter }}
+                ) as a using (data, id_viagem)
+        {% endif %}
+    ),
     viagens_sobrepostas as (
         select
             v1.data,
@@ -437,9 +459,9 @@ with
             v2.id_viagem as id_viagem_sobreposta,
             v2.datetime_captura_viagem as datetime_captura_viagem_sobreposta,
             v2.id_viagem is null as indicador_viagem_nao_sobreposta
-        from viagens_velocidade_media v1
+        from viagens_disputa v1
         left join
-            viagens_velocidade_media v2
+            viagens_disputa v2
             on v1.data between date_sub(v2.data, interval 1 day) and date_add(
                 v2.data, interval 1 day
             )
@@ -447,12 +469,9 @@ with
             and v1.id_viagem != v2.id_viagem
             and v1.indicador_sem_alteracao_retroativa
             and v1.indicador_processamento_apos_chegada
-            and v2.indicador_sem_alteracao_retroativa
-            and v2.indicador_processamento_apos_chegada
             -- fmt: off
             {% if var("tipo_materializacao") != "monitoramento" %}
                 and v1.indicador_prazo_envio
-                and v2.indicador_prazo_envio
             {% endif %}
             -- fmt: on
             and datetime_diff(
@@ -463,36 +482,49 @@ with
                 second
             )
             > {{ var("limite_sobreposicao_viagens_segundos") }}
-            /*
-            Desempate: captura mais recente vence; em caso de empate, processamento
-            mais recente, depois partida mais antiga e, por fim, menor id_viagem.
-            Datas ausentes ficam atrás de datas preenchidas.
-            */
             and (
-                v2.datetime_captura_viagem > v1.datetime_captura_viagem
+                (v2.indicador_nao_reprocessada and v2.indicador_valida_armazenada)
                 or (
-                    v1.datetime_captura_viagem is null
-                    and v2.datetime_captura_viagem is not null
-                )
-                or (
-                    v2.datetime_captura_viagem
-                    is not distinct from v1.datetime_captura_viagem
+                    not v2.indicador_nao_reprocessada
+                    and v2.indicador_sem_alteracao_retroativa
+                    and v2.indicador_processamento_apos_chegada
+                    -- fmt: off
+                    {% if var("tipo_materializacao") != "monitoramento" %}
+                        and v2.indicador_prazo_envio
+                    {% endif %}
+                    -- fmt: on
+                    /*
+                    Desempate: captura mais recente, partida mais antiga,
+                    processamento mais recente e menor id_viagem.
+                    */
                     and (
-                        v2.datetime_processamento > v1.datetime_processamento
+                        v2.datetime_captura_viagem > v1.datetime_captura_viagem
                         or (
-                            v1.datetime_processamento is null
-                            and v2.datetime_processamento is not null
+                            v1.datetime_captura_viagem is null
+                            and v2.datetime_captura_viagem is not null
                         )
                         or (
-                            v2.datetime_processamento
-                            is not distinct from v1.datetime_processamento
+                            v2.datetime_captura_viagem
+                            is not distinct from v1.datetime_captura_viagem
                             and (
                                 v2.datetime_partida_considerada
                                 < v1.datetime_partida_considerada
                                 or (
                                     v2.datetime_partida_considerada
                                     = v1.datetime_partida_considerada
-                                    and v2.id_viagem < v1.id_viagem
+                                    and (
+                                        v2.datetime_processamento
+                                        > v1.datetime_processamento
+                                        or (
+                                            v1.datetime_processamento is null
+                                            and v2.datetime_processamento is not null
+                                        )
+                                        or (
+                                            v2.datetime_processamento
+                                            is not distinct from v1.datetime_processamento
+                                            and v2.id_viagem < v1.id_viagem
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -504,8 +536,8 @@ with
                 partition by v1.id_viagem
                 order by
                     v2.datetime_captura_viagem desc,
-                    v2.datetime_processamento desc,
                     v2.datetime_partida_considerada,
+                    v2.datetime_processamento desc,
                     v2.id_viagem
             )
             = 1
