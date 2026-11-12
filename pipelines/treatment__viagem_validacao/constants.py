@@ -20,7 +20,7 @@ from pipelines.treatment__planejamento_diario import constants as planejamento_c
 from pipelines.treatment__viagem_informada import constants as viagem_informada_constants
 
 VIAGEM_VALIDACAO_TEST = DBTTest(
-    test_select="viagem_validacao",
+    test_select="viagem_validacao viagem_valida",
     delay_days_start=6,
     truncate_date=True,
 )
