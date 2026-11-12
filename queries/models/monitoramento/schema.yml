@@ -123,6 +123,11 @@ models:
       - name: datetime_processamento
         description: "{{ doc('datetime_processamento_viagem') }} [GMT-3]"
         data_type: datetime
+        tests:
+          - not_null:
+              name: not_null__datetime_processamento__viagem_informada_monitoramento
+              config:
+                where: "data between date('{date_range_start}') and date('{date_range_end}')"
       - name: modo
         description: "{{ doc('modo') }}"
         data_type: string
@@ -197,6 +202,17 @@ models:
         data_type: string
   - name: viagem_validacao
     description: "Tabela que informa se a viagem informada está ou não válida de acordo com os parâmetros definidos"
+    tests:
+      - dbt_utils.relationships_where:
+          name: dbt_utils__relationships_where__data_id_viagem__viagem_validacao
+          config:
+            description: "Toda viagem em `viagem_validacao` consta em `viagem_informada` na mesma data."
+            where: "data between date('{date_range_start}') and date('{date_range_end}')"
+          arguments:
+            column_name: "concat(cast(data as string), '||', cast(id_viagem as string))"
+            to: ref("viagem_informada_monitoramento")
+            field: "concat(cast(data as string), '||', cast(id_viagem as string))"
+            to_condition: "data between date('{{ var('date_range_start') }}') and date('{{ var('date_range_end') }}')"
     columns:
       - name: data
         description: "{{ doc('data_viagem') }} [partição]"

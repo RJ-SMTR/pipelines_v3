@@ -297,6 +297,7 @@ vars:
 
   limite_reducao_area_buffer: 0.5
   limite_validacao_inicio_fim_minutos: 30
+  limite_sobreposicao_viagens_segundos: 300
   comprimento_minimo_segmento_shape: 990
   buffer_segmento_metros: 30
   buffer_validacao_inicio_fim_metros: 100
