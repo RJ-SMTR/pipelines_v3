@@ -12,6 +12,7 @@
 ### Adicionado
 
 - Adiciona testes de preenchimento de `datetime_processamento` em `viagem_informada` e de correspondência por `(data, id_viagem)` entre `viagem_validacao` e `viagem_informada` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Adiciona o teste `test_sobreposicao_viagens_validas__viagem_validacao`, com severidade `warn`, para identificar pares de viagens válidas do mesmo veículo com sobreposição superior a 300 segundos, inclusive entre partições vizinhas ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
 
 ## [2.5.7] - 2026-11-10
 
