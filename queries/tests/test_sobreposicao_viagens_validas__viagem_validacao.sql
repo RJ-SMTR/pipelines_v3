@@ -1,6 +1,6 @@
 {{
     config(
-        description="Nenhum par de viagens válidas do mesmo veículo tem sobreposição superior a 300 segundos",
+        description="Nenhum par de viagens válidas do mesmo veículo tem sobreposição superior ao limite configurado",
         severity="warn",
     )
 }}
@@ -60,4 +60,4 @@ where
         greatest(v1.datetime_partida_considerada, v2.datetime_partida_considerada),
         second
     )
-    > 300
+    > {{ var("limite_sobreposicao_viagens_segundos") }}

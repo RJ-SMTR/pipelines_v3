@@ -462,7 +462,7 @@ with
                 ),
                 second
             )
-            > 300
+            > {{ var("limite_sobreposicao_viagens_segundos") }}
             /*
             Desempate: captura mais recente vence; em caso de empate, processamento
             mais recente, depois partida mais antiga e, por fim, menor id_viagem.
