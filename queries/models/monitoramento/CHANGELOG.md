@@ -6,6 +6,7 @@
 
 - Define o desempate de viagens sobrepostas em `viagem_validacao` pela captura mais recente, pelo processamento mais recente, pela partida mais antiga e pelo menor ID. Datas preenchidas têm prioridade sobre datas ausentes. A tolerância de cinco minutos é mantida ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
 - Exige uma exceção aplicável ao reprocessar partições explícitas com `use_partition_dates` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Reprocessa em `viagem_validacao` todas as viagens das partições selecionadas por `viagem_validacao_max_age_days` (6 dias), para validar as viagens enviadas no último dia do prazo e capturadas no dia seguinte. O prazo de envio de cinco dias continua verificado por `indicador_prazo_envio` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
 - Descarta de `viagem_validacao`, nas partições reescritas, as viagens não reprocessadas cujo par `(data, id_viagem)` não existe mais em `viagem_informada` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
 
 ### Adicionado

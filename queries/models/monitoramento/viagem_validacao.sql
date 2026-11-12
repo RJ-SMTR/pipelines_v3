@@ -90,8 +90,14 @@ with
                 {{ output_filter }}
                 and (
                     {% if not var("use_partition_dates", false) %}
-                        vi.data
-                        >= date_sub(date('{{ var("date_range_end") }}'), interval 5 day)
+                        /*
+                        Mesmo limite usado na seleção das partições modificadas. O
+                        prazo de envio é verificado em indicador_prazo_envio
+                        */
+                        vi.data >= date_sub(
+                            date('{{ var("date_range_end") }}'),
+                            interval {{ var("viagem_validacao_max_age_days", 6) }} day
+                        )
                         or {% endif %} exists (
                         select 1
                         from {{ ref("aux_viagem_validacao_excecao") }} as e
