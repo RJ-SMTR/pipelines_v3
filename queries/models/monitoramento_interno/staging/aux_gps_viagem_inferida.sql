@@ -111,11 +111,88 @@ with
             j.distancia
         from gps_validador_filtrado as j
         left join veiculos_bordo as b on j.id_veiculo = b.id_veiculo_join
+    ),
+    gps_combinado as (
+        select *
+        from gps_bordo
+
+        union all
+
+        select *
+        from gps_validador
+    ),
+    /*
+    Jaé só cobre lacunas do GPS de bordo: o ping da Jaé é descartado quando há
+    ping de bordo do mesmo veículo a até N minutos (antes ou depois). Evita
+    viagens paralelas quando bordo e Jaé informam serviço/shape diferentes.
+
+    segundos_bordo_mais_proximo = menor distância (em segundos) entre o ping
+    atual e o ping de bordo mais próximo do mesmo veículo, olhando para trás
+    (último bordo antes) e para frente (primeiro bordo depois).
+
+    if(fonte_gps != "jae", datetime_gps, null): coluna "virtual" com o horário
+    só nas linhas de bordo (null nas da Jaé), para o ignore nulls achar o bordo.
+
+    ifnull(..., 999999): sem bordo de um dos lados (primeiro/último ping do
+    veículo é da Jaé) o lado vale "infinito" e não conta como perto. Veículo
+    sem nenhum bordo na janela fica 999999 dos dois lados: Jaé é mantida.
+
+    Exemplo (veículo C47476, janela de 2 min = 120 s):
+
+    datetime_gps | fonte | bordo antes | bordo depois | mais próximo | resultado
+    -------------+-------+-------------+--------------+--------------+--------------------------
+    10:00:00     | zirix |      -      |      -       |      -       | fica (bordo)
+    10:00:20     | jae   | 10:00:00    | 10:01:00     |     20 s     | sai  (bordo transmitindo)
+    10:01:00     | zirix |      -      |      -       |      -       | fica (bordo)
+    10:03:40     | jae   | 10:01:00    | 10:07:00     |    160 s     | fica (lacuna do bordo)
+    10:06:00     | jae   | 10:01:00    | 10:07:00     |     60 s     | sai  (bordo volta 10:07)
+    10:07:00     | zirix |      -      |      -       |      -       | fica (bordo)
+    */
+    gps_lacuna_bordo as (
+        select
+            *,
+            -- menor das duas distâncias: bordo antes x bordo depois
+            least(
+                -- segundos desde o último ping de bordo (olhando para trás)
+                ifnull(
+                    datetime_diff(
+                        datetime_gps,
+                        last_value(
+                            if(fonte_gps != "jae", datetime_gps, null) ignore nulls
+                        ) over (
+                            -- cada veículo é analisado separadamente
+                            partition by id_veiculo
+                            order by datetime_gps
+                            -- do primeiro ping do veículo até a linha atual
+                            rows between unbounded preceding and current row
+                        ),
+                        second
+                    ),
+                    999999
+                ),
+                -- segundos até o próximo ping de bordo (olhando para frente)
+                ifnull(
+                    datetime_diff(
+                        first_value(
+                            if(fonte_gps != "jae", datetime_gps, null) ignore nulls
+                        ) over (
+                            partition by id_veiculo
+                            order by datetime_gps
+                            -- da linha atual até o último ping do veículo
+                            rows between current row and unbounded following
+                        ),
+                        datetime_gps,
+                        second
+                    ),
+                    999999
+                )
+            ) as segundos_bordo_mais_proximo
+        from gps_combinado
     )
-select *
-from gps_bordo
-
-union all
-
-select *
-from gps_validador
+-- Bordo sempre fica; Jaé só fica se o bordo mais próximo estiver a mais de N
+-- minutos (var janela_jae_bordo_minutos, padrão 2 = 120 s)
+select * except (segundos_bordo_mais_proximo)
+from gps_lacuna_bordo
+where
+    fonte_gps != "jae"
+    or segundos_bordo_mais_proximo > {{ var("janela_jae_bordo_minutos") }} * 60
