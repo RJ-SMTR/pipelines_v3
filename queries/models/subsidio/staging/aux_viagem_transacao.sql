@@ -5,20 +5,8 @@
 {% else %} {% set interval_minutes = 30 %}
 {% endif %}
 
-{% set date_range_start %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
-        "{{ var('date_range_start') }}"
-    {% else %}
-       "{{ var('start_date') }}"
-    {% endif %}
-{% endset %}
-{% set date_range_end %}
-  {% if var("flow_name") == "treatment--monitoramento-temperatura" or var("sistema") == "rio" %}
-        "{{ var('date_range_end') }}"
-    {% else %}
-       "{{ var('end_date') }}"
-    {% endif %}
-{% endset %}
+{% set date_range_start %} "{{ var('date_range_start') }}" {% endset %}
+{% set date_range_end %} "{{ var('date_range_end') }}" {% endset %}
 
 {% set eleicao_2026_excecao %}
     datetime_partida
@@ -35,11 +23,9 @@ with
     -- Transações Jaé
     transacao as (
         select
-            {% if var("sistema") == "rio" %}
-                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
-                as id_veiculo,
-            {% else %} t.id_veiculo,
-            {% endif %}
+            coalesce(
+                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}, t.id_veiculo
+            ) as id_veiculo,
             t.servico_jae,
             t.datetime_transacao
         from {{ ref("transacao") }} as t
@@ -56,11 +42,9 @@ with
     -- Transações RioCard
     transacao_riocard as (
         select
-            {% if var("sistema") == "rio" %}
-                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}
-                as id_veiculo,
-            {% else %} t.id_veiculo,
-            {% endif %}
+            coalesce(
+                {{ id_veiculo_jae_rio("t.id_operadora", "t.id_veiculo") }}, t.id_veiculo
+            ) as id_veiculo,
             t.servico_jae,
             t.datetime_transacao
         from {{ ref("transacao_riocard") }} as t
@@ -80,25 +64,19 @@ with
             data,
             id_viagem,
             id_veiculo,
-            {% if var("sistema") == "rio" %} id_veiculo as id_veiculo_join,
-            {% else %} substr(id_veiculo, 2) as id_veiculo_join,
-            {% endif %}
+            id_veiculo_join,
             cast(null as string) as id_validador,
             datetime_partida,
             datetime_chegada,
             modo,
             tecnologia_apurada,
             tecnologia_remunerada,
-            {% if var("sistema") == "rio" %} cast(null as string) as tipo_viagem,
-            {% else %} tipo_viagem,
-            {% endif %}
+            tipo_viagem,
             indicadores,
             servico,
             sentido,
             distancia_planejada
-        {% if var("sistema") == "rio" %} from {{ ref("aux_viagem_status") }}
-        {% else %} from {{ ref("viagem_regularidade_temperatura") }}
-        {% endif %}
+        from {{ ref("aux_viagem_status") }}
         where
             data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
             and (
@@ -107,7 +85,7 @@ with
                     or data = date_sub(date({{ date_range_start }}), interval 1 day)
                 {% endif %}
             )
-            {% if var("sistema") == "rio" %} and indicador_viagem_apurada {% endif %}
+            and (sistema = "SPPO" or indicador_viagem_apurada)
 
         {% if target.name in ("dev", "hmg") %}
             --fmt:off
@@ -224,9 +202,7 @@ with
             v.data,
             v.id_viagem,
             v.datetime_partida,
-            coalesce(
-                safe_cast(json_value(item, "$.id_validador") as string), v.id_validador
-            ) as id_validador,
+            coalesce(item.id_validador, v.id_validador) as id_validador,
             coalesce(t.quantidade_transacao, 0) as quantidade_transacao,
             coalesce(
                 tr.quantidade_transacao_riocard, 0
@@ -238,14 +214,10 @@ with
                 tr.quantidade_transacao_riocard_servico_divergente, 0
             ) as quantidade_transacao_riocard_servico_divergente,
             safe_cast(
-                json_value(item, '$.percentual_estado_equipamento_aberto') as numeric
+                item.percentual_estado_equipamento_aberto as numeric
             ) as percentual_estado_equipamento_aberto,
-            safe_cast(
-                json_value(item, '$.indicador_estado_equipamento_aberto') as bool
-            ) as indicador_estado_equipamento_aberto,
-            safe_cast(
-                json_value(item, '$.indicador_gps_servico_divergente') as bool
-            ) as indicador_gps_servico_divergente
+            item.indicador_estado_equipamento_aberto,
+            item.indicador_gps_servico_divergente
         from viagem as v
         left join
             transacao_contagem as t on v.data = t.data and v.id_viagem = t.id_viagem
@@ -254,9 +226,10 @@ with
             on v.data = tr.data
             and v.id_viagem = tr.id_viagem
         left join
-            unnest(
-                json_query_array(v.indicadores, '$.indicador_validador.valores')
-            ) as item
+            {{ ref("aux_viagem_temperatura") }} as temp
+            on v.data = temp.data
+            and v.id_viagem = temp.id_viagem
+        left join unnest(temp.valores_validador) as item
     ),
 
     validador_tipo_viagem as (
@@ -317,27 +290,97 @@ with
                     or quantidade_transacao_servico_divergente > 0
                     or indicador_gps_servico_divergente
                 )
-            ) as indicador_validador_associado_incorretamente
-        from estado_equipamento_perc
-    ),
-
-    flags_viagem as (
-        select
-            data,
-            id_viagem,
-            max(indicador_sem_transacao) as indicador_sem_transacao,
-            max(indicador_sem_transacao_tipo) as indicador_sem_transacao_tipo,
-            logical_or(indicador_validador_fechado) as indicador_validador_fechado,
-            logical_or(
-                indicador_validador_associado_incorretamente
             ) as indicador_validador_associado_incorretamente,
             case
-                when data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
-                then max(indicador_estado_equipamento_aberto)
-                else min(indicador_estado_equipamento_aberto)
+                when
+                    (
+                        data >= date('{{ var("DATA_SUBSIDIO_V8_INICIO") }}')
+                        and (
+                            (
+                                data < date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
+                                and (
+                                    quantidade_transacao_riocard = 0
+                                    or not indicador_estado_equipamento_aberto
+                                )
+                            )
+                            or (
+                                data >= date('{{ var("DATA_SUBSIDIO_V12_INICIO") }}')
+                                and data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                                and (
+                                    (
+                                        quantidade_transacao_riocard = 0
+                                        and quantidade_transacao = 0
+                                    )
+                                    or not indicador_estado_equipamento_aberto
+                                )
+                            )
+                            or (
+                                data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                                and quantidade_transacao_riocard = 0
+                                and quantidade_transacao = 0
+                            )
+                        )
+                        and not ({{ eleicao_2026_excecao }})
+                    )
+                then "Sem transação"
+                when
+                    data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                    and not indicador_estado_equipamento_aberto
+                    and not ({{ eleicao_2026_excecao }})
+                then "Validador fechado"
+                when
+                    data >= date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                    and (
+                        quantidade_transacao_riocard_servico_divergente > 0
+                        or quantidade_transacao_servico_divergente > 0
+                        or indicador_gps_servico_divergente
+                    )
+                then "Validador associado incorretamente"
+                else "Manter tipo viagem"
+            end as tipo_validador
+        from estado_equipamento_perc
+    ),
+    prioridade_tipo_viagem as (
+        select "Sem transação" as tipo_validador, 1 as prioridade
+        union all
+        select "Validador fechado", 2
+        union all
+        select "Validador associado incorretamente", 3
+        union all
+        select "Manter tipo viagem", 4
+    ),
+    validadores_agrupados as (
+        select vtv.data, vtv.id_viagem, vtv.tipo_validador, ptv.prioridade
+        from validador_tipo_viagem vtv
+        join prioridade_tipo_viagem ptv using (tipo_validador)
+        qualify
+            row_number() over (
+                partition by vtv.data, vtv.id_viagem order by ptv.prioridade
+            )
+            = 1
+    ),
+    flags_viagem as (
+        select
+            vtv.data,
+            vtv.id_viagem,
+            any_value(vtv.indicador_sem_transacao) as indicador_sem_transacao,
+            logical_or(vtv.indicador_sem_transacao_tipo) as indicador_sem_transacao_tipo,
+            logical_or(vtv.indicador_validador_fechado) as indicador_validador_fechado,
+            logical_or(
+                vtv.indicador_validador_associado_incorretamente
+            ) as indicador_validador_associado_incorretamente,
+            case
+                when vtv.data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
+                then max(vtv.indicador_estado_equipamento_aberto)
+                else min(vtv.indicador_estado_equipamento_aberto)
             end as indicador_estado_equipamento_aberto,
-            array_agg(distinct id_validador ignore nulls) as id_validador
-        from validador_tipo_viagem
+            array_agg(
+                distinct if(
+                    vtv.tipo_validador = va.tipo_validador, vtv.id_validador, null
+                ) ignore nulls
+            ) as id_validador
+        from validador_tipo_viagem vtv
+        left join validadores_agrupados va using (data, id_viagem)
         group by 1, 2
     )
 

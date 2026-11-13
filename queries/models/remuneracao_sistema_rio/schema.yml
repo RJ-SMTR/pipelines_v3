@@ -482,72 +482,7 @@ models:
       - name: id_execucao_dbt
         description: "{{ doc('id_execucao_dbt') }}"
 
-  - name: faixa_apurada
-    description: >
-      Recorte de faixa de `aux_viagem_apurada` (colunas de granularidade
-      "faixa" da planilha). Grão data × lote × serviço × sentido × faixa —
-      o `distinct` desfaz o broadcast que o OF faz sobre cada viagem.
-      Sem `id_apuracao`: é chave de viagem e devolveria o grão de viagem,
-      inflando as somas dos sumários.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils__unique_combination_of_columns__faixa_apurada
-          config:
-            description: "Todos os registros são únicos"
-          arguments:
-            combination_of_columns:
-              - data
-              - lote
-              - servico
-              - sentido
-              - faixa_horaria_inicio
-    columns:
-      - name: data
-        description: "{{ doc('data_viagem') }} [partição]"
-      - name: lote
-        description: "Identificador do lote do contrato"
-      - name: servico
-        description: "{{ doc('servico') }}"
-      - name: sentido
-        description: "{{ doc('sentido') }}"
-      - name: faixa_horaria_inicio
-        description: "Horário inicial da faixa horária"
-      - name: faixa_horaria_fim
-        description: "Horário final da faixa horária"
-      - name: tipo_dia
-        description: "Dia da semana"
-      - name: viagens_atendimento_faixa
-        description: >
-          Quantidade de viagens conformes e não conformes realizadas na
-          faixa horária
-      - name: viagens_programadas_faixa
-        description: "Quantidade de viagens programadas na faixa horária"
-      - name: percentual_atendimento
-        description: >
-          Razão entre a soma da distância planejada das viagens válidas e a
-          km planejada da faixa, em escala 0–1
-      - name: ipa
-        description: >
-          Indicador de percentual de atendimento a partir da razão de km:
-          abaixo de 60% vale 0, de 60% a 80% vale 0,6, de 80% a 90% vale 0,9
-          e de 90% para cima vale 1
-      - name: desconto_operacao_precaria
-        description: >
-          Descontos por desempenho na REMUNERAÇÃO PELO SERVIÇO da
-          CONCESSIONÁRIA em situações de operação precária, pela razão entre
-          viagens de atendimento e viagens programadas
-      - name: km_remuneravel_faixa
-        description: "Soma da distância planejada das viagens válidas na faixa"
-      - name: km_ponderada_ipa_faixa
-        description: "km_remuneravel_faixa × ipa"
-      - name: versao
-        description: "{{ doc('versao') }}"
-      - name: datetime_ultima_atualizacao
-        description: "{{ doc('datetime_ultima_atualizacao') }}"
-      - name: id_execucao_dbt
-        description: "{{ doc('id_execucao_dbt') }}"
-
-  - name: data_apurada
+  - name: sumario_lote_dia
     description: >
       Recorte de dia de `aux_viagem_apurada` (colunas de granularidade
       "dia" da planilha). Grão data × lote; alimenta FCF e CAPEX do
@@ -555,7 +490,7 @@ models:
       `tecnologia_minima_servico` (varia por serviço dentro do lote).
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: dbt_utils__unique_combination_of_columns__data_apurada
+          name: dbt_utils__unique_combination_of_columns__sumario_lote_dia
           config:
             description: "Todos os registros são únicos"
           arguments:
@@ -606,11 +541,8 @@ models:
   - name: sumario_servico_sentido_faixa
     description: >
       Sumário por serviço × sentido × faixa, a partir da oferta
-      planejada. A km remunerável soma a distância planejada das
-      viagens válidas da faixa. O IPA sai dessa km sobre a km
-      planejada. No OPEX, a km não ultrapassa a km planejada da faixa:
-      OPEX = tarifa × β × least(km remunerável, km planejada) × IPA.
-      O desconto de operação precária continua o da `faixa_apurada`.
+      planejada. Percentual, IPA, km remunerável e km ponderada vêm do
+      OpenFisca. OPEX = tarifa × β × km ponderada do OpenFisca.
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: >-
@@ -676,7 +608,7 @@ models:
       - name: km_remuneravel_faixa
         description: "Soma da distância planejada das viagens válidas na faixa"
       - name: km_ponderada_ipa_faixa
-        description: "least(km_remuneravel_faixa, km_planejada) × ipa"
+        description: "Km ponderada da faixa calculada pelo OpenFisca"
       - name: remuneracao_opex_faixa
         description: "tarifa_remuneracao × β × km_ponderada_ipa_faixa"
       - name: versao
@@ -728,7 +660,7 @@ models:
   - name: sumario_consorcio_quinzena
     description: >
       Fechamento por consórcio × quinzena. OPEX e desconto de
-      `sumario_servico_sentido_dia`; FCF e CAPEX de `data_apurada`;
+      `sumario_servico_sentido_dia`; FCF e CAPEX de `sumario_lote_dia`;
       receita da tarifa pública de `bilhetagem_consorcio_operador_dia`
       (`valor_total_transacao_bruto`, dia = `data_ordem` − 1). Lote pelo
       nome do consórcio.

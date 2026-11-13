@@ -1,4 +1,4 @@
--- depends_on: {{ ref('viagem_classificada') }}
+-- depends_on: {{ ref('aux_viagem_status') }}
 {{
     config(
         materialized="incremental",
@@ -7,15 +7,15 @@
     )
 }}
 
-{% set viagem_classificada = ref("viagem_classificada") %}
+{% set aux_viagem_status = ref("aux_viagem_status") %}
 {% if execute and is_incremental() %}
     {% set modified_partitions = get_modified_partitions_filter(
-        viagem_classificada,
+        aux_viagem_status,
         truncate_date=true,
         max_age_days=var("viagem_validacao_max_age_days", 6),
     ) %}
     {% set context_partitions = get_modified_partitions_filter(
-        viagem_classificada,
+        aux_viagem_status,
         include_adjacent=true,
         truncate_date=true,
         max_age_days=var("viagem_validacao_max_age_days", 6),
@@ -28,14 +28,8 @@
         data between date("{{ var('date_range_start') }}") and date_add(
             date("{{ var('date_range_end') }}"), interval 1 day
         )
-        {% if is_incremental() %}
-            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-        {% endif %}
         {% if is_incremental() and context_partitions | length > 0 %}
-            or (
-                data in ({{ context_partitions | join(", ") }})
-                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            )
+            or data in ({{ context_partitions | join(", ") }})
         {% endif %}
     )
     and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
@@ -46,14 +40,8 @@
         data between date("{{ var('date_range_start') }}") and date(
             "{{ var('date_range_end') }}"
         )
-        {% if is_incremental() %}
-            and data < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-        {% endif %}
         {% if is_incremental() and modified_partitions | length > 0 %}
-            or (
-                data in ({{ modified_partitions | join(", ") }})
-                and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-            )
+            or data in ({{ modified_partitions | join(", ") }})
         {% endif %}
     )
     and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
@@ -67,6 +55,7 @@
                 "in",
                 [
                     "indicadores",
+                    "valores_validador",
                     "versao",
                     "datetime_ultima_atualizacao",
                     "id_execucao_dbt",
@@ -99,7 +88,7 @@
 
         {% set partitions_query %}
             select distinct concat("'", data, "'") as data
-            from {{ ref("viagem_classificada") }}
+            from {{ aux_viagem_status }}
             where {{ partition_filter }}
         {% endset %}
 
@@ -206,6 +195,7 @@ with
             quantidade_nula,
             quantidade_zero,
             quantidade_pos_tratamento,
+            valores_validador,
             parse_json(
                 regexp_replace(
                     indicadores_str,

@@ -108,7 +108,8 @@ with
             inicio_vigencia_tunel,
             fim_vigencia_tunel,
             indicador_tunel,
-            indicador_segmento_desconsiderado
+            indicador_segmento_desconsiderado,
+            comprimento_segmento
         from {{ ref("segmento_shape") }}
         {# from `rj-smtr.planejamento.segmento_shape` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
@@ -406,6 +407,7 @@ with
             v.route_id,
             v.shape_id,
             s.id_segmento,
+            s.comprimento_segmento,
             s.indicador_segmento_desconsiderado,
             spu.primeiro_segmento,
             spu.ultimo_segmento,
@@ -505,6 +507,7 @@ select
     v.servico,
     v.sentido,
     v.quantidade_gps,
+    v.comprimento_segmento,
     v.indicador_segmento_desconsiderado,
     v.indicador_primeiro_segmento_valido,
     v.indicador_ultimo_segmento_valido,

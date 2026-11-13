@@ -1,61 +1,71 @@
 {{ config(materialized="ephemeral") }}
 
+{% set aux_viagem_status = ref("aux_viagem_status") %}
+{# Efêmero não tem is_incremental(); o full-refresh do modelo que o embute vale aqui. #}
+{% if execute and not flags.FULL_REFRESH %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        aux_viagem_status,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+    {% set context_partitions = get_modified_partitions_filter(
+        aux_viagem_status,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
+{% endif %}
+
 {% set incremental_filter %}
-    data between date("{{var('date_range_start')}}") and date_add(date("{{ var('date_range_end') }}"), interval 1 day) and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    (
+        data between date("{{ var('date_range_start') }}") and date_add(
+            date("{{ var('date_range_end') }}"), interval 1 day
+        )
+        {% if context_partitions | length > 0 %}
+            or data in ({{ context_partitions | join(", ") }})
+        {% endif %}
+    )
+    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
 {% endset -%}
 
 {% set partition_filter %}
-    data between date("{{var('date_range_start')}}") and date("{{ var('date_range_end') }}") and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    (
+        data between date("{{ var('date_range_start') }}") and date(
+            "{{ var('date_range_end') }}"
+        )
+        {% if modified_partitions | length > 0 %}
+            or data in ({{ modified_partitions | join(", ") }})
+        {% endif %}
+    )
+    and data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
+    and (sistema = "SPPO" or indicador_viagem_apurada)
 {% endset %}
 
 with
     viagens as (  -- Viagens realizadas no período de apuração
         select
-        {% if var("sistema") == "rio" %}
-                data,
-                servico,
-                datetime_partida,
-                datetime_chegada,
-                id_veiculo,
-                id_veiculo as id_veiculo_join,
-                placa,
-                ano_fabricacao,
-                id_viagem,
-                cast(null as string) as tipo_viagem,
-                indicadores,
-                safe_cast(
-                    json_value(indicadores, '$.indicador_ar_condicionado.valor') as bool
-                ) as indicador_ar_condicionado,
-                distancia_planejada,
-                tecnologia_apurada,
-                cast(null as string) as tecnologia_remunerada,
-                sentido,
-                modo
-            from {{ ref("aux_viagem_status") }} as v
-            where {{ partition_filter }} and v.indicador_viagem_apurada
-        {% else %}
-                data,
-                servico,
-                datetime_partida,
-                datetime_chegada,
-                id_veiculo,
-                substr(id_veiculo, 2) as id_veiculo_join,
-                placa,
-                ano_fabricacao,
-                id_viagem,
-                tipo_viagem,
-                indicadores,
-                safe_cast(
-                    json_value(indicadores, '$.indicador_ar_condicionado.valor') as bool
-                ) as indicador_ar_condicionado,
-                distancia_planejada,
-                tecnologia_apurada,
-                tecnologia_remunerada,
-                sentido,
-                modo
-            from {{ ref("viagem_classificada") }}
-            where {{ partition_filter }}
-        {% endif %}
+            data,
+            servico,
+            datetime_partida,
+            datetime_chegada,
+            id_veiculo,
+            id_veiculo_join,
+            placa,
+            ano_fabricacao,
+            id_viagem,
+            tipo_viagem,
+            indicadores,
+            safe_cast(
+                json_value(indicadores, '$.indicador_ar_condicionado.valor') as bool
+            ) as indicador_ar_condicionado,
+            distancia_planejada,
+            tecnologia_apurada,
+            tecnologia_remunerada,
+            sentido,
+            modo
+        from {{ aux_viagem_status }} as v
+        where {{ partition_filter }}
     ),
     endereco_manutencao_validador as (  -- Geometria correspondente ao endereço de manutenção dos validadores conforme Ofício nº 165/2025/CBD
         select
@@ -95,11 +105,9 @@ with
             datetime_gps,
             servico_jae,
             id_veiculo,
-            {% if var("sistema") == "rio" %}
-                {{ id_veiculo_jae_rio("id_operadora", "id_veiculo") }}
-                as id_veiculo_join,
-            {% else %} id_veiculo as id_veiculo_join,
-            {% endif %}
+            coalesce(
+                {{ id_veiculo_jae_rio("id_operadora", "id_veiculo") }}, id_veiculo
+            ) as id_veiculo_join,
             id_validador,
             estado_equipamento,
             latitude,
@@ -556,7 +564,8 @@ with
             v.placa,
             v.ano_fabricacao,
             v.tipo_viagem,
-            to_json_string(v.indicadores) as indicadores_str,
+            v.indicadores as indicadores_veiculo,
+            iva.valores as valores_validador,
             v.datetime_partida,
             v.datetime_chegada,
             v.modo,
@@ -619,20 +628,54 @@ with
         left join indicadores_validador iv using (data, id_viagem)
         left join indicador_validador_agg iva using (data, id_viagem)
     ),
-    indicadores_concatenados as (  -- Concatena indicadores antes da comparação SHA
+    indicadores_concatenados as (
         select
-            * except (indicadores_str, indicadores_novos),
-            parse_json(
-                case
-                    when indicadores_str is null or indicadores_str in ("null", "{}")
-                    then indicadores_novos
-                    else
-                        concat(
-                            left(indicadores_str, length(indicadores_str) - 1),
-                            ",",
-                            substr(indicadores_novos, 2)
+            * except (indicadores_veiculo, indicadores_novos),
+            json_set(
+                json_set(
+                    json_set(
+                        json_set(
+                            json_set(
+                                json_set(
+                                    json_set(
+                                        coalesce(indicadores_veiculo, json '{}'),
+                                        '$.indicador_temperatura_regular_viagem',
+                                        json_query(
+                                            parse_json(indicadores_novos),
+                                            '$.indicador_temperatura_regular_viagem'
+                                        )
+                                    ),
+                                    '$.indicador_temperatura_variacao_viagem',
+                                    json_query(
+                                        parse_json(indicadores_novos),
+                                        '$.indicador_temperatura_variacao_viagem'
+                                    )
+                                ),
+                                '$.indicador_temperatura_transmitida_viagem',
+                                json_query(
+                                    parse_json(indicadores_novos),
+                                    '$.indicador_temperatura_transmitida_viagem'
+                                )
+                            ),
+                            '$.indicador_temperatura_pos_tratamento_descartada_viagem',
+                            json_query(
+                                parse_json(indicadores_novos),
+                                '$.indicador_temperatura_pos_tratamento_descartada_viagem'
+                            )
+                        ),
+                        '$.indicador_temperatura_nula_viagem',
+                        json_query(
+                            parse_json(indicadores_novos),
+                            '$.indicador_temperatura_nula_viagem'
                         )
-                end
+                    ),
+                    '$.indicador_temperatura_zero_viagem',
+                    json_query(
+                        parse_json(indicadores_novos), '$.indicador_temperatura_zero_viagem'
+                    )
+                ),
+                '$.indicador_validador',
+                json_query(parse_json(indicadores_novos), '$.indicador_validador')
             ) as indicadores
         from dados_novos
     )

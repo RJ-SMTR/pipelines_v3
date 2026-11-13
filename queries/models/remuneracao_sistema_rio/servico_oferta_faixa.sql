@@ -23,7 +23,7 @@
     {% else %}
         {% set gtfs_feeds_query %}
             select distinct concat("'", feed_start_date, "'") as feed_start_date
-            from {{ source("rj_smtr_planejamento", "calendario") }}
+            from {{ ref("calendario") }}
             where {{ incremental_filter }}
         {% endset %}
         {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
@@ -51,7 +51,7 @@ with
             consorcio,
             modo,
             feed_start_date
-        from {{ source("rj_smtr_planejamento", "servico_planejado_faixa_horaria") }}
+        from {{ ref("servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }} and sistema = "RIO"
     ),
     lote_servico as (
@@ -60,7 +60,7 @@ with
             feed_version,
             route_short_name as servico,
             agency_id as lote,
-        from {{ source("rj_smtr_gtfs", "routes") }}
+        from {{ ref("routes_gtfs") }}
         where regexp_contains(agency_id, r"^[A-Z][0-9]$") and {{ feed_filter }}
         qualify
             row_number() over (

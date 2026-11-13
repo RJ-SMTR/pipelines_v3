@@ -22,17 +22,7 @@ with
             ano_fabricacao,
             tecnologia_apurada,
             tecnologia_remunerada,
-            case
-                when
-                    tipo_viagem not in (
-                        "Licenciado com ar e não autuado",
-                        "Licenciado sem ar e não autuado"
-                    )
-                then tipo_viagem
-                when indicador_detectado_ar_inoperante
-                then "Detectado com ar inoperante"
-                else tipo_viagem
-            end as tipo_viagem,
+            tipo_viagem,
             indicador_regularidade_ar_condicionado_viagem,
             indicador_falha_recorrente,
             data_verificacao_falha,

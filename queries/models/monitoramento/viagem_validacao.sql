@@ -112,6 +112,22 @@ with
         ),
     {% endif %}
     /*
+    Km percorrida por GPS. Segmento desconsiderado entra só quando tem GPS,
+    porque o contagem abaixo exclui esses segmentos da validação.
+    */
+    km_gps as (
+        select
+            data,
+            id_viagem,
+            sum(if(quantidade_gps > 0, comprimento_segmento, 0))
+            / 1000 as km_percorrida_gps
+        from {{ ref("gps_segmento_viagem") }}
+        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
+            where {{ incremental_filter }}
+        {% endif %}
+        group by data, id_viagem
+    ),
+    /*
     Agregação para cálculo da quantidade de segmentos verificados, válidos e tolerados por viagem
     */
     contagem as (
@@ -251,8 +267,10 @@ with
             datetime_processamento,
             datetime_captura_viagem,
             fonte_viagem,
-            tipo_execucao_viagem
+            tipo_execucao_viagem,
+            k.km_percorrida_gps
         from contagem as c
+        left join km_gps as k using (data, id_viagem)
     ),
     /*
     Filtra apenas viagens com todos os campos obrigatórios preenchidos
@@ -583,6 +601,7 @@ with
             vm.indicador_processamento_apos_chegada,
             vm.indicador_prazo_envio,
             vm.tipo_execucao_viagem,
+            vm.km_percorrida_gps,
             (
                 vm.indicador_campos_obrigatorios
                 and vm.indicador_chegada_posterior_partida
@@ -796,6 +815,7 @@ select
     indicador_processamento_apos_chegada,
     indicador_prazo_envio,
     tipo_execucao_viagem,
+    km_percorrida_gps,
     indicador_viagem_valida,
     feed_start_date,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,

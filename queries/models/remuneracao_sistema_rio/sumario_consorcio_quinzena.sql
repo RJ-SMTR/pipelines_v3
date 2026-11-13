@@ -25,18 +25,10 @@
 {% endset %}
 
 with
-    dia as (
+    servico_dia as (
         select
-            if(
-                extract(day from data) <= 15,
-                date_trunc(data, month),
-                date_add(date_trunc(data, month), interval 15 day)
-            ) as data_inicio_quinzena,
-            if(
-                extract(day from data) <= 15,
-                date_add(date_trunc(data, month), interval 14 day),
-                last_day(data, month)
-            ) as data_fim_quinzena,
+            {{ inicio_quinzena("data") }} as data_inicio_quinzena,
+            {{ fim_quinzena("data") }} as data_fim_quinzena,
             lote,
             consorcio,
             desconto_operacao_precaria_dia,
@@ -52,16 +44,12 @@ with
             consorcio,
             sum(desconto_operacao_precaria_dia) as desconto_operacao_precaria_quinzena,
             sum(remuneracao_opex_dia) as remuneracao_opex_quinzena
-        from dia
+        from servico_dia
         group by data_inicio_quinzena, data_fim_quinzena, lote, consorcio
     ),
-    dia_lote as (
+    apuracao_lote_dia as (
         select
-            if(
-                extract(day from data) <= 15,
-                date_trunc(data, month),
-                date_add(date_trunc(data, month), interval 15 day)
-            ) as data_inicio_quinzena,
+            {{ inicio_quinzena("data") }} as data_inicio_quinzena,
             lote,
             frota_operante,
             lote_frota_estimada,
@@ -69,7 +57,7 @@ with
             tipo_dia,
             tarifa_remuneracao,
             alpha
-        from {{ ref("data_apurada") }}
+        from {{ ref("sumario_lote_dia") }}
         where {{ incremental_filter }}
     ),
     frota_quinzena as (
@@ -79,11 +67,11 @@ with
             avg(
                 if(tipo_dia = 'Dia Útil', frota_operante, null)
             ) as frota_operante_media,
-            max(lote_frota_estimada) as lote_frota_estimada,
-            max(lote_km_referencia_quinzena) as lote_km_referencia_quinzena,
-            max(tarifa_remuneracao) as tarifa_remuneracao,
-            max(alpha) as alpha
-        from dia_lote
+            any_value(lote_frota_estimada) as lote_frota_estimada,
+            any_value(lote_km_referencia_quinzena) as lote_km_referencia_quinzena,
+            any_value(tarifa_remuneracao) as tarifa_remuneracao,
+            any_value(alpha) as alpha
+        from apuracao_lote_dia
         group by data_inicio_quinzena, lote
     ),
     receita_dia as (
@@ -100,11 +88,7 @@ with
     ),
     receita_quinzena as (
         select
-            if(
-                extract(day from data) <= 15,
-                date_trunc(data, month),
-                date_add(date_trunc(data, month), interval 15 day)
-            ) as data_inicio_quinzena,
+            {{ inicio_quinzena("data") }} as data_inicio_quinzena,
             {{ lote_consorcio_rio("consorcio") }} as lote,
             consorcio,
             sum(receita_tarifa_publica_dia) as receita_tarifa_publica_quinzena
@@ -147,7 +131,7 @@ with
             and r.lote = o.lote
             and r.consorcio = o.consorcio
     ),
-    valorado as (
+    remuneracao_capex as (
         select
             *,
             tarifa_remuneracao
@@ -158,7 +142,7 @@ with
             * fator_cumprimento_frota as remuneracao_capex_quinzena
         from base
     ),
-    bruto as (
+    valor_bruto as (
         select
             *,
             remuneracao_capex_quinzena
@@ -167,10 +151,11 @@ with
             - coalesce(
                 desconto_operacao_precaria_quinzena, 0.0
             ) as valor_a_pagar_bruto_quinzena
-        from valorado
+        from remuneracao_capex
     ),
-    imposto as (
-        select *, greatest(valor_a_pagar_bruto_quinzena, 0.0) as base_imposto from bruto
+    valor_imposto as (
+        select *, greatest(valor_a_pagar_bruto_quinzena, 0.0) as base_imposto
+        from valor_bruto
     )
 select
     data_inicio_quinzena,
@@ -191,4 +176,4 @@ select
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
-from imposto
+from valor_imposto

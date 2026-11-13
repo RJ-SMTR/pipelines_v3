@@ -30,18 +30,6 @@ with
         from {{ ref("servico_oferta_faixa") }}
         where {{ incremental_filter }}
     ),
-    km_faixa as (
-        select
-            data,
-            servico,
-            sentido,
-            faixa_horaria_inicio,
-            sum(if(indicador_viagem_completa, km_programada, 0)) as km_remuneravel_faixa,
-            count(*) as viagens_realizadas_faixa
-        from {{ ref("viagem_valida_classificada") }}
-        where {{ incremental_filter }}
-        group by data, servico, sentido, faixa_horaria_inicio
-    ),
     apurada as (
         select
             data,
@@ -49,17 +37,22 @@ with
             sentido,
             faixa_horaria_inicio,
             any_value(viagens_atendimento_faixa) as viagens_atendimento_faixa,
-            any_value(desconto_operacao_precaria) as desconto_operacao_precaria
-        from {{ ref("faixa_apurada") }}
-        where {{ incremental_filter }}
+            any_value(viagens_programadas_faixa) as viagens_programadas_faixa,
+            any_value(percentual_atendimento) as percentual_atendimento,
+            any_value(ipa) as ipa,
+            any_value(desconto_operacao_precaria) as desconto_operacao_precaria,
+            any_value(km_remuneravel_faixa) as km_remuneravel_faixa,
+            any_value(km_ponderada_ipa_faixa) as km_ponderada_ipa_faixa_openfisca
+        from {{ ref("aux_viagem_apurada") }}
+        where {{ incremental_filter }} and id_apuracao is not null
         group by data, servico, sentido, faixa_horaria_inicio
     ),
-    dia as (
+    apuracao_lote_dia as (
         select data, lote, tarifa_remuneracao, beta
-        from {{ ref("data_apurada") }}
+        from {{ ref("sumario_lote_dia") }}
         where {{ incremental_filter }}
     ),
-    medida as (
+    faixa_atendimento as (
         select
             o.data,
             o.tipo_dia,
@@ -71,52 +64,28 @@ with
             o.sentido,
             a.viagens_atendimento_faixa,
             o.viagens_programadas_faixa,
-            safe_divide(
-                coalesce(k.viagens_realizadas_faixa, 0), o.viagens_programadas_faixa
-            ) as percentual_atendimento,
-            coalesce(k.viagens_realizadas_faixa, 0) as viagens_realizadas_faixa,
+            a.percentual_atendimento,
             a.desconto_operacao_precaria,
-            coalesce(k.km_remuneravel_faixa, 0) as km_remuneravel_faixa,
+            coalesce(a.km_remuneravel_faixa, 0) as km_remuneravel_faixa,
             o.km_planejada,
+            a.km_ponderada_ipa_faixa_openfisca,
+            a.ipa,
             d.tarifa_remuneracao,
             d.beta
         from oferta as o
-        left join
-            km_faixa as k
-            on k.data = o.data
-            and k.servico = o.servico
-            and k.sentido = o.sentido
-            and k.faixa_horaria_inicio = o.faixa_horaria_inicio
         left join
             apurada as a
             on a.data = o.data
             and a.servico = o.servico
             and a.sentido = o.sentido
             and a.faixa_horaria_inicio = o.faixa_horaria_inicio
-        left join dia as d on d.data = o.data and d.lote = o.lote
+        left join apuracao_lote_dia as d on d.data = o.data and d.lote = o.lote
     ),
-    com_ipa as (
+    faixa_ipa as (
         select
             *,
-            least(
-                km_remuneravel_faixa, km_planejada)
-            as km_opex_faixa,
-            case
-                when
-                    viagens_programadas_faixa > 0
-                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 90
-                then 1.0
-                when
-                    viagens_programadas_faixa > 0
-                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 80
-                then 0.9
-                when
-                    viagens_programadas_faixa > 0
-                    and viagens_realizadas_faixa * 100 >= viagens_programadas_faixa * 60
-                then 0.6
-                else 0.0
-            end as ipa
-        from medida
+            least(km_remuneravel_faixa, km_planejada) as km_opex_faixa
+        from faixa_atendimento
     )
 select
     data,
@@ -133,9 +102,14 @@ select
     ipa,
     desconto_operacao_precaria,
     km_remuneravel_faixa,
-    km_opex_faixa * com_ipa.ipa as km_ponderada_ipa_faixa,
-    tarifa_remuneracao * beta * km_opex_faixa * com_ipa.ipa as remuneracao_opex_faixa,
+    coalesce(
+        km_ponderada_ipa_faixa_openfisca, km_opex_faixa * ipa
+    ) as km_ponderada_ipa_faixa,
+    tarifa_remuneracao
+    * beta
+    * coalesce(km_ponderada_ipa_faixa_openfisca, km_opex_faixa * ipa)
+    as remuneracao_opex_faixa,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt
-from com_ipa
+from faixa_ipa
