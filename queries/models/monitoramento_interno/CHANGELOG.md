@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Cria o modelo auxiliar `aux_gps_viagem_inferida` para consolidar o GPS de bordo de ônibus e BRT e o GPS dos validadores Jaé, alinhando os identificadores dos veículos entre as fontes. O GPS da Jaé só é utilizado nas lacunas do GPS de bordo, quando não há registro de bordo do mesmo veículo a até 2 minutos (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Cria o modelo auxiliar `aux_gps_viagem_inferida` para consolidar o GPS de bordo de ônibus e BRT e o GPS dos validadores Jaé, alinhando os identificadores dos veículos entre as fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
 
 ### Alterado
 

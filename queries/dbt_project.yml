@@ -126,9 +126,6 @@ vars:
   shapes_version: "YYYY-MM-DD"
   frequencies_version: "YYYY-MM-DD"
   tipo_materializacao: "subsidio"
-  ## Distância máxima (em minutos) até um ping de bordo do mesmo veículo para
-  ## descartar o ping da Jaé na inferência de viagens (aux_gps_viagem_inferida)
-  janela_jae_bordo_minutos: 2
   tipo_teste: ""
   tolerancia_teste_lacre: 5
   data_inicio_trips_shapes: "2023-04-01"
