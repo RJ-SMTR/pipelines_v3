@@ -83,7 +83,7 @@ with
             versao_app
         from {{ aux_gps_validador }}
         where
-            modo != "Van"
+            tipo_documento_operadora != "CPF"
             {% if is_incremental() %} and {{ incremental_filter }} {% endif %}
     ),
     {% if is_incremental() and partitions | length > 0 %}

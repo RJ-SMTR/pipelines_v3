@@ -1,5 +1,21 @@
 # Changelog - monitoramento
 
+## [2.5.5] - 2026-11-06
+
+### Adicionado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `rioonibus` (sistema SPPO) na quinzena `2026-10-16` a `2026-10-31`, com data limite de envio em `2026-11-06` [Processo SEI nº 000301.018613/2026-56] (https://github.com/RJ-SMTR/pipelines_v3/pull/850).
+
+## [2.5.4] - 2026-11-05
+
+### Adicionado
+
+- Adiciona coluna `tipo_documento_operadora` no modelo `aux_gps_validador.sql` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
+
+### Alterado
+
+- Altera filtro dos modelos `gps_validador.sql` e `gps_validador_van.sql` para utilizar a coluna `tipo_documento_operadora` (https://github.com/RJ-SMTR/pipelines_v3/pull/843)
+
 ## [2.5.3] - 2026-10-29
 
 ### Alterado
