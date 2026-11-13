@@ -15,7 +15,7 @@ with
             tile_id
         from `rj-smtr`.gtfs.stops
         left join
-            {{ ref("vw_h3") }} as h3
+            {{ ref("aux_vw_h3") }} as h3
             on st_dwithin(st_geogpoint(stop_lon, stop_lat), h3.centroid, 250)
 
         where feed_version = (select max(feed_version) from `rj-smtr`.gtfs.stops)
@@ -24,7 +24,7 @@ with
     h3_gps as (
         select *
         from gps
-        left join {{ ref("vw_h3") }} as h3 using (tile_id)
+        left join {{ ref("aux_vw_h3") }} as h3 using (tile_id)
 
         where st_intersects(gps.geography, h3.geometry) is true
 

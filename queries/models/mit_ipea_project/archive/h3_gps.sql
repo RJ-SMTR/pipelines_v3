@@ -66,7 +66,7 @@ with
             tile_id
         from brt_sppo_gps
         left join
-            {{ ref("vw_h3") }} as h3
+            {{ ref("aux_vw_h3") }} as h3
             on st_dwithin(st_geogpoint(longitude, latitude), h3.centroid, 250)
 
     ),
@@ -82,7 +82,7 @@ with
                 else 1
             end as tile_entry  -- 1 when the vehicle first enters the tile. If 0, the vehicle is already in the tile.
         from gps
-        left join {{ ref("vw_h3") }} as h3 using (tile_id)
+        left join {{ ref("aux_vw_h3") }} as h3 using (tile_id)
 
         where st_intersects(gps.geography, h3.geometry) is true
 

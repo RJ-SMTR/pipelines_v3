@@ -111,6 +111,6 @@ inner join
         tile_exit_time, interval 5 minute
     )  -- Obs time match
 
-left join {{ ref("vw_h3") }} as vw_h3 on cp.tile_id = vw_h3.tile_id
+left join {{ ref("aux_vw_h3") }} as vw_h3 on cp.tile_id = vw_h3.tile_id
 
 order by int64_field_0

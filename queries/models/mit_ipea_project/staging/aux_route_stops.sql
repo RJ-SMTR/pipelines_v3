@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('feed_info_gtfs') }}
 -- Ordered stops per GTFS route direction, per feed version. One representative trip
 -- per route and direction (the trip with the most stops) defines the stop order.
 -- servico is the route short name, which is what the GPS feeds report.
@@ -27,7 +28,7 @@ with
             {% if is_incremental() %}
                 feed_start_date
                 in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-            {% else %} feed_start_date >= date('2025-01-01')
+            {% else %} feed_start_date >= '{{ var("mit_ipea_project_initial_date") }}'
             {% endif %}
     ),
     stop_times as (
@@ -37,17 +38,17 @@ with
             {% if is_incremental() %}
                 feed_start_date
                 in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-            {% else %} feed_start_date >= date('2025-01-01')
+            {% else %} feed_start_date >= '{{ var("mit_ipea_project_initial_date") }}'
             {% endif %}
     ),
     stops as (
         select *
-        from {{ ref("vw_stops") }}
+        from {{ ref("aux_vw_stops") }}
         where
             {% if is_incremental() %}
                 feed_start_date
                 in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-            {% else %} feed_start_date >= date('2025-01-01')
+            {% else %} feed_start_date >= '{{ var("mit_ipea_project_initial_date") }}'
             {% endif %}
     ),
     routes as (
@@ -57,13 +58,14 @@ with
             {% if is_incremental() %}
                 feed_start_date
                 in ('{{ last_feed_version }}', '{{ var("data_versao_gtfs") }}')
-            {% else %} feed_start_date >= date('2025-01-01')
+            {% else %} feed_start_date >= '{{ var("mit_ipea_project_initial_date") }}'
             {% endif %}
     ),
     trip_stops as (
         select
-            t.feed_start_date,
             t.feed_version,
+            t.feed_start_date,
+            t.feed_end_date,
             t.route_id,
             safe_cast(t.direction_id as int64) as direction_id,
             t.trip_id,
@@ -87,8 +89,9 @@ with
             = 1
     )
 select
-    r.feed_start_date
     r.feed_version,
+    r.feed_start_date,
+    r.feed_end_date,
     r.route_id,
     rt.route_short_name as servico,
     r.direction_id,

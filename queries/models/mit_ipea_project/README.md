@@ -7,7 +7,7 @@ recovers the alighting stop with the standard trip-chaining assumption: a rider'
 next boarding is close to where they got off the previous bus.
 
 1. **Boarding stop.** Match the tap's vehicle to the GPS-derived stop visit closest
-   in time to the tap, on the route the ticketing registry assigns to the service.
+   in time to the tap, on the route the aux_ticketing registry assigns to the service.
 2. **Next origin.** The rider's next tap of the day gives the next boarding
    location. For the last tap of the day the first tap of the day is used instead.
 3. **Alighting stop.** Among later stops on the same route direction that the
@@ -18,34 +18,34 @@ next boarding is close to where they got off the previous bus.
 5. **Survey.** Package the prediction with three neighbouring stops as four
    shuffled options, one row per rider journey.
 
-## Model chain (`v1/`)
+## Model chain (`/` and `staging/`)
 
 Build order, with what each model reads:
 
-1. `vw_stops` ← `rj-smtr.gtfs.stops`
-2. `vw_h3` ← `rj-smtr.br_rj_riodejaneiro_geo.h3_res9`
-3. `route_stops` ← `vw_stops`, `rj-smtr.gtfs.trips`, `stop_times`, `routes`
-4. `ticketing` ← sample table or Jaé `transacao`, `vw_h3`,
+1. `aux_vw_stops` ← `rj-smtr.gtfs.stops`
+2. `aux_vw_h3` ← `rj-smtr.br_rj_riodejaneiro_geo.h3_res9`
+3. `aux_route_stops` ← `aux_vw_stops`, `rj-smtr.gtfs.trips`, `stop_times`, `routes`
+4. `aux_ticketing` ← sample table or Jaé `transacao`, `aux_vw_h3`,
    `rj-smtr.cadastro.servicos`, `rj-smtr.gtfs.routes`
-5. `stop_events` ← `route_stops`, `rj-smtr.monitoramento.view_gps_onibus`,
+5. `aux_stop_events` ← `aux_route_stops`, `rj-smtr.monitoramento.view_gps_onibus`,
    `rj-smtr.gtfs.stops` (to pick the active feed)
-6. `origin_destination_stop` ← `ticketing`, `stop_events`
-7. `origin_destination_stop_candidates` ← `origin_destination_stop`, `route_stops`
-8. `survey_journeys` ← `ticketing`, `origin_destination_stop`,
-   `origin_destination_stop_candidates`, `vw_stops`
+6. `aux_origin_destination_stop` ← `aux_ticketing`, `aux_stop_events`
+7. `aux_origin_destination_stop_candidates` ← `aux_origin_destination_stop`, `aux_route_stops`
+8. `survey_journeys` ← `aux_ticketing`, `aux_origin_destination_stop`,
+   `aux_origin_destination_stop_candidates`, `aux_vw_stops`
 
-`vw_*` models are views and `route_stops` is a table. Every other model is
+`vw_*` models are views and `aux_route_stops` is a table. Every other model is
 incremental with one partition per `service_date`, overwritten on each run.
 
 | Model                                | Grain                     | Purpose                                                            |
 |--------------------------------------|---------------------------|--------------------------------------------------------------------|
-| `vw_stops`                           | stop × feed               | GTFS boarding points as GEOGRAPHY                                  |
-| `vw_h3`                              | H3 res-9 tile             | Tile geometry and centroid, sample source only                     |
-| `route_stops`                        | route × dir × stop × feed | Ordered stops per route direction, feeds from 2025                 |
-| `ticketing`                          | tap                       | Cleaned Jaé taps with route, vehicle, chain position               |
-| `stop_events`                        | vehicle stop visit        | GPS pings snapped to stops, with `is_forward` direction flag       |
-| `origin_destination_stop`            | tap                       | Boarding and alighting stops, walk distances, `confidence_tier`    |
-| `origin_destination_stop_candidates` | tap × option              | Prediction plus 3 neighbours in shuffled display order             |
+| `aux_vw_stops`                           | stop × feed               | GTFS boarding points as GEOGRAPHY                                  |
+| `aux_vw_h3`                              | H3 res-9 tile             | Tile geometry and centroid, sample source only                     |
+| `aux_route_stops`                        | route × dir × stop × feed | Ordered stops per route direction, feeds from 2025                 |
+| `aux_ticketing`                          | tap                       | Cleaned Jaé taps with route, vehicle, chain position               |
+| `aux_stop_events`                        | vehicle stop visit        | GPS pings snapped to stops, with `is_forward` direction flag       |
+| `aux_origin_destination_stop`            | tap                       | Boarding and alighting stops, walk distances, `confidence_tier`    |
+| `aux_origin_destination_stop_candidates` | tap × option              | Prediction plus 3 neighbours in shuffled display order             |
 | `survey_journeys`                    | journey                   | Integration-linked journeys with the final leg's 4 options pivoted |
 
 ### Tunable constants
@@ -54,12 +54,12 @@ All thresholds are Jinja `set` constants at the top of each model.
 
 | Model                                | Constant                        | Value    | Meaning                                       |
 |--------------------------------------|---------------------------------|----------|-----------------------------------------------|
-| `stop_events`                        | `max_snap_m`                    | 300      | Max ping-to-stop distance for a visit         |
-| `origin_destination_stop`            | `max_boarding_gap_s`            | 600      | Tap time vs stop visit tolerance              |
-| `origin_destination_stop`            | `max_walk_m`                    | 1000     | Walk cap for `alighting_within_walk_cap`      |
-| `origin_destination_stop`            | `walk_high_m`, `walk_low_m`     | 300, 700 | Walk bounds for high and low tiers            |
-| `origin_destination_stop`            | `margin_high_m`, `margin_low_m` | 150, 50  | Margin over runner-up (stops ~290 m apart)    |
-| `origin_destination_stop_candidates` | `n_alternates`, `max_offset`    | 3, 3     | Alternates shown and search span along route  |
+| `aux_stop_events`                        | `max_snap_m`                    | 300      | Max ping-to-stop distance for a visit         |
+| `aux_origin_destination_stop`            | `max_boarding_gap_s`            | 600      | Tap time vs stop visit tolerance              |
+| `aux_origin_destination_stop`            | `max_walk_m`                    | 1000     | Walk cap for `alighting_within_walk_cap`      |
+| `aux_origin_destination_stop`            | `walk_high_m`, `walk_low_m`     | 300, 700 | Walk bounds for high and low tiers            |
+| `aux_origin_destination_stop`            | `margin_high_m`, `margin_low_m` | 150, 50  | Margin over runner-up (stops ~290 m apart)    |
+| `aux_origin_destination_stop_candidates` | `n_alternates`, `max_offset`    | 3, 3     | Alternates shown and search span along route  |
 | `survey_journeys`                    | `max_transfer_gap_minutes`      | 120      | Gap that breaks a journey despite integration |
 
 ## Running the models
@@ -78,21 +78,21 @@ dbt build --select mit_ipea_project.v1 --target sandbox --profiles-dir ./dev \
 
 # Against the production Jaé table (needs Fine-Grained Reader on hash_cliente)
 dbt build --select mit_ipea_project.v1 --target sandbox --profiles-dir ./dev \
-  --vars '{"run_date": "2026-09-28", "ticketing_source": "jae"}'
+  --vars '{"run_date": "2026-09-28", "aux_ticketing_source": "jae"}'
 
 # Rebuild the static GTFS models only
-dbt run --select vw_stops route_stops --target sandbox --profiles-dir ./dev
+dbt run --select aux_vw_stops aux_route_stops --target sandbox --profiles-dir ./dev
 
 # Check SQL without running it
-dbt compile --select origin_destination_stop --target sandbox --profiles-dir ./dev \
+dbt compile --select aux_origin_destination_stop --target sandbox --profiles-dir ./dev \
   --vars '{"run_date": "2026-09-28"}'
 ```
 
 Always run `sqlfmt` on any model you edit.
 
-### Ticketing source
+### aux_ticketing source
 
-`ticketing` reads one of two sources, chosen by the `ticketing_source` variable:
+`aux_ticketing` reads one of two sources, chosen by the `aux_ticketing_source` variable:
 
 | Value              | Table                                                   | Tap location          | Notes                     |
 |--------------------|---------------------------------------------------------|-----------------------|---------------------------|
@@ -125,7 +125,7 @@ select the whole folder, so select `mit_ipea_project.v1` rather than
 | Model                                            | Notes                                                               |
 |--------------------------------------------------|---------------------------------------------------------------------|
 | `h3_gps`, `h3_stops`                             | GPS pings and stops assigned to H3 tiles                            |
-| `origin_destination`, `origin_destination_stops` | Tile-based OD baseline and its stop variant                         |
+| `origin_destination`, `aux_origin_destination_stops` | Tile-based OD baseline and its stop variant                         |
 | `origin_destination_land_use_power1`             | Tile-based OD with land-use gravity weighting                       |
 | `vw_utilization`                                 | Tile-based vehicle utilisation                                      |
 | `vw_utilization_land_use_gravity`                | Disabled, incomplete SQL                                            |
@@ -140,7 +140,7 @@ select the whole folder, so select `mit_ipea_project.v1` rather than
   via their `tap_location`, but never receive a prediction themselves.
 - The `jae` source branch needs its first production run and a check that
   `vehicle_id` parsing holds on real `id_veiculo` values.
-- The short-name fallback in `ticketing` takes the route from the latest GTFS feed
+- The short-name fallback in `aux_ticketing` takes the route from the latest GTFS feed
   overall, not the feed in force on `run_date`.
 - Confidence tier thresholds are heuristics awaiting calibration against survey
   answers.
@@ -150,26 +150,26 @@ select the whole folder, so select `mit_ipea_project.v1` rather than
 
 - **GPS carries no route or direction.** The GPS view has null `route_id`,
   `direction_id` and `trip_id` for every provider. Only `servico` (the GTFS
-  `route_short_name`) is usable, so `stop_events` matches each ping against the
+  `route_short_name`) is usable, so `aux_stop_events` matches each ping against the
   stops of every route and direction carrying that service, and the consumer picks
   the direction.
 - **Jaé `sentido` is unreliable.** It matches GTFS `direction_id` (0 = ida,
   1 = volta) but was wrong for roughly 18% of taps on the 2026-09-28 sample.
-  `origin_destination_stop` tries the stated direction first and falls back to the
+  `aux_origin_destination_stop` tries the stated direction first and falls back to the
   opposite one when the vehicle's GPS trend disagrees. `direction_source` records
   which applied. On that sample, fallback taps validated as well as the rest.
 - **Service registry gaps.** `cadastro.servicos` has no GTFS link for some bus
-  services (new services and SV/R variants, e.g. 917, SV917, 804R). `ticketing`
+  services (new services and SV/R variants, e.g. 917, SV917, 804R). `aux_ticketing`
   falls back to the GTFS route whose short name equals the Jaé service name.
   `route_source` records which path was used.
 - **Direction stops sit across the road.** Every ping produces a mirror visit in the
   opposite direction whose stop sequence runs backwards. `is_forward` filters these
   out so the boarding stop is never the one across the street.
-- **Spatial join first, equality join second.** In `stop_events` the `st_dwithin`
+- **Spatial join first, equality join second.** In `aux_stop_events` the `st_dwithin`
   join runs against one row per stop so BigQuery can use its spatial join
-  optimisation. Joining `route_stops` directly in the spatial predicate made the
+  optimisation. Joining `aux_route_stops` directly in the spatial predicate made the
   first version run for hours.
 - **BRT cannot be matched.** Jaé sets `id_veiculo` to null for BRT, and the BRT GPS
   view has no usable service. Report funnels for `mode = 'Ônibus'` only.
-- **Vehicle matching.** `ticketing.vehicle_id` is the 5-digit vehicle number;
+- **Vehicle matching.** `aux_ticketing.vehicle_id` is the 5-digit vehicle number;
   GPS-based models join on `right(gps.vehicle_id, 5)`.

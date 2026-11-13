@@ -23,7 +23,23 @@
     )
 }}
 
-{% set max_transfer_gap_minutes = 120 %}
+{% set max_transfer_gap_minutes = 180 %}
+
+{% set feed_info = ref("feed_info_gtfs") %}
+
+{% if execute and is_incremental() %}
+
+    {% set gtfs_feeds_query %}
+        select concat("'", feed_start_date, "'") as feed_start_date
+        from {{ feed_info }}
+        where
+            feed_start_date <= date("{{ var('date_range_end') }}")
+            and (feed_end_date IS NULL OR feed_end_date >= date("{{ var('date_range_start') }}"))
+    {% endset %}
+
+    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+
+{% endif %}
 
 with
     taps as (
@@ -38,10 +54,16 @@ with
             lag(boarding_time) over (
                 partition by rider_id, service_date order by trip_sequence
             ) as previous_boarding_time
-        from {{ ref("ticketing") }}
-        where service_date = "{{ var('run_date') }}"
-    ),
+        from {{ ref("aux_ticketing") }}
+        where
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
 
+            {% endif %}
+    ),
     journey_flags as (
         select
             *,
@@ -58,7 +80,6 @@ with
             end as new_journey
         from taps
     ),
-
     legs as (
         select
             *,
@@ -67,7 +88,6 @@ with
             ) as journey_id
         from journey_flags
     ),
-
     journeys as (
         select
             rider_id,
@@ -79,7 +99,6 @@ with
         from legs
         group by rider_id, service_date, journey_id
     ),
-
     -- Final-leg options pivoted into display order
     options as (
         select
@@ -96,29 +115,42 @@ with
             max(if(display_order = 2, stop_name, null)) as stop_name_2,
             max(if(display_order = 3, stop_name, null)) as stop_name_3,
             max(if(display_order = 4, stop_name, null)) as stop_name_4
-        from {{ ref("origin_destination_stop_candidates") }}
-        where service_date = "{{ var('run_date') }}"
+        from {{ ref("aux_origin_destination_stop_candidates") }}
+        where
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
+
+            {% endif %}
         group by rider_id, service_date, trip_sequence
     ),
-
     stops as (
-        select stop_id, any_value(stop_name) as stop_name
-        from {{ ref("vw_stops") }}
-        group by stop_id
-    )
+        select
+            feed_start_date, feed_end_date, stop_id, any_value(stop_name) as stop_name
+        from {{ ref("aux_vw_stops") }}
+        where
+            {% if gtfs_feeds | length > 0 %}
+                feed_start_date in ({{ gtfs_feeds | join(", ") }})
+            {% else %} false
+            {% endif %}
+        group by all
+    ),
+    origin_destination_stop as (
+        select *
+        from {{ ref("aux_origin_destination_stop") }}
+        where
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
 
+            {% endif %}
+    )
 select
-    to_hex(
-        md5(
-            concat(
-                to_hex(j.rider_id),
-                '|',
-                cast(j.service_date as string),
-                '|',
-                cast(j.first_trip_sequence as string)
-            )
-        )
-    ) as journey_key,
+    generate_uuid() as journey_key,
     j.rider_id,
     j.service_date,
     j.first_trip_sequence,
@@ -157,12 +189,12 @@ join
     and final_leg.service_date = j.service_date
     and final_leg.trip_sequence = j.final_trip_sequence
 left join
-    {{ ref("origin_destination_stop") }} as first_od
+    origin_destination_stop as first_od
     on first_od.rider_id = j.rider_id
     and first_od.service_date = j.service_date
     and first_od.trip_sequence = j.first_trip_sequence
 join
-    {{ ref("origin_destination_stop") }} as final_od
+    origin_destination_stop as final_od
     on final_od.rider_id = j.rider_id
     and final_od.service_date = j.service_date
     and final_od.trip_sequence = j.final_trip_sequence
@@ -171,7 +203,11 @@ join
     on o.rider_id = j.rider_id
     and o.service_date = j.service_date
     and o.trip_sequence = j.final_trip_sequence
-left join stops as boarding_stop on boarding_stop.stop_id = first_od.boarding_stop_id
+left join
+    stops as boarding_stop
+    on boarding_stop.stop_id = first_od.boarding_stop_id
+    and j.service_date >= boarding_stop.feed_start_date
+    and (j.service_date <= boarding_stop.feed_start_date or j.service_date is null)
 where
     final_leg.mode = 'Ônibus'
     and final_od.alighting_stop_id is not null

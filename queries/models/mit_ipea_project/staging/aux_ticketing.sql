@@ -26,10 +26,11 @@
             "data_type": "date",
             "granularity": "day",
         },
+        require_partition_filter=true,
     )
 }}
 
-{% set ticketing_source = var("ticketing_source", "sample") %}
+{% set ticketing_source = var("ticketing_source") %}
 
 with
     {% if ticketing_source == "sample" %}
@@ -47,8 +48,8 @@ with
                 t.modo as mode,
                 t.tile_id,
                 h3.centroid as tap_location
-            from `rj-smtr-sandbox.mit_ipea_project.transacao_drc_sample` as t
-            left join {{ ref("vw_h3") }} as h3 on h3.tile_id = t.tile_id
+            from {{ source("mit_ipea_project_sandbox", "transacao_drc_sample") }} as t
+            left join {{ ref("aux_vw_h3") }} as h3 on h3.tile_id = t.tile_id
             where
                 t.data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
@@ -76,11 +77,17 @@ with
                 t.modo as mode,
                 cast(null as string) as tile_id,
                 st_geogpoint(t.longitude, t.latitude) as tap_location
-            from `rj-smtr.bilhetagem.transacao` as t
+            from {{ ref("transacao") }} as t
             where
-                t.data between date("{{ var('date_range_start') }}") and date(
-                    "{{ var('date_range_end') }}"
-                )
+                {% if is_incremental() %}
+                    t.data between date("{{ var('date_range_start') }}") and date(
+                        "{{ var('date_range_end') }}"
+                    )
+                {% else %} t.data >= '{{ var("mit_ipea_project_initial_date") }}'
+
+                {% endif %}
+                and datetime_diff(t.datetime_processamento, t.datetime_transacao, hour)
+                < 1
                 and t.hash_cliente is not null
                 -- Cash fares paid on board carry no rider identity
                 and t.tipo_transacao_jae != 'Botoeira'
@@ -120,7 +127,7 @@ with
         select
             r.id_servico_jae,
             r.id_servico_gtfs as route_id,
-            {# coalesce(r.id_servico_gtfs, g.route_id) as route_id, #}
+            coalesce(r.id_servico_gtfs, g.route_id) as route_id,
             r.servico,
             case
                 when r.servico_gtfs is not null
@@ -129,7 +136,7 @@ with
                 then 'registry'
             end as route_source
         from registry as r
-    {# left join gtfs_routes as g on g.route_short_name = r.servico_jae #}
+    left join gtfs_routes as g on g.route_short_name = r.servico_jae
     ), #}
     sequenced as (
         select
@@ -144,7 +151,7 @@ with
             t.vehicle_id,
             t.service_id,
             s.route_id,
-            s.route_source,
+            {# s.route_source, #}
             s.servico,
             t.direction_id,
             t.mode,

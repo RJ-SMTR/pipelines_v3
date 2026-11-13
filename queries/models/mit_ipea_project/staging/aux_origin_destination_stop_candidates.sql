@@ -16,11 +16,28 @@
             "data_type": "date",
             "granularity": "day",
         },
+        require_partition_filter=true,
     )
 }}
 
 {% set n_alternates = 3 %}
 {% set max_offset = 3 %}
+
+{% set feed_info = ref("feed_info_gtfs") %}
+
+{% if execute and is_incremental() %}
+
+    {% set gtfs_feeds_query %}
+        select concat("'", feed_start_date, "'") as feed_start_date
+        from {{ feed_info }}
+        where
+            feed_start_date <= date("{{ var('date_range_end') }}")
+            and (feed_end_date IS NULL OR feed_end_date >= date("{{ var('date_range_start') }}"))
+    {% endset %}
+
+    {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
+
+{% endif %}
 
 with
     predictions as (
@@ -43,10 +60,28 @@ with
             alighting_within_walk_cap,
             next_boarding_location_source,
             next_boarding_location
-        from {{ ref("origin_destination_stop") }}
-        where service_date = "{{ var('run_date') }}" and alighting_stop_id is not null
-    ),
+        from {{ ref("aux_origin_destination_stop") }}
+        where
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
 
+            {% endif %} and alighting_stop_id is not null
+    ),
+    route_stops as (
+        select *
+        from {{ ref("aux_route_stops") }}
+        {% if is_incremental() %}
+            where
+                {% if gtfs_feeds | length > 0 %}
+                    feed_start_date in ({{ gtfs_feeds | join(", ") }})
+                {% else %} false
+                {% endif %}
+        {% endif %}
+
+    ),
     -- The prediction and every stop within max_offset places of it, after boarding.
     -- Stops come from the feed the boarding was matched against (feed_version
     -- travels with the prediction), so options and prediction share one feed
@@ -62,7 +97,7 @@ with
             st_distance(rs.geography, p.next_boarding_location) as walk_distance_m
         from predictions as p
         join
-            {{ ref("route_stops") }} as rs
+            route_stops as rs
             on rs.feed_version = p.feed_version
             and rs.route_id = p.route_id
             and rs.direction_id = p.direction_id

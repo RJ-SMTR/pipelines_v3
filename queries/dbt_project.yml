@@ -321,6 +321,10 @@ vars:
   ### Rio Rotativo Digital ###
   ignorar_diferenca_ordem: false
 
+  ### mit_ipea_project ###
+  ticketing_source: "jae"
+  mit_ipea_project_initial_date: "2026-11-01"
+
 query-comment: "{{ query_comment(node) }}"
 
 unit_tests:
@@ -350,8 +354,9 @@ models:
     +enabled: "{{ target.name == 'prod' }}"
   rj_smtr:
     mit_ipea_project:
-      v1:
-        +schema: mit_ipea_project
+      +schema: mit_ipea_project
+      staging:
+        +schema: mit_ipea_project_staging
     projeto_subsidio_sppo:
       +materialized: view
       +schema: projeto_subsidio_sppo

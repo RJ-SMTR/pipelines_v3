@@ -45,7 +45,7 @@ with
             end as next_boarding_vehicle_id,
             chain_position
 
-        from {{ ref("ticketing") }}
+        from {{ ref("aux_ticketing") }}
         -- Test date for the sandbox sample; build h3_gps with run_date set to the
         -- same day
         where service_date = '2026-09-28'

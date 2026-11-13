@@ -40,6 +40,7 @@
             "data_type": "date",
             "granularity": "day",
         },
+        require_partition_filter=true,
     )
 }}
 
@@ -66,11 +67,27 @@ with
             direction_id as transaction_direction_id,
             chain_position,
             tap_location
-        from {{ ref("ticketing") }}
+        from {{ ref("aux_ticketing") }}
         where
-            service_date between date("{{ var('date_range_start') }}") and date(
-                "{{ var('date_range_end') }}"
-            )
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
+
+            {% endif %}
+    ),
+    stop_events as (
+        select *
+        from {{ ref("aux_stop_events") }}
+        where
+            {% if is_incremental() %}
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+            {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
+
+            {% endif %}
     ),
     -- CTE 1: Boarding stop, the vehicle's stop visit closest in time to the tap
     boarding as (
@@ -100,7 +117,7 @@ with
             end as boarding_gap_s
         from ticketing as t
         left join
-            {{ ref("stop_events") }} as se
+            stop_events as se
             on se.service_date = t.service_date
             and right(se.vehicle_id, 5) = t.boarding_vehicle_id
             and se.route_id = t.route_id
@@ -185,7 +202,7 @@ with
             ) as alighting_to_next_boarding_distance_m
         from with_next_location as c
         left join
-            {{ ref("stop_events") }} as se
+            stop_events as se
             on se.service_date = c.service_date
             and right(se.vehicle_id, 5) = c.boarding_vehicle_id
             and se.route_id = c.route_id

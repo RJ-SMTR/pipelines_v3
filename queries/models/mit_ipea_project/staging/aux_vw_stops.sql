@@ -9,5 +9,5 @@ select
     stop_lat,
     stop_lon,
     st_geogpoint(stop_lon, stop_lat) as geography
-from `rj-smtr.gtfs.stops`
+from {{ ref("stops_gtfs") }}
 where coalesce(location_type, '0') in ('0', '')

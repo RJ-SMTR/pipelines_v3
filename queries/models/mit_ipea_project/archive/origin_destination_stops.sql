@@ -45,7 +45,7 @@ with
             end as next_boarding_vehicle_id,
             chain_position
 
-        from {{ ref("ticketing") }}
+        from {{ ref("aux_ticketing") }}
         -- In future remove hardcoded date
         where service_date between '2023-03-01' and '2023-06-30'
     ),
