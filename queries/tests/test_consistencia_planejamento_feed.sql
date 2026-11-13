@@ -57,6 +57,66 @@ with
             and v.sentido = o.sentido
             and v.horario_partida between o.faixa_horaria_inicio and o.faixa_horaria_fim
         group by all
+    ),
+    depara as (
+        select
+            feed_start_date,
+            tipo_dia,
+            tipo_os,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            v.partidas as partidas_gtfs,
+            o.partidas as partidas_ordem_servico,
+            v.quilometragem as quilometragem_gtfs,
+            o.quilometragem as quilometragem_ordem_servico
+        from viagens_faixa as v
+        full outer join
+            ordem_servico as o using (
+                feed_start_date,
+                tipo_dia,
+                tipo_os,
+                servico,
+                sentido,
+                faixa_horaria_inicio,
+                faixa_horaria_fim
+            )
+    ),
+    diagnostico as (
+        select
+            *,
+            /* GTFS com menos partidas que a OS (viagem faltando no GTFS) */
+            coalesce(partidas_gtfs, 0)
+            < coalesce(partidas_ordem_servico, 0) as tem_gtfs_faltando,
+            /* GTFS com mais partidas que a OS (viagem faltando na OS) */
+            coalesce(partidas_gtfs, 0)
+            > coalesce(partidas_ordem_servico, 0) as tem_os_faltando,
+            /* Divergência física de quilometragem (independente de tolerância) */
+            abs(
+                coalesce(quilometragem_gtfs, 0)
+                - coalesce(quilometragem_ordem_servico, 0)
+            )
+            > 0.1 as tem_km_divergente,
+            /*
+                Feeds onde a divergência de KM é tolerada:
+                -
+                - Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo
+                -
+                - Exceção aprovada:
+                    o GTFS de Ponto Facultativo destes feeds diverge da OS. Em reunião no dia 05-06-2026
+                    foram declarados ponto facultativo nos dias 19, 24, 26, 30 de Outubro e 01 de Novembro;
+                    -
+                    O Matheus Dias Magalhães (09/11/2026, 17:55, grupo Dominio de Planejamento) solicitou
+                    para suspender a verificação de Ponto Facultativo a partir do feed de 07-11-2026 até a
+                    nova comunicação para desativar. Por isso basta feed_start_date >= '2026-10-19' com
+                    tipo_dia = 'Ponto Facultativo' já considera todos acima como verdade.
+            */
+            (
+                feed_start_date in ('2026-10-04', '2026-10-25')
+                or (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
+            ) as km_tolerado
+        from depara
     )
 select
     feed_start_date,
@@ -66,34 +126,29 @@ select
     sentido,
     faixa_horaria_inicio,
     faixa_horaria_fim,
-    v.partidas as partidas_gtfs,
-    o.partidas as partidas_ordem_servico,
-    v.quilometragem as quilometragem_gtfs,
-    o.quilometragem as quilometragem_ordem_servico
-from viagens_faixa as v
-full outer join
-    ordem_servico as o using (
-        feed_start_date,
-        tipo_dia,
-        tipo_os,
-        servico,
-        sentido,
-        faixa_horaria_inicio,
-        faixa_horaria_fim
-    )
+    partidas_gtfs,
+    partidas_ordem_servico,
+    quilometragem_gtfs,
+    quilometragem_ordem_servico,
+    array(
+        select motivo
+        from
+            unnest(
+                [
+                    if(tem_gtfs_faltando, 'PARTIDAS GTFS FALTANDO', null),
+                    if(tem_os_faltando, 'PARTIDAS ORDEM DE SERVIÇO FALTANDO', null),
+                    if(tem_km_divergente, 'QUILOMETRAGEM DIVERGENTE > 0.1', null)
+                ]
+            ) as motivo
+        where motivo is not null
+    ) as motivos
+from diagnostico
 where
-    (
-        coalesce(v.partidas, 0) != coalesce(o.partidas, 0)
-        or abs(coalesce(v.quilometragem, 0) - coalesce(o.quilometragem, 0)) > 0.1
-    )
-    /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
-    and feed_start_date not in ('2026-10-04', '2026-10-25')
-    /* Exceção aprovada: o GTFS de Ponto Facultativo destes feeds diverge da OS */
-    /* Exceção aprovada: Em reunião dia 05-06-2026 (dia 19, 24, 26, 30 de Outubro e 01 de Novembro) de 2026 */
-    and not (
-        feed_start_date
-        in ('2026-10-19', '2026-10-24', '2026-10-26', '2026-10-30', '2026-11-01')
-        and tipo_dia = 'Ponto Facultativo'
-    )
-    /* Exceção aprovada: a partir de 07-11-2026, sem verificação de Ponto Facultativo até aviso do planejamento */
-    and not (feed_start_date >= '2026-11-07' and tipo_dia = 'Ponto Facultativo')
+    /*
+        Divergência de partidas em qualquer direção (faltando no GTFS ou na OS) SEMPRE acusa,
+        ignora as exceções de feed/dia. KM só acusa fora dos feeds/dias tolerados.
+    */
+    tem_gtfs_faltando  -- Ativa divergência de partidas faltando no GTFS, mesmo que seja feed/dia tolerado
+    -- or tem_os_faltando -- Ativa divergência de partidas faltando na OS, mesmo que
+    -- seja feed/dia tolerado
+    or (tem_km_divergente and not km_tolerado)  -- Ativa divergência de KM apenas fora dos feeds/dias tolerados
