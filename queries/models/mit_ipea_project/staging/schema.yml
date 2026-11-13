@@ -1,0 +1,19 @@
+models:
+  - name: aux_ticketing
+    columns:
+      - name: rider_id
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3816523328506695485/policyTags/2168539910400644199'
+        data_type: bytes
+  - name: aux_origin_destination_stop
+    columns:
+      - name: rider_id
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3816523328506695485/policyTags/2168539910400644199'
+        data_type: bytes
+  - name: aux_origin_destination_stop_candidates
+    columns:
+      - name: rider_id
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3816523328506695485/policyTags/2168539910400644199'
+        data_type: bytes
