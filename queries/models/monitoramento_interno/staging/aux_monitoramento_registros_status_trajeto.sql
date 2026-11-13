@@ -24,42 +24,20 @@
     {% endif %}
 {% endif %}
 
--- 1. Seleciona sinais de GPS registrados no período
+-- 1. Sinais de GPS do período (bordo + Jaé) com data de operação
 with
     gps as (
         select
-            g.* except (longitude, latitude, servico),
-            servico,
-            st_geogpoint(longitude, latitude) as geo_point_gps,
+            g.* except (longitude, latitude),
+            st_geogpoint(g.longitude, g.latitude) as geo_point_gps,
             case
                 when extract(hour from datetime_gps) < 3
                 then date_sub(extract(date from datetime_gps), interval 1 day)
                 else extract(date from datetime_gps)
             end as data_operacao
-        from {{ ref("view_gps_onibus") }} g
-        where
-            data between date('{{ var("date_range_start") }}') and date_add(
-                date('{{ var("date_range_end") }}'), interval 1 day
-            )
-            and datetime_gps
-            between datetime_trunc(
-                date('{{ var("date_range_start") }}'),
-                day
-            ) and datetime_add(
-                datetime_trunc(
-                    date_add(date('{{ var("date_range_end") }}'), interval 1 day), day
-                ),
-                interval 3 hour
-            )
-            and status != "Parado garagem"
+        from {{ ref("aux_gps_viagem_inferida") }} g
     ),
-    -- 2. Busca os shapes em formato geográfico
-    shapes as (
-        select *
-        from {{ ref("shapes_geom_gtfs") }}
-        {# from `rj-smtr.gtfs.shapes_geom` #}
-        where feed_start_date in ({{ gtfs_feeds | join(", ") }})
-    ),
+    -- 2. Serviços planejados do período
     servico_planejado as (
         select
             data,
@@ -76,6 +54,7 @@ with
         from {{ ref("servico_planejado_faixa_horaria") }}
         where {{ incremental_filter }}
     ),
+    -- 3. Expande trips e trajetos alternativos de cada serviço
     servico_planejado_expandido as (
         select
             sp.data,
@@ -111,6 +90,7 @@ with
         from servico_planejado as sp, unnest(sp.trajetos_alternativos) as alt
         where alt.shape_id is not null
     ),
+    -- 4. Mantém uma trip por route_id e shape_id
     servico_planejado_unnested as (
         select
             data,
@@ -131,49 +111,7 @@ with
             )
             = 1
     ),
-    servico_planejado_shapes as (
-        select spu.*, s.shape, s.start_pt, s.end_pt
-        from servico_planejado_unnested as spu
-        left join shapes as s using (feed_start_date, shape_id)
-    ),
-    -- 4. Classifica a posição do veículo em todos os shapes possíveis de
-    -- serviços de uma mesma empresa
-    status_viagem as (
-        select
-            data_operacao as data,
-            g.id_veiculo,
-            g.datetime_gps,
-            g.fonte_gps,
-            g.geo_point_gps,
-            trim(g.servico, " ") as servico_gps,
-            s.servico as servico_viagem,
-            s.consorcio,
-            s.sistema,
-            s.modo,
-            s.shape_id,
-            s.sentido,
-            s.trip_id,
-            s.route_id,
-            s.start_pt,
-            s.end_pt,
-            s.extensao as distancia_planejada,
-            ifnull(g.distancia, 0) as distancia,
-            s.feed_start_date,
-            case
-                when st_dwithin(g.geo_point_gps, start_pt, {{ var("buffer") }})
-                then 'start'
-                when st_dwithin(g.geo_point_gps, end_pt, {{ var("buffer") }})
-                then 'end'
-                when st_dwithin(g.geo_point_gps, shape, {{ var("buffer") }})
-                then 'middle'
-                else 'out'
-            end status_viagem
-        from gps g
-        inner join
-            servico_planejado_shapes s
-            on g.data_operacao = s.data
-            and g.servico = s.servico
-    ),
+    -- 5. Primeiro e último segmento de cada shape
     segmentos_filtrados as (
         select
             shape_id,
@@ -189,27 +127,41 @@ with
         where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         group by shape_id, feed_start_date
     ),
-    -- Adiciona o indicador de interseção com o primeiro e último segmento, meio
-    -- sempre true
-    status_viagem_segmentos as (
+    -- 6. Posição do GPS no primeiro e no último segmento
+    posicao_segmento as (
         select
-            sv.*,
-            case
-                when
-                    sv.status_viagem = 'start'
-                    and st_intersects(sv.geo_point_gps, sf.buffer_inicio)
-                then true
-                when
-                    sv.status_viagem = 'end'
-                    and st_intersects(sv.geo_point_gps, sf.buffer_fim)
-                then true
-                else false
-            end as indicador_intersecao_segmento,
-        from status_viagem sv
-        left join
+            data_operacao as data,
+            g.id_veiculo,
+            g.datetime_gps,
+            g.fonte_gps,
+            g.geo_point_gps,
+            trim(g.servico, " ") as servico_gps,
+            s.servico as servico_viagem,
+            s.consorcio,
+            s.sistema,
+            s.modo,
+            s.shape_id,
+            s.sentido,
+            s.trip_id,
+            s.route_id,
+            s.extensao as distancia_planejada,
+            ifnull(g.distancia, 0) as distancia,
+            s.feed_start_date,
+            ifnull(
+                st_intersects(g.geo_point_gps, sf.buffer_inicio), false
+            ) as indicador_segmento_inicio,
+            ifnull(
+                st_intersects(g.geo_point_gps, sf.buffer_fim), false
+            ) as indicador_segmento_fim
+        from gps g
+        inner join
+            servico_planejado_unnested s
+            on g.data_operacao = s.data
+            and g.servico = s.servico
+        inner join
             segmentos_filtrados sf
-            on sv.shape_id = sf.shape_id
-            and sv.feed_start_date = sf.feed_start_date
+            on s.shape_id = sf.shape_id
+            and s.feed_start_date = sf.feed_start_date
     )
 select *
-from status_viagem_segmentos
+from posicao_segmento
