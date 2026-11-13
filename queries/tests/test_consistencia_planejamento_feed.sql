@@ -86,20 +86,24 @@ with
     diagnostico as (
         select
             *,
-            /* GTFS com menos partidas que a OS (viagem faltando no GTFS) */
+            /* Partidas do GTFS nulas EM FAIXA QUE A OS ESPERAVA SERVIÇO: a faixa não entra
+               em servico_planejado_faixa_horaria e gera as divergências de km reportadas pela
+               CMO. Deve SEMPRE acusar, mesmo nos feeds/dias tolerados (Ponto Facultativo /
+               eleições). Faixas em que a própria OS não tem partidas são ignoradas (podem
+               divergir legitimamente). */
+            partidas_gtfs is null
+            and coalesce(partidas_ordem_servico, 0) > 0 as sem_partidas_gtfs,
+            /* Divergência de partidas entre GTFS e OS em qualquer direção */
             coalesce(partidas_gtfs, 0)
-            < coalesce(partidas_ordem_servico, 0) as tem_gtfs_faltando,
-            /* GTFS com mais partidas que a OS (viagem faltando na OS) */
-            coalesce(partidas_gtfs, 0)
-            > coalesce(partidas_ordem_servico, 0) as tem_os_faltando,
-            /* Divergência física de quilometragem (independente de tolerância) */
+            != coalesce(partidas_ordem_servico, 0) as tem_partidas_divergente,
+            /* Divergência de quilometragem */
             abs(
                 coalesce(quilometragem_gtfs, 0)
                 - coalesce(quilometragem_ordem_servico, 0)
             )
             > 0.1 as tem_km_divergente,
             /*
-                Feeds onde a divergência de KM é tolerada:
+                Feeds/dias onde divergência de partidas E de km é esperada e tolerada:
                 -
                 - Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo
                 -
@@ -115,7 +119,7 @@ with
             (
                 feed_start_date in ('2026-10-04', '2026-10-25')
                 or (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
-            ) as km_tolerado
+            ) as divergencia_tolerada
         from depara
     )
 select
@@ -129,14 +133,13 @@ select
     partidas_gtfs,
     partidas_ordem_servico,
     quilometragem_gtfs,
-    quilometragem_ordem_servico,
+    quilometragem_ordem_servico
 from diagnostico
 where
     /*
-        Divergência de partidas em qualquer direção (faltando no GTFS ou na OS) SEMPRE acusa,
-        ignora as exceções de feed/dia. KM só acusa fora dos feeds/dias tolerados.
+        Partidas do GTFS nulas SEMPRE acusam (furam as exceções), porque a faixa fica de fora
+        de servico_planejado_faixa_horaria e gera as divergências de km reportadas pela CMO.
+        Divergência de partidas (qualquer direção) ou de km só acusa fora dos feeds/dias tolerados.
     */
-    tem_gtfs_faltando  -- Ativa divergência de partidas faltando no GTFS, mesmo que seja feed/dia tolerado
-    -- or tem_os_faltando -- Ativa divergência de partidas faltando na OS, mesmo que
-    -- seja feed/dia tolerado
-    or (tem_km_divergente and not km_tolerado)  -- Ativa divergência de KM apenas fora dos feeds/dias tolerados
+    sem_partidas_gtfs
+    or ((tem_partidas_divergente or tem_km_divergente) and not divergencia_tolerada)
