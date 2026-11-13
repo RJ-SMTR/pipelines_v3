@@ -130,18 +130,6 @@ select
     partidas_ordem_servico,
     quilometragem_gtfs,
     quilometragem_ordem_servico,
-    array(
-        select motivo
-        from
-            unnest(
-                [
-                    if(tem_gtfs_faltando, 'PARTIDAS GTFS FALTANDO', null),
-                    if(tem_os_faltando, 'PARTIDAS ORDEM DE SERVIÇO FALTANDO', null),
-                    if(tem_km_divergente, 'QUILOMETRAGEM DIVERGENTE > 0.1', null)
-                ]
-            ) as motivo
-        where motivo is not null
-    ) as motivos
 from diagnostico
 where
     /*
