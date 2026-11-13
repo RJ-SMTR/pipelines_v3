@@ -1,5 +1,19 @@
 # Changelog - monitoramento
 
+## [2.5.7] - 2026-11-10
+
+### Adicionado
+
+- Adiciona exceção de prazo de envio no modelo `aux_viagem_validacao_excecao` para viagens `conecta` (sistema RIO) na quinzena `2026-10-16` a `2026-10-31`, com data limite de envio em `2026-11-06`. A fonte é `conecta` porque as partidas do sistema RIO a partir de `2026-10-16` deixam de ser Maxtrack [Processo SEI nº 000300.035567/2026-60] (https://github.com/RJ-SMTR/pipelines_v3/pull/874).
+
+## [2.5.6] - 2026-11-09
+
+### Alterado
+
+- Altera a fonte dos modelos `temperatura_alertario` e `temperatura_inmet` para o dataset `clima_estacao_meteorologia`, usando `data_medicao` como data em `temperatura_inmet` (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+- Preserva em `temperatura_alertario` as partições já materializadas anteriores a `DATA_ALERTARIO_CADENCIA_5_MINUTOS` (`2026-10-16`) e desabilita o full refresh do modelo, pois as fontes não têm o histórico completo (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+- Altera o teste de completude de `temperatura_alertario` para esperar 96 horários por dia antes de `2026-10-16` e 288 a partir dessa data, com a mudança da cadência de medição do AlertaRio para 5 minutos (https://github.com/RJ-SMTR/pipelines_v3/pull/866).
+
 ## [2.5.5] - 2026-11-06
 
 ### Adicionado
