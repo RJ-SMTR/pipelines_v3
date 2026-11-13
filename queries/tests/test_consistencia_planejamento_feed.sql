@@ -83,21 +83,16 @@ full outer join
     )
 where
     (
-        coalesce(v.partidas, 0) != coalesce(o.partidas, 0)
-        or abs(coalesce(v.quilometragem, 0) - coalesce(o.quilometragem, 0)) > 0.1
-    )
-    /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
-    and feed_start_date not in ('2026-10-04', '2026-10-25')
-    /* Exceção aprovada: o GTFS de Ponto Facultativo destes feeds diverge da OS */
-    /* Exceção aprovada: Em reunião dia 05-06-2026 (dia 19, 24, 30 de Outubro e 01, 07 de Novembro) de 2026 */
-    and not (
-        feed_start_date in (
-            '2026-10-19',
-            '2026-10-24',
-            '2026-10-26',
-            '2026-10-30',
-            '2026-11-01',
-            '2026-11-07'
+        (
+            coalesce(v.partidas, 0) != coalesce(o.partidas, 0)
+            or abs(coalesce(v.quilometragem, 0) - coalesce(o.quilometragem, 0)) > 0.1
         )
-        and tipo_dia = 'Ponto Facultativo'
+        /* Feeds das eleições e Ponto Facultativo (a partir de 07-11-2026, pedido do Matheus Dias
+           Magalhães em 09/11/2026): divergência de km e de partidas é esperada e fica tolerada */
+        and feed_start_date not in ('2026-10-04', '2026-10-25')
+        and not (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
     )
+    /* GTFS sem partidas numa faixa em que a OS tem serviço: a faixa não entra em
+       servico_planejado_faixa_horaria e gera as divergências de km reportadas pela CMO.
+       Acusa sempre, mesmo nos feeds/dias tolerados acima */
+    or (v.partidas is null and coalesce(o.partidas, 0) > 0)
