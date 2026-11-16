@@ -492,7 +492,7 @@ sources:
       - name: viagem_informada
       - name: registros
 
-  - name: clima_estacao_meteorologica
+  - name: clima_estacao_meteorologia
     database: rj-cor
 
     tables:

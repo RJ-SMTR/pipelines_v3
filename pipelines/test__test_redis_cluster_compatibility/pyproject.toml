@@ -1,0 +1,4 @@
+[project]
+name = "test__test_redis_cluster_compatibility"
+version = "0.1.0"
+description = "Pipeline test_redis_cluster_compatibility da secretaria rj-smtr"
