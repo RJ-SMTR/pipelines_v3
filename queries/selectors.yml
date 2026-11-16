@@ -942,12 +942,14 @@ selectors:
       `data_apurada`) + sumários + views de monitoramento.
     definition:
       union:
-        # - method: fqn
-        #   value: gps_segmento_viagem
-        # - method: fqn
-        #   value: viagem_validacao
-        # - method: fqn
-        #   value: viagem_valida
+        ## remover antes de subir ##
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        ###########################
         - method: fqn
           value: lote_km_rede_referencia
         - method: fqn
