@@ -1,4 +1,4 @@
--- depends on: ref("calendario")
+-- depends_on: {{ ref('calendario') }}
 {{
     config(
         materialized="incremental",
