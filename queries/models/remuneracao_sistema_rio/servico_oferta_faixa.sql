@@ -1,3 +1,4 @@
+-- depends on: ref("calendario")
 {{
     config(
         materialized="incremental",

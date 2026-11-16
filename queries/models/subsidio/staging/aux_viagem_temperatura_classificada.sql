@@ -671,7 +671,8 @@ with
                     ),
                     '$.indicador_temperatura_zero_viagem',
                     json_query(
-                        parse_json(indicadores_novos), '$.indicador_temperatura_zero_viagem'
+                        parse_json(indicadores_novos),
+                        '$.indicador_temperatura_zero_viagem'
                     )
                 ),
                 '$.indicador_validador',

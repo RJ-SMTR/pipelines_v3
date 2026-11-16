@@ -127,9 +127,7 @@ select
         json_object('valor', c.indicador_regularidade_ar_condicionado_viagem)
     ) as indicadores,
     c.tecnologia_apurada,
-    coalesce(
-        c.tecnologia_apurada, c.menor_tecnologia_permitida
-    ) as tecnologia_fcf,
+    coalesce(c.tecnologia_apurada, c.menor_tecnologia_permitida) as tecnologia_fcf,
     c.tecnologia_remunerada,
     c.indicador_regularidade_ar_condicionado_viagem,
     c.modo,

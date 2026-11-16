@@ -82,9 +82,7 @@ with
         left join apuracao_lote_dia as d on d.data = o.data and d.lote = o.lote
     ),
     faixa_ipa as (
-        select
-            *,
-            least(km_remuneravel_faixa, km_planejada) as km_opex_faixa
+        select *, least(km_remuneravel_faixa, km_planejada) as km_opex_faixa
         from faixa_atendimento
     )
 select
@@ -107,8 +105,9 @@ select
     ) as km_ponderada_ipa_faixa,
     tarifa_remuneracao
     * beta
-    * coalesce(km_ponderada_ipa_faixa_openfisca, km_opex_faixa * ipa)
-    as remuneracao_opex_faixa,
+    * coalesce(
+        km_ponderada_ipa_faixa_openfisca, km_opex_faixa * ipa
+    ) as remuneracao_opex_faixa,
     '{{ var("version") }}' as versao,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ invocation_id }}' as id_execucao_dbt

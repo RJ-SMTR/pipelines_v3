@@ -364,7 +364,9 @@ with
             vtv.data,
             vtv.id_viagem,
             any_value(vtv.indicador_sem_transacao) as indicador_sem_transacao,
-            logical_or(vtv.indicador_sem_transacao_tipo) as indicador_sem_transacao_tipo,
+            logical_or(
+                vtv.indicador_sem_transacao_tipo
+            ) as indicador_sem_transacao_tipo,
             logical_or(vtv.indicador_validador_fechado) as indicador_validador_fechado,
             logical_or(
                 vtv.indicador_validador_associado_incorretamente

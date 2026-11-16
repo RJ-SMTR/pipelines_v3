@@ -127,7 +127,14 @@ with
         from {{ ref("valor_km_tipo_viagem") }}
     ),
     oferta as (
-        select data, servico, sentido, faixa_horaria_inicio, faixa_horaria_fim, tipo_dia, lote
+        select
+            data,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            tipo_dia,
+            lote
         from {{ ref("servico_oferta_faixa") }}
         where {{ incremental_filter }}
     ),
@@ -307,8 +314,7 @@ with
             on vt.data between os.data_inicio and os.data_fim
             and vt.tipo_viagem = os.status
         qualify
-            row_number() over (partition by vt.data, vt.id_viagem order by os.ordem)
-            = 1
+            row_number() over (partition by vt.data, vt.id_viagem order by os.ordem) = 1
     ),
     oferta_viagem as (
         select
