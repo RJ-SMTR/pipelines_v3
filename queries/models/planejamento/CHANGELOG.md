@@ -1,5 +1,15 @@
 # Changelog - planejamento
 
+## [1.12.0] - 2026-11-16
+
+### Adicionado
+
+- Adiciona três colunas indicadoras (1/0) à saída de `test_consistencia_planejamento_feed` — `indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs` — que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
+
+### Alterado
+
+- `test_consistencia_planejamento_feed` passa a tolerar as divergências de partidas e quilometragem do Ponto Facultativo a partir do feed `2026-11-07` (solicitação de Matheus Dias Magalhães em 09/11/2026) (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
+
 ## [1.11.2] - 2026-10-28
 
 ### Adicionado
