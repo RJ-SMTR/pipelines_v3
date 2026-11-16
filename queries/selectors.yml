@@ -974,7 +974,7 @@ selectors:
         - method: fqn
           value: faixa_apurada
         - method: fqn
-          value: data_apurada
+          value: sumario_lote_dia
         - method: fqn
           value: sumario_servico_sentido_faixa
         - method: fqn
