@@ -28,7 +28,8 @@
 with
     gps as (
         select
-            g.* except (longitude, latitude),
+            g.* except (longitude, latitude, servico),
+            trim(g.servico, " ") as servico,
             st_geogpoint(g.longitude, g.latitude) as geo_point_gps,
             case
                 when extract(hour from datetime_gps) < 3
@@ -135,7 +136,7 @@ with
             g.datetime_gps,
             g.fonte_gps,
             g.geo_point_gps,
-            trim(g.servico, " ") as servico_gps,
+            g.servico as servico_gps,
             s.servico as servico_viagem,
             s.consorcio,
             s.sistema,
