@@ -55,7 +55,7 @@ select
     cast(s.distancia_planejada as float64) as km_programada,
     cast(
         if(
-            coalesce(s.tipo_execucao_viagem, completa) = incompleta,
+            coalesce(s.tipo_execucao_viagem, "COMPLETA") = "INCOMPLETA",
             least(
                 coalesce(s.km_percorrida_gps, 0),
                 coalesce(cast(s.distancia_planejada as float64), 0)
@@ -100,5 +100,5 @@ select
         b.indicador_validador_associado_incorretamente, false
     ) as indicador_validador_associado_incorretamente
 from status as s
-left join temperatura as t on s.data = t.data and s.id_viagem = t.id_viagem
+left join temperatura as t using (data, id_viagem)
 left join bilhetagem as b using (data, id_viagem)
