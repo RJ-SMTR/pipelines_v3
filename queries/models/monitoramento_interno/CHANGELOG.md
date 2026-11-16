@@ -1,5 +1,11 @@
 # Changelog - monitoramento_interno
 
+## [1.0.10] - 2026-11-16
+
+### Alterado
+
+- Normaliza `servico` dos sinais de GPS na CTE `gps` de `aux_monitoramento_registros_status_trajeto` (trim na entrada), removendo o trim redundante no select de `servico_gps`; o join com o serviço planejado e a coluna exposta passam a usar a mesma origem (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
 ## [1.0.9] - 2026-10-08
 
 ### Adicionado
