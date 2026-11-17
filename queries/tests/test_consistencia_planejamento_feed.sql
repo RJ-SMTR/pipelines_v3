@@ -107,11 +107,7 @@ with
             (
                 feed_start_date in ('2026-10-04', '2026-10-25')
                 or (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
-                or (
-                    feed_start_date >= '2026-11-14'
-                    and tipo_os = 'Verão'
-                    and v.partidas is not null
-                )
+                or (feed_start_date = '2026-11-14' and tipo_os = 'Verão')
             ) as indicador_divergencia_tolerada
         from viagens_faixa as v
         full outer join
