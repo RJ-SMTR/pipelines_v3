@@ -24,6 +24,10 @@ from pipelines.common.capture.default_capture.utils import SourceCaptureContext
 from pipelines.common.utils.google_chat import notify_test_failures_google_chat
 
 
+class DataContractRejectedError(ValueError):
+    """Os resultados da validação reprovaram os arquivos brutos."""
+
+
 @task(cache_policy=NO_CACHE)
 def download_data_contracts(contexts: list[SourceCaptureContext], env: str) -> Path | None:
     """
@@ -177,7 +181,7 @@ def check_data_contract(
             notifica.
 
     Raises:
-        ValueError: Algum arquivo bruto reprovou no contrato.
+        DataContractRejectedError: Algum arquivo bruto reprovou no contrato.
     """
     failures = [
         result
@@ -194,6 +198,6 @@ def check_data_contract(
     )
     if failures:
         tables = ", ".join(sorted({failure["table"] for failure in failures}))
-        raise ValueError(
+        raise DataContractRejectedError(
             f"Contrato de dados reprovado: {len(failures)} verificações falharam ({tables})."
         )
