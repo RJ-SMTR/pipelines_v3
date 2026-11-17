@@ -30,12 +30,15 @@ def should_capture_gtfs(env: str) -> ShouldCapture:
     data_versao_gtfs = parameters.get("data_versao_gtfs")
     upload_from_gcs = parameters.get("upload_from_gcs", False)
 
+    redis_client = get_redis_client()
     last_captured_os = read_os_marker(
-        get_redis_client(), constants.GTFS_DATASET_ID, "last_captured_os", env
+        redis_client, constants.GTFS_DATASET_ID, "last_captured_os", env
     )
+    rejection_key = redis_state_key(constants.GTFS_DATASET_ID, "rejected_os", env)
     has_new_os, os_control, data_index, data_versao = get_os_info(
         last_captured_os=last_captured_os,
         data_versao_gtfs=data_versao_gtfs,
+        is_rejected=lambda index: bool(redis_client.get(f"{rejection_key}.{index}")),
     )
     if not has_new_os:
         return ShouldCapture(value=False)
@@ -73,6 +76,10 @@ def should_capture_gtfs(env: str) -> ShouldCapture:
             "source_table_ids": list(table_parameters),
             "extra_parameters": extra_parameters,
             "capture_datetime_redis": capture_datetime_redis,
+            "data_contract_rejection_redis": {
+                "key": f"{rejection_key}.{data_index}",
+                "value": True,
+            },
             "data_versao_gtfs": data_versao,
         },
     )
