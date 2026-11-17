@@ -76,10 +76,9 @@ def should_capture_gtfs(env: str) -> ShouldCapture:
             "source_table_ids": list(table_parameters),
             "extra_parameters": extra_parameters,
             "capture_datetime_redis": capture_datetime_redis,
-            "data_contract_rejection_redis": {
-                "key": f"{rejection_key}.{data_index}",
-                "value": True,
-            },
+            "data_contract_rejection_redis": None
+            if upload_from_gcs
+            else {"key": f"{rejection_key}.{data_index}", "value": True},
             "data_versao_gtfs": data_versao,
         },
     )
