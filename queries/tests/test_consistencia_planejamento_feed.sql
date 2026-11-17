@@ -58,7 +58,7 @@ with
             and v.horario_partida between o.faixa_horaria_inicio and o.faixa_horaria_fim
         group by all
     ),
-    /* Uma coluna booleana por erro catalogado, exposta como 1/0 no select final */
+    /* Uma coluna booleana por erro catalogado, exposta como booleano (true/false) no select final */
     diagnostico as (
         select
             feed_start_date,
@@ -97,10 +97,21 @@ with
                     para suspender a verificação de Ponto Facultativo a partir do feed de 07-11-2026 até a
                     nova comunicação para desativar. Por isso basta feed_start_date >= '2026-10-19' com
                     tipo_dia = 'Ponto Facultativo' já considera todos acima como verdade.
+                -
+                - Verão a partir do feed 2026-11-14: quando o GTFS está presente na faixa
+                  (v.partidas não nula), qualquer divergência de partidas e/ou quilometragem
+                  em relação à OS é esperada (ex.: no feed 2026-11-14 o GTFS tem mais
+                  partidas/km que a OS). Tolerada em qualquer direção; não cobre a ausência
+                  total de partidas do GTFS, que segue acusada pela 1ª condição do where.
             */
             (
                 feed_start_date in ('2026-10-04', '2026-10-25')
                 or (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
+                or (
+                    feed_start_date >= '2026-11-14'
+                    and tipo_os = 'Verão'
+                    and v.partidas is not null
+                )
             ) as indicador_divergencia_tolerada
         from viagens_faixa as v
         full outer join
@@ -126,16 +137,16 @@ select
     partidas_ordem_servico,
     quilometragem_gtfs,
     quilometragem_ordem_servico,
-    cast(indicador_partidas_divergente as int64) as indicador_partidas_divergente,
-    cast(
-        indicador_quilometragem_divergente as int64
-    ) as indicador_quilometragem_divergente,
-    cast(indicador_ausencia_partidas_gtfs as int64) as indicador_ausencia_partidas_gtfs
+    indicador_partidas_divergente,
+    indicador_quilometragem_divergente,
+    indicador_ausencia_partidas_gtfs
 from diagnostico
 where
     /* Partidas do GTFS nulas SEMPRE acusam (furam as exceções), porque a faixa fica de fora
        de servico_planejado_faixa_horaria e gera as divergências de km reportadas pela CMO.
-       Divergência de partidas (qualquer direção) ou de km só acusa fora dos feeds/dias tolerados. */
+       Divergência de partidas (qualquer direção) ou de km só acusa fora dos feeds/dias
+       tolerados (eleições, Ponto Facultativo e, desde o feed 2026-11-14, Verão com GTFS
+       presente na faixa; detalhes no comentário do indicador_divergencia_tolerada). */
     indicador_ausencia_partidas_gtfs
     or (
         (indicador_partidas_divergente or indicador_quilometragem_divergente)

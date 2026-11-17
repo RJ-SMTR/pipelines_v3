@@ -4,11 +4,12 @@
 
 ### Adicionado
 
-- Adiciona três colunas indicadoras (1/0) à saída de `test_consistencia_planejamento_feed` — `indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs` — que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
+- Adiciona três colunas indicadoras booleanas (`indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs`) à saída de `test_consistencia_planejamento_feed`, que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
 
 ### Alterado
 
 - `test_consistencia_planejamento_feed` passa a tolerar as divergências de partidas e quilometragem do Ponto Facultativo a partir do feed `2026-11-07` (solicitação de Matheus Dias Magalhães em 09/11/2026) (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
+- `test_consistencia_planejamento_feed` passa a tolerar, para `tipo_os = 'Verão'` a partir do feed `2026-11-14`, qualquer divergência de partidas e/ou quilometragem entre o GTFS e a OS, em qualquer direção (no feed `2026-11-14` o GTFS tem mais que a OS), divergência esperada do Plano de Verão; não afeta a ausência total de partidas no GTFS, que continua sendo acusada. Validado em execução local com defer no feed `2026-11-14`: de 6011 para 13 linhas acusadas, restando apenas ausências totais de GTFS (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
 
 ## [1.11.2] - 2026-10-28
 
