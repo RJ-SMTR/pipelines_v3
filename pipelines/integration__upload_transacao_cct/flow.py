@@ -15,7 +15,6 @@ from pipelines.common.treatment.default_treatment.tasks import (
     run_dbt_selector_tests,
     run_dbt_selectors,
     setup_dbt_queries,
-    task_dbt_selector_test_notify,
 )
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
 from pipelines.integration__upload_transacao_cct.constants import TABLE_UPLOAD_CONFIGS

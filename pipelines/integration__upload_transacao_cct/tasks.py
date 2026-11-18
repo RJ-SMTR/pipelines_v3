@@ -93,8 +93,7 @@ def export_data_from_bq_to_gcs(  # noqa: PLR0913
             else "current_date('America/Sao_Paulo')"
         )
         export_filter = (
-            f"datetime_ultima_atualizacao <= DATETIME('{end_ts}') "
-            f"and {pf} <= {current_date_expr}"
+            f"datetime_ultima_atualizacao <= DATETIME('{end_ts}') and {pf} <= {current_date_expr}"
         )
         partitions = pandas_gbq.read_gbq(
             f"""
@@ -170,8 +169,9 @@ def upload_files_postgres(
     export_bigquery_dates: list[str],
 ):
     blobs = list(
-        Storage(env=env, dataset_id=config.folder, bucket_names=CCT_PRIVATE_BUCKET_NAMES)
-        .bucket.list_blobs(prefix=f"{config.gcs_prefix}/")
+        Storage(
+            env=env, dataset_id=config.folder, bucket_names=CCT_PRIVATE_BUCKET_NAMES
+        ).bucket.list_blobs(prefix=f"{config.gcs_prefix}/")
     )
 
     with create_postgres_connection(env=env)() as conn:

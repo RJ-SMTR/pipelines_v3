@@ -185,9 +185,7 @@ def merge_final_data(
     export_bigquery_dates: list[str],
 ):
     if not full_refresh:
-        join_condition = " AND ".join(
-            [f"t.{f} = s.{f}" for f in config.unique_key_fields]
-        )
+        join_condition = " AND ".join([f"t.{f} = s.{f}" for f in config.unique_key_fields])
         sql = f"""
             DELETE FROM public.{config.table_name} t
             USING public.{config.tmp_table_name} s
