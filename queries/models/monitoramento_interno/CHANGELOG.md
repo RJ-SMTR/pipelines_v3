@@ -1,5 +1,22 @@
 # Changelog - monitoramento_interno
 
+## [1.0.10] - 2026-11-16
+
+### Alterado
+
+- Normaliza `servico` dos sinais de GPS na CTE `gps` de `aux_monitoramento_registros_status_trajeto` (trim na entrada), removendo o trim redundante no select de `servico_gps`; o join com o serviço planejado e a coluna exposta passam a usar a mesma origem (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
+## [1.0.9] - 2026-10-08
+
+### Adicionado
+
+- Cria o modelo auxiliar `aux_gps_viagem_inferida` para consolidar o GPS de bordo de ônibus e BRT e o GPS dos validadores Jaé, alinhando os identificadores dos veículos entre as fontes (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
+### Alterado
+
+- Atualiza `aux_monitoramento_registros_status_trajeto` para usar o GPS consolidado e indicar separadamente a interseção com o primeiro e o último segmento do trajeto. Remove as colunas `start_pt` e `end_pt`, que deixaram de ser utilizadas (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+- Altera `viagem_inferida` para associar o último registro de GPS exclusivo do primeiro segmento ao primeiro registro exclusivo do último segmento após a partida. Registros na sobreposição dos dois segmentos não são considerados para identificar partidas ou chegadas (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
 ## [1.0.8] - 2026-09-16
 
 ### Alterado

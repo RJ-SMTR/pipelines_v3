@@ -96,13 +96,7 @@ with
             data,
             datetime_gps,
             servico_jae as servico,
-            case
-                when id_operadora = '2801'
-                then 'A2-' || lpad(right(id_veiculo, 3), 3, '0')
-                when id_operadora = '2802'
-                then 'B2-' || lpad(right(id_veiculo, 3), 3, '0')
-                else null
-            end as id_veiculo,
+            {{ id_veiculo_jae_rio("id_operadora", "id_veiculo") }} as id_veiculo,
             latitude,
             longitude,
             'jae' as fornecedor

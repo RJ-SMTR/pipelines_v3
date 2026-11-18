@@ -1,5 +1,15 @@
 # Changelog - monitoramento
 
+## [2.5.8] - 2026-11-16
+
+### Adicionado
+
+- Adiciona a macro `id_veiculo_jae_rio` para padronizar a normalização do `id_veiculo` dos validadores Jaé (prefixo `A2-`/`B2-` por operadora), reutilizada em `gps_viagem` e no novo `aux_gps_viagem_inferida` (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
+### Alterado
+
+- Altera `gps_viagem` para usar a macro `id_veiculo_jae_rio` no lugar do `case` inline de normalização do `id_veiculo` dos validadores Jaé, mantendo o mesmo comportamento (https://github.com/RJ-SMTR/pipelines_v3/pull/677)
+
 ## [2.5.7] - 2026-11-10
 
 ### Adicionado
