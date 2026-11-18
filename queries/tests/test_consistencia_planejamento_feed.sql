@@ -1,6 +1,6 @@
 {{
     config(
-        description="As partidas e a quilometragem das viagens planejadas do SPPO no GTFS correspondem às da Ordem de Serviço para cada feed_start_date, tipo_dia, tipo_os, servico, sentido e faixa horária. Ausências totais de partidas no GTFS sempre acusam, exceto o Ponto Facultativo suspenso a partir do feed 2026-10-19; divergências são toleradas nos feeds/dias com exceção aprovada (eleições, ponto facultativo e todo o feed 2026-11-14, origem: Plano de Verão)."
+        description="As partidas e a quilometragem das viagens planejadas do SPPO no GTFS correspondem às da Ordem de Serviço para cada feed_start_date, tipo_dia, tipo_os, servico, sentido e faixa horária. Ausências totais de partidas no GTFS sempre acusam, inclusive em Ponto Facultativo; divergências são toleradas nos feeds/dias com exceção aprovada (eleições, ponto facultativo e todo o feed 2026-11-14, origem: Plano de Verão)."
     )
 }}
 
@@ -113,20 +113,12 @@ select
     indicador_ausencia_partidas_gtfs
 from diagnostico
 where
-    /* Partidas do GTFS nulas acusam independentemente das exceções abaixo, porque a faixa fica
-       de fora de servico_planejado_faixa_horaria e gera as divergências de km reportadas pela CMO.
-       Única exceção: o Ponto Facultativo suspenso por Matheus Dias Magalhães (09/11/2026, grupo
-       Dominio de Planejamento) também não acusa ausência até nova comunicação para desativar.
-       Divergência de partidas (qualquer direção) ou de km só acusa fora dos feeds/dias
+    /* Partidas do GTFS nulas acusam em qualquer condição, inclusive nos feeds/dias tolerados
+       pelo bloco abaixo (eleições, Ponto Facultativo e feed 2026-11-14), porque a faixa fica
+       de fora de servico_planejado_faixa_horaria e gera as divergências de km reportadas pela
+       CMO. Divergência de partidas (qualquer direção) ou de km só acusa fora dos feeds/dias
        tolerados listados no bloco abaixo. */
     indicador_ausencia_partidas_gtfs
-    -- Ponto Facultativo suspenso (suspensão aprovada por Matheus Dias Magalhães em
-    -- 09/11/2026,
-    -- grupo Dominio de Planejamento): não acusa nem divergência nem ausência até nova
-    -- comunicação para desativar. Por isso basta feed_start_date >= '2026-10-19' com
-    -- tipo_dia = 'Ponto Facultativo': já cobre todos os dias declarados facultativos
-    -- (19, 24, 26, 30/10 e 01/11) e os subsequentes.
-    and not (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
     or (
         (indicador_partidas_divergente or indicador_quilometragem_divergente)
         and not (
