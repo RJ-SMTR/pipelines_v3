@@ -57,6 +57,41 @@ with
             and v.sentido = o.sentido
             and v.horario_partida between o.faixa_horaria_inicio and o.faixa_horaria_fim
         group by all
+    ),
+    /* Uma coluna booleana por erro catalogado, exposta como booleano (true/false) no select final */
+    diagnostico as (
+        select
+            feed_start_date,
+            tipo_dia,
+            tipo_os,
+            servico,
+            sentido,
+            faixa_horaria_inicio,
+            faixa_horaria_fim,
+            v.partidas as partidas_gtfs,
+            o.partidas as partidas_ordem_servico,
+            v.quilometragem as quilometragem_gtfs,
+            o.quilometragem as quilometragem_ordem_servico,
+            /* Divergência de partidas entre GTFS e OS (qualquer direção) */
+            coalesce(v.partidas, 0)
+            != coalesce(o.partidas, 0) as indicador_partidas_divergente,
+            /* Divergência de quilometragem acima de 0.1 km */
+            abs(coalesce(v.quilometragem, 0) - coalesce(o.quilometragem, 0))
+            > 0.1 as indicador_quilometragem_divergente,
+            /* GTFS sem partidas numa faixa em que a OS tem serviço */
+            v.partidas is null
+            and coalesce(o.partidas, 0) > 0 as indicador_ausencia_partidas_gtfs
+        from viagens_faixa as v
+        full outer join
+            ordem_servico as o using (
+                feed_start_date,
+                tipo_dia,
+                tipo_os,
+                servico,
+                sentido,
+                faixa_horaria_inicio,
+                faixa_horaria_fim
+            )
     )
 select
     feed_start_date,
@@ -66,38 +101,23 @@ select
     sentido,
     faixa_horaria_inicio,
     faixa_horaria_fim,
-    v.partidas as partidas_gtfs,
-    o.partidas as partidas_ordem_servico,
-    v.quilometragem as quilometragem_gtfs,
-    o.quilometragem as quilometragem_ordem_servico
-from viagens_faixa as v
-full outer join
-    ordem_servico as o using (
-        feed_start_date,
-        tipo_dia,
-        tipo_os,
-        servico,
-        sentido,
-        faixa_horaria_inicio,
-        faixa_horaria_fim
-    )
+    partidas_gtfs,
+    partidas_ordem_servico,
+    quilometragem_gtfs,
+    quilometragem_ordem_servico,
+    indicador_partidas_divergente,
+    indicador_quilometragem_divergente,
+    indicador_ausencia_partidas_gtfs
+from diagnostico
 where
-    (
-        coalesce(v.partidas, 0) != coalesce(o.partidas, 0)
-        or abs(coalesce(v.quilometragem, 0) - coalesce(o.quilometragem, 0)) > 0.1
-    )
-    /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
-    and feed_start_date not in ('2026-10-04', '2026-10-25')
-    /* Exceção aprovada: o GTFS de Ponto Facultativo destes feeds diverge da OS */
-    /* Exceção aprovada: Em reunião dia 05-06-2026 (dia 19, 24, 30 de Outubro e 01, 07 de Novembro) de 2026 */
-    and not (
-        feed_start_date in (
-            '2026-10-19',
-            '2026-10-24',
-            '2026-10-26',
-            '2026-10-30',
-            '2026-11-01',
-            '2026-11-07'
-        )
-        and tipo_dia = 'Ponto Facultativo'
+    /* OS com partidas e GTFS sem partidas: acusa sempre, inclusive nos casos tolerados abaixo */
+    indicador_ausencia_partidas_gtfs
+    or (
+        (indicador_partidas_divergente or indicador_quilometragem_divergente)
+        /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
+        and feed_start_date not in ('2026-10-04', '2026-10-25')
+        /* Ponto Facultativo: exceção aprovada a partir do feed 19/10/2026 solicitada por Matheus Dias Magalhães (09/11/2026, 17:55, grupo Dominio de Planejamento), até nova comunicação para reativar */
+        and not (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
+        /* OS de Verão: exceção aprovada a partir do feed 14/11/2026 solicitada por Matheus Dias Magalhães (16/11/2026, 19:43, grupo Dominio de Planejamento), até nova comunicação para reativar */
+        and not (feed_start_date >= '2026-11-14' and tipo_os = 'Verão')
     )
