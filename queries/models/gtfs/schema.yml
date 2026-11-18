@@ -481,8 +481,8 @@ models:
                 servico,
                 faixa_horaria_inicio,
               ]
-            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}'"
-            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND (quilometragem != 0 AND (partidas != 0 OR partidas IS NULL))"
+            row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND feed_start_date < '{{ var('DATA_SUBSIDIO_V25_INICIO') }}'"
+            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' AND feed_start_date < '{{ var('DATA_SUBSIDIO_V25_INICIO') }}' AND (quilometragem != 0 AND (partidas != 0 OR partidas IS NULL))"
       - dbt_utils.unique_combination_of_columns:
           name: dbt_utils__unique_combination_of_columns__ordem_servico_trips_shapes_gtfs
           config:
