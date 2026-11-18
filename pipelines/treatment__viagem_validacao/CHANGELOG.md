@@ -1,5 +1,11 @@
 # Changelog - treatment__viagem_validacao
 
+## [1.0.7] - 2026-11-11
+
+### Adicionado
+
+- Configura o pós-teste do flow para rodar os testes dos modelos `viagem_validacao` e `viagem_valida` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+
 ## [1.0.6] - 2026-10-26
 
 ### Adicionado
