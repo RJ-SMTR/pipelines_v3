@@ -154,6 +154,6 @@ where
                (no feed 2026-11-14 o GTFS tem mais partidas/km que a OS), em qualquer direção.
                Feeds posteriores voltam a ser verificados normalmente. A ausência total de
                partidas do GTFS segue acusada pela 1ª condição do where, independente disto. */
-            or (feed_start_date = '2026-11-14')
+            or (feed_start_date = '2026-11-14' and tipo_os = 'Verão')
         )
     )
