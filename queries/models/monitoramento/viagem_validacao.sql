@@ -511,12 +511,8 @@ with
                                         v2.datetime_processamento
                                         > v1.datetime_processamento
                                         or (
-                                            v1.datetime_processamento is null
-                                            and v2.datetime_processamento is not null
-                                        )
-                                        or (
                                             v2.datetime_processamento
-                                            is not distinct from v1.datetime_processamento
+                                            = v1.datetime_processamento
                                             and v2.id_viagem < v1.id_viagem
                                         )
                                     )
