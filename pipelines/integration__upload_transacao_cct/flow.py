@@ -18,6 +18,7 @@ from pipelines.common.treatment.default_treatment.tasks import (
     task_dbt_selector_test_notify,
 )
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
+from pipelines.integration__upload_transacao_cct.constants import TABLE_UPLOAD_CONFIGS
 from pipelines.integration__upload_transacao_cct.tasks import (
     create_sincronizacao_materialization_context,
     delete_all_files,
@@ -28,6 +29,102 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     upload_files_postgres,
     upload_postgres_modified_data_to_bq,
 )
+from pipelines.integration__upload_transacao_cct.utils import TableUploadConfig
+
+
+@flow(log_prints=True, timeout_seconds=18000)
+def upload_table_to_cct(  # noqa: PLR0913
+    config_name: str,
+    env: str,
+    timestamp,
+    full_refresh: bool,
+    data_ordem_start: Optional[str],
+    data_ordem_end: Optional[str],
+    param_test_dates: Optional[list[str]],
+    flags: Optional[list[str]],
+):
+    config: TableUploadConfig = TABLE_UPLOAD_CONFIGS[config_name]
+
+    if param_test_dates is None:
+        start_datetime, full_refresh = get_start_datetime(
+            config=config,
+            env=env,
+            full_refresh=full_refresh,
+            data_ordem_start=data_ordem_start,
+            data_ordem_end=data_ordem_end,
+        )
+
+        delete_files = delete_all_files(config=config, env=env)
+
+        export_bigquery_dates = export_data_from_bq_to_gcs(
+            config=config,
+            env=env,
+            timestamp=timestamp,
+            start_datetime=start_datetime,
+            full_refresh=full_refresh,
+            data_ordem_start=data_ordem_start,
+            data_ordem_end=data_ordem_end,
+            wait_for=[delete_files],
+        )
+
+        upload_postgres = upload_files_postgres(
+            config=config,
+            env=env,
+            full_refresh=full_refresh,
+            export_bigquery_dates=export_bigquery_dates,
+        )
+
+        test_dates = get_postgres_modified_dates(
+            config=config,
+            env=env,
+            start_datetime=start_datetime,
+            full_refresh=full_refresh,
+            wait_for=[upload_postgres],
+        )
+    else:
+        test_dates = param_test_dates
+        upload_postgres = None
+
+    upload_test_bq = upload_postgres_modified_data_to_bq(
+        config=config,
+        env=env,
+        timestamp=timestamp,
+        dates=test_dates,
+        full_refresh=full_refresh,
+        wait_for=[upload_postgres],
+    )
+
+    contexts = create_sincronizacao_materialization_context(
+        config=config, env=env, timestamp=timestamp
+    )
+
+    run_model = run_dbt_selectors(
+        contexts=contexts,
+        flags=flags,
+        wait_for=[upload_test_bq],
+    )
+
+    run_test = run_dbt_selector_tests(
+        contexts=contexts,
+        mode="post",
+        wait_for=[run_model],
+    )
+
+    notify_discord = task_dbt_selector_test_notify_discord(
+        context=contexts[0],
+        mode="post",
+        webhook_key="alertas_bilhetagem",
+        wait_for=[run_test],
+    )
+
+    save_upload_timestamp_redis(
+        config=config,
+        env=env,
+        timestamp=timestamp,
+        data_ordem_start=data_ordem_start,
+        param_test_dates=param_test_dates,
+        wait_for=[upload_postgres, notify_discord],
+    )
 
 
 @flow(
@@ -35,7 +132,7 @@ from pipelines.integration__upload_transacao_cct.tasks import (
     flow_run_name=rename_flow_run,
     on_failure=[handler_notify_failure(webhook="alertas_bilhetagem")],
     on_crashed=[handler_notify_failure(webhook="alertas_bilhetagem")],
-    timeout_seconds=18000,
+    timeout_seconds=36000,
 )
 def integration__upload_transacao_cct(  # noqa: PLR0913
     env: Optional[str] = None,
@@ -49,86 +146,25 @@ def integration__upload_transacao_cct(  # noqa: PLR0913
     sentry = initialize_sentry(env=env)
     setup_env = setup_environment(env=env, wait_for=[sentry])
     queries = setup_dbt_queries(env=env, wait_for=[setup_env])
-    dbt_deps = install_dbt_packages(wait_for=[queries])
+    install_dbt_packages(wait_for=[queries])
 
     timestamp = get_scheduled_timestamp()
 
-    if param_test_dates is None:
-        start_datetime, full_refresh = get_start_datetime(
-            env=env,
-            full_refresh=full_refresh,
-            data_ordem_start=data_ordem_start,
-            data_ordem_end=data_ordem_end,
-        )
-
-        delete_files = delete_all_files(env=env)
-
-        export_bigquery_dates = export_data_from_bq_to_gcs(
+    for config_name in TABLE_UPLOAD_CONFIGS:
+        upload_table_to_cct(
+            config_name=config_name,
             env=env,
             timestamp=timestamp,
-            start_datetime=start_datetime,
             full_refresh=full_refresh,
             data_ordem_start=data_ordem_start,
             data_ordem_end=data_ordem_end,
-            wait_for=[delete_files],
+            param_test_dates=param_test_dates,
+            flags=flags,
+            return_state=True,
         )
-
-        upload_postgres = upload_files_postgres(
-            env=env,
-            full_refresh=full_refresh,
-            export_bigquery_dates=export_bigquery_dates,
-        )
-
-        test_dates = get_postgres_modified_dates(
-            env=env,
-            start_datetime=start_datetime,
-            full_refresh=full_refresh,
-            wait_for=[upload_postgres],
-        )
-    else:
-        test_dates = param_test_dates
-        upload_postgres = None
-
-    upload_test_bq = upload_postgres_modified_data_to_bq(
-        env=env,
-        timestamp=timestamp,
-        dates=test_dates,
-        full_refresh=full_refresh,
-        wait_for=[upload_postgres],
-    )
-
-    contexts = create_sincronizacao_materialization_context(env=env, timestamp=timestamp)
-
-    run_sincronizacao_model = run_dbt_selectors(
-        contexts=contexts,
-        flags=flags,
-        wait_for=[upload_test_bq, dbt_deps],
-    )
-
-    run_sincronizacao_test = run_dbt_selector_tests(
-        contexts=contexts,
-        mode="post",
-        wait_for=[run_sincronizacao_model],
-    )
 
     ingest_dbt_artifacts_to_openmetadata(
         env=env,
         deployment_name=runtime.deployment.name,
         flow_run_id=runtime.flow_run.id,
-        wait_for=[run_sincronizacao_test],
-    )
-
-    test_notify = task_dbt_selector_test_notify(
-        context=contexts[0],
-        mode="post",
-        webhook_key="alertas_bilhetagem",
-        wait_for=[run_sincronizacao_test],
-    )
-
-    save_upload_timestamp_redis(
-        env=env,
-        timestamp=timestamp,
-        data_ordem_start=data_ordem_start,
-        param_test_dates=param_test_dates,
-        wait_for=[upload_postgres, test_notify],
     )
