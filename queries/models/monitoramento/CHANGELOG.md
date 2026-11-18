@@ -1,5 +1,20 @@
 # Changelog - monitoramento
 
+## [2.5.8] - 2026-11-11
+
+### Corrigido
+
+- Define o desempate de viagens sobrepostas em `viagem_validacao` pela captura mais recente, pela partida mais antiga, pelo processamento mais recente e pelo menor ID. Datas preenchidas têm prioridade sobre datas ausentes. A tolerância de cinco minutos é mantida ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Na validação incremental, uma viagem válida já armazenada que não será reprocessada tem prioridade sobre uma viagem sobreposta na disputa. Viagens não reprocessadas que estão inválidas ou ausentes da tabela não disputam ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Exige uma exceção aplicável ao reprocessar partições explícitas com `use_partition_dates` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Reprocessa em `viagem_validacao` todas as viagens das partições selecionadas por `viagem_validacao_max_age_days` (6 dias), para validar as viagens enviadas no último dia do prazo e capturadas no dia seguinte. O prazo de envio de cinco dias continua verificado por `indicador_prazo_envio` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Descarta de `viagem_validacao`, nas partições reescritas, as viagens não reprocessadas cujo par `(data, id_viagem)` não existe mais em `viagem_informada` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+
+### Adicionado
+
+- Adiciona testes de preenchimento de `datetime_processamento` em `viagem_informada` e de correspondência por `(data, id_viagem)` entre `viagem_validacao` e `viagem_informada` ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+- Adiciona o teste `test_sobreposicao_viagens_validas__viagem_validacao`, com severidade `warn`, para identificar pares de viagens válidas do mesmo veículo com sobreposição superior a 300 segundos, inclusive entre partições vizinhas ([PR #880](https://github.com/RJ-SMTR/pipelines_v3/pull/880)).
+
 ## [2.5.7] - 2026-11-10
 
 ### Adicionado
