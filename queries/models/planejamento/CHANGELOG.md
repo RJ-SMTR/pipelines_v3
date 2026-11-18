@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.11.3] - 2026-11-17
+
+### Alterado
+
+- O teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` passa a verificar apenas os feeds anteriores a `DATA_SUBSIDIO_V25_INICIO`, já que `ordem_servico_trips_shapes_gtfs` deixa de ser materializado a partir dessa data (https://github.com/RJ-SMTR/pipelines_v3/pull/889)
+
 ## [1.12.0] - 2026-11-16
 
 ### Adicionado
