@@ -1,22 +1,21 @@
 # Changelog - planejamento
 
+## [1.12.0] - 2026-11-18
+
+### Adicionado
+
+- Adiciona três colunas indicadoras booleanas (`indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs`) à saída de `test_consistencia_planejamento_feed`, que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+
+### Alterado
+
+- `test_consistencia_planejamento_feed` passa a tolerar as divergências de partidas e quilometragem do Ponto Facultativo a partir do feed `2026-11-07` e a OS de Verão a partir do feed `2026-11-14`, conforme solicitado pela CGR (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+- `test_consistencia_planejamento_feed` passa a acusar sempre as faixas em que a OS tem partidas e o GTFS não tem nenhuma, inclusive nos casos tolerados (eleições, Ponto Facultativo e Verão) (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+
 ## [1.11.3] - 2026-11-17
 
 ### Alterado
 
 - O teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` passa a verificar apenas os feeds anteriores a `DATA_SUBSIDIO_V25_INICIO`, já que `ordem_servico_trips_shapes_gtfs` deixa de ser materializado a partir dessa data (https://github.com/RJ-SMTR/pipelines_v3/pull/889)
-
-## [1.12.0] - 2026-11-16
-
-### Adicionado
-
-- Adiciona três colunas indicadoras booleanas (`indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs`) à saída de `test_consistencia_planejamento_feed`, que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
-
-### Alterado
-
-- `test_consistencia_planejamento_feed` passa a tolerar as divergências de partidas e quilometragem do Ponto Facultativo a partir do feed `2026-11-07` (solicitação de Matheus Dias Magalhães em 09/11/2026) (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
-- `test_consistencia_planejamento_feed` passa a tolerar, **excepcionalmente no feed `2026-11-14` e para todos os tipos de OS** (origem: Plano de Verão; tolerância pontual, não cumulativa), qualquer divergência de partidas e/ou quilometragem entre o GTFS e a OS, em qualquer direção (no feed `2026-11-14` o GTFS tem mais que a OS); feeds posteriores voltam a ser verificados normalmente, e a ausência total de partidas no GTFS continua sendo acusada. Validado em execução local com defer no feed `2026-11-14`: de 6011 linhas acusadas para 0 (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
-- `test_consistencia_planejamento_feed` passa a não acusar também a **ausência total de partidas** no GTFS quando `feed_start_date >= '2026-10-19'` e `tipo_dia = 'Ponto Facultativo'`, alinhando a suspensão aprovada por Matheus Dias Magalhães (09/11/2026, grupo Dominio de Planejamento) às duas portas do teste (ausências, que sempre acusavam, e divergências); demais dias continuam com ausência sempre acusando. Validado em execução local com defer no feed `2026-11-14`: de 13 para 0 linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/PR_PLACEHOLDER)
 
 ## [1.11.2] - 2026-10-28
 
