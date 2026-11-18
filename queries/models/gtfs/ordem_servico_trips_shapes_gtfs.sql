@@ -29,7 +29,9 @@ with
         --fmt:on
         select *
         from {{ ref("ordem_servico_trips_shapes_gtfs_v2") }}
-        where feed_start_date >= date("{{ var('DATA_GTFS_V4_INICIO') }}")
+        where
+            feed_start_date >= date("{{ var('DATA_GTFS_V4_INICIO') }}")
+            and feed_start_date < date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
     )
 
 select *, '{{ invocation_id }}' as id_execucao_dbt
