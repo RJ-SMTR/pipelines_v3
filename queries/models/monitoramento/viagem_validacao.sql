@@ -500,12 +500,7 @@ with
                     and (
                         v2.datetime_captura_viagem > v1.datetime_captura_viagem
                         or (
-                            v1.datetime_captura_viagem is null
-                            and v2.datetime_captura_viagem is not null
-                        )
-                        or (
-                            v2.datetime_captura_viagem
-                            is not distinct from v1.datetime_captura_viagem
+                            v2.datetime_captura_viagem = v1.datetime_captura_viagem
                             and (
                                 v2.datetime_partida_considerada
                                 < v1.datetime_partida_considerada
