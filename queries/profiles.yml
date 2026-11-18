@@ -9,7 +9,7 @@ queries:
       method: service-account
       priority: interactive
       project: rj-smtr-dev
-      threads: 1
+      threads: 4
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
@@ -35,7 +35,7 @@ queries:
       method: service-account
       priority: interactive
       project: rj-smtr-dev
-      threads: 1
+      threads: 4
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
@@ -61,7 +61,7 @@ queries:
       method: service-account
       priority: interactive
       project: rj-smtr
-      threads: 1
+      threads: 4
       type: bigquery
 
       # for dbt Python models to be run on Dataproc Serverless
