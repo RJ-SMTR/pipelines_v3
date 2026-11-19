@@ -6,6 +6,7 @@ from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+import polars as pl
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
@@ -19,8 +20,9 @@ from pipelines.common.utils.fs import read_raw_data, save_local_file
 from pipelines.common.utils.gcp.bigquery import SourceTable
 from pipelines.common.utils.gcp.storage import Storage
 from pipelines.common.utils.pretreatment import (
+    create_nested_content,
     create_timestamp_captura,
-    transform_to_nested_structure,
+    run_pretreat_funcs,
 )
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone, data_info_str
@@ -130,37 +132,37 @@ def upload_raw_file_to_gcs(context: SourceCaptureContext, if_exists: str = "repl
 
 
 def transform_raw_chunk(
-    data: pd.DataFrame, context: SourceCaptureContext, captura: str
-) -> pd.DataFrame:
+    data: pl.DataFrame, context: SourceCaptureContext, captura: str
+) -> pl.DataFrame:
     """
     Aplica pré-tratamentos e transforma um bloco de dados brutos em estrutura aninhada.
 
     Args:
-        data (pd.DataFrame): Bloco de dados brutos.
+        data (pl.DataFrame): Bloco de dados brutos.
         context (SourceCaptureContext): Contexto da captura.
         captura (str): Timestamp de execução do flow.
 
     Returns:
-        pd.DataFrame: Dados em estrutura aninhada.
+        pl.DataFrame: Dados em estrutura aninhada.
     """
-    if data.empty:
-        print("Dataframe vazio, pulando tratamento...")
-        return pd.DataFrame()
-
     print(f"Raw data:\n{data_info_str(data)}")
     primary_keys = context.source.primary_keys
     data_columns_len = len(data.columns)
 
-    for step in context.source.pretreat_funcs:
-        data = step(data=data, context=context)
+    data = run_pretreat_funcs(
+        data=data,
+        pretreat_funcs=context.source.pretreat_funcs,
+        context=context,
+    )
 
-    data["_datetime_execucao_flow"] = captura
+    data = data.with_columns(pl.lit(captura).alias("_datetime_execucao_flow"))
 
     if len(primary_keys) < data_columns_len:
-        data = transform_to_nested_structure(data=data, primary_keys=primary_keys)
+        data = create_nested_content(data=data, primary_keys=primary_keys)
 
-    data["timestamp_captura"] = create_timestamp_captura(timestamp=context.timestamp)
-    return data
+    return data.with_columns(
+        pl.lit(create_timestamp_captura(timestamp=context.timestamp)).alias("timestamp_captura")
+    )
 
 
 @task(cache_policy=NO_CACHE, tags=["data-processing"])
@@ -179,10 +181,12 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
         captura = create_timestamp_captura(
             timestamp=datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
         )
-        raw_data = read_raw_data(filepath=raw_filepath, reader_args=reader_args)
-        data_chunks = [raw_data] if isinstance(raw_data, pd.DataFrame) else raw_data
 
-        for chunk in data_chunks:
+        for chunk in read_raw_data(filepath=raw_filepath, reader_args=reader_args):
+            if chunk.is_empty():
+                print("Bloco vazio, pulando tratamento...")
+                continue
+
             data = transform_raw_chunk(data=chunk, context=context, captura=captura)
             print(f"Estrutura aninhada criada! Dados: \n{data_info_str(data)}")
 
@@ -194,6 +198,14 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
             )
             csv_mode = "a"
             print(f"Dados salvos em {context.source_filepath}")
+
+    if csv_mode == "w":
+        print("Nenhum dado encontrado, salvando arquivo vazio")
+        save_local_file(
+            filepath=context.source_filepath,
+            filetype=constants.SOURCE_FILETYPE,
+            data=pd.DataFrame(),
+        )
 
 
 @task(cache_policy=NO_CACHE)

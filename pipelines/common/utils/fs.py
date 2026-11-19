@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 import pandas as pd
+import polars as pl
 
 from pipelines import common
 from pipelines.common.utils.utils import custom_serialization, is_running_locally
@@ -55,7 +56,7 @@ def get_filetype(filepath: str):
 def save_local_file(
     filepath: str,
     filetype: str,
-    data: Union[str, dict, list[dict], pd.DataFrame],
+    data: Union[str, dict, list[dict], pd.DataFrame, pl.DataFrame],
     csv_mode="w",
 ):
     """
@@ -64,7 +65,8 @@ def save_local_file(
     Args:
         filepath (str): Caminho para salvar o arquivo
         filetype (str): Extensão do arquivo
-        data Union[str, dict, list[dict], pd.DataFrame]: Dados que serão salvos no arquivo
+        data Union[str, dict, list[dict], pd.DataFrame, pl.DataFrame]: Dados que serão salvos
+            no arquivo
         csv_mode (str): Modo de escrita no arquivo CSV
     """
     print(f"Saving data on local file: {filepath}")
@@ -72,6 +74,13 @@ def save_local_file(
     print("Creating parent folder...")
     Path(filepath).parent.mkdir(parents=True, exist_ok=True)
     print("Parent folder created!")
+
+    if isinstance(data, pl.DataFrame):
+        print("Received a Polars DataFrame, saving file as CSV")
+        with Path(filepath).open("ab" if csv_mode == "a" else "wb") as file:
+            data.write_csv(file, include_header=csv_mode != "a")
+        print("File saved!")
+        return
 
     if isinstance(data, pd.DataFrame):
         print("Received a DataFrame, saving file as CSV")
@@ -102,41 +111,90 @@ def save_local_file(
     print("File saved!")
 
 
-def read_raw_data(
-    filepath: str, reader_args: Optional[dict] = None
-) -> pd.DataFrame | Iterator[pd.DataFrame]:
+RAW_READ_BATCH_SIZE = 50_000
+
+# Argumentos herdados do pandas (pretreatment_reader_args) que só definiam tipos.
+# Com Polars os valores são lidos como texto (CSV) ou com o tipo do próprio JSON,
+# então esses argumentos não têm mais efeito.
+RAW_READER_IGNORED_ARGS = ("dtype", "convert_dates")
+
+
+def get_csv_reader_args(reader_args: dict) -> dict:
     """
-    Lê os dados de um arquivo Raw
+    Traduz os argumentos de leitura de CSV do pandas para o pl.scan_csv
+
+    Args:
+        reader_args (dict): Argumentos no formato do pd.read_csv
+
+    Returns:
+        dict: Argumentos no formato do pl.scan_csv
+    """
+    csv_args = {"infer_schema": False}
+    for key, value in reader_args.items():
+        if key in RAW_READER_IGNORED_ARGS or key == "chunksize":
+            continue
+        if key in ("sep", "delimiter"):
+            csv_args["separator"] = value
+        elif key == "names":
+            csv_args["has_header"] = False
+            csv_args["new_columns"] = list(value)
+        elif key == "header" and value in (None, 0):
+            csv_args["has_header"] = value == 0
+        elif key == "skiprows":
+            csv_args["skip_rows"] = value
+        elif key == "encoding":
+            csv_args["encoding"] = value
+        elif key == "index_col" and value is False:
+            continue
+        else:
+            raise ValueError(f"Argumento de leitura não suportado para CSV: {key}={value!r}")
+    return csv_args
+
+
+def read_raw_data(filepath: str, reader_args: Optional[dict] = None) -> Iterator[pl.DataFrame]:
+    """
+    Lê os dados de um arquivo Raw em blocos
 
     Args:
         filepath (str): Caminho do arquivo
-        reader_args (dict, optional): Argumentos para passar na função
-            de leitura (pd.read_csv ou pd.read_json). Com `chunksize`, a leitura
-            é feita em blocos
+        reader_args (dict, optional): Argumentos de leitura no formato do pandas
+            (pretreatment_reader_args). `chunksize` define o tamanho dos blocos
 
     Returns:
-        pd.DataFrame | Iterator[pd.DataFrame]: DataFrame com os dados lidos ou
-            iterador de DataFrames, quando `chunksize` é informado
+        Iterator[pl.DataFrame]: Blocos de dados lidos
     """
 
     print(f"Reading raw data in {filepath}")
-    if reader_args is None:
-        reader_args = {}
+    reader_args = reader_args or {}
+    batch_size = reader_args.get("chunksize") or RAW_READ_BATCH_SIZE
 
     filetype = get_filetype(filepath=filepath)
 
     print(f"Reading {filetype.upper()}")
     if filetype == "json":
-        data = pd.read_json(filepath, **reader_args)
+        unsupported = [k for k in reader_args if k not in (*RAW_READER_IGNORED_ARGS, "chunksize")]
+        if unsupported:
+            raise ValueError(f"Argumentos de leitura não suportados para JSON: {unsupported}")
+        data = pl.read_json(filepath, infer_schema_length=None)
+        yield from data.iter_slices(n_rows=batch_size)
 
     elif filetype in ("txt", "csv"):
-        data = pd.read_csv(filepath, **reader_args)
+        csv_args = get_csv_reader_args(reader_args=reader_args)
+        encoding = csv_args.get("encoding", "utf8")
+        # Linhas em branco viram linhas só com nulos; o pandas as ignorava (skip_blank_lines)
+        not_blank = ~pl.all_horizontal(pl.all().is_null())
+        if encoding.lower().replace("-", "") in ("utf8", "utf8lossy"):
+            data = pl.scan_csv(filepath, **csv_args).filter(not_blank)
+            yield from data.collect_batches(chunk_size=batch_size)
+        else:
+            # scan_csv só lê UTF-8; read_csv decodifica outras codificações em Python
+            data = pl.read_csv(filepath, **csv_args).filter(not_blank)
+            yield from data.iter_slices(n_rows=batch_size)
+
     else:
         raise NotImplementedError(
             "Unsupported raw file extension. Supported only: json, csv and txt"
         )
-
-    return data
 
 
 def create_partition(
