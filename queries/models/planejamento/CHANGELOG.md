@@ -4,7 +4,7 @@
 
 ### Alterado
 
-- Em `test_check_km_planejada.sql`, substitui `!=` por `IS DISTINCT FROM` na comparação da quilometragem da Ordem de Serviço (OS) com a distância planejada. Com `!=`, a comparação retorna `NULL` quando um dos valores é nulo, e o `WHERE` descarta a linha. `IS DISTINCT FROM` retorna `TRUE` quando apenas um dos valores é nulo. O filtro adicional `distancia_total_planejada IS NULL` restringe essa comparação às faixas com quilometragem na OS e sem distância planejada.
+- Em `test_check_km_planejada.sql`, substitui `!=` por `IS DISTINCT FROM` na comparação da quilometragem da Ordem de Serviço (OS) com a distância planejada. Com `!=`, a comparação retorna `NULL` quando um dos valores é nulo, e o `WHERE` descarta a linha. `IS DISTINCT FROM` retorna `TRUE` quando apenas um dos valores é nulo. O filtro adicional `distancia_total_planejada IS NULL` restringe essa comparação às faixas com quilometragem na OS e sem distância planejada (https://github.com/RJ-SMTR/pipelines_v3/pull/904)
 
 ## [1.12.0] - 2026-11-18
 
