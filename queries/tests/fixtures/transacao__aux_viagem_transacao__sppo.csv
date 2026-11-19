@@ -1,0 +1,3 @@
+id_veiculo,servico_jae,datetime_transacao,data,datetime_processamento,modo
+10052,910,2026-07-20 03:36:26,2026-07-20,2026-07-20 03:36:31,Ônibus
+10052,910,2026-07-20 03:51:31,2026-07-20,2026-07-20 03:51:41,Ônibus

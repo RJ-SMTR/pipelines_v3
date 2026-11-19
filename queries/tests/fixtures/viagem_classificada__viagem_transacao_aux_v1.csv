@@ -1,0 +1,6 @@
+data,id_viagem,id_veiculo,datetime_partida,datetime_chegada,modo,tecnologia_apurada,tecnologia_remunerada,tipo_viagem,servico,sentido,distancia_planejada
+2025-07-15,A27501-548-V-ugt3-20250715061350,A27501,2025-07-15 06:13:50,2025-07-15 06:59:28,Ônibus SPPO,BASICO,BASICO,Licenciado com ar e não autuado,548,V,23.052
+2025-07-15,A27504_sem_transacao,A27504,2025-07-15 08:00:00,2025-07-15 09:00:00,Ônibus SPPO,BASICO,BASICO,Licenciado com ar e não autuado,548,V,23.052
+2025-07-15,A27505_nao_licenciado,A27505,2025-07-15 10:00:00,2025-07-15 11:00:00,Ônibus SPPO,BASICO,BASICO,Não licenciado,548,V,23.052
+2025-07-15,A27506_fechado,A27506,2025-07-15 12:00:00,2025-07-15 13:00:00,Ônibus SPPO,BASICO,BASICO,Licenciado com ar e não autuado,548,V,23.052
+2025-07-15,A27507_multiplos_validadores,A27507,2025-07-15 14:00:00,2025-07-15 15:00:00,Ônibus SPPO,BASICO,BASICO,Licenciado com ar e não autuado,548,V,23.052
