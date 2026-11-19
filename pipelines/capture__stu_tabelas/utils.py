@@ -353,8 +353,7 @@ def extract_stu_data(
     print(f"Registros de hoje: {total_registros}")
     print(f"Total de registros novos/alterados: {total_novos_registros}")
 
-    # TEMP: teste do #897 lê o bucket de prod em dev, então a limpeza só roda em prod
-    if not first_run and source.env == "prod":
+    if not first_run:
         print("Iniciando limpeza de arquivos antigos...")
         remove_arquivos(blobs=blobs, date=hoje, days=30)
 
