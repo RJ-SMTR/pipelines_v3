@@ -153,7 +153,8 @@
         full join sumario using (data, servico, faixa_horaria_inicio, sentido)
     {% endif %}
     where
-        quilometragem != distancia_total_planejada
+        quilometragem is distinct from distancia_total_planejada
+        and distancia_total_planejada is null
         {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
             or distancia_total_planejada != km_planejada_faixa
         {% endif %}
