@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 import pandas as pd
 import pendulum
+import polars as pl
 from croniter import croniter
 from pytz import timezone
 
@@ -52,16 +53,18 @@ def custom_serialization(obj: Any) -> Any:
     raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 
-def data_info_str(data: pd.DataFrame):
+def data_info_str(data: pd.DataFrame | pl.DataFrame):
     """
     Retorna as informações de um Dataframe como string
 
     Args:
-        data (pd.DataFrame): Dataframe para extrair as informações
+        data (pd.DataFrame | pl.DataFrame): Dataframe para extrair as informações
 
     Returns:
-        str: retorno do método data.info()
+        str: retorno do método data.info() (pandas) ou número de linhas e schema (Polars)
     """
+    if isinstance(data, pl.DataFrame):
+        return f"{data.height} linhas\n{data.schema}"
     buffer = io.StringIO()
     data.info(buf=buffer)
     return buffer.getvalue()
