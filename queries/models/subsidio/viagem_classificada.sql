@@ -62,31 +62,19 @@ with
             modo,
             tecnologia_apurada,
             tecnologia_remunerada,
-            case
-                when
-                    tipo_viagem not in (
-                        "Licenciado com ar e não autuado",
-                        "Licenciado sem ar e não autuado"
-                    )
-                then tipo_viagem
-                when indicador_detectado_ar_inoperante
-                then "Detectado com ar inoperante"
-                when indicador_sem_transacao_tipo
-                then
-                    case
-                        when
-                            data < date('{{ var("DATA_SUBSIDIO_V99_INICIO") }}')
-                            and not indicador_sem_transacao
-                            and indicador_estado_equipamento_aberto
-                        then tipo_viagem
-                        else "Sem transação"
-                    end
-                when indicador_validador_fechado
-                then "Validador fechado"
-                when indicador_validador_associado_incorretamente
-                then "Validador associado incorretamente"
-                else tipo_viagem
-            end as tipo_viagem,
+            {{
+                tipo_viagem_sppo(
+                    "data",
+                    "tipo_viagem",
+                    "indicador_detectado_ar_inoperante",
+                    sem_transacao="indicador_sem_transacao",
+                    sem_transacao_tipo="indicador_sem_transacao_tipo",
+                    estado_equipamento_aberto="indicador_estado_equipamento_aberto",
+                    validador_fechado="indicador_validador_fechado",
+                    validador_associado_incorretamente="indicador_validador_associado_incorretamente",
+                )
+            }}
+            as tipo_viagem,
             indicadores,
             servico,
             sentido,

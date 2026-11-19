@@ -210,6 +210,7 @@ with
             servico,
             sentido,
             distancia_planejada,
+            sistema,
             '{{ var("version") }}' as versao,
             datetime_verificacao_atual as datetime_ultima_atualizacao,
             id_execucao_dbt

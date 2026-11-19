@@ -8,6 +8,22 @@
 {% set date_range_start %} "{{ var('date_range_start') }}" {% endset %}
 {% set date_range_end %} "{{ var('date_range_end') }}" {% endset %}
 
+{% set aux_viagem_status = ref("aux_viagem_status") %}
+{% if execute %}
+    {% set modified_partitions = get_modified_partitions_filter(
+        aux_viagem_status,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+    {% set context_partitions = get_modified_partitions_filter(
+        aux_viagem_status,
+        include_adjacent=true,
+        truncate_date=true,
+        max_age_days=var("viagem_validacao_max_age_days", 6),
+    ) %}
+{% else %} {% set modified_partitions = [] %} {% set context_partitions = [] %}
+{% endif %}
+
 {% set eleicao_2026_excecao %}
     datetime_partida
     between datetime("2026-10-04 06:00:00") and datetime(
@@ -31,8 +47,13 @@ with
         from {{ ref("transacao") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`
         where
-            t.data between date({{ date_range_start }}) and date_add(
-                date({{ date_range_end }}), interval 1 day
+            (
+                t.data between date({{ date_range_start }}) and date_add(
+                    date({{ date_range_end }}), interval 1 day
+                )
+                {% if context_partitions | length > 0 %}
+                    or t.data in ({{ context_partitions | join(", ") }})
+                {% endif %}
             )
             and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
@@ -50,8 +71,13 @@ with
         from {{ ref("transacao_riocard") }} as t
         -- from `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao_riocard`
         where
-            t.data between date({{ date_range_start }}) and date_add(
-                date({{ date_range_end }}), interval 1 day
+            (
+                t.data between date({{ date_range_start }}) and date_add(
+                    date({{ date_range_end }}), interval 1 day
+                )
+                {% if context_partitions | length > 0 %}
+                    or t.data in ({{ context_partitions | join(", ") }})
+                {% endif %}
             )
             and date(t.datetime_processamento) - date(t.datetime_transacao)
             <= interval 6 day
@@ -75,7 +101,8 @@ with
             indicadores,
             servico,
             sentido,
-            distancia_planejada
+            distancia_planejada,
+            sistema
         from {{ ref("aux_viagem_status") }}
         where
             data >= date("{{ var('DATA_SUBSIDIO_V17_INICIO') }}")
@@ -83,6 +110,9 @@ with
                 data between date({{ date_range_start }}) and date({{ date_range_end }})
                 {% if target.name == "prod" %}
                     or data = date_sub(date({{ date_range_start }}), interval 1 day)
+                {% endif %}
+                {% if context_partitions | length > 0 %}
+                    or data in ({{ context_partitions | join(", ") }})
                 {% endif %}
             )
             and (sistema = "SPPO" or indicador_viagem_apurada)
@@ -154,7 +184,11 @@ with
     viagem_com_tolerancia as (
         select *
         from viagem_com_tolerancia_previa
-        where data between date({{ date_range_start }}) and date({{ date_range_end }})
+        where
+            data between date({{ date_range_start }}) and date({{ date_range_end }})
+            {% if modified_partitions | length > 0 %}
+                or data in ({{ modified_partitions | join(", ") }})
+            {% endif %}
     ),
 
     -- Contagem de transações Jaé
@@ -413,7 +447,8 @@ select
     f.indicador_estado_equipamento_aberto,
     v.datetime_partida_com_tolerancia as datetime_partida_bilhetagem,
     v.datetime_partida,
-    v.datetime_chegada
+    v.datetime_chegada,
+    v.sistema
 from viagem_com_tolerancia as v
 left join
     estado_equipamento_perc as eep on v.data = eep.data and v.id_viagem = eep.id_viagem

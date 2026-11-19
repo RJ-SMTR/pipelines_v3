@@ -99,6 +99,8 @@ models:
         tests:
           - not_null:
               name: not_null__distancia_planejada__aux_viagem_temperatura
+      - name: sistema
+        description: "{{ doc('sistema') }}"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: versao

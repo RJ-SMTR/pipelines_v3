@@ -44,7 +44,7 @@ with
             any_value(km_remuneravel_faixa) as km_remuneravel_faixa,
             any_value(km_ponderada_ipa_faixa) as km_ponderada_ipa_faixa_openfisca
         from {{ ref("aux_viagem_apurada") }}
-        where {{ incremental_filter }} and id_apuracao is not null
+        where {{ incremental_filter }}
         group by data, servico, sentido, faixa_horaria_inicio
     ),
     apuracao_lote_dia as (

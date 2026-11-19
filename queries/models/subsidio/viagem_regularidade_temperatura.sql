@@ -23,6 +23,7 @@ with
             tecnologia_apurada,
             tecnologia_remunerada,
             tipo_viagem,
+            indicador_detectado_ar_inoperante,
             indicador_regularidade_ar_condicionado_viagem,
             indicador_falha_recorrente,
             data_verificacao_falha,
@@ -31,7 +32,7 @@ with
             sentido,
             distancia_planejada
         from {{ ref("aux_viagem_regularidade_temperatura") }}
-        where {{ incremental_filter }}
+        where {{ incremental_filter }} and sistema = "SPPO"
     )
 select
     data,
@@ -43,7 +44,13 @@ select
     ano_fabricacao,
     tecnologia_apurada,
     tecnologia_remunerada,
-    tipo_viagem,
+    {{
+        tipo_viagem_sppo(
+            "data",
+            "tipo_viagem",
+            "coalesce(indicador_detectado_ar_inoperante, false)",
+        )
+    }} as tipo_viagem,
     json_set(
         json_set(
             json_set(

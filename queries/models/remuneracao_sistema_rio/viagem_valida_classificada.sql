@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('aux_viagem_status') }}
 {{
     config(
         materialized="incremental",
@@ -45,7 +46,9 @@ select
         '|',
         c.id_veiculo,
         '|',
-        format_datetime('%Y-%m-%dT%H:%M:%S', current_datetime("America/Sao_Paulo"))
+        format_datetime(
+            '%Y-%m-%dT%H:%M:%S', current_datetime("America/Sao_Paulo")
+        )
     ) as id_apuracao,
     c.data,
     c.id_viagem,
@@ -53,11 +56,12 @@ select
     c.datetime_chegada,
     ifnull(c.tipo_execucao_viagem, "COMPLETA")
     != "INCOMPLETA" as indicador_viagem_completa,
+    -- Temporário: vistoria não invalida viagem do sistema RIO.
+    -- A frota nova não tem data_ultima_vistoria no STU.
     not (
         c.indicador_validador_associado_incorretamente
         or c.indicador_autuado_vista_inoperante
         or c.indicador_nao_licenciado
-        or c.indicador_nao_vistoriado
         or c.indicador_lacrado
         or c.indicador_sem_transacao_tipo
         or c.indicador_validador_fechado
@@ -69,7 +73,6 @@ select
         c.indicador_validador_associado_incorretamente
         or c.indicador_autuado_vista_inoperante
         or c.indicador_nao_licenciado
-        or c.indicador_nao_vistoriado
         or c.indicador_lacrado
         or c.indicador_sem_transacao_tipo
         or c.indicador_validador_fechado

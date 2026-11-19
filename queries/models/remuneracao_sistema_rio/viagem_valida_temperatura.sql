@@ -51,4 +51,4 @@ select
     "{{ var('version') }}" as versao,
     '{{ invocation_id }}' as id_execucao_dbt
 from {{ ref("aux_viagem_regularidade_temperatura") }}
-where {{ incremental_filter }}
+where {{ incremental_filter }} and sistema = "RIO"

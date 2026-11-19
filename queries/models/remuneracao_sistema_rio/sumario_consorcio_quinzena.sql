@@ -10,8 +10,15 @@
     )
 }}
 
+{% set data_inicio %}
+    {{ inicio_quinzena("date('" ~ var("date_range_start") ~ "')") }}
+{% endset %}
+{% set data_fim %}
+    {{ fim_quinzena("date('" ~ var("date_range_end") ~ "')") }}
+{% endset %}
+
 {% set incremental_filter %}
-    data between date('{{ var("date_range_start") }}') and date('{{ var("date_range_end") }}')
+    data between {{ data_inicio }} and {{ data_fim }}
 {% endset %}
 
 {% set dias_capex %}
@@ -81,9 +88,9 @@ with
             sum(valor_total_transacao_bruto) as receita_tarifa_publica_dia
         from {{ ref("bilhetagem_consorcio_operador_dia") }}
         where
-            data_ordem between date_add(
-                date('{{ var("date_range_start") }}'), interval 1 day
-            ) and date_add(date('{{ var("date_range_end") }}'), interval 1 day)
+            data_ordem between date_add({{ data_inicio }}, interval 1 day) and date_add(
+                {{ data_fim }}, interval 1 day
+            )
         group by data, consorcio
     ),
     receita_quinzena as (

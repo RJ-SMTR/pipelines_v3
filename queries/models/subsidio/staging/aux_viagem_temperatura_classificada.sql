@@ -1,8 +1,7 @@
 {{ config(materialized="ephemeral") }}
 
 {% set aux_viagem_status = ref("aux_viagem_status") %}
-{# Efêmero não tem is_incremental(); o full-refresh do modelo que o embute vale aqui. #}
-{% if execute and not flags.FULL_REFRESH %}
+{% if execute %}
     {% set modified_partitions = get_modified_partitions_filter(
         aux_viagem_status,
         truncate_date=true,
@@ -63,7 +62,8 @@ with
             tecnologia_apurada,
             tecnologia_remunerada,
             sentido,
-            modo
+            modo,
+            sistema
         from {{ aux_viagem_status }} as v
         where {{ partition_filter }}
     ),
@@ -574,6 +574,7 @@ with
             v.distancia_planejada,
             v.tecnologia_apurada,
             v.tecnologia_remunerada,
+            v.sistema,
             iv.quantidade_pre_tratamento,
             iv.quantidade_nula,
             iv.quantidade_zero,
