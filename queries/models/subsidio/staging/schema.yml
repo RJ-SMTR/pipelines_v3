@@ -99,6 +99,8 @@ models:
         tests:
           - not_null:
               name: not_null__distancia_planejada__aux_viagem_temperatura
+      - name: sistema
+        description: "{{ doc('sistema') }}"
       - name: datetime_ultima_atualizacao
         description: "{{ doc('datetime_ultima_atualizacao') }}"
       - name: versao
@@ -119,3 +121,70 @@ models:
         description: "{{ doc('column_name') }}"
       - name: valor
         description: "Valor"
+
+  - name: aux_viagem_status
+    description: >
+      Base comum de SPPO e Sistema RIO com status do veículo, tecnologia,
+      autuações e a faixa de oferta. O SPPO anterior à V25 vem de
+      `viagem_completa`; a partir da V25, SPPO e RIO vêm de `viagem_valida`.
+      `tipo_viagem` aqui é o tipo do status, antes de temperatura e bilhetagem.
+      `indicador_viagem_apurada` é a partida dentro de `servico_oferta_faixa`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: dbt_utils__unique_combination_of_columns__aux_viagem_status
+          config:
+            description: "Todos os registros são únicos"
+          arguments:
+            combination_of_columns:
+              - data
+              - id_viagem
+    columns:
+      - name: data
+        description: "{{ doc('data_viagem') }} [partição]"
+        tests:
+          - not_null:
+              name: not_null__data__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `data` não nulos"
+      - name: id_viagem
+        description: "{{ doc('id_viagem') }}"
+        tests:
+          - not_null:
+              name: not_null__id_viagem__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `id_viagem` não nulos"
+      - name: id_veiculo
+        description: "{{ doc('id_veiculo') }}"
+      - name: id_veiculo_join
+        description: >
+          Chave de veículo para a Jaé: `substr(id_veiculo, 2)` no SPPO e
+          `id_veiculo` no RIO
+      - name: sistema
+        description: "{{ doc('sistema') }}"
+      - name: tipo_viagem
+        description: "{{ doc('tipo_viagem_status') }}"
+      - name: tipo_execucao_viagem
+        description: "{{ doc('tipo_execucao_viagem') }}"
+      - name: km_percorrida_gps
+        description: "Km dos segmentos com GPS, calculada em `viagem_validacao`"
+      - name: indicador_viagem_apurada
+        description: >
+          true quando `faixa_horaria_inicio` da oferta não é nula. A viagem
+          fora do quadro permanece no status.
+        tests:
+          - not_null:
+              name: not_null__indicador_viagem_apurada__aux_viagem_status
+              config:
+                description: "Todos os valores da coluna `indicador_viagem_apurada` não nulos"
+      - name: lote
+        description: "Lote da faixa de oferta"
+      - name: faixa_horaria_inicio
+        description: "Início da faixa de oferta da partida"
+      - name: faixa_horaria_fim
+        description: "Fim da faixa de oferta da partida"
+      - name: menor_tecnologia_permitida
+        description: "Menor tecnologia permitida para o serviço"
+      - name: maior_tecnologia_permitida
+        description: "Maior tecnologia permitida para o serviço"
+      - name: indicadores
+        description: "{{ doc('indicadores_veiculo') }}"

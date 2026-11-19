@@ -74,6 +74,8 @@ select
     vv.feed_start_date,
     vv.distancia_planejada,
     vv.velocidade_media,
+    vv.tipo_execucao_viagem,
+    vv.km_percorrida_gps,
     current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
     '{{ var("version") }}' as versao,
     '{{ invocation_id }}' as id_execucao_dbt
