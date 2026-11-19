@@ -26,7 +26,7 @@ with
             - ifnull(a.quantidade_vaga_idoso, 0)
             - ifnull(a.quantidade_vaga_pcd, 0)
             - safe_cast(
-                floor(ifnull(quantidade_vaga_moto, 0) / 5) as int64
+                ceiling(ifnull(quantidade_vaga_moto, 0) / 5) as int64
             ) as quantidade_vaga_fisica,
             a.data_inicio_vigencia,
             a.data_fim_vigencia,
