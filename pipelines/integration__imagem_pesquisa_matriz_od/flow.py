@@ -1,29 +1,47 @@
 # -*- coding: utf-8 -*-
-import random
+from google.cloud import storage
+from prefect import runtime
 
-import pandas as pd
-from prefect import flow, task
-
-
-@task
-def use_pandas():
-    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
-    print(df)
-
-
-@task
-def get_customer_ids() -> list[str]:
-    return [f"customer{n}" for n in random.choices(range(100), k=10)]
-
-
-@task
-def process_customer(customer_id: str) -> str:
-    return f"Processed {customer_id}"
+from pipelines.common import constants as smtr_constants
+from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
+from pipelines.common.utils.prefect import flow
+from pipelines.integration__imagem_pesquisa_matriz_od import constants
+from pipelines.integration__imagem_pesquisa_matriz_od.tasks import (
+    generate_images,
+    get_date_range,
+    get_journeys,
+    save_run_on_redis,
+    upload_images_to_gcs,
+)
 
 
 @flow(log_prints=True)
-def integration__imagem_pesquisa_matriz_od() -> list[str]:
-    use_pandas()
-    customer_ids = get_customer_ids()
-    results = process_customer.map(customer_ids)
-    return results
+def integration__imagem_pesquisa_matriz_od(env: str, datetime_start: str, datetime_end: str):
+    env = get_run_env(env=env, deployment_name=runtime.deployment.name)
+    setup_env = setup_environment(env=env)
+    initialize_sentry(env)
+
+    datetime_start, datetime_end = get_date_range(
+        env=env, datetime_start=datetime_start, datetime_end=datetime_end, wait_for=[setup_env]
+    )
+
+    project_name = smtr_constants.PROJECT_NAME[env]
+
+    journey_filepath = get_journeys(
+        project_name=project_name,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+    )
+
+    bucket = storage.Client(project=project_name).bucket(bucket_name=constants.BUCKET_NAMES[env])
+
+    image_filepaths = generate_images(bucket_obj=bucket, journey_filepath=journey_filepath)
+
+    upload_images = upload_images_to_gcs(bucket_obj=bucket, filepaths=image_filepaths)
+
+    save_run_on_redis(
+        env=env,
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+        wait_for=[upload_images],
+    )
