@@ -12,7 +12,7 @@ from pipelines.common.utils.gcp.bigquery import SourceTable
 STU_SOURCE_NAME = "stu"
 STU_PRIVATE_BUCKET_NAMES = {
     "prod": "rj-smtr-stu-private",
-    "dev": "rj-smtr-dev-airbyte",
+    "dev": "rj-smtr-stu-private",  # TEMP: teste do #897, reverter antes do merge
 }
 
 STU_TABLE_CAPTURE_PARAMS = {
