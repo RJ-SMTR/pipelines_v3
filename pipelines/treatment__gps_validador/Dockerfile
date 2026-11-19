@@ -19,6 +19,6 @@ COPY ./pipelines/capture__jae_auxiliar ./pipelines/capture__jae_auxiliar/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

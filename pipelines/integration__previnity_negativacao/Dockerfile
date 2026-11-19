@@ -15,6 +15,6 @@ COPY ./pipelines/capture__serpro_autuacao ./pipelines/capture__serpro_autuacao/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

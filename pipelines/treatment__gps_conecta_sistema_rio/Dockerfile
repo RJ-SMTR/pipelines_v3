@@ -12,6 +12,6 @@ COPY ./pipelines/capture__conecta_sistema_rio_registros ./pipelines/capture__con
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

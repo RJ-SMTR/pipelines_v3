@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 
+extra=${1:?Specify an OpenMetadata extra such as dbt or bigquery}
 openmetadata_version=1.13.3.0
 # Keep dependency resolution within the last successful GTFS staging build.
 dependency_cutoff=2026-11-18T19:41:14Z
@@ -17,7 +18,7 @@ uv venv --python 3.11 "$venv_dir"
 uv --no-config pip install --no-cache \
     --exclude-newer "$dependency_cutoff" \
     --python "$venv_dir/bin/python" \
-    "openmetadata-ingestion[dbt]==$openmetadata_version"
+    "openmetadata-ingestion[$extra]==$openmetadata_version"
 
 # Verify that the CLI starts even with the flow's Python 3.13 settings.
 PYTHONHOME=/usr/local PYTHONPATH=/usr/local/lib/python3.13 \

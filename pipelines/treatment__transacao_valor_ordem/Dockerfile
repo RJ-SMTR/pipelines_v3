@@ -35,6 +35,6 @@ COPY ./pipelines/treatment__transacao_valor_ordem ./pipelines/treatment__transac
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

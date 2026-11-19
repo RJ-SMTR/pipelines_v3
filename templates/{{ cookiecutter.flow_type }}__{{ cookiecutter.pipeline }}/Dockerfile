@@ -11,7 +11,7 @@ COPY ./pipelines/{{ cookiecutter.flow_type }}__{{ cookiecutter.pipeline }} ./pip
 COPY ./pipelines/common/ ./pipelines/common/
 
 {% if cookiecutter.flow_type == "treatment" -%}
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 {%- endif %}
 

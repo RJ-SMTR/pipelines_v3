@@ -13,6 +13,6 @@ COPY ./pipelines/capture__sonda_registros ./pipelines/capture__sonda_registros/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

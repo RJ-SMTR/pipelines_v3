@@ -29,6 +29,6 @@ COPY ./pipelines/treatment__transacao ./pipelines/treatment__transacao/
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

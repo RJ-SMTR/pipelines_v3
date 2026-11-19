@@ -16,6 +16,6 @@ COPY ./pipelines/capture__jae_riorotativo_auxiliar ./pipelines/capture__jae_rior
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

@@ -10,17 +10,6 @@ COPY ./pipelines/integration__openmetadata_bigquery ./pipelines/integration__ope
 
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
-    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv python install 3.11 \
-    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
-    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv venv \
-    --python 3.11 /opt/openmetadata \
-    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache uv --no-config pip install --no-cache \
-    --exclude-newer 2026-11-18T19:41:14Z \
-    --python /opt/openmetadata/bin/python \
-    "openmetadata-ingestion[bigquery]==1.13.3.0" \
-    && PYTHONHOME=/usr/local PYTHONPATH=/usr/local/lib/python3.13 \
-    /opt/openmetadata/bin/python -I /opt/openmetadata/bin/metadata --version \
-    && rm -rf /tmp/openmetadata-uv-cache
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh bigquery
 
 RUN uv sync --all-packages

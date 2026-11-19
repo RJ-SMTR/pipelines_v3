@@ -14,6 +14,6 @@ COPY ./pipelines/integration__upload_transacao_cct ./pipelines/integration__uplo
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

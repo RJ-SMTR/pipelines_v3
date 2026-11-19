@@ -25,6 +25,6 @@ COPY ./pipelines/capture__jae_transacao_riocard ./pipelines/capture__jae_transac
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

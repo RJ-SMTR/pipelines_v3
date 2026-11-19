@@ -11,6 +11,6 @@ COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejame
 COPY ./pipelines/common/ ./pipelines/common/
 
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

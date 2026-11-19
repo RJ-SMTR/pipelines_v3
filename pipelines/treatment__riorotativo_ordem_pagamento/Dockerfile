@@ -28,6 +28,6 @@ COPY ./pipelines/common/ ./pipelines/common/
 
 COPY ./queries ./queries
 
-RUN sh ./pipelines/common/scripts/install-openmetadata.sh
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages
