@@ -6,6 +6,8 @@ Funções auxiliares para o flow de captura de dados do STU.
 import csv
 import json
 from datetime import datetime, timedelta
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pandas as pd
 
@@ -60,6 +62,25 @@ def remove_arquivos(blobs: list, date: datetime, days: int = 30) -> None:
         print("Nenhum arquivo antigo encontrado para deletar")
 
 
+def baixa_blob(file, local_dir: str) -> str:
+    """
+    Baixa um blob do GCS para um diretório local.
+
+    Baixar o arquivo inteiro antes de ler é mais rápido que ler o blob em streaming
+    com `blob.open()`, que faz uma requisição por bloco.
+
+    Args:
+        file: Blob do GCS
+        local_dir: Diretório local de destino
+
+    Returns:
+        str: Caminho do arquivo baixado
+    """
+    filepath = Path(local_dir) / file.name.split("/")[-1]
+    file.download_to_filename(str(filepath))
+    return str(filepath)
+
+
 def carrega_airbyte_data(file) -> pd.DataFrame:
     """
     Carrega e normaliza a coluna _airbyte_data de um arquivo CSV do Airbyte.
@@ -74,8 +95,9 @@ def carrega_airbyte_data(file) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Dados normalizados, colunas ordenadas, dtype string[pyarrow]
     """
-    with file.open("rt", encoding="utf-8") as csv_file:
-        df = pd.read_csv(csv_file, dtype=str, usecols=["_airbyte_data"])
+    with TemporaryDirectory() as local_dir:
+        filepath = baixa_blob(file=file, local_dir=local_dir)
+        df = pd.read_csv(filepath, dtype=str, usecols=["_airbyte_data"])
     data = pd.json_normalize(
         df["_airbyte_data"].apply(lambda raw: json.loads(raw, parse_int=str, parse_float=str))
     )
