@@ -37,6 +37,9 @@ async def capture__smtr_gtfs(
     if not tasks["should_capture"]:
         return
 
+    # TEMP: teste do #897 valida só a captura, sem disparar o tratamento
+    return
+
     capture_info = tasks["should_capture_result"].payload
     await run_subflow(
         env=tasks["env"],
