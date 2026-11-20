@@ -1,0 +1,92 @@
+models:
+  - name: survey_journeys
+    description: |
+      Uma linha por viagem (transações seguidas em um intevalo de 180 minutos). Contem as informações de embarque, 4 opções de desambarque e o nível de confiança da previsão.
+      Fonte:
+        - bilhetagem.transacao (dados de transação da Jaé);
+        - monitoramento.view_gps_onibus (dados de gps dos ônibus);
+        -  gtfs.trips, gtfs.stop_times, gtfs.stops, gtfs.routes (dados do GTFS)
+    columns:
+      - name: journey_key
+        description: Identificador único da viagem
+        data_type: string
+      - name: rider_id
+        description: Hash identificador do cliente que efetuou a viagem [protegido]
+        data_type: bytes
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3816523328506695485/policyTags/2168539910400644199'
+      - name: service_date
+        description: "{{ doc('data_transacao' ) }} [partição]"
+        data_type: date
+      - name: first_trip_sequence
+        description: trip_sequence (inteiro sequencial por dia e rider_id) da primeira transação da viagem
+        data_type: int64
+      - name: final_trip_sequence
+        description: trip_sequence (inteiro sequencial por dia e rider_id) da última transação da viagem
+        data_type: int64
+      - name: n_transfers
+        description: Quantidade de integrações feitas na viagem
+        data_type: int64
+      - name: boarding_time
+        description: Horário de embarque da primeira transação da viagem [GMT-3]
+        data_type: time
+      - name: boarding_servico
+        description: "{{ doc('servico_variacao' ) }} da primeira transação da viagem"
+        data_type: string
+      - name: boarding_stop_id
+        description: stop_id do GTFS em que o cliente embarcou na primeira transação da viagem
+        data_type: string
+      - name: boarding_stop_name
+        description: stop_name do GTFS em que o cliente embarcou na primeira transação da viagem
+        data_type: string
+      - name: final_leg_boarding_time
+        description: Horário de embarque da última transação da viagem [GMT-3]
+        data_type: time
+      - name: alighting_servico
+        description: "{{ doc('servico_variacao' ) }} da última transação da viagem"
+        data_type: string
+      - name: alighting_time
+        description: Horário de desambarque cálculado da última transação da viagem [GMT-3]
+        data_type: time
+      - name: predicted_walk_distance_m
+        description: Distância entre o local de desambarque cálculado da última transação da viagem e a local de embarque da próxima viagem
+        data_type: float64
+      - name: runner_up_walk_distance_m
+        description: Distância entre o local desambarque cálculado em segundo lugar da última transação da viagem e a local de embarque da próxima viagem
+        data_type: float64
+      - name: alighting_within_walk_cap
+        description: Indica se o a distância entre o desembarque e o próximo embarque está dentro do limite para caminhada
+        data_type: boolean
+      - name: confidence_tier
+        description: Nível de confiança da previsão
+        data_type: string
+      - name: direction_source
+        description: Fonte do dado de sentido da linha [transacao, gps inferred]
+        data_type: string
+      - name: stop_id_1
+        description: Primeira opção de stop_id do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_id_2
+        description: Segunda opção de stop_id do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_id_3
+        description: Terceira opção de stop_id do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_id_4
+        description: Quarta opção de stop_id do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_name_1
+        description: Primeira opção de stop_name do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_name_2
+        description: Segunda opção de stop_name do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_name_3
+        description: Terceira opção de stop_name do GTFS para desembarque da viagem
+        data_type: string
+      - name: stop_name_4
+        description: Quarta opção de stop_name do GTFS para desembarque da viagem
+        data_type: string
+      - name: prediction_slot
+        data_type: int64
+        description: Número da última opção considerada como 'prediction'

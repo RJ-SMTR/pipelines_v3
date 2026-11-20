@@ -606,3 +606,10 @@ sources:
 
     tables:
       - name: transacao
+
+  - name: mit_ipea_project_sandbox
+    database: rj-smtr-sandbox
+    schema: mit_ipea_project
+
+    tables:
+      - name: transacao_drc_sample
