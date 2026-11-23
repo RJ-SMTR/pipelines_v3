@@ -10,16 +10,6 @@ COPY ./pipelines/treatment__gtfs ./pipelines/treatment__gtfs/
 COPY ./pipelines/treatment__planejamento_diario ./pipelines/treatment__planejamento_diario/
 COPY ./pipelines/common/ ./pipelines/common/
 
-RUN UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
-    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv python install 3.11 \
-    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache \
-    UV_PYTHON_INSTALL_DIR=/opt/openmetadata-python uv venv \
-    --python 3.11 /opt/openmetadata \
-    && UV_CACHE_DIR=/tmp/openmetadata-uv-cache uv --no-config pip install --no-cache \
-    --python /opt/openmetadata/bin/python \
-    "openmetadata-ingestion[dbt]==1.13.3.0" \
-    && PYTHONHOME=/usr/local PYTHONPATH=/usr/local/lib/python3.13 \
-    /opt/openmetadata/bin/python -I /opt/openmetadata/bin/metadata --version \
-    && rm -rf /tmp/openmetadata-uv-cache
+RUN sh ./pipelines/common/scripts/install-openmetadata.sh dbt
 
 RUN uv sync --all-packages

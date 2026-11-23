@@ -710,8 +710,8 @@ models:
             compare_group_by:
               - servico
               - "if((sentido = 'C' and feed_start_date != '2026-10-04'), 'I', sentido)"
-            row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}'))"
-            compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and id_tipo_trajeto = 1"
+            row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and feed_start_date < date('{{ var('DATA_SUBSIDIO_V25_INICIO') }}')"
+            compare_row_condition: "feed_start_date = greatest('{{ var('data_versao_gtfs') }}', date('{{ var('DATA_GTFS_V5_INICIO') }}')) and feed_start_date < date('{{ var('DATA_SUBSIDIO_V25_INICIO') }}') and id_tipo_trajeto = 1"
       - dbt_utils.relationships_where:
           name: dbt_utils__relationships_where__servico_evento__ordem_servico_trajeto_alternativo_sentido
           config:
