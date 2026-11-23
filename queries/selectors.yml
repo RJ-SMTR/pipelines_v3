@@ -676,6 +676,8 @@ selectors:
         - method: fqn
           value: temperatura
         - method: fqn
+          value: aux_viagem_status
+        - method: fqn
           value: viagem_classificada
         - method: fqn
           value: aux_viagem_temperatura

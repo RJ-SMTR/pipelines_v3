@@ -108,7 +108,8 @@ with
             inicio_vigencia_tunel,
             fim_vigencia_tunel,
             indicador_tunel,
-            indicador_segmento_desconsiderado
+            indicador_segmento_desconsiderado,
+            comprimento_segmento
         from {{ ref("segmento_shape") }}
         {# from `rj-smtr.planejamento.segmento_shape` #}
         {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
@@ -296,12 +297,14 @@ with
                 cast(null as datetime) as datetime_processamento,
                 v.datetime_ultima_atualizacao as datetime_captura_viagem,
                 cast(null as string) as fonte_viagem,
+                cast(null as string) as tipo_execucao_viagem,
                 cast(null as string) as fonte_gps
             from {{ ref("viagem_inferida") }} v
         {% else %}
                 v.datetime_processamento,
                 v.datetime_captura as datetime_captura_viagem,
                 v.fonte_viagem,
+                v.tipo_execucao_viagem,
                 v.fonte_gps
             from {{ ref("viagem_informada_monitoramento") }} v
         {% endif %}
@@ -404,6 +407,7 @@ with
             v.route_id,
             v.shape_id,
             s.id_segmento,
+            s.comprimento_segmento,
             s.indicador_segmento_desconsiderado,
             spu.primeiro_segmento,
             spu.ultimo_segmento,
@@ -416,6 +420,7 @@ with
             v.datetime_processamento,
             v.datetime_captura_viagem,
             v.fonte_viagem,
+            v.tipo_execucao_viagem,
             v.fonte_gps
         from viagem v
         left join
@@ -502,6 +507,7 @@ select
     v.servico,
     v.sentido,
     v.quantidade_gps,
+    v.comprimento_segmento,
     v.indicador_segmento_desconsiderado,
     v.indicador_primeiro_segmento_valido,
     v.indicador_ultimo_segmento_valido,
@@ -514,6 +520,7 @@ select
     v.tipo_dia,
     v.fonte_gps,
     v.fonte_viagem,
+    v.tipo_execucao_viagem,
     v.datetime_processamento,
     v.datetime_captura_viagem,
     '{{ var("version") }}' as versao,
