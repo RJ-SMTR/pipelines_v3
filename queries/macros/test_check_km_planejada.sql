@@ -6,7 +6,13 @@
                 servico,
                 sentido,
                 faixa_horaria_inicio,
-                round(distancia_total_planejada, 3) as distancia_total_planejada
+                round(distancia_total_planejada, 3) as distancia_total_planejada,
+                -- Para o histórico, usa os tipos do calendário.
+                cast(
+                    null as array<
+                        struct<data_operacional date, tipo_dia string, tipo_os string>
+                    >
+                ) as dias_planejados
             from {{ ref("viagem_planejada") }}
             -- `rj-smtr.projeto_subsidio_sppo.viagem_planejada`
             where
@@ -17,18 +23,23 @@
 
             union all
 
-            select distinct
+            select
                 data,
                 servico,
                 sentido,
                 faixa_horaria_inicio,
-                round(quilometragem, 3) as distancia_total_planejada
+                round(quilometragem, 3) as distancia_total_planejada,
+                -- Preserva os tipos do planejamento, inclusive quando são nulos.
+                array_agg(
+                    struct(data as data_operacional, tipo_dia, tipo_os)
+                ) as dias_planejados
             from {{ ref("servico_planejado_faixa_horaria") }}
             where
                 data between date("{{ var('date_range_start') }}") and date(
                     "{{ var('date_range_end') }}"
                 )
                 and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+            group by all
         ),
         data_versao_efetiva as (
             select data, feed_start_date, tipo_os, tipo_dia
@@ -52,7 +63,6 @@
         os as (
             select
                 data,
-                feed_start_date,
                 servico,
                 left(sentido, 1) as sentido,
                 tipo_os,
@@ -73,7 +83,6 @@
             full outer union all by name
             select
                 data,
-                feed_start_date,
                 servico,
                 tipo_os,
                 tipo_dia,
@@ -104,19 +113,12 @@
                     split(faixa_horaria_inicio, ":")[safe_offset(0)] as int64
                 ) hour as faixa_horaria_inicio,
                 round(sum(quilometragem), 3) as quilometragem,
+                -- Total de partidas previstas na faixa pela OS.
                 sum(partidas) as partidas_os,
-                -- Aplica as exceções de test_consistencia_planejamento_feed.
-                logical_and(
-                    coalesce(
-                        feed_start_date in ('2026-10-04', '2026-10-25')
-                        or (
-                            feed_start_date >= '2026-10-19'
-                            and tipo_dia = 'Ponto Facultativo'
-                        )
-                        or (feed_start_date >= '2026-11-14' and tipo_os = 'Verão'),
-                        false
-                    )
-                ) as excecao_feed
+                -- Guarda a data e a classificação do calendário antes da virada do dia.
+                array_agg(
+                    struct(os.data as data_operacional, tipo_dia, tipo_os)
+                ) as dias_os
             from os
             group by all
         )
@@ -142,7 +144,7 @@
                     )
             )
         {% endif %}
-    select * except (partidas_os, excecao_feed)
+    select * except (partidas_os, dias_os, dias_planejados)
     from viagem_planejada p
     full join
         (
@@ -169,18 +171,49 @@
     {% endif %}
     where
         (
+            -- Considera apenas faixas com quilometragem na OS.
             quilometragem is not null
+            -- Detecta distância planejada diferente ou nula.
             and quilometragem is distinct from distancia_total_planejada
             and (
-                not excecao_feed
-                or (
+                -- Sinaliza a faixa ausente com partidas previstas mesmo nas exceções.
+                (
                     distancia_total_planejada is null
                     and partidas_os > 0
                     and p.data is null
                 )
+                -- Exceções adaptadas de test_consistencia_planejamento_feed.sql
+                -- para a data operacional. Uma data fora delas gera alerta.
+                or exists (
+                    select 1
+                    -- Usa o calendário para faixas ausentes ou do período histórico.
+                    from unnest(coalesce(p.dias_planejados, dias_os)) as dia_os
+                    where
+                        not coalesce(
+                            -- Dias de eleição, conforme o PR #818.
+                            dia_os.data_operacional
+                            in (date '2026-10-04', date '2026-10-25')
+                            -- Ponto Facultativo a partir de 19/10, a pedido de
+                            -- Matheus Dias Magalhães
+                            -- no grupo Domínio de Planejamento em 09/11/2026, às 17h55.
+                            or (
+                                dia_os.data_operacional >= date '2026-10-19'
+                                and dia_os.tipo_dia = 'Ponto Facultativo'
+                            )
+                            -- OS de Verão a partir de 14/11, a pedido de Matheus Dias
+                            -- Magalhães
+                            -- no grupo Domínio de Planejamento em 16/11/2026, às 19h43.
+                            or (
+                                dia_os.data_operacional >= date '2026-11-14'
+                                and dia_os.tipo_os = 'Verão'
+                            ),
+                            false
+                        )
+                )
             )
         )
         {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
+            -- Compara também a distância planejada com a quilometragem do sumário.
             or distancia_total_planejada != km_planejada_faixa
         {% endif %}
 {%- endtest %}
