@@ -52,7 +52,7 @@ SPPO_REALOCACAO_DATETIME_COLS = [
     "datetime_processamento",
 ]
 
-REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%f"]
+REALOCACAO_DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S%.f"]
 
 GPS_SOURCE_CONFIGS = {
     SONDA_SOURCE_NAME: {

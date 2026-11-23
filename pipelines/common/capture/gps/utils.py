@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-import pandas as pd
+import polars as pl
 
 from pipelines.common import constants as smtr_constants
 from pipelines.common.capture.default_capture.utils import SourceCaptureContext
@@ -120,79 +120,80 @@ def create_gps_extractor_kwargs(
     return extractor_kwargs
 
 
-def _convert_epoch_ms_to_utc_iso(series: pd.Series) -> pd.Series:
-    """Converte epoch (ms) em string ISO UTC."""
-    converted = pd.to_datetime(
-        pd.to_numeric(series, errors="coerce"), unit="ms", utc=True, errors="coerce"
+def parse_epoch_ms(column: str) -> pl.Expr:
+    """Converte epoch (ms), numérico ou texto, em datetime UTC. Valores inválidos viram nulo."""
+    epoch = pl.col(column).cast(pl.String).cast(pl.Float64, strict=False)
+    return pl.from_epoch(epoch.cast(pl.Int64, strict=False), time_unit="ms").dt.replace_time_zone(
+        "UTC"
     )
-    return converted.dt.strftime(OUTPUT_DATETIME_FORMAT)
 
 
-def _convert_naive_sp_to_utc_iso(series: pd.Series) -> pd.Series:
+def convert_epoch_ms_to_utc_iso(column: str) -> pl.Expr:
+    """Converte epoch (ms) em string ISO UTC."""
+    return parse_epoch_ms(column).dt.strftime(OUTPUT_DATETIME_FORMAT).alias(column)
+
+
+def convert_naive_sp_to_utc_iso(column: str) -> pl.Expr:
     """Converte string ISO sem timezone (assumida em America/Sao_Paulo) em string ISO UTC.
 
     Tenta múltiplos formatos. Valores que não casam com nenhum formato (e.g. sentinelas
     como '1971-01-01 00:00:00-0300') são preservados — o staging trata esses casos.
     """
-    parsed = pd.Series(pd.NaT, index=series.index)
-    for fmt in REALOCACAO_DATETIME_INPUT_FORMATS:
-        attempt = pd.to_datetime(series, format=fmt, errors="coerce")
-        parsed = parsed.fillna(attempt)
-
+    value = pl.col(column).cast(pl.String)
+    parsed = pl.coalesce(
+        value.str.to_datetime(format=fmt, time_unit="us", strict=False)
+        for fmt in REALOCACAO_DATETIME_INPUT_FORMATS
+    )
     converted = (
-        parsed.dt.tz_localize(smtr_constants.TIMEZONE, nonexistent="shift_forward", ambiguous="NaT")
-        .dt.tz_convert("UTC")
+        parsed.dt.replace_time_zone(smtr_constants.TIMEZONE, ambiguous="null", non_existent="null")
+        .dt.convert_time_zone("UTC")
         .dt.strftime(OUTPUT_DATETIME_FORMAT)
     )
-    return converted.fillna(series)
+    return converted.fill_null(value).alias(column)
 
 
 def pretreat_sonda_registros(
-    data: pd.DataFrame,
+    data: pl.DataFrame,
     context: SourceCaptureContext,
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """
     Renomeia colunas, converte datetimes e filtra registros antigos (> 1 min) do Sonda (BRT).
     """
-    data = data.rename(columns=SONDA_REGISTROS_RENAME)
-
-    # Converte para datetime para realizar o filtro
-    gps_datetime = pd.to_datetime(
-        pd.to_numeric(data["datetime"], errors="coerce"), unit="ms", utc=True
-    )
+    data = data.rename(SONDA_REGISTROS_RENAME, strict=False)
     capture_utc = context.timestamp.astimezone(ZoneInfo("UTC"))
 
+    # Converte para datetime para realizar o filtro
+    gps_datetime = parse_epoch_ms("datetime")
+
     # Remove registros com diferença maior que 1 minuto
-    diff_minutes = (capture_utc - gps_datetime).dt.total_seconds() / 60
-    data = data[diff_minutes.between(0, 1)].copy()
+    diff = pl.lit(capture_utc, dtype=pl.Datetime("us", "UTC")) - gps_datetime
+    data = data.filter(diff.is_between(timedelta(0), timedelta(minutes=1)))
 
     # Formata e preenche campos auxiliares para o staging_gps.sql
-    data["datetime"] = gps_datetime.dt.strftime(OUTPUT_DATETIME_FORMAT)
-    data["datetime_envio"] = data["datetime"]
-    data["datetime_servidor"] = capture_utc.strftime(OUTPUT_DATETIME_FORMAT)
-
-    return data
+    data = data.with_columns(convert_epoch_ms_to_utc_iso("datetime"))
+    return data.with_columns(
+        pl.col("datetime").alias("datetime_envio"),
+        pl.lit(capture_utc.strftime(OUTPUT_DATETIME_FORMAT)).alias("datetime_servidor"),
+    )
 
 
 def rename_sppo_registros(
-    data: pd.DataFrame,
+    data: pl.DataFrame,
     context: SourceCaptureContext,  # noqa: ARG001
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """Renomeia colunas e converte datetimes (epoch ms → ISO UTC) dos registros do SPPO."""
-    data = data.rename(columns=SPPO_REGISTROS_RENAME)
-    for col in SPPO_REGISTROS_DATETIME_COLS:
-        if col in data.columns:
-            data[col] = _convert_epoch_ms_to_utc_iso(data[col])
-    return data
+    data = data.rename(SPPO_REGISTROS_RENAME, strict=False)
+    return data.with_columns(
+        convert_epoch_ms_to_utc_iso(c) for c in SPPO_REGISTROS_DATETIME_COLS if c in data.columns
+    )
 
 
 def rename_sppo_realocacao(
-    data: pd.DataFrame,
+    data: pl.DataFrame,
     context: SourceCaptureContext,  # noqa: ARG001
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """Renomeia colunas e converte datetimes (naive SP → ISO UTC) das realocações do SPPO."""
-    data = data.rename(columns=SPPO_REALOCACAO_RENAME)
-    for col in SPPO_REALOCACAO_DATETIME_COLS:
-        if col in data.columns:
-            data[col] = _convert_naive_sp_to_utc_iso(data[col])
-    return data
+    data = data.rename(SPPO_REALOCACAO_RENAME, strict=False)
+    return data.with_columns(
+        convert_naive_sp_to_utc_iso(c) for c in SPPO_REALOCACAO_DATETIME_COLS if c in data.columns
+    )
