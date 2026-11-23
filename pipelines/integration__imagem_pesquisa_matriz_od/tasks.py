@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pandas_gbq
+from google.api_core.exceptions import NotFound
 from google.cloud import storage
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
-from pipelines.common import constants as smtr_constants
+from pipelines.common.tasks import get_scheduled_timestamp
 from pipelines.common.utils.redis import get_redis_client
+from pipelines.common.utils.utils import convert_timezone
 from pipelines.integration__imagem_pesquisa_matriz_od import constants
 from pipelines.integration__imagem_pesquisa_matriz_od.utils import (
     build_journey_image,
@@ -22,8 +23,21 @@ from pipelines.integration__imagem_pesquisa_matriz_od.utils import (
 
 @task(cache_policy=NO_CACHE)
 def get_date_range(
-    env: str, datetime_start: str | None, datetime_end: str | None
+    env: str,
+    datetime_start: str | None,
+    datetime_end: str | None,
 ) -> tuple[datetime, datetime]:
+    """
+    Retorna as datas de inicio e fim para a execução do flow com base nos parâmetros fornecidos.
+
+    Args:
+        env (str): prod ou dev.
+        datetime_start (Optional[str]): Parâmetro do flow de datetime início.
+        datetime_end (Optional[str]): Parâmetro do flow de datetime fim.
+    Returns:
+        datetime: datetime de início.
+        datetime: datetime de fim.
+    """
     if datetime_start is None:
         redis_client = get_redis_client()
         last_run = redis_client.get(f"{env}.{constants.REDIS_KEY_SUFIX}")
@@ -32,20 +46,40 @@ def get_date_range(
         else:
             last_run = last_run[constants.REDIS_DICT_KEY]
 
-    datetime_start = datetime.fromisoformat(last_run.get(constants.REDIS_DICT_KEY))
+    datetime_start = convert_timezone(
+        datetime.fromisoformat(last_run.get(constants.REDIS_DICT_KEY))
+    )
 
     if datetime_end is None:
-        datetime_end = datetime.now(tz=ZoneInfo(smtr_constants.TIMEZONE))
+        datetime_end = get_scheduled_timestamp()
     else:
         datetime_end = datetime.fromisoformat(datetime_end)
+
+    print(f"datetime_start: {datetime_start}")
+    print(f"datetime_end: {datetime_end}")
 
     return datetime_start, datetime_end
 
 
 @task(cache_policy=NO_CACHE)
-def get_journeys(project_name: str, datetime_start: datetime, datetime_end: datetime) -> Path:
-    datetime_start_str = datetime_start.isoformat()
-    datetime_end_str = datetime_end.isoformat()
+def get_journeys(
+    project_name: str,
+    datetime_start: datetime,
+    datetime_end: datetime,
+) -> Path:
+    """
+    Consulta a tabela de matriz OD do BigQuery e salva os dados como CSV.
+
+    Args:
+        project_name (str): Nome do projeto GCP.
+        datetime_start (datetime): Datetime de início.
+        datetime_end (datetime): Datetime de fim.
+
+    Returns:
+        Path: Caminho do CSV com os dados da consulta
+    """
+    datetime_start_str = datetime_start.strftime("%Y-%m-%d %H:%M:%S")
+    datetime_end_str = datetime_end.strftime("%Y-%m-%d %H:%M:%S")
     query = f"""
         SELECT
             j.journey_key,
@@ -69,6 +103,8 @@ def get_journeys(project_name: str, datetime_start: datetime, datetime_end: date
 
     save_filepath = constants.JOUNEYS_DATA_FILEPATH
 
+    save_filepath.parent.mkdir(parents=True, exist_ok=True)
+
     pandas_gbq.read_gbq(
         query,
         project_id=project_name,
@@ -91,6 +127,16 @@ def get_journeys(project_name: str, datetime_start: datetime, datetime_end: date
 
 @task(cache_policy=NO_CACHE)
 def generate_images(bucket_obj: storage.Bucket, journey_filepath: Path) -> list[Path]:
+    """
+    Gera as imagens com o grid com as 4 opções de desembarque.
+
+    Args:
+        bucket_obj (storage.Bucket): Objeto de Bucket GCS.
+        journey_filepath: (Path): Caminho do CSV com os dados das viagens.
+
+    Returns:
+        list[Path]: Lista com os caminhos das imagens.
+    """
     df_jouney = pd.read_csv(str(journey_filepath), chunksize=2000)
     font = load_font("DejaVuSans-Bold.ttf", 80)
     caption_font = load_font("DejaVuSans.ttf", 18)
@@ -100,21 +146,31 @@ def generate_images(bucket_obj: storage.Bucket, journey_filepath: Path) -> list[
     for chunk in df_jouney:
         for _, row in chunk.iterrows():
             stop_info = {row[f"stop_id_{i}"]: row[f"stop_name_{i}"] for i in range(1, 5)}
-            result_paths.append(
-                build_journey_image(
-                    bucket_obj=bucket_obj,
-                    journey_key=row["journey_key"],
-                    stop_info=stop_info,
-                    font=font,
-                    caption_font=caption_font,
-                    downloaded_images=downloaded_images,
+            try:
+                result_paths.append(
+                    build_journey_image(
+                        bucket_obj=bucket_obj,
+                        journey_key=row["journey_key"],
+                        stop_info=stop_info,
+                        font=font,
+                        caption_font=caption_font,
+                        downloaded_images=downloaded_images,
+                    )
                 )
-            )
+            except NotFound:
+                continue
     return result_paths
 
 
 @task(cache_policy=NO_CACHE)
 def upload_images_to_gcs(bucket_obj: storage.Bucket, filepaths: list[Path]):
+    """
+    Faz upload das imagens para o GCS
+
+    Args:
+        bucket_obj (storage.Bucket): Objeto de Bucket GCS.
+        filepaths (list[Path]): Lista com os caminhos das imagens.
+    """
     for path in filepaths:
         upload_image_to_gcs(bucket_obj=bucket_obj, image_local_path=path)
 
@@ -125,19 +181,24 @@ def save_run_on_redis(
     datetime_start: datetime,
     datetime_end: datetime,
 ):
+    """
+    env (str): prod ou dev.
+    datetime_start (datetime): Datetime de início da execução.
+    datetime_end (datetime): Datetime de fim da execução.
+    """
     redis_key = f"{env}.{constants.REDIS_KEY_SUFIX}"
     redis_client = get_redis_client()
     result = redis_client.get(redis_key)
 
     if result is None:
         result = {}
-        last_run = {constants.REDIS_DICT_KEY: constants.FIRST_TIMESTAMP}
+        last_run = constants.FIRST_TIMESTAMP
     else:
         last_run = last_run[constants.REDIS_DICT_KEY]
 
-    last_run = datetime.fromisoformat(
-        redis_client.get(redis_key) or {constants.REDIS_DICT_KEY: constants.FIRST_TIMESTAMP}
-    )
+    last_run = convert_timezone(datetime.fromisoformat(last_run))
+
+    print(f"Valor atual: {last_run}")
 
     if last_run < datetime_end and last_run >= datetime_start:
         result[constants.REDIS_DICT_KEY] = datetime_end.isoformat()

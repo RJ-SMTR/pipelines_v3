@@ -3,7 +3,6 @@
 import re
 from pathlib import Path
 
-import pandas_gbq
 from google.cloud import storage
 from PIL import Image, ImageDraw, ImageFont
 
@@ -11,7 +10,13 @@ from pipelines.common.utils.google_drive import read_google_sheets
 from pipelines.integration__imagem_pesquisa_matriz_od import constants
 
 
-def get_volunteers():
+def get_volunteers() -> list[str]:
+    """
+    Lê os dados da planilha de voluntários da pesquisa de Matriz OD e retorna os CPFs
+
+    Returns:
+        list[str]: Lista com os CPFs dos voluntários
+    """
     df = read_google_sheets(
         spread_sheet_id=constants.VOLUNTEER_SPREAD_SHEET_ID,
         sheet_name=constants.VOLUNTEER_SHEET_NAME,
@@ -36,26 +41,6 @@ def load_font(name: str, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageF
     except OSError:
         print(f"Aviso: fonte '{name}' não encontrada; usando a fonte padrão.")
         return ImageFont.load_default(size=size)
-
-
-def load_captions(project_id: str) -> dict[str, str]:
-    """
-    Lê a tabela stops do GTFS e gera um dicionário para relacionar stop_id com stop_name.
-
-    Returns:
-        dict[str, str]: dicionário no formato {stop_id: stop_name}."""
-    query = f"""
-        SELECT stop_id, stop_name
-        FROM {constants.STOPS_TABLE}
-        QUALIFY row_number() OVER (PARTITION BY stop_id ORDER BY feed_start_date) = 1
-    """
-    df = pandas_gbq.read_gbq(
-        query,
-        project_id=project_id,
-    )
-
-    df = df.dropna(subset=["stop_name"])
-    return dict(zip(df["stop_id"], df["stop_name"].astype(str), strict=False))
 
 
 def annotate_image(  # noqa: PLR0913
@@ -158,7 +143,19 @@ def download_image_from_gcs(
     stop_id: str,
     local_folder: str,
     downloaded_images: list,
-):
+) -> Path:
+    """
+    Faz o download de uma imagem de stop no GCS
+
+    Args:
+        bucket_obj (storage.Bucket): Objeto de Bucket GCS.
+        stop_id (str): Identificador do stop no GTFS.
+        local_folder (str): Pasta para salvar as imagens.
+        downloaded_images (list): Lista contendo os stop_ids que já foram baixados.
+
+    Returns:
+        Path: Caminho da imagem salva
+    """
     blob_name = f"{constants.GCS_IMAGE_SOURCE_DIR}/stop_id_{stop_id}.png"
     blob = bucket_obj.blob(blob_name)
     local_folder = Path(local_folder)
@@ -186,6 +183,17 @@ def build_journey_image(  # noqa: PLR0913
 ) -> Path:
     """
     Gera a imagem final com as 4 opções de desembarque.
+
+    Args:
+        bucket_obj (storage.Bucket): Objeto de Bucket GCS.
+        journey_key (str): Identificador da viagem.
+        stop_info (dict[str, str]): Dicionário no formato {<stop_id>: <stop_name>}.
+        font (ImageFont.FreeTypeFont | ImageFont.ImageFont): Fonte da letra.
+        caption_font (ImageFont.FreeTypeFont | ImageFont.ImageFont): Fonte da legenda.
+        downloaded_images (list): Lista contendo os stop_ids que já foram baixados.
+
+    Returns:
+        Path: Caminho em que a imagem foi salva.
     """
 
     stop_ids = stop_info.keys()
@@ -222,6 +230,13 @@ def build_journey_image(  # noqa: PLR0913
 
 
 def upload_image_to_gcs(bucket_obj: storage.Bucket, image_local_path: Path):
+    """
+    Faz upload das imagens finais para o GCS.
+
+    Args:
+        bucket_obj (storage.Bucket): Objeto de Bucket GCS.
+        image_local_path (Path): Pasta local com a imagem.
+    """
     blob_name = f"{constants.GCS_OUT_DIR}/{image_local_path.name}"
     blob = bucket_obj.blob(blob_name)
     blob.upload_from_filename(str(image_local_path))

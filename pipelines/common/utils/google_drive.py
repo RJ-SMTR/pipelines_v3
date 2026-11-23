@@ -51,7 +51,23 @@ def read_google_sheets(  # noqa: PLR0913
     rename_mapping: Optional[dict[str, str]] = None,
     dtypes: Optional[str | type | dict[str, Any]] = None,
     parse_dates: Optional[dict[str, dict]] = None,
-):
+) -> pd.DataFrame:
+    """
+    Lê uma planilha do Google Sheets e retorna os dados como um DataFrame Pandas
+
+    Args:
+        spread_sheet_id: ID da planilha
+        sheet_name: Nome da aba
+        filter_expr: Expressão de filtro opcional
+        raw_filepath: Se fornecido, salva o CSV neste caminho e retorna [filepath]
+        rename_mapping: Dicionário com mapeamento de renomeação de colunas
+        dtypes: Mapeamento ``coluna -> dtype``
+        parse_dates: Mapeamento ``coluna -> kwargs`` repassados a ``pd.to_datetime`` (ex.:
+            ``{"dia": {"format": "%d/%m/%Y"}}``)
+
+        Returns:
+            pd.DataFrame: DataFrame Pandas com os dados da planilha
+    """
     sheets_service = get_google_api_service(service_name="sheets", version="v4")
 
     file = (

@@ -16,7 +16,11 @@ from pipelines.integration__imagem_pesquisa_matriz_od.tasks import (
 
 
 @flow(log_prints=True)
-def integration__imagem_pesquisa_matriz_od(env: str, datetime_start: str, datetime_end: str):
+def integration__imagem_pesquisa_matriz_od(
+    env: str | None = None,
+    datetime_start: str | None = None,
+    datetime_end: str | None = None,
+):
     env = get_run_env(env=env, deployment_name=runtime.deployment.name)
     setup_env = setup_environment(env=env)
     initialize_sentry(env)
