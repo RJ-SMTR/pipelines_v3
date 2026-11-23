@@ -169,9 +169,16 @@
     {% endif %}
     where
         (
-            quilometragem is distinct from distancia_total_planejada
-            and distancia_total_planejada is null
-            and ((partidas_os > 0 and p.data is null) or not excecao_feed)
+            quilometragem is not null
+            and quilometragem is distinct from distancia_total_planejada
+            and (
+                not excecao_feed
+                or (
+                    distancia_total_planejada is null
+                    and partidas_os > 0
+                    and p.data is null
+                )
+            )
         )
         {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
             or distancia_total_planejada != km_planejada_faixa
