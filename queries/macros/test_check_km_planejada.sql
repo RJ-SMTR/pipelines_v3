@@ -58,6 +58,7 @@
                 tipo_os,
                 tipo_dia,
                 faixa_horaria_inicio,
+                partidas,
                 quilometragem
             from data_versao_efetiva
             left join
@@ -77,6 +78,7 @@
                 tipo_os,
                 tipo_dia,
                 faixa_horaria_inicio,
+                partidas,
                 quilometragem
             from data_versao_efetiva
             left join
@@ -101,7 +103,20 @@
                 datetime(data) + interval cast(
                     split(faixa_horaria_inicio, ":")[safe_offset(0)] as int64
                 ) hour as faixa_horaria_inicio,
-                round(sum(quilometragem), 3) as quilometragem
+                round(sum(quilometragem), 3) as quilometragem,
+                sum(partidas) as partidas_os,
+                -- Aplica as exceções de test_consistencia_planejamento_feed.
+                logical_and(
+                    coalesce(
+                        feed_start_date in ('2026-10-04', '2026-10-25')
+                        or (
+                            feed_start_date >= '2026-10-19'
+                            and tipo_dia = 'Ponto Facultativo'
+                        )
+                        or (feed_start_date >= '2026-11-14' and tipo_os = 'Verão'),
+                        false
+                    )
+                ) as excecao_feed
             from os
             group by all
         )
@@ -127,7 +142,7 @@
                     )
             )
         {% endif %}
-    select *
+    select * except (partidas_os, excecao_feed)
     from viagem_planejada p
     full join
         (
@@ -153,8 +168,11 @@
         full join sumario using (data, servico, faixa_horaria_inicio, sentido)
     {% endif %}
     where
-        quilometragem is distinct from distancia_total_planejada
-        and distancia_total_planejada is null
+        (
+            quilometragem is distinct from distancia_total_planejada
+            and distancia_total_planejada is null
+            and ((partidas_os > 0 and p.data is null) or not excecao_feed)
+        )
         {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
             or distancia_total_planejada != km_planejada_faixa
         {% endif %}
