@@ -148,67 +148,136 @@ with
             {% else %} service_date >= '{{ var("mit_ipea_project_initial_date") }}'
 
             {% endif %}
+    ),
+    new_data as (
+        select
+            j.rider_id,
+            j.service_date,
+            j.first_trip_sequence,
+            j.final_trip_sequence,
+            j.n_transfers,
+            first_leg.boarding_time,
+            first_leg.servico as boarding_servico,
+            first_od.boarding_stop_id,
+            boarding_stop.stop_name as boarding_stop_name,
+            final_leg.boarding_time as final_leg_boarding_time,
+            final_leg.servico as alighting_servico,
+            final_od.alighting_time,
+            final_od.alighting_to_next_boarding_distance_m as predicted_walk_distance_m,
+            final_od.runner_up_walk_distance_m,
+            final_od.alighting_within_walk_cap,
+            final_od.confidence_tier,
+            final_od.direction_source,
+            o.stop_id_1,
+            o.stop_id_2,
+            o.stop_id_3,
+            o.stop_id_4,
+            o.stop_name_1,
+            o.stop_name_2,
+            o.stop_name_3,
+            o.stop_name_4,
+            o.prediction_slot
+        from journeys as j
+        join
+            legs as first_leg
+            on first_leg.rider_id = j.rider_id
+            and first_leg.service_date = j.service_date
+            and first_leg.trip_sequence = j.first_trip_sequence
+        join
+            legs as final_leg
+            on final_leg.rider_id = j.rider_id
+            and final_leg.service_date = j.service_date
+            and final_leg.trip_sequence = j.final_trip_sequence
+        left join
+            origin_destination_stop as first_od
+            on first_od.rider_id = j.rider_id
+            and first_od.service_date = j.service_date
+            and first_od.trip_sequence = j.first_trip_sequence
+        join
+            origin_destination_stop as final_od
+            on final_od.rider_id = j.rider_id
+            and final_od.service_date = j.service_date
+            and final_od.trip_sequence = j.final_trip_sequence
+        join
+            options as o
+            on o.rider_id = j.rider_id
+            and o.service_date = j.service_date
+            and o.trip_sequence = j.final_trip_sequence
+        left join
+            stops as boarding_stop
+            on boarding_stop.stop_id = first_od.boarding_stop_id
+            and j.service_date >= boarding_stop.feed_start_date
+            and (
+                j.service_date <= boarding_stop.feed_start_date
+                or j.service_date is null
+            )
+        where
+            final_leg.mode = 'Ônibus'
+            and final_od.alighting_stop_id is not null
+            and o.n_options = 4
+    ),
+    {% if is_incremental() %}
+        current_data as (
+            select *
+            from {{ this }}
+            where
+                service_date between date("{{ var('date_range_start') }}") and date(
+                    "{{ var('date_range_end') }}"
+                )
+
+        ),
+    {% endif %}
+    new_data_sha as (select *, {{ sha_column }} as new_sha from new_data),
+    current_data_sha as (
+        {% if is_incremental() %}
+
+            select
+                journey_key,
+                rider_id,
+                service_date,
+                first_trip_sequence,
+                {{ sha_column }} as current_sha,
+                datetime_ultima_atualizacao as current_datetime_ultima_atualizacao,
+                id_execucao_dbt as current_id_execucao_dbt
+            from dados_atuais
+
+        {% else %}
+            select
+                cast(null as string) as journey_key,
+                cast(null as bytes) as rider_id,
+                cast(null as date) as service_date,
+                cast(null as int64) as first_trip_sequence,
+                cast(null as bytes) as current_sha,
+                datetime(null) as current_datetime_ultima_atualizacao,
+                cast(null as string) as current_id_execucao_dbt
+        {% endif %}
+    ),
+    sha_join as (
+        select n.*, c.* except (rider_id, service_date, first_trip_sequence)
+        from new_data_sha n
+        left join current_data_sha c using (rider_id, service_date, first_trip_sequence)
+    ),
+    control_columns as (
+        select
+            ifnull(journey_key, generate_uuid()) as journey_key,
+            * except (
+                new_sha,
+                current_sha,
+                current_datetime_ultima_atualizacao,
+                current_id_execucao_dbt
+            ),
+            '{{ var("version") }}' as versao,
+            case
+                when current_sha is null or new_sha != current_sha
+                then current_datetime("America/Sao_Paulo")
+                else current_datetime_ultima_atualizacao
+            end as datetime_ultima_atualizacao,
+            case
+                when current_sha is null or new_sha != current_sha
+                then '{{ invocation_id }}'
+                else current_id_execucao_dbt
+            end as id_execucao_dbt
+        from sha_dados_completos
     )
-select
-    generate_uuid() as journey_key,
-    j.rider_id,
-    j.service_date,
-    j.first_trip_sequence,
-    j.final_trip_sequence,
-    j.n_transfers,
-    first_leg.boarding_time,
-    first_leg.servico as boarding_servico,
-    first_od.boarding_stop_id,
-    boarding_stop.stop_name as boarding_stop_name,
-    final_leg.boarding_time as final_leg_boarding_time,
-    final_leg.servico as alighting_servico,
-    final_od.alighting_time,
-    final_od.alighting_to_next_boarding_distance_m as predicted_walk_distance_m,
-    final_od.runner_up_walk_distance_m,
-    final_od.alighting_within_walk_cap,
-    final_od.confidence_tier,
-    final_od.direction_source,
-    o.stop_id_1,
-    o.stop_id_2,
-    o.stop_id_3,
-    o.stop_id_4,
-    o.stop_name_1,
-    o.stop_name_2,
-    o.stop_name_3,
-    o.stop_name_4,
-    o.prediction_slot
-from journeys as j
-join
-    legs as first_leg
-    on first_leg.rider_id = j.rider_id
-    and first_leg.service_date = j.service_date
-    and first_leg.trip_sequence = j.first_trip_sequence
-join
-    legs as final_leg
-    on final_leg.rider_id = j.rider_id
-    and final_leg.service_date = j.service_date
-    and final_leg.trip_sequence = j.final_trip_sequence
-left join
-    origin_destination_stop as first_od
-    on first_od.rider_id = j.rider_id
-    and first_od.service_date = j.service_date
-    and first_od.trip_sequence = j.first_trip_sequence
-join
-    origin_destination_stop as final_od
-    on final_od.rider_id = j.rider_id
-    and final_od.service_date = j.service_date
-    and final_od.trip_sequence = j.final_trip_sequence
-join
-    options as o
-    on o.rider_id = j.rider_id
-    and o.service_date = j.service_date
-    and o.trip_sequence = j.final_trip_sequence
-left join
-    stops as boarding_stop
-    on boarding_stop.stop_id = first_od.boarding_stop_id
-    and j.service_date >= boarding_stop.feed_start_date
-    and (j.service_date <= boarding_stop.feed_start_date or j.service_date is null)
-where
-    final_leg.mode = 'Ônibus'
-    and final_od.alighting_stop_id is not null
-    and o.n_options = 4
+select *
+from control_columns

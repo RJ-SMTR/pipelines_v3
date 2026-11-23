@@ -156,6 +156,9 @@ select
         partition by service_date, rider_id, trip_sequence
         order by
             farm_fingerprint(concat(to_hex(rider_id), '|', trip_sequence, '|', stop_id))
-    ) as display_order
+    ) as display_order,
+    '{{ var("version") }}' as versao,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ invocation_id }}' as id_execucao_dbt
 from ranked
 where option_rank <= 1 + {{ n_alternates }}

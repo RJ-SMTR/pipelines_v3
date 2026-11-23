@@ -174,5 +174,8 @@ select
             = trip_sequence
         then 'first'
         else 'middle'
-    end as chain_position
+    end as chain_position,
+    '{{ var("version") }}' as versao,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ invocation_id }}' as id_execucao_dbt
 from sequenced

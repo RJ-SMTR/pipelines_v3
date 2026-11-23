@@ -101,7 +101,10 @@ select
     s.stop_name,
     s.stop_lat,
     s.stop_lon,
-    s.geography
+    s.geography,
+    '{{ var("version") }}' as versao,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ invocation_id }}' as id_execucao_dbt
 from representative as r
 join stops as s on s.feed_version = r.feed_version and s.stop_id = r.stop_id
 join routes as rt on rt.feed_version = r.feed_version and rt.route_id = r.route_id

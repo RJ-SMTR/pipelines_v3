@@ -187,5 +187,8 @@ select
             partition by vehicle_id, route_id, direction_id order by arrival_time
         )
         > stop_sequence
-    ) as is_forward
+    ) as is_forward,
+    '{{ var("version") }}' as versao,
+    current_datetime("America/Sao_Paulo") as datetime_ultima_atualizacao,
+    '{{ invocation_id }}' as id_execucao_dbt
 from visit_bounds
