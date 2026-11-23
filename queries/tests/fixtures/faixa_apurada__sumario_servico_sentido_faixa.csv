@@ -1,0 +1,4 @@
+data,servico,sentido,faixa_horaria_inicio,viagens_atendimento_faixa,desconto_operacao_precaria
+2026-08-25,SN898,V,2026-08-25 01:00:00,1,0
+2026-08-25,809,V,2026-08-25 12:00:00,6,0
+2026-08-24,809,V,2026-08-24 21:00:00,2,0

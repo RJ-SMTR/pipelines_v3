@@ -1,0 +1,11 @@
+servico,percentual_atendimento,ipa,km_remuneravel_faixa,desconto_operacao_precaria,remuneracao_opex_faixa
+IPA90,0.9,1.0,90,0,900
+IPA899,0.899,0.9,89.9,0,809.1
+IPA80,0.8,0.9,80,0,720
+IPA799,0.799,0.6,79.9,0,479.4
+IPA60,0.6,0.6,60,0,360
+IPA599,0.599,0.0,59.9,0,0
+IPA0KM,,0.0,10,0,0
+IPAINC,0.0,0.0,0,0,0
+IPADESC,0.9,1.0,90,100,900
+IPASEM,0.0,0.0,0,,0

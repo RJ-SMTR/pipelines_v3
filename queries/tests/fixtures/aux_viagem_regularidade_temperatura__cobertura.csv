@@ -1,0 +1,7 @@
+id_viagem,indicador_detectado_ar_inoperante,indicador_regularidade_ar_condicionado_viagem,indicador_falha_recorrente
+A29200_antes_v19,false,,
+A29200_ano_2019,false,true,
+A29200_antes_v20_falha,false,true,true
+A29200_nula_sem_falha_v22,false,true,
+A29200_nula_com_falha_v22,true,false,true
+A29200_flags_nulas,,,

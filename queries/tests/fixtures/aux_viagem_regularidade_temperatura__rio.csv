@@ -1,0 +1,3 @@
+id_viagem,indicador_detectado_ar_inoperante,indicador_regularidade_ar_condicionado_viagem,indicador_falha_recorrente
+A2-050_rio_regular,false,true,
+A2-050_rio_zero,true,false,
