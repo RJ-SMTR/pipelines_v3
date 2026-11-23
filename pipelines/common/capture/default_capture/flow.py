@@ -5,6 +5,7 @@ from prefect import runtime, unmapped
 from prefect.tasks import Task
 
 from pipelines.common.capture.data_contract.tasks import (
+    DataContractRejectedError,
     check_data_contract,
     download_data_contracts,
     validate_data_contract_relationships,
@@ -64,7 +65,9 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             {"table_id": {"key": "value", ...}, ...}.
         should_capture_task (Optional[Task]): Task de gate (opcional) que retorna um
             `ShouldCapture`. Executa após o setup do ambiente e, se `value` for False, interrompe
-            a captura cedo. Se None, mantém o comportamento padrão (sempre captura).
+            a captura cedo. Se None, mantém o comportamento padrão (sempre captura). O payload
+            pode fornecer `data_contract_rejection_redis` (key e value) para registrar uma
+            reprovação confirmada no Redis.
 
     Returns:
         dict: Dicionário com o retorno das tasks. Sempre inclui `should_capture` (bool) e
@@ -87,6 +90,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
     # initialize sentry for error capturing
     tasks["initialize_sentry"] = initialize_sentry(env=env)
 
+    capture_payload = {}
     if should_capture_task is not None:
         result = should_capture_task(
             env=tasks["env"],
@@ -153,14 +157,20 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
             contracts_dir=tasks["data_contracts"],
             validations=tasks["validate_raw_data_contract"],
         )
-        tasks["check_data_contract"] = check_data_contract(
-            validations=[
-                *tasks["validate_raw_data_contract"],
-                tasks["validate_data_contract_relationships"],
-            ],
-            env=tasks["env"],
-            webhook_key=data_contract_webhook_key,
-        )
+        try:
+            tasks["check_data_contract"] = check_data_contract(
+                validations=[
+                    *tasks["validate_raw_data_contract"],
+                    tasks["validate_data_contract_relationships"],
+                ],
+                env=tasks["env"],
+                webhook_key=data_contract_webhook_key,
+            )
+        except DataContractRejectedError:
+            rejection_marker = capture_payload.get("data_contract_rejection_redis")
+            if rejection_marker is not None:
+                save_capture_datetime_redis(capture_datetime=rejection_marker)
+            raise
         upload_wait_for.append(tasks["check_data_contract"])
 
     upload_raw_future = upload_raw_file_to_gcs.map(
@@ -192,11 +202,7 @@ def create_capture_flows_default_tasks(  # noqa: PLR0913
 
     tasks["upload_source"] = upload_source_future.result()
 
-    capture_datetime_redis = (
-        (tasks["should_capture_result"].payload or {}).get("capture_datetime_redis")
-        if tasks["should_capture_result"] is not None
-        else None
-    )
+    capture_datetime_redis = capture_payload.get("capture_datetime_redis")
     if capture_datetime_redis is not None:
         save_capture_datetime_redis(
             capture_datetime=capture_datetime_redis,
