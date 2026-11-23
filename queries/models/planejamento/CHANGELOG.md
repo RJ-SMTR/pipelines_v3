@@ -1,5 +1,22 @@
 # Changelog - planejamento
 
+## [1.12.0] - 2026-11-18
+
+### Adicionado
+
+- Adiciona três colunas indicadoras booleanas (`indicador_partidas_divergente`, `indicador_quilometragem_divergente` e `indicador_ausencia_partidas_gtfs`) à saída de `test_consistencia_planejamento_feed`, que explicitam o motivo de cada divergência, agilizando o troubleshooting sem alterar a lógica de agregação nem o conjunto de linhas acusadas (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+
+### Alterado
+
+- `test_consistencia_planejamento_feed` passa a tolerar as divergências de partidas e quilometragem do Ponto Facultativo a partir do feed `2026-11-07` e a OS de Verão a partir do feed `2026-11-14`, conforme solicitado pela CGR (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+- `test_consistencia_planejamento_feed` passa a acusar sempre as faixas em que a OS tem partidas e o GTFS não tem nenhuma, inclusive nos casos tolerados (eleições, Ponto Facultativo e Verão) (https://github.com/RJ-SMTR/pipelines_v3/pull/875)
+
+## [1.11.3] - 2026-11-17
+
+### Alterado
+
+- O teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__servico_sentido__ordem_servico_trajeto_alternativo_sentido` passa a verificar apenas os feeds anteriores a `DATA_SUBSIDIO_V25_INICIO`, já que `ordem_servico_trips_shapes_gtfs` deixa de ser materializado a partir dessa data (https://github.com/RJ-SMTR/pipelines_v3/pull/889)
+
 ## [1.11.2] - 2026-10-28
 
 ### Adicionado

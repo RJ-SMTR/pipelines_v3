@@ -4,6 +4,7 @@
 import io
 import re
 import zipfile
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -316,45 +317,38 @@ def data_index_is_after(data_index: str, cursor: str) -> bool:
     return data_index_sort_key(data_index) > data_index_sort_key(cursor)
 
 
-def next_data_index(rows: pd.DataFrame, last_data_index: str | None) -> str | None:
-    """Retorna a primeira OS posterior ao cursor."""
-    if rows.empty:
-        return None
-    if last_data_index is None:
-        return rows.iloc[-1]["data_index"]
-
-    cursor = data_index_sort_key(last_data_index)
-    pending = rows.loc[rows["data_index"].map(lambda value: data_index_sort_key(value) > cursor)]
-    return None if pending.empty else pending.iloc[0]["data_index"]
-
-
 def get_os_info(
     last_captured_os: str | None = None,
     data_versao_gtfs: str | None = None,
+    is_rejected: Callable[[str], bool] | None = None,
 ) -> tuple[bool, dict, str | None, str | None]:
     """Seleciona a próxima OS válida ou uma versão solicitada explicitamente."""
     rows = get_os_rows()
-    data = {constants.OS_INICIO_VIGENCIA_COLUMN: None, "data_index": None}
+    empty_selection = {constants.OS_INICIO_VIGENCIA_COLUMN: None, "data_index": None}
     if rows.empty:
-        return False, data, None, None
+        return False, empty_selection, None, None
 
     if data_versao_gtfs is not None:
         selected = rows.loc[rows[constants.OS_INICIO_VIGENCIA_COLUMN] == data_versao_gtfs].tail(1)
     elif last_captured_os is None:
+        # Sem cursor, a captura automática começa pela última submissão da planilha.
         selected = rows.tail(1)
     else:
-        selected_index = next_data_index(rows, last_captured_os)
-        selected = (
-            rows.loc[rows["data_index"] == selected_index] if selected_index else rows.head(0)
-        )
+        cursor = data_index_sort_key(last_captured_os)
+        selected = rows.loc[
+            rows["data_index"].map(lambda index: data_index_sort_key(index) > cursor)
+        ]
 
-    if selected.empty:
-        print("Nenhuma nova OS encontrada.")
-        return False, data, None, None
+    for row_index, data_index in selected["data_index"].items():
+        if data_versao_gtfs is None and is_rejected is not None and is_rejected(data_index):
+            print(f"OS {data_index} ignorada por reprovação anterior no contrato de dados.")
+            continue
+        data = selected.loc[row_index].to_dict()
+        print(f"OS selecionada: {data}")
+        return True, data, data_index, data[constants.OS_INICIO_VIGENCIA_COLUMN]
 
-    data = selected.iloc[0].to_dict()
-    print(f"OS selecionada: {data}")
-    return True, data, data["data_index"], data[constants.OS_INICIO_VIGENCIA_COLUMN]
+    print("Nenhuma nova OS encontrada.")
+    return False, empty_selection, None, None
 
 
 def filter_gtfs_table_ids(

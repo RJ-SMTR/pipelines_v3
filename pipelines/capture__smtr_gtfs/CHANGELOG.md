@@ -1,5 +1,11 @@
 # Changelog - capture__smtr_gtfs
 
+## [1.0.3] - 2026-11-17
+
+### Alterado
+
+- Uma OS reprovada no contrato de dados é registrada no Redis (`rejected_os.<data_index>`) e ignorada nas próximas runs automáticas, evitando notificar a mesma reprovação no Google Chat a cada execução; execuções com `data_versao_gtfs` ignoram o registro (https://github.com/RJ-SMTR/pipelines_v3/pull/887)
+
 ## [1.0.2] - 2026-10-21
 
 ### Adicionado
