@@ -15,4 +15,5 @@ MIT_IPEA_PROJECT_SELECTOR = DBTSelector(
     initial_datetime=datetime(2026, 11, 1, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     flow_folder_name="treatment__mit_ipea_project",
     data_sources=[transacao_constants.TRANSACAO_SELECTOR],
+    incremental_delay_hours=1,
 )
