@@ -238,9 +238,7 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[pl.Data
     if not hashes:
         return HASHES_VAZIOS, []
 
-    hashes_por_chave = pl.concat(hashes).unique(
-        subset="hash_chave", keep="last", maintain_order=True
-    )
+    hashes_por_chave = pl.concat(hashes).unique(subset="hash_chave", keep="last")
     print(f"Gerados {hashes_por_chave.height} hashes para {date_str}")
 
     return hashes_por_chave, colunas or []
@@ -286,10 +284,9 @@ def filtra_novos_registros(
     )
 
 
-def processa_arquivos_hoje(  # noqa: PLR0913
+def processa_arquivos_hoje(
     files_hoje: list,
     filepath: str,
-    first_run: bool,
     hashes_anteriores: pl.DataFrame,
     colunas_anteriores: list,
     primary_keys: list,
@@ -300,7 +297,6 @@ def processa_arquivos_hoje(  # noqa: PLR0913
     Args:
         files_hoje: Lista de blobs CSV da data atual
         filepath: Caminho local de saída
-        first_run: Indica se é a primeira captura da tabela
         hashes_anteriores: Hashes hash_chave/hash_linha do dia anterior
         colunas_anteriores: Lista ordenada de colunas do dia anterior
         primary_keys: Lista de colunas que identificam unicamente um registro
@@ -324,7 +320,7 @@ def processa_arquivos_hoje(  # noqa: PLR0913
             total_registros += df_hoje.height
             colunas_hoje = df_hoje.columns
 
-            if first_run or hashes_anteriores.is_empty():
+            if hashes_anteriores.is_empty():
                 novos_registros = df_hoje
             else:
                 novos_registros = filtra_novos_registros(
@@ -441,7 +437,6 @@ def extract_stu_data(
     total_registros, total_novos_registros = processa_arquivos_hoje(
         files_hoje=files_hoje,
         filepath=filepath,
-        first_run=first_run,
         hashes_anteriores=hashes_anteriores,
         colunas_anteriores=colunas_anteriores,
         primary_keys=source.primary_keys,
