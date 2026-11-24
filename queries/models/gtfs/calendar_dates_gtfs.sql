@@ -23,7 +23,7 @@ select
     parse_date('%Y%m%d', safe_cast(cd.date as string)) date,
     safe_cast(json_value(cd.content, '$.exception_type') as string) exception_type,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "calendar_dates") }} cd
+from {{ source_csv_parquet("source_gtfs", "calendar_dates", "data_versao") }} cd
 join {{ ref("feed_info_gtfs") }} fi on cd.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where

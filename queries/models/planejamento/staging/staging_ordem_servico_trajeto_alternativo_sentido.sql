@@ -12,4 +12,9 @@ select
     safe_cast(json_value(content, '$.descricao') as string) as descricao,
     safe_cast(json_value(content, '$.ativacao') as string) as ativacao,
     timestamp_captura
-from {{ source("source_gtfs", "ordem_servico_trajeto_alternativo_sentido") }}
+from
+    {{
+        source_csv_parquet(
+            "source_gtfs", "ordem_servico_trajeto_alternativo_sentido", "data_versao"
+        )
+    }}

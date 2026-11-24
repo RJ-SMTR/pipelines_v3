@@ -31,6 +31,8 @@ vars:
   surrogate_key_treat_nulls_as_empty_strings: true
 
   ### Date default variables ###
+  # Sources lidos em Parquet a partir desta data (source_csv_parquet); antes, em CSV
+  DATA_SOURCE_PARQUET_INICIO: "2099-01-01"
   "dbt_date:time_zone": "America/Sao_Paulo"
   date_range_start: "2022-01-01T00:00:00"
   date_range_end: "2022-01-02T01:00:00"

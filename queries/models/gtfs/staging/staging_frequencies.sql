@@ -8,4 +8,4 @@ select
     safe_cast(json_value(content, '$.headway_secs') as string) as headway_secs,
     safe_cast(json_value(content, '$.exact_times') as string) as exact_times,
     timestamp_captura
-from {{ source("source_gtfs", "frequencies") }}
+from {{ source_csv_parquet("source_gtfs", "frequencies", "data_versao") }}

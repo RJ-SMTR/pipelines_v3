@@ -13,4 +13,4 @@ select
     safe_cast(json_value(content, '$.start_date') as string) as start_date,
     safe_cast(json_value(content, '$.end_date') as string) as end_date,
     timestamp_captura
-from {{ source("source_gtfs", "calendar") }}
+from {{ source_csv_parquet("source_gtfs", "calendar", "data_versao") }}
