@@ -236,6 +236,7 @@ GTFS_SOURCES = [
         partition_key="data_versao",
         validate_data_contract=v.get("validate_data_contract", False),
         data_contract_ignored_columns=["data_versao", *v.get("data_contract_ignored_columns", [])],
+        parquet_source=True,
     )
     for k, v in GTFS_TABLE_CAPTURE_PARAMS.items()
 ]
