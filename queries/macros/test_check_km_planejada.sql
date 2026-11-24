@@ -39,6 +39,7 @@
                     "{{ var('date_range_end') }}"
                 )
                 and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
+                and sistema = 'SPPO' -- Não compara com o sistema do RIO
             group by all
         ),
         data_versao_efetiva as (
@@ -171,10 +172,8 @@
     {% endif %}
     where
         (
-            -- Considera apenas faixas com quilometragem na OS.
-            quilometragem is not null
             -- Detecta distância planejada diferente ou nula.
-            and quilometragem is distinct from distancia_total_planejada
+            quilometragem is distinct from distancia_total_planejada
             and (
                 -- Sinaliza a faixa ausente com partidas previstas mesmo nas exceções.
                 (
