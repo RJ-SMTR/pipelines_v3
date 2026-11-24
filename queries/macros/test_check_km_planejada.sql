@@ -39,7 +39,7 @@
                     "{{ var('date_range_end') }}"
                 )
                 and data >= date("{{ var('DATA_SUBSIDIO_V25_INICIO') }}")
-                and sistema = 'SPPO' -- Não compara com o sistema do RIO
+                and sistema = 'SPPO'  -- Não compara com o sistema do RIO
             group by all
         ),
         data_versao_efetiva as (
