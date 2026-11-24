@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import pandas as pd
 import polars as pl
 
 from pipelines.capture__stu_tabelas import constants
@@ -430,7 +429,7 @@ def extract_stu_data(
     ]
     if not files_hoje:
         print("Nenhum dado encontrado para hoje")
-        save_local_file(filepath=filepath, filetype="csv", data=pd.DataFrame())
+        save_local_file(filepath=filepath, filetype="csv", data=pl.DataFrame())
         return [filepath]
 
     if first_run or hashes_anteriores.is_empty():
