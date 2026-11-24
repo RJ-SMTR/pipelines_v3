@@ -18,6 +18,11 @@ models:
       - name: service_date
         description: "{{ doc('data_transacao' ) }} [partição]"
         data_type: date
+      - name: rider_document
+        description: Documento do cliente que efetuou a viagem [protegido]
+        data_type: string
+        policy_tags:
+          - 'projects/rj-smtr/locations/us/taxonomies/3816523328506695485/policyTags/2168539910400644199'
       - name: first_trip_sequence
         description: trip_sequence (inteiro sequencial por dia e rider_id) da primeira transação da viagem
         data_type: int64

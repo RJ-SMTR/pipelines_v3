@@ -185,6 +185,7 @@ with
         select
             j.rider_id,
             j.service_date,
+            c.documento as rider_document,
             j.first_trip_sequence,
             j.final_trip_sequence,
             j.n_transfers,
@@ -243,6 +244,7 @@ with
                 j.service_date <= boarding_stop.feed_start_date
                 or j.service_date is null
             )
+        join {{ ref("cliente_jae") }} c on j.rider_id = sha256(c.id_cliente)
         where
             final_leg.mode = 'Ônibus'
             and final_od.alighting_stop_id is not null
