@@ -1,0 +1,4 @@
+[project]
+name = "treatment__mit_ipea_project"
+version = "0.1.0"
+description = "Pipeline mit_ipea_project da secretaria rj-smtr"
