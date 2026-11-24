@@ -1,5 +1,12 @@
 # Changelog - gtfs
 
+## [1.7.1] - 2026-11-17
+
+### Alterado
+
+- `ordem_servico_trips_shapes_gtfs` passa a materializar apenas os feeds anteriores ao início da Viagem 2.0 (`DATA_SUBSIDIO_V25_INICIO`), já que o modelo não é mais usado a partir dessa data; as partições existentes não são alteradas (https://github.com/RJ-SMTR/pipelines_v3/pull/889)
+- O teste `dbt_expectations__expect_table_aggregation_to_equal_other_table__ordem_servico_trips_shapes_gtfs` passa a verificar apenas os feeds anteriores a `DATA_SUBSIDIO_V25_INICIO` (https://github.com/RJ-SMTR/pipelines_v3/pull/889)
+
 ## [1.7.0] - 2026-10-21
 
 ### Adicionado
