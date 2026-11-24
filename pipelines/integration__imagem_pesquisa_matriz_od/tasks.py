@@ -95,9 +95,9 @@ def get_journeys(
         JOIN rj-smtr.cadastro_interno.cliente_jae c ON j.rider_id = sha256(c.id_cliente)
         WHERE
             j.service_date BETWEEN date('{datetime_start_str}') AND date('{datetime_end_str}')
-            AND datetime(j.service_date, j.alighting_time)
+            AND datetime_ultima_atualizacao
                 BETWEEN datetime('{datetime_start_str}')
-                AND datetime('{datetime_end_str}')
+                AND datetime_add(datetime('{datetime_end_str}'), interval 1 hour)
             AND c.documento IN UNNEST(@volunteers)
     """
 
