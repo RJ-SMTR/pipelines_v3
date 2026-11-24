@@ -42,19 +42,22 @@
         | list
     ) %}
     {% set sha_column %}
-        sha256(
-                concat(
-                    {% for c in columns %}
-                        {% if c == "rider_id" %}
-                            ifnull(to_base64({{ c }}), 'n/a')
-                        {% else %}ifnull(cast({{ c }} as string), 'n/a')
-                        {% endif %}
-
-                        {% if not loop.last %}, {% endif %}
-
-                    {% endfor %}
+        {% set sha_column %}
+            sha256(
+                to_json_string(
+                    struct(
+                        {% for c in columns %}
+                            {% if c == "rider_id" %}
+                                to_base64({{ c }}) as `{{ c }}`
+                            {% else %}
+                                cast({{ c }} as string) as `{{ c }}`
+                            {% endif %}
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    )
                 )
-        )
+            )
+        {% endset %}
     {% endset %}
 
     {% set gtfs_feeds_query %}
@@ -269,7 +272,8 @@ with
                 journey_key,
                 rider_id,
                 service_date,
-                first_trip_sequence,
+                boarding_time,
+                boarding_servico,
                 {{ sha_column }} as current_sha,
                 datetime_ultima_atualizacao as current_datetime_ultima_atualizacao,
                 id_execucao_dbt as current_id_execucao_dbt
@@ -280,16 +284,20 @@ with
                 cast(null as string) as journey_key,
                 cast(null as bytes) as rider_id,
                 cast(null as date) as service_date,
-                cast(null as int64) as first_trip_sequence,
+                cast(null as time) as boarding_time,
+                cast(null as string) as boarding_servico,
                 cast(null as bytes) as current_sha,
                 datetime(null) as current_datetime_ultima_atualizacao,
                 cast(null as string) as current_id_execucao_dbt
         {% endif %}
     ),
     sha_join as (
-        select n.*, c.* except (rider_id, service_date, first_trip_sequence)
+        select n.*, c.* except (rider_id, service_date, boarding_time, boarding_servico)
         from new_data_sha n
-        left join current_data_sha c using (rider_id, service_date, first_trip_sequence)
+        left join
+            current_data_sha c using (
+                rider_id, service_date, boarding_time, boarding_servico
+            )
     ),
     control_columns as (
         select

@@ -181,10 +181,12 @@ select
     *,
     coalesce(
         stop_sequence > lag(stop_sequence) over (
-            partition by vehicle_id, route_id, direction_id order by arrival_time
+            partition by service_date, vehicle_id, route_id, direction_id
+            order by arrival_time
         ),
         lead(stop_sequence) over (
-            partition by vehicle_id, route_id, direction_id order by arrival_time
+            partition by service_date, vehicle_id, route_id, direction_id
+            order by arrival_time
         )
         > stop_sequence
     ) as is_forward,
