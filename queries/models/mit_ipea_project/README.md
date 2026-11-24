@@ -64,42 +64,41 @@ All thresholds are Jinja `set` constants at the top of each model.
 
 ## Running the models
 
-All daily models are driven by the `run_date` variable and overwrite that day's
-partition. Build from `queries/` with `--profiles-dir ./dev` on the `sandbox` target, which writes to
-`rj-smtr-sandbox` with your own Google identity (`gcloud auth application-default login` once).
+For incremental runs, the daily models use the inclusive interval from
+`date_range_start` to `date_range_end`. Set both variables to the same date
+to process one day.
+
+On an initial build, models including `aux_stop_events` and
+`aux_origin_destination_stop` use `mit_ipea_project_initial_date` as a lower
+bound instead. Its default is `2026-11-01`, which excludes `2026-09-28`.
+An initial build can process dates beyond the requested interval.
+
+For the historical example below, confirm that the source data and the GTFS
+feed active on `2026-09-28` are available. Set
+`mit_ipea_project_initial_date` to a date no later than that feed's start.
+The example assumes the feed started on or after `2025-01-01`.
+
+Build from `queries/` on the `sandbox` target with your Google identity
+(`gcloud auth application-default login` once).
 
 ```bash
 cd queries
 dbt deps
 
-# Full chain for one day, against the anonymised sample
-dbt build --select mit_ipea_project.v1 --target sandbox --profiles-dir ./dev \
-  --vars '{"run_date": "2026-09-28"}'
+# Prepare GTFS models in a sandbox without aux_route_stops.
+dbt run --select aux_vw_stops aux_route_stops \
+  --target sandbox --profiles-dir ./dev \
+  --vars '{"mit_ipea_project_initial_date": "2025-01-01"}'
 
-# Against the production Jaé table (needs Fine-Grained Reader on hash_cliente)
-dbt build --select mit_ipea_project.v1 --target sandbox --profiles-dir ./dev \
-  --vars '{"run_date": "2026-09-28", "aux_ticketing_source": "jae"}'
+# Build the daily chain against the anonymised sample.
+dbt build --selector mit_ipea_project \
+  --target sandbox --profiles-dir ./dev \
+  --vars '{"date_range_start": "2026-09-28", "date_range_end": "2026-09-28", "mit_ipea_project_initial_date": "2025-01-01", "ticketing_source": "sample"}'
 
-# Rebuild the static GTFS models only
-dbt run --select aux_vw_stops aux_route_stops --target sandbox --profiles-dir ./dev
-
-# Check SQL without running it
-dbt compile --select aux_origin_destination_stop --target sandbox --profiles-dir ./dev \
-  --vars '{"run_date": "2026-09-28"}'
-```
-
-Always run `sqlfmt` on any model you edit.
-
-### aux_ticketing source
-
-`aux_ticketing` reads one of two sources, chosen by the `aux_ticketing_source` variable:
-
-| Value              | Table                                                   | Tap location          | Notes                     |
-|--------------------|---------------------------------------------------------|-----------------------|---------------------------|
-| `sample` (default) | `rj-smtr-sandbox.mit_ipea_project.transacao_drc_sample` | H3 tile centroid      | Anonymised, rounded times |
-| `jae`              | `rj-smtr.br_rj_riodejaneiro_bilhetagem.transacao`       | Validator coordinates | Policy-tagged, never run  |
-
-Any other value raises a compile error.
+# Check SQL without running the model.
+dbt compile --select aux_origin_destination_stop \
+  --target sandbox --profiles-dir ./dev \
+  --vars '{"date_range_start": "2026-09-28", "date_range_end": "2026-09-28", "mit_ipea_project_initial_date": "2025-01-01"}'
 
 ## Survey design
 
