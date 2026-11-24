@@ -85,6 +85,23 @@ def baixa_blob(file, local_dir: str) -> str:
     return str(filepath)
 
 
+def is_valid_json(raw_data: pl.Series) -> bool:
+    """
+    Verifica se todas as linhas são JSON válido, sem considerar os tipos dos campos.
+
+    Args:
+        raw_data: Série com um JSON por linha
+
+    Returns:
+        bool: True se todas as linhas puderem ser lidas como JSON
+    """
+    try:
+        raw_data.str.json_decode(pl.Struct({}))
+    except pl.exceptions.ComputeError:
+        return False
+    return True
+
+
 def carrega_airbyte_data(file) -> pl.DataFrame:
     """
     Carrega e normaliza a coluna _airbyte_data de um arquivo CSV do Airbyte.
@@ -117,6 +134,10 @@ def carrega_airbyte_data(file) -> pl.DataFrame:
         try:
             schema = raw_slice.str.json_decode(infer_schema_length=None).dtype.to_schema()
         except pl.exceptions.ComputeError as e:
+            if not is_valid_json(raw_slice):
+                # JSON malformado: o arquivo é pulado, como na versão com pandas, e a
+                # busca do dia anterior segue para os outros arquivos e datas
+                raise ValueError(f"JSON inválido em {filename}: {e}") from e
             # Objeto/lista misturado com valores simples no mesmo campo: falha a captura
             # em vez de pular o arquivo, que perderia registros sem aviso
             raise NotImplementedError(f"JSON não suportado em {filename}: {e}") from e
@@ -197,6 +218,8 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[pl.Data
             print(f"Gerando hashes do arquivo: {filename}")
 
             data = carrega_airbyte_data(file)
+            if data.is_empty():
+                continue
 
             if colunas is None:
                 colunas = data.columns
@@ -297,6 +320,8 @@ def processa_arquivos_hoje(  # noqa: PLR0913
             print(f"Lendo arquivo de hoje: {filename}")
 
             df_hoje = carrega_airbyte_data(file)
+            if df_hoje.is_empty():
+                continue
             total_registros += df_hoje.height
             colunas_hoje = df_hoje.columns
 
