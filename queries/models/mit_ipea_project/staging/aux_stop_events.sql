@@ -71,8 +71,8 @@ with
     active_route_stops as (
         select *
         from {{ ref("aux_route_stops") }}
-        {% if is_incremental() %}
-            where
+        where
+            {% if is_incremental() %}
                 {% if gtfs_feeds | length > 0 %}
                     feed_start_date in ({{ gtfs_feeds | join(", ") }})
                 {% else %} false

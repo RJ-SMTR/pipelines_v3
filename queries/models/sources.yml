@@ -613,3 +613,4 @@ sources:
 
     tables:
       - name: transacao_drc_sample
+      - name: voluntario_disparo_mensagem

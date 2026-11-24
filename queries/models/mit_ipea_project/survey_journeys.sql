@@ -28,6 +28,34 @@
 {% set feed_info = ref("feed_info_gtfs") %}
 
 {% if execute and is_incremental() %}
+    {% set columns = (
+        list_columns()
+        | reject(
+            "in",
+            [
+                "journey_key",
+                "versao",
+                "datetime_ultima_atualizacao",
+                "id_execucao_dbt",
+            ],
+        )
+        | list
+    ) %}
+    {% set sha_column %}
+        sha256(
+                concat(
+                    {% for c in columns %}
+                        {% if c == "rider_id" %}
+                            ifnull(to_base64({{ c }}), 'n/a')
+                        {% else %}ifnull(cast({{ c }} as string), 'n/a')
+                        {% endif %}
+
+                        {% if not loop.last %}, {% endif %}
+
+                    {% endfor %}
+                )
+        )
+    {% endset %}
 
     {% set gtfs_feeds_query %}
         select concat("'", feed_start_date, "'") as feed_start_date
@@ -39,6 +67,10 @@
 
     {% set gtfs_feeds = run_query(gtfs_feeds_query).columns[0].values() %}
 
+{% else %}
+    {% set sha_column %}
+        cast(null as bytes)
+    {% endset %}
 {% endif %}
 
 with
@@ -239,7 +271,7 @@ with
                 {{ sha_column }} as current_sha,
                 datetime_ultima_atualizacao as current_datetime_ultima_atualizacao,
                 id_execucao_dbt as current_id_execucao_dbt
-            from dados_atuais
+            from current_data
 
         {% else %}
             select
@@ -261,6 +293,7 @@ with
         select
             ifnull(journey_key, generate_uuid()) as journey_key,
             * except (
+                journey_key,
                 new_sha,
                 current_sha,
                 current_datetime_ultima_atualizacao,
@@ -277,7 +310,7 @@ with
                 then '{{ invocation_id }}'
                 else current_id_execucao_dbt
             end as id_execucao_dbt
-        from sha_dados_completos
+        from sha_join
     )
 select *
 from control_columns
