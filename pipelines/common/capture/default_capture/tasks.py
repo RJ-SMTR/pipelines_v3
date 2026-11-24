@@ -2,10 +2,12 @@
 import io
 import zipfile
 from datetime import datetime
+from pathlib import Path
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
 import polars as pl
+import pyarrow.parquet as pq
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 
@@ -175,6 +177,7 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
     """
     csv_mode = "w"
     reader_args = context.source.pretreatment_reader_args or {}
+    parquet_writer = None
 
     for raw_filepath in context.captured_raw_filepaths:
         captura = create_timestamp_captura(
@@ -198,6 +201,15 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
             csv_mode = "a"
             print(f"Dados salvos em {context.source_filepath}")
 
+            if context.source.parquet_source:
+                parquet_writer = write_parquet_chunk(
+                    data=data, filepath=context.source_parquet_filepath, writer=parquet_writer
+                )
+
+    if parquet_writer is not None:
+        parquet_writer.close()
+        print(f"Dados salvos em {context.source_parquet_filepath}")
+
     if csv_mode == "w":
         print("Nenhum dado encontrado, salvando arquivo vazio")
         save_local_file(
@@ -205,6 +217,35 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
             filetype=constants.SOURCE_FILETYPE,
             data=pl.DataFrame(),
         )
+
+
+def write_parquet_chunk(
+    data: pl.DataFrame,
+    filepath: str,
+    writer: Optional[pq.ParquetWriter],
+) -> pq.ParquetWriter:
+    """
+    Grava um bloco do source como um row group do arquivo Parquet, com todas as colunas
+    como texto
+
+    Args:
+        data (pl.DataFrame): Bloco de dados em estrutura aninhada
+        filepath (str): Caminho do arquivo Parquet
+        writer (Optional[pq.ParquetWriter]): Writer aberto no bloco anterior
+
+    Returns:
+        pq.ParquetWriter: Writer aberto, a ser fechado após o último bloco
+    """
+    table = data.cast(pl.String).to_arrow()
+    if writer is None:
+        writer = pq.ParquetWriter(
+            filepath,
+            table.schema,
+            compression="zstd",
+            compression_level=constants.SOURCE_PARQUET_COMPRESSION_LEVEL,
+        )
+    writer.write_table(table)
+    return writer
 
 
 @task(cache_policy=NO_CACHE)
@@ -234,6 +275,36 @@ def upload_source_data_to_gcs(context: SourceCaptureContext, if_exists: str = "r
         print("Tabela de staging já existe, adicionando dados...")
         source.append(source_filepath=source_filepath, partition=partition, if_exists=if_exists)
         print("Dados adicionados")
+
+    if source.parquet_source:
+        upload_source_parquet(context=context, if_exists=if_exists)
+
+
+def upload_source_parquet(context: SourceCaptureContext, if_exists: str):
+    """
+    Envia o source em Parquet para a pasta source_parquet do GCS e cria a tabela externa
+    se ela não existir
+
+    Args:
+        context (SourceCaptureContext): Contexto da captura.
+        if_exists (str): Ação a ser tomada caso o arquivo exista
+                no storage (raise, pass, replace)
+    """
+    if not Path(context.source_parquet_filepath).exists():
+        print("Nenhum dado em Parquet, pulando upload")
+        return
+
+    source = context.source
+    uri = source.append(
+        source_filepath=context.source_parquet_filepath,
+        partition=context.partition,
+        if_exists=if_exists,
+        mode="source_parquet",
+    )
+    if not source.get_parquet_table().exists():
+        print("Tabela Parquet não existe, criando tabela...")
+        source.create_parquet(sample_uri=uri)
+        print("Tabela Parquet criada")
 
 
 @task(cache_policy=NO_CACHE)

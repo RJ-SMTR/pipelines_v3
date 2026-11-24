@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from datetime import datetime
+from pathlib import Path
 from typing import NamedTuple, Optional
 
 import pandas as pd
@@ -49,6 +50,9 @@ class SourceCaptureContext:
 
         self.partition = self.get_partition()
         self.raw_filepath, self.source_filepath = self.get_filepaths()
+        self.source_parquet_filepath = str(
+            Path(self.source_filepath).with_suffix(f".{constants.SOURCE_PARQUET_FILETYPE}")
+        )
 
         self.captured_raw_filepaths = []
 
