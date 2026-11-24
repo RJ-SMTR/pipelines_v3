@@ -101,6 +101,7 @@ members = [
     "treatment-integracao",
     "treatment-jae-timestamps-divergentes",
     "treatment-matriz-integracao-smtr",
+    "treatment-mit-ipea-project",
     "treatment-monitoramento-temperatura",
     "treatment-monitoramento-veiculo",
     "treatment-operadora-cnpj",
@@ -3653,6 +3654,11 @@ source = { virtual = "pipelines/treatment__jae_timestamps_divergentes" }
 name = "treatment-matriz-integracao-smtr"
 version = "0.1.0"
 source = { virtual = "pipelines/treatment__matriz_integracao_smtr" }
+
+[[package]]
+name = "treatment-mit-ipea-project"
+version = "0.1.0"
+source = { virtual = "pipelines/treatment__mit_ipea_project" }
 
 [[package]]
 name = "treatment-monitoramento-temperatura"
