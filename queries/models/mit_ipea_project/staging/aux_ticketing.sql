@@ -89,6 +89,9 @@ with
                 and datetime_diff(t.datetime_processamento, t.datetime_transacao, hour)
                 < 1
                 and t.hash_cliente is not null
+                id_cliente not in ("999999999")
+                and lower(tipo_transacao_jae) not like '% operador%'
+                and cadastro_cliente = 'Cadastrado'
                 -- Cash fares paid on board carry no rider identity
                 and t.tipo_transacao_jae != 'Botoeira'
         ),
