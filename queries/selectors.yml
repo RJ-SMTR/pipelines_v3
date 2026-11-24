@@ -911,6 +911,10 @@ selectors:
           value: models/gtfs
         - method: path
           value: models/planejamento
+        - method: fqn
+          value: aux_vw_stops
+        - method: fqn
+          value: aux_route_stops
         - exclude:
             - method: fqn
               value: calendario
@@ -928,3 +932,20 @@ selectors:
               value: servico_planejado_faixa_horaria
             - method: fqn
               value: matriz_reparticao_tarifaria
+
+  - name: mit_ipea_project
+    description: Materialização das tabelas de Matriz OD
+    definition:
+      union:
+        - method: fqn
+          value: aux_vw_h3
+        - method: fqn
+          value: aux_ticketing
+        - method: fqn
+          value: aux_stop_events
+        - method: fqn
+          value: aux_origin_destination_stop
+        - method: fqn
+          value: aux_origin_destination_stop_candidates
+        - method: fqn
+          value: survey_journeys
