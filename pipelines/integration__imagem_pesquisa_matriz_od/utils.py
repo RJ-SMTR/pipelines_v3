@@ -6,23 +6,7 @@ from pathlib import Path
 from google.cloud import storage
 from PIL import Image, ImageDraw, ImageFont
 
-from pipelines.common.utils.google_drive import read_google_sheets
 from pipelines.integration__imagem_pesquisa_matriz_od import constants
-
-
-def get_volunteers() -> list[str]:
-    """
-    Lê os dados da planilha de voluntários da pesquisa de Matriz OD e retorna os CPFs
-
-    Returns:
-        list[str]: Lista com os CPFs dos voluntários
-    """
-    df = read_google_sheets(
-        spread_sheet_id=constants.VOLUNTEER_SPREAD_SHEET_ID,
-        sheet_name=constants.VOLUNTEER_SHEET_NAME,
-    )
-
-    return df.cpf.to_list()
 
 
 def load_font(name: str, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:

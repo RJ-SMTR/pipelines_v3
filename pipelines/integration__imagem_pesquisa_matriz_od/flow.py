@@ -12,6 +12,7 @@ from pipelines.integration__imagem_pesquisa_matriz_od.tasks import (
     get_journeys,
     save_run_on_redis,
     upload_images_to_gcs,
+    wait_materialization,
 )
 
 
@@ -29,12 +30,15 @@ def integration__imagem_pesquisa_matriz_od(
         env=env, datetime_start=datetime_start, datetime_end=datetime_end, wait_for=[setup_env]
     )
 
+    wait = wait_materialization(env=env, datetime_end=datetime_end)
+
     project_name = smtr_constants.PROJECT_NAME[env]
 
     journey_filepath = get_journeys(
         project_name=project_name,
         datetime_start=datetime_start,
         datetime_end=datetime_end,
+        wait_for=wait,
     )
 
     bucket = storage.Client(project=project_name).bucket(bucket_name=constants.BUCKET_NAMES[env])

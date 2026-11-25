@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from pathlib import Path
+from time import sleep
 
 import pandas as pd
 import pandas_gbq
@@ -10,15 +11,16 @@ from prefect import task
 from prefect.cache_policies import NO_CACHE
 
 from pipelines.common.tasks import get_scheduled_timestamp
+from pipelines.common.treatment.default_treatment.utils import IncompleteDataError
 from pipelines.common.utils.redis import get_redis_client
 from pipelines.common.utils.utils import convert_timezone
 from pipelines.integration__imagem_pesquisa_matriz_od import constants
 from pipelines.integration__imagem_pesquisa_matriz_od.utils import (
     build_journey_image,
-    get_volunteers,
     load_font,
     upload_image_to_gcs,
 )
+from pipelines.treatment__mit_ipea_project import constants as materialization_constants
 
 
 @task(cache_policy=NO_CACHE)
@@ -62,6 +64,28 @@ def get_date_range(
 
 
 @task(cache_policy=NO_CACHE)
+def wait_materialization(env: str, datetime_end: datetime):
+    count = 0
+    wait_limit = 10
+    complete = False
+    print("Checando completude dos dados")
+    while not complete:
+        complete = materialization_constants.MIT_IPEA_PROJECT_SELECTOR.is_up_to_date(
+            env=env,
+            timestamp=datetime_end,
+        )
+        if not complete:
+            if count < wait_limit:
+                print("Dados incompletos, tentando novamente")
+                sleep(60)
+                count += 1
+            else:
+                print("Tempo de espera esgotado!")
+                raise IncompleteDataError("Dados incompletos!")
+    print("Dados completos!")
+
+
+@task(cache_policy=NO_CACHE)
 def get_journeys(
     project_name: str,
     datetime_start: datetime,
@@ -98,7 +122,6 @@ def get_journeys(
             AND datetime_ultima_atualizacao
                 BETWEEN datetime('{datetime_start_str}')
                 AND datetime_add(datetime('{datetime_end_str}'), interval 1 hour)
-            AND c.documento IN UNNEST(@volunteers)
     """
 
     save_filepath = constants.JOUNEYS_DATA_FILEPATH
@@ -108,18 +131,6 @@ def get_journeys(
     pandas_gbq.read_gbq(
         query,
         project_id=project_name,
-        configuration={
-            "query": {
-                "parameterMode": "NAMED",
-                "queryParameters": [
-                    {
-                        "name": "volunteers",
-                        "parameterType": {"type": "ARRAY", "arrayType": {"type": "STRING"}},
-                        "parameterValue": {"arrayValues": [{"value": x} for x in get_volunteers()]},
-                    }
-                ],
-            }
-        },
     ).to_csv(str(save_filepath), header=True, index=False)
 
     return save_filepath
