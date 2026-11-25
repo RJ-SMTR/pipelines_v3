@@ -1,5 +1,8 @@
 -- fmt: off
 {% macro generate_database_name(custom_database_name=none, node=none) -%}
+    {%- if replay_subsidy() -%}
+        {{ return(target.database) }}
+    {%- endif -%}
 
     {%- set default_database = target.database -%}
     {% set dev_database = "rj-smtr-dev" %}

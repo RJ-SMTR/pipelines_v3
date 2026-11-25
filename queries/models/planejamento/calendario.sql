@@ -16,7 +16,7 @@
 {% set calendario_manual = ref("aux_calendario_manual") %}
 
 {% set date_range_end_extended %}
-    {% if var("materializar_periodo_exato", false) %}
+    {% if replay_subsidy() or var("materializar_periodo_exato", false) %}
         date("{{ var('date_range_end') }}")
     {% else %}
         last_day(date_add(date("{{ var('date_range_end') }}"), interval 1 month))
@@ -54,31 +54,51 @@ with
     calendar as (
         select *
         from {{ calendar_gtfs }}
-        {% if is_incremental() %}
+        {% if replay_subsidy() %}
+            where feed_start_date = date {{ tojson(replay_subsidy().feed_start_date) }}
+        {% elif is_incremental() %}
             where feed_start_date in ({{ gtfs_feeds | join(", ") }})
         {% endif %}
     ),
     datas as (
-        select data, extract(dayofweek from data) as dia_semana, feed_start_date
-        from
-            {{ feed_info_gtfs }},
-            unnest(
-                generate_date_array(
-                    {% if is_incremental() %}
+        {% if replay_subsidy() %}
+            select
+                data,
+                extract(dayofweek from data) as dia_semana,
+                date {{ tojson(replay_subsidy().feed_start_date) }} as feed_start_date
+            from
+                unnest(
+                    generate_date_array(
                         date("{{ var('date_range_start') }}"),
                         {{ date_range_end_extended }}
-                    {% else %}date("2024-10-01"), current_date("America/Sao_Paulo")
-                    {% endif %}
-                )
-            ) as data
-        where
-            data >= feed_start_date and (data <= feed_end_date or feed_end_date is null)
+                    )
+                ) as data
+        {% else %}
+            select data, extract(dayofweek from data) as dia_semana, feed_start_date
+            from
+                {{ feed_info_gtfs }},
+                unnest(
+                    generate_date_array(
+                        {% if is_incremental() %}
+                            date("{{ var('date_range_start') }}"),
+                            {{ date_range_end_extended }}
+                        {% else %}date("2024-10-01"), current_date("America/Sao_Paulo")
+                        {% endif %}
+                    )
+                ) as data
+            where
+                data >= feed_start_date
+                and (data <= feed_end_date or feed_end_date is null)
+        {% endif %}
     ),
     modificacao_manual as (
         select
             d.data,
             d.dia_semana,
-            coalesce(m.feed_start_date, d.feed_start_date) as feed_start_date,
+            {% if replay_subsidy() %} d.feed_start_date,
+            {% else %}
+                coalesce(m.feed_start_date, d.feed_start_date) as feed_start_date,
+            {% endif %}
             m.tipo_dia,
             ifnull(m.tipo_os, "Regular") as tipo_os
         from datas d
@@ -113,7 +133,12 @@ with
             on cd.date = m.data
             and cd.feed_start_date = m.feed_start_date
         where
-            {% if is_incremental() %}
+            {% if replay_subsidy() %}
+                cd.feed_start_date = date {{ tojson(replay_subsidy().feed_start_date) }}
+                and cd.date between date(
+                    "{{ var('date_range_start') }}"
+                ) and {{ date_range_end_extended }}
+            {% elif is_incremental() %}
                 cd.feed_start_date in ({{ gtfs_feeds | join(", ") }})
                 and cd.date between date(
                     "{{ var('date_range_start') }}"

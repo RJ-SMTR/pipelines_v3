@@ -77,7 +77,12 @@ with
         from {{ ref("viagem_planejada_planejamento") }}
         where
             feed_start_date >= '{{ var("feed_inicial_viagem_planejada") }}'
-            {% if is_incremental() %} and {{ feed_filter }} {% endif %}
+            {% if replay_subsidy() %}
+                and feed_start_date
+                = date {{ tojson(replay_subsidy().feed_start_date) }}
+                and servico = {{ tojson(replay_subsidy().service) }}
+            {% elif is_incremental() %} and {{ feed_filter }}
+            {% endif %}
     ),
     ordem_servico as (
         select
