@@ -3,10 +3,17 @@ from google.cloud import storage
 from prefect import runtime
 
 from pipelines.common import constants as smtr_constants
-from pipelines.common.tasks import get_run_env, initialize_sentry, setup_environment
+from pipelines.common.capture.jae import constants as jae_constants
+from pipelines.common.tasks import (
+    get_run_env,
+    initialize_sentry,
+    setup_environment,
+    task_send_discord_message,
+)
 from pipelines.common.utils.prefect import flow, handler_notify_failure, rename_flow_run
 from pipelines.integration__imagem_pesquisa_matriz_od import constants
 from pipelines.integration__imagem_pesquisa_matriz_od.tasks import (
+    create_missing_image_discord_message,
     generate_images,
     get_date_range,
     get_journeys,
@@ -48,7 +55,9 @@ def integration__imagem_pesquisa_matriz_od(
 
     bucket = storage.Client(project=project_name).bucket(bucket_name=constants.BUCKET_NAMES[env])
 
-    image_filepaths = generate_images(bucket_obj=bucket, journey_filepath=journey_filepath)
+    image_filepaths, no_image_stop_ids = generate_images(
+        bucket_obj=bucket, journey_filepath=journey_filepath
+    )
 
     upload_images = upload_images_to_gcs(bucket_obj=bucket, filepaths=image_filepaths)
 
@@ -57,4 +66,11 @@ def integration__imagem_pesquisa_matriz_od(
         datetime_start=datetime_start,
         datetime_end=datetime_end,
         wait_for=[upload_images],
+    )
+
+    discord_messages = create_missing_image_discord_message(no_image_stop_id=no_image_stop_ids)
+
+    task_send_discord_message(
+        message=discord_messages,
+        webhook=jae_constants.ALERT_WEBHOOK,
     )

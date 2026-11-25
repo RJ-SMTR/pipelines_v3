@@ -3,6 +3,7 @@
 import re
 from pathlib import Path
 
+from google.api_core.exceptions import NotFound
 from google.cloud import storage
 from PIL import Image, ImageDraw, ImageFont
 
@@ -164,7 +165,7 @@ def build_journey_image(  # noqa: PLR0913
     font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
     caption_font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
     downloaded_images: list,
-) -> Path:
+) -> tuple[Path | None, list[str]]:
     """
     Gera a imagem final com as 4 opções de desembarque.
 
@@ -188,15 +189,23 @@ def build_journey_image(  # noqa: PLR0913
     if len(stop_ids) != len(constants.IMAGE_LETTERS):
         raise ValueError("stop_ids deve conter exatamente quatro IDs.")
 
-    paths = [
-        download_image_from_gcs(
-            bucket_obj=bucket_obj,
-            stop_id=sid,
-            local_folder=constants.IMAGE_DIR,
-            downloaded_images=downloaded_images,
-        )
-        for sid in stop_ids
-    ]
+    paths = []
+    no_image_stop_ids = []
+
+    for sid in stop_ids:
+        try:
+            path = download_image_from_gcs(
+                bucket_obj=bucket_obj,
+                stop_id=sid,
+                local_folder=constants.IMAGE_DIR,
+                downloaded_images=downloaded_images,
+            )
+            paths.append(path)
+        except NotFound:
+            no_image_stop_ids.append(sid)
+
+    if len(no_image_stop_ids) > 0:
+        return None, no_image_stop_ids
 
     spec = [
         (letter, path, stop_info.get(sid))
@@ -210,7 +219,7 @@ def build_journey_image(  # noqa: PLR0913
         caption_font=caption_font,
     )
 
-    return out_path
+    return out_path, no_image_stop_ids
 
 
 def upload_image_to_gcs(bucket_obj: storage.Bucket, image_local_path: Path):

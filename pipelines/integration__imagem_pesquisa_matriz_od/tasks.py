@@ -5,11 +5,11 @@ from time import sleep
 
 import pandas as pd
 import pandas_gbq
-from google.api_core.exceptions import NotFound
 from google.cloud import storage
-from prefect import task
+from prefect import runtime, task
 from prefect.cache_policies import NO_CACHE
 
+from pipelines.common import constants as smtr_constants
 from pipelines.common.tasks import get_scheduled_timestamp
 from pipelines.common.treatment.default_treatment.utils import IncompleteDataError
 from pipelines.common.utils.redis import get_redis_client
@@ -116,7 +116,6 @@ def get_journeys(
             j.stop_id_4,
             j.stop_name_4
         FROM {constants.JOURNEY_TABLE_NAME} j
-        JOIN rj-smtr.cadastro_interno.cliente_jae c ON j.rider_id = sha256(c.id_cliente)
         WHERE
             j.service_date BETWEEN date('{datetime_start_str}') AND date('{datetime_end_str}')
             AND j.datetime_ultima_atualizacao
@@ -137,7 +136,9 @@ def get_journeys(
 
 
 @task(cache_policy=NO_CACHE)
-def generate_images(bucket_obj: storage.Bucket, journey_filepath: Path) -> list[Path]:
+def generate_images(
+    bucket_obj: storage.Bucket, journey_filepath: Path
+) -> tuple[list[Path], list[str]]:
     """
     Gera as imagens com o grid com as 4 opções de desembarque.
 
@@ -147,6 +148,7 @@ def generate_images(bucket_obj: storage.Bucket, journey_filepath: Path) -> list[
 
     Returns:
         list[Path]: Lista com os caminhos das imagens.
+        list[str]: Lista com stop_ids que não tem imagem no bucket.
     """
     df_jouney = pd.read_csv(str(journey_filepath), chunksize=2000)
     font = load_font("DejaVuSans-Bold.ttf", 80)
@@ -154,22 +156,25 @@ def generate_images(bucket_obj: storage.Bucket, journey_filepath: Path) -> list[
     downloaded_images = []
 
     result_paths = []
+    result_error = []
     for chunk in df_jouney:
         for _, row in chunk.iterrows():
             stop_info = {row[f"stop_id_{i}"]: row[f"stop_name_{i}"] for i in range(1, 5)}
-            try:
-                result_paths.append(
-                    build_journey_image(
-                        bucket_obj=bucket_obj,
-                        journey_key=row["journey_key"],
-                        stop_info=stop_info,
-                        font=font,
-                        caption_font=caption_font,
-                        downloaded_images=downloaded_images,
-                    )
-                )
-            except NotFound:
+            path, no_image_stop_ids = build_journey_image(
+                bucket_obj=bucket_obj,
+                journey_key=row["journey_key"],
+                stop_info=stop_info,
+                font=font,
+                caption_font=caption_font,
+                downloaded_images=downloaded_images,
+            )
+
+            if path is None:
+                result_error += no_image_stop_ids
                 continue
+
+            no_image_stop_ids.append(path)
+
     return result_paths
 
 
@@ -216,3 +221,33 @@ def save_run_on_redis(
         print(f"Salvando valor: {result} na key: {redis_key}")
         redis_client.set(redis_key, result)
         print("Valor salvo no Redis!")
+
+
+@task(cache_policy=NO_CACHE)
+def create_missing_image_discord_message(
+    no_image_stop_id: list[str],
+) -> str | None:
+    """
+    Cria a mensagem para notificação no Discord com os stops sem imagem no GCS.
+
+    Args:
+        no_image_stop_id (list[str]): Lista com stop_ids sem imagem.
+
+    Returns:
+        str | None: Mensagem para ser enviada no Discord.
+    """
+    stop_ids = set(no_image_stop_id)
+    stop_ids_len = len(stop_ids)
+    message = f"""
+Foram encontrados {stop_ids_len} stops sem imagem no GCS
+"""
+    if stop_ids_len > 0:
+        mentions_tag = f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
+        message = f":red_circle: {message}"
+        message += (
+            "\n"
+            + f"https://prefect-v3.mobilidade.rio/runs/flow-run/{runtime.flow_run.id}"
+            + "\n"
+            + mentions_tag
+        )
+        return message
