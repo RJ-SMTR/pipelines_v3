@@ -65,6 +65,7 @@
             select
                 data,
                 servico,
+                consorcio,
                 left(sentido, 1) as sentido,
                 tipo_os,
                 tipo_dia,
@@ -85,6 +86,7 @@
             select
                 data,
                 servico,
+                consorcio,
                 tipo_os,
                 tipo_dia,
                 faixa_horaria_inicio,
@@ -121,6 +123,10 @@
                     struct(os.data as data_operacional, tipo_dia, tipo_os)
                 ) as dias_os
             from os
+            -- Restringe a OS aos consórcios do SPPO antes de somar as faixas.
+            where
+                lower(trim(consorcio))
+                in ('internorte', 'intersul', 'santa cruz', 'transcarioca')
             group by all
         )
         {% if "viagem_planejada" not in model and "servico_planejado_faixa_horaria" not in model %}
