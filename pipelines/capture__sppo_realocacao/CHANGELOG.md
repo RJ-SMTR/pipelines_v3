@@ -1,5 +1,11 @@
 # Changelog - capture__sppo_realocacao
 
+## [1.0.2] - 2026-11-24
+
+### Alterado
+
+- Desativa os schedules de produção de captura e recaptura horária (`active: false`), pois a fonte SPPO está inativa (https://github.com/RJ-SMTR/pipelines_v3/pull/917)
+
 ## [1.0.1] - 2026-05-18
 
 ### Adicionado
