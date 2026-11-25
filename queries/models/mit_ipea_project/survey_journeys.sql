@@ -42,22 +42,20 @@
         | list
     ) %}
     {% set sha_column %}
-        {% set sha_column %}
-            sha256(
-                to_json_string(
-                    struct(
-                        {% for c in columns %}
-                            {% if c == "rider_id" %}
-                                to_base64({{ c }}) as `{{ c }}`
-                            {% else %}
-                                cast({{ c }} as string) as `{{ c }}`
-                            {% endif %}
-                            {% if not loop.last %}, {% endif %}
-                        {% endfor %}
-                    )
+        sha256(
+            to_json_string(
+                struct(
+                    {% for c in columns %}
+                        {% if c == "rider_id" %}
+                            to_base64({{ c }}) as `{{ c }}`
+                        {% else %}
+                            cast({{ c }} as string) as `{{ c }}`
+                        {% endif %}
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor %}
                 )
             )
-        {% endset %}
+        )
     {% endset %}
 
     {% set gtfs_feeds_query %}
