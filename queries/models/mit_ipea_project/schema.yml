@@ -8,7 +8,7 @@ models:
         -  gtfs.trips, gtfs.stop_times, gtfs.stops, gtfs.routes (dados do GTFS)
     columns:
       - name: journey_key
-        description: Identificador único da viagem
+        description: "{{ doc('journey_key') }}"
         data_type: string
       - name: rider_id
         description: Hash identificador do cliente que efetuou a viagem [protegido]
@@ -95,3 +95,23 @@ models:
       - name: prediction_slot
         data_type: int64
         description: Número da última opção considerada como 'prediction'
+  - name: view_journey_image
+    description: |-
+      Uma linha por viagem. Contém dados para envios de mensagens para a pesquisa da Matriz OD.
+      Fonte: rj-smtr.mit_ipea_project. survey_journeys e rj-smtr-staging.mit_ipea_project_sandbox.voluntario_disparo_mensagem
+    columns:
+      - name: journey_key
+        description: "{{ doc('journey_key') }}"
+        data_type: string
+      - name: cpf
+        description: Documento do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: nome_sobrenome
+        description: Nome e sobrenome do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: telefone
+        description: Telefone do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: link_imagem
+        description: Link da imagem com as opções de stops do desembarque da viagem
+        data_type: string
