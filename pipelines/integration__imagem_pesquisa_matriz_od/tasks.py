@@ -119,7 +119,7 @@ def get_journeys(
         JOIN rj-smtr.cadastro_interno.cliente_jae c ON j.rider_id = sha256(c.id_cliente)
         WHERE
             j.service_date BETWEEN date('{datetime_start_str}') AND date('{datetime_end_str}')
-            AND datetime_ultima_atualizacao
+            AND j.datetime_ultima_atualizacao
                 BETWEEN datetime('{datetime_start_str}')
                 AND datetime_add(datetime('{datetime_end_str}'), interval 1 hour)
     """
