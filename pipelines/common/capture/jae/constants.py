@@ -82,7 +82,7 @@ JAE_DATABASE_SETTINGS = {
     },
     "estacionamento_db": {
         "engine": "postgresql",
-        "host": "10.5.114.128",
+        "host": "10.60.7.134",
     },
 }
 
