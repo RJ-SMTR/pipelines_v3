@@ -1,10 +1,16 @@
 # Changelog capture__jae_backup_billingpay
 
+## [1.2.5] - 2026-11-25
+
+### Adicionado
+
+- Adiciona tabelas temporárias no exclude do `financeiro_db` e `gratuidade_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/919)
+
 ## [1.2.4] - 2026-11-23
 
 ### Adicionado
 
-- Adiciona tabelas temporárias no exclude do `financeiro_db`, `midia_db` e `vendas_db` ()
+- Adiciona tabelas temporárias no exclude do `financeiro_db`, `midia_db` e `vendas_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/908)
 
 ## [1.2.3] - 2026-10-26
 
