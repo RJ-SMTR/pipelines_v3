@@ -482,12 +482,12 @@ class SourceTable(BQTable):
             bucket_names=self.bucket_names,
         )
 
-    def create_parquet(self, sample_uri: str, location: str = "US"):
+    def create_parquet(self, sample_filepath: str, location: str = "US"):
         """
         Cria a tabela externa do source em Parquet
 
         Args:
-            sample_uri (str): URI de um arquivo Parquet do source, usado como referência do schema
+            sample_filepath (str): Caminho do CSV do source (usado para criar o schema)
             location (str): Localização do dataset
         """
         table = self.get_parquet_table()
@@ -495,7 +495,8 @@ class SourceTable(BQTable):
         Dataset(dataset_id=table.dataset_id, env=self.env, location=location).create()
 
         external_config = bigquery.ExternalConfig("PARQUET")
-        external_config.reference_file_schema_uri = sample_uri
+        external_config.autodetect = False
+        external_config.schema = self._create_table_schema(sample_filepath=sample_filepath)
         self._set_source_uris(external_config=external_config, mode="source_parquet")
 
         bq_table = bigquery.Table(table.table_full_name)
@@ -529,7 +530,7 @@ class SourceTable(BQTable):
         partition: str,
         if_exists: str = "replace",
         mode: str = "source",
-    ) -> str:
+    ):
         """
         Insere novos dados na tabela externa
 
@@ -539,9 +540,6 @@ class SourceTable(BQTable):
             if_exists (str): Ação a ser tomada caso o arquivo exista
                 no storage (raise, pass, replace)
             mode (str): Pasta raiz no bucket (source ou source_parquet)
-
-        Returns:
-            str: URI do arquivo no Storage
         """
         st_obj = Storage(
             env=self.env,
@@ -556,8 +554,3 @@ class SourceTable(BQTable):
             partition=partition,
             if_exists=if_exists,
         )
-        filename, filetype = Path(source_filepath).name.rsplit(".", 1)
-        blob_name = st_obj.create_blob_name(
-            mode=mode, filename=filename, filetype=filetype, partition=partition
-        )
-        return f"gs://{st_obj.bucket_name}/{blob_name}"

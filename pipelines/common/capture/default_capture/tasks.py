@@ -295,7 +295,7 @@ def upload_source_parquet(context: SourceCaptureContext, if_exists: str):
         return
 
     source = context.source
-    uri = source.append(
+    source.append(
         source_filepath=context.source_parquet_filepath,
         partition=context.partition,
         if_exists=if_exists,
@@ -303,7 +303,7 @@ def upload_source_parquet(context: SourceCaptureContext, if_exists: str):
     )
     if not source.get_parquet_table().exists():
         print("Tabela Parquet não existe, criando tabela...")
-        source.create_parquet(sample_uri=uri)
+        source.create_parquet(sample_filepath=context.source_filepath)
         print("Tabela Parquet criada")
 
 
