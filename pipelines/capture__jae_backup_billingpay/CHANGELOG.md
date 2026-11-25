@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Adiciona tabelas temporárias no exclude do `financeiro_db` e `gratuidade_db` ()
+- Adiciona tabelas temporárias no exclude do `financeiro_db` e `gratuidade_db` (https://github.com/RJ-SMTR/pipelines_v3/pull/919)
 
 ## [1.2.4] - 2026-11-23
 
