@@ -241,6 +241,11 @@ BACKUP_JAE_BILLING_PAY = {
             "estudante_seeduc_19082026",
             "estudante_universitario_21092026",
             "estudante_universitario_01092026",
+            "estudante_seeduc_05102026",
+            "temp_enem_2026",
+            "temp_enem_2026_todos",
+            "estudante_universitario_29102026",
+            "estudante_universitario_09102026",
             # sem permissão: #
             "pcd_excluir",
             "estudante_seeduc",
@@ -343,6 +348,7 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_uso_0711",
             "temp_debito_0711",
             "temp_debito_1411",
+            "estorno_credito_conta_vt"
             # sem índice
             "evento_recebido",
             "evento_processado",
