@@ -1,0 +1,4 @@
+[project]
+name = "integration__imagem_pesquisa_matriz_od"
+version = "0.1.0"
+description = "Pipeline imagem_pesquisa_matriz_od da secretaria rj-smtr"
