@@ -53,7 +53,7 @@ def get_date_range(
     if datetime_end is None:
         datetime_end = get_scheduled_timestamp()
     else:
-        datetime_end = datetime.fromisoformat(datetime_end)
+        datetime_end = convert_timezone(datetime.fromisoformat(datetime_end))
 
     print(f"datetime_start: {datetime_start}")
     print(f"datetime_end: {datetime_end}")
