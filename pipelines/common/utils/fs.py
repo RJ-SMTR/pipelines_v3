@@ -179,14 +179,13 @@ def read_raw_data(filepath: str, reader_args: Optional[dict] = None) -> Iterator
 
     elif filetype in ("txt", "csv"):
         csv_args = get_csv_reader_args(reader_args=reader_args)
-        encoding = csv_args.get("encoding", "utf8")
         # Linhas em branco viram linhas só com nulos; o pandas as ignorava (skip_blank_lines)
         not_blank = ~pl.all_horizontal(pl.all().is_null())
-        if encoding.lower().replace("-", "") in ("utf8", "utf8lossy"):
+        if "encoding" not in csv_args:
             data = pl.scan_csv(filepath, **csv_args).filter(not_blank)
             yield from data.collect_batches(chunk_size=batch_size)
         else:
-            # scan_csv só lê UTF-8; read_csv decodifica outras codificações em Python
+            # scan_csv só lê UTF-8; read_csv decodifica a codificação informada (latin1 do RDO)
             data = pl.read_csv(filepath, **csv_args).filter(not_blank)
             yield from data.iter_slices(n_rows=batch_size)
 
