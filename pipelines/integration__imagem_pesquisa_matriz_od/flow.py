@@ -70,7 +70,8 @@ def integration__imagem_pesquisa_matriz_od(
 
     discord_messages = create_missing_image_discord_message(no_image_stop_id=no_image_stop_ids)
 
-    task_send_discord_message(
-        message=discord_messages,
-        webhook=jae_constants.ALERT_WEBHOOK,
-    )
+    if discord_messages is not None:
+        task_send_discord_message(
+            message=discord_messages,
+            webhook=jae_constants.ALERT_WEBHOOK,
+        )

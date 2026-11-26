@@ -44,13 +44,11 @@ def get_date_range(
         redis_client = get_redis_client()
         last_run = redis_client.get(f"{env}.{constants.REDIS_KEY_SUFIX}")
         if last_run is None:
-            last_run = {constants.REDIS_DICT_KEY: constants.FIRST_TIMESTAMP}
+            last_run = constants.FIRST_TIMESTAMP
         else:
             last_run = last_run[constants.REDIS_DICT_KEY]
 
-    datetime_start = convert_timezone(
-        datetime.fromisoformat(last_run.get(constants.REDIS_DICT_KEY))
-    )
+    datetime_start = convert_timezone(datetime.fromisoformat(last_run))
 
     if datetime_end is None:
         datetime_end = get_scheduled_timestamp()
@@ -173,9 +171,9 @@ def generate_images(
                 result_error += no_image_stop_ids
                 continue
 
-            no_image_stop_ids.append(path)
+            result_paths.append(path)
 
-    return result_paths
+    return result_paths, result_error
 
 
 @task(cache_policy=NO_CACHE)
@@ -210,7 +208,7 @@ def save_run_on_redis(
         result = {}
         last_run = constants.FIRST_TIMESTAMP
     else:
-        last_run = last_run[constants.REDIS_DICT_KEY]
+        last_run = result[constants.REDIS_DICT_KEY]
 
     last_run = convert_timezone(datetime.fromisoformat(last_run))
 
@@ -238,10 +236,12 @@ def create_missing_image_discord_message(
     """
     stop_ids = set(no_image_stop_id)
     stop_ids_len = len(stop_ids)
-    message = f"""
+
+    if stop_ids_len > 0:
+        message = f"""
 Foram encontrados {stop_ids_len} stops sem imagem no GCS
 """
-    if stop_ids_len > 0:
+        print(f"{message}{'\n'.join(stop_ids)}")
         mentions_tag = f" - <@&{smtr_constants.OWNERS_DISCORD_MENTIONS['dados_smtr']['user_id']}>"
         message = f":red_circle: {message}"
         message += (
