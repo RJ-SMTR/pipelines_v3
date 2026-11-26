@@ -133,7 +133,6 @@ def get_csv_reader_args(reader_args: dict) -> dict:
         if key in ("sep", "delimiter"):
             csv_args["separator"] = value
         elif key == "names":
-            csv_args["has_header"] = False
             csv_args["new_columns"] = list(value)
         elif key == "header" and value in (None, 0):
             csv_args["has_header"] = value == 0
@@ -145,6 +144,9 @@ def get_csv_reader_args(reader_args: dict) -> dict:
             continue
         else:
             raise ValueError(f"Argumento de leitura não suportado para CSV: {key}={value!r}")
+    # Como no pandas, `names` sem `header=0` indica arquivo sem cabeçalho
+    if "new_columns" in csv_args:
+        csv_args.setdefault("has_header", False)
     return csv_args
 
 
