@@ -8,12 +8,7 @@ with
     servicos_ordem_servico as (
         select distinct feed_start_date, servico
         from {{ ref("ordem_servico_faixa_horaria_sentido") }}
-        where
-            feed_start_date = date('{{ var("data_versao_gtfs") }}')
-            and partidas > 0
-            -- Considera apenas os 4 consórcios do sistema SPPO, ignorando serviços
-            -- de Sistema Rio ou GTU inseridos indevidamente na Ordem de Serviço
-            and consorcio in ("Internorte", "Intersul", "Santa Cruz", "Transcarioca")
+        where feed_start_date = date('{{ var("data_versao_gtfs") }}') and partidas > 0
     ),
     trips_ordem_servico as (
         select t.feed_start_date, t.servico, t.trip_id

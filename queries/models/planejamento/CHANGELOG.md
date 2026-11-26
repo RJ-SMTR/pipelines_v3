@@ -1,11 +1,5 @@
 # Changelog - planejamento
 
-## [1.12.1] - 2026-11-26
-
-### Alterado
-
-- `test_consistencia_servicos_ordem_servico_gtfs` passa a considerar apenas os 4 consórcios do sistema SPPO (Internorte, Intersul, Santa Cruz e Transcarioca), ignorando serviços de Sistema Rio ou GTU inseridos indevidamente na Ordem de Serviço, que não possuem trips no GTFS do SPPO e faziam o teste estourar, travando o planejamento diário ([PR #924](https://github.com/RJ-SMTR/pipelines_v3/pull/924)).
-
 ## [1.12.0] - 2026-11-18
 
 ### Adicionado
