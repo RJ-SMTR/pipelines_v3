@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
-import google.auth
 import pandas as pd
 import pandas_gbq
 import yaml
@@ -504,12 +503,6 @@ class SourceTable(BQTable):
         bq_table.description = f"staging table for `{table.table_full_name}`"
         bq_table.external_data_configuration = external_config
 
-        credentials, project = google.auth.default()
-        print(
-            "Credenciais: "
-            f"{getattr(credentials, 'service_account_email', type(credentials).__name__)}, "
-            f"projeto: {project}"
-        )
         self.client("bigquery").create_table(bq_table, exists_ok=True)
         print("Table created!")
 
