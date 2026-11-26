@@ -10,7 +10,7 @@ select
     v.nome_completo as nome_sobrenome,
     concat(v.ddd_telefone, v.numero_telefone) as telefone,
     concat(
-        "https://storage.googleapis.com/rj-smtr-disparo-mensagem-dev/mit-ipea-project/",
+        "https://storage.googleapis.com/rj-smtr-disparo-mensagem/mit-ipea-project/",
         journey_key,
         ".png"
     ) as link_imagem
