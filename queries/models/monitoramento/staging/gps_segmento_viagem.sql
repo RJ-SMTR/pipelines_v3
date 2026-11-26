@@ -347,8 +347,7 @@ with
         join viagem v on g.id_viagem = v.id_viagem
         join
             segmento_primeiro_ultimo spu
-            on s.feed_version = spu.feed_version
-            and s.feed_start_date = spu.feed_start_date
+            on s.feed_start_date = spu.feed_start_date
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
