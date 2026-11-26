@@ -63,6 +63,13 @@ def get_date_range(
 
 @task(cache_policy=NO_CACHE)
 def wait_materialization(env: str, datetime_end: datetime):
+    """
+    Verifica se a materialização dos dados da Matriz OD está em dia.
+
+    Args:
+        env (str): prod ou dev.
+        datetime_end (datetime): Datetime final da execução.
+    """
     count = 0
     wait_limit = 10
     complete = False
