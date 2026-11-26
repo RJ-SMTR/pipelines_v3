@@ -7,7 +7,7 @@ from collections.abc import Iterator
 from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import pandas as pd
 import polars as pl
@@ -56,7 +56,7 @@ def get_filetype(filepath: str):
 def save_local_file(
     filepath: str,
     filetype: str,
-    data: Union[str, dict, list[dict], pd.DataFrame, pl.DataFrame],
+    data: str | dict | list[dict] | pd.DataFrame | pl.DataFrame,
     csv_mode="w",
 ):
     """
@@ -65,7 +65,7 @@ def save_local_file(
     Args:
         filepath (str): Caminho para salvar o arquivo
         filetype (str): Extensão do arquivo
-        data Union[str, dict, list[dict], pd.DataFrame, pl.DataFrame]: Dados que serão salvos
+        data (str | dict | list[dict] | pd.DataFrame | pl.DataFrame): Dados que serão salvos
             no arquivo
         csv_mode (str): Modo de escrita no arquivo CSV
     """
@@ -79,34 +79,31 @@ def save_local_file(
         print("Received a Polars DataFrame, saving file as CSV")
         with Path(filepath).open("ab" if csv_mode == "a" else "wb") as file:
             data.write_csv(file, include_header=csv_mode != "a")
-        print("File saved!")
-        return
 
-    if isinstance(data, pd.DataFrame):
+    elif isinstance(data, pd.DataFrame):
         print("Received a DataFrame, saving file as CSV")
         if csv_mode == "a":
             data.to_csv(filepath, index=False, header=False, mode="a")
         else:
             data.to_csv(filepath, index=False)
-        print("File saved!")
-        return
 
-    print(f"Saving {filetype.upper()}")
-    with Path(filepath).open("w", encoding="utf-8") as file:
-        if filetype == "json":
-            if isinstance(data, str):
-                print("Converting string to python object")
-                data = json.loads(data)
+    else:
+        print(f"Saving {filetype.upper()}")
+        with Path(filepath).open("w", encoding="utf-8") as file:
+            if filetype == "json":
+                if isinstance(data, str):
+                    print("Converting string to python object")
+                    data = json.loads(data)
 
-            json.dump(data, file, default=custom_serialization)
+                json.dump(data, file, default=custom_serialization)
 
-        elif filetype in ("txt", "csv"):
-            file.write(data)
+            elif filetype in ("txt", "csv"):
+                file.write(data)
 
-        else:
-            raise NotImplementedError(
-                "Unsupported raw file extension. Supported only: json, csv and txt"
-            )
+            else:
+                raise NotImplementedError(
+                    "Unsupported raw file extension. Supported only: json, csv and txt"
+                )
 
     print("File saved!")
 
