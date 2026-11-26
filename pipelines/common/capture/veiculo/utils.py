@@ -20,6 +20,7 @@ def pre_treatment_sppo_licenciamento(
     for col in data.columns[data.columns.str.contains("indicador")].to_list():
         data[col] = data[col].map({"Sim": True, "Nao": False})
 
+    data["id_veiculo"] = data["id_veiculo"].replace("NULL", np.nan)
     data = data.dropna(subset=["id_veiculo"])
 
     data["indicador_ar_condicionado"] = data["tipo_veiculo"].map(
@@ -38,5 +39,6 @@ def pre_treatment_sppo_infracao(
     for col in data.columns[data.dtypes == "object"].to_list():
         data[col] = data[col].str.strip().replace("", np.nan)
 
+    data["valor"] = data["valor"].replace("NULL", np.nan)
     data["valor"] = data["valor"].astype(str).str.replace(",", ".").astype(float)
     return data
