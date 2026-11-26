@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.12.1] - 2026-11-23
+
+### Alterado
+
+- Em `test_check_km_planejada.sql`, troca `!=` por `IS DISTINCT FROM` para sinalizar distância planejada nula ou divergente quando há quilometragem na Ordem de Serviço (OS). As exceções usam a data operacional, `tipo_dia` e `tipo_os` da faixa planejada. Se a faixa estiver ausente, usam o calendário. Para o período anterior a Viagens 2.0, usam `subsidio_data_versao_efetiva`. O teste sinaliza faixas ausentes com partidas previstas na OS mesmo em dias de exceção (https://github.com/RJ-SMTR/pipelines_v3/pull/904)
+
 ## [1.12.0] - 2026-11-18
 
 ### Adicionado
