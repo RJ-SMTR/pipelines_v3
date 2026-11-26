@@ -57,8 +57,8 @@ select
     safe_cast(json_value(content, '$.is_abt') as bool) as is_abt,
     safe_cast(json_value(content, '$.latitude_trx') as float64) as latitude_trx,
     safe_cast(json_value(content, '$.longitude_trx') as float64) as longitude_trx,
-    safe_cast(
-        json_value(content, '$.nr_logico_midia_operador') as string
+    replace(
+        safe_cast(json_value(content, '$.nr_logico_midia_operador') as string), '.0', ''
     ) as nr_logico_midia_operador,
     safe_cast(
         json_value(content, '$.numero_serie_validador') as string
