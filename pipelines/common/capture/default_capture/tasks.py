@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Callable, Optional
 from zoneinfo import ZoneInfo
 
-import pandas as pd
 import polars as pl
 from prefect import task
 from prefect.cache_policies import NO_CACHE
@@ -204,7 +203,7 @@ def transform_raw_to_nested_structure(context: SourceCaptureContext):
         save_local_file(
             filepath=context.source_filepath,
             filetype=constants.SOURCE_FILETYPE,
-            data=pd.DataFrame(),
+            data=pl.DataFrame(),
         )
 
 
