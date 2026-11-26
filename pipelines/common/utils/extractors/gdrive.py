@@ -2,51 +2,13 @@
 """Module to get data from Google Drive"""
 
 import io
-import os
 from typing import Any, Optional
 
 import pandas as pd
-from google.auth import default
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
 from pipelines.common.utils.fs import save_local_file
-from pipelines.common.utils.pretreatment import normalize_text
-from pipelines.common.utils.utils import is_running_locally
-
-
-def get_google_api_service(service_name: str, version: str, scopes: Optional[list[str]] = None):
-    """
-    Retorna um serviço do Google API configurado com as credenciais apropriadas.
-
-    Args:
-        service_name: Nome do serviço Google (ex: 'sheets', 'drive')
-        version: Versão da API (ex: 'v4', 'v3')
-        scopes: Lista de escopos de permissão. Se None, usa drive.readonly por padrão.
-
-    Returns:
-        Resource: Serviço do Google API configurado
-    """
-
-    scopes_by_service = {
-        "sheets": ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-        "drive": ["https://www.googleapis.com/auth/drive.readonly"],
-    }
-
-    if scopes is None:
-        scopes = scopes_by_service.get(
-            service_name, ["https://www.googleapis.com/auth/drive.readonly"]
-        )
-
-    if "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ or is_running_locally():
-        creds, _ = default(scopes=scopes)
-    else:
-        creds = service_account.Credentials.from_service_account_file(
-            filename=os.environ["GOOGLE_APPLICATION_CREDENTIALS"], scopes=scopes
-        )
-
-    return build(service_name, version, credentials=creds)
+from pipelines.common.utils.google_drive import read_google_sheets
 
 
 def download_drive_file(file_link: str, drive_service) -> bytes:
@@ -104,51 +66,14 @@ def get_google_sheet_xlsx(  # noqa: PLR0913
         DataFrame se raw_filepath for None, lista com filepath se raw_filepath for fornecido
     """
 
-    sheets_service = get_google_api_service(service_name="sheets", version="v4")
-
-    file = (
-        sheets_service.spreadsheets()
-        .values()
-        .get(
-            spreadsheetId=spread_sheet_id,
-            range=sheet_name,
-        )
-        .execute()
-    )["values"]
-
-    if not file:
-        raise ValueError(f"A aba '{sheet_name}' está vazia ou não retornou dados.")
-
-    columns = file[0]
-    rows = []
-    for row_number, row in enumerate(file[1:], start=2):
-        if len(row) > len(columns):
-            raise ValueError(
-                f"A linha {row_number} da aba {sheet_name} tem {len(row)} valores, "
-                f"mas o cabeçalho tem {len(columns)} colunas"
-            )
-
-        rows.append([*row, *([""] * (len(columns) - len(row)))])
-
-    df = pd.DataFrame(rows, columns=columns)
-
-    df.columns = [
-        normalize_text(c, snake_case=True, case="lower", remove_multiple_spaces=True)
-        for c in df.columns
-    ]
-
-    if rename_mapping:
-        df = df.rename(columns=rename_mapping)
-
-    if dtypes:
-        df = df.astype(dtypes)
-
-    if parse_dates:
-        for column, kwargs in parse_dates.items():
-            df[column] = pd.to_datetime(df[column], **kwargs)
-
-    if filter_expr:
-        df = df.query(filter_expr)
+    df = read_google_sheets(
+        spread_sheet_id=spread_sheet_id,
+        sheet_name=sheet_name,
+        filter_expr=filter_expr,
+        rename_mapping=rename_mapping,
+        dtypes=dtypes,
+        parse_dates=parse_dates,
+    )
 
     if raw_filepath:
         filepath = raw_filepath.format(page=0)
