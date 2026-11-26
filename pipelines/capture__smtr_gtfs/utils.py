@@ -15,9 +15,10 @@ from unidecode import unidecode
 from pipelines.capture__smtr_gtfs import constants
 from pipelines.common import constants as smtr_constants
 from pipelines.common.utils.extractors.api import get_api_data
-from pipelines.common.utils.extractors.gdrive import download_drive_file, get_google_api_service
+from pipelines.common.utils.extractors.gdrive import download_drive_file
 from pipelines.common.utils.fs import get_data_folder_path, save_local_file
 from pipelines.common.utils.gcp.storage import Storage
+from pipelines.common.utils.google_drive import get_google_api_service
 
 
 def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
