@@ -1,5 +1,14 @@
 # Changelog - default_capture
 
+## [1.0.8] - 2026-11-26
+
+### Alterado
+
+- `transform_raw_to_nested_structure` passa a usar Polars no lugar do pandas para transformar o raw na estrutura aninhada, preservando o texto do raw no `content` (sem remover zeros à esquerda, adicionar ou remover `.0` ou converter booleanos em números) (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+- `read_raw_data` lê o raw em blocos com Polars e traduz os `pretreatment_reader_args` do formato do pandas; `dtype` e `convert_dates` deixam de ter efeito e argumentos não suportados levantam erro (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+- `pretreat_funcs` anotadas com `pd.DataFrame` continuam recebendo os dados em pandas; `strip_string_columns` passa a ser nativa em Polars (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+- Adiciona as dependências `polars` e `pyarrow` (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+
 ## [1.0.7] - 2026-10-21
 
 ### Adicionado
