@@ -125,12 +125,14 @@ def get_journeys(
 
     save_filepath.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"executando query:\n{query}")
+    print(f"Executando query:\n{query}")
 
-    pandas_gbq.read_gbq(
+    df = pandas_gbq.read_gbq(
         query,
         project_id=project_name,
-    ).to_csv(str(save_filepath), header=True, index=False)
+    )
+    print(f"A query retornou {len(df)} linha(s)")
+    df.to_csv(str(save_filepath), header=True, index=False)
 
     return save_filepath
 
