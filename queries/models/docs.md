@@ -2376,3 +2376,7 @@ Número da nota fiscal da operação
 {% docs tipo_conta_operacao_controle_ctt %}
 Tipo da conta [CETT, CB ou CAER]
 {% enddocs %}
+
+{% docs journey_key %}
+Identificador único da viagem
+{% enddocs %}
