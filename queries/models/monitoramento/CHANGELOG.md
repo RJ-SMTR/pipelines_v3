@@ -1,5 +1,11 @@
 # Changelog - monitoramento
 
+## [2.5.9] - 2026-11-26
+
+### Corrigido
+
+- `gps_segmento_viagem` passa a cruzar os dados do `calendario` com a `segmento_shape` (e modelos derivados) apenas por `feed_start_date`, removendo a exigência de `feed_version` idêntico ([PR #924](https://github.com/RJ-SMTR/pipelines_v3/pull/924)).
+
 ## [2.5.8] - 2026-11-11
 
 ### Corrigido
