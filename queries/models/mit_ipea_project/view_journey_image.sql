@@ -7,6 +7,7 @@
 select
     service_date as data,
     j.journey_key,
+    j.rider_document as cpf,
     upper(
         coalesce(
             nullif(trim(split(trim(v.nome_completo), ' ')[safe_offset(0)]), ''),

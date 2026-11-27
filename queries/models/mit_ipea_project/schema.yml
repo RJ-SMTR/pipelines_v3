@@ -120,6 +120,9 @@ models:
       - name: journey_key
         description: "{{ doc('journey_key') }}"
         data_type: string
+      - name: cpf
+        description: Documento do cliente que efetuou a viagem [protegido]
+        data_type: string
       - name: nome
         description: Nome do cliente que efetuou a viagem [protegido]
         data_type: string
