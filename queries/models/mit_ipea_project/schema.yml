@@ -36,9 +36,20 @@ models:
       - name: boarding_time
         description: Horário de embarque da primeira transação da viagem [GMT-3]
         data_type: time
+      - name: boarding_mode
+        description: "{{ doc('modo' ) }} da primeira transação da viagem"
       - name: boarding_servico
         description: "{{ doc('servico_variacao' ) }} da primeira transação da viagem"
         data_type: string
+      - name: boarding_descricao_servico
+        description: "{{ doc('descricao_servico_cadastro' ) }} da primeira transação da viagem"
+        data_type: string
+      - name: boarding_neighborhood
+        description: "Nome do bairro da primeira transação da viagem"
+        data_type: string
+      - name: boarding_tap_location
+        description: Ponto geográfico no sistema de referência WGS84 da primeira transação da viagem
+        data_type: geography
       - name: boarding_stop_id
         description: stop_id do GTFS em que o cliente embarcou na primeira transação da viagem
         data_type: string
@@ -82,20 +93,29 @@ models:
         description: Quarta opção de stop_id do GTFS para desembarque da viagem
         data_type: string
       - name: stop_name_1
-        description: Primeira opção de stop_name do GTFS para desembarque da viagem
+        description: "Primeira {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_2
-        description: Segunda opção de stop_name do GTFS para desembarque da viagem
+        description: "Segunda {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_3
-        description: Terceira opção de stop_name do GTFS para desembarque da viagem
+        description: "Terceira {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_4
-        description: Quarta opção de stop_name do GTFS para desembarque da viagem
+        description: "Quarta {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: prediction_slot
         data_type: int64
         description: Número da última opção considerada como 'prediction'
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
   - name: view_journey_image
     description: |-
       Uma linha por viagem. Contém dados para envios de mensagens para a pesquisa da Matriz OD.
@@ -103,18 +123,42 @@ models:
       Use journey_key para associar as linhas às jornadas.
       Fonte: rj-smtr.mit_ipea_project. survey_journeys e rj-smtr-sandbox.mit_ipea_project.voluntario_disparo_mensagem
     columns:
+      - name: data
+        description: "{{ doc('data_transacao' ) }} [partição]"
+        data_type: date
       - name: journey_key
         description: "{{ doc('journey_key') }}"
         data_type: string
       - name: cpf
         description: Documento do cliente que efetuou a viagem [protegido]
         data_type: string
-      - name: nome_sobrenome
-        description: Nome e sobrenome do cliente que efetuou a viagem [protegido]
+      - name: nome
+        description: Nome do cliente que efetuou a viagem [protegido]
         data_type: string
       - name: telefone
         description: Telefone do cliente que efetuou a viagem [protegido]
         data_type: string
+      - name: local_embarque
+        description: Nome do ponto, estação ou bairro em que foi feito o embarque
+        data_type: string
+      - name: turno
+        description: Turno do embarque embarque [de manhã, à tarde, à noite e de madrugada]
+        data_type: string
+      - name: parada_a
+        description: "Primeira {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_b
+        description: "Segunda {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_c
+        description: "Terceira {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_d
+        description: "Quarta {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
       - name: link_imagem
         description: Link da imagem com as opções de stops do desembarque da viagem
         data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
