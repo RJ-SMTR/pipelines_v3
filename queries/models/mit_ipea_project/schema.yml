@@ -107,6 +107,15 @@ models:
       - name: prediction_slot
         data_type: int64
         description: Número da última opção considerada como 'prediction'
+      - name: versao
+        description: "{{ doc('versao') }}"
+        data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
+      - name: id_execucao_dbt
+        description: "{{ doc('id_execucao_dbt') }}"
+        data_type: string
   - name: view_journey_image
     description: |-
       Uma linha por viagem. Contém dados para envios de mensagens para a pesquisa da Matriz OD.
@@ -114,7 +123,7 @@ models:
       Use journey_key para associar as linhas às jornadas.
       Fonte: rj-smtr.mit_ipea_project. survey_journeys e rj-smtr-sandbox.mit_ipea_project.voluntario_disparo_mensagem
     columns:
-      - name: service_date
+      - name: data
         description: "{{ doc('data_transacao' ) }} [partição]"
         data_type: date
       - name: journey_key
@@ -150,3 +159,6 @@ models:
       - name: link_imagem
         description: Link da imagem com as opções de stops do desembarque da viagem
         data_type: string
+      - name: datetime_ultima_atualizacao
+        description: "{{ doc('datetime_ultima_atualizacao') }}"
+        data_type: datetime
