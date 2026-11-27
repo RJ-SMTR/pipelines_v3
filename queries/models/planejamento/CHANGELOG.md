@@ -4,8 +4,8 @@
 
 ### Alterado
 
-- `test_consistencia_planejamento_feed` tolera divergências de partidas e quilometragem fora de domingo no feed `2026-11-15`. A TR/SUBTOP/CGR solicitou a exceção em 27/11/2026, às 16:38, no Grupo Domínio Planejamento. A Ordem de Serviço (OS) foi emitida somente para domingo e os demais tipos de dia estão zerados por definição. A ausência de partidas no GTFS continua sendo sinalizada quando há partidas previstas na OS.
-- Para Ponto Facultativo, a exceção de divergências de partidas e quilometragem vale a partir do feed `2026-10-19`, conforme solicitação da TR/SUBTOP/CGR em 09/11/2026, às 17:55, no Grupo Domínio Planejamento, até nova comunicação para reativar a validação.
+- `test_consistencia_planejamento_feed` tolera, no feed `2026-11-15`, apenas as divergências de quantidade de partidas e de quilometragem entre OS e GTFS fora de domingo. A TR/SUBTOP/CGR solicitou a exceção em 27/11/2026, às 16:38, no Grupo Domínio Planejamento. A Ordem de Serviço (OS) foi emitida somente para domingo e os demais tipos de dia estão zerados por definição. A exceção não desativa a verificação de ausência de partidas no GTFS: o teste continua acusando, em qualquer tipo de dia, as faixas em que a OS prevê partidas e o GTFS não tem nenhuma (https://github.com/RJ-SMTR/pipelines_v3/pull/929)
+- Para Ponto Facultativo, a exceção de divergências de partidas e quilometragem vale a partir do feed `2026-10-19`, conforme solicitação da TR/SUBTOP/CGR em 09/11/2026, às 17:55, no Grupo Domínio Planejamento, até nova comunicação para reativar a validação (https://github.com/RJ-SMTR/pipelines_v3/pull/929)
 
 ## [1.12.1] - 2026-11-23
 
