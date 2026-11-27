@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.12.2] - 2026-11-27
+
+### Alterado
+
+- `test_consistencia_planejamento_feed` passa a validar somente domingo no feed `2026-11-15`, pois a Ordem de Serviço dessa versão foi emitida exclusivamente para esse tipo de dia.
+
 ## [1.12.1] - 2026-11-23
 
 ### Alterado
