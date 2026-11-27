@@ -18,7 +18,7 @@ select
         when j.boarding_stop_name is not null
         then j.boarding_stop_name
         when j.boarding_mode in ("BRT", "Metrô")
-        then concat(j.boarding_mode, ' ', initcap(j.boarding_descricao_servico))
+        then initcap(j.boarding_descricao_servico) || " (" || j.boarding_mode || ")"
         else j.boarding_neighborhood
     end as local_embarque,
     case
