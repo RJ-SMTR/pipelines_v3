@@ -93,16 +93,16 @@ models:
         description: Quarta opção de stop_id do GTFS para desembarque da viagem
         data_type: string
       - name: stop_name_1
-        description: Primeira opção de stop_name do GTFS para desembarque da viagem
+        description: "Primeira {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_2
-        description: Segunda opção de stop_name do GTFS para desembarque da viagem
+        description: "Segunda {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_3
-        description: Terceira opção de stop_name do GTFS para desembarque da viagem
+        description: "Terceira {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: stop_name_4
-        description: Quarta opção de stop_name do GTFS para desembarque da viagem
+        description: "Quarta {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: prediction_slot
         data_type: int64
@@ -114,17 +114,35 @@ models:
       Use journey_key para associar as linhas às jornadas.
       Fonte: rj-smtr.mit_ipea_project. survey_journeys e rj-smtr-sandbox.mit_ipea_project.voluntario_disparo_mensagem
     columns:
+      - name: service_date
+        description: "{{ doc('data_transacao' ) }} [partição]"
+        data_type: date
       - name: journey_key
         description: "{{ doc('journey_key') }}"
         data_type: string
-      - name: cpf
-        description: Documento do cliente que efetuou a viagem [protegido]
-        data_type: string
-      - name: nome_sobrenome
-        description: Nome e sobrenome do cliente que efetuou a viagem [protegido]
+      - name: nome
+        description: Nome do cliente que efetuou a viagem [protegido]
         data_type: string
       - name: telefone
         description: Telefone do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: local_embarque
+        description: Nome do ponto, estação ou bairro em que foi feito o embarque
+        data_type: string
+      - name: turno
+        description: Turno do embarque embarque [de manhã, à tarde, à noite e de madrugada]
+        data_type: string
+      - name: parada_a
+        description: "Primeira {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_b
+        description: "Segunda {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_c
+        description: "Terceira {{ doc('survey_journey_opcao_stop_name' ) }}"
+        data_type: string
+      - name: parada_d
+        description: "Quarta {{ doc('survey_journey_opcao_stop_name' ) }}"
         data_type: string
       - name: link_imagem
         description: Link da imagem com as opções de stops do desembarque da viagem
