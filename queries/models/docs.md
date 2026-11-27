@@ -2380,3 +2380,7 @@ Tipo da conta [CETT, CB ou CAER]
 {% docs journey_key %}
 Identificador único da viagem
 {% enddocs %}
+
+{% docs survey_journey_opcao_stop_name %}
+opção de stop_name do GTFS para desembarque da viagem
+{% enddocs %}
