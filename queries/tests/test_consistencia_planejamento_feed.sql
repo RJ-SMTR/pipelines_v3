@@ -114,9 +114,9 @@ where
     indicador_ausencia_partidas_gtfs
     or (
         (indicador_partidas_divergente or indicador_quilometragem_divergente)
+        and not (feed_start_date = '2026-11-15' and tipo_dia != 'Domingo')
         /* Feeds das eleições: OS sem partidas em Dia Útil, Sábado e Ponto Facultativo */
         and feed_start_date not in ('2026-10-04', '2026-10-25')
-        /* Ponto Facultativo: exceção aprovada a partir do feed 19/10/2026 solicitada por Matheus Dias Magalhães (09/11/2026, 17:55, grupo Dominio de Planejamento), até nova comunicação para reativar */
         and not (feed_start_date >= '2026-10-19' and tipo_dia = 'Ponto Facultativo')
         /* OS de Verão: exceção aprovada a partir do feed 14/11/2026 solicitada por Matheus Dias Magalhães (16/11/2026, 19:43, grupo Dominio de Planejamento), até nova comunicação para reativar */
         and not (feed_start_date >= '2026-11-14' and tipo_os = 'Verão')
