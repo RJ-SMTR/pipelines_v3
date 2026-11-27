@@ -84,6 +84,8 @@ with
             transaction_type,
             mode,
             servico,
+            descricao_servico,
+            tap_location,
             lag(boarding_time) over (
                 partition by rider_id, service_date order by trip_sequence
             ) as previous_boarding_time
@@ -191,7 +193,10 @@ with
             j.final_trip_sequence,
             j.n_transfers,
             first_leg.boarding_time,
+            first_leg.mode as boarding_mode,
             first_leg.servico as boarding_servico,
+            first_leg.descricao_servico as boarding_descricao_servico,
+            first_leg.tap_location as boarding_tap_location,
             first_od.boarding_stop_id,
             boarding_stop.stop_name as boarding_stop_name,
             final_leg.boarding_time as final_leg_boarding_time,
@@ -242,8 +247,8 @@ with
             on boarding_stop.stop_id = first_od.boarding_stop_id
             and j.service_date >= boarding_stop.feed_start_date
             and (
-                j.service_date <= boarding_stop.feed_start_date
-                or j.service_date is null
+                j.service_date <= boarding_stop.feed_end_date
+                or boarding_stop.feed_end_date is null
             )
         join {{ ref("cliente_jae") }} c on j.rider_id = sha256(c.id_cliente)
         where
