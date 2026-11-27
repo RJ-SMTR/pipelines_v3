@@ -165,11 +165,13 @@ with
         select
             feed_start_date, feed_end_date, stop_id, any_value(stop_name) as stop_name
         from {{ ref("aux_vw_stops") }}
-        where
-            {% if gtfs_feeds | length > 0 %}
-                feed_start_date in ({{ gtfs_feeds | join(", ") }})
-            {% else %} false
-            {% endif %}
+        {% if is_incremental() %}
+            where
+                {% if gtfs_feeds | length > 0 %}
+                    feed_start_date in ({{ gtfs_feeds | join(", ") }})
+                {% else %} false
+                {% endif %}
+        {% endif %}
         group by all
     ),
     origin_destination_stop as (
@@ -184,7 +186,7 @@ with
 
             {% endif %}
     ),
-    new_data as (
+    journey_options as (
         select
             j.rider_id,
             j.service_date,
@@ -255,6 +257,95 @@ with
             final_leg.mode = 'Ônibus'
             and final_od.alighting_stop_id is not null
             and o.n_options = 4
+    ),
+    journey_neighborhood as (
+        select j.*, b.nome as boarding_neighborhood
+        from journey_options j
+        join
+            {{ source("dados_mestres", "bairro") }} b
+            on st_within(j.boarding_tap_location, b.geometry)
+        qualify
+            row_number() over (
+                partition by rider_id, service_date, boarding_time, boarding_servico
+                order by b.id_bairro
+            )
+            = 1
+    ),
+    new_data as (
+        select
+            rider_id,
+            service_date,
+            rider_document,
+            first_trip_sequence,
+            final_trip_sequence,
+            n_transfers,
+            boarding_time,
+            boarding_mode,
+            boarding_servico,
+            boarding_descricao_servico,
+            boarding_neighborhood,
+            * except (
+                rider_id,
+                service_date,
+                rider_document,
+                first_trip_sequence,
+                final_trip_sequence,
+                n_transfers,
+                boarding_time,
+                boarding_mode,
+                boarding_servico,
+                boarding_descricao_servico,
+                boarding_neighborhood
+            )
+        from journey_neighborhood
+
+        union all
+
+        select
+            rider_id,
+            service_date,
+            rider_document,
+            first_trip_sequence,
+            final_trip_sequence,
+            n_transfers,
+            boarding_time,
+            boarding_mode,
+            boarding_servico,
+            boarding_descricao_servico,
+            cast(null as string) as boarding_neighborhood,
+            * except (
+                rider_id,
+                service_date,
+                rider_document,
+                first_trip_sequence,
+                final_trip_sequence,
+                n_transfers,
+                boarding_time,
+                boarding_mode,
+                boarding_servico,
+                boarding_descricao_servico
+            )
+        from journey_options
+        where
+            to_json_string(
+                struct(
+                    rider_id as rider_id,
+                    service_date as service_date,
+                    boarding_time as boarding_time,
+                    boarding_servico as boarding_servico
+                )
+            ) not in (
+                select
+                    to_json_string(
+                        struct(
+                            rider_id as rider_id,
+                            service_date as service_date,
+                            boarding_time as boarding_time,
+                            boarding_servico as boarding_servico
+                        )
+                    )
+                from journey_neighborhood
+            )
     ),
     {% if is_incremental() %}
         current_data as (

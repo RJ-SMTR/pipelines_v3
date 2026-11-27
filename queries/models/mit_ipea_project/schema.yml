@@ -35,9 +35,20 @@ models:
       - name: boarding_time
         description: Horário de embarque da primeira transação da viagem [GMT-3]
         data_type: time
+      - name: boarding_mode
+        description: "{{ doc('modo' ) }} da primeira transação da viagem"
       - name: boarding_servico
         description: "{{ doc('servico_variacao' ) }} da primeira transação da viagem"
         data_type: string
+      - name: boarding_descricao_servico
+        description: "{{ doc('descricao_servico_cadastro' ) }} da primeira transação da viagem"
+        data_type: string
+      - name: boarding_neighborhood
+        description: "Nome do bairro da primeira transação da viagem"
+        data_type: string
+      - name: boarding_tap_location
+        description: Ponto geográfico no sistema de referência WGS84 da primeira transação da viagem
+        data_type: geography
       - name: boarding_stop_id
         description: stop_id do GTFS em que o cliente embarcou na primeira transação da viagem
         data_type: string
