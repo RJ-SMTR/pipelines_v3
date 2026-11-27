@@ -209,7 +209,15 @@ models:
               - tipo_os
               - if(left(sentido, 1) = 'V', 'V', 'I')
             row_condition: "sistema = 'SPPO'"
-            compare_row_condition: "feed_start_date = '{{ var('data_versao_gtfs') }}' and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')"
+            compare_row_condition: >
+              feed_start_date = '{{ var('data_versao_gtfs') }}'
+              and feed_start_date >= date('{{ var('DATA_GTFS_V5_INICIO') }}')
+              and struct(feed_start_date, servico) in (
+                select as struct feed_start_date, route_short_name
+                from {{ ref("routes_gtfs") }}
+                where agency_id in ("22005", "22002", "22004", "22003")
+                  and route_type = '700'
+              )
       - planejamento_gtfs_freshness:
           name: planejamento_gtfs_freshness__viagem_planejada_planejamento
           arguments:

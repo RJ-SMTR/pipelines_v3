@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.12.2] - 2026-11-27
+
+### Corrigido
+
+- Os testes de consistência de partidas, quilometragem e trajetos alternativos passam a comparar somente serviços SPPO nos dois lados, evitando falsos positivos de serviços do sistema RIO presentes na Ordem de Serviço.
+
 ## [1.12.1] - 2026-11-23
 
 ### Alterado
