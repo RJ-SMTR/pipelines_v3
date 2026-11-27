@@ -9,6 +9,14 @@
 {% endset %}
 
 with
+    servicos_sppo as (
+        select distinct feed_start_date, route_short_name as servico
+        from {{ ref("routes_gtfs") }}
+        where
+            {{ feed_filter }}
+            and agency_id in ("22005", "22002", "22004", "22003")
+            and route_type = '700'
+    ),
     viagens as (
         select
             feed_start_date,
@@ -33,7 +41,7 @@ with
             partidas,
             quilometragem
         from {{ ref("ordem_servico_faixa_horaria_sentido") }}
-        where {{ feed_filter }}
+        inner join servicos_sppo using (feed_start_date, servico)
     ),
     /* Horários no formato HH:MM:SS permitem comparar como string. Viagens fora de qualquer faixa da OS ficam com faixa nula e aparecem como divergência */
     viagens_faixa as (
