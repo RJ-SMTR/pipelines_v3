@@ -215,9 +215,8 @@ with
                 )
             }} as datetime_chegada_automatica_fallback
         from gps_viagem g
-        join shapes_geom sh using (feed_version, feed_start_date, shape_id)
-        join
-            segmento_primeiro_ultimo spu using (feed_version, feed_start_date, shape_id)
+        join shapes_geom sh using (feed_start_date, shape_id)
+        join segmento_primeiro_ultimo spu using (feed_start_date, shape_id)
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
             (
@@ -326,8 +325,7 @@ with
         from gps_viagem g
         join
             segmento s
-            on g.feed_version = s.feed_version
-            and g.feed_start_date = s.feed_start_date
+            on g.feed_start_date = s.feed_start_date
             and g.shape_id = s.shape_id
             and st_intersects(s.buffer, g.geo_point_gps)
             and (
@@ -349,8 +347,7 @@ with
         join viagem v on g.id_viagem = v.id_viagem
         join
             segmento_primeiro_ultimo spu
-            on s.feed_version = spu.feed_version
-            and s.feed_start_date = spu.feed_start_date
+            on s.feed_start_date = spu.feed_start_date
             and s.shape_id = spu.shape_id
         join midpoint_viagem mp on g.id_viagem = mp.id_viagem
         where
@@ -420,8 +417,7 @@ with
         from viagem v
         left join
             segmento s
-            on v.feed_version = s.feed_version
-            and v.shape_id = s.shape_id
+            on v.shape_id = s.shape_id
             and v.feed_start_date = s.feed_start_date
             and (
                 (
@@ -441,8 +437,7 @@ with
             )
         left join
             segmento_primeiro_ultimo spu
-            on v.feed_version = spu.feed_version
-            and v.feed_start_date = spu.feed_start_date
+            on v.feed_start_date = spu.feed_start_date
             and v.shape_id = spu.shape_id
     ),
     /*

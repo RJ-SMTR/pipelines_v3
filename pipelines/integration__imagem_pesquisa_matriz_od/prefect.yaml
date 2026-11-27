@@ -1,0 +1,51 @@
+name: integration__imagem_pesquisa_matriz_od
+prefect-version: 3.4.8
+
+build:
+  - prefect.deployments.steps.run_shell_script:
+      id: get-commit-hash
+      script: git rev-parse --short HEAD
+      stream_output: false
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      requires: prefect-docker>=0.6.5
+      image_name: ghcr.io/rj-smtr/pipelines_v3/deployments
+      tag: "integration__imagem_pesquisa_matriz_od-{{ get-commit-hash.stdout }}"
+      dockerfile: pipelines/integration__imagem_pesquisa_matriz_od/Dockerfile
+
+push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      requires: prefect-docker>=0.6.5
+      image_name: "{{ build-image.image_name }}"
+      tag: "{{ build-image.tag }}"
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /opt/prefect/pipelines_v3
+
+deployments:
+  - name: rj-integration--imagem_pesquisa_matriz_od--staging
+    version: "{{ build-image.tag }}"
+    entrypoint: pipelines/integration__imagem_pesquisa_matriz_od/flow.py:integration__imagem_pesquisa_matriz_od
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package integration__imagem_pesquisa_matriz_od -- prefect flow-run execute
+        secretName: prefect-jobs-secrets-staging
+        image_pull_policy: Always
+  - name: rj-integration--imagem_pesquisa_matriz_od--prod
+    version: "{{ get-commit-hash.stdout }}"
+    entrypoint: pipelines/integration__imagem_pesquisa_matriz_od/flow.py:integration__imagem_pesquisa_matriz_od
+    schedules:
+      - cron: "40 * * * *"
+        timezone: "America/Sao_Paulo"
+    work_pool:
+      name: smtr-pool
+      work_queue_name: default
+      job_variables:
+        image: "{{ build-image.image_name }}:{{ build-image.tag }}"
+        command: uv run --package integration__imagem_pesquisa_matriz_od -- prefect flow-run execute
+        secretName: prefect-jobs-secrets
+        image_pull_policy: Always
