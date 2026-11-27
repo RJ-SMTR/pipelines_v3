@@ -107,7 +107,7 @@ with
 
     servicos as (
         -- Latest registry row per Jaé service id
-        select id_servico_jae, id_servico_gtfs as route_id, servico
+        select id_servico_jae, id_servico_gtfs as route_id, servico, descricao_servico
         from {{ ref("servicos") }}
         where id_servico_jae is not null
         qualify
@@ -116,31 +116,6 @@ with
             )
             = 1
     ),
-    {# gtfs_routes as (
-        -- Latest feed's route per short name
-        select route_short_name, route_id
-        from {{ ref("routes_gtfs") }}
-        qualify
-            row_number() over (
-                partition by route_short_name order by feed_start_date desc, route_id
-            )
-            = 1
-    ), #}
-    {# servicos as (
-        select
-            r.id_servico_jae,
-            r.id_servico_gtfs as route_id,
-            coalesce(r.id_servico_gtfs, g.route_id) as route_id,
-            r.servico,
-            case
-                when r.servico_gtfs is not null
-                then 'short_name'
-                when r.id_servico_gtfs is not null
-                then 'registry'
-            end as route_source
-        from registry as r
-    left join gtfs_routes as g on g.route_short_name = r.servico_jae
-    ), #}
     sequenced as (
         select
             t.service_date,
@@ -154,8 +129,8 @@ with
             t.vehicle_id,
             t.service_id,
             s.route_id,
-            {# s.route_source, #}
             s.servico,
+            s.descricao_servico,
             t.direction_id,
             t.mode,
             t.tile_id,

@@ -210,6 +210,7 @@ sources:
 
     tables:
       - name: logradouro
+      - name: bairro
 
   - name: source_rioonibus
     database: rj-smtr-staging
