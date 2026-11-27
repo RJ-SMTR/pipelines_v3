@@ -32,3 +32,4 @@ where
         )
     {% endif %}
 group by 1, 2
+having count(*) >= 100
