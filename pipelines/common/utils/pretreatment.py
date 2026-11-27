@@ -4,9 +4,11 @@
 import re
 import unicodedata
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Callable, Optional, get_type_hints
 
+import numpy as np
 import pandas as pd
+import polars as pl
 import pytz
 
 from pipelines.common import constants
@@ -71,27 +73,82 @@ def transform_to_nested_structure(
     return data[[*primary_keys, "content"]]
 
 
-def strip_string_columns(
-    data: pd.DataFrame,
-    context: Optional[SourceCaptureContext] = None,  # noqa: ARG001
-) -> pd.DataFrame:
+def create_nested_content(data: pl.DataFrame, primary_keys: list) -> pl.DataFrame:
     """
-    Aplica a função strip em todas as colunas do formato string
+    Agrupa as colunas que não são primary keys na coluna content, no formato JSON
+
+    Args:
+        data (pl.DataFrame): DataFrame para aplicar o tratamento
+        primary_keys (list): Lista de primary keys
+
+    Returns:
+        pl.DataFrame: DataFrame contendo as colunas listadas nas primary keys + coluna content
+    """
+    content_columns = [c for c in data.columns if c not in primary_keys]
+    return data.select(
+        *primary_keys,
+        pl.struct(content_columns).struct.json_encode().alias("content"),
+    )
+
+
+def get_pretreat_data_type(func: Callable) -> type:
+    """
+    Retorna o tipo de DataFrame esperado por uma função de pré-tratamento,
+    a partir da anotação do argumento `data`
+
+    Args:
+        func (Callable): Função de pré-tratamento
+
+    Returns:
+        type: pl.DataFrame ou pd.DataFrame
+    """
+    hint = get_type_hints(func).get("data")
+    return pl.DataFrame if hint is pl.DataFrame else pd.DataFrame
+
+
+def run_pretreat_funcs(
+    data: pl.DataFrame,
+    pretreat_funcs: list[Callable],
+    context: SourceCaptureContext,
+) -> pl.DataFrame:
+    """
+    Executa as funções de pré-tratamento de um SourceTable. Funções anotadas com
+    pd.DataFrame recebem os dados convertidos para pandas
+
+    Args:
+        data (pl.DataFrame): Bloco de dados brutos
+        pretreat_funcs (list[Callable]): Funções de pré-tratamento
+        context (SourceCaptureContext): Contexto da captura
+
+    Returns:
+        pl.DataFrame: Dados pré-tratados
+    """
+    for func in pretreat_funcs:
+        if get_pretreat_data_type(func) is pl.DataFrame:
+            data = func(data=data, context=context)
+        else:
+            # Nulos como NaN, igual à leitura do pandas, para manter o comportamento das funções
+            pandas_data = data.to_pandas().fillna(np.nan)
+            data = pl.from_pandas(func(data=pandas_data, context=context))
+    return data
+
+
+def strip_string_columns(
+    data: pl.DataFrame,
+    context: Optional[SourceCaptureContext] = None,  # noqa: ARG001
+) -> pl.DataFrame:
+    """
+    Remove espaços no início e no fim de todas as colunas de texto
     de um DataFrame. Pode ser usada como pretreat_func de um SourceTable.
 
     Args:
-        data (pd.DataFrame): Dataframe a ser tratado
+        data (pl.DataFrame): DataFrame a ser tratado
         context (Optional[SourceCaptureContext]): Contexto da captura (não utilizado)
 
     Returns:
-        pd.DataFrame: Dataframe tratado
+        pl.DataFrame: DataFrame tratado
     """
-    for col in data.columns[data.dtypes == "object"].to_list():
-        try:
-            data[col] = data[col].str.strip()
-        except AttributeError as e:
-            print(f"Error {e} on column {col}")
-    return data
+    return data.with_columns(pl.col(pl.String).str.strip_chars())
 
 
 def raise_if_column_isna(

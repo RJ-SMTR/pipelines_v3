@@ -82,7 +82,9 @@ select
     replace(
         safe_cast(json_value(content, '$.id_tipo_doenca') as string), '.0', ''
     ) as id_tipo_doenca,
-    safe_cast(
-        json_value(content, '$.codigo_uap_tratamento') as string
+    replace(
+        trim(safe_cast(json_value(content, '$.codigo_uap_tratamento') as string)),
+        '.0',
+        ''
     ) as codigo_uap_tratamento
 from {{ source("source_jae", "laudo_pcd") }}

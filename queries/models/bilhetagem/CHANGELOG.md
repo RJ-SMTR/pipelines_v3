@@ -1,5 +1,11 @@
 # Changelog - bilhetagem
 
+## [3.3.16] - 2026-11-26
+
+### Corrigido
+
+- Normaliza nos modelos staging os valores alterados pelo pandas no histórico, para manter histórico e dados novos no mesmo formato: `cpf` em `staging_estudante.sql` (remove `.0` e completa com zeros à esquerda até 11 dígitos; vazio vira nulo), `codigo_uap_tratamento` em `staging_laudo_pcd.sql` (remove espaços e `.0`) e `nr_logico_midia_operador` em `staging_transacao.sql` (remove `.0`) (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+
 ## [3.3.15] - 2026-10-14
 
 ### Adicionado

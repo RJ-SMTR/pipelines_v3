@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4] - 2026-11-26
+
+### Corrigido
+
+- No pré-tratamento, a linha com `id_veiculo` igual a `NULL` é descartada, como na leitura anterior com pandas; a captura passou a ler o raw com Polars, que mantém o texto `NULL` (https://github.com/RJ-SMTR/pipelines_v3/pull/897)
+
 ## [1.0.3] - 2026-09-11
 
 ### Alterado

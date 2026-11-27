@@ -16,7 +16,13 @@ select
         '%Y-%m-%d', safe_cast(json_value(content, '$.data_nascimento') as string)
     ) as data_nascimento,
     safe_cast(json_value(content, '$.nome_mae') as string) as nome_mae,
-    safe_cast(json_value(content, '$.cpf') as string) as cpf,
+    lpad(
+        nullif(
+            replace(safe_cast(json_value(content, '$.cpf') as string), '.0', ''), ''
+        ),
+        11,
+        '0'
+    ) as cpf,
     replace(
         safe_cast(json_value(content, '$.cd_cliente') as string), '.0', ''
     ) as cd_cliente,
