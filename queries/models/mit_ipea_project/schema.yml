@@ -1,14 +1,15 @@
 models:
   - name: survey_journeys
     description: |
-      Uma linha por viagem (transações seguidas em um intevalo de 180 minutos). Contem as informações de embarque, 4 opções de desambarque e o nível de confiança da previsão.
+      Uma linha por viagem (transações seguidas em um intevalo de 180 minutos). Contém as informações de embarque, 4 opções de desambarque e o nível de confiança da previsão.
+      Dados a partir de 2026-11-01 e apenas dos voluntários para envio das mensagens da pesquisa de matriz OD.
       Fonte:
         - bilhetagem.transacao (dados de transação da Jaé);
         - monitoramento.view_gps_onibus (dados de gps dos ônibus);
         -  gtfs.trips, gtfs.stop_times, gtfs.stops, gtfs.routes (dados do GTFS)
     columns:
       - name: journey_key
-        description: Identificador único da viagem
+        description: "{{ doc('journey_key') }}"
         data_type: string
       - name: rider_id
         description: Hash identificador do cliente que efetuou a viagem [protegido]
@@ -106,3 +107,25 @@ models:
       - name: prediction_slot
         data_type: int64
         description: Número da última opção considerada como 'prediction'
+  - name: view_journey_image
+    description: |-
+      Uma linha por viagem. Contém dados para envios de mensagens para a pesquisa da Matriz OD.
+      Esta view apenas monta o endereço da imagem, não verifica a existência da imagem no GCS.
+      Use journey_key para associar as linhas às jornadas.
+      Fonte: rj-smtr.mit_ipea_project. survey_journeys e rj-smtr-sandbox.mit_ipea_project.voluntario_disparo_mensagem
+    columns:
+      - name: journey_key
+        description: "{{ doc('journey_key') }}"
+        data_type: string
+      - name: cpf
+        description: Documento do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: nome_sobrenome
+        description: Nome e sobrenome do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: telefone
+        description: Telefone do cliente que efetuou a viagem [protegido]
+        data_type: string
+      - name: link_imagem
+        description: Link da imagem com as opções de stops do desembarque da viagem
+        data_type: string

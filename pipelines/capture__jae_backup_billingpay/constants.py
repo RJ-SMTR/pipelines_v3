@@ -348,9 +348,8 @@ BACKUP_JAE_BILLING_PAY = {
             "temp_uso_0711",
             "temp_debito_0711",
             "temp_debito_1411",
-            "estorno_credito_conta_vt"
+            "estorno_credito_conta_vt",
             # sem índice
-            "evento_recebido",
             "evento_processado",
         ],
         "filter": {
@@ -364,7 +363,7 @@ BACKUP_JAE_BILLING_PAY = {
                 "dt_fechamento",
                 "dt_inclusao",
             ],
-            # "evento_recebido": ["dt_inclusao"],
+            "evento_recebido": ["dt_inclusao"],
             "movimento": ["dt_movimento"],
             # "evento_processado": ["dt_inclusao"],
             "evento_erro": ["dt_inclusao"],
