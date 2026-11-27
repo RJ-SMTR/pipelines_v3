@@ -46,7 +46,9 @@
             to_json_string(
                 struct(
                     {% for c in columns %}
-                        {% if c == "rider_id" %}
+                        {% if c == "boarding_tap_location" %}
+                            st_astext({{ c }}) as `{{ c }}`
+                        {% elif c == "rider_id" %}
                             to_base64({{ c }}) as `{{ c }}`
                         {% else %}
                             cast({{ c }} as string) as `{{ c }}`
