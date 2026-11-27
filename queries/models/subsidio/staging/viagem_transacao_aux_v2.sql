@@ -83,7 +83,20 @@ with
                 {% endif %}
             )
 
-        {% if target.name in ("dev", "hmg") %}
+        {% if replay_subsidy() %}
+            left outer union all by name
+            select id_veiculo, datetime_partida, datetime_chegada
+            from `rj-smtr.monitoramento.viagem_valida`
+            where
+                data
+                between date_sub(date({{ date_range_start }}), interval 1 day) and date(
+                    {{ date_range_end }}
+                )
+                and (
+                    servico is distinct from {{ tojson(replay_subsidy().service) }}
+                    or data < date({{ date_range_start }})
+                )
+        {% elif target.name in ("dev", "hmg") %}
             --fmt:off
             left outer union all by name
              --fmt:on

@@ -450,6 +450,28 @@ with
                     where {{ incremental_filter }}
                 ) as a using (data, id_viagem)
         {% endif %}
+        {% if replay_subsidy() %}
+            -- As viagens de contexto já válidas mantêm o feed da apuração original.
+            left outer union all by name
+            select
+                data,
+                id_viagem,
+                id_veiculo,
+                servico,
+                datetime_partida_considerada,
+                datetime_chegada_considerada,
+                true as indicador_nao_reprocessada,
+                true as indicador_valida_armazenada
+            from `rj-smtr.monitoramento.viagem_validacao`
+            where
+                {{ incremental_filter }}
+                and indicador_viagem_valida
+                and (
+                    servico is distinct from {{ tojson(replay_subsidy().service) }}
+                    or not ({{ output_filter }})
+                )
+                and id_veiculo in (select id_veiculo from viagens_velocidade_media)
+        {% endif %}
     ),
     viagens_sobrepostas as (
         select
@@ -522,6 +544,7 @@ with
                     )
                 )
             )
+        {% if replay_subsidy() %} where not v1.indicador_nao_reprocessada {% endif %}
         qualify
             row_number() over (
                 partition by v1.id_viagem

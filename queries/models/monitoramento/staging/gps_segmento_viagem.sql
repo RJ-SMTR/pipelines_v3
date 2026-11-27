@@ -92,7 +92,11 @@ with
         {% else %} from {{ ref("gps_viagem") }} gv
         {% endif %}
         join calendario c using (data)
-        where {{ incremental_filter }}
+        where
+            {{ incremental_filter }}
+            {% if replay_subsidy() %}
+                and gv.servico_viagem = {{ tojson(replay_subsidy().service) }}
+            {% endif %}
     ),
     /*
     Dados dos segmentos dos shapes
@@ -306,7 +310,11 @@ with
         {% endif %}
         join calendario c using (data)
         left join partida_chegada_automatica_fallback pca using (data, id_viagem)
-        {% if is_incremental() or var("tipo_materializacao") == "monitoramento" %}
+        {% if replay_subsidy() %}
+            where
+                {{ incremental_filter }}
+                and v.servico = {{ tojson(replay_subsidy().service) }}
+        {% elif is_incremental() or var("tipo_materializacao") == "monitoramento" %}
             where {{ incremental_filter }}
         {% endif %}
     ),

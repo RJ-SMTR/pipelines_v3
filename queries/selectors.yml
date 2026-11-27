@@ -1,4 +1,43 @@
 selectors:
+  - name: replay_subsidy
+    description: Reprocessamento isolado da apuração de um serviço com o feed GTFS informado
+    definition:
+      union:
+        - method: fqn
+          value: calendario
+        - method: fqn
+          value: viagem_planejada_planejamento_dia
+        - method: fqn
+          value: servico_planejado_faixa_horaria
+        - method: fqn
+          value: gps_segmento_viagem
+        - method: fqn
+          value: viagem_validacao
+        - method: fqn
+          value: viagem_valida
+        - method: fqn
+          value: viagem_classificada
+        - method: fqn
+          value: aux_viagem_temperatura
+        - method: fqn
+          value: viagem_regularidade_temperatura
+        - method: fqn
+          value: viagem_transacao
+        - method: fqn
+          value: percentual_operacao_faixa_horaria
+        - method: fqn
+          value: viagens_remuneradas
+        - method: fqn
+          value: subsidio_faixa_servico_dia_tipo_viagem
+        - method: fqn
+          value: subsidio_penalidade_servico_faixa
+        - method: fqn
+          value: sumario_faixa_servico_dia_pagamento
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_historico
+        - method: fqn
+          value: monitoramento_sumario_servico_dia_tipo_viagem_historico
+
   - name: apuracao_subsidio_v8
     description: Apuração sem faixa horária
     definition:
