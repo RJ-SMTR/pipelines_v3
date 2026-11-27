@@ -1,5 +1,11 @@
 # Changelog - planejamento
 
+## [1.12.2] - 2026-11-27
+
+### Alterado
+
+- `test_consistencia_planejamento_feed` passa a aceitar a validação de todos os feeds vigentes em um intervalo para uso no pré-teste V25 da apuração do subsídio SPPO, preservando a validação de um único feed no fluxo do GTFS.
+
 ## [1.12.1] - 2026-11-23
 
 ### Alterado

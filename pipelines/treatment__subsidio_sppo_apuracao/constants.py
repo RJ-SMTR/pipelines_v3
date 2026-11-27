@@ -23,6 +23,10 @@ TABLE_IDS_JAE = ["transacao", "transacao_riocard", "gps_validador"]
 WEBHOOK_KEY = "subsidio_data_check"
 
 ADDITIONAL_VARS = {"tipo_teste": "subsidio"}
+PRE_TEST_V25_ADDITIONAL_VARS = {
+    **ADDITIONAL_VARS,
+    "consistencia_planejamento_feed_por_intervalo": True,
+}
 
 PRE_TEST_SELECT = (
     "sppo_registros sppo_realocacao check_gps_treatment__gps_sppo sppo_veiculo_dia"
@@ -32,6 +36,7 @@ PRE_TEST_SELECT = (
 PRE_TEST_V25_SELECT = (
     "veiculo_dia tecnologia_servico servico_planejado_faixa_horaria transacao transacao_riocard"
     " gps_validador test_completude__temperatura test_jae_captura_subsidio viagem_valida"
+    " test_consistencia_planejamento_feed"
 )
 PRE_TEST_EXCLUDE = (
     "dashboard_subsidio_sppo_v2 teto_viagens__viagens_remuneradas"
@@ -59,7 +64,7 @@ APURACAO_SUBSIDIO_PRE_TEST = DBTTest(
 APURACAO_SUBSIDIO_V25_PRE_TEST = DBTTest(
     test_select=PRE_TEST_V25_SELECT,
     exclude=PRE_TEST_EXCLUDE,
-    additional_vars=ADDITIONAL_VARS,
+    additional_vars=PRE_TEST_V25_ADDITIONAL_VARS,
     truncate_date=True,
 )
 

@@ -5,7 +5,20 @@
 }}
 
 {% set feed_filter %}
-    feed_start_date = date('{{ var("data_versao_gtfs") }}')
+    {% if var("consistencia_planejamento_feed_por_intervalo", false) %}
+        feed_start_date in (
+            select feed_start_date
+            from {{ ref("feed_info_gtfs") }}
+            where
+                feed_start_date <= date('{{ var("date_range_end") }}')
+                and (
+                    feed_end_date is null
+                    or feed_end_date >= date('{{ var("date_range_start") }}')
+                )
+        )
+    {% else %}
+        feed_start_date = date('{{ var("data_versao_gtfs") }}')
+    {% endif %}
 {% endset %}
 
 with

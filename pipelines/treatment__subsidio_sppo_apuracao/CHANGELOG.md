@@ -1,5 +1,11 @@
 # Changelog - treatment__subsidio_sppo_apuracao
 
+## [1.0.11] - 2026-11-27
+
+### Adicionado
+
+- Inclui `test_consistencia_planejamento_feed` no pré-teste da apuração V25 e valida todos os feeds GTFS vigentes no intervalo da apuração.
+
 ## [1.0.10] - 2026-10-28
 
 ### Alterado
