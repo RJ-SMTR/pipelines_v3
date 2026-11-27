@@ -80,7 +80,7 @@ with
                 json_value(os.content, '$.viagens_domingo') as float64
             ) viagens_domingo,
             safe_cast(json_value(os.content, '$.km_domingo') as float64) km_domingo,
-        from {{ source("source_gtfs", "ordem_servico") }} os
+        from {{ source_csv_parquet("source_gtfs", "ordem_servico", "data_versao") }} os
         join {{ ref("feed_info_gtfs") }} fi on os.data_versao = fi.feed_start_date
         {% if is_incremental() -%}
             where

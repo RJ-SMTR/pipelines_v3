@@ -24,7 +24,7 @@ select
     safe_cast(json_value(a.content, '$.agency_timezone') as string) agency_timezone,
     safe_cast(json_value(a.content, '$.agency_lang') as string) agency_lang,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "agency") }} a
+from {{ source_csv_parquet("source_gtfs", "agency", "data_versao") }} a
 join {{ ref("feed_info_gtfs") }} fi on a.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where

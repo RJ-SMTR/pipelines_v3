@@ -21,4 +21,4 @@ select
     ) as shape_dist_traveled,
     safe_cast(json_value(content, '$.timepoint') as string) as timepoint,
     timestamp_captura
-from {{ source("source_gtfs", "stop_times") }}
+from {{ source_csv_parquet("source_gtfs", "stop_times", "data_versao") }}

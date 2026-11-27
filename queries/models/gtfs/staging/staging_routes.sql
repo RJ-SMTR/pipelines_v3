@@ -20,4 +20,4 @@ select
     ) as continuous_drop_off,
     safe_cast(json_value(content, '$.network_id') as string) as network_id,
     timestamp_captura
-from {{ source("source_gtfs", "routes") }}
+from {{ source_csv_parquet("source_gtfs", "routes", "data_versao") }}

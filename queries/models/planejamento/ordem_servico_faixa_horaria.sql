@@ -130,7 +130,12 @@ with
                     {% endif %}
                 {% endfor %}
             {% endfor %}
-        from {{ source("source_gtfs", "ordem_servico_faixa_horaria") }}
+        from
+            {{
+                source_csv_parquet(
+                    "source_gtfs", "ordem_servico_faixa_horaria", "data_versao"
+                )
+            }}
         {% if is_incremental() -%}
             where data_versao = '{{ var("data_versao_gtfs") }}'
         {% endif %}

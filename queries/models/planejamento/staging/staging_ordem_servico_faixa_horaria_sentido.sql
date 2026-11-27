@@ -63,4 +63,9 @@ select
     {% endfor %}
     safe_cast(tipo_os as string) as tipo_os,
     timestamp_captura
-from {{ source("source_gtfs", "ordem_servico_faixa_horaria_sentido") }}
+from
+    {{
+        source_csv_parquet(
+            "source_gtfs", "ordem_servico_faixa_horaria_sentido", "data_versao"
+        )
+    }}

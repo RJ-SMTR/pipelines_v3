@@ -32,9 +32,8 @@ with
             safe_cast(json_value(o.content, "$.vista") as string) vista,
         from
             {{
-                source(
-                    "source_gtfs",
-                    "ordem_servico_trajeto_alternativo",
+                source_csv_parquet(
+                    "source_gtfs", "ordem_servico_trajeto_alternativo", "data_versao"
                 )
             }} o
         left join {{ ref("feed_info_gtfs") }} fi on o.data_versao = fi.feed_start_date

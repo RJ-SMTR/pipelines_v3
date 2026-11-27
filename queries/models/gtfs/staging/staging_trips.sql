@@ -15,4 +15,4 @@ select
     ) as wheelchair_accessible,
     safe_cast(json_value(content, '$.bikes_allowed') as string) as bikes_allowed,
     timestamp_captura
-from {{ source("source_gtfs", "trips") }}
+from {{ source_csv_parquet("source_gtfs", "trips", "data_versao") }}

@@ -10,4 +10,4 @@ select
         json_value(content, '$.shape_dist_traveled') as string
     ) as shape_dist_traveled,
     timestamp_captura
-from {{ source("source_gtfs", "shapes") }}
+from {{ source_csv_parquet("source_gtfs", "shapes", "data_versao") }}

@@ -17,4 +17,4 @@ select
     safe_cast(json_value(content, '$.feed_contact_url') as string) as feed_contact_url,
     safe_cast(json_value(content, '$.feed_id') as string) as feed_id,
     timestamp_captura
-from {{ source("source_gtfs", "feed_info") }}
+from {{ source_csv_parquet("source_gtfs", "feed_info", "data_versao") }}

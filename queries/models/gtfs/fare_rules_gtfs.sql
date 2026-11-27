@@ -24,7 +24,7 @@ select
     safe_cast(json_value(fr.content, '$.destination_id') as string) destination_id,
     safe_cast(json_value(fr.content, '$.contains_id') as string) contains_id,
     '{{ var("version") }}' as versao_modelo
-from {{ source("source_gtfs", "fare_rules") }} fr
+from {{ source_csv_parquet("source_gtfs", "fare_rules", "data_versao") }} fr
 join {{ ref("feed_info_gtfs") }} fi on fr.data_versao = fi.feed_start_date
 {% if is_incremental() -%}
     where

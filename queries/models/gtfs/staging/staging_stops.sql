@@ -20,4 +20,4 @@ select
     safe_cast(json_value(content, '$.level_id') as string) as level_id,
     safe_cast(json_value(content, '$.platform_code') as string) as platform_code,
     timestamp_captura
-from {{ source("source_gtfs", "stops") }}
+from {{ source_csv_parquet("source_gtfs", "stops", "data_versao") }}

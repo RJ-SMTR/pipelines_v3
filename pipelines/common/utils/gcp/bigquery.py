@@ -234,6 +234,8 @@ class SourceTable(BQTable):
         validate_data_contract (bool): Valida o bruto antes do upload quando habilitado.
         data_contract_model (Optional[str]): Modelo dbt; padrão ``staging_<table_id>``.
         data_contract_ignored_columns (tuple[str, ...]): Colunas excluídas do contrato de dados.
+        parquet_source (bool): Grava o source também em Parquet, no prefixo source_parquet/
+            e na tabela externa do dataset source_<fonte>_parquet.
 
     """
 
@@ -257,6 +259,7 @@ class SourceTable(BQTable):
         validate_data_contract: bool = False,
         data_contract_model: Optional[str] = None,
         data_contract_ignored_columns: tuple[str, ...] = (),
+        parquet_source: bool = False,
     ) -> None:
         self.source_name = source_name
         super().__init__(
@@ -280,6 +283,7 @@ class SourceTable(BQTable):
         self.validate_data_contract = validate_data_contract
         self.data_contract_model = data_contract_model or f"staging_{table_id}"
         self.data_contract_ignored_columns = tuple(data_contract_ignored_columns)
+        self.parquet_source = parquet_source
 
     def _get_schedule_cron(self) -> Optional[str]:
         """
@@ -339,14 +343,20 @@ class SourceTable(BQTable):
         external_config.options.field_delimiter = ","
         external_config.options.allow_jagged_rows = False
 
-        uri = f"gs://{self.bucket_name}/source/{self.dataset_id}/{self.table_id}/*"
+        self._set_source_uris(external_config=external_config, mode="source")
+
+        return external_config
+
+    def _set_source_uris(self, external_config: bigquery.ExternalConfig, mode: str):
+        """
+        Define os arquivos e o particionamento Hive da tabela externa
+        """
+        uri = f"gs://{self.bucket_name}/{mode}/{self.dataset_id}/{self.table_id}/*"
         external_config.source_uris = uri
         hive_partitioning = HivePartitioningOptions()
         hive_partitioning.mode = "AUTO"
         hive_partitioning.source_uri_prefix = uri.replace("*", "")
         external_config.hive_partitioning = hive_partitioning
-
-        return external_config
 
     def get_last_scheduled_timestamp(self, timestamp: datetime) -> datetime:
         """
@@ -458,6 +468,44 @@ class SourceTable(BQTable):
         client.create_table(bq_table, exists_ok=True)
         print("Table created!")
 
+    def get_parquet_table(self) -> BQTable:
+        """
+        Retorna a tabela externa do source em Parquet
+
+        Returns:
+            BQTable: Tabela no dataset source_<fonte>_parquet, no mesmo ambiente da fonte
+        """
+        return BQTable(
+            env=self.env,
+            dataset_id=f"{self.dataset_id}_parquet",
+            table_id=self.table_id,
+            bucket_names=self.bucket_names,
+        )
+
+    def create_parquet(self, sample_filepath: str, location: str = "US"):
+        """
+        Cria a tabela externa do source em Parquet
+
+        Args:
+            sample_filepath (str): Caminho do CSV do source (usado para criar o schema)
+            location (str): Localização do dataset
+        """
+        table = self.get_parquet_table()
+        print(f"Creating External Table: {table.table_full_name}")
+        Dataset(dataset_id=table.dataset_id, env=self.env, location=location).create()
+
+        external_config = bigquery.ExternalConfig("PARQUET")
+        external_config.autodetect = False
+        external_config.schema = self._create_table_schema(sample_filepath=sample_filepath)
+        self._set_source_uris(external_config=external_config, mode="source_parquet")
+
+        bq_table = bigquery.Table(table.table_full_name)
+        bq_table.description = f"staging table for `{table.table_full_name}`"
+        bq_table.external_data_configuration = external_config
+
+        self.client("bigquery").create_table(bq_table, exists_ok=True)
+        print("Table created!")
+
     def get_logs_table(self) -> "SourceTable":
         """
         Retorna a tabela externa com os logs de captura da fonte
@@ -476,7 +524,13 @@ class SourceTable(BQTable):
             raw_filetype="csv",
         ).set_env(self.env)
 
-    def append(self, source_filepath: str, partition: str, if_exists: str = "replace"):
+    def append(
+        self,
+        source_filepath: str,
+        partition: str,
+        if_exists: str = "replace",
+        mode: str = "source",
+    ):
         """
         Insere novos dados na tabela externa
 
@@ -485,6 +539,7 @@ class SourceTable(BQTable):
             partition (str): Partição Hive
             if_exists (str): Ação a ser tomada caso o arquivo exista
                 no storage (raise, pass, replace)
+            mode (str): Pasta raiz no bucket (source ou source_parquet)
         """
         st_obj = Storage(
             env=self.env,
@@ -494,7 +549,7 @@ class SourceTable(BQTable):
         )
 
         st_obj.upload_file(
-            mode="source",
+            mode=mode,
             filepath=source_filepath,
             partition=partition,
             if_exists=if_exists,
