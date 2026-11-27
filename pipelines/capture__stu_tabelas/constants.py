@@ -84,7 +84,7 @@ STU_TABLE_CAPTURE_PARAMS = {
         "first_timestamp": datetime(2025, 12, 5, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
     "multa_postagem": {
-        "primary_keys": ["Serie", "CM"],
+        "primary_keys": ["CodigoCIF"],
         "first_timestamp": datetime(2026, 3, 24, 0, 0, 0, tzinfo=ZoneInfo(smtr_constants.TIMEZONE)),
     },
 }

@@ -3,15 +3,20 @@
 Funções auxiliares para o flow de captura de dados do STU.
 """
 
-import csv
-import json
+import time
 from datetime import datetime, timedelta
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-import pandas as pd
+import polars as pl
 
 from pipelines.capture__stu_tabelas import constants
 from pipelines.common.utils.fs import save_local_file
 from pipelines.common.utils.gcp.storage import Storage
+
+# Linhas por bloco ao decodificar o JSON do Airbyte
+JSON_SLICE_ROWS = 50_000
+HASHES_VAZIOS = pl.DataFrame(schema={"hash_chave": pl.UInt64, "hash_linha": pl.UInt64})
 
 
 def remove_arquivos(blobs: list, date: datetime, days: int = 30) -> None:
@@ -60,40 +65,131 @@ def remove_arquivos(blobs: list, date: datetime, days: int = 30) -> None:
         print("Nenhum arquivo antigo encontrado para deletar")
 
 
-def carrega_airbyte_data(file) -> pd.DataFrame:
+def baixa_blob(file, local_dir: str) -> str:
+    """
+    Baixa um blob do GCS para um diretório local.
+
+    Baixar o arquivo inteiro antes de ler é mais rápido que ler o blob em streaming
+    com `blob.open()`, que faz uma requisição por bloco.
+
+    Args:
+        file: Blob do GCS
+        local_dir: Diretório local de destino
+
+    Returns:
+        str: Caminho do arquivo baixado
+    """
+    filepath = Path(local_dir) / file.name.split("/")[-1]
+    file.download_to_filename(str(filepath))
+    return str(filepath)
+
+
+def is_valid_json(raw_data: pl.Series) -> bool:
+    """
+    Verifica se todas as linhas são JSON válido, sem considerar os tipos dos campos.
+
+    Args:
+        raw_data: Série com um JSON por linha
+
+    Returns:
+        bool: True se todas as linhas puderem ser lidas como JSON
+    """
+    try:
+        raw_data.str.json_decode(pl.Struct({}))
+    except pl.exceptions.ComputeError:
+        return False
+    return True
+
+
+def carrega_airbyte_data(file) -> pl.DataFrame:
     """
     Carrega e normaliza a coluna _airbyte_data de um arquivo CSV do Airbyte.
 
-    As colunas são ordenadas e convertidas para `string[pyarrow]`, que é compacto
-    (sem overhead de objeto Python por célula) e consistente para hashing, tanto
-    entre arquivos do mesmo dia quanto entre dias diferentes.
+    O JSON é decodificado com todos os campos como texto, para que o hash seja
+    consistente entre arquivos do mesmo dia e entre dias diferentes. As colunas
+    são ordenadas e os caracteres de controle removidos.
 
     Args:
         file: Blob do GCS contendo um CSV do Airbyte
 
     Returns:
-        pd.DataFrame: Dados normalizados, colunas ordenadas, dtype string[pyarrow]
+        pl.DataFrame: Dados normalizados, colunas ordenadas, todas do tipo texto
     """
-    with file.open("rt", encoding="utf-8") as csv_file:
-        df = pd.read_csv(csv_file, dtype=str, usecols=["_airbyte_data"])
-    data = pd.json_normalize(
-        df["_airbyte_data"].apply(lambda raw: json.loads(raw, parse_int=str, parse_float=str))
+    filename = file.name.split("/")[-1]
+    start = time.perf_counter()
+    with TemporaryDirectory() as local_dir:
+        filepath = baixa_blob(file=file, local_dir=local_dir)
+        downloaded = time.perf_counter()
+        raw = pl.read_csv(filepath, columns=["_airbyte_data"], infer_schema=False)
+    raw_data = raw.get_column("_airbyte_data")
+
+    # O JSON é decodificado em blocos para limitar a memória: o decode inteiro do
+    # arquivo chega a ocupar 8x o tamanho do CSV. Cada bloco descobre seus campos e
+    # depois os lê todos como texto
+    fields = {}
+    slices = []
+    for offset in range(0, raw_data.len(), JSON_SLICE_ROWS):
+        raw_slice = raw_data.slice(offset, JSON_SLICE_ROWS)
+        try:
+            schema = raw_slice.str.json_decode(infer_schema_length=None).dtype.to_schema()
+        except pl.exceptions.ComputeError as e:
+            if not is_valid_json(raw_slice):
+                # JSON malformado: o arquivo é pulado, como na versão com pandas, e a
+                # busca do dia anterior segue para os outros arquivos e datas
+                raise ValueError(f"JSON inválido em {filename}: {e}") from e
+            # Objeto/lista misturado com valores simples no mesmo campo: falha a captura
+            # em vez de pular o arquivo, que perderia registros sem aviso
+            raise NotImplementedError(f"JSON não suportado em {filename}: {e}") from e
+        nested = [name for name, dtype in schema.items() if isinstance(dtype, (pl.Struct, pl.List))]
+        if nested:
+            raise NotImplementedError(f"Campos aninhados não suportados em {filename}: {nested}")
+        fields.update(schema)
+        slices.append(
+            raw_slice.str.json_decode(pl.Struct(dict.fromkeys(schema, pl.String))).struct.unnest()
+        )
+
+    if not slices:
+        print(f"{filename}: arquivo sem registros")
+        return pl.DataFrame()
+
+    data = (
+        pl.concat(slices, how="diagonal")
+        .select(sorted(fields))
+        .with_columns(pl.all().str.replace_all(r"[\x00-\x1F\x7F]", ""))
+        # Texto vazio vira nulo, como na versão com pandas, que gravava os dois iguais
+        .with_columns(pl.all().replace("", None))
+    )
+    print(
+        f"{filename}: download {downloaded - start:.1f}s, "
+        f"leitura {time.perf_counter() - downloaded:.1f}s, {data.height} linhas"
+    )
+    return data
+
+
+def gera_hashes_linhas(data: pl.DataFrame, primary_keys: list) -> pl.DataFrame:
+    """
+    Gera o hash da chave primária e o hash da linha inteira de cada registro.
+
+    Args:
+        data: Dados normalizados por `carrega_airbyte_data`
+        primary_keys: Lista de colunas que identificam unicamente um registro
+
+    Returns:
+        pl.DataFrame: Colunas hash_chave e hash_linha, na ordem dos registros
+    """
+    return data.select(
+        pl.struct(primary_keys).hash().alias("hash_chave"),
+        pl.struct(pl.all()).hash().alias("hash_linha"),
     )
 
-    for column in data.select_dtypes(include="object").columns:
-        if data[column].isna().all():
-            continue
-        data[column] = data[column].replace({r"[\x00-\x1F\x7F]": ""}, regex=True)
 
-    return data[sorted(data.columns)].astype("string[pyarrow]")
-
-
-def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[dict, list]:
+def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[pl.DataFrame, list]:
     """
-    Carrega os dados de uma data e cria um mapa de hash da chave para hash da linha.
+    Carrega os dados de uma data e gera o hash da chave e da linha de cada registro.
 
-    Processa arquivo a arquivo, sem concatenar o dia inteiro, mantendo apenas o
-    dicionário de hashes em memória.
+    Processa arquivo a arquivo, sem concatenar o dia inteiro, mantendo apenas os
+    hashes em memória. Quando uma chave aparece mais de uma vez, vale a última
+    ocorrência, na ordem dos arquivos.
 
     Args:
         blobs: Lista de blobs disponíveis no bucket
@@ -101,7 +197,7 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[dict, l
         primary_keys: Lista de colunas que identificam unicamente um registro
 
     Returns:
-        tuple[dict, list]: Mapa hash_pk -> hash_linha e lista ordenada de colunas
+        tuple[pl.DataFrame, list]: Hashes hash_chave/hash_linha e lista ordenada de colunas
     """
     files = [
         blob
@@ -111,9 +207,9 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[dict, l
 
     if not files:
         print(f"Nenhum arquivo encontrado para {date_str}")
-        return {}, []
+        return HASHES_VAZIOS, []
 
-    hashes_por_chave = {}
+    hashes = []
     colunas = None
     for file in files:
         try:
@@ -121,43 +217,39 @@ def gera_hashes(blobs: list, date_str: str, primary_keys: list) -> tuple[dict, l
             print(f"Gerando hashes do arquivo: {filename}")
 
             data = carrega_airbyte_data(file)
+            if data.is_empty():
+                continue
 
             if colunas is None:
-                colunas = list(data.columns)
+                colunas = data.columns
                 if set(primary_keys) - set(colunas):
                     print(f"Chaves primárias ausentes em {date_str}: ignorando dia anterior")
-                    return {}, []
-            elif list(data.columns) != colunas:
+                    return HASHES_VAZIOS, []
+            elif data.columns != colunas:
                 print(f"Colunas divergentes entre arquivos de {date_str}: ignorando dia anterior")
-                return {}, []
+                return HASHES_VAZIOS, []
 
-            hashes_chave = pd.util.hash_pandas_object(data[primary_keys], index=False)
-            hashes_linha = pd.util.hash_pandas_object(data, index=False)
-            hashes_por_chave.update(zip(hashes_chave, hashes_linha, strict=True))
+            hashes.append(gera_hashes_linhas(data=data, primary_keys=primary_keys))
 
-        except (
-            UnicodeDecodeError,
-            csv.Error,
-            pd.errors.ParserError,
-            json.JSONDecodeError,
-            ValueError,
-            KeyError,
-            OSError,
-        ) as e:
+        except (pl.exceptions.PolarsError, ValueError, KeyError, OSError) as e:
             print(f"Erro ao gerar hashes do arquivo {file.name}: {str(e)}")  # noqa: RUF010
             continue
 
-    print(f"Gerados {len(hashes_por_chave)} hashes para {date_str}")
+    if not hashes:
+        return HASHES_VAZIOS, []
+
+    hashes_por_chave = pl.concat(hashes).unique(subset="hash_chave", keep="last")
+    print(f"Gerados {hashes_por_chave.height} hashes para {date_str}")
 
     return hashes_por_chave, colunas or []
 
 
 def filtra_novos_registros(
-    df_hoje: pd.DataFrame,
-    hashes_anteriores: dict,
+    df_hoje: pl.DataFrame,
+    hashes_anteriores: pl.DataFrame,
     colunas_anteriores: list,
     primary_keys: list,
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """
     Retorna apenas os registros de hoje novos ou alterados em relação ao dia anterior.
 
@@ -166,32 +258,36 @@ def filtra_novos_registros(
 
     Args:
         df_hoje: DataFrame com dados de hoje
-        hashes_anteriores: Mapa hash_pk -> hash_linha do dia anterior
+        hashes_anteriores: Hashes hash_chave/hash_linha do dia anterior, uma linha por chave
         colunas_anteriores: Lista ordenada de colunas usada para gerar os hashes
         primary_keys: Lista de colunas que identificam unicamente um registro
 
     Returns:
-        pd.DataFrame: Registros que são novos ou foram alterados
+        pl.DataFrame: Registros que são novos ou foram alterados
     """
-    if list(df_hoje.columns) != colunas_anteriores:
+    if df_hoje.columns != colunas_anteriores:
         print("Conjunto de colunas mudou - retornando todos os registros")
         return df_hoje
 
-    hashes_chave = pd.util.hash_pandas_object(df_hoje[primary_keys], index=False)
-    hashes_linha = pd.util.hash_pandas_object(df_hoje, index=False)
-    novos_ou_alterados = [
-        hashes_anteriores.get(chave) != linha
-        for chave, linha in zip(hashes_chave, hashes_linha, strict=True)
-    ]
+    return (
+        pl.concat(
+            [df_hoje, gera_hashes_linhas(data=df_hoje, primary_keys=primary_keys)],
+            how="horizontal",
+        )
+        .join(
+            hashes_anteriores,
+            on=["hash_chave", "hash_linha"],
+            how="anti",
+            maintain_order="left",
+        )
+        .drop("hash_chave", "hash_linha")
+    )
 
-    return df_hoje[novos_ou_alterados]
 
-
-def processa_arquivos_hoje(  # noqa: PLR0913
+def processa_arquivos_hoje(
     files_hoje: list,
     filepath: str,
-    first_run: bool,
-    hashes_anteriores: dict,
+    hashes_anteriores: pl.DataFrame,
     colunas_anteriores: list,
     primary_keys: list,
 ) -> tuple[int, int]:
@@ -201,8 +297,7 @@ def processa_arquivos_hoje(  # noqa: PLR0913
     Args:
         files_hoje: Lista de blobs CSV da data atual
         filepath: Caminho local de saída
-        first_run: Indica se é a primeira captura da tabela
-        hashes_anteriores: Mapa hash_pk -> hash_linha do dia anterior
+        hashes_anteriores: Hashes hash_chave/hash_linha do dia anterior
         colunas_anteriores: Lista ordenada de colunas do dia anterior
         primary_keys: Lista de colunas que identificam unicamente um registro
 
@@ -220,10 +315,12 @@ def processa_arquivos_hoje(  # noqa: PLR0913
             print(f"Lendo arquivo de hoje: {filename}")
 
             df_hoje = carrega_airbyte_data(file)
-            total_registros += len(df_hoje)
-            colunas_hoje = list(df_hoje.columns)
+            if df_hoje.is_empty():
+                continue
+            total_registros += df_hoje.height
+            colunas_hoje = df_hoje.columns
 
-            if first_run or not hashes_anteriores:
+            if hashes_anteriores.is_empty():
                 novos_registros = df_hoje
             else:
                 novos_registros = filtra_novos_registros(
@@ -233,7 +330,7 @@ def processa_arquivos_hoje(  # noqa: PLR0913
                     primary_keys,
                 )
 
-            if novos_registros.empty:
+            if novos_registros.is_empty():
                 continue
 
             save_local_file(
@@ -243,22 +340,18 @@ def processa_arquivos_hoje(  # noqa: PLR0913
                 csv_mode="a" if wrote_file else "w",
             )
             wrote_file = True
-            total_novos_registros += len(novos_registros)
+            total_novos_registros += novos_registros.height
 
-        except (
-            UnicodeDecodeError,
-            csv.Error,
-            pd.errors.ParserError,
-            json.JSONDecodeError,
-            ValueError,
-            KeyError,
-            OSError,
-        ) as e:
+        except (pl.exceptions.PolarsError, ValueError, KeyError, OSError) as e:
             print(f"Erro ao processar arquivo de hoje {file.name}: {str(e)}")  # noqa: RUF010
             continue
 
     if not wrote_file:
-        save_local_file(filepath=filepath, filetype="csv", data=pd.DataFrame(columns=colunas_hoje))
+        save_local_file(
+            filepath=filepath,
+            filetype="csv",
+            data=pl.DataFrame(schema=dict.fromkeys(colunas_hoje, pl.String)),
+        )
 
     return total_registros, total_novos_registros
 
@@ -312,7 +405,7 @@ def extract_stu_data(
 
     # Procura o dia anterior mais recente com dados válidos e gera seus hashes.
     # Dias vazios/corrompidos são pulados, continuando a busca mais para trás.
-    hashes_anteriores, colunas_anteriores = {}, []
+    hashes_anteriores, colunas_anteriores = HASHES_VAZIOS, []
     if not first_run:
         max_days_back = 30
         for days_back in range(1, max_days_back + 1):
@@ -322,7 +415,7 @@ def extract_stu_data(
 
             print(f"Gerando hashes do dia anterior: {aux}")
             hashes_anteriores, colunas_anteriores = gera_hashes(blobs, aux, source.primary_keys)
-            if hashes_anteriores:
+            if not hashes_anteriores.is_empty():
                 break
 
     files_hoje = [
@@ -332,10 +425,10 @@ def extract_stu_data(
     ]
     if not files_hoje:
         print("Nenhum dado encontrado para hoje")
-        save_local_file(filepath=filepath, filetype="csv", data=pd.DataFrame())
+        save_local_file(filepath=filepath, filetype="csv", data=pl.DataFrame())
         return [filepath]
 
-    if first_run or not hashes_anteriores:
+    if first_run or hashes_anteriores.is_empty():
         if not first_run:
             print("Sem dados no dia anterior - todos os registros são considerados novos")
     else:
@@ -344,7 +437,6 @@ def extract_stu_data(
     total_registros, total_novos_registros = processa_arquivos_hoje(
         files_hoje=files_hoje,
         filepath=filepath,
-        first_run=first_run,
         hashes_anteriores=hashes_anteriores,
         colunas_anteriores=colunas_anteriores,
         primary_keys=source.primary_keys,
